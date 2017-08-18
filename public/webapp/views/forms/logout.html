@@ -1,0 +1,25 @@
+<div class="login-box">
+
+  <div class="login-logo">
+    <a href="/"><img src="img/beep-icon-logo.svg"></a>
+  </div>
+
+
+  <div class="login-box-body">
+    <h3 class="login-box-msg">{{lang.logout_title}} {{user.name}}?</h3>
+
+    <div class="alert alert-warning">
+      <p>{{lang.logout_now}}</p>
+    </div>
+
+    <div class="row">
+      <div class="col-xs-12">
+        <button ng-click="logout()" class="btn btn-primary btn-block btn-flat" ng-class="{loading:loading}">{{lang.logout}}</button>
+      </div>
+    </div>
+
+    <hr>
+    <a ng-click="back()" title="{{lang.back}}">{{lang.back}}</a>
+  </div>
+
+</div>

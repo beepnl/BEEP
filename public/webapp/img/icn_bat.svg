@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="124px" height="57px" viewBox="0 0 124 57" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 41.2 (35397) - http://www.bohemiancoding.com/sketch -->
+    <title>icn_bat</title>
+    <desc>Created with Sketch.</desc>
+    <defs></defs>
+    <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="icn_bat" transform="translate(62.000000, 28.500000) rotate(-90.000000) translate(-62.000000, -28.500000) translate(34.000000, -33.000000)" fill="#000000">
+            <path d="M56,117 L50,123 L50,117 L56,117 Z M6,117 L50,117 L50,19 L6,19 L6,117 Z M0,13 L56,13 L56,123 L0,123 L0,13 Z" id="Rectangle"></path>
+            <path d="M20.3255814,10.6666667 L35.6744186,10.6666667 L35.6744186,6 L20.3255814,6 L20.3255814,10.6666667 Z M14.3255814,3.99208193 C14.3255814,1.78731596 16.120015,0 18.3316263,0 L37.6683737,0 C39.8808512,0 41.6744186,1.78362528 41.6744186,3.99208193 L41.6744186,16.6666667 L14.3255814,16.6666667 L14.3255814,3.99208193 Z" id="Rectangle-2"></path>
+            <rect id="Rectangle-3" x="11.1162791" y="39" width="34" height="73.4400024"></rect>
+        </g>
+    </g>
+</svg>

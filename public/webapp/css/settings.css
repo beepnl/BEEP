@@ -1,0 +1,130 @@
+/*
+ * Bee Monitor
+ * Author: Pim van Gennip (pim@iconize.nl)
+ *
+ */
+
+.settings .view-content {
+	background-color: rgba(255, 255, 255, 0.6);
+}
+
+.main-container.settings {
+	/*padding-top:20px;*/
+}
+
+
+	.main-container.settings form {
+		position:absolute;
+		bottom:0px;
+		top:0px;
+		right:0px;
+		left:0px;
+		padding-top:30px;
+	}
+		.main-container.settings form .btn{
+			width: 250px;
+		}
+
+
+.tab-bar.settings .tab.active {
+	background:#ECECED;
+}
+
+
+.controller-form h2 {
+	font-size:20px;
+	text-align:center;
+	width:100%;
+	text-transform:uppercase;
+}
+
+.controller-form h3 {
+	text-transform:uppercase;
+	font-size:16px;
+	margin-bottom:10px;
+}
+
+
+
+
+/* controller form */
+.controller-form .row {
+	border-radius:10px;
+	padding:20px;
+	position:relative;
+}
+
+	.controller-settings-wrapper {
+		overflow:hidden;
+		clear:both;
+		padding: 20px;
+	}
+
+	.controller-settings-wrapper > ul {
+		float:left;
+	} 
+
+
+menu.save-settings {
+	width:auto;
+	position:absolute;
+	right:20px;
+	margin-bottom:16px;
+	flex-wrap:nowrap;
+	-webkit-flex-wrap:nowrap;
+	overflow:hidden;
+	align-items:top;
+	-webkit-align-items:top;
+}
+	menu.save-settings .btn {
+		margin:0px;
+		padding:7px 15px;
+		margin-left:20px;
+		width:auto;
+		box-shadow:none;
+	}
+
+	menu.save-settings .btn.save {
+		border:1px solid rgba(248, 186, 49, 1);
+		width:auto;
+		background:rgba(248, 186, 49, 1);
+	}
+
+	menu.save-settings .btn.save.disabled {
+		color:#666666;
+		border:1px solid #666666;
+		background:transparent;
+		opacity:0.5;
+	}
+
+
+
+
+menu.controller-controls {
+	overflow:hidden;
+	margin:0px;
+	padding:0px;
+	border-top:1px solid #ECECED;
+	padding:15px;
+	margin-top:10px;
+	padding-bottom:0px;
+	display:flex;
+	display:-webkit-flex;
+	justify-content:space-between;
+	-webkit-justify-content:space-between;
+}
+	menu.controller-controls .btn {
+		color:#666;
+		background:transparent;
+		text-decoration:underline;
+		padding:0px;
+	}
+
+
+
+
+
+
+
+
+

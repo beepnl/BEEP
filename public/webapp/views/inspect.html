@@ -1,0 +1,157 @@
+<section class="content-header">
+  <h1>
+    {{lang.New_inspection}} {{hive.name}}
+    <div class="pull-right" ng-if="showMore">
+	  	<a class="icn prev" ng-click="prevHive()"></a>
+	  	<a class="icn next" ng-click="nextHive()"></a>
+	  </div>
+  </h1>
+  <!-- <ol class="breadcrumb">
+    <li><a href="/"><i class="fa fa-home"></i> Home</a></li>
+    <li class="active">{{lang.inspections}}</li>
+  </ol> -->
+</section>
+
+<section class="content" >
+	
+	<div class="box">
+	    <div class="box-header with-border">
+	      <h3 class="box-title">{{lang.General}}</h3>
+
+	      <div class="box-tools pull-right">
+	        <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
+	        </button>
+	        <!--button type="button" class="btn btn-box-tool" data-widget="remove"><i class="fa fa-times"></i></button-->
+	      </div>
+	    </div>
+
+	    <div class="box-body">
+			<div class="row">
+				<div class="col-xs-12 col-sm-4 col-md-3">
+		        	<div class="form-group">
+						<label>{{ lang.Date_of_inspection }}:</label>
+						<div class="input-group date">
+						  <div class="input-group-addon">
+						    <i class="fa fa-calendar"></i>
+						  </div>
+						  <input class="form-control pull-right" pick-a-date="date" pick-a-date-options="datePickerOptions" type="text" ng-model="inspectionDate">
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<div class="box">
+	    <div class="box-header with-border">
+	      <h3 class="box-title">{{lang.Conditions}}</h3>
+
+	      <div class="box-tools pull-right">
+	        <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
+	        </button>
+	        <!--button type="button" class="btn btn-box-tool" data-widget="remove"><i class="fa fa-times"></i></button-->
+	      </div>
+	    </div>
+
+	    <div class="box-body">
+			<fieldset ng-repeat="cat in conditions" ng-if="cat.children.length > 0">
+				<legend>{{ lang[cat.name] }}</legend>
+				<div class="row">
+			    	<div ng-repeat="item in cat.children" class="inspection-item {{item.type == 'text' ? 'col-xs-12' : 'col-xs-12 col-sm-4 col-md-3' }}">
+			        	<div class="form-group">
+				            <label>{{ lang[item.name] }}:</label>
+				            <br>
+				            
+				            <textarea ng-if="item.type == 'text'" ng-model="item.value" name="item.id" type="item.type" placeholder="{{ lang[item.name] }}" class="form-control"></textarea>
+				            
+				            <div ng-if="item.type == 'number'" step="1" min="0" max="100" name="item.id" ng-disabled="false" ng-model="item.value" rn-stepper></div>
+				            
+				            <div ng-if="item.type == 'score'" max="3" ng-model="item.value" name="item.id" readonly="false" on-rating-select="rateFunction(rating)" smile-rating></div>
+				            
+				            <div ng-if="item.type == 'boolean'" ng-model="item.value" name="item.id" readonly="false" on-rating-select="rateFunction(rating)" yes="lang.yes" no="lang.no" item-name="item.name" yes-no-rating></div>
+				            
+				            <div ng-if="item.type == 'select'">
+					            <label ng-repeat="opt in item.options.split(',')" class="option-block">
+					            	<input type="checkbox" value="{{opt}}" ng-click="addRemoveOption(opt, item)">
+					            	{{lang[opt]}}
+					            </label>
+				            </div>
+				            
+				            <div ng-if="item.type == 'date'">
+								<div class="input-group date">
+								  <div class="input-group-addon">
+								    <i class="fa fa-calendar"></i>
+								  </div>
+								  <input class="form-control pull-right" pick-a-date="date" pick-a-date-options="datePickerOptions" type="text" ng-model="item.value">
+								</div>
+							</div>
+
+				        </div>
+			        </div>
+				</div>
+			</fieldset>
+
+	    </div>
+
+	</div>
+
+	<div class="box">
+	    <div class="box-header with-border">
+	      <h3 class="box-title">{{lang.Actions}}</h3>
+
+	      <div class="box-tools pull-right">
+	        <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
+	        </button>
+	        <!--button type="button" class="btn btn-box-tool" data-widget="remove"><i class="fa fa-times"></i></button-->
+	      </div>
+	    </div>
+
+	    <div class="box-body">
+			<fieldset ng-repeat="cat in actions" ng-if="cat.children.length > 0">
+				<legend>{{ lang[cat.name] }}</legend>
+				<div class="row">
+			    	<div ng-repeat="item in cat.children" class="{{item.type == 'text' ? 'col-xs-12' : 'col-xs-12 col-sm-4 col-md-3' }}">
+			        	<div class="form-group">
+				            <label>{{ lang[item.name] }}:</label>
+				            <br>
+				            
+				            <textarea ng-if="item.type == 'text'" ng-model="item.value" name="item.id" type="item.type" placeholder="{{ lang[item.name] }}" class="form-control"></textarea>
+				            
+				            <div ng-if="item.type == 'number'" step="1" min="0" max="100" name="item.id" ng-disabled="false" ng-model="item.value" rn-stepper></div>
+				            
+				            <div ng-if="item.type == 'score'" max="3" ng-model="item.value" name="item.id" readonly="false" on-rating-select="rateFunction(item.value)" smile-rating></div>
+				            
+				            <div ng-if="item.type == 'boolean'" ng-model="item.value" name="item.id" readonly="false" on-rating-select="rateFunction(rating)" yes="lang.yes" no="lang.no" item-name="item.name" yes-no-rating></div>
+
+				            <div ng-if="item.type == 'select'">
+					            <label ng-repeat="opt in item.options.split(',')" class="option-block">
+					            	<input type="checkbox" value="{{opt}}" ng-click="addRemoveOption(opt, item)">
+					            	{{lang[opt]}}
+					            </label>
+				            </div>
+
+				            <div ng-if="item.type == 'date'">
+								<div class="input-group date">
+								  <div class="input-group-addon">
+								    <i class="fa fa-calendar"></i>
+								  </div>
+								  <input class="form-control pull-right" pick-a-date="date" pick-a-date-options="datePickerOptions" type="text" ng-model="item.value">
+								</div>
+							</div>
+				        </div>
+			        </div>
+				</div>
+			</fieldset>
+
+
+	    </div>
+
+	</div>
+
+	<div class="alert alert-danger" ng-show="error_msg != null">
+        <p>{{ error_msg }}</p>
+    </div>
+
+	<button ng-click="saveInspection()" class="btn btn-primary btn-block">{{lang.save}} {{lang.inspection}}</button>
+
+</section>

@@ -1,0 +1,136 @@
+<section class="content-header">
+	<h1>{{lang.locations}}</h1>
+  
+  <!-- <ol class="breadcrumb">
+    <li><a href="/"><i class="fa fa-home"></i> Home</a></li>
+    <li class="active">{{lang.locations}}</li>
+  </ol> -->
+
+</section>
+
+<section class="content" >
+	
+	<div class="box" ng-repeat="(key, loc) in locations | orderBy:'name':false:natSort" ng-class="{'collapsed-box':locations.length > 1 && $index > 0}">
+	    <div class="box-header with-border" >
+	      <h3 class="box-title">{{loc.name}}</h3>
+	      <a href="#!/locations/{{loc.id}}/edit" class="icon-button" title="{{lang.edit}}"><i class="fa fa-pencil"></i></a>
+
+	      <div class="box-tools pull-right">
+	        <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa" ng-class="{'fa-plus':locations.length > 1 && $index > 0, 'fa-minus':locations.length <= 1 || $index == 0}"></i>
+	        </button>
+
+	        <!--button type="button" class="btn btn-box-tool" data-widget="remove"><i class="fa fa-times"></i></button-->
+	      </div>
+	    </div>
+	    <!-- /.box-header -->
+	    <div class="box-body" ng-class="{'table-responsive':mobile, 'no-padding':mobile}">
+	      	
+	      	<div ng-if="!mobile" class="row">
+	      		<div ng-repeat="(key, hive) in loc.hives | orderBy:'name':false:natSort" class="hive-container col-xs-12 col-sm-4 col-md-3 col-lg-3 col-xl-2" >
+	            	<div class="hive">
+	            		<div class="info">
+		            		<a ng-if="hive.attention == 1" href="#!/hives/{{hive.id}}/inspections" class="attention-icon">
+								!
+		            		</a>
+		            		<a ng-if="hive.queen.color != ''" href="#!/hives/{{hive.id}}/edit" class="queen-icon" style="background-color: {{hive.queen.color}};"></a>
+		            		<a ng-if="hive.impression > 0" href="#!/hives/{{hive.id}}/inspections" class="impression-icon">
+								<i class="fa fa-2x" ng-class="{'fa-frown-o':hive.impression==1, 'fa-meh-o':hive.impression==2, 'fa-smile-o':hive.impression==3}"></i>
+		            		</a>
+		            	</div>
+	            		<h4 class="title">{{hive.name}}</h4>
+		    			<a href="#!/hives/{{hive.id}}/edit">
+			    			<p class="lid" style="width: {{hive.width}}px;"></p>
+			            	<p ng-repeat="(key, layer) in hive.layers | orderBy : '-type' " class="layer" ng-class="layer.type" style="background-color: {{hive.color}}; width: {{hive.width}}px;">
+			            		<span ng-repeat="(key, frame) in layer.frames" ng-class="layer.type">&#9612; </span>
+			            	</p>
+		            		<p class="bottom" style="width: {{hive.width}}px;"></p>
+		            	</a>
+		            	<div class="btn-group" role="group" style="margin-bottom: 10px;">
+				        	<a href="#!/hives/{{hive.id}}/inspections" class="btn btn-default" title="{{lang.inspect}}"><i class="fa fa-search"></i></a>
+				        </div>
+	            	</div>
+            	</div>
+            	<!-- New hive -->
+            	<div class="hive-container col-xs-12 col-sm-4 col-md-3 col-lg-3 col-xl-2" >
+	            	<div class="hive new">
+	            		<h4 class="title">{{lang.New}} {{lang.hive}}</h4>
+		    			<a href="#!/hives/create?location_id={{loc.id}}">
+			    			<p class="lid"></p>
+			            	<p class="layer honey"></p>
+			            	<p class="layer brood"></p>
+		            		<p class="bottom"></p>
+					        <a href="#!/hives/create?location_id={{loc.id}}">
+						        <span class="icon fa-stack fa-lg">    
+						        	<i class="fa fa-circle fa-stack-2x"></i>
+						        	<i class="fa fa-plus-circle fa-stack-2x fa-inverse"></i>
+						        </span>
+					        </a>
+		            	</a>
+		            	<div class="btn-group" role="group" style="margin-bottom: 10px;">
+				        	<a href="#!/hives/create?location_id={{loc.id}}" class="btn btn-default" title="{{lang.create_new}} {{lang.hive}}"><i class="fa fa-plus"></i></a>
+				        </div>
+	            	</div>
+            	</div>
+	      	</div>
+
+	      	<table ng-if="mobile" class="table table-striped table-responsive">
+				<tbody>
+					<tr ng-repeat="(key, hive) in loc.hives | orderBy:'name':false:natSort">
+						<td class="col-xs-3">
+							<p class="hive-name-mobile">{{hive.name}}</p>
+						</td>
+						<td class="col-xs-5" >
+							<div class="info mobile">
+			            		<a ng-if="hive.attention == 1" href="#!/hives/{{hive.id}}/inspections" class="attention-icon">!</a>
+			            		<a ng-if="hive.queen.color != ''" href="#!/hives/{{hive.id}}/edit" class="queen-icon" style="background-color: {{hive.queen.color}};"></a>
+			            		<a ng-if="hive.impression > 0" href="#!/hives/{{hive.id}}/inspections" class="impression-icon">
+									<i class="fa fa-2x" ng-class="{'fa-frown-o':hive.impression==1, 'fa-meh-o':hive.impression==2, 'fa-smile-o':hive.impression==3}"></i>
+			            		</a>
+			            	</div>
+						</td>
+						<td class="col-xs-2">
+							<div class="hive-container">
+								<a href="#!/hives/{{hive.id}}/edit">
+									<div class="hive" ng-class="{'small': mobile}">
+						    			<p class="lid" style="width: {{hive.width}}px;"></p>
+						            	<p ng-repeat="(key, layer) in hive.layers | orderBy : '-type' " class="layer" ng-class="layer.type" style="background-color: {{hive.color}}; width: {{hive.width}}px;">
+						            		<span ng-if="mobile==false" ng-repeat="(key, frame) in layer.frames" ng-class="layer.type">&#9612; </span>
+						            	</p>
+						            	<p class="bottom" style="width: {{hive.width}}px;"></p>
+					            	</div>
+				            	</a>
+			            	</div>
+		            	</td>
+		            	<td class="col-xs-2">
+				        	<a href="#!/hives/{{hive.id}}/inspections" class="btn btn-default" title="{{lang.inspect}}"><i class="fa fa-search"></i></a>
+		            	</td>
+					</tr>
+					<!-- New hive -->
+					<tr>
+						<td class="col-xs-5">
+							<p class="hive-name-mobile">{{lang.New}} {{lang.hive}}</p>
+						</td>
+						<td class="col-xs-1" >
+							
+						</td>
+						<td class="col-xs-3">
+							
+		            	</td>
+		            	<td class="col-xs-3">
+				        	<a href="#!/hives/create?location_id={{loc.id}}" class="btn btn-default" title="{{lang.create_new}} {{lang.hive}}"><i class="fa fa-plus"></i></a>
+		            	</td>
+	            	</tr>
+            	</div>
+				</tbody>
+			</table>
+
+	    </div>
+	    <!-- /.box-body -->
+	    <!-- <div class="box-footer clearfix">
+	    </div> -->
+	    <!-- /.box-footer -->
+	 </div>
+	
+	<a href="#!/locations/create" class="btn btn-primary btn-block">{{lang.create_new}} {{lang.location}}</a>
+
+</section>

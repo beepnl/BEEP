@@ -1,0 +1,137 @@
+<?php
+
+namespace App\Http\Controllers\Api;
+
+use App\Hive;
+use App\Queen;
+use App\Location;
+use App\HiveFactory;
+use App\BeeRace;
+use Illuminate\Http\Request;
+use App\Http\Controllers\Controller;
+
+class HiveController extends Controller
+{
+    /**
+     * @var HiveFactory
+    **/
+    private $hiveFactory;
+
+    public function __construct(HiveFactory $hiveFactory)
+    {
+        $this->hiveFactory = $hiveFactory;
+    }
+
+    /**
+     * Display a listing of the resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function index(Request $request)
+    {
+        if ($request->user()->hives()->count() > 0)
+            return response()->json(['hives'=>$request->user()->hives()->with('layers.frames', 'queen')->get()]);
+
+        return response()->json(['error'=>'no hives available'],404);
+    }
+
+  
+    /**
+     * Store a newly created resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function store(Request $request)
+    {
+        $user_id          = $request->user()->id;
+        $location         = $request->user()->locations()->findOrFail($request->input('location_id'));
+        $name             = $request->input('name'); 
+        $hive_type_id     = $request->input('hive_type_id'); 
+        $color            = $request->input('color', '#FABB13'); // yellow
+        $broodLayerAmount = $request->input('brood_layers', 1);
+        $honeyLayerAmount = $request->input('honey_layers', 1);
+        $frameAmount      = $request->input('frames', 10);
+
+        $hive = $this->hiveFactory->createHive($user_id, $location, $name, $hive_type_id, $color, $broodLayerAmount, $honeyLayerAmount, $frameAmount);
+
+        if ($request->input('queen.created_at') != null)
+        {
+            $race_id = BeeRace::where('type', 'other')->first()->id;
+            $queen = [
+                    'name'          =>$request->input('queen.name'),
+                    'race_id'       =>$request->input('queen.race_id', $race_id),
+                    'created_at'    =>$request->input('queen.created_at').' 00:00:00',
+                    'color'         =>$request->input('queen.color'),
+                    'clipped'       =>boolval($request->input('queen.clipped')),
+                    'fertilized'    =>boolval($request->input('queen.fertilized')),
+                ];
+
+            $hive->queen()->updateOrCreate(['id'=>$request->input('queen.id', null)], $queen);
+        }
+
+        return $this->show($request, $hive);
+    }
+
+    /**
+     * Display the specified resource.
+     *
+     * @param  \App\Hive  $hive
+     * @return \Illuminate\Http\Response
+     */
+    public function show(Request $request, Hive $hive)
+    {
+        return response()->json(['hives'=>[$request->user()->hives()->orderBy('name')->with('layers.frames', 'queen')->findOrFail($hive->id)]]);
+    }
+
+
+    /**
+     * Update the specified resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  \App\Hive  $hive
+     * @return \Illuminate\Http\Response
+     */
+    public function update(Request $request, Hive $hive)
+    {
+        $hive             = $request->user()->hives()->findOrFail($hive->id);
+        $location         = $request->user()->locations()->findOrFail($request->input('location_id'));
+        $name             = $request->input('name'); 
+        $hive_type_id     = $request->input('hive_type_id'); 
+        $color            = $request->input('color', '#FABB13'); // yellow
+        $broodLayerAmount = $request->input('brood_layers', 1);
+        $honeyLayerAmount = $request->input('honey_layers', 1);
+        $frameAmount      = $request->input('frames', 10);
+
+        $hive = $this->hiveFactory->updateHive($hive, $location, $name, $hive_type_id, $color, $broodLayerAmount, $honeyLayerAmount, $frameAmount);
+
+        if ($request->input('queen.created_at') != null)
+        {
+            $race_id = BeeRace::where('type', 'other')->first()->id;
+            $queen = [
+                    'name'          =>$request->input('queen.name'),
+                    'race_id'       =>$request->input('queen.race_id', $race_id),
+                    'created_at'    =>$request->input('queen.created_at').' 00:00:00',
+                    'color'         =>$request->input('queen.color'),
+                    'clipped'       =>boolval($request->input('queen.clipped')),
+                    'fertilized'    =>boolval($request->input('queen.fertilized')),
+                ];
+
+            $hive->queen()->updateOrCreate(['id'=>$request->input('queen.id', null)], $queen);
+        }
+
+        return $this->show($request, $hive);
+    }
+
+    /**
+     * Remove the specified resource from storage.
+     *
+     * @param  \App\Hive  $hive
+     * @return \Illuminate\Http\Response
+     */
+    public function destroy(Request $request, Hive $hive)
+    {
+        $hive = $request->user()->hives()->findOrFail($hive->id);
+        $hive->delete();
+    }
+}

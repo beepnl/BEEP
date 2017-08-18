@@ -1,0 +1,54 @@
+<section class="content-header">
+  <h1>{{lang.settings}}</h1>
+  <!-- <ol class="breadcrumb">
+    <li><a href="/"><i class="fa fa-home"></i> Home</a></li>
+    <li class="active">{{lang.dashboard}}</li>
+  </ol> -->
+</section>
+
+<section class="content" >
+
+<div ng-iscroll="settings-form-wrapper" class="view-content" ng-class="{loading : isLoading}">	
+	<div id="settings-form-wrapper" class="iscroll-wrapper">
+	    <form id="settings-form" class="form controller-form settings" name="settingsForm" ng-submit="saveSettings($event)">
+		
+	    	<div class="box">
+			    <div class="box-header with-border">
+			      <h3 class="box-title">Gewichtsensor</h3>
+
+			      <div class="box-tools pull-right">
+	    			<button type="submit" class="btn btn-primary" ng-class="{'disabled':!changed}">{{lang.save}}</button>
+			        <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>
+			        <!--button type="button" class="btn btn-box-tool" data-widget="remove"><i class="fa fa-times"></i></button-->
+			      </div>
+			    </div>
+			    <!-- /.box-header -->
+			    <div class="box-body">
+
+					<div class="row">
+						<div class="col-xs-12">
+							
+							<p>Gewicht van de sensoren op 0 zetten</p>
+							<a class="btn btn-primary" ng-click="offsetWeight()">Stel nu het nulpunt in</a>
+
+							<br><br>
+						
+							<p>Wat is je eigen gewicht in kg?</p>
+							<input class="form-control" type="text" ng-model="calibrate_weight" placeholder="{{lang.weight}}" name="weight_kg" />
+						
+							<br>
+						
+							<p>{{calibrate_msg ? calibrate_msg : 'Gewichtsensoren calibreren op gewicht'}}</p>
+							<a class="btn btn-default" ng-click="calibrateWeight()">Er staat nu {{calibrate_weight > 0 ? calibrate_weight + ' kg' : 'niets'}} op de weegschaal</a>
+						</div>
+					</div>
+
+					
+				</div>
+			</div>
+
+		</form>
+	</div>
+</div>
+
+</section>

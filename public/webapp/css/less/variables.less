@@ -1,0 +1,135 @@
+//AdminLTE 2 Variables.less
+//=========================
+
+//PATHS
+//--------------------------------------------------------
+
+@boxed-layout-bg-image-path: "../../vendor/admin-lte/dist/img/boxed-bg.jpg";
+
+//COLORS
+//--------------------------------------------------------
+@white:		#ffffff;
+//Primary
+@light-blue:#A3D9F2;
+//Danger
+@red: 		#8F1619;
+//Success
+@green: 	#069518;
+//Info
+@aqua:		#40C2FF; 	
+//Warning
+@yellow: 	#F8B133; 
+@light-ylw: #F2DBB6;	
+@blue: 		#243D80; 	
+@navy: 		#00252F;
+@teal: 		#39cccc;
+@olive: 	#52843D;
+@lime: 		#7EB610;
+@orange: 	#F29100; 	
+@fuchsia: 	#E30951;
+@purple: 	#5F3F90;	
+@maroon: 	#704000;
+@black: 	#111111;
+@gray-lte: 	#EEEEEE;
+//Body background (Affects main content background only)
+@body-bg: 	@light-ylw; 
+
+// BOOTSTRAP OVERRIDE
+//--------------------------------------------------------
+@brand-primary: #F29100; 
+@brand-success: @green;
+@brand-info: @blue;
+@brand-warning: @orange;
+@brand-danger: @red;
+
+@btn-primary-bg: #F29100;
+
+//LAYOUT
+//--------------------------------------------------------
+
+//Side bar and logo width
+@sidebar-width: 200px;
+
+//Boxed layout maximum width
+@boxed-layout-max-width: 1024px;
+
+//When the logo should go to the top of the screen
+@screen-header-collapse: @screen-xs-max;
+
+//Link colors (Aka: <a> tags)
+@link-color: @brand-primary;
+@link-hover-color: lighten(@link-color, 15%);
+
+//SIDEBAR SKINS
+//--------------------------------------------------------
+
+//Dark sidebar
+@sidebar-dark-bg: darken(@light-blue, 50%);
+@sidebar-dark-hover-bg: darken(@sidebar-dark-bg, 2%);
+@sidebar-dark-color: lighten(@sidebar-dark-bg, 80%);
+@sidebar-dark-hover-color: #fff;
+@sidebar-dark-submenu-bg: lighten(@sidebar-dark-bg, 5%);
+@sidebar-dark-submenu-color: lighten(@sidebar-dark-submenu-bg, 40%);
+@sidebar-dark-submenu-hover-color: #fff;
+
+//Light sidebar
+@sidebar-light-bg: #f9f9f9;
+@sidebar-light-hover-bg: #ffffff;
+@sidebar-light-color: #444;
+@sidebar-light-hover-color: #000;
+@sidebar-light-submenu-bg: @sidebar-light-hover-bg;
+@sidebar-light-submenu-color: #777;
+@sidebar-light-submenu-hover-color: #000;
+
+//CONTROL SIDEBAR
+//--------------------------------------------------------
+@control-sidebar-width: 200px;
+
+//BOXES
+//--------------------------------------------------------
+@box-border-color: #f4f4f4;
+@box-border-radius: 3px;
+@box-footer-bg: #fff;
+@box-boxshadow: 0 1px 1px rgba(0, 0, 0, .1);
+@box-padding: 10px;
+
+//Box variants
+@box-default-border-top-color: #d2d6de;
+
+//BUTTONS
+//--------------------------------------------------------
+@btn-boxshadow: none;
+
+//PROGRESS BARS
+//--------------------------------------------------------
+@progress-bar-border-radius: 1px;
+@progress-bar-sm-border-radius: 1px;
+@progress-bar-xs-border-radius: 1px;
+
+//FORMS
+//--------------------------------------------------------
+@input-radius: 4px;
+
+//BUTTONS
+//--------------------------------------------------------
+
+//Border radius for non flat buttons
+@btn-border-radius: 4px;
+
+//DIRECT CHAT
+//--------------------------------------------------------
+@direct-chat-height: 250px;
+@direct-chat-default-msg-bg: @gray-lte;
+@direct-chat-default-font-color: #444;
+@direct-chat-default-msg-border-color: @gray-lte;
+
+//CHAT WIDGET
+//--------------------------------------------------------
+@attachment-border-radius: 3px;
+
+//TRANSITIONS SETTINGS
+//--------------------------------------------------------
+
+//Transition global options
+@transition-speed: .3s;
+@transition-fn: ease-in-out;

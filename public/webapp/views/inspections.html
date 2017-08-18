@@ -1,0 +1,88 @@
+<section class="content-header">
+  <h1>
+    {{lang.Inspections}} {{hive.name}}
+	  <div class="pull-right" ng-if="showMore">
+	  	<a class="icn prev" ng-click="prevHive()"></a>
+	  	<a class="icn next" ng-click="nextHive()"></a>
+	  </div>
+  </h1>
+  <!-- <ol class="breadcrumb">
+    <li><a href="/"><i class="fa fa-home"></i> Home</a></li>
+    <li class="active">{{lang.inspections}}</li>
+  </ol> -->
+</section>
+
+<section class="content" >
+	
+	<div class="box">
+	    <div class="box-header with-border">
+	      <h3 class="box-title">{{lang.Inspections}}</h3>
+
+	      <div class="box-tools pull-right">
+	        <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
+	        </button>
+	        <!--button type="button" class="btn btn-box-tool" data-widget="remove"><i class="fa fa-times"></i></button-->
+	      </div>
+	    </div>
+
+	    <div class="box-body table-responsive no-padding">
+			
+			<table class="table table-striped table-responsive">
+				<thead>
+					<tr class="trh" >
+						<td class="tdr"><strong>{{lang.Inspections}}</strong></td>
+						<td ng-repeat="date in inspections.dates track by $index" class="tdc">
+							<strong>{{ date | amUtc | amLocal | amDateFormat:'dd D MMM YYYY' }}</strong>
+						</td>
+					</tr>
+				</thead>
+				<tbody>
+					<tr class="trh" ><td class="tdr"><strong>{{lang.Conditions}}</strong></td><td colspan="{{inspections.dates.length}}"></tr>
+					<tr ng-repeat="(name, set) in inspections.conditions track by $index">
+						<td class="tdr">{{lang[name]}}</td>
+						<td ng-repeat="item in set track by $index" class="tdc">
+							<span ng-if="item.type == 'select'"><label ng-repeat="opt in item.text.split(',')" class="label label-default label-block">{{lang[opt]}}</label></span>
+							<span ng-if="item.type == 'text'">{{ item.text }}</span>
+							<span ng-if="item.type == 'date'">{{ item.date | amDateFormat:'dd D MMM YYYY' }}</span>
+							<span ng-if="item.type == 'number'">{{ item.number.toString().indexOf('.') > -1 ? rounddec(item.number,1) : rounddec(item.number,0) }}</span>
+							<span ng-if="item.type == 'boolean'"><div ng-class="{'yes':parseBool(item.boolean), 'no':!parseBool(item.boolean)}" class="inspection-icon {{item.name}}">{{ parseBool(item.boolean) ? lang.yes : lang.no}}</div></span>
+							<span ng-if="item.type == 'score'">
+								<div class="fa-stack smile filled">
+									<i class="fa fa-circle fa-stack-2x"></i>
+									<i class="fa fa-stack-2x face" ng-class="{'fa-frown-o':item.score==1, 'fa-meh-o':item.score==2, 'fa-smile-o':item.score==3}"></i>
+								</div>
+							</span>
+						</td>
+					</tr>
+
+					<tr class="trh" ><td class="tdr"><strong>{{lang.Actions}}</strong></td><td colspan="{{inspections.dates.length}}"></tr>
+					<tr ng-repeat="(name, set) in inspections.actions track by $index">
+						<td class="tdr">{{lang[name]}}</td>
+						<td ng-repeat="item in set track by $index" class="tdc">
+							<span ng-if="item.type == 'select'"><label ng-repeat="opt in item.text.split(',')" class="label label-default label-block">{{lang[opt]}}</label></span>
+							<span ng-if="item.type == 'text'">{{ item.text }}</span>
+							<span ng-if="item.type == 'date'">{{ item.date | amUtc | amLocal | amDateFormat:'dd D MMM YYYY' }}</span>
+							<span ng-if="item.type == 'number'">{{ item.number.toString().indexOf('.') > -1 ? rounddec(item.number,1) : rounddec(item.number,0) }}</span>
+							<span ng-if="item.type == 'boolean'"><div ng-class="{'yes':parseBool(item.boolean), 'no':!parseBool(item.boolean)}" class="inspection-icon {{item.name}}">{{ parseBool(item.boolean) ? lang.yes : lang.no}}</div></span>
+							<span ng-if="item.type == 'score'">
+								<div class="fa-stack smile filled">
+									<i class="fa fa-circle fa-stack-2x"></i>
+									<i class="fa fa-stack-2x face" ng-class="{'fa-frown-o': item.score == 0, 'fa-meh-o': item.score == 1, 'fa-smile-o': item.score == 2}"></i>
+								</div>
+							</span>
+						</td>
+					</tr>
+				</tbody>
+			</table>
+
+	    </div>
+
+	</div>
+
+	<div class="alert alert-danger" ng-show="error_msg != null">
+        <p>{{ error_msg }}</p>
+    </div>
+
+	<a href="#!/hives/{{hiveId}}/inspect" class="btn btn-primary btn-block">{{lang.New_inspection}}</a>
+
+</section>

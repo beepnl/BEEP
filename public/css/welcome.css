@@ -1,0 +1,53 @@
+/*
+ * Bijenmonitor app
+ *
+ *
+ *
+ */
+
+body{
+    font-size:16px;
+}
+
+section.detail {
+    left: 50%;
+    top: 50%;
+    transform: translateX(-50%) translateY(-50%);
+    height: 90%;
+    width: 90%;
+}
+
+h1.title {
+    font-size: 45px;
+    margin: 0px;
+    margin-bottom: 10px;
+    color: #222222;
+}
+
+.icn.bee{
+    width: 35px;
+    height: 35px;
+    margin-left: 10px;
+}
+
+a {
+    color: #222222;
+    text-decoration: underline;
+}
+
+header{
+    font-family: 'HEAD';
+    font-size: 24px;
+    text-align: center;
+    line-height: 22px;
+}
+
+.btn.btn-primary {
+    background:#F29100;
+    width: 100%;
+    color: #222222;
+    font-size: 28px;
+    animation-delay: 10s;
+    -webkit-animation-delay: 10s;
+}
+

@@ -1,0 +1,8 @@
+/*
+ * Bee Monitor
+ * Author: Pim van Gennip (pim@iconize.nl)
+ *
+ */
+var LANG 					= [];
+var API_URL           		= (document.URL.indexOf('dev') === -1) ? 'http://bee.iconize.nl/api/' : 'http://bee.dev/api/';
+var CONNECTION_FREQ_REMOTE  = ((10)*1000);

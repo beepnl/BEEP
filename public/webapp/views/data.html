@@ -1,0 +1,43 @@
+<section class="content-header">
+  <h1>
+    {{lang.data_analysis_title}}
+    <small>{{lang.data_analysis_description}}</small>
+  </h1>
+  <!-- <ol class="breadcrumb">
+    <li><a href="/"><i class="fa fa-home"></i> Home</a></li>
+    <li class="active">{{lang.data_analysis}}</li>
+  </ol> -->
+</section>
+
+<section class="content" >
+	
+	<div class="row">
+		<section class="col-xs-12">
+			<header>
+				{{measurementsHeader}}
+				<a class="icn alert" ng-click="showMeasurementError()" ng-show="measurementError"></a>
+			</header>
+			<div class="content">
+				<ul class="sensor" ng-class="loadingSensors ? 'loading' : ''" >
+					<li class="measurement" ng-repeat="sensor in sensors | filter:true:showMeasurement | orderBy:['name','unit'] track by $index" ng-click="selectSensor(sensor)">
+						<span class="icn {{sensor.id}}"></span> <span class="name">{{sensor.name}}</span> <span class="value">{{sensor.value | number: 1}}</span> <span class="unit">{{sensor.unit}}</span>
+					</li>
+				</ul>
+			</div>
+		</section>
+	</div>
+	<div class="row">
+		<section class="col-xs-12">
+			<div class="hive-container hive spaarkast">
+				<div class="hive-content">
+					<div class="measurement">
+						<span class="icn {{sensorSelected.id}}"></span> <span class="name">{{sensorSelected.name}}</span> <span class="value">{{sensorSelected.value | number: 1}}</span><span class="unit">{{sensorSelected.unit}}</span>
+					</div>
+					<div class="chart-holder">
+						<canvas id="line" class="chart chart-line" chart-data="measurementData.data" chart-labels="measurementData.labels" chart-legend="false" chart-series="measurementData.series" chart-colors="chart.colors" chart-options="chart.options" chart-click="onClick" ></canvas> 
+					</div>
+				</div>
+			</div>
+		</section>
+	</div>
+</section>

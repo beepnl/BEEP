@@ -1,0 +1,29 @@
+/*
+ * Bee Monitor
+ * Author: Iconize <pim@iconize.nl>
+ *
+ * Font CSS
+ */
+
+/*
+@import url('https://fonts.googleapis.com/css?family=Amatic+SC');
+*/
+
+@font-face {
+    font-family: 'HEAD';
+    src: url("../fonts/AmaticSC-Regular.ttf") format("truetype");
+    font-weight: 800;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'HEAD';
+    src: url("../fonts/AmaticSC-Bold.ttf") format("truetype");
+    font-weight: bold;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'MAIN';
+    src: url("../fonts/DinPro.otf") format("opentype");
+}

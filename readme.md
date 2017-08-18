@@ -62,12 +62,17 @@ e. Create a pull request to merge the language into this repo
 
 Please request access to https://trello.com/b/Eb3CcKES/beep-hive-check-app if you would like to see the roadmap and cooperate.
 
-In short:
-## 1. Manual inspection improvement
-## 2. Inspection item list dynamically assignable
-## 3. Sharing of data amongst bee keepers (in vicinity)
-## 4. Hardware weighing scale + audio measurement kit development
-## 5. Integration sensor data / hive inspections
+### In short on our roadmap until 2018:
+
+1. Manual inspection improvement 
+
+2. Inspection item list dynamically assignable
+
+3. Sharing of data amongst bee keepers (in vicinity)
+
+4. Hardware weighing scale + audio measurement kit development
+
+5. Integration sensor data / hive inspections
 
 
 # Documentation

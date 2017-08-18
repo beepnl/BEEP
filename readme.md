@@ -37,7 +37,43 @@ a. Make sure to add your repo to git remote: ```git remote set url https://githu
 
 b. Run ```./deploy.sh``` to update your clone on any server
 
-## 4. Contributing
+## 4. Make sure your server has 2 different virtual hosts for the API and the APP
+API
+```
+<VirtualHost api.beep.nl:80>
+    
+    DocumentRoot /var/www/bee/public
+    ServerName "api.beep.nl"
+
+    <Directory /var/www/bee/public/>
+        Options Indexes FollowSymLinks MultiViews
+        AllowOverride All
+        Order allow,deny
+        allow from all
+    </Directory>
+
+</VirtualHost>
+```
+
+APP
+```
+<VirtualHost app.beep.nl:80>
+    
+    DocumentRoot /var/www/bee/public/webapp
+    ServerName "app.beep.nl"
+
+    <Directory /var/www/bee/public/webapp/>
+        Options Indexes FollowSymLinks MultiViews
+        AllowOverride All
+        Order allow,deny
+        allow from all
+    </Directory>
+
+</VirtualHost>
+```
+
+
+# Contributing
 
 Thank you for considering contributing to the BEEP framework! If you would like to contribute, please fork this repository, edit on your Github account, and finally send Pull Requests to this repository to include new features.
 

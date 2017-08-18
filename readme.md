@@ -12,12 +12,12 @@ Create a login and check the running app at: https://app.beep.nl
 ![BEEP System overview](https://github.com/pvgennip/BEEP/raw/master/system-overview.png)
 
 
-# Installation
+# Installation of API and APP
 
-### 1. Clone this repo anywhere you like
+## 1. Clone this repo anywhere you like
 ```git clone https://github.com/pvgennip/BEEP.git```
 
-### 2. Install required vendor libraries by running 
+## 2. Install required vendor libraries by running 
 
 Make sure these dependencies are installed on your system:
 
@@ -31,17 +31,17 @@ Then run it: ```./run_actions.sh```
 
 This will install all the packages and vendor dependencies that you need at once.
 
-### 3. If you would like to easily deploy your fork (or this repo), 
+## 3. If you would like to easily deploy your fork (or this repo), 
 
 a. Make sure to add your repo to git remote: ```git remote set url https://github.com/pvgennip/BEEP.git```
 
 b. Run ```./deploy.sh``` to update your clone on any server
 
-### 3. Contributing
+## 4. Contributing
 
 Thank you for considering contributing to the BEEP framework! If you would like to contribute, please fork this repository, edit on your Github account, and finally send Pull Requests to this repository to include new features.
 
-#### Adding a language
+### Adding a language
 a. Fork this repo
 
 b. Copy ```/public/webapp/js/lang/en.js``` to the abbreviation of the new language
@@ -58,6 +58,17 @@ $rootScope.supportedLocales = {
 ```
 e. Create a pull request to merge the language into this repo
 
+# Roadmap
+
+Please request access to https://trello.com/b/Eb3CcKES/beep-hive-check-app if you would like to see the roadmap and cooperate.
+
+In short:
+## 1. Manual inspection improvement
+## 2. Inspection item list dynamically assignable
+## 3. Sharing of data amongst bee keepers (in vicinity)
+## 4. Hardware weighing scale + audio measurement kit development
+## 5. Integration sensor data / hive inspections
+
 
 # Documentation
 
@@ -68,6 +79,6 @@ Documentation and manual of the app can be found at http://beep.nl.
 
 If you discover a security vulnerability within BEEP, please send an e-mail to beep@iconize.nl.
 
-## License
+# License
 
 The BEEP framework is open-sourced software licensed under the [MIT license](http://opensource.org/licenses/MIT).

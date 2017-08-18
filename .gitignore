@@ -9,8 +9,8 @@ public/uploads
 !public/uploads/avatars
 !public/uploads/avatars/default.jpg
 public/storage
-public/app/vendor
-public/app/js/constants.js
+public/webapp/vendor
+public/webapp/vendor/*
 public/webapp/js/constants.js
 
 storage/app/*

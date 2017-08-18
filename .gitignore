@@ -5,7 +5,7 @@ vendor/*
 !resources/views/vendor/mail/*
 !resources/views/vendor/mail/*/*
 
-public/uploads
+public/uploads/*
 !public/uploads/avatars
 !public/uploads/avatars/default.jpg
 public/storage
@@ -19,7 +19,8 @@ storage/framework/sessions/*
 storage/framework/views/*
 storage/logs/*
 
-.idea
 Homestead.json
 Homestead.yaml
+.idea
 .env
+.DS_Store

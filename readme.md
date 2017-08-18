@@ -6,7 +6,7 @@ BEEP is a combination of a bee monitoring (Laravel PHP) framework API + an (Angu
 It's key feature is to integrate a user friendly responsive app for manual inspections with automatically measured sensor data.
 
 # System overview
-![BEEP System overview](https://github.com/pvgennip/BEEP/system-overview.png)
+![BEEP System overview](https://github.com/pvgennip/BEEP/raw/master/system-overview.png)
 
 # Installation
 

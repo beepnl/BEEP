@@ -5,8 +5,12 @@ BEEP is a combination of a bee monitoring (Laravel PHP) framework API + an (Angu
 
 It's key feature is to integrate a user friendly responsive app for manual inspections with automatically measured sensor data.
 
+Create a login and check the running app at: https://app.beep.nl
+
+
 # System overview
 ![BEEP System overview](https://github.com/pvgennip/BEEP/raw/master/system-overview.png)
+
 
 # Installation
 
@@ -19,7 +23,7 @@ Make sure these dependencies are installed on your system:
 
 * [Composer](https://getcomposer.org/download/) - Installation tool for PHP/Laravel dependencies for API
 * [npm](https://www.npmjs.com/get-npm) - Installation tool for Javascript/Angular dependencies for App
-* [Bower](npm install -g bower) - Installation tool for front-end dependencies for App
+* [Bower](https://bower.io/) ```npm install -g bower``` - Installation tool for front-end dependencies for App
 
 Make the run_actions.sh executable by ```chmod +x run_actions.sh```
 
@@ -33,16 +37,34 @@ a. Make sure to add your repo to git remote: ```git remote set url https://githu
 
 b. Run ```./deploy.sh``` to update your clone on any server
 
-
-## Documentation
-
-Documentation and manual of the app can be found at http://beep.nl. 
-
-## Contributing
+### 3. Contributing
 
 Thank you for considering contributing to the BEEP framework! If you would like to contribute, please fork this repository, edit on your Github account, and finally send Pull Requests to this repository to include new features.
 
-## Security Vulnerabilities
+#### Adding a language
+a. Fork this repo
+
+b. Copy ```/public/webapp/js/lang/en.js``` to the abbreviation of the new language
+
+c. Translate the part after the colons (:) only: ```static_language_var: 'this is the translation',```
+
+d. Add the language to ```/public/webapp/index.js``` supported locales:
+```
+$rootScope.supportedLocales = {
+    "nl":"Nederlands", 
+    "en":"English",
+    "xx":"New language",
+};
+```
+e. Create a pull request to merge the language into this repo
+
+
+# Documentation
+
+Documentation and manual of the app can be found at http://beep.nl. 
+
+
+# Security Vulnerabilities
 
 If you discover a security vulnerability within BEEP, please send an e-mail to beep@iconize.nl.
 

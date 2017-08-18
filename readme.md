@@ -5,14 +5,14 @@ BEEP is a combination of a bee monitoring (Laravel PHP) framework API + an (Angu
 
 It's key feature is to integrate a user friendly responsive app for manual inspections with automatically measured sensor data.
 
-Create a login and check the running app at: https://app.beep.nl
-
+Create a login and check the live app at: https://app.beep.nl
+You can just make use of the BEEP app, it's free and it will be developed further in the near future. If you would like to install it on your own server, or contribute; please read on below.
 
 # System overview
 ![BEEP System overview](https://github.com/pvgennip/BEEP/raw/master/system-overview.png)
 
 
-# Installation of API and APP
+# Installation of API and APP (on your own server)
 
 ## 1. Clone this repo anywhere you like
 ```git clone https://github.com/pvgennip/BEEP.git```

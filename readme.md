@@ -122,4 +122,4 @@ If you discover a security vulnerability within BEEP, please send an e-mail to b
 
 # License
 
-The BEEP framework is open-sourced software licensed under the [MIT license](http://opensource.org/licenses/MIT).
+The BEEP framework is open-sourced software licensed under the [GNU AGPLv3 license](http://www.gnu.org/licenses/agpl-3.0.txt).

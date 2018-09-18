@@ -97,7 +97,8 @@ History:
   * Display automatic measurements
 * Release v2 - July 10th 2018
   * Apiary and hive overview improved
-  * Dynamic inspection list * Create your own inspection list and order
+  * Dynamic inspection list 
+  * Create your own inspection list and order
   * Automatic measurement view improvement
 
 Upcoming:

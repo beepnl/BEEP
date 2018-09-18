@@ -92,13 +92,13 @@ Please request access to https://trello.com/b/Eb3CcKES/beep-hive-check-app if yo
 ### In short on our roadmap:
 History:
 * Release v1 - June 15th 2017
- * One click creation of apiaries with multiple hives
- * Manual hive inspections
- * Display automatic measurements
+  * One click creation of apiaries with multiple hives
+  * Manual hive inspections
+  * Display automatic measurements
 * Release v2 - July 10th 2018
- * Apiary and hive overview improved
- * Dynamic inspection list * Create your own inspection list and order
- * Automatic measurement view improvement
+  * Apiary and hive overview improved
+  * Dynamic inspection list * Create your own inspection list and order
+  * Automatic measurement view improvement
 
 Upcoming:
 * Hardware weighing scale + audio measurement kit development (2018 Q2-Q4)

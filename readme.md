@@ -8,7 +8,7 @@ It's key feature is to integrate a user friendly responsive app for manual inspe
 Create a login and check the live app at: https://app.beep.nl
 
 # System overview
-![BEEP System overview](https://github.com/pvgennip/BEEP/raw/master/BEEP-system-overview.png)
+![BEEP System overview](https://github.com/beepnl/BEEP/raw/master/BEEP-system-overview.png)
 
 You are free to use the BEEP app, it's free and it will be developed further in the near future. If you would like to install it on your own server, or contribute; please read on below.
 
@@ -79,10 +79,10 @@ Thank you for considering contributing to the BEEP framework! If you would like 
 
 ## Adding a language
 
-### Create a Beep user account at https://app.beep.nl/#!/login/create
-### Fork this repo
-### Send an e-mail to info@beep.nl with you user e-mail address, asking to become a translator for a certain language
-### Log into the backend to start translating
+1. Create a Beep user account at https://app.beep.nl/#!/login/create
+2. Fork this repo
+3. Send an e-mail to info@beep.nl with you user e-mail address, asking to become a translator for a certain language
+4. Log into the backend to start translating
 
 
 # Roadmap

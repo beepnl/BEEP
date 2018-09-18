@@ -38,7 +38,7 @@ a. Make sure to add your repo to git remote: ```git remote set url https://githu
 b. Run ```./deploy.sh``` to update your clone on any server
 
 ## 4. Make sure your server has 2 different virtual hosts for the API and the APP
-API
+API (replace 'beep.nl' with your own server)
 ```
 <VirtualHost api.beep.nl:80>
     
@@ -55,7 +55,7 @@ API
 </VirtualHost>
 ```
 
-APP
+APP (replace 'beep.nl' with your own server)
 ```
 <VirtualHost app.beep.nl:80>
     
@@ -92,13 +92,13 @@ Please request access to https://trello.com/b/Eb3CcKES/beep-hive-check-app if yo
 ### In short on our roadmap:
 History:
 * Release v1 - June 15th 2017
-** One click creation of apiaries with multiple hives
-** Manual hive inspections
-** Display automatic measurements
+ * One click creation of apiaries with multiple hives
+ * Manual hive inspections
+ * Display automatic measurements
 * Release v2 - July 10th 2018
-** Apiary and hive overview improved
-** Dynamic inspection list - Create your own inspection list and order
-** Automatic measurement view improvement
+ * Apiary and hive overview improved
+ * Dynamic inspection list * Create your own inspection list and order
+ * Automatic measurement view improvement
 
 Upcoming:
 * Hardware weighing scale + audio measurement kit development (2018 Q2-Q4)

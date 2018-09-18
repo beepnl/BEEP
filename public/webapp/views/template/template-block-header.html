@@ -3,7 +3,7 @@
   <!-- Logo -->
   <!-- <div class="header-spacer" ng-if="mobile"></div> -->
   
-  <a href="index.html" class="logo">
+  <a ng-if="!mobile" href="index.html" class="logo">
     <img src="img/logo.svg">
   </a>
 
@@ -11,10 +11,10 @@
   <nav class="navbar navbar-static-top" role="navigation">
     <!-- Sidebar toggle button-->
     <a href="" class="sidebar-toggle" data-toggle="offcanvas" role="button">
-      <span class="sr-only">Toggle navigation</span>
+      <span class="sr-only">Menu</span>
     </a>
     <!-- Navbar Right Menu -->
-    <div class="header-title">{{ title }}</div>
+    <div class="header-title" ng-class="{'mobile':mobile}">{{ title }}</div>
     
     <div class="navbar-custom-menu">
 
@@ -27,10 +27,10 @@
       
         <!-- Tasks Menu -->
         <!--li class="dropdown tasks-menu" ng-include="'views/template/template-block-header-tasks.html'"></li-->
-        <li class="dropdown tasks-menu" ng-include="'views/template/template-block-header-language.html'"></li>
+        <li class="dropdown tasks-menu" ng-include="'views/template/template-block-header-language.html?v=1'"></li>
       
         <!-- User Account Menu -->
-        <li class="dropdown user user-menu" ng-include="'views/template/template-block-header-user.html'"></li>
+        <li class="dropdown user user-menu" ng-include="'views/template/template-block-header-usr.html'"></li>
         
         <!-- Control Sidebar Toggle Button -->
         <!-- <li>

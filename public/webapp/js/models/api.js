@@ -45,6 +45,26 @@ app.service('api', ['$http', '$rootScope', function($http, $rootScope)
 		}
 	};
 
+	this.setLocalStoreValue = function(name, value)
+	{
+		if (typeof name != 'undefined' && name != null && typeof value != 'undefined' && value != null)
+		{
+			//console.log('setLocalStoreValue', name, value);
+			localStorage.setItem(name, value);
+		}
+	}
+
+	this.getLocalStoreValue = function(name)
+	{
+		if(localStorage.getItem(name))
+		{
+			var value = localStorage.getItem(name);
+			//console.log('getLocalStoreValue', name, value);
+			return value;
+		}
+		return null;
+	}
+
 
 	this.removeApiToken = function()
 	{
@@ -54,12 +74,13 @@ app.service('api', ['$http', '$rootScope', function($http, $rootScope)
 		self.token = null;
 	};
 
-	this.registerUser = function(password, email)
+	this.registerUser = function(password, email, policy_accepted)
 	{
 		var data = 
 		{
 			password	  : password,
-			email		  : email
+			email		  : email,
+			policy_accepted: policy_accepted
 		};
 
 		self.postApiRequest('register', 'register', data);
@@ -114,6 +135,8 @@ app.service('api', ['$http', '$rootScope', function($http, $rootScope)
 		// token
 		if(result.api_token != null)
 			self.setApiToken(result.api_token);
+
+		$rootScope.$broadcast('userUpdated');
 
 	};
 
@@ -200,18 +223,19 @@ app.service('api', ['$http', '$rootScope', function($http, $rootScope)
 		{
 			req.headers['Authorization'] = 'Bearer '+self.getApiToken()+'';
 		}
+		req.headers['Accept-Language'] = $rootScope.locale;
 
 		// do the request
 		self.doApiRequest(type, req);
 	};
 
 
-	this.getApiRequest = function(type, request, count, offset, params)
+	this.getApiRequest = function(type, request, params)
 	{
 		var params = typeof params !== 'undefined' ? params+'&' : '';
-		var count  = (typeof count !== 'undefined') ? count : 0;
-		var offset = (typeof offset !== 'undefined') ? offset : 0;
-		var url    = API_URL+request+'?'+params+'count='+count+'&offset='+offset+'';
+		// var count  = (typeof count !== 'undefined') ? count : 0;
+		// var offset = (typeof offset !== 'undefined') ? offset : 0;
+		var url    = API_URL+request+'?'+params+'';
 
 		// set the request
 		var req = 
@@ -229,7 +253,8 @@ app.service('api', ['$http', '$rootScope', function($http, $rootScope)
 		{
 			req.headers['Authorization'] = 'Bearer '+self.getApiToken()+'';
 		}
-
+		req.headers['Accept-Language'] = $rootScope.locale;
+		
 		// do the request
 		self.doApiRequest(type, req);
 	}

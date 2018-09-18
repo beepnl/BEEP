@@ -55,13 +55,16 @@ app.directive('yesNoRating', function() {
             {
               scope.ratingValue = index;
             }
-            scope.onRatingSelect({
-              rating: scope.ratingValue
-            });
+            if (typeof scope.onRatingSelect == 'function')
+            {
+              scope.onRatingSelect({
+                rating: scope.ratingValue
+              });
+            }
           }
         };
         scope.$watch('ratingValue', function(oldValue, newValue) {
-          if (newValue != oldValue) {
+          if (oldValue > -1 || newValue === -1 || oldValue != newValue) {
             updateStars();
           }
         });

@@ -11,16 +11,18 @@ class User extends Authenticatable
     use Notifiable;
     use EntrustUserTrait;
 
-    protected $fillable = ['name', 'email', 'password', 'api_token', 'last_login'];
+    protected $fillable = ['name', 'email', 'password', 'api_token', 'last_login', 'policy_accepted'];
 
     protected $hidden = ['password', 'remember_token'];
 
     protected $guarded  = ['id'];
 
+    //protected $cascadeDeletes = ['hives','checklists','inspections','locations','sensors']; // for soft deletes
+
     //protected $appends  = ['inspectioncount'];
 
 
-    public function getInspectioncountAttribute()
+    public function inspectionCount()
     {
         $actions    = $this->actions()->count();
         $conditions = $this->conditions()->count();
@@ -33,6 +35,16 @@ class User extends Authenticatable
         return $this->hasMany(Hive::class);
     }
 
+    public function checklists()
+    {
+        return $this->belongsToMany(Checklist::class, 'checklist_user');
+    }
+
+    public function inspections()
+    {
+        return $this->belongsToMany(Inspection::class, 'inspection_user');
+    }
+    
     public function locations()
     {
         return $this->hasMany(Location::class);
@@ -45,18 +57,14 @@ class User extends Authenticatable
 
     public function actions()
     {
-        return $this->hasManyThrough(Condition::class, Hive::class);
+        return $this->hasManyThrough(Action::class, Hive::class);
     }
 
+    // TODO: Add GUI for attaching sensor rights to users
     public function sensors()
     {
         return $this->hasMany(Sensor::class);
     }
-    // TODO: Add GUI for attaching sensor rights to users
-    // public function sensors()
-    // {
-    //     return $this->belongsToMany(Sensor::class,'sensor_user');
-    // }
 
     // public function groups()
     // {
@@ -66,5 +74,28 @@ class User extends Authenticatable
     public function settings()
     {
         return $this->hasMany(Setting::class);
+    }
+
+    public function inspectionDates()
+    {
+        $inspections = 0;
+
+        if (count($this->hives) > 0)
+        {
+            foreach($this->hives as $hive)
+            {
+                $inspections += $hive->inspectionDates()->count();
+            }
+        }
+        return $inspections;
+    }
+
+    public function delete()
+    {
+        // delete all related photos 
+        $this->checklists()->delete();
+
+        // delete the user
+        return parent::delete();
     }
 }

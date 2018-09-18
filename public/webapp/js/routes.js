@@ -44,6 +44,11 @@ app.config(['$routeProvider', '$locationProvider',  function($routeProvider)
         templateUrl:'views/forms/user/reset.html'
   })
 
+  .when('/user/edit', {
+        controller:'UserCtrl',
+        templateUrl:'views/user.html'
+  })
+
   // load
   .when('/load', {
       controller:'LoadCtrl',
@@ -58,12 +63,18 @@ app.config(['$routeProvider', '$locationProvider',  function($routeProvider)
       templateUrl : 'views/sensors_old.html',
   })
 
-   // locations
-  .when('/locations/:locationId/inspect',
+    .when('/measurements',
   {
-      controller  : 'InspectionCreateCtrl',
-      templateUrl : 'views/inspect.html',
+      controller  : 'MeasurementsCtrl',
+      templateUrl : 'views/measurements.html',
   })
+
+   // locations
+  // .when('/locations/:locationId/inspect',
+  // {
+  //     controller  : 'InspectionCreateCtrl',
+  //     templateUrl : 'views/inspect.html',
+  // })
   .when('/locations/:locationId/edit',
   {
       controller  : 'LocationsCtrl',
@@ -84,27 +95,39 @@ app.config(['$routeProvider', '$locationProvider',  function($routeProvider)
   .when('/hives/create',
   {
       controller  : 'HivesCtrl',
-      templateUrl : 'views/hive_edit.html',
+      templateUrl : 'views/hive_edit.html?v=2',
   })
   .when('/hives/:hiveId/inspect',
   {
       controller  : 'InspectionCreateCtrl',
-      templateUrl : 'views/inspect.html',
+      templateUrl : 'views/inspect.html?v=5',
+  })
+  .when('/hives/:hiveId/inspections/:inspectionId',
+  {
+      controller  : 'InspectionCreateCtrl',
+      templateUrl : 'views/inspect.html?v=5',
   })
   .when('/hives/:hiveId/inspections',
   {
       controller  : 'InspectionsCtrl',
-      templateUrl : 'views/inspections.html',
+      templateUrl : 'views/inspections.html?v=4',
   })
   .when('/hives/:hiveId/edit',
   {
       controller  : 'HivesCtrl',
-      templateUrl : 'views/hive_edit.html',
+      templateUrl : 'views/hive_edit.html?v=2',
   })
   .when('/hives',
   {
       controller  : 'HivesCtrl',
-      templateUrl : 'views/hives.html',
+      templateUrl : 'views/hives.html?v=3',
+  })
+
+  // checklist
+  .when('/checklist/:checklistId/edit',
+  {
+      controller  : 'ChecklistCtrl',
+      templateUrl : 'views/checklist.html',
   })
 
    // sensors
@@ -122,6 +145,11 @@ app.config(['$routeProvider', '$locationProvider',  function($routeProvider)
         templateUrl:'views/forms/settings.html'
  })
 
+ .when('/export', 
+ {
+        controller:'ExportCtrl',
+        templateUrl:'views/export.html'
+ })
 
   // none...
   .otherwise(

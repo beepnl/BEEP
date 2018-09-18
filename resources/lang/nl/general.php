@@ -18,6 +18,14 @@ return [
     'sensors'       => 'sensoren',
     'Sensor'        => 'Sensor',
     'sensor'        => 'sensor',
+    'Taxonomy'      => 'Taxonomie',
+    'taxonomy'      => 'taxonomie',
+    'Translations'  => 'Vertalingen',
+    'translations'  => 'vertalingen',
+    'Categories'    => 'Categoriën',
+    'categories'    => 'categoriën',
+    'Category'      => 'Categorie',
+    'category'      => 'categorie',
     'type'          => 'type',
     'Permissions'   => 'Permissies',
     'permissions'   => 'permissies',
@@ -33,7 +41,8 @@ return [
     'admin'         => 'Administrator',
     'manager'       => 'Sensor manager',
 
-    'menu'          => 'Menu',
+    'Menu'          => 'Menu',
+    'menu'          => 'menu',
     'menu_data'     => 'Sensor data menu',
     'toggle_nav'    => 'Schakel navigatie',
     'dashboard'     => 'Dashboard',
@@ -52,6 +61,19 @@ return [
     'month'         => 'Maand',
     'year'          => 'Jaar',
 
+    'usage'         => 'gebruik',
+
     'click_legend'  => 'Klik op een van de grootheden in de legenda om meetwaarden te verbergen/tonen',
+
+    'Languages'     => 'Talen',
+    'Language'      => 'Taal',
+    'languages'     => 'talen',
+    'language'      => 'taal',
+    'switch_language'=>'Wissen van taal',
+    'Translations'  => 'Vertalingen',
+    'Physical_quantity' => 'Grootheid',
+    'unit'          => 'eenheid',
+    'Source'        => 'Informatiebron',
+    'Icon'          => 'Icoon',
 
 ];

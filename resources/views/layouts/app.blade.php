@@ -21,13 +21,16 @@
 
     <!-- admin LTE template -->
     <link rel="stylesheet" href="/webapp/vendor/admin-lte/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/webapp/vendor/datatables/media/css/dataTables.bootstrap4.min.css" media="screen">
     <link rel="stylesheet" href="/webapp/vendor/font-awesome/css/font-awesome.min.css">
+    <link rel="stylesheet" href="/webapp/vendor/jstree/dist/themes/default/style.min.css" />
 {{--     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/ionicons/2.0.1/css/ionicons.min.css"> --}}
     <link rel="stylesheet" href="/webapp/css/portal.css">
     <link rel="stylesheet" href="/webapp/css/skin-beep.css">
-    <link rel="stylesheet" href="/webapp/css/skin-beep.css">
 
     <link rel="stylesheet" href="/webapp/css/skin-beep-additions.css" />
+
+    <script src="/webapp/vendor/admin-lte/plugins/jQuery/jquery-2.2.3.min.js"></script>
 
     <!-- CSRF Token -->
     <meta name="csrf-token" content="{{ csrf_token() }}">
@@ -98,10 +101,13 @@
     </div>
 
     <!-- AdminLTE App -->
-    <script src="/webapp/vendor/admin-lte/plugins/jQuery/jquery-2.2.3.min.js"></script>
     <script src="/webapp/vendor/admin-lte/bootstrap/js/bootstrap.min.js"></script>
     <script src="/webapp/vendor/admin-lte/dist/js/app.js"></script>
     <script src="/webapp/vendor/admin-lte/plugins/slimScroll/jquery.slimscroll.min.js"></script>
+    <script src="/webapp/vendor/jstree/dist/jstree.min.js"></script>
+    <script src="/webapp/vendor/datatables/media/js/jquery.dataTables.min.js"></script>
+    <script src="/webapp/vendor/datatables/media/js/dataTables.bootstrap4.min.js"></script>   
+    <script src="/js/beep.js?v1"></script>
         
 </body>
 </html>

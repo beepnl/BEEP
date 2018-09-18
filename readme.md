@@ -1,4 +1,4 @@
-# BEEP - Open source bee monitoring
+# BEEP - Open source bee monitoring (v2.0.1)
 
 
 BEEP is a combination of a bee monitoring (Laravel PHP) framework API + an (Angular JS) app and a (Influx) time series sensor data database. There are also first steps of creating cost efficient measurement hardware.
@@ -8,14 +8,14 @@ It's key feature is to integrate a user friendly responsive app for manual inspe
 Create a login and check the live app at: https://app.beep.nl
 
 # System overview
-![BEEP System overview](https://github.com/pvgennip/BEEP/raw/master/system-overview.png)
+![BEEP System overview](https://github.com/pvgennip/BEEP/raw/master/BEEP-system-overview.png)
 
 You are free to use the BEEP app, it's free and it will be developed further in the near future. If you would like to install it on your own server, or contribute; please read on below.
 
 # Installation of API and APP (on your own server)
 
 ## 1. Clone this repo anywhere you like
-```git clone https://github.com/pvgennip/BEEP.git```
+```git clone https://github.com/beepnl/BEEP.git```
 
 ## 2. Install required vendor libraries by running 
 
@@ -33,7 +33,7 @@ This will install all the packages and vendor dependencies that you need at once
 
 ## 3. If you would like to easily deploy your fork (or this repo), 
 
-a. Make sure to add your repo to git remote: ```git remote set url https://github.com/pvgennip/BEEP.git```
+a. Make sure to add your repo to git remote: ```git remote set url https://github.com/beepnl/BEEP.git```
 
 b. Run ```./deploy.sh``` to update your clone on any server
 
@@ -77,43 +77,39 @@ APP
 
 Thank you for considering contributing to the BEEP framework! If you would like to contribute, please fork this repository, edit on your Github account, and finally send Pull Requests to this repository to include new features.
 
-### Adding a language
-a. Fork this repo
+## Adding a language
 
-b. Copy ```/public/webapp/js/lang/en.js``` to the abbreviation of the new language
+### Create a Beep user account at https://app.beep.nl/#!/login/create
+### Fork this repo
+### Send an e-mail to info@beep.nl with you user e-mail address, asking to become a translator for a certain language
+### Log into the backend to start translating
 
-c. Translate the part after the colons (:) only: ```static_language_var: 'this is the translation',```
-
-d. Add the language to ```/public/webapp/index.js``` supported locales:
-```
-$rootScope.supportedLocales = {
-    "nl":"Nederlands", 
-    "en":"English",
-    "xx":"New language",
-};
-```
-e. Create a pull request to merge the language into this repo
 
 # Roadmap
 
 Please request access to https://trello.com/b/Eb3CcKES/beep-hive-check-app if you would like to see the roadmap and cooperate.
 
 ### In short on our roadmap:
+History:
+* Release v1 - June 15th 2017
+** One click creation of apiaries with multiple hives
+** Manual hive inspections
+** Display automatic measurements
+* Release v2 - July 10th 2018
+** Apiary and hive overview improved
+** Dynamic inspection list - Create your own inspection list and order
+** Automatic measurement view improvement
 
-1. Manual inspection improvement (2018 Q1)
-
-2. Inspection item list dynamically assignable (2018 Q1)
-
-3. Sharing of data amongst bee keepers (in vicinity) (2018 Q2)
-
-4. Hardware weighing scale + audio measurement kit development (2018 Q2+Q3)
-
-5. Integration sensor data / hive inspections (2018 Q3+Q4)
+Upcoming:
+* Hardware weighing scale + audio measurement kit development (2018 Q2-Q4)
+* Bee keeping teacher support - Inspection list sharing (2018 Q3)
+* Integration sensor data / hive inspections (2018 Q4)
+* User feedback improvements (2019 Q1)
 
 
 # Documentation
 
-Documentation and manual of the app can be found at http://beep.nl. 
+Documentation and manual of the app can be found at https://beep.nl/manual. 
 
 
 # Security Vulnerabilities

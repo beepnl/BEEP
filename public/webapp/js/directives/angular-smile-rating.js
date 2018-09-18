@@ -1,18 +1,19 @@
 app.directive('smileRating', function() {
     return {
       restrict: 'EA',
+      require: 'ngModel',
       template:
         '<ul class="smile-rating" ng-class="{readonly: readonly}">' +
         '  <li class="fa-stack smile" ng-class="{filled: smile[0].filled}" ng-click="toggle(0)">' +
-        '    <i class="fa fa-circle fa-stack-2x"></i>' + 
+        '    <i class="fa fa-circle frown fa-stack-2x"></i>' + 
         '    <i class="fa fa-frown-o fa-stack-2x face"></i>' + 
         '  </li>' +
         '  <li class="fa-stack smile" ng-class="{filled: smile[1].filled}" ng-click="toggle(1)">' +
-        '    <i class="fa fa-circle fa-stack-2x"></i>' + 
+        '    <i class="fa fa-circle meh fa-stack-2x"></i>' + 
         '    <i class="fa fa-meh-o fa-stack-2x face"></i>' + 
         '  </li>' +
         '  <li class="fa-stack smile" ng-class="{filled: smile[2].filled}" ng-click="toggle(2)">' +
-        '    <i class="fa fa-circle fa-stack-2x"></i>' + 
+        '    <i class="fa fa-circle smile fa-stack-2x"></i>' + 
         '    <i class="fa fa-smile-o fa-stack-2x face"></i>' + 
         '  </li>' +
         '</ul>',
@@ -48,13 +49,16 @@ app.directive('smileRating', function() {
             {
               scope.ratingValue = index + 1;
             }
-            scope.onRatingSelect({
-              rating: scope.ratingValue
-            });
+            if (typeof scope.onRatingSelect == 'function')
+            {
+              scope.onRatingSelect({
+                rating: scope.ratingValue
+              });
+            }
           }
         };
         scope.$watch('ratingValue', function(oldValue, newValue) {
-          if (newValue || newValue === 0) {
+          if (oldValue || newValue === 0) {
             updateStars();
           }
         });

@@ -9,6 +9,12 @@
 		<div class="col-xs-12 col-sm-12 col-md-12">
             <div class="form-group">
                 <label>{{ __('crud.name') }}:</label>
+                <p>{{ $role->name }}</p>
+            </div>
+        </div>
+        <div class="col-xs-12 col-sm-12 col-md-12">
+            <div class="form-group">
+                <label>{{ __('crud.display_name') }}:</label>
                 <p>{{ $role->display_name }}</p>
             </div>
         </div>

@@ -4,13 +4,15 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use App\Category;
 use App\Sensor;
+use App\User;
+use App\Hive;
+use App\Location;
 
 class SensorController extends Controller
 {
     
-    protected $sensorTypes = ['HAP'=>'Household Air Pollution (HAP)','SSU'=>'Standard Surface Unit (SSU)','SUM'=>'Stove Usage Monitoring (SUM)','WAP'=>'Water Pressure unit (WAP)','Other'=>'Other'];
-
     /**
      * Display a listing of the resource.
      *
@@ -30,8 +32,10 @@ class SensorController extends Controller
      */
     public function create()
     {
-        $types = $this->sensorTypes;
-        return view('sensors.create',compact('types'));
+        $types = Category::descendentsByRootParentAndName('hive', 'app', 'sensor')->pluck('name','id');
+        $users = User::all()->sortBy('name')->pluck('name', 'id');
+
+        return view('sensors.create',compact('types','users'));
     }
 
     /**
@@ -44,11 +48,14 @@ class SensorController extends Controller
     {
         $this->validate($request, [
             'name' => 'required',
-            'type' => 'required',
             'key' => 'required',
+            'user_id' => 'required',
+            'category_id' => 'required',
         ]);
 
-        Sensor::create($request->all());
+        $data = $request->all();
+        $data['hive_id'] = Hive::where('user_id', $request->input('user_id'))->first()->value('id');
+        Sensor::create($data);
 
         return redirect()->route('sensors.index')
                         ->with('success','Sensor created successfully');
@@ -75,8 +82,19 @@ class SensorController extends Controller
     public function edit($id)
     {
         $item = Sensor::find($id);
-        $types = $this->sensorTypes;
-        return view('sensors.edit',compact('item','types'));
+        $types = Category::descendentsByRootParentAndName('hive', 'app', 'sensor')->pluck('name','id');
+        $users = User::all()->sortBy('name')->pluck('name', 'id');
+        $all_hives = Hive::where('user_id',$item->user_id)->where('name','!=','')->orderBy('name')->get();
+        $hives = [];
+        foreach ($all_hives as $val) 
+        {
+            $loc = Location::where('id',$val->location_id)->limit(1)->value('name');
+            $hives[$val->id] = $loc != '' ? $loc.' - '.$val->name : $val->name;
+        }
+        asort($hives, SORT_NATURAL);
+        //die(print_r($types));
+
+        return view('sensors.edit',compact('item','types','users','hives'));
     }
 
     /**
@@ -90,8 +108,8 @@ class SensorController extends Controller
     {
         $this->validate($request, [
             'name' => 'required',
-            'type' => 'required',
             'key' => 'required',
+            'user_id' => 'required',
         ]);
 
         Sensor::find($id)->update($request->all());

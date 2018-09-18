@@ -24,3 +24,4 @@ Homestead.yaml
 .idea
 .env
 .DS_Store
+.phpintel

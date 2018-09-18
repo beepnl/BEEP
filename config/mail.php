@@ -63,7 +63,7 @@ return [
     */
 
     'from' => [
-        'address' => 'app.beep.nl@gmail.com',
+        'address' => env('MAIL_USERNAME', 'app@beep.nl'),
         'name' => 'BEEP',
     ],
 

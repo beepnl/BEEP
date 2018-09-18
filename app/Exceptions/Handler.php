@@ -44,6 +44,15 @@ class Handler extends ExceptionHandler
      */
     public function render($request, Exception $exception)
     {
+        // PGe added redirect in case of (ugly) tokenmismatch exception error page
+        if($exception instanceof \Illuminate\Session\TokenMismatchException)
+        {
+              return redirect()
+                  ->back()
+                  ->withInput($request->except('_token'))
+                  ->withMessage('Your session expired, please log in again');
+        }
+
         return parent::render($request, $exception);
     }
 

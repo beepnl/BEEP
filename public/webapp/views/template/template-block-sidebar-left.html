@@ -1,4 +1,4 @@
-<aside class="main-sidebar">
+<aside class="main-sidebar" ng-class="{'mobile':mobile}">
 
   <!-- sidebar: style can be found in sidebar.less -->
   <section class="sidebar">
@@ -40,13 +40,13 @@
       <li ng-class="{active: pageSlug == 'locations'}">
           <a ng-click="switchMenu($event, true, '/locations')" data-toggle="{{ mobile ? 'offcanvas' : '' }}">
             <i class="fa fa-map-marker"></i>
-            <span ng-cloak>{{lang.locations}}</span>
+            <span ng-cloak>{{lang.Locations}}</span>
           </a>
       </li>
       <li ng-class="{active: pageSlug == 'hives'}">
           <a ng-click="switchMenu($event, true, '/hives')" data-toggle="{{ mobile ? 'offcanvas' : '' }}">
             <i class="fa fa-archive"></i>
-            <span ng-cloak>{{lang.hives}}</span>
+            <span ng-cloak>{{lang.Hives}}</span>
           </a>
       </li>
       <li ng-class="{active: pageSlug == 'sensors'}">
@@ -54,27 +54,39 @@
             <i class="fa fa-feed"></i>
             <span ng-cloak>{{lang.sensors}}</span>
           </a>
-          <a ng-if="hasSensors == true" ng-click="switchMenu($event, true, '/sensors_old')" data-toggle="{{ mobile ? 'offcanvas' : '' }}">
+          <a ng-if="hasSensors == true" ng-click="switchMenu($event, true, '/measurements')" data-toggle="{{ mobile ? 'offcanvas' : '' }}">
             <i class="fa fa-feed"></i>
             <span ng-cloak>{{lang.sensors}}</span>
           </a>
       </li>
-      <li ng-if="hasSensors == true" ng-class="{active: pageSlug == 'settings'}" data-toggle="{{ mobile ? 'offcanvas' : '' }}">
-        <a ng-click="switchMenu($event, true, '/settings')">
-          <i class="fa fa-gears"></i>
-          <span ng-cloak>{{lang.settings}}</span>
+      <li ng-class="{active: pageSlug == 'export'}">
+        <a ng-click="switchMenu($event, true, '/export')" data-toggle="{{ mobile ? 'offcanvas' : '' }}">
+          <i class="fa fa-file-excel-o "></i>
+          <span ng-cloak>{{lang.Data_export}}</span>
         </a>    
       </li>     
 
-      <li class="header">HELP</li>
+      <li class="header">INFO</li>
+      <li data-toggle="{{ mobile ? 'offcanvas' : '' }}">
+        <a ng-click="locale == 'nl' ? loadUrl('https://beep.nl/handleiding-v2') : loadUrl('https://beep.nl/manual-v2')">
+          <i class="fa fa-star"></i>
+          <span ng-cloak>{{lang.Whats_new}}</span>
+        </a>    
+      </li>  
+      <li data-toggle="{{ mobile ? 'offcanvas' : '' }}">
+        <a ng-click="locale == 'nl' ? loadUrl('https://beep.nl/handleiding-v2#app-install') : loadUrl('https://beep.nl/manual-v2#app-install')">
+          <i class="fa fa-book"></i>
+          <span ng-cloak>{{lang.Manual}}</span>
+        </a>    
+      </li>  
       <li data-toggle="{{ mobile ? 'offcanvas' : '' }}">
         <a ng-click="loadUrl('https://beep.nl')">
           <i class="fa fa-info-circle"></i>
-          <span ng-cloak>{{lang.Website}}</span>
+          <span ng-cloak>Beep {{lang.Website}}</span>
         </a>    
       </li>   
       <li data-toggle="{{ mobile ? 'offcanvas' : '' }}">
-        <a ng-click="sendMail('app.beep.nl@gmail.com',lang.Feedback_mail_header, lang.Feedback_mail_body+lang.Diagnostic_info+'user_id:'+user.id+',browser:'+browser)">
+        <a ng-click="sendMail('feedback@beep.nl',lang.Feedback_mail_header, lang.Feedback_mail_body+lang.Diagnostic_info+'host:'+host+',user_id:'+user.id+',browser:'+browser)">
           <i class="fa fa-comment"></i>
           <span ng-cloak>{{lang.Feedback}}</span>
         </a>    

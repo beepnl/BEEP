@@ -15,7 +15,7 @@ class SensorTransformer {
 	    	'l' => ['name'=>'light', 'unit'=>'lux'],
 	    	'bv' => ['name'=>'bat_volt', 'unit'=>'mV'],
 	    	'weight_kg' => ['name'=>'weight_kg', 'unit'=>'Kg'],
-	    	'w_v' => ['name'=>'weight_combined_kg', 'unit'=>'Kg'],
+	    	'weight_kg_corrected' => ['name'=>'weight_kg_corrected', 'unit'=>'Kg'],
             'w_o' => ['name'=>'weight_offset', 'unit'=>'Kg'],
             's_fan_4' => ['name'=>'sound_fanning_4days', 'unit'=>''],
             's_fan_6' => ['name'=>'sound_fanning_6days', 'unit'=>''],
@@ -24,6 +24,9 @@ class SensorTransformer {
             's_tot' => ['name'=>'sound_total', 'unit'=>''],
             'bc_i' => ['name'=>'bee_count_in', 'unit'=>'#'],
             'bc_o' => ['name'=>'bee_count_out', 'unit'=>'#'],
+            't_i' => ['name'=>'t_i', 'unit'=>'°C'],
+            'snr' => ['name'=>'snr', 'unit'=>'dB'],
+            'rssi' => ['name'=>'rssi', 'unit'=>'dBm'],
 	    ];
 
 	    $name = $sensor['name'];

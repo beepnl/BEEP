@@ -6,9 +6,7 @@
   <div class="register-box-body">
     <h3 class="login-box-msg">{{lang.create_login}}</h3>
 
-	<p class="summary" ng-show="formStatus!='registered'">{{lang.create_login_summary}}</p>
-
-    <form name="register" id="user-create-form" class="form user-form " ng-submit="registerUser($event);" novalidate="novalidate">
+	<form name="register" id="user-create-form" class="form user-form" novalidate="novalidate">
         <div class="alert alert-{{message.resultType}}" ng-show="message.show">
 	    	<p>{{message.resultMessage}}</p>
 	    </div>
@@ -35,20 +33,18 @@
 				<input type="password" class="form-control" name="password_retype" ng-model="fields.register.password_retype" match-password="password" placeholder="{{lang.confirm_password}}" required="required" />
 				<span class="glyphicon glyphicon-lock form-control-feedback"></span>
 			</div>
-			<div class="row">
-			<!--div class="col-xs-8">
-			  <div class="checkbox icheck">
+			<div class="form-group has-feedback" ng-class="{'has-error':error.policy_accepted}">
 			    <label>
-			      <input type="checkbox"> I agree to the <a href="#">terms</a>
+			      <input icheck type="checkbox" ng-model="fields.register.policy_accepted"> {{lang.accept_policy}}: <a href="{{lang.policy_url}}" target="_blank">{{lang.Terms_of_use}}</a>
 			    </label>
-			  </div>
-			</div-->
-			<!-- /.col -->
+			</div>
+
+			<div class="row">
 				<div class="col-xs-12">
-				  <button type="submit" class="btn btn-primary btn-block btn-flat" ng-class="{loading:loading}">{{lang.create_login}}</button>
+				  <a ng-click="registerUser($event);" class="btn btn-primary btn-block" ng-class="{loading:loading}">{{lang.create_login}}</a>
 				</div>
-				<!-- /.col -->
-      		</div>
+			</div>
+
   		</div>
     </form>
 

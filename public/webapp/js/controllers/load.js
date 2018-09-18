@@ -28,7 +28,8 @@ app.controller('LoadCtrl', function($scope, $rootScope, $location, settings, api
 		// hide splash
 		$rootScope.showSplash = false;
 		// redirect to the dashboard
-		$location.path('/locations');
+		if ($location.path() != '/user/edit')
+			$location.path('/locations');
 		// remove this listener
 		$scope.settingsFetched();
 	});

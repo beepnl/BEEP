@@ -58,7 +58,7 @@
         <div class="col-xs-12 col-sm-12 col-md-12">
             <div class="form-group">
                 <label>{{ __('general.Role') }}:</label>
-                {!! Form::select('roles[]', $roles, [], array('class' => 'form-control')) !!}
+                {!! Form::select('roles[]', $roles, [], array('placeholder' => __('crud.select',['item'=>__('crud.role')]), 'class' => 'form-control')) !!}
             </div>
         </div>
         <div class="col-xs-12 col-sm-12 col-md-12 text-center">

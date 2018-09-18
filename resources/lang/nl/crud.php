@@ -12,7 +12,7 @@ return [
     'description'   => 'Beschrijving',
     'email'         => 'E-mail',
     'type'          => 'Type',
-    'key'           => 'Apparaat ID',
+    'key'           => 'Key',
     'roles'         => 'Rollen',
     'actions'       => 'Acties',
     'show'          => 'Toon',
@@ -28,5 +28,11 @@ return [
     'select_multi'  => 'Selecteer één of meerdere :item',
     'management'    => ':Itemmanagement',
     'input_err'     => 'Er zijn wat problemen met je invoer',
+    'Attributes'    => 'Onderdelen',
+    'attributes'    => 'onderdelen',
+    'Item'          => 'Item',
+    'item'          => 'item',
+    'min'           => 'min',
+    'max'           => 'max',
 
 ];

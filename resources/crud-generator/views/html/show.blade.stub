@@ -1,0 +1,31 @@
+@extends('layouts.app')
+
+@section('page-title') {{ __('beep.%%modelName%%').': '.(isset($%%crudNameSingular%%->name) ? $%%crudNameSingular%%->name : __('general.Item')).' ('.$%%crudNameSingular%%->%%primaryKey%%.')' }}
+@endsection
+
+@section('content')
+    @component('components/box')
+        @slot('title')
+            {{ (isset($%%crudNameSingular%%->name) ? $%%crudNameSingular%%->name : __('general.Item')).' '.__('crud.attributes') }}
+        @endslot
+
+        @slot('action')
+            @permission('role-edit')
+                <a href="{{ route('%%routeGroup%%%%viewName%%.edit', $%%crudNameSingular%%->%%primaryKey%%) }}" title="{{ __('crud.edit') }}"><button class="btn btn-primary"><i class="fa fa-pencil" aria-hidden="true"></i></button></a>
+            @endpermission
+        @endslot
+
+        @slot('body')
+
+            <table class="table table-responsive table-striped">
+                <tbody>
+                    <tr>
+                        <th>ID</th><td>{{ $%%crudNameSingular%%->%%primaryKey%% }}</td>
+                    </tr>
+                    %%formBodyHtmlForShowView%%
+                </tbody>
+            </table>
+
+        @endslot
+    @endcomponent
+@endsection

@@ -1,0 +1,77 @@
+<section class="content-header">
+  <h1>
+  	<a class="icn prev" ng-class="{'mobile':mobile}" ng-click="back()"></a>
+    {{lang.Checklist}} {{ lang.edit.toLowerCase() }}
+    <!-- <div class="pull-right">
+    	<select ng-change="selectChecklist(checklist_id)" ng-model="checklist_id" class="form-control">
+    		<option ng-repeat="item in checklists track by item.id" value="{{item.id}}" ng-selected="item.id == checklist_id">{{ item.name || item.id }}</option>
+    	</select>
+	</div> -->
+  </h1>
+  <!-- <ol class="breadcrumb">
+    <li><a href="/"><i class="fa fa-home"></i> Home</a></li>
+    <li class="active">{{lang.inspections}}</li>
+  </ol> -->
+</section>
+
+<section class="content" style="max-height: 100%">
+	
+	<div class="box">
+	    <div class="box-header with-border">
+	      <h3 class="box-title">{{lang.edit }}{{ checklists.length > 1 ? ': '+checklist.name : '' }}</h3>
+
+	      <div class="box-tools pull-right">
+	      	<div ng-if="checklists.length > 1" style="display: inline-block;">
+	        	<div class="form-group">
+		        	
+			    </div>
+			</div>
+	        <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
+	        </button>
+	        <!--button type="button" class="btn btn-box-tool" data-widget="remove"><i class="fa fa-times"></i></button-->
+	      </div>
+	    </div>
+
+	    <div class="box-body">
+			<div class="row">
+
+				<div ng-if="checklists.length > 1" class="col-xs-12 col-sm-4 col-md-4">
+		        	<div class="form-group">
+						<label>{{ lang.Name }}</label>
+						<input class="form-control" type="text" ng-model="checklist.name">
+					</div>
+				</div>
+
+				<div class="col-xs-12" >
+
+					<div class="form-group" >
+						<label>{{ lang.Checklist_items }}</label>
+						<p class="description">{{ lang.edit_hive_checklist }}</p>
+							<div class="input-group search">
+							    <div class="input-group-addon">
+							    	<i class="fa fa-search"></i>
+							    </div>
+			                	<input class="form-control" type="text" ng-model="search" ng-keyup="applySearch(search)" placeholder="{{lang.Search}}">
+			                </div>
+						<div id="checklist-tree">
+
+		        			<div js-tree="treeConfig" should-apply="ac()" ng-model="treeData" tree="treeInstance" tree-events-obj="treeEventsObj"></div>	
+		                </div>
+		            </div>
+
+		        </div>
+			</div>
+		</div>
+
+		<div class="overlay" ng-if="loading">
+          <i class="fa fa-refresh fa-spin"></i>
+        </div>
+	</div>
+
+	<div class="alert alert-danger" ng-show="error_msg != null">
+        <p>{{ error_msg }}</p>
+    </div>
+
+	<button ng-click="saveChecklist()" class="btn btn-primary btn-block">{{lang.save}} {{lang.Checklist}}</button>
+
+</section>

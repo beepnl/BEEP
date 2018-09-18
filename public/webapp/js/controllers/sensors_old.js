@@ -19,7 +19,7 @@ app.controller('SensorsOldCtrl', function($scope, $rootScope, $window, $location
     $scope.chart.colors  	= [grey];
     $scope.chart.options 	= {
         datasets:[{
-        	fill: false,
+        	fill: false
         }],
         scales: {
             xAxes: [{
@@ -53,7 +53,7 @@ app.controller('SensorsOldCtrl', function($scope, $rootScope, $window, $location
 		}
 
 		// get the measurements
-		measurements.initMeasurements();
+		measurements.startLoadingMeasurements();
 	};
 
 
@@ -68,8 +68,7 @@ app.controller('SensorsOldCtrl', function($scope, $rootScope, $window, $location
 		$scope.measurementData		= convertSensorMeasurementsArrayToChartObject(measurements.sensor_measurements);
 		
 		if ($scope.sensorSelected == null)
-			$scope.selectSensor(measurements.getSensorById('weight_kg'));
-
+			$scope.selectSensor(measurements.getSensorById('weight_kg_corrected'));
 	};
 
 	$scope.showMeasurementError = function()
@@ -94,13 +93,26 @@ app.controller('SensorsOldCtrl', function($scope, $rootScope, $window, $location
 		$scope.measurementsHeader 	= $rootScope.lang.measurementsError;
 	};
 
+	$scope.loadMeasurements = function()
+	{
+		$scope.selectSensor($scope.sensorSelected);
+	}
+
+	$scope.sensorMeasurementHandler = $rootScope.$on('measurementsLoaded', $scope.loadMeasurements);
 	$scope.measurementHandler 		= $rootScope.$on('measurementsUpdated', $scope.updateMeasurements);
 	$scope.measurementErrorHandler 	= $rootScope.$on('measurementsError', $scope.updateMeasurementsError);
 
 
 	$scope.back = function()
 	{
-		$rootScope.optionsDialog.close();
+		if ($rootScope.optionsDialog)
+		{
+			$rootScope.optionsDialog.close();
+		}
+		else
+		{
+			$rootScope.historyBack();
+		}
 	};
 
 	//close options dialog
@@ -109,11 +121,11 @@ app.controller('SensorsOldCtrl', function($scope, $rootScope, $window, $location
 
 	$scope.selectSensor = function(sensor)
 	{
-		if (sensor != null && typeof(sensor) == "object")
+		if (typeof sensor != 'undefined' && sensor != null && typeof(sensor) == "object")
 		{
 			$scope.sensorSelected = sensor;
-			measurements.loadRemoteSensorMeasurements(sensor.id);
 		}
+		measurements.loadRemoteSensorMeasurements($scope.sensorSelected.id);
 	}
 
 	$scope.showMeasurement = function(obj, expected)
@@ -130,6 +142,7 @@ app.controller('SensorsOldCtrl', function($scope, $rootScope, $window, $location
    	// remove references to the controller
     $scope.removeListeners = function()
     {
+		$scope.sensorMeasurementHandler();
 		$scope.measurementHandler();
 		$scope.measurementErrorHandler();
 		$scope.backListener();

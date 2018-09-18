@@ -1,0 +1,16 @@
+<fieldset ng-if="cat.children.length > 0 && (cat.input == 'label' || (cat.input != 'list' && cat.input != 'select' && cat.input != 'options'))" class="col-xs-12">
+	
+	<legend>{{ cat.trans[locale] || cat.name}}</legend>
+
+	<div ng-if="cat.children.length > 0" ng-repeat="item in cat.children">
+
+    	<checklist-input ng-if="item.input != 'label'" item="item" cols="cols"></checklist-input>
+	    <checklist-fieldset ng-if="item.input == 'label'" cat="item" cols="cols"></checklist-fieldset>
+    
+    </div>
+
+	<checklist-input ng-if="cat.children.length == 0" item="cat" cols="cols"></checklist-input>
+
+</fieldset>
+
+<checklist-input ng-if="cat.input != 'label' && (cat.children.length == 0 || cat.input == 'list' || cat.input == 'select' || cat.input == 'options')" item="cat" cols="cols"></checklist-input>

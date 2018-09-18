@@ -15,10 +15,12 @@ app.controller('LocationsCtrl', function($scope, $rootScope, $window, $location,
 	$scope.selectedLocationIndex= 0;
 	$scope.error_msg 		= null;
 	$scope.hivetypes 		= null;
+	$scope.hive_type 		= null;
 	$scope.hive 			= 
 	{
+		"name":$rootScope.lang.Location+' '+(hives.hives.length+1),
 		"color":"#F29100",
-		"hive_type_id":1,
+		"hive_type_id":"",
 		"hive_amount":"1",
 		"brood_layers":"2",
 		"honey_layers":"1",
@@ -47,9 +49,8 @@ app.controller('LocationsCtrl', function($scope, $rootScope, $window, $location,
 		}
 		else if ($location.path().indexOf('/locations') > -1)
 		{
-			$scope.hivetypes = inspections.hivetypes;
-			$scope.hive_type = {id:1};
-
+			$scope.hivetypes = settings.hivetypes;
+			
 			if (hives.locations.length > 0)
 			{
 				$scope.locations = hives.locations;
@@ -57,7 +58,7 @@ app.controller('LocationsCtrl', function($scope, $rootScope, $window, $location,
 			
 			if ($location.path() == 'locations/create' || $location.path().indexOf('/edit') > -1)
 			{
-				$scope.$watch('hive_type', function(o,n){ if (n != o) $scope.hive.hive_type_id = $scope.hive_type.id });
+				$rootScope.title = $rootScope.lang.Location;
 				$scope.getGPS();
 				// NgMap.getMap().then(function(map) 
 				// {
@@ -76,9 +77,32 @@ app.controller('LocationsCtrl', function($scope, $rootScope, $window, $location,
 		}
 	};
 
+	$scope.toggleLoc = function(loc)
+	{
+		hives.toggle_open_loc(loc.id);
+	}
+
+	$scope.setHiveType = function(id)
+	{
+		console.log(id);
+		$scope.hive.hive_type_id = id;
+	}
+
+	$scope.updateTaxonomy = function()
+	{
+		$scope.hivetypes = settings.hivetypes;
+	}
+	$scope.taxonomyHandler = $rootScope.$on('taxonomyListsUpdated', $scope.updateTaxonomy);
+
 	$scope.natSort = function(a, b) 
 	{
     	return naturalSort(a.value,b.value);
+	};
+
+	$scope.transSort = function(a) 
+	{
+    	var locale = $rootScope.locale;
+    	return a.trans[locale];
 	};
 
 	$scope.placeChanged = function() 
@@ -90,8 +114,15 @@ app.controller('LocationsCtrl', function($scope, $rootScope, $window, $location,
 			$scope.map.setCenter($scope.place.geometry.location);
 			$scope.map.setZoom(16);
 		}
-		$scope.hive.lat = round_dec($scope.place.geometry.viewport.f.f, 3);
-		$scope.hive.lon = round_dec($scope.place.geometry.viewport.b.b, 3);
+		var lat = round_dec($scope.place.geometry.viewport.f.f, 3);
+		var lon = round_dec($scope.place.geometry.viewport.b.b, 3);
+		$scope.hive.lat = lat;
+		$scope.hive.lon = lon;
+		if ($scope.hiveLocation != undefined)
+		{
+			$scope.hiveLocation.lat = lat;
+			$scope.hiveLocation.lon = lon;
+		}
 		// Fill Hive address
 		if ($scope.place.address_components.length > 0)
 		{
@@ -104,18 +135,23 @@ app.controller('LocationsCtrl', function($scope, $rootScope, $window, $location,
 				{
 					case "route":
 						$scope.hive.street = comp.short_name;
+						if ($scope.hiveLocation != undefined) $scope.hiveLocation.street = comp.short_name;
 						break;
 					case "street_number":
 						$scope.hive.street_no = parseInt(comp.short_name);
+						if ($scope.hiveLocation != undefined) $scope.hiveLocation.street_no = parseInt(comp.short_name);
 						break;
 					case "country":
 						$scope.hive.country_code = comp.short_name.toLowerCase();
+						if ($scope.hiveLocation != undefined) $scope.hiveLocation.country_code = comp.short_name.toLowerCase();
 						break;
 					case "postal_code":
 						$scope.hive.postal_code = comp.short_name;
+						if ($scope.hiveLocation != undefined) $scope.hiveLocation.postal_code = comp.short_name;
 						break;
 					case "locality":
 						$scope.hive.city = comp.short_name;
+						if ($scope.hiveLocation != undefined) $scope.hiveLocation.city = comp.short_name
 						break;
 				}
 			}
@@ -143,7 +179,7 @@ app.controller('LocationsCtrl', function($scope, $rootScope, $window, $location,
 
 	$scope.showError = function(type, error)
 	{
-		$scope.error_msg = $rootScope.lang.empty_fields+". Status: "+error.status;
+		$scope.error_msg = error.status == 500 ? $rootScope.lang.Error : $rootScope.lang.empty_fields + (error.status == 422 ? ". Error: "+convertOjectToArray(error.message).join(', ') : '');
 	}
 
 
@@ -154,7 +190,6 @@ app.controller('LocationsCtrl', function($scope, $rootScope, $window, $location,
 		if ($routeParams.locationId != undefined)
 		{
 			$scope.hiveLocation = hives.getHiveLocationById($routeParams.locationId);
-
 		}
 	}
 
@@ -171,7 +206,6 @@ app.controller('LocationsCtrl', function($scope, $rootScope, $window, $location,
 		{
 			$location.path('/locations/create');
 		}
-
 	};
 
 	$scope.locationsError = function()
@@ -180,6 +214,7 @@ app.controller('LocationsCtrl', function($scope, $rootScope, $window, $location,
 	}
 
 	
+	$scope.hivesHandler 			= $rootScope.$on('hivesUpdated', $scope.locationsUpdate);
 	$scope.locationsHandler 		= $rootScope.$on('locationsLoaded', $scope.locationsUpdate);
 	$scope.locationsErrorHandler 	= $rootScope.$on('locationsError', $scope.locationsError);
 
@@ -198,15 +233,16 @@ app.controller('LocationsCtrl', function($scope, $rootScope, $window, $location,
 
 	$scope.deleteLocation = function()
 	{
-		if ($scope.hiveLocation.hives.length > 0)
-		{
-			$rootScope.showMessage($rootScope.lang.first_remove_hives, null, $rootScope.lang.Warning);
-		}
-		else
-		{
-			api.deleteApiRequest('saveLocation', 'locations/'+$scope.hiveLocation.id, $scope.hiveLocation);
-			$scope.redirect = "/locations";
-		}
+		var text = $scope.hiveLocation.hives.length > 0 ? $rootScope.lang.first_remove_hives : '';
+		text += "\r\n"+$rootScope.lang.Delete+' '+$rootScope.lang.location+' '+$scope.hiveLocation.name+'?'
+		
+		$rootScope.showConfirm(text, $scope.performDeleteLocation);
+	}
+
+	$scope.performDeleteLocation = function()
+	{
+		$scope.redirect = "/locations";
+		api.deleteApiRequest('saveLocation', 'locations/'+$scope.hiveLocation.id, $scope.hiveLocation);
 	}
 
 	$scope.locationChanged = function()
@@ -224,7 +260,14 @@ app.controller('LocationsCtrl', function($scope, $rootScope, $window, $location,
 
 	$scope.back = function()
 	{
-		$rootScope.optionsDialog.close();
+		if ($rootScope.optionsDialog)
+		{
+			$rootScope.optionsDialog.close();
+		}
+		else
+		{
+			$rootScope.historyBack();
+		}
 	};
 
 	//close options dialog
@@ -234,8 +277,10 @@ app.controller('LocationsCtrl', function($scope, $rootScope, $window, $location,
 	// remove references to the controller
     $scope.removeListeners = function()
     {
+		$scope.taxonomyHandler();
 		$scope.locationsSaveHandler();
 		$scope.locationsErrorHandler();
+		$scope.hivesHandler();
 		$scope.locationsHandler();
 		$scope.locationsErrorHandler();
 		$scope.backListener();

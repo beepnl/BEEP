@@ -7,10 +7,13 @@ use App\Continent;
 use App\Category;
 use App\HiveFactory;
 use Illuminate\Http\Request;
+use App\Http\Requests\PostLocationRequest;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Cache;
 
 class LocationController extends Controller
 {
+
     /**
      * @var HiveFactory
     **/
@@ -28,7 +31,16 @@ class LocationController extends Controller
      */
     public function index(Request $request)
     {
-        return response()->json(['locations'=>$request->user()->locations()->with('hives.layers.frames', 'hives.queen')->get()]);
+        if ($request->has('root') && $request->input('root'))
+            return response()->json(['locations'=>$request->user()->locations()->get()]);
+
+        // $locations = Cache::remember('locations', 15, function() use ($request) {
+        //     return $request->user()->locations()->with(['hives.layers', 'hives.queen'])->get();
+        // });
+
+        $locations = $request->user()->locations()->with(['hives.layers', 'hives.queen'])->get();
+
+        return response()->json(['locations'=>$locations]); // removed with(['hives.layers.frames', 'hives.queen'])
     }
 
     /**
@@ -37,18 +49,18 @@ class LocationController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(PostLocationRequest $request)
     {
         $name             = $request->input('name'); 
         $prefix           = $request->has('prefix') == false && isset($name)? $name : $request->input('prefix'); 
         $continent        = Continent::where('abbr', $request->input('continent','eu'))->first();
-        $category         = Category::findCategoryByParentAndName('location', $request->input('location_type','fixed'))->first();
+        $category         = Category::findCategoryByParentAndName('location_type', $request->input('location_type','fixed'))->first();
         $location         = new Location([
                 'name'          =>$name, 
                 'continent_id'  =>$continent->id, 
-                'category_id'   =>isset($category->id) ? $category->id : null,
-                'coordinate_lat'=>$request->input('lat', 52),
-                'coordinate_lon'=>$request->input('lon', 5),
+                'category_id'   =>$category->id,
+                'coordinate_lat'=>$request->has('lat') ? round($request->input('lat'),3) : null,
+                'coordinate_lon'=>$request->has('lon') ? round($request->input('lon'),3) : null,
                 'city'          =>$request->input('city'),
                 'street'        =>$request->input('street'),
                 'street_no'     =>$request->input('street_no'),
@@ -56,12 +68,13 @@ class LocationController extends Controller
                 'country_code'  =>$request->input('country_code', 'nl'),
             ]);
 
+        //die(print_r($location));
         $request->user()->locations()->save($location);
         
         $user_id          = $request->user()->id;
-        $amount           = $request->input('hive_amount'); 
-        $count_start      = intval($request->input('offset')); // 1
-        $hive_type_id     = $request->input('hive_type_id'); 
+        $amount           = $request->input('hive_amount', 1); 
+        $count_start      = intval($request->input('offset', 1)); // 1
+        $hive_type_id     = $request->input('hive_type_id', 63); // custom 
         $color            = $request->input('color', '#FABB13'); // yellow
         $broodLayerAmount = $request->input('brood_layers', 1);
         $honeyLayerAmount = $request->input('honey_layers', 1);
@@ -83,7 +96,8 @@ class LocationController extends Controller
      */
     public function show(Request $request, Location $location)
     {
-        return response()->json(['locations'=>[$request->user()->locations()->with('hives.layers.frames', 'hives.queen')->findOrFail($location->id)]]);
+        $location = $request->user()->locations()->with('hives.layers.frames', 'hives.queen')->findOrFail($location->id);
+        return response()->json(['locations'=>[$location]]);
     }
 
 
@@ -94,14 +108,14 @@ class LocationController extends Controller
      * @param  \App\Location  $location
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function update(PostLocationRequest $request, $id)
     {
         $location                = $request->user()->locations()->findOrFail($id);
         // To do: edit continent and type
         $location->name          = $request->input('name'); 
-        $location->coordinate_lat= $request->input('lat', 52);
-        $location->coordinate_lon= $request->input('lon', 5);
-        //$location->city          = $request->input('city');
+        $location->coordinate_lat= $request->has('lat') ? round($request->input('lat'),3) : null;
+        $location->coordinate_lon= $request->has('lon') ? round($request->input('lon'),3) : null;
+        $location->city          = $request->input('city');
         $location->street        = $request->input('street');
         $location->street_no     = $request->input('street_no');
         $location->postal_code   = $request->input('postal_code');

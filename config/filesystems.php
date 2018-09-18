@@ -54,6 +54,20 @@ return [
             'visibility' => 'public',
         ],
 
+        'icons' => [
+            'driver' => 'local',
+            'root' => storage_path('app/public/icons'),
+            'url' => env('APP_URL').'/storage/icons',
+            'visibility' => 'public',
+        ],
+
+        'exports' => [
+            'driver' => 'local',
+            'root' => storage_path('exports'),
+            'url' => env('APP_URL').'storage/exports',
+            'visibility' => 'private',
+        ],
+
         's3' => [
             'driver' => 's3',
             'key' => 'your-key',

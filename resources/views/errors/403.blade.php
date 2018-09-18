@@ -1,8 +1,25 @@
 @extends('layouts.app')
- 
-@section('page-title') Error
+
+@section('body-class')login-page
 @endsection
 
 @section('content')
-	<h1>You don't have permission.</h1>
+    <div class="login-box">
+	    <div class="login-logo">
+	        <a href="/admin"><img src="/webapp/img/beep-icon-logo.svg"></a> 
+	    </div>
+
+	    <div class="login-box-body">
+	        <h3 class="login-box-msg">Error</h3>
+	        <p><strong>You don't have permission to open this page</strong></p>
+	        <br>
+	    	<br>
+	    	<br>
+	    	<br>
+	    	<br>
+	    	<br>
+
+	    	<button class="btn btn-primary btn-block" onclick="history.back();">Go back</button>
+	    </div>
+	</div>
 @endsection

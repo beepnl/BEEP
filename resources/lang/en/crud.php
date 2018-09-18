@@ -12,7 +12,7 @@ return [
     'description'   => 'Description',
     'email'         => 'E-mail',
     'type'          => 'Type',
-    'key'           => 'Device ID',
+    'key'           => 'Device key',
     'roles'         => 'Roles',
     'actions'       => 'Actions',
     'show'          => 'Show',
@@ -28,5 +28,11 @@ return [
     'select_multi'  => 'Select one or more :item',
     'management'    => ':Item management',
     'input_err'     => 'There are some problems with your input',
+    'Attributes'    => 'Attributes',
+    'attributes'    => 'attributes',
+    'Item'          => 'Item',
+    'item'          => 'item',
+    'min'           => 'min',
+    'max'           => 'max',
 
 ];

@@ -8,7 +8,7 @@ class Setting extends Model
 {
 	protected $fillable = ['user_id', 'category_id', 'name', 'value', 'number'];
 	protected $guarded 	= ['id'];
-	protected $hidden   = ['user_id', 'category_id'];
+	protected $hidden   = ['user_id', 'category_id', 'id', 'deleted_at'];
     //protected $appends  = ['type'];
 
     public $timestamps = false;

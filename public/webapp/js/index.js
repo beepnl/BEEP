@@ -4,8 +4,14 @@
  *
  */
 
-var app = angular.module('app', ['ngTouch', 'ngRoute', 'angular-gestures', 'ngSanitize', 'angularMoment', 'chart.js', 'ngDialog', 'iconFilters', 'textFilters', 'uiSwitch', 'revolunet.stepper', 'ngMap', 'angular-datepicker', 'mp.colorPicker']);
+var app = angular.module('app', ['ngRoute', 'angularMoment', 'chart.js', 'ngDialog', 'iconFilters', 'textFilters', 'uiSwitch', 'revolunet.stepper', 'ngMap', 'angular-datepicker', 'mp.colorPicker', 'rzModule', 'ngJsTree', 'angular-atc', 'angular-gestures']);
 
+app.config(function (hammerDefaultOptsProvider) {
+
+    hammerDefaultOptsProvider.set({
+        recognizers: [[Hammer.Press, {time: 250}, Hammer.Release]]
+    });
+});
 
 /* Run some basic functions */
 app.run(function($rootScope, $location, $window, $route, $routeParams, amMoment, ngDialog, settings, api) 
@@ -15,33 +21,53 @@ app.run(function($rootScope, $location, $window, $route, $routeParams, amMoment,
     // FastClick.attach(document.body,{
     //   excludeNode: '^pac-'
     // }); 
-
-    $rootScope.locale = 'nl';
+    $rootScope.browser = navigator.userAgent;
+    $rootScope.host    = $location.host();
     $rootScope.supportedLocales = {
         "nl":"Nederlands", 
-        "en":"English"
+        "en":"English",
+        "de":"Deutsch"
     };
 
-    $rootScope.browser = navigator.userAgent;
+    var setLang     = api.getLocalStoreValue('lang');
+    var navLang     = navigator.language || navigator.userLanguage; 
+    var urlLang     = $routeParams.language;
 
+    if (typeof urlLang != 'undefined' && typeof $rootScope.supportedLocales[urlLang] != 'undefined')
+    {
+        navLang = urlLang;
+    }
+    else if (setLang != null)
+    {
+        navLang = setLang;
+    }
+    var navLocale = navLang.substr(0,2);
+    
+    // set the language
+    $rootScope.locale = typeof $rootScope.supportedLocales[navLocale] != 'undefined' ? navLocale : 'nl';
+    
     // set the chart colors 
-    Chart.defaults.global.defaultFontFamily = "'DinPro', 'MAIN', sans-serif";
-    Chart.defaults.global.defaultFontSize   = 12;
-    Chart.defaults.global.defaultFontStyle  = "normal";
-    Chart.defaults.global.defaultFontColor  = "#444444";
-    Chart.defaults.global.animation.easing  = "easeInOutCubic";
-    Chart.defaults.global.animation.duration= "1000";
-    Chart.defaults.global.tooltips.enabled  = false;
-    Chart.defaults.global.tooltips.mode     = "single";
-    Chart.defaults.global.responsive        = false;
-    Chart.defaults.global.elements.line.borderWidth = 1;
-    Chart.defaults.global.elements.line.borderColor = "#000000";
-    Chart.defaults.global.elements.point.radius = 0;
-    Chart.defaults.global.elements.point.borderColor = "#444444";
-    Chart.defaults.global.elements.point.borderWidth = 1;
-    Chart.defaults.global.elements.rectangle.borderWidth = 0;
-    Chart.defaults.global.elements.rectangle.borderColor = "#444444";
-    //Chart.defaults.global.elements.arc.borderColor = "#D9D9D9";
+    Chart.defaults.global.defaultFontFamily             = "'DinPro', 'MAIN', sans-serif";
+    Chart.defaults.global.defaultFontSize               = 16;
+    Chart.defaults.global.defaultFontStyle              = "normal";
+    Chart.defaults.global.defaultFontColor              = "#444444";
+    Chart.defaults.global.animation.easing              = "easeInOutCubic";
+    Chart.defaults.global.animation.duration            = 500;
+    Chart.defaults.global.tooltips.enabled              = true;
+    Chart.defaults.global.tooltips.mode                 = "nearest";
+    Chart.defaults.global.responsive                    = true;
+    Chart.defaults.global.maintainAspectRatio           = false;
+    Chart.defaults.global.elements.line.borderCapStyle  = "round";
+    Chart.defaults.global.elements.line.borderJoinStyle = "round";
+    Chart.defaults.global.elements.line.borderWidth     = 3;
+    Chart.defaults.global.elements.line.borderColor     = "#000000";
+    Chart.defaults.global.elements.point.radius         = 2;
+    Chart.defaults.global.elements.point.borderColor    = "#444444";
+    Chart.defaults.global.elements.point.borderWidth    = 1;
+    Chart.defaults.global.elements.rectangle.borderWidth= 0;
+    Chart.defaults.global.elements.rectangle.borderColor= "#444444";
+    Chart.defaults.global.elements.line.cubicInterpolationMode = "monotone";
+    Chart.defaults.global.elements.line.lineTension     = 0;
 
     $rootScope.device                = 'ios';
 
@@ -63,16 +89,13 @@ app.run(function($rootScope, $location, $window, $route, $routeParams, amMoment,
     $rootScope.templateClass         = '';
     $rootScope.showAdminTemplate     = false;
 
-    // set the language
-    $rootScope.lang                  = LANG[$rootScope.locale];
 
     $rootScope.user                  = {name:'', img: API_URL+'../uploads/avatars/default.jpg'};
 
     
     init = function()
     {
-        // set the locale of moment.ks
-        amMoment.changeLocale($rootScope.locale);
+        $rootScope.switchLocale($rootScope.locale);
     }
 
     //go to page
@@ -98,10 +121,13 @@ app.run(function($rootScope, $location, $window, $route, $routeParams, amMoment,
     {
         if ($rootScope.supportedLocales[locale] != undefined)
         {
-            $rootScope.locale = locale;
-            amMoment.changeLocale($rootScope.locale);
-            $rootScope.lang = LANG[$rootScope.locale];
+            api.setLocalStoreValue('lang',locale);
+            amMoment.changeLocale(locale);
+            $rootScope.locale       = locale;
+            $rootScope.lang         = LANG[locale];
+            $window.document.title  = $rootScope.lang.Site_title;
             console.log('Locale changed to: '+locale);
+            $rootScope.$broadcast('localeChange', locale);
         }
         else
         {
@@ -217,12 +243,22 @@ app.run(function($rootScope, $location, $window, $route, $routeParams, amMoment,
         else
         {
             // fetch the settings
-            console.log('$rootScope.checkToken: token available -> locations');
+            console.log('$rootScope.checkToken: token available');
             settings.fetchSettings();
             //$location.path('/locations');
         }
     };
 
+    $rootScope.checkPolicy = function(e, data)
+    {
+        if ($rootScope.user.policy_accepted != $rootScope.lang.policy_version)
+        {
+            //console.log($rootScope.user);
+            $location.path('/user/edit');
+            $rootScope.showMessage($rootScope.lang.approve_policy);
+        }
+    }
+    $rootScope.$on('userUpdated', $rootScope.checkPolicy);
 
     setTimeout(function()
     {  
@@ -287,6 +323,7 @@ app.run(function($rootScope, $location, $window, $route, $routeParams, amMoment,
                 default:
                     showAdmin = true;
             }
+            className += $rootScope.mobile ? ' layout-top-nav' : ' fixed';
         }
 
         $rootScope.showAdminTemplate = showAdmin;
@@ -350,17 +387,19 @@ app.run(function($rootScope, $location, $window, $route, $routeParams, amMoment,
 
     $rootScope.$on('$routeChangeSuccess', function() 
     {
-        history.push($location.$$path);
+        history.push($location.path());
     });
 
 
-    $rootScope.back = function(e)
+    $rootScope.back = function()
     {
-        if($route.current.scope.back != null)
-            $route.current.scope.back();
+        $rootScope.$broadcast('backbutton');
     };
 
-
+    $rootScope.historyBack = function()
+    {
+        $window.history.back();
+    }
 
     // handle the native backbutton
     $rootScope.handleBackButton = function()
@@ -400,11 +439,32 @@ app.run(function($rootScope, $location, $window, $route, $routeParams, amMoment,
         } 
         else 
         {
-            nalert(message);
+            window.alert(message);
             if(callback != null)
             {
                 callback();
             }
+        }
+    };
+
+    $rootScope.showConfirm = function(message, callbackOk, callbackVariable, callbackCancel) 
+    {
+        if(navigator.notification && navigator.notification.confirm) 
+        {
+            navigator.notification.confirm(
+                message,    // message
+                callback,   // callback
+                title,      // title
+                buttonNames  // buttonNames
+            );
+        } 
+        else 
+        {
+            var c = window.confirm(message);
+            if (c && typeof callbackOk == 'function')
+                callbackOk(callbackVariable);
+            else if (typeof callbackCancel == 'function')
+                callbackCancel(callbackVariable);
         }
     };
 
@@ -476,6 +536,7 @@ app.run(function($rootScope, $location, $window, $route, $routeParams, amMoment,
     $rootScope.$on('endLoading', function()
     {
         $rootScope.loading = false;
+        //console.log('endLoading');
     });
 
 });

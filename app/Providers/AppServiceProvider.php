@@ -28,5 +28,15 @@ class AppServiceProvider extends ServiceProvider
         {
             return new HiveFactory();  
         });
+
+        $this->app->singleton(ChecklistFactory::class, function() 
+        {
+            return new ChecklistFactory();  
+        });
+
+        if ($this->app->environment() == 'local') 
+        {
+            $this->app->register('Appzcoder\CrudGenerator\CrudGeneratorServiceProvider');
+        }
     }
 }

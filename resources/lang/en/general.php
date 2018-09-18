@@ -18,6 +18,14 @@ return [
     'sensors'       => 'sensors',
     'Sensor'        => 'Sensor',
     'sensor'        => 'sensor',
+    'Taxonomy'      => 'Taxonomy',
+    'taxonomy'      => 'taxonomy',
+    'Translations'  => 'Translations',
+    'translations'  => 'translations',
+    'Categories'    => 'Categories',
+    'categories'    => 'categories',
+    'Category'      => 'Category',
+    'category'      => 'category',
     'type'          => 'type',
     'Permissions'   => 'Permissions',
     'permissions'   => 'permissions',
@@ -33,7 +41,8 @@ return [
     'admin'         => 'Administrator',
     'manager'       => 'Sensor manager',
 
-    'menu'          => 'Menu',
+    'Menu'          => 'Menu',
+    'menu'          => 'menu',
     'menu_data'     => 'Sensor data menu',
     'toggle_nav'    => 'Toggle navigation',
     'dashboard'     => 'Dashboard',
@@ -52,6 +61,19 @@ return [
     'month'         => 'Month',
     'year'          => 'Year',
 
+    'usage'         => 'usage',
+
     'click_legend'  => 'Click on one of the quantities in the legend below to hide/unhide its measeurements',
+
+    'Languages'     => 'Languages',
+    'Language'      => 'Language',
+    'languages'     => 'languages',
+    'language'      => 'language',
+    'switch_language'=>'Switch language',
+    'Translations'  => 'Translations',
+    'Physical_quantity' => 'Physical quantity',
+    'unit'          => 'unit',
+    'Source'        => 'Information source',
+    'Icon'          => 'Icon',
 
 ];

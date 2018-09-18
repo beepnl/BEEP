@@ -4,10 +4,11 @@ namespace App\Http\Controllers\Api;
 
 use App\Hive;
 use App\Queen;
+use App\Category;
 use App\Location;
 use App\HiveFactory;
-use App\BeeRace;
 use Illuminate\Http\Request;
+use App\Http\Requests\PostHiveRequest;
 use App\Http\Controllers\Controller;
 
 class HiveController extends Controller
@@ -42,12 +43,13 @@ class HiveController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(PostHiveRequest $request)
     {
+        
         $user_id          = $request->user()->id;
         $location         = $request->user()->locations()->findOrFail($request->input('location_id'));
         $name             = $request->input('name'); 
-        $hive_type_id     = $request->input('hive_type_id'); 
+        $hive_type_id     = $request->input('hive_type_id', 63); 
         $color            = $request->input('color', '#FABB13'); // yellow
         $broodLayerAmount = $request->input('brood_layers', 1);
         $honeyLayerAmount = $request->input('honey_layers', 1);
@@ -57,7 +59,7 @@ class HiveController extends Controller
 
         if ($request->input('queen.created_at') != null)
         {
-            $race_id = BeeRace::where('type', 'other')->first()->id;
+            $race_id = Category::findCategoryIdByParentAndName('subspecies', 'other');
             $queen = [
                     'name'          =>$request->input('queen.name'),
                     'race_id'       =>$request->input('queen.race_id', $race_id),
@@ -92,7 +94,7 @@ class HiveController extends Controller
      * @param  \App\Hive  $hive
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, Hive $hive)
+    public function update(PostHiveRequest $request, Hive $hive)
     {
         $hive             = $request->user()->hives()->findOrFail($hive->id);
         $location         = $request->user()->locations()->findOrFail($request->input('location_id'));
@@ -107,7 +109,7 @@ class HiveController extends Controller
 
         if ($request->input('queen.created_at') != null)
         {
-            $race_id = BeeRace::where('type', 'other')->first()->id;
+            $race_id = Category::findCategoryIdByParentAndName('subspecies', 'other');
             $queen = [
                     'name'          =>$request->input('queen.name'),
                     'race_id'       =>$request->input('queen.race_id', $race_id),

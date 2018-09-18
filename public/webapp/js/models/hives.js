@@ -12,22 +12,38 @@ app.service('hives', ['$http', '$rootScope', 'api', 'settings', function($http, 
 	this.reset = function()
 	{
 		this.refreshCount 	  = 0;
+		this.hives_inspected  = [];
 		this.hives 		  	  = [];
 		this.locations 	  	  = [];
 		this.frame_width      = 11;
 		this.hive_width_start = 30;
 		this.frame_width_mobile 	 = 3;
 		this.hive_width_start_mobile = 10;
+		this.open_loc_ids 	  = [];
 	}
-	
-	self.reset();
-	$rootScope.$on('reset', self.reset);
 
-	// Hives
-	this.loadRemoteHives = function()
+	this.toggle_open_loc = function(id)
 	{
-		api.getApiRequest('hives', 'hives');
-	};
+		var loc = self.getHiveLocationById(id);
+		if (loc)
+		{
+			loc.open = !loc.open;
+
+			if (loc.open && self.open_loc_ids.indexOf(loc.id) == -1)
+			{
+				self.open_loc_ids.push(loc.id);
+				//console.log('open loc', loc.name, self.open_loc_ids);
+			}
+			else if (self.open_loc_ids.indexOf(loc.id) > -1)
+			{
+				var index = self.open_loc_ids.indexOf(loc.id)
+				self.open_loc_ids.splice(index, 1);
+				//console.log('close loc', loc.name, self.open_loc_ids);
+			}
+			api.setLocalStoreValue('open_loc_ids', self.open_loc_ids.join(','));
+		}
+		self.refresh();
+	}
 
 	this.getHiveById = function(id)
 	{
@@ -37,6 +53,7 @@ app.service('hives', ['$http', '$rootScope', 'api', 'settings', function($http, 
 			if (hive.id == id)
 				return hive;
 		}
+		return null;
 	}
 
 	this.getHiveIndex = function(hiveId)
@@ -47,6 +64,24 @@ app.service('hives', ['$http', '$rootScope', 'api', 'settings', function($http, 
 			if (hive.id == hiveId)
 				return i;
 		}
+		return null;
+	}
+
+	this.getHiveNameById = function(id)
+	{
+		var hive = self.getHiveById(id);
+		return hive != null ? hive.name : null;
+	}
+
+	this.getHiveInspectedIndex = function(hiveId)
+	{
+		for (var i = 0; i < self.hives_inspected.length; i++) 
+		{
+			var hive = self.hives_inspected[i];
+			if (hive.id == hiveId)
+				return i;
+		}
+		return null;
 	}
 
 	// NB: Watch out with undefined variables called 'location' because they affect the url location!!
@@ -58,30 +93,8 @@ app.service('hives', ['$http', '$rootScope', 'api', 'settings', function($http, 
 			if (loc.id == id)
 				return loc;
 		}
+		return null;
 	}
-
-	this.hivesHandler = function(e, data)
-	{
-		// get the result
-		var hives = data.hives;
-		self.hives = [];
-		for (var i = 0; i < hives.length; i++) 
-		{
-			var h = self.addHiveCalculations(hives[i]);
-			self.hives.push(h);
-		}
-
-		self.refresh();
-	};
-
-	this.hivesError = function(e, error)
-	{
-		console.log('hives error '+error.message+' status: '+error.status);
-	};
-
-	$rootScope.$on('hivesLoaded', self.hivesHandler);
-	$rootScope.$on('hivesError', self.hivesError);
-
 
 	// Locations
 	this.loadRemoteLocations = function()
@@ -111,14 +124,22 @@ app.service('hives', ['$http', '$rootScope', 'api', 'settings', function($http, 
 	{
 		hive.brood_layers = 0;
 		hive.honey_layers = 0;
-		hive.frames 	  = hive.layers[0].frames != undefined ? hive.layers[0].frames.length : 10;
-		hive 		  	  = self.calculateHiveWidth(hive);
-		for (var i = 0; i < hive.layers.length; i++) 
+
+		if (hive.layers.length > 0)
 		{
-			l = hive.layers[i];
-			hive.brood_layers += l.type == 'brood' ? 1 : 0;
-			hive.honey_layers += l.type == 'honey' ? 1 : 0;
+			hive.frames 	  = hive.layers.length > 0 && hive.layers[0].framecount != undefined ? hive.layers[0].framecount : 10;
+			hive 		  	  = self.calculateHiveWidth(hive);
+			for (var i = 0; i < hive.layers.length; i++) 
+			{
+				l = hive.layers[i];
+				if (typeof l.frames == 'undefined')
+					l.frames = new Array(hive.frames);
+				
+				hive.brood_layers += l.type == 'brood' ? 1 : 0;
+				hive.honey_layers += l.type == 'honey' ? 1 : 0;
+			}
 		}
+		
 		// Queen
 		if (hive.queen == null)
 		{
@@ -137,18 +158,59 @@ app.service('hives', ['$http', '$rootScope', 'api', 'settings', function($http, 
 	{
 		// get the result
 		var result = data.locations;
+		//console.log(result);
 		self.locations = result;
 		
 		if (self.locations.length > 0)
 			self.hives = [];
 
+		var loc_ids = [];
+		var open_loc_ids = api.getLocalStoreValue('open_loc_ids');
+
+		if (open_loc_ids != null)
+		{
+			loc_ids = open_loc_ids.split(',');
+			for (var i = loc_ids.length - 1; i >= 0; i--) {
+				loc_ids[i] = parseInt(loc_ids[i]);
+			}
+		}
+
 		for (var i = 0; i < self.locations.length; i++) 
 		{
 			loc = self.locations[i];
+
+			if (self.locations.length == 1)
+			{
+				loc.open = true;
+				self.open_loc_ids.push(loc.id);
+			}
+			else if (loc_ids.indexOf(loc.id) > -1)
+			{
+				loc.open = true;
+				self.open_loc_ids.push(loc.id);
+			}
+			else
+			{
+				loc.open = false;
+			}
+
+			if (typeof loc.coordinate_lat != 'undefined')
+				loc.lat = parseFloat(loc.coordinate_lat);
+
+			if (typeof loc.coordinate_lon != 'undefined')
+				loc.lon = parseFloat(loc.coordinate_lon);
+
 			for (var j = 0; j < loc.hives.length; j++) 
 			{
-				hive = loc.hives[j];
-				self.hives.push(self.addHiveCalculations(hive));
+				var h = loc.hives[j];
+				if (typeof h != 'undefined')
+				{
+					hive = self.addHiveCalculations(h)
+					self.hives.push(hive);
+					
+					if (hive.inspection_count > 0)
+						self.hives_inspected.push(hive);
+				}
 			}
 		}
 		
@@ -174,5 +236,9 @@ app.service('hives', ['$http', '$rootScope', 'api', 'settings', function($http, 
 		// announce the update
 		$rootScope.$broadcast('hivesUpdated');
 	};
+
+
+	self.reset();
+	$rootScope.$on('reset', self.reset);
 
 }]);

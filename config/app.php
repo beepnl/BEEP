@@ -168,12 +168,14 @@ return [
          */
         Laravel\Tinker\TinkerServiceProvider::class,
         EllipseSynergie\ApiResponse\Laravel\ResponseServiceProvider::class,
-        Barryvdh\Cors\ServiceProvider::class,
         Zizaco\Entrust\EntrustServiceProvider::class,
         Collective\Html\HtmlServiceProvider::class,
         Intervention\Image\ImageServiceProvider::class,
         Mcamara\LaravelLocalization\LaravelLocalizationServiceProvider::class,
         Pdffiller\LaravelInfluxProvider\InfluxDBServiceProvider::class,
+        Barryvdh\Cors\ServiceProvider::class,
+        // Barryvdh\Debugbar\ServiceProvider::class,
+        Maatwebsite\Excel\ExcelServiceProvider::class,
         //
 
         /*
@@ -238,6 +240,8 @@ return [
         'Image' => Intervention\Image\Facades\Image::class,
         'LaravelLocalization'   => Mcamara\LaravelLocalization\Facades\LaravelLocalization::class,
         'Influx' => Pdffiller\LaravelInfluxProvider\InfluxDBFacade::class,
+        'Excel' => Maatwebsite\Excel\Facades\Excel::class,
+        // 'Debugbar' => Barryvdh\Debugbar\Facade::class,
     ],
 
 ];

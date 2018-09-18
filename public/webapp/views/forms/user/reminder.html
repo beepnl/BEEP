@@ -6,7 +6,7 @@
 	<div class="login-box-body">
 		<h3 class="login-box-msg">{{lang.password_recovery_title}}</h3>
 
-		<form name="reminder" id="password-reminder-form" class="form user-form" ng-submit="sendReminder($event);" novalidate="novalidate">
+		<form name="reminder" id="password-reminder-form" class="form user-form" novalidate="novalidate">
 
 		    <div ng-show="formStatus=='reminder_sent'" class="form-result--message">
 				<p class="summary">{{lang.password_recovery_reminder_success}}</p>
@@ -29,7 +29,7 @@
 
 				<div class="row">
 					<div class="col-xs-12">
-						<button type="submit" class="btn btn-primary btn-block" ng-class="{loading:loading}">{{lang.password_recovery_send_mail}}</button>
+						<a ng-click="sendReminder($event);" class="btn btn-primary btn-block" ng-class="{loading:loading}">{{lang.password_recovery_send_mail}}</a>
 					</div>
 				</div>
 

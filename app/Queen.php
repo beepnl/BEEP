@@ -19,7 +19,7 @@ class Queen extends Model
     // Relations
     public function getRaceAttribute()
     {
-        return BeeRace::find($this->race_id)->name;
+        return isset($this->race_id) && $this->race_id != '' ? Category::find($this->race_id) != null ? Category::find($this->race_id)->name : '' : '';
     }
 
     public function getMotherAttribute()
@@ -34,7 +34,7 @@ class Queen extends Model
 
     public function race()
     {
-        return $this->hasOne(BeeRace::class, 'race_id');
+        return $this->hasOne(Category::class, 'race_id');
     }
 
     public function mother()

@@ -22,8 +22,13 @@ class UserController extends Controller
      */
     public function index(Request $request)
     {
-        $data = User::orderBy('id','DESC')->get();
-            return view('users.index',compact('data'));
+        $data       = [Auth::user()];
+        $show_stats = $request->has('stats');
+
+        if (Auth::user()->hasRole('superadmin'))
+            $data = User::all();
+
+        return view('users.index',compact('data', 'show_stats'));
     }
 
     /**
@@ -47,13 +52,15 @@ class UserController extends Controller
     public function store(Request $request)
     {
         if ($this->checkRoleAuthorization($request, "user-create") == false)
+        {
             return redirect()->route('users.index')->with('error', 'You are not allowed to create this type of user');
+        }
 
         $this->validate($request, [
             'name' => 'required',
             'email' => 'required|email|unique:users,email',
             'password' => 'required|same:confirm-password',
-            'roles' => 'required'
+            //'roles' => 'required'
         ]);
 
         $input = $request->all();
@@ -71,12 +78,15 @@ class UserController extends Controller
         $user = User::create($input);
         
         // Handle role assignment, only store permitted role
-        $roleIds = $this->getMyPermittedRoles(Auth::user(), true);
-        foreach ($request->input('roles') as $key => $value)
+        if ($request->has('roles'))
         {
-            if (in_array($value, $roleIds))
+            $roleIds = $this->getMyPermittedRoles(Auth::user(), true);
+            foreach ($request->input('roles') as $key => $value)
             {
-                $user->attachRole($value);
+                if (in_array($value, $roleIds))
+                {
+                    $user->attachRole($value);
+                }
             }
         }
 
@@ -140,7 +150,7 @@ class UserController extends Controller
             'name' => 'required',
             'email' => 'required|email|unique:users,email,'.$id,
             'password' => 'same:confirm-password',
-            'roles' => 'required',
+            // 'roles' => 'required',
             'avatar' => 'mimes:jpeg,gif,png'
         ]);
 
@@ -165,13 +175,17 @@ class UserController extends Controller
         $user->update($input);
 
         // Edit role
-        DB::table('role_user')->where('user_id',$id)->delete();
-        foreach ($request->input('roles') as $key => $value) {
-            $user->attachRole($value);
+        if ($request->has('roles'))
+        {
+            DB::table('role_user')->where('user_id',$id)->delete();
+            foreach ($request->input('roles') as $key => $value) {
+                $user->attachRole($value);
+            }
         }
 
         // Edit sensors
-        if($request->has('sensors')){
+        if($request->has('sensors'))
+        {
             DB::table('sensor_user')->where('user_id',$id)->delete();
             foreach ($request->input('sensors') as $key => $value) {
                 DB::table('sensor_user')->insert(
@@ -211,8 +225,11 @@ class UserController extends Controller
             return false;
 
         // Check for unauthorized role editing
-        if ($request)
+        if ($request != null && $request->has('roles') && count($request->input('roles')) > 0)
         {
+            if ($request->input('roles')[0] == '')
+                return true; // no role
+
             $superId = Role::where('name','=','superadmin')->pluck('id','id')->toArray();
             $reqIsSup= count(array_diff($request->input('roles'), $superId)) == 0 ? true : false; // check if super admin id role is requested
             $roleIds = $this->getMyPermittedRoles(Auth::user(), true);

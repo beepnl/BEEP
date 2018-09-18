@@ -12,13 +12,36 @@
 		@endslot
 
 		@slot('action')
+			@if($show_stats)
+				<a class="btn btn-default" href="?">Hide stats (faster)</a>
+			@else
+				<a class="btn btn-default" href="?stats=1">Show stats (slow)</a>
+			@endif
 			@permission('user-create')
 	            <a class="btn btn-primary" href="{{ route('users.create') }}"><i class="fa fa-plus"></i> {{ __('crud.add', ['item'=>__('general.user')]) }}</a>
 	        @endpermission
 		@endslot
 
 		@slot('body')
-			<table class="table table-striped">
+
+			<script type="text/javascript">
+				$(document).ready(function() {
+					$("#data-table").DataTable(
+						{
+				        "language": 
+				            @php
+								echo File::get(public_path('webapp/vendor/datatables.net-plugins/i18n/'.LaravelLocalization::getCurrentLocaleName().'.lang'));
+							@endphp
+					    ,
+					    "order": 
+					    [
+				        	[ 3, "asc" ]
+				        ],
+				    });
+				});
+			</script>
+
+			<table id="data-table" class="table table-striped">
 				<thead>
 					<tr>
 						<th class="col-xs-1">{{ __('crud.id') }}</th>
@@ -27,11 +50,14 @@
 						<th class="col-xs-1">{{ __('crud.name') }}</th>
 						{{-- <th class="col-xs-1">{{ __('crud.email') }}</th> --}}
 						<th class="col-xs-1">{{ __('crud.roles') }}</th>
+						@if($show_stats)
 						<th class="col-xs-1">{{ __('beep.Locations') }}</th>
 						<th class="col-xs-1">{{ __('beep.Hives') }}</th>
 						<th class="col-xs-1">{{ __('beep.Inspections') }}</th>
+						<th class="col-xs-1">{{ __('general.Sensors') }}</th>
+						@endif
 						<th class="col-xs-1">{{ __('general.last_login') }}</th>
-						<th class="col-xs-3">{{ __('crud.actions') }}</th>
+						<th class="col-xs-2">{{ __('crud.actions') }}</th>
 					</tr>
 				</thead>
 				<tbody>
@@ -49,9 +75,12 @@
 								@endforeach
 							@endif
 						</td>
-						<td>{{ $user->locations()->count() }}</td>
-						<td>{{ $user->hives()->count() }}</td>
-						<td>{{ $user->inspectioncount }}</td>
+						@if($show_stats)
+						<td>{{ $user->locations->count() }}</td>
+						<td>{{ $user->hives->count() }}</td>
+						<td>{{ $user->inspections->count() }}</td>
+						<td>{{ $user->sensors->count() }}</td>
+						@endif
 						<td>{{ $user->last_login }}</td>
 						<td>
 							<a class="btn btn-default" href="{{ route('users.show',$user->id) }}" title="{{ __('crud.show') }}"><i class="fa fa-eye"></i></a>

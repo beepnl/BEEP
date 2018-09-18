@@ -17,7 +17,7 @@ class CreateCategoryTable extends Migration
         {
             $table->increments('id')->index();
             $table->integer('parent_id')->unsigned()->nullable();
-            $table->foreign('parent_id')->references('id')->on('categories')->onUpdate('cascade');
+            $table->foreign('parent_id')->references('id')->on('categories')->onUpdate('cascade')->onDelete('cascade');
             $table->string('type')->nullable();
             $table->text('name')->nullable();
             $table->text('options')->nullable();
@@ -32,11 +32,6 @@ class CreateCategoryTable extends Migration
      */
     public function down()
     {
-        Schema::table('categories', function(Blueprint $table)
-        {
-            $table->dropForeign(['parent_id']);
-        });
-
         Schema::dropIfExists('categories');
     }
 }

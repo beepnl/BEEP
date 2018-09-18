@@ -19,7 +19,7 @@ class HiveFactory
 		$hive->user_id 		= $user_id;
 		$hive->color 		= $color;
 		$hive->location_id  = $location->id;
-		$hive->hive_type_id = $hive_type_id;
+		$hive->hive_type_id = $hive_type_id != '' && $hive_type_id != null ? $hive_type_id : 63;
 		$hive->save();
 
 		$layersBrood = $this->createLayers('brood', $broodLayerAmount, $color);
@@ -46,7 +46,9 @@ class HiveFactory
 		$hive->hive_type_id = $hive_type_id;
 		$hive->save();
 
-		$layers = collect();
+		$layers 	 = collect();
+		$layersBrood = collect();
+		$layersHoney = collect();
 		$broodLayerDiff = $broodLayerAmount - $hive->getBroodlayersAttribute();
 		if ($broodLayerDiff > 0)
 		{
@@ -135,7 +137,7 @@ class HiveFactory
 		return $frame;
 	}
 
-	public function createMultipleHives($user_id, $amount, Location $location, $name, $hive_type_id, $color, $broodLayerAmount, $honeyLayerAmount, $frameAmount, $count_start)
+ 	public function createMultipleHives($user_id, $amount, Location $location, $name, $hive_type_id, $color, $broodLayerAmount, $honeyLayerAmount, $frameAmount, $count_start)
 	{
 		$hives = collect([]);
 		for ($i=0; $i < $amount ;$i++) 

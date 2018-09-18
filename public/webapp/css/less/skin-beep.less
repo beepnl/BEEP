@@ -1,5 +1,5 @@
 /*
- * Skin: Beep
+ * Skin: Akvo
  * ----------
  */
 @import "../../vendor/admin-lte/build/bootstrap-less/mixins.less";
@@ -29,6 +29,9 @@ body,a,input,h1,h2,h3,h4,h5,h6,.h1,.h2,.h3,.h4,.h5,.h6,.btn {
           > p {
             color: #000;
           }
+        }
+        .user-image{
+          margin-top: inherit;
         }
       }
       @media (max-width: @screen-header-collapse) {
@@ -60,12 +63,14 @@ body,a,input,h1,h2,h3,h4,h5,h6,.h1,.h2,.h3,.h4,.h5,.h6,.btn {
   }
 
   .content-wrapper {
-    background: none;
-    background-image:url("../img/bg-main-square-wax.png");
-    background-position: center center;
-    background-size: cover;
-    background-repeat: no-repeat;
-    background-attachment: fixed;
+    background:
+      radial-gradient(circle farthest-side at 0% 50%,#FFFAF0 23.5%,rgba(240,166,17,0) 0)21px 30px,
+      radial-gradient(circle farthest-side at 0% 50%,#FFEFCE 24%,rgba(240,166,17,0) 0)19px 30px,
+      linear-gradient(#FFFAF0 14%,rgba(240,166,17,0) 0, rgba(240,166,17,0) 85%,#FFFAF0 0)0 0,
+      linear-gradient(150deg,#FFFAF0 24%,#FFEFCE 0,#FFEFCE 26%,rgba(240,166,17,0) 0,rgba(240,166,17,0) 74%,#FFEFCE 0,#FFEFCE 76%,#FFFAF0 0)0 0,
+      linear-gradient(30deg,#FFFAF0 24%,#FFEFCE 0,#FFEFCE 26%,rgba(240,166,17,0) 0,rgba(240,166,17,0) 74%,#FFEFCE 0,#FFEFCE 76%,#FFFAF0 0)0 0,
+      linear-gradient(90deg,#FFEFCE 2%,#FFFAF0 0,#FFFAF0 98%,#FFEFCE 0%)0 0 #FFFAF0;
+    background-size:40px 60px;
   }
 
   //Create the sidebar skin
@@ -98,20 +103,24 @@ body,a,input,h1,h2,h3,h4,h5,h6,.h1,.h2,.h3,.h4,.h5,.h6,.btn {
     padding-right: 5px;
   }
   fieldset{
-    margin-bottom: 20px;
+    margin-bottom: 6px;
     border-radius: @input-radius;
+    border: 1px solid #ddd;
   }
 
 }
 
+// Login
 .login-page,
 .register-page {
-  background: none;
-  background-image:url("../img/bg-main-square-wax.png");
-  background-position: center center;
-  background-size: cover;
-  background-repeat: no-repeat;
-  background-attachment: fixed;
+  background:
+      radial-gradient(circle farthest-side at 0% 50%,#FFFAF0 23.5%,rgba(240,166,17,0) 0)21px 30px,
+      radial-gradient(circle farthest-side at 0% 50%,#FFEFCE 24%,rgba(240,166,17,0) 0)19px 30px,
+      linear-gradient(#FFFAF0 14%,rgba(240,166,17,0) 0, rgba(240,166,17,0) 85%,#FFFAF0 0)0 0,
+      linear-gradient(150deg,#FFFAF0 24%,#FFEFCE 0,#FFEFCE 26%,rgba(240,166,17,0) 0,rgba(240,166,17,0) 74%,#FFEFCE 0,#FFEFCE 76%,#FFFAF0 0)0 0,
+      linear-gradient(30deg,#FFFAF0 24%,#FFEFCE 0,#FFEFCE 26%,rgba(240,166,17,0) 0,rgba(240,166,17,0) 74%,#FFEFCE 0,#FFEFCE 76%,#FFFAF0 0)0 0,
+      linear-gradient(90deg,#FFEFCE 2%,#FFFAF0 0,#FFFAF0 98%,#FFEFCE 0%)0 0 #FFFAF0;
+    background-size:40px 60px;
   .form-group {
     margin-bottom: 15px;
   }
@@ -122,3 +131,42 @@ body,a,input,h1,h2,h3,h4,h5,h6,.h1,.h2,.h3,.h4,.h5,.h6,.btn {
 
   }
 }
+
+// Taxonomy
+.category-tree {
+  margin: 0;
+  padding: 0;
+  list-style-type: none;
+
+  > li > a {
+    color: #000;
+    &:hover, &:active{
+      color: @brand-primary;
+    }
+  }
+
+  > li > .actions {
+      float: right;
+      opacity: 0;
+      transition: opacity 100ms ease-in;
+  }
+
+  > li > .actions > a {
+      text-decoration: none;
+  }
+
+  > li:hover > .actions {
+      opacity: 1;
+  }
+
+  > li > .category-tree {
+      margin-left: 15px;
+  }
+
+  > li.active > .title {
+      font-weight: bold;
+  }
+
+}
+
+

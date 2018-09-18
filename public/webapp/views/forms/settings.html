@@ -1,5 +1,8 @@
 <section class="content-header">
-  <h1>{{lang.settings}}</h1>
+  <h1>
+	<a class="icn prev" ng-class="{'mobile':mobile}" ng-click="back()"></a>
+	{{lang.sensors_title}}
+</h1>
   <!-- <ol class="breadcrumb">
     <li><a href="/"><i class="fa fa-home"></i> Home</a></li>
     <li class="active">{{lang.dashboard}}</li>
@@ -10,44 +13,63 @@
 
 <div ng-iscroll="settings-form-wrapper" class="view-content" ng-class="{loading : isLoading}">	
 	<div id="settings-form-wrapper" class="iscroll-wrapper">
-	    <form id="settings-form" class="form controller-form settings" name="settingsForm" ng-submit="saveSettings($event)">
-		
+	    
 	    	<div class="box">
 			    <div class="box-header with-border">
-			      <h3 class="box-title">Gewichtsensor</h3>
-
-			      <div class="box-tools pull-right">
-	    			<button type="submit" class="btn btn-primary" ng-class="{'disabled':!changed}">{{lang.save}}</button>
-			        <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>
-			        <!--button type="button" class="btn btn-box-tool" data-widget="remove"><i class="fa fa-times"></i></button-->
-			      </div>
+			     	<h3 class="box-title">
+				      	<select ng-if="sensors.length > 0" ng-model="selectedSensorId" ng-change="getSensorValues(selectedSensorId)" class="form-control">
+	    					<option value="">{{ lang.Select_sensor }}...</option>
+	    					<option ng-repeat="sensor in sensors" value="{{sensor.id}}" ng-selected="sensor.id == selectedSensorId">{{sensor.name}}</option>
+	    				</select>
+    				</h3>
+			     
 			    </div>
 			    <!-- /.box-header -->
 			    <div class="box-body">
 
-					<div class="row">
+					<div class="row" >
 						<div class="col-xs-12">
+							<div ng-if="lastSensorValues.length > 0">
+								<h3>{{lang.last_measurement}}: {{ lastSensorDate }}</h3>
+								<ul class="sensor">
+									<li class="measurement" ng-repeat="sensor in lastSensorValues | filter:true:inSensorNames">
+										<span class="icn {{sensor.name}}"></span> <span class="name">{{lang[sensor.name]}}</span> <span class="value">{{sensor.value | number: 1}}</span> <span class="unit">{{SENSOR_UNITS[sensor.name]}}</span>
+									</li>
+								</ul>
+								<hr>
+							</div>
+
+							<div ng-if="selectedSensorId != null">
+								<h3>{{lang.calibrate_weight}}</h3>
+								<p>{{lang.calibrate_explanation}}</p>
+								<ul><li ng-repeat="sensor in weightSensors | filter:nonZeroWeight">{{lang[sensor.name]}}: {{sensor.value}}</li></ul>
+								<a class="btn btn-default" ng-click="offsetWeight()">{{lang.set_as_zero_value}}</a>
+
+								<br><hr>
 							
-							<p>Gewicht van de sensoren op 0 zetten</p>
-							<a class="btn btn-primary" ng-click="offsetWeight()">Stel nu het nulpunt in</a>
+								<h3>{{lang.set_weight_factor}}</h3>
+								<p>{{lang.own_weight_kg}}</p>
+								<input class="form-control" type="text" ng-model="calibrate_weight" placeholder="{{lang.weight}}" name="weight_kg" />
+							
+								<br>
+							
+								<p>{{calibrate_msg ? calibrate_msg : lang.start_calibration}}</p>
+								<a class="btn btn-default" ng-click="calibrateWeight(calibrate_weight)" ng-disabled="calibrating"><i class="fa fa-refresh fa-spin" ng-if="calibrating"></i> {{lang.currently_there_is}} {{ calibrate_weight != undefined && calibrate_weight != 0 ? calibrate_weight + ' kg' : lang.nothing}} {{lang.on_the_scale}}</a>
+							</div>
 
-							<br><br>
-						
-							<p>Wat is je eigen gewicht in kg?</p>
-							<input class="form-control" type="text" ng-model="calibrate_weight" placeholder="{{lang.weight}}" name="weight_kg" />
-						
-							<br>
-						
-							<p>{{calibrate_msg ? calibrate_msg : 'Gewichtsensoren calibreren op gewicht'}}</p>
-							<a class="btn btn-default" ng-click="calibrateWeight()">Er staat nu {{calibrate_weight > 0 ? calibrate_weight + ' kg' : 'niets'}} op de weegschaal</a>
 						</div>
-					</div>
-
+						<br>
+	    				<!-- <button type="submit" class="btn btn-primary btn-block" ng-class="{'disabled':!changed}">{{lang.save}}</button> -->
+	    			</div>
 					
 				</div>
+
+				<div class="overlay" ng-if="loading">
+		          <i class="fa fa-refresh fa-spin"></i>
+		        </div>
+
 			</div>
 
-		</form>
 	</div>
 </div>
 

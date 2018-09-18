@@ -8,7 +8,11 @@ app.controller('UserCtrl', function($scope, $rootScope, $window, $location, $rou
 {
 
 	// set the title
-	$rootScope.title = $rootScope.lang.login_title;
+	$rootScope.title  = $rootScope.lang.login_title;
+	$scope.formStatus = '';
+	$scope.message	  = null;
+	$scope.error   	  = null;
+	$scope.fields     = {};
 
 	$scope.init = function()
 	{
@@ -16,9 +20,18 @@ app.controller('UserCtrl', function($scope, $rootScope, $window, $location, $rou
 		$rootScope.showSplash = false;
 		
 		// check if we're authenticated
+
 		if(api.getApiToken() != null)
 		{
-			$location.path('/load');
+			if ($location.path() != '/user/edit')
+			{
+				$location.path('/load');
+			}
+			else
+			{
+				$rootScope.title  = $rootScope.lang.User;
+				$scope.setEditFields();
+			}
 		}
 
 		// Check locale
@@ -31,12 +44,66 @@ app.controller('UserCtrl', function($scope, $rootScope, $window, $location, $rou
 	};
 
 
-	$scope.formStatus = '';
-	$scope.message	  = null;
-	$scope.error   	  = null;
-	$scope.fields     = {};
+	$scope.confirmDeleteUser = function()
+	{
+		$rootScope.showConfirm($rootScope.lang.Delete+' '+$rootScope.lang.user_data+'?', $scope.reallyConfirmDeleteUser);
+	}
+	$scope.reallyConfirmDeleteUser = function()
+	{
+		$rootScope.showConfirm($rootScope.lang.delete_complete_account, $scope.deleteUser);
+	}
 
+	$scope.deleteUser = function()
+	{
+		api.deleteApiRequest('deleteUser', 'user'); // delete myself
+	}
+	
+	$scope.userDeleteLoadedHandler = $rootScope.$on('deleteUserLoaded', function(e, data)
+	{
+		$rootScope.doLogout(0);
+	});
 
+	$scope.setEditFields = function()
+	{
+		$scope.fields.edit = 
+		{
+			name					: $rootScope.user.name,
+			email					: $rootScope.user.email,
+			password 				: '',		
+			password_confirmation	: '',
+			policy_accepted 		: ($rootScope.user.policy_accepted == $rootScope.lang.policy_version)
+		};
+	}
+
+	$scope.editUser = function()
+	{
+		// reset the errors
+		$scope.formStatus = '';
+		$scope.resetErrors();
+
+		// set the errors
+		var validate = $rootScope.validateFields($scope.fields.edit, $scope.edit, $scope.error);
+		if(validate === true)
+		{
+			if ($scope.fields.edit.policy_accepted)
+				$scope.fields.edit.policy_accepted = $rootScope.lang.policy_version;
+
+			api.patchApiRequest('editUser', 'user', $scope.fields.edit);
+		}
+		else
+		{
+			$scope.message = validate;
+		}
+	};
+
+	$scope.userEditLoadedHandler = $rootScope.$on('editUserLoaded', function(e, data)
+	{
+		$scope.formStatus = 'edited';
+		api.handleAuthentication(data);
+	});
+
+	$scope.userUpdatedHandler 	 = $rootScope.$on('userUpdated', $scope.setEditFields);
+	
 
 	$scope.resetErrors = function()
 	{
@@ -96,6 +163,7 @@ app.controller('UserCtrl', function($scope, $rootScope, $window, $location, $rou
 		email			: '',
 		password 		: '',		
 		password_retype	: '',
+		policy_accepted : ''
 	};
 
 
@@ -112,10 +180,16 @@ app.controller('UserCtrl', function($scope, $rootScope, $window, $location, $rou
 		var validate = $rootScope.validateFields($scope.fields.register, $scope.register, $scope.error);
 		if(validate === true)
 		{
+			if ($scope.fields.register.policy_accepted)
+				$scope.fields.register.policy_accepted = $rootScope.lang.policy_version;
+
 			// go register the user
 			var input = $scope.fields.register;
 
-			api.registerUser(input.password, input.email);
+			$rootScope.user = input;
+			$rootScope.user.name = input.email;
+
+			api.registerUser(input.password, input.email, input.policy_accepted);
 		}
 		else
 		{
@@ -130,13 +204,27 @@ app.controller('UserCtrl', function($scope, $rootScope, $window, $location, $rou
 		// check email
 		console.log(error);
 
+
 		msg = error.message != undefined ? error.message : error;
+
+		if (error.status == 503)
+		{
+			$scope.error.password 		 = false;
+			$scope.error.password_retype = false;
+			$scope.error.email 		     = false;
+			msg = 'server_down';
+		}
 
 		if(msg.indexOf('email') !== -1)
 			$scope.error.email = true;
 
 		// check password
-		if(msg.indexOf('password') !== -1)
+		if(msg == 'no_password_match')
+		{
+			$scope.error.password 		 = false;
+			$scope.error.password_retype = true;
+		}	
+		else if(msg.indexOf('password') !== -1)
 		{
 			$scope.error.password 		 = true;
 			$scope.error.password_retype = true;
@@ -150,14 +238,16 @@ app.controller('UserCtrl', function($scope, $rootScope, $window, $location, $rou
 			resultMessage : $rootScope.lang[msg],
 		};
 	};
-
+	
 	$scope.userAuthenticateHandler = $rootScope.$on('authenticateLoaded', function(e, data)
 	{
 		$location.path('/load');
 	});
 
+	$scope.userDeleteErrorHandler    	= $rootScope.$on('deleteUserError', $scope.authError);
+	$scope.userEditErrorHandler    		= $rootScope.$on('editUserError', $scope.authError);
 	$scope.userAuthenticateErrorHandler = $rootScope.$on('authenticateError', $scope.authError);
-	$scope.userRegisteredErrorHandler = $rootScope.$on('registerError', $scope.authError);
+	$scope.userRegisteredErrorHandler 	= $rootScope.$on('registerError', $scope.authError);
 
 	$scope.userRegisteredHandler = $rootScope.$on('registerLoaded', function(e, data)
 	{
@@ -193,10 +283,15 @@ app.controller('UserCtrl', function($scope, $rootScope, $window, $location, $rou
     // remove listeners
     $scope.removeListeners = function()
     {
+    	$scope.userUpdatedHandler();
     	$scope.userAuthenticateHandler();
     	$scope.userAuthenticateErrorHandler();
 		$scope.userRegisteredHandler();
     	$scope.userRegisteredErrorHandler();
+    	$scope.userEditErrorHandler();
+    	$scope.userEditLoadedHandler();
+    	$scope.userDeleteLoadedHandler();
+    	$scope.userDeleteErrorHandler();
 
     	$scope.backListener();
     };

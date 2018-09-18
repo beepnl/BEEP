@@ -5,7 +5,7 @@
     <span class="caret"></span>
   </a>
   <ul class="dropdown-menu" role="menu">
-    <li class="header">{{ __('general.switch-lang') }}</li>
+    <li class="header">{{ __('general.switch_language') }}</li>
     <li>
       <!-- Inner menu: contains the languages -->
       <ul class="menu">

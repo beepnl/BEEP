@@ -2,12 +2,15 @@
 
 namespace App;
 
+use Iatstuti\Database\Support\CascadeSoftDeletes;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Location extends Model
 {
-    use SoftDeletes;
+    use SoftDeletes, CascadeSoftDeletes;
+
+    protected $cascadeDeletes = ['hives', 'inspections'];
 
     protected $fillable = ['user_id', 'continent_id', 'category_id', 'name', 'coordinate_lat', 'coordinate_lon', 'street', 'street_no', 'postal_code', 'country_code', 'city'];
 	protected $guarded 	= ['id'];
@@ -30,6 +33,11 @@ class Location extends Model
 	public function hives()
     {
         return $this->hasMany(Hive::class);
+    }
+
+    public function inspections()
+    {
+        return $this->belongsToMany(Inspection::class, 'inspection_location');
     }
 
     public function layers()

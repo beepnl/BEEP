@@ -21,12 +21,14 @@
 			<tr>
 				<th>{{ __('crud.id') }}</th>
 				<th>{{ __('crud.name') }}</th>
+				<th>{{ __('crud.display_name') }}</th>
 				<th>{{ __('crud.description') }}</th>
 				<th>{{ __('crud.actions') }}</th>
 			</tr>
 		@foreach ($roles as $key => $role)
 		<tr>
 			<td>{{ $role->id }}</td>
+			<td>{{ $role->name }}</td>
 			<td>{{ $role->display_name }}</td>
 			<td>{{ $role->description }}</td>
 			<td>

@@ -4,7 +4,9 @@ namespace App\Http\Controllers\Api;
 
 use Illuminate\Http\Request;
 use Illuminate\Auth\Events\Login as ApiTokenLogin;
+use Illuminate\Validation\Rule;
 use App\User;
+use App\ChecklistFactory;
 use Response;
 use Validator;
 use Hash;
@@ -22,7 +24,6 @@ class UserController extends Controller
             event( new ApiTokenLogin($request->user(), false) );
             return $this->returnToken($request);
         }
-
         return $this->notAuthenticated($request);
     }
 
@@ -65,6 +66,7 @@ class UserController extends Controller
             (
                 'email'         => 'bail|required|email|unique:users',
                 'password'      => 'required|min:8',
+                'policy_accepted'=>'required'
             ),
             array
             (
@@ -84,15 +86,20 @@ class UserController extends Controller
         else // save 'm 
         {
             $user_data = [
-                'name'  => $request->get('email'),
-                'password'  => Hash::make($request->get('password')),
-                'email'     => $request->get('email'),
+                'name'      => $request->input('email'),
+                'password'  => Hash::make($request->input('password')),
+                'email'     => $request->input('email'),
                 'api_token' => str_random(60),
                 'remember_token' => str_random(10),
+                'policy_accepted'=> $request->input('policy_accepted')
             ];
 
             // save the user
             $user = User::create($user_data);
+
+            $checklistFacttory = new ChecklistFactory;
+            $check= $checklistFacttory->getStandardChecklist();
+            $checklistFacttory->createUserChecklist($user, $check);
 
             // set the response data
             if($user) 
@@ -130,7 +137,7 @@ class UserController extends Controller
         }
 
         // return the response
-        return \Response::json($response, $code);
+        return Response::json($response, $code);
     }
 
 
@@ -195,5 +202,83 @@ class UserController extends Controller
         return Response::json($response, $code);
     }
 
+
+    public function destroy(Request $request)
+    {
+        $del = $request->user()->delete();
+        //$del = true;
+        if ($del)
+            return Response::json(['message' => 'user_deleted'], 200);
+
+        return Response::json(['message' => 'user_not_deleted'], 400);
+    }
+
+    public function edit(Request $request)
+    {
+        $user = $request->user();
+        $save = false;
+
+        $validator = Validator::make
+        (
+            $request->all(),
+            array
+            (
+                'email'         =>  [
+                                        'bail',
+                                        'required',
+                                        'email',
+                                        Rule::unique('users')->ignore($user->id),
+                                    ],
+                'password'      => 'nullable|min:8|confirmed',
+            ),
+            array
+            (
+                'required'      => ':attribute_is_required',
+                'unique'        => ':attribute_already_exists',
+                'email'         => 'no_valid_email',
+                'min'           => 'invalid_password',
+                'confirmed'     => 'no_password_match',
+            )
+        );
+
+        if($validator->fails())
+        {
+            return Response::json(["message" => $validator->errors()->first()], 400);
+        }
+        else // save 'm 
+        {
+            if($request->has('name'))
+            {
+                $user->name = $request->input('name');
+                $save = true;
+            }
+
+            if($request->has('email'))
+            {
+                $user->email = $request->input('email');
+                $save = true;
+            }
+
+            if($request->has('policy_accepted'))
+            {
+                $user->policy_accepted = $request->input('policy_accepted');
+                $save = true;
+            }
+
+            if($request->has('password') && $request->has('password_confirmation') && $request->input('password') == $request->input('password_confirmation'))
+            {
+                $user->password = Hash::make($request->input('password'));
+                $save = true;
+            }
+
+            if ($save)
+            {
+                $saved = $user->save();
+                if ($saved)
+                    return Response::json($user, 200);
+            }
+        }
+        return Response::json(['message' => 'user_not_edited'], 400);
+    }
    
 }

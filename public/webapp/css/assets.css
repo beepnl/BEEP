@@ -154,7 +154,7 @@ ul.sensor {
 .icn.wind {
 	background-image:url(../img/icn_wind.svg);
 }
-.icn.weight, .icn.weight_kg {
+.icn.weight, .icn.weight_kg, .icn.weight_kg_corrected, .icn.weight_combined_kg {
 	background-image:url(../img/icn_weight.svg);
 }
 .icn.flight_activity {

@@ -13,7 +13,7 @@ use Illuminate\Http\Request;
 |
 */
 
-Route::group(['middleware' => 'cors'], function()
+Route::group(['middleware' => \Barryvdh\Cors\HandleCors::class], function()
 {    
 
 
@@ -29,6 +29,7 @@ Route::group(['middleware' => 'cors'], function()
 
 	// save sensor data of multiple sensors
 	Route::post('sensors', 		'Api\SensorController@store');
+	Route::post('lora_sensors', 'Api\SensorController@lora_sensors');
 
 	// save sensor data of multiple sensors (unsecure)
 	Route::post('unsecure_sensors', 'Api\SensorController@store');
@@ -40,9 +41,11 @@ Route::group(['middleware' => 'cors'], function()
 
 		// get list of sensors
 		Route::get('sensors', 				'Api\SensorController@index');
+		// Route::post('lora_sensors', 		'Api\SensorController@lora_sensors'); // store TTN lora sensors with Bearer header
 
 		// get more data of 1 sensors
-		Route::get('sensors/{name}', 		'Api\SensorController@data');
+		Route::get('sensors/measurements', 	'Api\SensorController@data');
+		Route::get('sensors/lastvalues', 	'Api\SensorController@lastvalues');
 
 		// save setting 
 		Route::post('settings', 			'Api\SettingController@store');
@@ -51,16 +54,28 @@ Route::group(['middleware' => 'cors'], function()
 		
 
 		// Get Inspections and categories (actions, conditions, beeraces, hivetypes)
-		Route::get('inspections/lists', 	'Api\InspectionController@lists');
-		Route::get('inspections/{hive_id}', 'Api\InspectionController@index');
-		Route::delete('inspections/{hive_id}/{date}', 'Api\InspectionController@destroy');
+		// Route::get('inspections/lists', 	'Api\InspectionController@lists');
+		// Route::get('inspections/{hive_id}', 'Api\InspectionController@index');
+		// Route::delete('inspections/{hive_id}/{date}', 'Api\InspectionController@destroy');
+
+		Route::get('taxonomy/lists', 		'Api\TaxonomyController@lists');
+		Route::get('taxonomy/taxonomy', 	'Api\TaxonomyController@taxonomy');
+
+		Route::get('inspections/lists', 	'Api\InspectionsController@lists');
+		Route::get('inspections/{hive_id}', 'Api\InspectionsController@show');
+		Route::get('inspections/hive/{hive_id}', 'Api\InspectionsController@hive');
+		Route::post('inspections/store', 	'Api\InspectionsController@store');
+		Route::delete('inspections/{id}', 	'Api\InspectionsController@destroy');
 
 		// Store multiple inspection values at once
 		Route::post('actions/multiple', 	'Api\ActionController@storeMultiple');
 		Route::post('conditions/multiple', 	'Api\ConditionController@storeMultiple');
 
+		Route::delete('user', 				'Api\UserController@destroy');
+		Route::patch('user', 				'Api\UserController@edit');
 
 		// Control resources 
+		Route::resource('checklists', 		'Api\ChecklistController',		 		['except'=>['create','edit']]);
 		Route::resource('categories', 		'Api\CategoryController',		 		['except'=>['create','edit']]);
 		Route::resource('actions', 			'Api\ActionController',		 			['except'=>['create','edit']]);
 		Route::resource('conditions', 		'Api\ConditionController', 				['except'=>['create','edit']]);
@@ -69,6 +84,7 @@ Route::group(['middleware' => 'cors'], function()
 		Route::resource('productions',		'Api\ProductionController',				['except'=>['create','edit']]);
 		Route::resource('queens', 			'Api\QueenController',		 			['except'=>['create','edit']]);
 
+		Route::get('export',				'Api\ExportController@all');
 		
 	});
 

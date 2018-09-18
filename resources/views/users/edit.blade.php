@@ -1,4 +1,5 @@
 @extends('layouts.app')
+@extends('layouts.app')
 
 @section('page-title') {{ __('crud.edit').' '.__('general.user') }}
 @endsection
@@ -50,6 +51,7 @@
                 {!! Form::password('confirm-password', array('placeholder' => __('crud.pass_confirm'),'class' => 'form-control')) !!}
             </div>
         </div>
+        @role('superadmin')
         <div class="col-xs-12 col-sm-12 col-md-12">
             <div class="form-group">
                 <label>{{ __('general.Sensors') }}:</label>
@@ -63,9 +65,12 @@
                 {!! Form::select('roles[]', $roles, $userRole, array('placeholder' => __('crud.select', ['item'=>__('general.user').' '.__('general.role')]),'class' => 'form-control')) !!}
             </div>
         </div>
+        @endrole
+
         <div class="col-xs-12 col-sm-12 col-md-12 text-center">
-				<button type="submit" class="btn btn-primary btn-block">{{ __('crud.save') }}</button>
+            <br>
+    		<button type="submit" class="btn btn-primary btn-block">{{ __('crud.save') }}</button>
         </div>
-	</div>
+    </div>
 	{!! Form::close() !!}
 @endsection

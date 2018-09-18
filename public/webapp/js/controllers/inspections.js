@@ -10,17 +10,79 @@ app.controller('InspectionsCtrl', function($scope, $rootScope, $window, $locatio
 	$rootScope.title    	= $rootScope.lang.Inspections;
 	$scope.showMore 		= false; // multiple inspections
 	$scope.inspections 		= null;
-	$scope.conditions 		= null;
-	$scope.actions 			= null;
+	$scope.items_by_date 	= null;
 	$scope.inspection 		= null;
+	$scope.location 		= null;
 	$scope.hive 			= null;
 	$scope.hiveId 			= null;
-	$scope.location 		= null;
 	$scope.selectedInspectionIndex= 0;
 	
+	$scope.setScales = function()
+	{
+		$scope.gradeColor = function(value) 
+		{
+	        if (value == 0)
+	            return '#CCC';
+	        if (value < 4)
+	            return '#8F1619';
+	        if (value < 6)
+	            return '#5F3F90';
+	        if (value < 8)
+	            return '#243D80';
+	        if (value < 11)
+	            return '#069518';
+
+	        return '#F29100';
+	    };
+		    
+		$scope.scoreQualityOptions = 
+		{
+			1: $rootScope.lang.Poor,
+			2: $rootScope.lang.Fair,
+			3: $rootScope.lang.Good,
+			4: $rootScope.lang.Excellent
+		};
+		$scope.qualityColor = function(value) 
+		{
+	        if (value == 0)
+	            return '#CCC';
+	        if (value == 1)
+	            return '#8F1619';
+	        if (value == 2)
+	            return '#5F3F90';
+	        if (value == 3)
+	            return '#243D80';
+	        if (value == 4)
+	            return '#069518';
+
+	        return '#F29100';
+	    };
+
+		$scope.scoreAmountOptions = {
+			1: $rootScope.lang.Low,
+			2: $rootScope.lang.Medium,
+			3: $rootScope.lang.High,
+			4: $rootScope.lang.Extreme
+		};
+		$scope.amountColor = function(value) 
+		{
+	        if (value == 0)
+	            return '#CCC';
+	        if (value == 1)
+	            return '#069518';
+	        if (value == 2)
+	            return '#243D80';
+	        if (value == 3)
+	            return '#5F3F90';
+	        if (value == 4)
+	            return '#8F1619';
+
+	        return '#F29100';
+	    };
+	}
+
 	$scope.init = function()
 	{
-
 		if(api.getApiToken() == null)
 		{
 			$location.path('/login');
@@ -29,10 +91,23 @@ app.controller('InspectionsCtrl', function($scope, $rootScope, $window, $locatio
 		{
 			$scope.hiveId 	= $routeParams.hiveId;
 			$scope.hive 	= hives.getHiveById($routeParams.hiveId);
-			inspections.loadRemoteInspections($routeParams.hiveId);
-			$scope.showMore = hives.hives.length > 1 ? true : false;
+			$scope.showMore = hives.hives_inspected.length > 1 ? true : false;
+			$scope.setScales();
+			$scope.loadInspections();
+			//console.log($scope.hive);
 		}
 	};
+
+	$scope.localeChange = function(e)
+	{
+		$scope.setScales();
+		$scope.loadInspections(e);
+	}
+
+	$scope.loadInspections = function(e)
+	{
+		inspections.loadRemoteInspections($routeParams.hiveId);
+	}
 
 	$scope.rounddec = function(v, d)
 	{
@@ -46,11 +121,12 @@ app.controller('InspectionsCtrl', function($scope, $rootScope, $window, $locatio
 
 	$scope.inspectionsUpdate = function(e, type)
 	{
-		$scope.inspections = inspections.inspections; 
-
-		if ($scope.inspections.dates.length > 0)
+		$scope.inspections 	 = inspections.inspections.inspections; 
+		$scope.items_by_date = inspections.inspections.items_by_date; 
+		
+		if ($scope.inspections && $scope.inspections.length > 0)
 		{
-			console.log('Inspections have '+$scope.inspections.dates.length+' dates');
+			console.log('Inspections have '+$scope.inspections.length+' dates');
 		}
 		else
 		{
@@ -65,35 +141,61 @@ app.controller('InspectionsCtrl', function($scope, $rootScope, $window, $locatio
 		$scope.actions 	  = null;
 	}
 
+	function deleteInspection(id)
+	{
+		if (id)
+			api.deleteApiRequest('deleteInspection', 'inspections/'+id);
+	}
+
+	$scope.confirmDeleteInspection = function(id)
+	{
+		if (id)
+			$rootScope.showConfirm($rootScope.lang.remove_inspection+'?', deleteInspection, id);
+	}
+
+	$scope.inspectionsDeleteHandler	= $rootScope.$on('deleteInspectionLoaded', $scope.loadInspections);
 	$scope.inspectionsHandler 		= $rootScope.$on('inspectionsUpdated', $scope.inspectionsUpdate);
 	$scope.inspectionsErrorHandler 	= $rootScope.$on('inspectionsError', $scope.inspectionsError);
+	$scope.localeChangeHandler 		= $rootScope.$on('localeChange', $scope.localeChange);
+
+	$scope.getHiveName = function(id)
+	{
+		console.log('getHiveName', id);
+		var name = hives.getHiveNameById(id);
+		return name != null ? name : $rootScope.lang.Hive + ' id: ' + id;
+	}
+
+	$scope.getApiaryName = function(id)
+	{
+		var loc = hives.getHiveLocationById(id);
+		return loc != null ? loc.name : '';
+	}
 
 	$scope.loadHiveIndex = function(direction)
 	{
-		var i   = hives.getHiveIndex($routeParams.hiveId);
+		var i   = hives.getHiveInspectedIndex($routeParams.hiveId);
 		console.log('inspections loadedHiveIndex:', i);
-		var max = hives.hives.length-1;
+		var max = hives.hives_inspected.length-1;
 		if (i < max && direction > 0)
 		{
-			$scope.hive = hives.hives[i+1];
+			$scope.hive = hives.hives_inspected[i+1];
 		}
 		else if (i > 0 && direction < 0)
 		{
-			$scope.hive = hives.hives[i-1];
+			$scope.hive = hives.hives_inspected[i-1];
 		}
 		else
 		{
 			if (direction > 0)
 			{
-				$scope.hive = hives.hives[0];
+				$scope.hive = hives.hives_inspected[0];
 			}
 			else
 			{
-				$scope.hive = hives.hives[max];
+				$scope.hive = hives.hives_inspected[max];
 			}
 		}
-		$routeParams.hiveId = $scope.hive.id;
-		inspections.loadRemoteInspections($scope.hive.id);
+		$location.path('/hives/'+$scope.hive.id+'/inspections'); // create first inspection
 	}
 
 	$scope.prevHive = function(e)
@@ -105,9 +207,17 @@ app.controller('InspectionsCtrl', function($scope, $rootScope, $window, $locatio
 		$scope.loadHiveIndex(1);
 	}
 
+
 	$scope.back = function()
 	{
-		$rootScope.optionsDialog.close();
+		if ($rootScope.optionsDialog)
+		{
+			$rootScope.optionsDialog.close();
+		}
+		else
+		{
+			$rootScope.historyBack();
+		}
 	};
 
 	//close options dialog
@@ -119,6 +229,7 @@ app.controller('InspectionsCtrl', function($scope, $rootScope, $window, $locatio
     {
 		$scope.inspectionsHandler();
 		$scope.inspectionsErrorHandler();
+		$scope.localeChangeHandler();
 		$scope.backListener();
     };
     

@@ -15,7 +15,7 @@ class CategoryController extends Controller
      */
     public function index(Request $request)
     {
-        return response()->json(Category::type('base_category')->with('children')->get());
+        return response()->json(Category::whereIsRoot()->with('children')->get());
     }
 
     /**

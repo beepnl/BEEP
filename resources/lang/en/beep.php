@@ -4,11 +4,29 @@ return [
 
     'site_title'        => 'BEEP - Management interface',
     'Hives'             => 'Hives',
+    'Hive'              => 'Hive',
     'Locations'         => 'Locations',
     'Inspections'       => 'Inspections',
+    'Inspection'        => 'Inspection',
     'Conditions'        => 'Conditions',
     'Actions'           => 'Actions',
     'footer_text'       => 'Open source bee monitor',
     'Beep_foundation'   => 'BEEP foundation',
 
+    'PhysicalQuantity'  => 'Physical quantities',
+    'physicalquantity'  => 'physical quantity',
+    'BeeRace'  			=> 'Bee races',
+    'beerace'  			=> 'bee race',
+    'HiveType' 			=> 'Hive types',
+    'hivetype' 			=> 'hive type',
+    'CategoryInputs' 	=> 'Taxonomy item types',
+    'categoryinput' 	=> 'yaxonomy item type',
+
+    'Checklist'         => 'Checklist',
+    'checklist'         => 'checklist',
+    'Checklists'        => 'Checklists',
+    'checklists'        => 'checklists',
+
+    'Webapp'            => 'Web app',
+    'language'          => 'language',
 ];

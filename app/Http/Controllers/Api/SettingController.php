@@ -15,20 +15,36 @@ class SettingController extends Controller
     {
     	$user_id = $request->user()->id;
         $type    = $request->input('type');
+        $number  = $request->input('id');
 
+        $input   = $request->input();
+        if ($request->has('id'))
+            unset($input['id']);
+
+        //die(print_r($input));
         // $cat_id  = Category::name($type);
         // if (isset($cat_id))
         // {
             $save_cnt = 0;
-            foreach($request->input() as $name => $value)
+            foreach($input as $name => $value)
             {
                 if ($name == "")
                     continue;
+
+                if ($request->has('id'))
+                {
+                    $request->user()->settings()->where('name',$name)->where('number',$number)->delete();
+                }
+                else
+                {
+                    $request->user()->settings()->where('name',$name)->delete();
+                }
 
                 $setting          = new Setting;
                 $setting->category_id = 0;
                 $setting->name    = $name;
                 $setting->value   = $value;
+                $setting->number  = $number;
                 $saved = $request->user()->settings()->save($setting);
                 
                 if ($saved)
@@ -47,8 +63,9 @@ class SettingController extends Controller
     
     public function index(Request $request)
     {
-    	//die($request->user());
-        return Response::json($request->user()->settings());
+    	//die(print_r($request->user()->settings()->get()));
+        return Response::json($request->user()->settings()->groupBy('name','number')->get());
     }
+
 
 }

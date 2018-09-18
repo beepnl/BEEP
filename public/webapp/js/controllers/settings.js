@@ -4,14 +4,19 @@
  *
  * Settings controller
  */
-app.controller('SettingsCtrl', function($scope, $rootScope, $window, $timeout, $location, $filter, $interval, api, $routeParams, ngDialog, settings, measurements) 
+app.controller('SettingsCtrl', function($scope, $rootScope, $window, $timeout, $location, $filter, $interval, api, $routeParams, ngDialog, settings, hives, measurements) 
 {
 
     // settings
-    $scope.hives                 = settings.hives;
-    $scope.sensors               = settings.sensors;
-    $scope.calibrate_weight      = settings.settings.calibrate_weight;
+    $scope.hives                 = [];
+    $scope.sensors               = [];
+    $scope.weightSensors         = [];
+    $scope.weightSensorsCalibrate= {};
+    $scope.lastSensorValues      = [];
+    $scope.lastSensorDate        = null;
+    $scope.selectedSensorId      = null;
     $scope.calibrate_msg         = null;
+    $scope.calibrating           = false;
 
     // settings (readonly)
     $scope.firmware              = settings.firmware_version;
@@ -24,80 +29,160 @@ app.controller('SettingsCtrl', function($scope, $rootScope, $window, $timeout, $
     $scope.isAutomatic           = ($scope.connection_type == 'automatic') ? true : false;
     //$scope.changed               = false;
 
-    $scope.watchTimeout = null;
-
     $scope.init = function()
     {
+        $scope.hives             = hives.hives;
+        $scope.sensors           = measurements.sensors;
+        $scope.selectedSensorId  = measurements.sensorId;
+        $scope.calibrate_weight  = settings.settings.calibrate_weight;
+        $scope.updateWeightSensors();
+        $scope.handleLastSensorValues();
         $scope.refreshIscroll();
     };
+
+    $scope.inSensorNames = function(a, b)
+    {
+        return typeof SENSOR_NAMES[a] != 'undefined';
+    }
+    $scope.nonZeroWeight = function(a)
+    {
+        return (a.value != 0 && a.name != 'id');
+    }
+
+    $scope.updateSensors = function()
+    {
+        $scope.sensors = measurements.sensors;
+    }
+    $scope.sensorsUpdatedHandler = $rootScope.$on('sensorsUpdated', $scope.updateSensors);
+
+    $scope.updateWeightSensors = function()
+    {
+        $scope.weightSensors = convertOjectToNameArray(measurements.weightSensors);
+    }
+    $scope.weightSensorsUpdatedHandler = $rootScope.$on('weightSensorsUpdated', $scope.updateWeightSensors);
+
+
+    $scope.getSensorValues = function(id)
+    {
+        if (typeof id != 'undefined')
+            $scope.selectedSensorId = id;
+
+        if ($scope.selectedSensorId)
+        {
+            measurements.loadLastSensorValues($scope.selectedSensorId);
+            $scope.loadLastSensorValues();
+        }
+    }
+    
+    $scope.handleLastSensorValues = function()
+    {
+        $scope.lastSensorValues = convertOjectToNameArray(measurements.lastSensorValues);
+        $scope.lastSensorDate   = moment(measurements.lastSensorDate).format('llll');
+    }
+    $scope.lastSensorValuesUpdatedHandler = $rootScope.$on('lastSensorValuesUpdated', $scope.handleLastSensorValues);
+
+    $scope.loadLastSensorValuesTimer = null
+    $scope.loadLastSensorValues = function(activate=true)
+    {
+        if (angular.isDefined($scope.loadLastSensorValuesTimer))
+            $interval.cancel($scope.loadLastSensorValuesTimer);
+
+        // Start loading interval
+        if (activate && $scope.selectedSensorId)
+        {
+            $scope.loadLastSensorValuesTimer = $interval(function()
+            {
+                $scope.getSensorValues();
+            }, 10000);
+        }
+    }
+
 
     $scope.offsetWeight = function()
     {
         // get weight from sensors, save offsets
-        if (measurements.weightSensors)
+        if (measurements.weightSensors && $scope.selectedSensorId)
         {
-            $scope.isLoading = true;
-            settings.saveSettings(measurements.weightSensors);
-        }
-    }
-
-    $scope.calibrateWeight = function()
-    {
-        // get weight from sensors, save offsets
-        
-        if (measurements.weightSensors)
-        {
-            $scope.isLoading = true;
-            var weightObj = {calibrate_weight:$scope.calibrate_weight};
+            var weightObj = measurements.weightSensors;
+            weightObj.id  = $scope.selectedSensorId;
             settings.saveSettings(weightObj);
-            $scope.waitForWeightChange();
         }
     }
 
-    $scope.calibrateLoadTimer = null
-    $scope.waitForWeightChange = function()
+    $scope.weightSensorsCalibrateHandler = null;
+    $scope.calibrateWeight = function(weight_kg)
     {
-        if (angular.isDefined($scope.calibrateLoadTimer))
-            $interval.cancel($scope.calibrateLoadTimer);
-
-        // Start loading interval
-        $scope.calibrateLoadTimer = $interval(function()
+        if ($scope.selectedSensorId && weight_kg)
         {
+            $scope.calibrate_weight       = weight_kg;
+            $scope.weightSensorsCalibrate = angular.copy(measurements.weightSensors);
+            var weightObj = {'calibrate_weight':weight_kg};
+            weightObj.id  = $scope.selectedSensorId;
+            //console.log(weightObj);
+            settings.saveSettings(weightObj);
             $scope.calibrate();
-        }, 5000);
-
-        $scope.calibrate();
+            $scope.weightSensorsCalibrateHandler = $rootScope.$on('weightSensorsUpdated', $scope.calibrate);
+        }
     }
 
     $scope.calibrate = function()
     {
-        $scope.isLoading = true;
+        $scope.calibrating  = true;
+
         var changed         = 0;
         var change_perc     = 2;
         var calibrate_obj   = {};
-        var sensor_amnt     = Object.keys(measurements.weightSensors).length;
+        var sensor_amnt     = measurements.weightSensors.w_v !== 0 ? 1 : 4; // 1 or 4 sensors depending on setup
+
+        var settings_array  = [];
+        for (var i = 0; i < settings.settings_array.length; i++) 
+        {
+            var obj = settings.settings_array[i];
+            if ($scope.selectedSensorId && obj.number == $scope.selectedSensorId)
+                settings_array.push(obj);
+        }
+        var settings_obj = $scope.weightSensorsCalibrate;
+
+        console.info(settings_obj);
+
         for(var w in measurements.weightSensors)
         {
-            if (typeof(settings.settings[w]) != 'undefined')
+            if (typeof settings_obj[w] != 'undefined' && w != 'id')
             {
-                var oldVal = settings.settings[w];
-                var newVal = measurements.weightSensors[w];
+                var oldVal = parseFloat(settings_obj[w]);
+                var newVal = parseFloat(measurements.weightSensors[w]);
+
                 if (percDiffOf(newVal, oldVal) > change_perc){
                     changed++;
                     var kg_portion = $scope.calibrate_weight / sensor_amnt;
-                    var kg_per_val = kg_portion / Math.abs(newVal - oldVal);
+                    var kg_per_val = kg_portion / (newVal - oldVal);
                     calibrate_obj[w+'_kg_per_val'] = kg_per_val;
+                    console.log(newVal, oldVal, calibrate_obj);
                 }
             }
         }
         if (changed == sensor_amnt)
         {
-            $scope.calibrate_msg = "Calibratie geslaagd!";
+            $scope.calibrating   = false;
+            $scope.calibrate_msg = "Calibratie geslaagd! Wacht op de volgende meting om te controleren of het gewicht inderdaad het aangegeven gewicht in kg aangeeft.";
+            settings_obj.id      = $scope.selectedSensorId;
+            settings.saveSettings(settings_obj); // save the offset values first
+            calibrate_obj.id     = $scope.selectedSensorId;
             settings.saveSettings(calibrate_obj);
+            if (typeof $scope.weightSensorsCalibrateHandler == 'function')
+                $scope.weightSensorsCalibrateHandler(); // remove handler
         }
         else
         {
-            $scope.calibrate_msg = changed + " van " + sensor_amnt + " sensoren > "+change_perc+"% veranderd...";
+            var msg = changed + " van " + sensor_amnt + " sensoren > "+change_perc+" % veranderd..."
+            if ($scope.calibrating == false || $scope.calibrate_msg == null || $scope.calibrate_msg.indexOf(msg) == -1)
+            {
+                $scope.calibrate_msg = msg;
+            }
+            else
+            {
+                $scope.calibrate_msg += ".";
+            }
         }
     }
 
@@ -113,7 +198,6 @@ app.controller('SettingsCtrl', function($scope, $rootScope, $window, $timeout, $
 
         // set loading
         $scope.isLoading = true;
-        $scope.watchTimeout = null;
 
         // save the settings to the server
         settings.saveSettings(data);
@@ -140,7 +224,7 @@ app.controller('SettingsCtrl', function($scope, $rootScope, $window, $timeout, $
         $scope.isLoading = false;
 
         // set the status to offline
-        settings.setStatus('offline'); // Why taking the status of the app offline? Only because the settings can not be saved on the server?
+        //settings.setStatus('offline'); // Why taking the status of the app offline? Only because the settings can not be saved on the server?
     });
 
 
@@ -154,29 +238,13 @@ app.controller('SettingsCtrl', function($scope, $rootScope, $window, $timeout, $
         // }, 200);
     }
 
-    // watch the manual switch
-    // $scope.$watch('isAutomatic', function(newVal, oldVal)
-    // {
-    //     if(newVal != oldVal)
-    //     {
-    //         // check the connection type
-    //         $scope.connection_type = ($scope.isAutomatic) ? 'automatic' : 'manual';
-
-    //         // save the changes
-    //         $scope.saveSettings();
-
-    //         // refresh iscroll
-    //         $scope.refreshIscroll();
-    //     }
-    // });
-
-
     $scope.init();
 
 
     // remove the listeners
     $scope.$on('$destroy', function() 
     {
+        $scope.loadLastSensorValues(false);
         $scope.removeListeners();
     });
 
@@ -186,6 +254,9 @@ app.controller('SettingsCtrl', function($scope, $rootScope, $window, $timeout, $
     {
         $scope.settingsSavedHandler();
         $scope.settingsErrorHandler();
+        $scope.sensorsUpdatedHandler();
+        $scope.lastSensorValuesUpdatedHandler();
+        $scope.weightSensorsUpdatedHandler();
     };
 
 });

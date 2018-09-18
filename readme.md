@@ -103,6 +103,7 @@ History:
 
 Upcoming:
 * Hardware weighing scale + audio measurement kit development (2018 Q2-Q4)
+  * See https://www.openhardware.io/view/630
 * Bee keeping teacher support - Inspection list sharing (2018 Q3)
 * Integration sensor data / hive inspections (2018 Q4)
 * User feedback improvements (2019 Q1)

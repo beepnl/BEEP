@@ -233,6 +233,46 @@ class SensorController extends Controller
     }
 
     
+    private function floatify_sensor_val($arr, $key)
+    {
+        if (isset($arr[$key]))
+        {
+            $value = $arr[$key];
+
+            if ($value == 0)
+            {
+                unset($arr[$key]);
+            }
+            else
+            {
+                switch($key)
+                {
+                    case 't':
+                    case 't_i':
+                        $arr[$key] = ($value / 5) - 10; // de-tempfy
+                        break;
+                    case 'h':
+                        $arr[$key] = $value / 2;
+                        break;
+                    case 'bv':
+                        $arr[$key] = $value / 10;
+                        break;
+                    case 'w_v':
+                        $arr[$key] = $value;
+                        break;
+                    case 'w_fl':
+                    case 'w_fr':
+                    case 'w_bl':
+                    case 'w_br':
+                        $arr[$key] = $value / 300 // de-weightify
+                        break;
+                }
+            }
+        }
+
+        return $arr;
+    }
+
     public function lora_sensors(Request $request)
     {
         $data_array = [];
@@ -251,8 +291,25 @@ class SensorController extends Controller
         if ($request->has('DevEUI_uplink.payload_hex'))
             $data_array = array_merge($data_array, $this->decode_simpoint_payload($request->input('DevEUI_uplink.payload_hex')));
 
-        Storage::disk('local')->put('lora_sensors.log', json_encode($request->input()));
+        if (isset($data_array['w_fl']) || isset($data_array['w_fr']) || isset($data_array['w_bl']) || isset($data_array['w_br'])) // v7 firmware
+        {
+            // - H   -> *2 (range 0-200)
+            // - T   -> -10 -> +40 range (+10, *5), so 0-250 is /5, -10
+            // - W_E -> *1
+            $data_array = $this->floatify_sensor_val($data_array, 't');
+            $data_array = $this->floatify_sensor_val($data_array, 't_i');
+            $data_array = $this->floatify_sensor_val($data_array, 'h');
+            $data_array = $this->floatify_sensor_val($data_array, 'bv');
+            $data_array = $this->floatify_sensor_val($data_array, 'w_v');
+            $data_array = $this->floatify_sensor_val($data_array, 'w_fl');
+            $data_array = $this->floatify_sensor_val($data_array, 'w_fr');
+            $data_array = $this->floatify_sensor_val($data_array, 'w_bl');
+            $data_array = $this->floatify_sensor_val($data_array, 'w_br');
+        }        
+
         //die(print_r($data_array));
+
+        Storage::disk('local')->put('lora_sensors.log', '['.json_encode($request->input()).','.json_encode($data_array).']');
         return $this->storeMeasurements($data_array);
     }
 
@@ -260,26 +317,32 @@ class SensorController extends Controller
     {
         $out = [];
         $beep_sensors = [
-            't'  ,
-            'h'  ,
+            't'  , // 0
+            'h'  , // 1
             'w_v',
             't_i',
             'a_i',
             'bv' ,
-            's_tot'     ,
-            's_fan_4'   ,
-            's_fan_6'   ,
-            's_fan_9'   ,
-            's_fly_a'   ,
-            'w_fl'      ,
-            'w_fr'      ,
-            'w_bl'      ,
-            'w_br'      ,       
+            's_tot',
+            's_fan_4',
+            's_fan_6',
+            's_fan_9',
+            's_fly_a',
+            'w_fl_hb',
+            'w_fl_lb',
+            'w_fr_hb',
+            'w_fr_lb',
+            'w_bl_hb',
+            'w_bl_lb',
+            'w_br_hb',       
+            'w_br_lb', // 18  
         ];
+
         $minLength = min(strlen($payload)/2, count($beep_sensors));
+
         for ($i=0; $i < $minLength; $i++) 
         { 
-            if (strlen($payload) > 30)
+            if (strlen($payload) > count($beep_sensors)*2)
             {
                 $index = $i * 4 + 2; 
             }
@@ -287,7 +350,24 @@ class SensorController extends Controller
             {
                 $index = $i * 2;
             }
-            $out[$beep_sensors[$i]] = hexdec(substr($payload, $index, 2));
+            $sensor = $beep_sensors[$i];
+            $hexval = substr($payload, $index, 2);
+
+            if (strpos($sensor, '_hb') !== false) // step 1 of 2 byte value
+            {
+                $sensor = substr($sensor, 0, strpos($sensor, '_hb'));
+                $out[$sensor] = $hexval;
+            } 
+            else if (strpos($sensor, '_lb') !== false) // step 2 of 2 byte value
+            {
+                $sensor = substr($sensor, 0, strpos($sensor, '_lb'));
+                $totalHexVal  = $out[$sensor].$hexval;
+                $out[$sensor] = hexdec($totalHexVal);
+            }
+            else
+            {
+                $out[$sensor] = hexdec($hexval);
+            }
         }
         //die(print_r($minLength));
         return $out;
@@ -300,14 +380,21 @@ class SensorController extends Controller
         if ($request->has('payload_fields')) // TTN HTTP POST
         {
             $data_array = $request->input('payload_fields');
-            if ($request->has('hardware_serial'))
+            if (isset($data_array['key']))
+            {
+                // keep $data_array['key']
+            }
+            else if ($request->has('hardware_serial'))
+            {
                 $data_array['key'] = $request->input('hardware_serial'); // LoRa WAN = Device EUI
+            }
+
             if ($request->has('metadata.gateways.0.rssi'))
                 $data_array['rssi'] = $request->input('metadata.gateways.0.rssi');
             if ($request->has('metadata.gateways.0.snr'))
                 $data_array['snr']  = $request->input('metadata.gateways.0.snr');
         }
-        else if ($request->has('data')) // Check for sensor string (colon and pipe devided)
+        else if ($request->has('data')) // Check for sensor string (colon and pipe devided) fw v1-3
         {
             $data_array = $this->convertSensorStringToArray($request->input('data'));
         }
@@ -339,10 +426,15 @@ class SensorController extends Controller
         $sensor_user_id = $check_sensor->user_id;
         $sensor_id      = $check_sensor->id;
         
-        $weight_kg = $this->calculateWeightKg($data_array, $sensor_user_id, $sensor_id);
-        $data_array['weight_kg'] = $weight_kg;
-        if (isset($data_array['t']))
-            $data_array['weight_kg_corrected'] = $weight_kg - (0.0746 * $data_array['t']);
+        if (isset($data_array['w_v']) || isset($data_array['w_fl']) || isset($data_array['w_fr']) || isset($data_array['w_bl']) || isset($data_array['w_br'])) 
+        {
+            $weight_kg = $this->calculateWeightKg($data_array, $sensor_user_id, $sensor_id);
+            $data_array['weight_kg'] = $weight_kg;
+
+            if (isset($data_array['t']) && isset($data_array['w_v']) == false)
+                $data_array['weight_kg_corrected'] = $weight_kg - (0.0746 * $data_array['t']);
+
+        }
         // store posted data
         $sensors = [];
         $points  = [];

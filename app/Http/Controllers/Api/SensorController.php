@@ -264,7 +264,7 @@ class SensorController extends Controller
                     case 'w_fr':
                     case 'w_bl':
                     case 'w_br':
-                        $arr[$key] = $value / 300 // de-weightify
+                        $arr[$key] = $value / 300; // de-weightify
                         break;
                 }
             }

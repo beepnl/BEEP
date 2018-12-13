@@ -146,8 +146,8 @@
 		<!-- small box -->
 			<div class="small-box bg-yellow">
 				<div class="inner">
-					<h3>{{ $data['checklists'] }}</h3>
-					<p>Checklists</p>
+					<h3>{{ $data['checklists'] }} / {{ $data['checklists_edited'] }}</h3>
+					<p>Checklists total / Edited</p>
 				</div>
 				<div class="icon">
 					<i class="fa fa-list"></i>
@@ -162,8 +162,99 @@
 		<!-- small box -->
 			<div class="small-box bg-yellow">
 				<div class="inner">
-					<h3>{{ $data['inspections'] }}</h3>
-					<p>Inspections</p>
+					<h3>Top 5 lists size</h3>
+					<p>
+					@foreach($data['checklist_categories_max'] as $value)
+						<span>{{ $value->count }}, </span> 
+					@endforeach
+					</p>
+				</div>
+				<div class="icon">
+					<i class="fa fa-list"></i>
+				</div>
+				<a href="/checklists" class="small-box-footer">
+	               Checklists <i class="fa fa-arrow-circle-right"></i>
+	            </a>
+			</div>
+		</div>
+
+		<div class="col-lg-3 col-xs-6">
+		<!-- small box -->
+			<div class="small-box bg-yellow">
+				<div class="inner">
+					<h3>Btm 5 list itm size</h3>
+					<p>
+					@foreach($data['checklist_categories_min'] as $value)
+						<span>{{ $value->count }}, </span> 
+					@endforeach
+					</p>
+				</div>
+				<div class="icon">
+					<i class="fa fa-list"></i>
+				</div>
+				<a href="/checklists" class="small-box-footer">
+	               Checklists <i class="fa fa-arrow-circle-right"></i>
+	            </a>
+			</div>
+		</div>
+
+		<div class="col-lg-3 col-xs-6">
+		<!-- small box -->
+			<div class="small-box bg-yellow">
+				<div class="inner">
+					<h3>{{ $data['inspections'] }} / {{ $data['itemsperinspection'] }}</h3>
+					<p>Inspections / Items per inspection</p>
+				</div>
+				<div class="icon">
+					<i class="fa fa-check-circle"></i>
+				</div>
+				<a href="/inspections" class="small-box-footer">
+	               Inspections <i class="fa fa-arrow-circle-right"></i>
+	            </a>
+			</div>
+		</div>
+
+	</div>
+	<div class="row">
+
+		<div class="col-lg-6 col-xs-12">
+		<!-- small box -->
+			<div class="small-box bg-red">
+				<div class="inner">
+					<h3>Fixed inspection variable usage</h3>
+					<div style="overflow: auto; height: 200px;">
+						@foreach($data['ins_vars'] as $name => $value)
+							<p style="line-height: 10px;">
+								<span style="display: inline-block; width: 50px; font-weight: bold;">{{ $value['count'] }}:</span> 
+								<span><i class="glyphicon glyphicon-{{ $value['glyphicon'] }}"></i></span>
+								{{ $name }}
+							</p>
+						@endforeach
+					</div>
+				</div>
+				<div class="icon">
+					<i class="fa fa-check-circle"></i>
+				</div>
+				<a href="/inspections" class="small-box-footer">
+	               Inspections <i class="fa fa-arrow-circle-right"></i>
+	            </a>
+			</div>
+		</div>
+
+		<div class="col-lg-6 col-xs-12">
+		<!-- small box -->
+			<div class="small-box bg-red">
+				<div class="inner">
+					<h3>Dynamic inspection item top {{count($data['terms'])}}</h3>
+					<div style="overflow: auto; height: 200px;">
+						@foreach($data['terms'] as $name => $value)
+							<p style="line-height: 10px;">
+								<span style="display: inline-block; width: 50px; font-weight: bold;">{{ $value['count'] }}:</span> 
+								<span><i class="glyphicon glyphicon-{{ $value['glyphicon'] }}"></i></span>
+								{{ $name }}
+							</p>
+						@endforeach
+					</div>
 				</div>
 				<div class="icon">
 					<i class="fa fa-check-circle"></i>

@@ -100,6 +100,25 @@ body.beta.register-page{
 	}
 
 /* Sensors */
+.gauge{
+	position: relative; 
+	display: inline-block;
+}
+.gauge-icon{
+	position: absolute; 
+	top: 20px; 
+	width: 100%; 
+	text-align: center;
+}
+
+.gauge-icon.mobile{
+		top:14px;
+	}
+	.gauge-icon.mobile .icn{
+		width: 12px;
+		height: 12px;
+	}
+
 .icn {
 	display: inline-block;
 	background-size: contain;
@@ -110,6 +129,7 @@ body.beta.register-page{
 	height: 16px;
 	vertical-align: middle;
 }
+
 .icon-button {
     padding-left: 10px;
     padding-right: 10px;
@@ -166,7 +186,7 @@ body.beta.register-page{
 .icn.alert {
 	background-image:url(../img/icn_alert.svg);
 }
-.icn.air_pressure, .icn.p {
+.icn.air_pressure, .icn.p, .icn.lat, .icn.lon {
 	background-image:url(../img/icn_cloud.svg);
 }
 .icn.bat_volt, .icn.bv {
@@ -883,6 +903,13 @@ input.rn-stepper{
 	}
 	input.rn-stepper{
 		width: 39px;
+	}
+	.gauge-icon{
+		top:14px;
+	}
+	.gauge-icon .icn{
+		width: 12px;
+		height: 12px;
 	}
 }
 

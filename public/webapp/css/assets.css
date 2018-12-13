@@ -166,7 +166,7 @@ ul.sensor {
 .icn.alert {
 	background-image:url(../img/icn_alert.svg);
 }
-.icn.air_pressure {
+.icn.air_pressure, .icn.lat, .icn.lon {
 	background-image:url(../img/icn_cloud.svg);
 }
 .icn.bat_volt {

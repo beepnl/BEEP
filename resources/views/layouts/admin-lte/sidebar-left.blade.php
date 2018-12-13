@@ -44,6 +44,7 @@
         <li class="{{ Route::currentRouteNamed('categories.index') ? 'active' : '' }}"><a href="{{ route('categories.index') }}"><i class="fa fa-list"></i><span>{{ __('general.Taxonomy') }}</span></a></li>
         <li class="{{ Route::currentRouteNamed('physicalquantity.index') ? 'active' : '' }}"><a href="{{ route('physicalquantity.index') }}"><i class="fa fa-balance-scale"></i><span>{{ __('beep.PhysicalQuantity') }}</span></a></li>
         <li class="{{ Route::currentRouteNamed('categoryinputs.index') ? 'active' : '' }}"><a href="{{ route('categoryinputs.index') }}"><i class="fa fa-list-ul"></i><span>{{ __('beep.CategoryInputs') }}</span></a></li>
+        <li class="{{ Route::currentRouteNamed('taxonomy.display') ? 'active' : '' }}"><a href="{{ route('taxonomy.display') }}"><i class="fa fa-circle-o"></i><span>{{ __('general.Taxonomy') }} {{ __('beep.visual') }}</span></a></li>
         {{-- <li class="{{ Route::currentRouteNamed('beerace.index') ? 'active' : '' }}"><a href="{{ route('beerace.index') }}"><i class="fa fa-forumbee"></i><span>{{ __('beep.BeeRace') }}</span></a></li>
         <li class="{{ Route::currentRouteNamed('hivetype.index') ? 'active' : '' }}"><a href="{{ route('hivetype.index') }}"><i class="fa fa-archive"></i><span>{{ __('beep.HiveType') }}</span></a></li> --}}
         

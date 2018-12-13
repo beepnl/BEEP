@@ -20,9 +20,9 @@ class SensorController extends Controller
      */
     public function index(Request $request)
     {
-        $sensors = Sensor::orderBy('id','DESC')->paginate(10);
-        return view('sensors.index',compact('sensors'))
-            ->with('i', ($request->input('page', 1) - 1) * 10);
+        $sensors = Sensor::all(); //->paginate(10);
+        return view('sensors.index',compact('sensors'));
+            // ->with('i', ($request->input('page', 1) - 1) * 10);
     }
 
     /**
@@ -110,6 +110,7 @@ class SensorController extends Controller
             'name' => 'required',
             'key' => 'required',
             'user_id' => 'required',
+            'hive_id' => 'required',
         ]);
 
         Sensor::find($id)->update($request->all());

@@ -4,9 +4,9 @@
  *
  */
 var LANG 					= [];
-var API_URL           		= (document.URL.indexOf('beep.test') === -1) ? 'https://test.beep.nl/api/' : 'https://beep.test/api/';
-//var API_URL 				= 'https://bee.iconize.nl/api/';
-var CONNECTION_FREQ_REMOTE  = ((10)*1000);
+//var API_URL           	= (document.URL.indexOf('beep.test') === -1) ? 'https://test.beep.nl/api/' : 'https://beep.test/api/';
+var API_URL 				= 'https://bee.iconize.nl/api/';
+var CONNECTION_FREQ_REMOTE  = ((60)*1000);
 
 var COLORS = 
 {
@@ -48,6 +48,8 @@ var SENSOR_COLOR = {
 	t_i     :COLORS.red,
 	rssi 	:COLORS.lightgrey,
 	snr 	:COLORS.lightgrey1,
+	lat 	:COLORS.lightgrey2, 
+	lon 	:COLORS.lightgrey2,
 	's_bin098_146Hz': COLORS.darkgreen,
 	's_bin146_195Hz': COLORS.lightgreen,
 	's_bin195_244Hz': COLORS.lightblue,
@@ -79,6 +81,8 @@ var SENSOR_NAMES =
 	t_i		: 't_i',
 	rssi	: 'rssi',
 	snr 	: 'snr', 
+	lat 	: 'lat', 
+	lon 	: 'lon', 
 	's_bin098_146Hz': '098_146Hz',
 	's_bin146_195Hz': '146_195Hz',
 	's_bin195_244Hz': '195_244Hz',
@@ -89,6 +93,52 @@ var SENSOR_NAMES =
 	's_bin439_488Hz': '439_488Hz',
 	's_bin488_537Hz': '488_537Hz',
 	's_bin537_586Hz': '537_586Hz',
+};
+
+var SENSOR_MIN =
+{
+	t      	: 0,   
+	h      	: 40, 
+	l      	: 0,  
+	p 		: 1013,
+	bv 		: 3.0,
+	s_fan_4 : 0,
+	s_fan_6 : 0,
+	s_fan_9 : 0,
+	s_fly_a : 0,
+	s_tot 	: 0,
+	bc_i	: 0,
+	bc_o	: 0,
+	weight_kg			: 1,
+	weight_kg_corrected	: 1,
+	t_i		: 34,
+	rssi	: -90,
+	snr 	: 0, 
+	lat 	: 0, 
+	lon 	: 0, 
+};
+
+var SENSOR_MAX =
+{
+	t      	: 30,   
+	h      	: 80, 
+	l      	: 10000,  
+	p 		: 1100,
+	bv 		: 3.0,
+	s_fan_4 : 5,
+	s_fan_6 : 5,
+	s_fan_9 : 5,
+	s_fly_a : 5,
+	s_tot 	: 20,
+	bc_i	: 5000,
+	bc_o	: 5000,
+	weight_kg			: 100,
+	weight_kg_corrected	: 100,
+	t_i		: 37,
+	rssi	: -70,
+	snr 	: 7, 
+	lat 	: 180, 
+	lon 	: 180, 
 };
 
 var SENSOR_UNITS =
@@ -110,6 +160,8 @@ var SENSOR_UNITS =
 	t_i		: '°C',
 	rssi	: 'dBm',
 	snr 	: 'dB',
+	lat 	: '°', 
+	lon 	: '°', 
 	's_bin098_146Hz': '',
 	's_bin146_195Hz': '',
 	's_bin195_244Hz': '',

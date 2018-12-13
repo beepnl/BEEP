@@ -1,5 +1,5 @@
 <div class="box {{ isset($class) ? $class : '' }}" {{ isset($attribute) ? $attribute : '' }}>
-  <div class="box-header ui-sortable-handle" {{ isset($boxHeaderAttribute) ? $boxHeaderAttribute : '' }}>
+  <div class="box-header" {{ isset($boxHeaderAttribute) ? $boxHeaderAttribute : '' }}>
     <div class="row">
       <div class="{{ isset($titleClass) ? $titleClass : 'col-xs-8' }}">
         <h3 class="box-title">{{ isset($title) ? $title : '' }}</h3>

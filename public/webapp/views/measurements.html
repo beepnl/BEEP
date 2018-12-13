@@ -1,43 +1,82 @@
 <section class="content-header">
 	<!-- <a href="#" ng-show="showMore" title="{{lang.prev}}" ng-click="prev($event)" class="btn menu-btn icon prev">{{lang.prev}}</a> -->
-	<h1>{{lang.measurements}} {{lang.sensors.toLowerCase()}}</h1>
+	<h1>{{lang.sensors}}</h1>
 	<!-- <a href="#" ng-show="showMore" title="{{lang.next}}" ng-click="next($event)" class="btn menu-btn icon next">{{lang.next}}</a> -->
+	<br>
+	<div class="row">
+		<div class="col-xs-9">
+			<select ng-if="sensors.length > 0" ng-model="selectedSensor" ng-options="sensor as sensor.name for sensor in sensors" ng-change="loadData(selectedSensor.id)" class="form-control">
+				<!-- <option value="">{{ lang.Select_sensor }}...</option>
+				<option ng-repeat="sensor in sensors" value="{{sensor.id}}" ng-selected="sensor.id == selectedSensorId">{{sensor.name}}</option>-->
+			</select>
+		</div>
+		<div class="col-xs-3">
+			<a ng-if="selectedSensorId" class="btn btn-default btn-block" href="#!/settings"><i class="fa fa-cog"></i> <span ng-if="!mobile">{{lang.calibrate_weight}}</span></a>
+		</div>
+	</div>
 </section>
 
 <section class="content">
+
+	<div class="box" ng-if="lastSensorDate" >
+	    
+	    <div class="box-header with-border">
+	      <div class="box-tools">
+	        <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
+	        </button>
+	        <!--button type="button" class="btn btn-box-tool" data-widget="remove"><i class="fa fa-times"></i></button-->
+	      </div>
+	      <h3 class="box-title">{{lang.last_measurement}} {{selectedSensor.name}}: {{ lastSensorDate }}</h3>
+	    </div>
+	    
+	    <div class="box-body" ng-class="{'no-padding':mobile}">
+	    
+	    	<div class="gauge" ng-repeat="sensor in lastSensorValues | orderBy:getSensorName" ng-if="sensor.value > sensorMin[sensor.name]">
+			    <div class="gauge-icon {{mobile ? 'mobile' : ''}}">
+			    	<i class="icn {{sensor.name}}"></i>
+			    </div>
+			    <ng-gauge 
+			    	size="{{mobile ? 70 : 100}}" 
+			    	type="arch" 
+			    	background-color="#EEE" 
+			    	thick="6" 
+			    	min="sensorMin[sensor.name]" 
+			    	max="sensorMax[sensor.name]" 
+			    	value="sensor.value" 
+			    	cap="round" 
+			    	label="{{lang[sensor.name]}}" 
+			    	foreground-color="{{ sensor.value < sensorLow[sensor.name] ? '#ffcc66' : sensor.value > sensorHigh[sensor.name] ? '#f00' : '#417505'}}" 
+			    	background-color="rgba(255,255,255, 0.4)" 
+			    	append="{{sensorUnits[sensor.name]}}">
+			    </ng-gauge>
+			</div>
+
+
+		</div>
+       
+	</div>
 
 	<div class="box">
 	    
 	    <div class="box-header with-border">
 	      <div class="box-tools">
-	        <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa" ng-class="{'fa-plus':sensors.length > 1 && $index > 0, 'fa-minus':sensors.length <= 1 || $index == 0}"></i>
+	        <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
 	        </button>
 	        <!--button type="button" class="btn btn-box-tool" data-widget="remove"><i class="fa fa-times"></i></button-->
 	      </div>
-	      <h3 class="box-title">{{lang.sensors}}</h3>
+	      <h3 class="box-title">{{lang.measurements}} {{selectedSensor.name}}</h3>
 	    </div>
 	    
 	    <div class="box-body" ng-class="{'no-padding':mobile}">
 	    
 			<div ng-iscroll="measurement-form-wrapper" class="view-content" ng-class="{'loading':loading}">
 				<div id="measurement-form-wrapper" class="iscroll-wrapper" ng-iscroll>
-				    <form id="measurement-form" class="form measurement-form">
+				    <form id="measurement-form" class="form measurement-form" ng-if="lastSensorDate" >
 					
 				    	
 				    	<div class="tab-bar-wrapper" ng-class="{'mobile':mobile}">
 
 							<!-- <label>{{ lang.Select_sensor }}</label> -->
-							<div class="row">
-			    				<div class="col-xs-10">
-				    				<select ng-if="sensors.length > 0" ng-model="selectedSensorId" ng-change="loadData(selectedSensorId)" class="form-control">
-				    					<option value="">{{ lang.Select_sensor }}...</option>
-				    					<option ng-repeat="sensor in sensors" value="{{sensor.id}}" ng-selected="sensor.id == selectedSensorId">{{sensor.name}}</option>
-				    				</select>
-				    			</div>
-				    			<div class="col-xs-2">
-			    					<a class="btn btn-default" href="#!/settings"><i class="fa fa-pencil"></i> {{lang.Sensor}} {{lang.Settings}}</a>
-			    				</div>
-		    				</div>
 
 							<menu class="tab-bar">
 								<a class="btn" ng-click="setPeriod(period)" ng-repeat="period in periods" ng-class="{active:period==activePeriod}">{{lang[period]}}</a>
@@ -79,6 +118,8 @@
 						</div>
 
 					</form>
+
+					<p ng-if="!lastSensorDate" >{{lang.no_data}}</p>
 				</div>
 			</div>
 
@@ -88,6 +129,6 @@
           <i class="fa fa-refresh fa-spin"></i>
         </div>
         
-	 </div>
+	</div>
 
 </section>

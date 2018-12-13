@@ -66,7 +66,7 @@ app.config(['$routeProvider', '$locationProvider',  function($routeProvider)
     .when('/measurements',
   {
       controller  : 'MeasurementsCtrl',
-      templateUrl : 'views/measurements.html',
+      templateUrl : 'views/measurements.html?v=2',
   })
 
    // locations
@@ -142,7 +142,7 @@ app.config(['$routeProvider', '$locationProvider',  function($routeProvider)
  .when('/settings', 
  {
         controller:'SettingsCtrl',
-        templateUrl:'views/forms/settings.html'
+        templateUrl:'views/forms/settings.html?v=2'
  })
 
  .when('/export', 

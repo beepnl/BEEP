@@ -4,9 +4,9 @@
  *
  * Measurements controller for chart measurements 
  */
-app.controller('MeasurementsCtrl', function($scope, $rootScope, $timeout, $location, api, moment, measurements) 
+app.controller('MeasurementsCtrl', function($scope, $rootScope, $timeout, $interval, $location, api, moment, measurements) 
 {
-    $rootScope.title    = $rootScope.lang.measurements;
+    $rootScope.title    = $rootScope.lang.sensors;
     
     $scope.periods      = ['hour','day','week','month','year'];
     $scope.timeZone     = 'Europe/Amsterdam';
@@ -40,8 +40,13 @@ app.controller('MeasurementsCtrl', function($scope, $rootScope, $timeout, $locat
     $scope.sensors      = [];
     $scope.selectedSensor = null;
     $scope.selectedSensorId = null;
+    $scope.sensorMin    = SENSOR_MIN;
+    $scope.sensorLow    = SENSOR_LOW;
+    $scope.sensorHigh   = SENSOR_HIGH;
+    $scope.sensorMax    = SENSOR_MAX;
+    $scope.sensorUnits  = SENSOR_UNITS;
 
-    $scope.measurementData  = null;
+    $scope.measurementData = null;
 
     $scope.chart         = {};
     $scope.chartLegend   =
@@ -210,6 +215,8 @@ app.controller('MeasurementsCtrl', function($scope, $rootScope, $timeout, $locat
     $scope.chart.optionsDebug = angular.copy($scope.chart.optionsSensors);
     $scope.chart.optionsActuators.legend.position = 'bottom';
 
+    $scope.getSensorName = function(item){ return $rootScope.lang[item.name]; }
+
     // handle loading of all the settings
     $scope.init = function()
     {
@@ -220,21 +227,70 @@ app.controller('MeasurementsCtrl', function($scope, $rootScope, $timeout, $locat
         }
     };
 
+    $scope.handleLastSensorValues = function()
+    {
+        $scope.lastSensorValues = convertOjectToNameArray(measurements.lastSensorValues);
+        $scope.lastSensorDate   = moment(measurements.lastSensorDate).format('llll');
+    }
+    $scope.lastSensorValuesUpdatedHandler = $rootScope.$on('lastSensorValuesUpdated', $scope.handleLastSensorValues);
+
+    $scope.loadLastSensorValuesTimer = null
+    $scope.loadLastSensorValues = function(activate=true, force=false)
+    {
+        if (angular.isDefined($scope.loadLastSensorValuesTimer))
+            $interval.cancel($scope.loadLastSensorValuesTimer);
+
+        // Start loading interval
+        if (activate && $scope.selectedSensorId)
+        {
+            // load direct
+            if ($scope.lastSensorValues == null || force)
+            {
+                $scope.lastSensorValues = null;
+                $scope.lastSensorDate   = null;
+                measurements.loadLastSensorValues();
+            }
+            // set timer
+            $scope.loadLastSensorValuesTimer = $interval(function()
+            {
+                measurements.loadLastSensorValues();
+            }, 20000);
+        }
+    }
+
+
+
     $scope.updateSensors = function()
     {
-        $scope.sensors = measurements.sensors;
+        $scope.sensors           = measurements.sensors;
+        $scope.selectedSensorId  = measurements.sensorId;
+        $scope.selectedSensor    = measurements.getSensorById($scope.selectedSensorId);
+
+        if ($scope.selectedSensorId == null && $scope.sensors.length > 0)
+        {
+            var id = $scope.sensors[$scope.sensors.length-1].id;
+            $scope.loadData(id);
+        }
+
     }
     $scope.sensorHandler = $rootScope.$on('sensorsUpdated', $scope.updateSensors);
 
-    $scope.loadDataAgain = function()
-    {
-        if ($scope.measurementData == null)
-            $scope.loadData();
-    }
-
-
     $scope.loadData = function(id)
     {
+        //console.log('sensors:', $scope.sensors);
+        //$scope.selectedSensor = null;
+        var sensorChanged     = false;
+        
+        if (($scope.selectedSensor == null || $scope.selectedSensorId != id) && id != null && typeof id != 'undefined')
+        {
+            $scope.selectedSensorId = id;
+            measurements.sensorId   = id;
+            $scope.selectedSensor   = measurements.getSensorById(id);
+            sensorChanged           = true;
+        }
+
+        $scope.loadLastSensorValues(($scope.selectedSensorId != null), sensorChanged);
+
         var period    = $scope.activePeriod;
         var timeGroup = (period ==  'hour') ? null : period; // get all measurements
         //console.log('loadData', period, $scope.periodIndex);
@@ -390,6 +446,7 @@ app.controller('MeasurementsCtrl', function($scope, $rootScope, $timeout, $locat
    	// remove references to the controller
     $scope.removeListeners = function()
     {
+        $scope.lastSensorValuesUpdatedHandler();
         $scope.sensorHandler();
         $scope.resultHandler();
         $scope.resultErrorHandler();
@@ -400,6 +457,7 @@ app.controller('MeasurementsCtrl', function($scope, $rootScope, $timeout, $locat
     $scope.$on('$destroy', function() 
     {
         measurements.stopLoadingMeasurements();
+        $scope.loadLastSensorValues(false);
         $scope.removeListeners();
     });
 

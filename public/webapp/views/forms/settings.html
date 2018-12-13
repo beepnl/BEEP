@@ -2,11 +2,14 @@
   <h1>
 	<a class="icn prev" ng-class="{'mobile':mobile}" ng-click="back()"></a>
 	{{lang.sensors_title}}
-</h1>
   <!-- <ol class="breadcrumb">
     <li><a href="/"><i class="fa fa-home"></i> Home</a></li>
     <li class="active">{{lang.dashboard}}</li>
   </ol> -->
+  </h1>
+  <br>
+	<select ng-if="sensors.length > 0" ng-model="selectedSensor" ng-options="sensor as sensor.name for sensor in sensors" ng-change="getSensorValues(selectedSensor.id)" class="form-control">
+	</select>
 </section>
 
 <section class="content" >
@@ -14,26 +17,23 @@
 <div ng-iscroll="settings-form-wrapper" class="view-content" ng-class="{loading : isLoading}">	
 	<div id="settings-form-wrapper" class="iscroll-wrapper">
 	    
-	    	<div class="box">
+	    	<div class="box" ng-show="selectedSensorId">
 			    <div class="box-header with-border">
 			     	<h3 class="box-title">
-				      	<select ng-if="sensors.length > 0" ng-model="selectedSensorId" ng-change="getSensorValues(selectedSensorId)" class="form-control">
-	    					<option value="">{{ lang.Select_sensor }}...</option>
-	    					<option ng-repeat="sensor in sensors" value="{{sensor.id}}" ng-selected="sensor.id == selectedSensorId">{{sensor.name}}</option>
-	    				</select>
+				      	{{lang.calibrate_weight}} {{selectedSensor.name}}
     				</h3>
 			     
 			    </div>
 			    <!-- /.box-header -->
 			    <div class="box-body">
 
-					<div class="row" >
+					<div class="row" ng-if="lastSensorDate" >
 						<div class="col-xs-12">
 							<div ng-if="lastSensorValues.length > 0">
 								<h3>{{lang.last_measurement}}: {{ lastSensorDate }}</h3>
 								<ul class="sensor">
 									<li class="measurement" ng-repeat="sensor in lastSensorValues | filter:true:inSensorNames">
-										<span class="icn {{sensor.name}}"></span> <span class="name">{{lang[sensor.name]}}</span> <span class="value">{{sensor.value | number: 1}}</span> <span class="unit">{{SENSOR_UNITS[sensor.name]}}</span>
+										<span class="icn {{sensor.name}}"></span> <span class="name">{{lang[sensor.name]}}</span> <span class="value">{{sensor.value | number: 1}}</span> <span class="unit">{{sensorUnits[sensor.name]}}</span>
 									</li>
 								</ul>
 								<hr>
@@ -61,6 +61,8 @@
 						<br>
 	    				<!-- <button type="submit" class="btn btn-primary btn-block" ng-class="{'disabled':!changed}">{{lang.save}}</button> -->
 	    			</div>
+
+	    			<p ng-if="!lastSensorDate" >{{lang.no_data}}</p>
 					
 				</div>
 

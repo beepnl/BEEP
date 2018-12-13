@@ -205,6 +205,7 @@
     last_measurement        : 'Last measurement',
     at                      : 'at',
     measurement_system      : 'Beep measurement system', 
+    no_data                 : 'No data available',
     no_chart_data           : 'No chart data for the selected period',
 
     /* settings */
@@ -295,6 +296,8 @@
     t_i                     : 'Temp. inside',
     rssi                    : 'Signal strength',
     snr                     : 'Signal noise',
+    lat                     : 'Lattitude',
+    lon                     : 'Longitude',
     Sound_measurements      : 'Sound measurements',
     Sensor_info             : 'Sensor info',
     's_bin098_146Hz'        : '098-146Hz',
@@ -351,6 +354,8 @@
     currently_there_is      : 'There is a weight of',
     nothing                 : 'nothing',
     on_the_scale            : 'on the scale',
+    calibration_started     : 'Calibration started... Wait for the next measurement to take effect.',
+    calibration_ended       : 'Calibration succeeded!',
 
     /* General items */
     server_down             : 'The app is unavailable due to maintenance work, please try again later',

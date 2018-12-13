@@ -75,7 +75,6 @@
 					@endforeach
 				</tbody>
 			</table>
-			{!! $sensors->render() !!}
 		@endslot
 	@endcomponent
 @endsection

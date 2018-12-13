@@ -47,11 +47,13 @@ Route::group(
 		Route::resource('checklists', 'ChecklistController');
 		Route::resource('inspections', 'InspectionsController');
 		Route::resource('users', 'UserController');		
+		
 
 		Route::group(
 			['middleware' => ['role:superadmin|admin|translator']],
 			function()
 			{				
+				
 				// Routes
 				Route::get('languages',				['as'=>'languages.index','uses'=>'LanguageController@index','middleware' => ['permission:language-list|language-create|language-edit|language-delete']]);
 				Route::get('languages/create',		['as'=>'languages.create','uses'=>'LanguageController@create','middleware' => ['permission:language-create']]);
@@ -105,6 +107,7 @@ Route::group(
 				Route::resource('categories', 		'CategoriesController');
 				Route::delete('categories/{id}/pop',['as'=>'categories.pop','uses'=>'CategoriesController@pop','middleware' => ['permission:taxonomy-delete']]);
 				Route::get('categories/{id}/fix',	['as'=>'categories.fix','uses'=>'CategoriesController@fix']);
+				Route::get('taxonomy/display',	['as'=>'taxonomy.display','uses'=>'TaxonomyController@display']);
 
 				Route::delete('checklists/destroy/copies',	['as'=>'checklists.copies','uses'=>'ChecklistController@destroyCopies']);
 				

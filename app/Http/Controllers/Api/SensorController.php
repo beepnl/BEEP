@@ -6,6 +6,7 @@ use App\User;
 use App\Sensor;
 use App\Setting;
 // use App\Transformer\SensorTransformer;
+use Validator;
 use InfluxDB;
 use Response;
 use Moment\Moment;
@@ -50,7 +51,16 @@ class SensorController extends Controller
             's_bin391_439Hz' => '391_439Hz',
             's_bin439_488Hz' => '439_488Hz',
             's_bin488_537Hz' => '488_537Hz',
-            's_bin537_586Hz' => '537_586Hz',        
+            's_bin537_586Hz' => '537_586Hz',    
+            'calibrating_weight' => 'calibrating_weight',
+            'w_fl_kg_per_val'    => 'w_fl_kg_per_val',    
+            'w_fr_kg_per_val'    => 'w_fr_kg_per_val',    
+            'w_bl_kg_per_val'    => 'w_bl_kg_per_val',    
+            'w_br_kg_per_val'    => 'w_br_kg_per_val',    
+            'w_fl_offset'        => 'w_fl_offset',    
+            'w_fr_offset'        => 'w_fr_offset',    
+            'w_bl_offset'        => 'w_bl_offset',    
+            'w_br_offset'        => 'w_br_offset',  
     ];
     protected $output_sensors = [
             't',
@@ -94,6 +104,11 @@ class SensorController extends Controller
     
     protected function get_user_sensor(Request $request)
     {
+        $this->validate($request, [
+            'id'        => 'nullable|integer|exists:sensors,id',
+            'key'       => 'nullable|integer|exists:sensors,key',
+            'hive_id'   => 'nullable|integer|exists:hives,id',
+        ]);
         
         $sensors = $request->user()->sensors();
         if ($sensors->count() > 0)
@@ -123,6 +138,7 @@ class SensorController extends Controller
         }
         return Response::json('No key found for user', 404);
     }
+
     protected function convertSensorStringToArray($data_string)
     {
         $out = [];
@@ -135,35 +151,38 @@ class SensorController extends Controller
         }
         return $out;
     }
-    protected function calculateWeightKg($data_array, $user_id, $sensor_id)
+
+    protected function calculateWeightKg($sensor, $data_array)
     {
-        $totalWeight = 0;
-        //$log = [];
-        $userSensorIds = Sensor::where('user_id', $user_id)->get()->pluck('id')->toArray();
+        $totalWeight    = 0;
+        $use_separate   = false;
+        $separate_names = ['w_fl', 'w_fr', 'w_bl', 'w_br'];
 
-        foreach($data_array as $sensor => $value)
+        foreach ($separate_names as $name) 
         {
-            if (strpos($sensor, "w_") !== false && (strlen($sensor) == 4 || $sensor == "w_v")) // 4 sensors w_fl, w_fr, w_bl, w_br || 1 combined sensor w_v
+            if (isset($data_array[$name]) && $data_array[$name] > 0)
+                $use_separate = true;
+        }
+        
+        foreach($data_array as $name => $value)
+        {
+            if (($use_separate && in_array($name, $separate_names)) || (!$use_separate && $name == 'w_v')) // 4 names w_fl, w_fr, w_bl, w_br || 1 combined name w_v
             {
-                $sensor_offset = null;
-                if (Setting::where('user_id', $user_id)->whereIn('number', $userSensorIds)->count() > 0) // calibrations per sensor
+                $name_offset = $this->last_sensor_measurement_time_value($sensor, $name.'_offset');
+                $name_factor = $this->last_sensor_measurement_time_value($sensor, $name.'_kg_per_val');
+                
+                if ($name_factor === 0)
                 {
-                    $sensor_offset = Setting::where('user_id', $user_id)->where('name', $sensor)->where('number', $sensor_id)->orderByDesc('created_at')->first();
-                    $sensor_factor = Setting::where('user_id', $user_id)->where('name', $sensor.'_kg_per_val')->where('number', $sensor_id)->orderByDesc('created_at')->first();
+                    // exclude from calculation
                 }
-                else if (Setting::where('user_id', $user_id)->count() > 0)
+                else if ($name_factor !== null) // factor available
                 {
-                    $sensor_offset = Setting::where('user_id', $user_id)->where('name', $sensor)->orderByDesc('created_at')->first();
-                    $sensor_factor = Setting::where('user_id', $user_id)->where('name', $sensor.'_kg_per_val')->orderByDesc('created_at')->first();
-                }
-
-                if ($sensor_offset) // offset available
-                {
-                    $factor = $sensor_factor ? floatval($sensor_factor->value) : 1;
-                    $weight = (floatval($value) - floatval($sensor_offset->value)) * $factor;
+                    $offset = isset($name_offset) ? floatval($name_offset) : 0;
+                    $factor = floatval($name_factor);
+                    $weight = $factor * (floatval($value) - $offset);
                     $totalWeight += $weight;
-                    //$log[] = ('user: '.$user_id.' hive_id:'.$hive_id.' sensor name: '.$sensor.' s='.$value.' s_o='.$sensor_offset->value.' f='.$factor.' w='.$weight.' tot='.$totalWeight);
-                    //die("sensor_offset=$sensor_offset sensor_factor=$sensor_factor factor=$factor weight=$weight totalWeight=$totalWeight");
+                    
+                    //die("offset=$offset factor=$factor weight=$weight totalWeight=$totalWeight");
                 }
                 else
                 {
@@ -175,64 +194,85 @@ class SensorController extends Controller
         return $totalWeight;
     }
 
-    // Public functions
-    public function index(Request $request)
+    
+    private function last_sensor_values_array($sensor, $fields='*', $limit=1)
     {
-        $sensor_amount = $request->user()->sensors()->count();
-        if ($sensor_amount == 0)
-            return Response::json('No sensors found', 404);
-
-        $sensors = $request->user()->sensors()->get();
-
-        // if ($request->has('with_values'))
-        // {
-        //     foreach ($sensors  as $sensor) 
-        //     {
-        //         try
-        //         {
-        //             $client = new \Influx;
-        //             $result = $client::query('SELECT "name",* from "sensors" WHERE "key" = \''.$sensor->key.'\' AND time > now() - 365d GROUP BY "name" ORDER BY time DESC LIMIT 1');
-        //             $values = $result->getPoints();
-        //             $sensor['values'] = new Fractal\Resource\Collection($values, new SensorTransformer);
-        //         }
-        //         catch(\Exception $e)
-        //         {
-        //             //return Response::json('sensor-get-error', 500);
-        //         }
-        //     }
-        // }
-        
-        return Response::json($sensors);
-    }
-
-    public function lastvalues(Request $request)
-    {
-        $sensor = $this->get_user_sensor($request);
+        $fields = $fields != '*' ? '"'.$fields.'"' : '*';
+        $groupby= $fields == '*' || strpos(',' ,$fields) ? 'GROUP BY "name,time"' : '';
         $output = null;
-
-        // Add distiguishing betw
         try
         {
             $client = new \Influx;
-            $result = $client::query('SELECT * from "sensors" WHERE "key" = \''.$sensor->key.'\' AND time > now() - 365d GROUP BY "name,time" ORDER BY time DESC LIMIT 1');
+            $query  = 'SELECT '.$fields.' from "sensors" WHERE "key" = \''.$sensor->key.'\' AND time > now() - 365d '.$groupby.' ORDER BY time DESC LIMIT '.$limit;
+            //die(print_r($query));
+            $result = $client::query($query);
             $values = $result->getPoints();
             //die(print_r($values));
-            $output = $values[0];
-            //$output = new Fractal\Resource\Collection($values, new SensorTransformer);
-            //die(print_r($output));
+            $output = $limit == 1 ? $values[0] : $values;
         }
         catch(\Exception $e)
         {
-            return Response::json('sensor-get-error', 500);
+            return false;
         }
-
-        if ($output)
-            return Response::json($output);
-
-        return Response::json('error', 404);
+        return $output;
     }
 
-    
+    private function last_sensor_measurement_time_value($sensor, $name)
+    {
+        $arr = $this->last_sensor_values_array($sensor, $name);
+
+        if ($arr && count($arr) > 0 && in_array($name, array_keys($arr)))
+            return $arr[$name];
+
+        return null;
+    }
+
+    private function last_sensor_increment_values($sensor, $data_array=null)
+    {
+        $output = [];
+        $limit  = 2;
+
+        if ($data_array != null)
+        {
+            $output[0] = $data_array;
+            $output[1] = $this->last_sensor_values_array($sensor, implode('","',array_keys($data_array)), 1);
+        }
+        else
+        {
+            $output = $this->last_sensor_values_array($sensor, implode('","',$this->output_sensors), $limit);
+        }
+        $out_arr= [];
+
+        if (count($output) < $limit)
+            return null;
+
+        for ($i=0; $i < $limit; $i++) 
+        { 
+            if (isset($output[$i]))
+            {
+                foreach ($output[$i] as $key => $val) 
+                {
+                    if ($val != null)
+                    {
+                        $value = $key == 'time' ? strtotime($val) : floatval($val);
+
+                        if ($i == 0) // desc array, so most recent value: $i == 0
+                        {
+                            $out_arr[$key] = $value; 
+                        }
+                        else if (isset($out_arr[$key]))
+                        {
+                            $out_arr[$key] = $out_arr[$key] - $value;
+                        }
+                    }
+                }
+            }
+        }
+        //die(print_r($out_arr));
+
+        return $out_arr; 
+    }
+
     private function floatify_sensor_val($arr, $key)
     {
         if (isset($arr[$key]))
@@ -271,46 +311,6 @@ class SensorController extends Controller
         }
 
         return $arr;
-    }
-
-    public function lora_sensors(Request $request)
-    {
-        $data_array = [];
-        
-        if ($request->has('LrnDevEui')) // KPN Simpoint msg
-            $data_array['key'] = $request->input('LrnDevEui');
-        if ($request->has('DevEUI_uplink.LrrRSSI'))
-            $data_array['rssi'] = $request->input('DevEUI_uplink.LrrRSSI');
-        if ($request->has('DevEUI_uplink.LrrSNR'))
-            $data_array['snr']  = $request->input('DevEUI_uplink.LrrSNR');
-        if ($request->has('DevEUI_uplink.LrrLAT'))
-            $data_array['lat']  = $request->input('DevEUI_uplink.LrrLAT');
-        if ($request->has('DevEUI_uplink.LrrLON'))
-            $data_array['lon']  = $request->input('DevEUI_uplink.LrrLON');
-
-        if ($request->has('DevEUI_uplink.payload_hex'))
-            $data_array = array_merge($data_array, $this->decode_simpoint_payload($request->input('DevEUI_uplink.payload_hex')));
-
-        if (isset($data_array['w_fl']) || isset($data_array['w_fr']) || isset($data_array['w_bl']) || isset($data_array['w_br'])) // v7 firmware
-        {
-            // - H   -> *2 (range 0-200)
-            // - T   -> -10 -> +40 range (+10, *5), so 0-250 is /5, -10
-            // - W_E -> *1
-            $data_array = $this->floatify_sensor_val($data_array, 't');
-            $data_array = $this->floatify_sensor_val($data_array, 't_i');
-            $data_array = $this->floatify_sensor_val($data_array, 'h');
-            $data_array = $this->floatify_sensor_val($data_array, 'bv');
-            $data_array = $this->floatify_sensor_val($data_array, 'w_v');
-            $data_array = $this->floatify_sensor_val($data_array, 'w_fl');
-            $data_array = $this->floatify_sensor_val($data_array, 'w_fr');
-            $data_array = $this->floatify_sensor_val($data_array, 'w_bl');
-            $data_array = $this->floatify_sensor_val($data_array, 'w_br');
-        }        
-
-        //die(print_r($data_array));
-
-        Storage::disk('local')->put('lora_sensors.log', '['.json_encode($request->input()).','.json_encode($data_array).']');
-        return $this->storeMeasurements($data_array);
     }
 
     private function decode_simpoint_payload($payload)
@@ -374,6 +374,386 @@ class SensorController extends Controller
     }
 
 
+    // requires at least ['name'=>value] to be set
+    private function storeInfluxData($data_array, $sensor_key, $unix_timestamp)
+    {
+        // store posted data
+        $client    = new \Influx;
+        $sensors   = [];
+        $points    = [];
+        $unix_time = isset($unix_timestamp) ? $unix_timestamp : time();
+
+        foreach ($data_array as $key => $value) 
+        {
+            if (in_array($key, array_keys($this->valid_sensors)) )
+            {
+                $sensor = new \stdClass();
+                $sensor->name   = $key;
+                $sensor->value  = floatval($value);  
+                array_push($points, 
+                    new InfluxDB\Point(
+                        'sensors',                  // name of the measurement
+                        null,                       // the measurement value
+                        ['key' => $sensor_key],     // optional tags
+                        ["$key" => $sensor->value], // key value pairs
+                        $unix_time                  // Time precision has to be set to InfluxDB\Database::PRECISION_SECONDS!
+                    )
+                );
+            }
+        }
+        //die(print_r($points));
+        $stored = false;
+        if (count($points) > 0)
+        {
+            try
+            {
+                $stored = $client::writePoints($points, InfluxDB\Database::PRECISION_SECONDS);
+            }
+            catch(\Exception $e)
+            {
+                // gracefully do nothing
+            }
+        }
+        return $stored;
+    }
+
+
+    private function storeMeasurements($data_array)
+    {
+        if (!in_array('key', array_keys($data_array)) || $data_array['key'] == '' || $data_array['key'] == null)
+            return Response::json('No key provided', 400);
+
+        // Check if key is valid
+        $sensor_key = $data_array['key']; // save sensor data under sensor key
+        $sensor     = Sensor::where('key', $sensor_key)->first();
+        if(!$sensor)
+             return Response::json('No valid key provided', 401);
+
+        unset($data_array['key']);
+
+        if (isset($data_array['w_v']) || isset($data_array['w_fl']) || isset($data_array['w_fr']) || isset($data_array['w_bl']) || isset($data_array['w_br'])) 
+        {
+            // check if calibration is required
+            $calibrate = $this->last_sensor_measurement_time_value($sensor, 'calibrating_weight');
+            if (floatval($calibrate) > 0)
+                $cal = $this->calibrate_weight_sensors($sensor, $calibrate, false, $data_array);
+
+            // take into account offset and multi
+            $weight_kg = $this->calculateWeightKg($sensor, $data_array);
+            $data_array['weight_kg'] = $weight_kg;
+
+            // check if we need to compensate weight for temp
+            $data_array = $this->add_weight_kg_corrected_with_temperature($sensor, $data_array);
+        }
+        
+        //die(print_r($sensor_key));
+        $stored = $this->storeInfluxData($data_array, $sensor_key, time());
+        if($stored) 
+        {
+            return Response::json("saved", 201);
+        } 
+        else
+        {
+            return Response::json('sensor-write-error', 500);
+        }
+    }
+
+
+    private function add_weight_kg_corrected_with_temperature($sensor, $data_array)
+    {
+        if (isset($data_array['t']))
+        {
+            $sensor_names    = ['w_fl', 'w_fr', 'w_bl', 'w_br'];
+            $temp_weight_arr = [];
+            foreach ($sensor_names as $key) 
+            {
+                if(isset($data_array[$key]))
+                {
+                    $temp_weight_arr[$key] = $data_array[$key];
+                }
+            }
+            
+            if (count($temp_weight_arr) == 0) // no value available, so do not add
+                return $data_array; 
+
+            $diff_arr = $this->last_sensor_increment_values($sensor, $data_array);
+
+            if (!isset($diff_arr['t']) || $data_array['weight_kg'] == 0)
+                return $data_array;
+
+            $diff_temp = $diff_arr['t'];
+            
+            // temp -> raw weight value correlation is 2 -> 1 = 0.5 W/T
+            // So apply '- diff_arr['t'] * 0.5' to raw values and then calculate the total weight again (incl. offset and factor)
+            $weight_per_temp = 0.35;
+            
+            // foreach ($temp_weight_arr as $sens => $val) 
+            // {
+            //     if (isset($diff_arr[$sens]))
+            //     {
+            //         // check if the value is dependent in the same direction, otherwise do not correct
+            //         $sign                   = (($diff_temp >= 0 && $diff_arr[$sens] >= 0) || ($diff_temp < 0 && $diff_arr[$sens] < 0)) ? -1 : 0; 
+            //         $temp_weight_arr[$sens] = $val + ($sign * $weight_per_temp * $diff_temp);
+            //     }
+            // }
+            // // calculate corrected total weight
+            // $temp_corr_weight = $this->calculateWeightKg($sensor, $temp_weight_arr);;
+            //die(print_r(['tw'=>$temp_weight_arr, 'diff'=>$diff_arr, 'corr'=>$temp_corr_weight,'uncorr'=>$data_array['weight_kg']]));
+
+            $sign             = (($diff_temp >= 0 && $diff_arr['weight_kg'] >= 0) || ($diff_temp < 0 && $diff_arr['weight_kg'] < 0)) ? -1 : 0; 
+            $temp_corr_weight = $data_array['weight_kg'] + ($sign * $weight_per_temp * $diff_temp);
+
+            if ($temp_corr_weight > 0)
+                $data_array['weight_kg_corrected'] = $temp_corr_weight;
+        }
+        return $data_array;
+    }
+
+
+    private function calibrate_weight_sensors($sensor, $weight_kg, $next_measurement=true, $data_array=null)
+    {
+        if ($next_measurement)
+        {
+            $store  = ['calibrating_weight'=>$weight_kg];
+            //die(print_r($store));
+            $stored = $this->storeInfluxData($store, $sensor->key, time());
+            if ($stored)
+                return true;
+        }
+        else
+        {
+            if ($weight_kg == 0)
+                return 'no-calibration-weight-error';
+
+            $search_for    = ['w_fl'=>0, 'w_fr'=>0, 'w_bl'=>0, 'w_br'=>0];
+            $calibrate     = [];
+            $value_counter = 0;
+
+            // set and count values to use
+            foreach ($search_for as $key => $value) 
+            {
+                $last_value = 0;
+                if (isset($data_array[$key]))
+                    $last_value = $data_array[$key];
+                else
+                    $last_value = $this->last_sensor_measurement_time_value($sensor, $key);
+                
+                $key_offset = floatval($this->last_sensor_measurement_time_value($sensor, $key.'_offset'));
+                $last_value = $last_value - $key_offset;
+
+                if (isset($last_value) && $last_value > 1)
+                {
+                    $calibrate[$key.'_kg_per_val'] = $last_value;
+                    $search_for[$key]              = $last_value;
+                    $value_counter++;
+                }
+                else
+                {
+                    $calibrate[$key.'_kg_per_val'] = 0;
+                }
+            }
+
+            if (count($calibrate) == 0)
+                return 'no-weight-values-error';
+
+            $weight_part = $weight_kg / max(1, $value_counter);
+
+            foreach ($calibrate as $key => $value) 
+                $calibrate[$key] = $value != 0 ? $weight_part / $value : 0;
+
+            // check if w_v should be added
+            $key = 'w_v';
+            $combined_value = 0;
+            if (isset($data_array[$key]))
+                $combined_value = $data_array[$key];
+            else
+                $combined_value = $this->last_sensor_measurement_time_value($sensor, $key);
+
+            if ($combined_value > 0)
+            {
+                $calibrate[$key.'_kg_per_val'] = $weight_kg / $combined_value;
+                $search_for[$key]              = $combined_value;
+            }
+
+            // switch 'off' calibrating mode
+            $calibrate['calibrating_weight'] = 0;
+
+            //die(print_r(['weight_kg'=>$weight_kg, 'values'=>$search_for, 'cal'=>$calibrate,'key'=>$sensor->key]));
+
+            $stored = $this->storeInfluxData($calibrate, $sensor->key, time());
+            if ($stored)
+                return true;
+        }
+
+        return 'calibrate-error';
+    }
+
+    private function offset_weight_sensors($sensor)
+    {
+        $search_for    = ['w_fl', 'w_fr', 'w_bl', 'w_br', 'w_v'];
+        $offset        = [];
+        
+        foreach ($search_for as $key) 
+        {
+            $value = $this->last_sensor_measurement_time_value($sensor, $key);
+            if ($value != null)
+                $offset[$key.'_offset'] = $value;
+        }
+
+        if (count($offset) == 0)
+            return 'no-weight-values-error';
+
+        //die(print_r(['cal'=>$offset,'key'=>$sensor->key]));
+
+        $stored = $this->storeInfluxData($offset, $sensor->key, time());
+        if ($stored)
+            return true;
+
+        return 'offset-error';
+    }
+
+
+    // Public functions
+
+    // At the next measurement coming in, calibrate each weight sensor with it's part of a given weight.
+    // Because the measurements can come in only each hour/ 3hrs, set a value to trigger the calcuylation on next measurement
+    //
+    // 1. If $next_measurement == true: save 'calibrating' = true in Influx with the sensor key
+    // 2. If $next_measurement == false: save 'calibrating' = false in Influx with the sensor key and...
+    // 3.   Get the last measured weight values for this sensor key, 
+    //      Divide the given weight (in kg) with the amount of sensor values > 1.0 (assuming the weight is evenly distributed)
+    //      Calculate the multiplier per sensor by dividing the multiplier = weight_part / (value - offset)
+    //      Save the multiplier as $sensor_name.'_kg_per_val' in Influx
+    public function calibrateweight(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'next_measurement' => 'nullable|boolean',
+            'weight_kg'        => 'numeric|required_if:next_measurement,true',
+        ]);
+
+        if ($validator->fails())
+            return Response::json('validation-error', 500);
+
+        $sensor           = $this->get_user_sensor($request); // requires id, key, hive_id, or nothing (if only one sensor) to be set
+        $next_measurement = $request->has('next_measurement') ? $request->input('next_measurement') : true;
+        $weight_kg        = floatval($request->has('weight_kg') ? $request->input('weight_kg') : $this->last_sensor_measurement_time_value($sensor, 'calibrating_weight'));
+        $calibrated       = $this->calibrate_weight_sensors($sensor, $weight_kg, $next_measurement);
+
+        if($calibrated === true)
+        {
+            if ($next_measurement)
+                return Response::json("calibrating_weight", 200);
+            else
+                return Response::json("calibrated_weight", 201);
+        }
+        
+        return Response::json($calibrated, 500);
+    }
+
+    public function offsetweight(Request $request)
+    {
+        $sensor = $this->get_user_sensor($request); // requires id, key, hive_id, or nothing (if only one sensor) to be set
+        $offset = $this->offset_weight_sensors($sensor);
+
+        if($offset === true)
+            return Response::json("offset_weight", 201);
+        
+        return Response::json($offset, 500);
+    }
+
+
+    public function index(Request $request)
+    {
+        $sensor_amount = $request->user()->sensors()->count();
+        if ($sensor_amount == 0)
+            return Response::json('No sensors found', 404);
+
+        $sensors = $request->user()->sensors()->get();
+        
+        return Response::json($sensors);
+    }
+
+    
+
+    public function lastvalues(Request $request)
+    {
+        $sensor = $this->get_user_sensor($request);
+        $output = $this->last_sensor_values_array($sensor, implode('","',$this->output_sensors));
+
+        if ($output === false)
+            return Response::json('sensor-get-error', 500);
+        else if ($output !== null)
+            return Response::json($output);
+
+        return Response::json('error', 404);
+    }
+
+    public function lastweight(Request $request)
+    {
+        $weight = ['w_fl', 'w_fr', 'w_bl', 'w_br', 'w_v', 'weight_kg','weight_kg_corrected','calibrating_weight'];
+        $sensor = $this->get_user_sensor($request);
+        $output = $this->last_sensor_values_array($sensor, implode('","',$weight));
+
+        if ($output === false)
+            return Response::json('sensor-get-error', 500);
+        else if ($output !== null)
+            return Response::json($output);
+    
+        return Response::json('error', 404);
+    }
+
+    
+
+    public function lora_sensors(Request $request)
+    {
+        $data_array = [];
+
+        // if (gettype($request->input()) == 'array' && )
+        //     $data_obj = $request->input()[0];
+        // else
+        $data_obj = $request->input();
+
+        //die(print_r($data_obj));
+
+        if ($request->has('LrnDevEui'))
+            $data_array['key'] = $request->input('LrnDevEui');
+        if (isset($data_obj['LrnDevEui'])) // KPN Simpoint msg
+            $data_array['key'] = $data_obj['LrnDevEui'];
+        if (isset($data_obj['DevEUI_uplink']['LrrRSSI']))
+            $data_array['rssi'] = $data_obj['DevEUI_uplink']['LrrRSSI'];
+        if (isset($data_obj['DevEUI_uplink']['LrrSNR']))
+            $data_array['snr']  = $data_obj['DevEUI_uplink']['LrrSNR'];
+        if (isset($data_obj['DevEUI_uplink']['LrrLAT']))
+            $data_array['lat']  = $data_obj['DevEUI_uplink']['LrrLAT'];
+        if (isset($data_obj['DevEUI_uplink']['LrrLON']))
+            $data_array['lon']  = $data_obj['DevEUI_uplink']['LrrLON'];
+
+        if (isset($data_obj['DevEUI_uplink']['payload_hex']))
+            $data_array = array_merge($data_array, $this->decode_simpoint_payload($data_obj['DevEUI_uplink']['payload_hex']));
+
+        if (isset($data_array['w_fl']) || isset($data_array['w_fr']) || isset($data_array['w_bl']) || isset($data_array['w_br'])) // v7 firmware
+        {
+            // - H   -> *2 (range 0-200)
+            // - T   -> -10 -> +40 range (+10, *5), so 0-250 is /5, -10
+            // - W_E -> -20 -> +80 range (/2, +10, *5), so 0-250 is /5, -10, *2
+            $data_array = $this->floatify_sensor_val($data_array, 't');
+            $data_array = $this->floatify_sensor_val($data_array, 't_i');
+            $data_array = $this->floatify_sensor_val($data_array, 'h');
+            $data_array = $this->floatify_sensor_val($data_array, 'bv');
+            $data_array = $this->floatify_sensor_val($data_array, 'w_v');
+            $data_array = $this->floatify_sensor_val($data_array, 'w_fl');
+            $data_array = $this->floatify_sensor_val($data_array, 'w_fr');
+            $data_array = $this->floatify_sensor_val($data_array, 'w_bl');
+            $data_array = $this->floatify_sensor_val($data_array, 'w_br');
+        }        
+
+        //die(print_r($data_array));
+
+        Storage::disk('local')->put('lora_sensors.log', '['.json_encode($data_obj).','.json_encode($data_array).']');
+        return $this->storeMeasurements($data_array);
+    }
+
+    
     public function store(Request $request)
     {
         // Check for valid data 
@@ -409,73 +789,6 @@ class SensorController extends Controller
 
 
 
-    private function storeMeasurements($data_array)
-    {
-        if (!in_array('key', array_keys($data_array)) || $data_array['key'] == '' || $data_array['key'] == null)
-            return Response::json('No key provided', 400);
-
-        // Check if key is valid
-        $sensor_key     = $data_array['key']; // save sensor data under sensor key
-        $check_sensor   = Sensor::where('key', $sensor_key)->first();
-        if(!$check_sensor)
-             return Response::json('No valid key provided', 401);
-
-        $client = new \Influx;
-        unset($data_array['key']);
-
-        $sensor_user_id = $check_sensor->user_id;
-        $sensor_id      = $check_sensor->id;
-        
-        if (isset($data_array['w_v']) || isset($data_array['w_fl']) || isset($data_array['w_fr']) || isset($data_array['w_bl']) || isset($data_array['w_br'])) 
-        {
-            $weight_kg = $this->calculateWeightKg($data_array, $sensor_user_id, $sensor_id);
-            $data_array['weight_kg'] = $weight_kg;
-
-            if (isset($data_array['t']) && isset($data_array['w_v']) == false)
-                $data_array['weight_kg_corrected'] = $weight_kg - (0.0746 * $data_array['t']);
-
-        }
-        // store posted data
-        $sensors = [];
-        $points  = [];
-        $sensor_time = time();
-        foreach ($data_array as $key => $value) 
-        {
-            if (in_array($key, array_keys($this->valid_sensors)) )
-            {
-                $sensor = new \stdClass();
-                $sensor->name   = $key;
-                $sensor->value  = floatval($value);  
-                array_push($points, 
-                    new InfluxDB\Point(
-                        'sensors', // name of the measurement
-                        null, // the measurement value
-                        ['key' => $sensor_key], // optional tags
-                        ["$key" => $sensor->value], // key value pairs
-                        $sensor_time // Time precision has to be set to seconds!
-                    )
-                );
-            }
-        }
-        //die(print_r($points));
-        $stored = null;
-        try
-        {
-            $stored = $client::writePoints($points, InfluxDB\Database::PRECISION_SECONDS);
-        }
-        catch(\Exception $e)
-        {
-            // gracefully do nothing
-        }
-        if($stored) 
-        {
-            return Response::json("saved", 201);
-        } 
-        else
-        {
-            return Response::json('sensor-write-error', 500);
-        }
-    }
     // public function data(Request $request, $name)
     // {
     //     $client = new \Influx;

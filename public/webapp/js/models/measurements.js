@@ -28,32 +28,6 @@ app.service('measurements', ['$http', '$rootScope', '$interval', 'api', 'setting
 	self.reset();
 	$rootScope.$on('reset', self.reset);
 
-	/*
-	this.calculateWeight = function(data)
-	{
-		var totalWeight = 0;
-		for(var s in data)
-		{
-			var sensor = data[s];
-			if (typeof(self.weightSensors[sensor.name]) != 'undefined')
-			{
-				if (typeof(settings.settings) != 'undefined' && typeof(settings.settings[sensor.name]) != 'undefined') // offset available
-				{
-					var factor = (typeof(settings.settings[sensor.name+'_kg_per_val']) != 'undefined') ? parseFloat(settings.settings[sensor.name+'_kg_per_val']) : 1;
-					var weight = ( parseFloat(sensor.value) - parseFloat(settings.settings[sensor.name]) ) * factor;
-					totalWeight += weight;
-				}
-				else
-				{
-					totalWeight += parseFloat(sensor.value);
-				}
-				self.weightSensors[sensor.name] = parseFloat(sensor.value);
-			}
-		}
-		self.sensors['weight_kg'].value = totalWeight;
-		self.sensors['weight_kg'].name = $rootScope.lang['weight'];
-	}
-	*/
 	
 	this.updateWeightSensors = function(data)
 	{
@@ -130,6 +104,11 @@ app.service('measurements', ['$http', '$rootScope', '$interval', 'api', 'setting
 		api.getApiRequest('lastSensorValues', 'sensors/lastvalues', 'id='+sensorId);
 	};
 
+	this.loadLastWeightSensorValues = function(sensorId = self.sensorId)
+	{
+		api.getApiRequest('lastSensorValues', 'sensors/lastweight', 'id='+sensorId);
+	};
+
 	this.handleLastSensorValues = function(e, result)
 	{
 		//console.log('measurements handleLastSensorValues', result);
@@ -142,6 +121,16 @@ app.service('measurements', ['$http', '$rootScope', '$interval', 'api', 'setting
 		}
 	};
 	$rootScope.$on('lastSensorValuesLoaded', self.handleLastSensorValues);
+
+	this.weightCalibration = function(data)
+	{
+		api.postApiRequest('weightCalibration', 'sensors/calibrateweight', data);
+	};
+
+	this.weightOffset = function(data)
+	{
+		api.postApiRequest('weightOffset', 'sensors/offsetweight', data);
+	};
 
 	this.sensorsError = function(e, error)
 	{

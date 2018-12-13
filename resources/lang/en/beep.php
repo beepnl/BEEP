@@ -19,8 +19,10 @@ return [
     'beerace'  			=> 'bee race',
     'HiveType' 			=> 'Hive types',
     'hivetype' 			=> 'hive type',
-    'CategoryInputs' 	=> 'Taxonomy item types',
-    'categoryinput' 	=> 'yaxonomy item type',
+    'CategoryInputs' 	=> 'Category item types',
+    'categoryinput'     => 'Category item type',
+    'visualization'     => 'visualization',
+    'visual' 	        => 'visual',
 
     'Checklist'         => 'Checklist',
     'checklist'         => 'checklist',

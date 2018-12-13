@@ -91,18 +91,11 @@ class Taxonomy extends Model
         if ($this->type == 'system')
             return true;
 
-        if ($this->parent() != null)
-        {
-            if ($this->parent()->value('type') == 'system')
-                return true;
-        }
-        
-        $systemRootNodes = Taxonomy::whereIsRoot()->where('type','system')->get();
-        foreach ($systemRootNodes as $rootNode) 
-        {
-            if ($this->isDescendantOf($rootNode))
-                return true;
-        }
+        $ancTypeArr = $this->ancestors->pluck('type')->toArray();
+
+        if (in_array('system', $ancTypeArr))
+            return true;
+
         return false;
     }
 
@@ -280,6 +273,8 @@ class Taxonomy extends Model
         {
             if ($flat == true && $order === false)
                 $taxonomy = $taxonomy->merge(Taxonomy::whereNotIn('type', ['system'])->descendantsAndSelf($node) );
+            else if ($flat == true && $order === true)
+                $taxonomy = $taxonomy->merge(Category::whereNotIn('type', ['system'])->descendantsAndSelf($node)->sortBy("trans.$locale", SORT_NATURAL|SORT_FLAG_CASE) );
             else if ($flat == false && $order === false)
                 $taxonomy = $taxonomy->merge(Taxonomy::whereNotIn('type', ['system'])->descendantsAndSelf($node)->toTree() );
             else if ($flat == false)

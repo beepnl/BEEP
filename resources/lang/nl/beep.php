@@ -19,8 +19,10 @@ return [
     'beerace'  			=> 'bijenras',
     'HiveType' 			=> 'Kasttypen',
     'hivetype' 			=> 'kasttype',
-    'CategoryInputs' 	=> 'Taxonomie itemtypen',
+    'CategoryInputs' 	=> 'Categorie itemtypen',
     'categoryinput' 	=> 'categorie itemtype',
+    'visualization'     => 'visualisatie',
+    'visual'            => 'visual',
 
     'Checklist'         => 'Kastkaart',
     'checklist'         => 'kastkaart',

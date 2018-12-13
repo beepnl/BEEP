@@ -87,6 +87,7 @@ class CategoriesController extends Controller {
         return view('categories.show', compact('category', 'categories', 'tree', 'count'));
 	}
 
+
 	/**
 	 * Show the form for editing the specified resource.
 	 *

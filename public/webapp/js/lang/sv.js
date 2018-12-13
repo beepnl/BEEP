@@ -205,6 +205,7 @@
     last_measurement        : 'Last measurement',
     at                      : 'at',
     measurement_system      : 'Beep measurement system', 
+    no_data                 : 'No data available',
     no_chart_data           : 'No chart data for the selected period',
 
     /* settings */
@@ -347,6 +348,27 @@
     sort_on                 : 'Sort on',
     Whats_new               : 'New in v2!',
     Manual                  : 'Manual (EN)',
+
+    
+    /* weight calibration settings */
+    calibrate_weight        : 'Calibrate weight',
+    calibrate_explanation   : 'Set the weight of the sensors to 0 by subtracting the current measurement value.',
+    set_as_zero_value       : 'Set these values as 0 values',
+    set_weight_factor       : 'Define weight factor',
+    own_weight_kg           : 'What is your own weight in kg?',
+    start_calibration       : 'Now step on the scale, and press the button below to define the weight factor. Distribute your weight equally.',
+    currently_there_is      : 'There is a weight of',
+    nothing                 : 'nothing',
+    on_the_scale            : 'on the scale',
+    calibration_started     : 'Calibration started... Wait for the next measurement to take effect.',
+    calibration_ended       : 'Calibration succeeded!',
+
+    /* General items */
+    server_down             : 'The app is unavailable due to maintenance work, please try again later',
+    add_to_calendar         : 'Add to calendar',
+    sort_on                 : 'Sort on',
+    Whats_new               : 'New in v2!',
+    Manual                  : 'Manual',
     
     Site_title              : 'BEEP | Bee monitor',
 

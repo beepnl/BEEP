@@ -188,7 +188,7 @@ var convertInfluxMeasurementsArrayToChartObject = function(obj_arr, lang, labelS
         chart.series.push(name);
         chart.data.push([]);
 
-        console.table(chart);
+        //console.table(chart);
       }
     }
   }
@@ -280,15 +280,15 @@ var convertInfluxMeasurementsArrayToChartObject = function(obj_arr, lang, labelS
           }
           else // fill actuator horizontal lines
           {
-            var dataIndex     = chart.data[dataSetIndex].length;
-            var actuatorY     = (ACTUATOR_INDEX[name] !== 'undefined') ? ACTUATOR_INDEX[name] : dataIndex + 1;
-            var actuatorUnit  = (SENSOR_UNITS[name] !== 'undefined') ? SENSOR_UNITS[name] : '';
-            highestActuatorY  = Math.max(actuatorY, highestActuatorY);
-            var previousVal   = dataIndex == 0 ? null : chart.data[dataSetIndex][dataIndex-1];
-            var valueOn       = actuatorUnit == '' && val > 0.5 ? actuatorY : actuatorUnit == '%' && val > 50 ? actuatorY : null;
-            var continuousVal = afterNow ? null : val == null ? previousVal : valueOn;
-            //var continuousVal = val > 0 ? actuatorY : null;
-            chart.data[dataSetIndex].push(continuousVal);
+            // var dataIndex     = chart.data[dataSetIndex].length;
+            // var actuatorY     = (ACTUATOR_INDEX[name] !== 'undefined') ? ACTUATOR_INDEX[name] : dataIndex + 1;
+            // var actuatorUnit  = (SENSOR_UNITS[name] !== 'undefined') ? SENSOR_UNITS[name] : '';
+            // highestActuatorY  = Math.max(actuatorY, highestActuatorY);
+            // var previousVal   = dataIndex == 0 ? null : chart.data[dataSetIndex][dataIndex-1];
+            // var valueOn       = actuatorUnit == '' && val > 0.5 ? actuatorY : actuatorUnit == '%' && val > 50 ? actuatorY : null;
+            // var continuousVal = afterNow ? null : val == null ? previousVal : valueOn;
+            // //var continuousVal = val > 0 ? actuatorY : null;
+            // chart.data[dataSetIndex].push(continuousVal);
           }
         }
       }

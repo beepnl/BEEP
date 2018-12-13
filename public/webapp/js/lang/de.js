@@ -205,6 +205,7 @@ LANG['de'] =
 	last_measurement : 'Letzte aufgezeichnete Messung war', 
 	at : 'am', 
 	measurement_system : 'Beep Meßsystem', 
+	no_data                 : 'Kein Data',
 	no_chart_data : 'Kein Graph für den gewählten Zeitraum', 
 
 	/* settings */ 
@@ -351,6 +352,8 @@ LANG['de'] =
     currently_there_is      : 'Da ist ein Gewicht von',
     nothing                 : 'nichts',
     on_the_scale            : 'auf der Skala',
+    calibration_started     : 'Calibration started... Wait for the next measurement to take effect.',
+    calibration_ended       : 'Calibration succeeded!',
 
     /* General items */
     server_down             : 'Die App ist aufgrund von Wartungsarbeiten nicht verfügbar. Bitte versuche es später erneut',

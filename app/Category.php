@@ -16,7 +16,7 @@ class Category extends Model
     protected $fillable = ['name', 'category_input_id', 'physical_quantity_id', 'parent_id', 'description', 'source', 'icon', 'type', 'old_id'];
 	protected $guarded 	= ['id'];
 
-	protected $hidden   = ['created_at','updated_at', 'category_input_id', 'physical_quantity_id','_lft','_rgt','pivot','description','type','input_type','options','parent_id','old_id'];
+	protected $hidden   = ['created_at','updated_at', 'category_input_id', 'physical_quantity_id','_lft','_rgt','pivot','description','input_type','options','parent_id','old_id'];
 
     protected $appends  = ['input','trans','unit']; //'parent'
 
@@ -91,18 +91,12 @@ class Category extends Model
         if ($this->type == 'system')
             return true;
 
-        if ($this->parent() != null)
-        {
-            if ($this->parent()->value('type') == 'system')
-                return true;
-        }
+        $ancTypeArr = $this->ancestors->pluck('type')->toArray();
 
-        $systemRootNodes = Category::whereIsRoot()->where('type','system')->get();
-        foreach ($systemRootNodes as $rootNode) 
-        {
-            if ($this->isDescendantOf($rootNode))
-                return true;
-        }
+        if (in_array('system', $ancTypeArr))
+            return true;
+            //die(print_r(['anc'=>$ancTypeArr, 'cat'=>$this->name]));
+
         return false;
     }
 
@@ -212,13 +206,13 @@ class Category extends Model
         return isset($trans[$locale]) ? $trans[$locale] : $this->name;
     }
 
-    public function ancName($locale = null)
+    public function ancName($locale = null, $sep = " > ")
     {
         if ($locale == null)
             $locale = LaravelLocalization::getCurrentLocale();
         
-        $ancest = $this->getAncestors()->map(function($item,$key) use ($locale){
-            return $item->transName($locale).' > ';
+        $ancest = $this->getAncestors()->map(function($item,$key) use ($locale, $sep){
+            return $item->transName($locale).$sep;
         });
         return $ancest->implode('');
     }
@@ -231,6 +225,17 @@ class Category extends Model
         $ancest = $this->getAncestors();
         if ($ancest->count() > 0)
             return $ancest->get(0)->transName($locale);
+
+        return "";
+    }
+
+    public function rootNodeName()
+    {
+        $ancest = $this->getAncestors();
+        if ($ancest->count() > 0)
+            return $ancest->get(0)->name;
+
+        return "";
     }
 
     public function useAmount()
@@ -335,13 +340,16 @@ class Category extends Model
                 $rootNodes = Category::whereIsRoot()->whereNotIn('type', ['system'])->get()->sortBy("trans.$locale", SORT_NATURAL|SORT_FLAG_CASE)->pluck('id');
             else
                 $rootNodes = Category::whereIsRoot()->whereNotIn('type', ['system'])->pluck('id');
+
         }
         
         $taxonomy = collect(); 
         foreach ($rootNodes as $node)
         {
-            if ($flat == true && $order === null)
+            if ($flat == true && ($order === null || $order === false))
                 $taxonomy = $taxonomy->merge(Category::whereNotIn('type', ['system'])->descendantsAndSelf($node) );
+            else if ($flat == true && $order === true)
+                $taxonomy = $taxonomy->merge(Category::whereNotIn('type', ['system'])->descendantsAndSelf($node)->sortBy("trans.$locale", SORT_NATURAL|SORT_FLAG_CASE) );
             else if ($flat == false && $order === null)
                 $taxonomy = $taxonomy->merge(Category::whereNotIn('type', ['system'])->descendantsAndSelf($node)->toTree() );
             else if ($flat == false)

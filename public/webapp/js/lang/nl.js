@@ -207,6 +207,7 @@
     last_measurement        : 'Laatste meetwaarde',
     at                      : 'op',
     measurement_system      : 'Beep meetsysteem',
+    no_data                 : 'Geen data beschikbaar',
     no_chart_data           : 'Geen sensordata beschikbaar voor de geselecteerde periode',
 
     /* settings */
@@ -297,6 +298,8 @@
     t_i                     : 'Temp. in kast',
     rssi                    : 'Zendsterkte',
     snr                     : 'Zendruis',
+    lat                     : 'Noorderbreedte',
+    lon                     : 'Oosterlengte',
     Sound_measurements      : 'Geluidsmetingen',
     Sensor_info             : 'Sensorinformatie',
     's_bin098_146Hz'        : '098-146Hz',
@@ -353,6 +356,8 @@
     currently_there_is      : 'Er staat nu',
     nothing                 : 'niets',
     on_the_scale            : 'op de weegschaal',
+    calibration_started     : 'Calibratie gestart... Wacht op de volgende meting.',
+    calibration_ended       : 'Calibratie geslaagd!',
 
     /* General items */
     server_down             : 'De app is tijdelijk niet beschikbaar door onderhoud, probeer het later opnieuw',

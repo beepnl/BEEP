@@ -46,6 +46,9 @@ Route::group(['middleware' => \Barryvdh\Cors\HandleCors::class], function()
 		// get more data of 1 sensors
 		Route::get('sensors/measurements', 	'Api\SensorController@data');
 		Route::get('sensors/lastvalues', 	'Api\SensorController@lastvalues');
+		Route::get('sensors/lastweight', 	'Api\SensorController@lastweight');
+		Route::post('sensors/calibrateweight','Api\SensorController@calibrateweight');
+		Route::post('sensors/offsetweight' ,'Api\SensorController@offsetweight');
 
 		// save setting 
 		Route::post('settings', 			'Api\SettingController@store');

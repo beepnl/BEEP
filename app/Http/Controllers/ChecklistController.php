@@ -71,7 +71,7 @@ class ChecklistController extends Controller
 
         $this->addChecklistToUser($request, $checklist);
 
-        if ($request->has('categories'))
+        if ($request->filled('categories'))
         {
             $categories = explode(',', $request->input('categories'));
             $checklist->syncCategories($categories);
@@ -119,7 +119,7 @@ class ChecklistController extends Controller
 
     private function addChecklistToUser(Request $request, $checklist)
     {
-        if ($request->has('user_id') && $checklist)
+        if ($request->filled('user_id') && $checklist)
         {
             $user_id = $request->input('user_id');
             $user    = User::find($user_id);
@@ -151,7 +151,7 @@ class ChecklistController extends Controller
 
         $this->addChecklistToUser($request, $checklist);
 
-        if ($request->has('categories'))
+        if ($request->filled('categories'))
         {
             $categories = explode(',', $request->input('categories'));
             $checklist->syncCategories($categories);

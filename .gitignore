@@ -1,5 +1,5 @@
 
-vendor/*
+/vendor
 !resources/views/vendor/
 !resources/views/vendor/mail/
 !resources/views/vendor/mail/*
@@ -21,7 +21,12 @@ storage/logs/*
 
 Homestead.json
 Homestead.yaml
-.idea
 .env
 .DS_Store
 .phpintel
+
+npm-debug.log
+yarn-error.log
+/.idea
+/.vscode
+/.vagrant

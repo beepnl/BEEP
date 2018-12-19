@@ -27,7 +27,7 @@ class ChecklistController extends Controller
         $checklist   = Checklist::create($requestData);
         $request->user()->checklists()->attach($checklist);
 
-        if ($request->has('categories'))
+        if ($request->filled('categories'))
         {
             $categories = explode(',', $request->input('categories'));
             $checklist->syncCategories($categories);
@@ -59,7 +59,7 @@ class ChecklistController extends Controller
         {
             $checklist->update($requestData);
             
-            if ($request->has('categories'))
+            if ($request->filled('categories'))
             {
                 $categories = explode(',', $request->input('categories'));
                 return response()->json($checklist->syncCategories($categories));

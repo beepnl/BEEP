@@ -11,7 +11,7 @@
   </div>
   <!-- /.box-header -->
   <div class="box-body {{ isset($bodyClass) ? $bodyClass : 'table-responsive no-padding' }}">
-    {{ $body or '' }}
+    {{ isset($body) ? $body : '' }}
     {{ $slot or '' }}
   </div>
   <!-- /.box-body -->

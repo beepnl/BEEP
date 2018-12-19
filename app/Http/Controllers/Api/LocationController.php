@@ -31,7 +31,7 @@ class LocationController extends Controller
      */
     public function index(Request $request)
     {
-        if ($request->has('root') && $request->input('root'))
+        if ($request->filled('root') && $request->input('root'))
             return response()->json(['locations'=>$request->user()->locations()->get()]);
 
         // $locations = Cache::remember('locations', 15, function() use ($request) {
@@ -52,15 +52,15 @@ class LocationController extends Controller
     public function store(PostLocationRequest $request)
     {
         $name             = $request->input('name'); 
-        $prefix           = $request->has('prefix') == false && isset($name)? $name : $request->input('prefix'); 
+        $prefix           = $request->filled('prefix') == false && isset($name)? $name : $request->input('prefix'); 
         $continent        = Continent::where('abbr', $request->input('continent','eu'))->first();
         $category         = Category::findCategoryByParentAndName('location_type', $request->input('location_type','fixed'))->first();
         $location         = new Location([
                 'name'          =>$name, 
                 'continent_id'  =>$continent->id, 
                 'category_id'   =>$category->id,
-                'coordinate_lat'=>$request->has('lat') ? round($request->input('lat'),3) : null,
-                'coordinate_lon'=>$request->has('lon') ? round($request->input('lon'),3) : null,
+                'coordinate_lat'=>$request->filled('lat') ? round($request->input('lat'),3) : null,
+                'coordinate_lon'=>$request->filled('lon') ? round($request->input('lon'),3) : null,
                 'city'          =>$request->input('city'),
                 'street'        =>$request->input('street'),
                 'street_no'     =>$request->input('street_no'),
@@ -113,8 +113,8 @@ class LocationController extends Controller
         $location                = $request->user()->locations()->findOrFail($id);
         // To do: edit continent and type
         $location->name          = $request->input('name'); 
-        $location->coordinate_lat= $request->has('lat') ? round($request->input('lat'),3) : null;
-        $location->coordinate_lon= $request->has('lon') ? round($request->input('lon'),3) : null;
+        $location->coordinate_lat= $request->filled('lat') ? round($request->input('lat'),3) : null;
+        $location->coordinate_lon= $request->filled('lon') ? round($request->input('lon'),3) : null;
         $location->city          = $request->input('city');
         $location->street        = $request->input('street');
         $location->street_no     = $request->input('street_no');

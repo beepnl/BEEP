@@ -23,7 +23,7 @@ class UserController extends Controller
     public function index(Request $request)
     {
         $data       = [Auth::user()];
-        $show_stats = $request->has('stats');
+        $show_stats = $request->filled('stats');
 
         if (Auth::user()->hasRole('superadmin'))
             $data = User::all();
@@ -78,7 +78,7 @@ class UserController extends Controller
         $user = User::create($input);
         
         // Handle role assignment, only store permitted role
-        if ($request->has('roles'))
+        if ($request->filled('roles'))
         {
             $roleIds = $this->getMyPermittedRoles(Auth::user(), true);
             foreach ($request->input('roles') as $key => $value)
@@ -91,7 +91,7 @@ class UserController extends Controller
         }
 
         // Edit sensors
-        if($request->has('sensors')){
+        if($request->filled('sensors')){
             foreach ($request->input('sensors') as $key => $value) {
                 DB::table('sensor_user')->insert(
                     ['user_id' => $user->id, 'sensor_id' => $value]
@@ -175,7 +175,7 @@ class UserController extends Controller
         $user->update($input);
 
         // Edit role
-        if ($request->has('roles'))
+        if ($request->filled('roles'))
         {
             DB::table('role_user')->where('user_id',$id)->delete();
             foreach ($request->input('roles') as $key => $value) {
@@ -184,7 +184,7 @@ class UserController extends Controller
         }
 
         // Edit sensors
-        if($request->has('sensors'))
+        if($request->filled('sensors'))
         {
             DB::table('sensor_user')->where('user_id',$id)->delete();
             foreach ($request->input('sensors') as $key => $value) {
@@ -225,7 +225,7 @@ class UserController extends Controller
             return false;
 
         // Check for unauthorized role editing
-        if ($request != null && $request->has('roles') && count($request->input('roles')) > 0)
+        if ($request != null && $request->filled('roles') && count($request->input('roles')) > 0)
         {
             if ($request->input('roles')[0] == '')
                 return true; // no role

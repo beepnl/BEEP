@@ -18,7 +18,7 @@ class SettingController extends Controller
         $number  = $request->input('id');
 
         $input   = $request->input();
-        if ($request->has('id'))
+        if ($request->filled('id'))
             unset($input['id']);
 
         //die(print_r($input));
@@ -31,7 +31,7 @@ class SettingController extends Controller
                 if ($name == "")
                     continue;
 
-                if ($request->has('id'))
+                if ($request->filled('id'))
                 {
                     $request->user()->settings()->where('name',$name)->where('number',$number)->delete();
                 }

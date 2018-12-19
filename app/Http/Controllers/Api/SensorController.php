@@ -113,17 +113,17 @@ class SensorController extends Controller
         $sensors = $request->user()->sensors();
         if ($sensors->count() > 0)
         {
-            if ($request->has('id') && $request->input('id') != 'null')
+            if ($request->filled('id') && $request->input('id') != 'null')
             {
                 $id = $request->input('id');
                 $check_sensor = $sensors->findOrFail($id);
             }
-            else if ($request->has('key') && $request->input('key') != 'null')
+            else if ($request->filled('key') && $request->input('key') != 'null')
             {
                 $key = $request->input('key');
                 $check_sensor = $sensors->where('key', $key)->first();
             }
-            else if ($request->has('hive_id') && $request->input('hive_id') != 'null')
+            else if ($request->filled('hive_id') && $request->input('hive_id') != 'null')
             {
                 $hive_id = $request->input('hive_id');
                 $check_sensor = $sensors->where('hive_id', $hive_id)->first();
@@ -635,8 +635,8 @@ class SensorController extends Controller
             return Response::json('validation-error', 500);
 
         $sensor           = $this->get_user_sensor($request); // requires id, key, hive_id, or nothing (if only one sensor) to be set
-        $next_measurement = $request->has('next_measurement') ? $request->input('next_measurement') : true;
-        $weight_kg        = floatval($request->has('weight_kg') ? $request->input('weight_kg') : $this->last_sensor_measurement_time_value($sensor, 'calibrating_weight'));
+        $next_measurement = $request->filled('next_measurement') ? $request->input('next_measurement') : true;
+        $weight_kg        = floatval($request->filled('weight_kg') ? $request->input('weight_kg') : $this->last_sensor_measurement_time_value($sensor, 'calibrating_weight'));
         $calibrated       = $this->calibrate_weight_sensors($sensor, $weight_kg, $next_measurement);
 
         if($calibrated === true)
@@ -715,7 +715,7 @@ class SensorController extends Controller
 
         //die(print_r($data_obj));
 
-        if ($request->has('LrnDevEui'))
+        if ($request->filled('LrnDevEui'))
             $data_array['key'] = $request->input('LrnDevEui');
         if (isset($data_obj['LrnDevEui'])) // KPN Simpoint msg
             $data_array['key'] = $data_obj['LrnDevEui'];
@@ -757,24 +757,24 @@ class SensorController extends Controller
     public function store(Request $request)
     {
         // Check for valid data 
-        if ($request->has('payload_fields')) // TTN HTTP POST
+        if ($request->filled('payload_fields')) // TTN HTTP POST
         {
             $data_array = $request->input('payload_fields');
             if (isset($data_array['key']))
             {
                 // keep $data_array['key']
             }
-            else if ($request->has('hardware_serial'))
+            else if ($request->filled('hardware_serial'))
             {
                 $data_array['key'] = $request->input('hardware_serial'); // LoRa WAN = Device EUI
             }
 
-            if ($request->has('metadata.gateways.0.rssi'))
+            if ($request->filled('metadata.gateways.0.rssi'))
                 $data_array['rssi'] = $request->input('metadata.gateways.0.rssi');
-            if ($request->has('metadata.gateways.0.snr'))
+            if ($request->filled('metadata.gateways.0.snr'))
                 $data_array['snr']  = $request->input('metadata.gateways.0.snr');
         }
-        else if ($request->has('data')) // Check for sensor string (colon and pipe devided) fw v1-3
+        else if ($request->filled('data')) // Check for sensor string (colon and pipe devided) fw v1-3
         {
             $data_array = $this->convertSensorStringToArray($request->input('data'));
         }

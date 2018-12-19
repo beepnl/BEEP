@@ -95,11 +95,12 @@ class UserController extends Controller
             ];
 
             // save the user
-            $user = User::create($user_data);
+            $user             = User::create($user_data);
 
-            $checklistFacttory = new ChecklistFactory;
-            $check= $checklistFacttory->getStandardChecklist();
-            $checklistFacttory->createUserChecklist($user, $check);
+            // add the standard checklist 
+            $checklistFactory = new ChecklistFactory;
+            $check            = $checklistFactory->getStandardChecklist();
+            $checklistFactory->createUserChecklist($user, $check);
 
             // set the response data
             if($user) 
@@ -113,7 +114,7 @@ class UserController extends Controller
         }
     }
 
-
+    public function 
 
 
     /* Send reset link */
@@ -139,8 +140,6 @@ class UserController extends Controller
         // return the response
         return Response::json($response, $code);
     }
-
-
 
 
     /* RESET PASSWORD */
@@ -247,25 +246,25 @@ class UserController extends Controller
         }
         else // save 'm 
         {
-            if($request->has('name'))
+            if($request->filled('name'))
             {
                 $user->name = $request->input('name');
                 $save = true;
             }
 
-            if($request->has('email'))
+            if($request->filled('email'))
             {
                 $user->email = $request->input('email');
                 $save = true;
             }
 
-            if($request->has('policy_accepted'))
+            if($request->filled('policy_accepted'))
             {
                 $user->policy_accepted = $request->input('policy_accepted');
                 $save = true;
             }
 
-            if($request->has('password') && $request->has('password_confirmation') && $request->input('password') == $request->input('password_confirmation'))
+            if($request->filled('password') && $request->filled('password_confirmation') && $request->input('password') == $request->input('password_confirmation'))
             {
                 $user->password = Hash::make($request->input('password'));
                 $save = true;

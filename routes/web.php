@@ -38,7 +38,7 @@ Route::get('info', function(){
 Route::group(
 	[
 		'prefix' => LaravelLocalization::setLocale(), 
-		'middleware' => ['auth', 'localeSessionRedirect', 'localizationRedirect']
+		'middleware' => ['auth', 'localeSessionRedirect', 'localizationRedirect', 'verified']
 	], 
 	function() 
 	{
@@ -116,3 +116,6 @@ Route::group(
 
 	}
 );
+Auth::routes(['verify' => true]);
+
+Route::get('/home', 'HomeController@index')->name('home');

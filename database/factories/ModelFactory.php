@@ -17,6 +17,7 @@ $factory->define(App\User::class, function (Faker\Generator $faker) {
     return [
         'name' => $faker->name,
         'email' => $faker->unique()->safeEmail,
+        'email_verified_at' => now(),
         'password' => $password ?: $password = bcrypt('secret'),
         'remember_token' => str_random(10),
         'api_token' => str_random(60),

@@ -34,7 +34,7 @@ Route::group(['middleware' => \Barryvdh\Cors\HandleCors::class], function()
 	// save sensor data of multiple sensors (unsecure)
 	Route::post('unsecure_sensors', 'Api\SensorController@store');
 
-	Route::group(['middleware'=>'auth:api'], function()
+	Route::group(['middleware'=>['auth:api','verified']], function()
 	{  
 		// Authenticate and provide the token
 		Route::post('authenticate', 		'Api\UserController@authenticate');
@@ -92,3 +92,6 @@ Route::group(['middleware' => \Barryvdh\Cors\HandleCors::class], function()
 	});
 
 });
+
+Auth::routes(['verify' => true]);
+

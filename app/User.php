@@ -6,8 +6,9 @@ use Illuminate\Notifications\Notifiable;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Zizaco\Entrust\Traits\EntrustUserTrait;
+use App\Notifications\VerifyEmail;
 
-class User extends Authenticatable implements MustVerifyEmail
+class User extends Authenticatable
 {
     use Notifiable;
     use EntrustUserTrait;
@@ -98,5 +99,10 @@ class User extends Authenticatable implements MustVerifyEmail
 
         // delete the user
         return parent::delete();
+    }
+
+    public function sendApiEmailVerificationNotification()
+    {
+        $this->notify(new VerifyEmail); // my notification
     }
 }

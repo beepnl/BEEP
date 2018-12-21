@@ -21,13 +21,14 @@
                 width: 100% !important;
             }
         }
+
     </style>
 
     <table class="wrapper" width="100%" cellpadding="0" cellspacing="0">
         <tr>
             <td align="center">
                 <table class="content" width="100%" cellpadding="0" cellspacing="0">
-                    {{ $header or '' }}
+                    {{ isset($header) ? $header : '' }}
 
                     <!-- Email Body -->
                     <tr>
@@ -45,7 +46,7 @@
                         </td>
                     </tr>
 
-                    {{ $footer or '' }}
+                    {{ isset($footer) ? $footer : '' }}
                 </table>
             </td>
         </tr>

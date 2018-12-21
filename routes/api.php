@@ -16,16 +16,9 @@ use Illuminate\Http\Request;
 Route::group(['middleware' => \Barryvdh\Cors\HandleCors::class], function()
 {    
 
-
 	Route::get('/',function(){
 		return redirect('webapp');
 	});
-
-	// User functions
-	Route::post('register', 	'Api\UserController@register');
-	Route::post('login', 		'Api\UserController@login');
-	Route::post('user/reminder','Api\UserController@reminder');
-	Route::post('user/reset', 	'Api\UserController@reset');
 
 	// save sensor data of multiple sensors
 	Route::post('sensors', 		'Api\SensorController@store');
@@ -33,8 +26,20 @@ Route::group(['middleware' => \Barryvdh\Cors\HandleCors::class], function()
 
 	// save sensor data of multiple sensors (unsecure)
 	Route::post('unsecure_sensors', 'Api\SensorController@store');
+	
+	// User functions
+	Route::post('register', 	'Api\UserController@register');
+	Route::post('login', 		'Api\UserController@login');
+	Route::post('user/reminder','Api\UserController@reminder');
+	Route::post('user/reset', 	'Api\UserController@reset');
 
-	Route::group(['middleware'=>['auth:api','verified']], function()
+	// // Email Verification Routes...
+	Route::get('email/verify', 'Api\Auth\VerificationController@show')->name('apiverification.notice');
+	Route::get('email/verify/{id}', 'Api\Auth\VerificationController@verify')->name('apiverification.verify');
+	Route::post('email/resend', 'Api\Auth\VerificationController@resend')->name('apiverification.resend');
+
+
+	Route::group(['middleware'=>['auth:api', 'verifiedApi']], function()
 	{  
 		// Authenticate and provide the token
 		Route::post('authenticate', 		'Api\UserController@authenticate');
@@ -92,6 +97,4 @@ Route::group(['middleware' => \Barryvdh\Cors\HandleCors::class], function()
 	});
 
 });
-
-Auth::routes(['verify' => true]);
 

@@ -1,0 +1,8 @@
+{
+    "Hello!": "Hoi!",
+    "Regards": "Vriendelijke groet",
+    "Verify Email Address": "Activeer je account",
+    "Please click the button below to verify your email address.": "Klik op de onderstaande knop om je account te activeren.",
+    "If you did not create an account, no further action is required.": "Als je geen account hebt aangemaakt, mag je dit bericht negeren.",
+	"If you’re having trouble clicking the \":actionText\" button, copy and paste the URL below\ninto your web browser: [:actionURL](:actionURL)": "Als je problemen hebt met het aanklikken van de \":actionText\" knop, kopieer en plak deze URL dan in je webbrowser:\n[:actionURL](:actionURL)"
+}

@@ -37,12 +37,24 @@ class UserController extends Controller
 
         if(Auth::attempt($credentials))
         {
-            return $this->returnToken($request);
+            if ($request->user()->hasVerifiedEmail())
+            {
+                return $this->returnToken($request);
+            }
+            else
+            {
+                return $this->notVerified($request);
+            }
         }
         else
         {
             return $this->notAuthenticated($request);
         }
+    }
+
+    public function notVerified(Request $request) 
+    {
+        return Response::json('email_not_verified', 400);
     }
 
     public function notAuthenticated(Request $request) 
@@ -105,16 +117,15 @@ class UserController extends Controller
             // set the response data
             if($user) 
             {
-                return Response::json(['api_token' => $user->api_token], 201);
+                $user->sendApiEmailVerificationNotification();
+                return Response::json(['email_verification_sent'], 400);
             } 
             else
             {
-                return Response::json(['message'=>'Could not create user'], 500);
+                return Response::json('could_not_create_user', 500);
             }
         }
     }
-
-    public function 
 
 
     /* Send reset link */

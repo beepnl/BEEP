@@ -13,7 +13,7 @@
 
         <div ng-show="formStatus=='registered'" class="form-result--message">
 			<p class="summary">{{lang.succesfully_registered}}</p>
-			<a ng-click="goToPage('/')" class="btn btn-primary btn-block" title="{{lang.go_to_dashboard}}">{{lang.go_to_dashboard}}</a>
+			<a ng-if="message.verifyLink" ng-click="sendVerificationEmail()">{{lang.email_new_verification}}</a>
 		</div>
       
 		<div ng-show="formStatus!='registered'">

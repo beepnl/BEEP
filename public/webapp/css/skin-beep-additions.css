@@ -11,6 +11,11 @@ body.beta.register-page{
 	background-image: url('/webapp/img/icons/BETA.png');
 	background-size: 40px;
 }
+/* BETA END */
+
+a {
+	cursor: pointer;
+}
 
 .header-spacer{
 	display: block;

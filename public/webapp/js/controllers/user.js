@@ -41,6 +41,22 @@ app.controller('UserCtrl', function($scope, $rootScope, $window, $location, $rou
 			$location.search('language', null);
 		}
 
+		if ($routeParams.msg != undefined)
+		{
+			$scope.message = 
+			{
+				show          : true,
+				resultType    : 'success',
+				resultMessage : $rootScope.lang[$routeParams.msg],
+				verifyLink 	  : false
+			};
+		}
+
+		if ($routeParams.email != undefined)
+		{
+			$scope.fields.login.email = $routeParams.email;
+		}
+
 	};
 
 
@@ -198,12 +214,15 @@ app.controller('UserCtrl', function($scope, $rootScope, $window, $location, $rou
 	};
 
 	// Auth handlers
+	$scope.sendVerificationEmail = function()
+	{
+		api.postApiRequest('verify', 'email/resend', $scope.fields.login);
+	}
 
 	$scope.authError = function(e, error)
 	{
 		// check email
 		console.log(error);
-
 
 		msg = error.message != undefined ? error.message : error;
 
@@ -215,8 +234,19 @@ app.controller('UserCtrl', function($scope, $rootScope, $window, $location, $rou
 			msg = 'server_down';
 		}
 
+		// add a link
+		var transMessage = $rootScope.lang[msg];
+		var verifyOn 	 = false;
+		var resultStyle  = 'error';
+
 		if(msg.indexOf('email') !== -1)
 			$scope.error.email = true;
+
+		if(msg.indexOf('password') !== -1)
+		{
+			$scope.error.password 		 = true;
+			$scope.error.password_retype = true;
+		}
 
 		// check password
 		if(msg == 'no_password_match')
@@ -224,19 +254,28 @@ app.controller('UserCtrl', function($scope, $rootScope, $window, $location, $rou
 			$scope.error.password 		 = false;
 			$scope.error.password_retype = true;
 		}	
-		else if(msg.indexOf('password') !== -1)
+		else if(msg == 'email_not_verified')
 		{
-			$scope.error.password 		 = true;
-			$scope.error.password_retype = true;
+			verifyOn 	= true;
 		}
+		else if(msg == 'email_verification_sent')
+		{
+			$scope.error.email= false;
+			$scope.formStatus = 'registered';
+			verifyOn 		  = true;
+			resultStyle 	  = 'success';
+		}
+		
 
 		// set the message
 		$scope.message = 
 		{
 			show          : true,
-			resultType    : 'error',
-			resultMessage : $rootScope.lang[msg],
+			resultType    : resultStyle,
+			resultMessage : transMessage,
+			verifyLink 	  : verifyOn
 		};
+
 	};
 	
 	$scope.userAuthenticateHandler = $rootScope.$on('authenticateLoaded', function(e, data)

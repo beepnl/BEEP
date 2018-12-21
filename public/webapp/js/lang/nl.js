@@ -61,7 +61,7 @@
     empty_fields             : 'U heeft niet alle velden goed ingevuld.',
     match_passwords          : 'De wachtwoorden komen niet overeen.',
 
-    succesfully_registered   : 'Je bent succesvol geregistreerd en direct ingelogd.',
+    succesfully_registered   : 'Je bent succesvol geregistreerd.',
     authentication_failed    : 'Inloggen niet gelukt',
 
     no_valid_input_received  : 'Data kon niet worden opgeslagen, geen geldige gegevens.',
@@ -367,6 +367,12 @@
     Manual                  : 'Handleiding',
 
     Site_title              : 'BEEP | Bijenmonitor',
+
+    could_not_create_user   : 'Gebruiker kan op dit moment niet aangemaakt worden, probeer het a.u.b. later opnieuw.',
+    email_verified          : 'Je e-mail adres is gevalideerd.',
+    email_not_verified      : 'Je e-mail adres is nog niet gevalideerd.',
+    email_new_verification  : 'Klik op deze link om een nieuwe validatie e-mail te versturen.',
+    email_verification_sent : 'Er is een bericht met een validatie-link naar je e-mail adres gestuurd. Klik op de link in de e-mail om je account te activeren en in te loggen.',
  };
 
 

@@ -6,7 +6,9 @@ use Illuminate\Notifications\Notifiable;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Zizaco\Entrust\Traits\EntrustUserTrait;
+
 use App\Notifications\VerifyEmail;
+use App\Notifications\ResetPassword;
 
 class User extends Authenticatable
 {
@@ -104,5 +106,10 @@ class User extends Authenticatable
     public function sendApiEmailVerificationNotification()
     {
         $this->notify(new VerifyEmail); // my notification
+    }
+
+    public function sendPasswordResetNotification($token)
+    {
+        $this->notify(new ResetPassword($token)); // my notification
     }
 }

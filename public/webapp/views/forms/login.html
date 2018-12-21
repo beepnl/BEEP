@@ -37,10 +37,10 @@
       </div>
     </form>
   <hr>
-    <a ng-click="goToPage('/login/create')" title="{{lang.create_login}}">{{lang.create_login_question}}</a>
+    <a ng-click="goToPage('/login/create?email='+fields.login.email)" title="{{lang.create_login}}">{{lang.create_login_question}}</a>
     <br>
     <br>
-    <a ng-click="goToPage('/login/reminder')" title="{{lang.forgot_password}}">{{lang.forgot_password}}</a>
+    <a ng-click="goToPage('/login/reminder?email='+fields.login.email)" title="{{lang.forgot_password}}">{{lang.forgot_password}}</a>
 
   </div>
 </div>

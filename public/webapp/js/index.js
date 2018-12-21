@@ -102,7 +102,7 @@ app.run(function($rootScope, $location, $window, $route, $routeParams, amMoment,
     $rootScope.goToPage = function(page)
     {
         console.log('$rootScope.goToPage: '+page);
-        $location.path(page);
+        $location.url(page);
     };
 
     $rootScope.loadUrl = function(url)

@@ -70,6 +70,12 @@ app.controller('PasswordCtrl', function($scope, $rootScope, $window, $location, 
 		{
 			$scope.fields.reset.token = $routeParams.token;
 		}
+
+		if ($routeParams.email != undefined && $routeParams.email != '')
+		{
+			$scope.fields.reminder.email = $routeParams.email;
+			$scope.fields.reset.email 	 = $routeParams.email;
+		}
 		
 		// check if we're authenticated
 		if (api.getApiToken() != null)

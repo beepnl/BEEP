@@ -41,7 +41,7 @@ app.controller('UserCtrl', function($scope, $rootScope, $window, $location, $rou
 			$location.search('language', null);
 		}
 
-		if ($routeParams.msg != undefined)
+		if ($routeParams.msg != undefined && $routeParams.msg != '')
 		{
 			$scope.message = 
 			{
@@ -52,9 +52,10 @@ app.controller('UserCtrl', function($scope, $rootScope, $window, $location, $rou
 			};
 		}
 
-		if ($routeParams.email != undefined)
+		if ($routeParams.email != undefined && $routeParams.email != '')
 		{
 			$scope.fields.login.email = $routeParams.email;
+			$scope.fields.register.email = $routeParams.email;
 		}
 
 	};

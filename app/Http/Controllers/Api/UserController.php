@@ -21,7 +21,7 @@ class UserController extends Controller
     {
         if ($request->user())
         {
-            event( new ApiTokenLogin($request->user(), false) );
+            event( new ApiTokenLogin('api', $request->user(), false) );
             return $this->returnToken($request);
         }
         return $this->notAuthenticated($request);

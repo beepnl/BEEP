@@ -17,4 +17,13 @@
     <dd>{!! Form::select('category_input_id', App\CategoryInput::selectList(), null, array('class' => 'form-control')) !!}</dd>
     <dt>{{ __('general.Physical_quantity') }} ({{ __('general.unit') }}):</dt>
     <dd>{!! Form::select('physical_quantity_id', App\PhysicalQuantity::selectList(), null, array('class' => 'form-control')) !!}</dd>
+    <dt>{{ __('beep.required_in_inspection') }}:</dt>
+    <dd>
+        <div class="radio">
+            <label><input name="required" type="radio" value="1" {{ (isset($category) && 1 == $category->required) ? 'checked' : '' }}> Yes</label>
+        </div>
+        <div class="radio">
+            <label><input name="required" type="radio" value="0" @if (isset($category)) {{ (0 == $category->required) ? 'checked' : '' }} @else {{ 'checked' }} @endif> No</label>
+        </div>
+    </dd>
 </dl>

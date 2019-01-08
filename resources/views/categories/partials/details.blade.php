@@ -65,9 +65,20 @@
                 <dd>{!! Form::select('physical_quantity_id', App\PhysicalQuantity::selectList(), null, array('class' => 'form-control')) !!}</dd>
                 <dt>{{ __('general.Source') }}:</dt>
                 <dd>{!! Form::text('source', null, array('placeholder' => __('general.Source').' (http://)', 'class' => 'form-control')) !!}</dd>
-                <hr>
-                <dt>Old (fixed) category ID:</dt>
-                <dd>{!! Form::text('old_id', null, array('placeholder' => 'Id of former category in database', 'class' => 'form-control')) !!}</dd>
+                <dt>{{ __('beep.required_in_inspection') }}:</dt>
+                <dd>
+                    <div>
+                        <div class="radio">
+                            <label><input name="required" type="radio" value="1" {{ (isset($category) && 1 == $category->required) ? 'checked' : '' }}> {{ __('general.Yes') }} </label>
+                        </div>
+                        <div class="radio">
+                            <label><input name="required" type="radio" value="0" @if (isset($category)) {{ (0 == $category->required) ? 'checked' : '' }} @else {{ 'checked' }} @endif> {{ __('general.No') }}</label>
+                        </div>
+                    </div>
+                </dd>
+                {{-- <hr> --}}
+                {{-- <dt>Old (fixed) category ID:</dt>
+                <dd>{!! Form::text('old_id', null, array('placeholder' => 'Id of former category in database', 'class' => 'form-control')) !!}</dd> --}}
             </dl>
         </div>
     </div>

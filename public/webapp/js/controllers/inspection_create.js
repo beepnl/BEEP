@@ -98,15 +98,25 @@ app.controller('InspectionCreateCtrl', function($scope, $rootScope, $window, $lo
 
 	$scope.saveInspection = function()
 	{
-		var data  	 = inspections.saveObject;
+		var data  	 = inspections.validateChecklist();
 		data.hive_id = $routeParams.hiveId;
 		//console.log("saveInspection", data);
-		if (data != null) api.postApiRequest('saveInspection', 'inspections/store', data);
+		if (data.valid === false)
+		{
+			var msg = '\'' + data.unfilled.join('\', \'') + '\' ' + $rootScope.lang['not_filled'];
+			$scope.showError(null, {message:msg});
+		}
+		else if (data != null)
+		{
+			api.postApiRequest('saveInspection', 'inspections/store', data);
+		}
+			
 	}
 	
 	$scope.showError = function(type, error)
 	{
-		$scope.error_msg = $rootScope.lang.empty_fields+". Status: "+error.status;
+		var msg = typeof error.status !== 'undefined' ? "Status: "+error.status : typeof error.message !== 'undefined' ? error.message : '';
+		$scope.error_msg = $rootScope.lang.empty_fields+" "+msg;
 	}
 
 

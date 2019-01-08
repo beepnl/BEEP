@@ -363,5 +363,13 @@ LANG['de'] =
     Manual                  : 'Handbuch (EN)',
 
     Site_title 				: 'BEEP | Bienenmonitor',
+
+    could_not_create_user   : 'User cannot be created at this moment. Sorry for the inconvenience, please try again later.',
+    email_verified          : 'Your e-mail address has been verified.',
+    email_not_verified      : 'Your e-mail address has not yet been verified.',
+    email_new_verification  : 'Click on this link to send a new verification e-mail.',
+    email_verification_sent : 'A message with a verification link has been sent to your e-mail address. Click the link in the e-mail to activate your account and log in.',
+
+    not_filled              : 'is required, but not filled out',
     
 };

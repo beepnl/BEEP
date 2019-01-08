@@ -837,7 +837,8 @@ class SensorController extends Controller
        
         if (count($names) == 0)
             Response::json('sensor-none-error', 500);
-        $durationInterval = $interval + 's';
+        
+        $durationInterval = $interval.'s';
         $requestInterval  = $interval;
         $resolution       = null;
         $staTimestamp = new Moment();

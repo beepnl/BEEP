@@ -70,7 +70,9 @@ app.service('inspections', ['$http', '$rootScope', 'api', 'settings', function($
 			reminder_date  : '',
 			notes 	  : '',
 			date 	  : moment().format(self.DATE_FORMAT_API),
-			items 	  : {}
+			items 	  : {},
+			valid     : true,
+			unfilled_required_item_names : []
 		};
 
 		if (self.checklistNull != null)
@@ -124,8 +126,37 @@ app.service('inspections', ['$http', '$rootScope', 'api', 'settings', function($
 				$rootScope.$broadcast('checklistUpdated');
 			}
 		}
-		
+
 		console.log('newSaveObject');
+		return self.saveObject;
+	}
+
+	this.validateChecklist = function()
+	{
+		// make sure required elements are set, if checlist has_required
+		if (self.checklist != null && typeof self.checklist.required_ids != 'undefined' && self.checklist.required_ids.length > 0)
+		{
+			var filled_required_items = 0;
+			var unfilled_item_names   = [];
+
+			for (var i = self.checklist.required_ids.length - 1; i >= 0; i--) 
+			{
+				var id = self.checklist.required_ids[i];
+				//console.log('validateChecklist', id, self.saveObject.items[id]);
+				if (typeof self.saveObject.items != 'undefined' && Object.keys(self.saveObject.items).length > 0 && typeof self.saveObject.items[id] !== 'undefined' && self.saveObject.items[id] !== null && self.saveObject.items[id] !== -1 && self.saveObject.items[id] !== '')
+				{
+					filled_required_items++;
+				}
+				else
+				{
+					var name = recurseGet(self.checklist.categories, id, 'trans');
+					unfilled_item_names.push(name);
+				}
+			}
+			
+			self.saveObject.valid    = (filled_required_items == self.checklist.required_ids.length);
+			self.saveObject.unfilled = unfilled_item_names;
+		}
 		return self.saveObject;
 	}
 
@@ -231,12 +262,12 @@ app.service('inspections', ['$http', '$rootScope', 'api', 'settings', function($
 	this.setSelectedInspectionItem = function(id, value)
 	{
 		if (self.checklist != null && self.checklist.categories.length > 0)
-			return recurse(self.checklist.categories, id, value);
+			return recurseSet(self.checklist.categories, id, value);
 	}	
 
-	function recurse(node, id, value) 
+	function recurseSet(node, id, value) 
 	{
-	    //console.log('recurse', id, value, typeof node == 'object' ? node.name : node);
+	    //console.log('recurseSet', id, value, typeof node == 'object' ? node.name : node);
 
     	if (node.id == id)
     	{
@@ -246,23 +277,57 @@ app.service('inspections', ['$http', '$rootScope', 'api', 'settings', function($
     	else if (typeof node.children == 'object')
 	    {
 		    for(var i in node.children) 
-	    {
-		        var ret = recurse(node.children[i], id, value);
-		        if (ret)
-		        	return ret;
-		    }
-    	}
+		    {
+			        var ret = recurseSet(node.children[i], id, value);
+			        if (ret)
+			        	return ret;
+			    }
+	    	}
 	    else if (typeof node == 'object')
 	    {
 		    for(var j in node) 
 		    {
-		        var ret = recurse(node[j], id, value);
+		        var ret = recurseSet(node[j], id, value);
 		        if (ret)
 		        	return ret;
 		    }
 		}
 
 	    return false;
+	} 
+
+	function recurseGet(node, id, field, anc='') 
+	{
+	    if (node.id == id)
+    	{
+    		//console.log('recurseGet id', id, field, anc, typeof node == 'object' ? node.trans : node);
+    		if (field == 'trans')
+    			return anc + (typeof node.trans != 'undefined' && typeof node.trans[$rootScope.locale] != 'undefined' ? node.trans[$rootScope.locale] : '');
+
+    		return node[field];
+    	}
+    	else if (typeof node.children == 'object')
+	    {
+			//console.log('recurseGet chi', id, field, anc, typeof node == 'object' ? node.trans : node);
+			anc = anc + (typeof node.trans != 'undefined' && typeof node.trans[$rootScope.locale] != 'undefined' ? node.trans[$rootScope.locale] + ' > ' : '');
+			for(var i in node.children) 
+		    {
+			        var ret = recurseGet(node.children[i], id, field, anc);
+			        if (ret)
+			        	return ret;
+			    }
+	    	}
+	    else if (typeof node == 'object')
+	    {
+		    for(var j in node) 
+		    {
+		        var ret = recurseGet(node[j], id, field, anc);
+		        if (ret)
+		        	return ret;
+		    }
+		}
+
+	    return null;
 	} 
 
 	this.createInspectionObject = function(type, id, value, items=true, name='')

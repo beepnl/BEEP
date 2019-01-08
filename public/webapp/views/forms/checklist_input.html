@@ -1,8 +1,8 @@
 <div class="inspection-item {{item.input == 'text' || cols == 12 ? 'col-xs-12' : 'col-xs-12 col-sm-4 col-md-4' }}">
     <div class="form-group">
         
-        <label title="{{ item.description != null ? item.description : '' }}">
-            {{item.trans[locale] || item.name}}{{item.unit != null ? ' ('+item.unit+')' : ''}} 
+        <label title="{{ item.description != null ? item.description : '' }} {{ item.required == 1 ? lang.required : '' }}" ng-class="{required:item.required}">
+            {{item.trans[locale] || item.name}}{{item.unit != null ? ' ('+item.unit+')' : ''}} {{ item.required == 1 ? '*' : '' }}
             <a ng-if="item.source != null" href="{{item.source}}" target="_blank"><i class="fa fa-info-circle"></i></a> 
             <!-- <span class="dev-label">{{item.input}}</span>  -->
         </label>

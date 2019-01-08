@@ -150,6 +150,9 @@ app.service('measurements', ['$http', '$rootScope', '$interval', 'api', 'setting
 	this.measurementLoadTimer = null;
 	this.startLoadingMeasurements = function()
     {
+        if (self.sensorId === null)
+        	return;
+
         if (angular.isDefined(self.measurementLoadTimer))
         	$interval.cancel(self.measurementLoadTimer);
 

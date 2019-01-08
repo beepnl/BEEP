@@ -373,6 +373,8 @@
     email_not_verified      : 'Je e-mail adres is nog niet gevalideerd.',
     email_new_verification  : 'Klik op deze link om een nieuwe validatie e-mail te versturen.',
     email_verification_sent : 'Er is een bericht met een validatie-link naar je e-mail adres gestuurd. Klik op de link in de e-mail om je account te activeren en in te loggen.',
+
+    not_filled              : 'is verplicht, maar niet ingevuld',
  };
 
 

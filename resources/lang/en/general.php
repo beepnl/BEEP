@@ -75,5 +75,7 @@ return [
     'unit'          => 'unit',
     'Source'        => 'Information source',
     'Icon'          => 'Icon',
+    'No'            => 'No',
+    'Yes'           => 'Yes',
 
 ];

@@ -26,19 +26,31 @@ app.controller('ChecklistCtrl', function($scope, $rootScope, $window, $location,
         return false;
     }
 
-    function treeError(error) {
+    function treeError(error) 
+    {
         console.log('JsTree: error from js tree - ' + angular.toJson(error));
     };
 
-    function readyCB() {
+    function readyCB() 
+    {
         //console.log('JsTree ready called');
     };
 
-    function deselectNodeCB(node, selected, event) {
+    function deselectNodeCB(node, selected, event) 
+    {
+        if (typeof $scope.checklist.required_ids != 'undefined' && $scope.checklist.required_ids.length > 0 && $scope.checklist.required_ids.indexOf(parseInt(selected.node.id)) > -1)
+        {
+        	console.log('Do not deselectNodeCB', selected.node.id);
+        	$scope.treeInstance.jstree(true).select_node(selected.node);
+        	$rootScope.showMessage($rootScope.lang.cannot_deselect);
+        	return false;
+        }
+
         $scope.treeInstance.jstree(true).deselect_node(selected.node.children_d);
     };
     
-    function selectNodeCB(node, selected, event) {
+    function selectNodeCB(node, selected, event) 
+    {
         $scope.treeInstance.jstree(true).select_node(selected.node.children_d);
     };
 
@@ -46,7 +58,6 @@ app.controller('ChecklistCtrl', function($scope, $rootScope, $window, $location,
 	{
         // operation can be 'create_node', 'rename_node', 'delete_node', 'move_node' or 'copy_node'
         // in case of 'rename_node' node_position is filled with the new node name
-
         if (operation === "move_node")
         {
           	if (node.parent === "#") // root item is dragged

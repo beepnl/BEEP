@@ -375,6 +375,7 @@
     email_verification_sent : 'Er is een bericht met een validatie-link naar je e-mail adres gestuurd. Klik op de link in de e-mail om je account te activeren en in te loggen.',
 
     not_filled              : 'is verplicht, maar niet ingevuld',
+    cannot_deselect         : 'Dit item kan niet worden verwijderd, omdat het een verplicht item bevat',
  };
 
 

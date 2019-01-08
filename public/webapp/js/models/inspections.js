@@ -362,9 +362,9 @@ app.service('inspections', ['$http', '$rootScope', 'api', 'settings', function($
 	this.correctMobileDateValue = function(d) // Convert date to YYYY-MM-DD
 	{
 	    date_start = d; //.substring(0,10);
-	    console.log('date to correct: ',d);
+	    //console.log('date to correct: ',d);
 	    date_corr =  moment(d, [self.DATE_FORMAT_API, moment.ISO_8601]).format(self.DATE_FORMAT_API);
-	    console.log('date corrected : ',date_corr);
+	    //console.log('date corrected : ',date_corr);
 	    return date_corr;
 	}
 

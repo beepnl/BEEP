@@ -28,7 +28,7 @@
 				  <div class="input-group-addon">
 				    <i class="fa fa-calendar"></i>
 				  </div>
-				  <input class="form-control pull-right" pick-a-date="date" pick-a-date-options="datePickerOptions" type="text" ng-model="inspection.date" data-value="inspection.date">
+				  <input class="form-control pull-right" data-field="datetime" type="text" ng-model="inspection.date" required>
 				</div>
 			</div>
 		</div>
@@ -125,7 +125,7 @@
 								<div class="input-group-addon">
 							    <i class="fa fa-calendar"></i>
 							</div>
-							<input class="form-control pull-right" pick-a-date="date" pick-a-date-options="datePickerOptions" type="text" ng-model="inspection.reminder_date" data-value="inspection.reminder_date" ng-change="inspectionGeneralItem('reminder_date', null, inspection.reminder_date, false)">
+							<input class="form-control pull-right" data-field="datetime" type="text" ng-model="inspection.reminder_date" ng-change="inspectionGeneralItem('reminder_date', null, inspection.reminder_date, false)">
 						</div>
 				</div>
 					</div>
@@ -152,3 +152,5 @@
 	<button ng-click="saveInspection()" class="btn btn-primary btn-block">{{lang.save}} {{lang.inspection}}</button>
 
 </section>
+
+<div id="dtBox"></div>

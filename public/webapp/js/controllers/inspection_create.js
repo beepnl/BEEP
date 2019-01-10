@@ -57,23 +57,27 @@ app.controller('InspectionCreateCtrl', function($scope, $rootScope, $window, $lo
 
 	$scope.setDateLanguage = function()
 	{
-		$scope.datePickerOptions = // See vendor/pickadate/lib/translations
-		{
-			monthsFull 	: $rootScope.lang.monthsFull,
-			monthsShort : $rootScope.lang.monthsShort,
-			weekdaysFull: $rootScope.lang.weekdaysFull,
-			weekdaysShort: $rootScope.lang.weekdaysShort,
-			today 		: $rootScope.lang.Today,
-			clear 		: $rootScope.lang.Clear,
-			close 		: $rootScope.lang.Close,
-			firstDay 	: $rootScope.lang.firstDay,
-			// format 		: $rootScope.lang.format,
-			// formatSubmit : 'yyyy-mm-dd',
-			format 		: 'yyyy-mm-dd', // ISO formatted date
-			onClose: function(e) {
-			// do something when the picker closes   
-			}
-		}
+		$("#dtBox").DateTimePicker(
+        {
+            dateTimeFormat 	: 'yyyy-MM-dd HH:mm', // ISO formatted date
+			language 		: $rootScope.locale,
+			mode 			: 'datetime',
+			formatHumanDate : function(dateObj, mode, format)
+						        {
+					        		var output = '';
+					        		output 	  += dateObj.day + ' ';
+					        		output 	  += parseInt(dateObj.dd) + ' ';
+					        		output 	  += dateObj.month + ' ';
+					        		output 	  += dateObj.yyyy + ', ';
+					        		output 	  += dateObj.HH + ':';
+					        		output 	  += dateObj.mm + ' ';
+					        		return output;
+						    	},
+			afterShow 		: function(inputElement)
+								{
+					        		$("#dtBox .dtpicker-compValue").attr('type', 'tel'); // set monbile input keyboard to numeric
+								}
+        });
 	}
 
 	$rootScope.changeChecklistItem = function(type, id, value, items)

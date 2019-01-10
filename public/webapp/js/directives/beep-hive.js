@@ -7,7 +7,7 @@ app.directive('beepHive', ['$rootScope', function($rootScope) {
             '<h4 class="title" ng-class="{\'hiveview\':hiveview}">{{hive.name}}</h4>'+
             '<p ng-if="hiveview" class="location notes">({{ hive.location }})</p>'+
             '<p ng-if="hive.reminder != null && hive.reminder != \'\'" class="notes reminder" title="{{ hive.reminder }}">{{hive.reminder}}</p>'+
-            '<p ng-if="hive.reminder_date != null && hive.reminder_date != \'\'" class="notes reminder-date">{{hive.reminder_date | amUtc | amLocal | amDateFormat:\'dd D MMMM YYYY\'}}</p>'+
+            '<p ng-if="hive.reminder_date != null && hive.reminder_date != \'\'" class="notes reminder-date">{{hive.reminder_date | amDateFormat:\'dd D MMMM YYYY HH:mm\'}}</p>'+
             '<div class="info">'+
               '<a ng-if="hive.attention == 1" href="#!/hives/{{hive.id}}/inspections" class="attention-icon">!</a>'+
               '<a ng-if="hive.queen.color != null && hive.queen.color != \'\'" href="#!/hives/{{hive.id}}/edit" class="queen-icon" style="background-color: {{hive.queen.color}};"></a>'+
@@ -64,7 +64,7 @@ app.directive('beepHive', ['$rootScope', function($rootScope) {
               '<p class="hive-name-mobile">{{hive.name}}</p>'+
               '<p ng-if="hiveview" class="location notes mobile">({{ hive.location }})</p>'+
               '<p ng-if="hive.reminder != null && hive.reminder != \'\'" class="reminder notes mobile" title="{{ hive.reminder }}">{{hive.reminder}}</p>'+
-              '<p ng-if="hive.reminder_date != null && hive.reminder_date != \'\'" class="notes reminder-date">{{hive.reminder_date | amUtc | amLocal | amDateFormat:\'dd D MMM YYYY\'}}</p>'+
+              '<p ng-if="hive.reminder_date != null && hive.reminder_date != \'\'" class="notes reminder-date">{{hive.reminder_date | amDateFormat:\'dd D MMM YYYY HH:mm\'}}</p>'+
               '<div class="info mobile">'+
                 '<a ng-if="hive.attention == 1" href="#!/hives/{{hive.id}}/inspections" class="attention-icon">!</a>'+
                 '<a ng-if="hive.queen.color != null && hive.queen.color != \'\'" href="#!/hives/{{hive.id}}/edit" class="queen-icon" style="background-color: {{hive.queen.color}};"></a>'+

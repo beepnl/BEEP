@@ -21,7 +21,7 @@ app.service('inspections', ['$http', '$rootScope', 'api', 'settings', function($
 
 		this.saveObject   = {}; // hold inspection items for saving
 
-		this.DATE_FORMAT_API = 'YYYY-MM-DD';
+		this.DATE_FORMAT_API = 'YYYY-MM-DD HH:mm';
 
 	}
 
@@ -69,7 +69,7 @@ app.service('inspections', ['$http', '$rootScope', 'api', 'settings', function($
 			reminder  : '',
 			reminder_date  : '',
 			notes 	  : '',
-			date 	  : moment().format(self.DATE_FORMAT_API),
+			date 	  : moment().format(self.DATE_FORMAT_API), // always save time in UTC, display in local time in views
 			items 	  : {},
 			valid     : true,
 			unfilled_required_item_names : []
@@ -127,7 +127,7 @@ app.service('inspections', ['$http', '$rootScope', 'api', 'settings', function($
 			}
 		}
 
-		console.log('newSaveObject');
+		console.log('newSaveObject', self.saveObject.date);
 		return self.saveObject;
 	}
 
@@ -357,15 +357,6 @@ app.service('inspections', ['$http', '$rootScope', 'api', 'settings', function($
 		{
 			//console.log('NOT createInspectionObject', type, id, value, name);
 		}
-	}
-
-	this.correctMobileDateValue = function(d) // Convert date to YYYY-MM-DD
-	{
-	    date_start = d; //.substring(0,10);
-	    //console.log('date to correct: ',d);
-	    date_corr =  moment(d, [self.DATE_FORMAT_API, moment.ISO_8601]).format(self.DATE_FORMAT_API);
-	    //console.log('date corrected : ',date_corr);
-	    return date_corr;
 	}
 
 	// Inspections

@@ -86,18 +86,19 @@ class InspectionsController extends Controller
                 $data['reminder_date'] = $reminder_moment->format('Y-m-d H:i:s');
             }
 
+            $inspection = null;
             if ($hive)
-                $inspection = $hive->inspections()->orderBy('created_at','desc')->whereDate('created_at', $moment->format('Y-m-d'))->first();
+                $inspection = $hive->inspections()->orderBy('created_at','desc')->where('created_at', $date)->first();
             else if ($location)
-                $inspection = $location->inspections()->orderBy('created_at','desc')->whereDate('created_at', $moment->format('Y-m-d'))->first();
+                $inspection = $location->inspections()->orderBy('created_at','desc')->where('created_at', $date)->first();
             else
-                $inspection = $user->inspections()->orderBy('created_at','desc')->whereDate('created_at', $moment->format('Y-m-d'))->first();
+                $inspection = $user->inspections()->orderBy('created_at','desc')->where('created_at', $date)->first();
 
             // filter -1 values for impression and attention
             $data['impression'] = $request->filled('impression') && $request->input('impression') > -1 ? $request->input('impression') : null;
             $data['attention']  = $request->filled('attention')  && $request->input('attention')  > -1 ? $request->input('attention')  : null;
 
-            //die(print_r($data));
+            //die(print_r(['data'=>$data,'inspection'=>$inspection,'user'=>$user->inspections()->get()->toArray()]));
 
 
             if (isset($inspection))

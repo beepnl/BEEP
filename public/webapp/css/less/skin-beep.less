@@ -7,7 +7,7 @@
 @import "variables.less";
 @import "mixins.less";
 
-body,a,input,h1,h2,h3,h4,h5,h6,.h1,.h2,.h3,.h4,.h5,.h6,.btn {
+body,a,input,textarea,h1,h2,h3,h4,h5,h6,.h1,.h2,.h3,.h4,.h5,.h6,.btn,.dtpicker-bg {
   font-family: 'Roboto Condensed', 'Helvetica Neue', Helvetica, Arial, sans-serif;
 }
 
@@ -77,15 +77,51 @@ body,a,input,h1,h2,h3,h4,h5,h6,.h1,.h2,.h3,.h4,.h5,.h6,.btn {
   .skin-light-sidebar(@yellow);
 
   // Specific components
-  .btn-primary {
+  .btn-primary, .dtpicker-button, .dtpicker-compButton {
+      background: @brand-primary;
       background-color: @brand-primary;
       border-color: darken(@brand-primary, 5%);
+      color: @white;
+      border-radius: @input-radius;
       &:hover, &:active, &.hover {
         background-color: darken(@brand-primary, 5%);
+        color: @white;
+      }
+  }
+  .dtpicker-compButton{
+    font-family: Arial, sans-serif;
+    background-color: lighten(@brand-primary, 20%);
+    color: @black;
+    &:hover, &:active {
+      background-color: lighten(@brand-primary, 10%);
+      color: @black;
+    }
+  }
+  .dtpicker-content, .dtpicker-title, .dtpicker-value, .dtpicker-compValue, .dtpicker-close{
+    color: @black;
+  }
+  .dtpicker-value{
+    font-weight: bold;
+  }
+  .dtpicker-compValue{
+    &:hover, &:active, &:focus  {
+      background-color: lighten(@brand-primary, 45%);
+      color: @black;
+    }
+  }
+  .dtpicker-close{
+    &:hover {
+      color: @black;
+      font-weight: bold;
     }
   }
 
   // forms
+  p,a,input,textarea,h1,h2,h3,h4,h5,h6,.h1,.h2,.h3,.h4,.h5,.h6{
+    &::selection{
+      background-color: lighten(@brand-primary, 40%);
+    }
+  }
   .form-control {
     &:focus {
       border-color: @brand-primary;

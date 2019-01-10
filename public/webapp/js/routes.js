@@ -57,13 +57,7 @@ app.config(['$routeProvider', '$locationProvider',  function($routeProvider)
 
 
   // overview
-  .when('/sensors_old',
-  {
-      controller  : 'SensorsOldCtrl',
-      templateUrl : 'views/sensors_old.html',
-  })
-
-    .when('/measurements',
+  .when('/measurements',
   {
       controller  : 'MeasurementsCtrl',
       templateUrl : 'views/measurements.html?v=2',

@@ -41,8 +41,8 @@
 									<a href="#!/hives/{{hiveId}}/inspections/{{inspection.id}}" class="icon-button"><i class="fa fa-pencil"></i></a>
 									<a ng-click="confirmDeleteInspection(inspection.id)" class="icon-button delete"><i class="fa fa-trash"></i></a>
 								</div>
-								<strong ng-if="!mobile">{{ inspection.created_at | amUtc | amLocal | amDateFormat:'dd D MMMM YYYY' }}</strong>
-								<strong ng-if="mobile">{{ inspection.created_at | amUtc | amLocal | amDateFormat:'dd D MMM' }}</strong>
+								<strong ng-if="!mobile">{{ inspection.created_at | amDateFormat:'dd D MMMM YYYY HH:mm' }}</strong>
+								<strong ng-if="mobile">{{ inspection.created_at | amDateFormat:'dd D MMM HH:mm' }}</strong>
 							</th>
 							<th class="filler"></th>
 						</tr>
@@ -81,14 +81,14 @@
 								<span class="notes reminder" ng-class="{'mobile':mobile}" title="{{ ins.reminder }}">{{ ins.reminder }}</span>
 								<span ng-if="ins.reminder_date">
 									<addtocalendar
-									    start-date="{{ ins.reminder_date | amAdd : '8' : 'hours' | amDateFormat:'YYYYMMDDTHHmmss' }}"
-									    end-date="{{ ins.reminder_date | amAdd : '9' : 'hours' | amDateFormat:'YYYYMMDDTHHmmss' }}"
+									    start-date="{{ ins.reminder_date | amDateFormat:'YYYYMMDDTHHmmss' }}"
+									    end-date="{{ ins.reminder_date | amAdd : '1' : 'hours' | amDateFormat:'YYYYMMDDTHHmmss' }}"
 									    title="Beep {{ lang.reminder }}: {{ ins.reminder }}"
 									    location="{{ hive.location }} - {{ hive.name }}"
 									    class-name="btn btn-xs btn-default {{ mobile ? 'mobile' : ''}}"
 									    use-bootstrap="true"
 									    btn-text="{{lang.add_to_calendar}}"
-									    description="Beep app {{lang.Inspection}} @ {{ inspection.created_at | amUtc | amLocal | amDateFormat:'ddd D MMMM YYYY' }}">
+									    description="Beep app {{lang.Inspection}} @ {{ inspection.created_at | amDateFormat:'ddd D MMMM YYYY HH:mm' }}">
 									</addtocalendar>
 								</span>
 							</td>
@@ -98,7 +98,7 @@
 						<tr>
 							<td class="tdr">{{lang.remind_date}}</td>
 							<td ng-repeat="ins in inspections track by $index" class="tdc">
-								<span class="notes reminder-date" ng-class="{'mobile':mobile}" title="{{ ins.reminder_date }}">{{ ins.reminder_date | amUtc | amLocal | amDateFormat:'dd D MMMM YYYY' }}</span>
+								<span class="notes reminder-date" ng-class="{'mobile':mobile}" title="{{ ins.reminder_date }}">{{ ins.reminder_date | amDateFormat:'dd D MMMM YYYY HH:mm' }}</span>
 							</td>
 							<td class="filler"></td>
 						</tr>
@@ -121,7 +121,7 @@
 								<span ng-if="item.type == 'options'">{{ item.val }}</span>
 								<span ng-if="item.type == 'select'">{{ item.val }}</span>
 								<span ng-if="item.type == 'text'">{{ item.val }}</span>
-								<span ng-if="item.type == 'date'">{{ item.val | amDateFormat:'dd D MMM YYYY' }}</span>
+								<span ng-if="item.type == 'date'">{{ item.val | amDateFormat:'dd D MMM YYYY HH:mm' }}</span>
 								<span ng-if="item.type.indexOf('number') > -1">{{ item.val }}</span>
 								
 								<span ng-if="item.type == 'boolean' || item.type == 'list_item'">

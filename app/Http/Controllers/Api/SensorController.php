@@ -2,16 +2,18 @@
 namespace App\Http\Controllers\Api;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Auth;
 use App\User;
 use App\Sensor;
 use App\Setting;
+use App\Category;
 // use App\Transformer\SensorTransformer;
 use Validator;
 use InfluxDB;
 use Response;
 use Moment\Moment;
 use League\Fractal;
-use EllipseSynergie\ApiResponse\Contracts\Response as TransformerResponse;
+use App\Http\Requests\PostSensorRequest;
 
 class SensorController extends Controller
 {
@@ -97,11 +99,93 @@ class SensorController extends Controller
     protected $timeFormat  = 'Y-m-d H:i:s';
     protected $maxDataPoints = 5000;
  
-    public function __construct(TransformerResponse $response)
+   
+    // Sensor crud functions
+
+    public function index(Request $request)
     {
-        $this->response = $response;
+        $sensor_amount = $request->user()->sensors()->count();
+        if ($sensor_amount == 0)
+            return Response::json('No sensors found', 404);
+
+        $sensors = $request->user()->sensors()->get();
+        
+        return Response::json($sensors);
+    }
+
+    public function store(Request $request)
+    {
+        //die(print_r($request->input()));
+        foreach ($request->input() as $sensor) 
+        {
+            $result = $this->updateOrCreateSensor($sensor);
+            if ($result == null || gettype($result) == 'array')
+                return Response::json($result, 500);
+        }
+        return $this->index($request);
+    }
+
+    public function update(Request $request)
+    {
+        $result = $this->updateOrCreateSensor($request->input());
+
+        return Response::json($result, $result == null || gettype($result) == 'array' ? 500 : 200);
+    }
+
+    public function updateOrCreateSensor($sensor)
+    {
+        $sid = isset($sensor['id']) ? ','.$sensor['id'] : '';
+        $validator = Validator::make($sensor, [
+            'id'                => 'nullable|integer|unique:sensors,id'.$sid,
+            'name'              => 'required|string',
+            'hive_id'           => 'required|exists:hives,id',
+            'type'              => 'required|string|exists:categories,name',
+            'key'               => 'required|string|min:4|unique:sensors,key'.$sid,
+            'delete'            => 'nullable|boolean'
+        ]);
+
+        if ($validator->fails())
+        {
+            return ['errors'=>$validator->errors()];
+        }
+        else
+        {
+            $valid_data = $validator->validated();
+            $sensor_obj = isset($valid_data['id']) ? Auth::user()->sensors()->find($valid_data['id']) : null;
+            $sensor_id  = null;
+            if ($sensor_obj == null)
+            {
+                //create
+                $sensor = [];
+            }
+            else
+            {
+                // delete
+                if (isset($valid_data['delete']) && $valid_data['delete'] === true)
+                {
+                    $sensor_obj->delete();
+                    return 'sensor_deleted';
+                }
+                // edit
+                $sensor    = $sensor_obj->toArray();
+                $sensor_id = $sensor_obj->id; 
+            }
+
+
+            $sensor['hive_id']            = $valid_data['hive_id'];
+            $sensor['name']               = $valid_data['name']; 
+            $sensor['key']                = $valid_data['key']; 
+            $sensor['category_id']        = Category::findCategoryIdByParentAndName('sensor', $valid_data['type']); 
+            
+            return Auth::user()->sensors()->updateOrCreate(['id'=>$sensor_id], $sensor);
+        }
+
+        return null;
     }
     
+
+    // Sensor measurement functions
+
     protected function get_user_sensor(Request $request)
     {
         $this->validate($request, [
@@ -661,20 +745,6 @@ class SensorController extends Controller
         return Response::json($offset, 500);
     }
 
-
-    public function index(Request $request)
-    {
-        $sensor_amount = $request->user()->sensors()->count();
-        if ($sensor_amount == 0)
-            return Response::json('No sensors found', 404);
-
-        $sensors = $request->user()->sensors()->get();
-        
-        return Response::json($sensors);
-    }
-
-    
-
     public function lastvalues(Request $request)
     {
         $sensor = $this->get_user_sensor($request);
@@ -754,7 +824,7 @@ class SensorController extends Controller
     }
 
     
-    public function store(Request $request)
+    public function storeMeasurementData(Request $request)
     {
         // Check for valid data 
         if ($request->filled('payload_fields')) // TTN HTTP POST

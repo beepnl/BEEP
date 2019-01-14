@@ -14,7 +14,7 @@ class Hive extends Model
     protected $fillable = ['user_id', 'location_id', 'hive_type_id', 'color', 'name'];
     protected $guarded  = ['id'];
 	protected $hidden 	= ['user_id'];
-    protected $appends  = ['type','location','attention','impression','reminder','reminder_date','inspection_count'];
+    protected $appends  = ['type','location','attention','impression','reminder','reminder_date','inspection_count','sensors'];
 
     public $timestamps = false;
 
@@ -70,6 +70,11 @@ class Hive extends Model
         return $this->layers()->where('category_id', Category::findCategoryIdByParentAndName('hive_layer','brood'))->count();
     }
 
+    public function getSensorsAttribute()
+    {
+        return $this->sensors()->pluck('id')->toArray();
+    }
+
     private function getLastInspectionItem($name)
     {
         $item = $this->inspections()->orderBy('created_at','desc')->first();
@@ -78,6 +83,7 @@ class Hive extends Model
 
         return null;
     }
+
 
     public function queen()
     {
@@ -120,33 +126,15 @@ class Hive extends Model
         return $this->hasManyThrough(HiveLayerFrame::class, HiveLayer::class, 'hive_id', 'layer_id');
     }
     
+    public function sensors()
+    {
+        return $this->hasMany(Sensor::class);
+    }
+
     // manually inserted items
-    public function conditions()
-    {
-        return $this->hasMany(Condition::class);
-    }
-
-    public function actions()
-    {
-        return $this->hasMany(Action::class);
-    }
-
     public function productions()
     {
         return $this->hasMany(Production::class);
-    }
-
-    public function inspectionDates()
-    {
-        $dates = $this->conditions()->pluck('created_at');
-        $dates = $dates->merge($this->actions()->pluck('created_at'));
-
-        if ($dates)
-        {
-            $dates_array = $dates->unique();
-            return $dates_array;
-        }
-        return collect([]);
     }
 
     public function inspections_by_date()

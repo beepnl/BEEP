@@ -4,7 +4,7 @@
  *
  * Measurements controller for chart measurements 
  */
-app.controller('MeasurementsCtrl', function($scope, $rootScope, $timeout, $interval, $location, api, moment, measurements) 
+app.controller('MeasurementsCtrl', function($scope, $rootScope, $timeout, $interval, $routeParams, $location, api, moment, measurements) 
 {
     $rootScope.title    = $rootScope.lang.sensors;
     
@@ -222,6 +222,9 @@ app.controller('MeasurementsCtrl', function($scope, $rootScope, $timeout, $inter
     {
         if ($rootScope.pageSlug == 'measurements')
         {
+            if ($routeParams.sensorId != undefined)
+                measurements.sensorId = $routeParams.sensorId;
+
             $scope.updateSensors();
             $scope.loadData();
         }

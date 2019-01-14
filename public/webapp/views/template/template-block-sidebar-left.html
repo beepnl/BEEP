@@ -49,12 +49,14 @@
             <span ng-cloak>{{lang.Hives}}</span>
           </a>
       </li>
-      <li ng-class="{active: pageSlug == 'sensors'}">
-          <a ng-if="!hasSensors" ng-click="switchMenu($event, true, '/sensors')" data-toggle="{{ mobile ? 'offcanvas' : '' }}">
-            <i class="fa fa-feed"></i>
-            <span ng-cloak>{{lang.sensors}}</span>
+      <li ng-class="{active: pageSlug == 'measurements'}">
+          <a ng-click="switchMenu($event, true, '/measurements')" data-toggle="{{ mobile ? 'offcanvas' : '' }}">
+            <i class="fa fa-line-chart"></i>
+            <span ng-cloak>{{lang.measurements}}</span>
           </a>
-          <a ng-if="hasSensors == true" ng-click="switchMenu($event, true, '/measurements')" data-toggle="{{ mobile ? 'offcanvas' : '' }}">
+      </li>
+      <li ng-class="{active: pageSlug == 'sensors'}">
+          <a ng-click="switchMenu($event, true, '/sensors')" data-toggle="{{ mobile ? 'offcanvas' : '' }}">
             <i class="fa fa-feed"></i>
             <span ng-cloak>{{lang.sensors}}</span>
           </a>

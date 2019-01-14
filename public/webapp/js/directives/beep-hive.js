@@ -9,10 +9,13 @@ app.directive('beepHive', ['$rootScope', function($rootScope) {
             '<p ng-if="hive.reminder != null && hive.reminder != \'\'" class="notes reminder" title="{{ hive.reminder }}">{{hive.reminder}}</p>'+
             '<p ng-if="hive.reminder_date != null && hive.reminder_date != \'\'" class="notes reminder-date">{{hive.reminder_date | amDateFormat:\'dd D MMMM YYYY HH:mm\'}}</p>'+
             '<div class="info">'+
-              '<a ng-if="hive.attention == 1" href="#!/hives/{{hive.id}}/inspections" class="attention-icon">!</a>'+
-              '<a ng-if="hive.queen.color != null && hive.queen.color != \'\'" href="#!/hives/{{hive.id}}/edit" class="queen-icon" style="background-color: {{hive.queen.color}};"></a>'+
+              '<a ng-if="hive.attention == 1" href="#!/hives/{{hive.id}}/inspections" class="attention-icon" title="{{lang.needs_attention}}">!</a>'+
+              '<a ng-if="hive.queen.color != null && hive.queen.color != \'\'" href="#!/hives/{{hive.id}}/edit" class="queen-icon" style="background-color: {{hive.queen.color}};" title="{{hive.queen.name}}"></a>'+
               '<a ng-if="hive.impression > 0" href="#!/hives/{{hive.id}}/inspections" class="impression-icon" ng-class="{\'frown\':hive.impression==1, \'meh\':hive.impression==2, \'smile\':hive.impression==3}">'+
                 '<i class="fa fa-2x" ng-class="{\'fa-frown-o\':hive.impression==1, \'fa-meh-o\':hive.impression==2, \'fa-smile-o\':hive.impression==3}"></i>'+
+              '</a>'+
+              '<a ng-if="hive.sensors.length > 0" ng-repeat="sensorId in hive.sensors" href="#!/measurements/{{sensorId}}" class="sensor-icon" title="{{lang.sensor}} {{sensorId}}">'+
+                '<i class="fa fa-feed"></i>'+
               '</a>'+
             '</div>'+
             '<a ng-if="hive.id" href="#!/hives/{{hive.id}}/edit" title="{{lang.edit}}">'+
@@ -71,6 +74,9 @@ app.directive('beepHive', ['$rootScope', function($rootScope) {
                 '<a ng-if="hive.impression > 0" href="#!/hives/{{hive.id}}/inspections" class="impression-icon" ng-class="{\'frown\':hive.impression==1, \'meh\':hive.impression==2, \'smile\':hive.impression==3}">'+
                   '<i class="fa fa-2x" ng-class="{\'fa-frown-o\':hive.impression==1, \'fa-meh-o\':hive.impression==2, \'fa-smile-o\':hive.impression==3}"></i>'+
                 '</a>'+
+                '<a ng-if="hive.sensors.length > 0" ng-repeat="sensorId in hive.sensors" href="#!/measurements/{{sensorId}}" class="sensor-icon">'+
+                  '<i class="fa fa-feed"></i>'+
+                '</a>'+
               '</div>'+
             '</div>'+
             '<div class="col-xs-2 text-right">'+
@@ -89,7 +95,7 @@ app.directive('beepHive', ['$rootScope', function($rootScope) {
             '</div>'+
           '</div>',
       scope: {
-        hiveview: '=?',
+        hiveview: '=?', // show location name
         hive: '=?',
         new: '=?',
         loc: '=?',

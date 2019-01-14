@@ -170,7 +170,7 @@
     Inspections             : 'Inspecties',
     New_inspection          : 'Nieuwe inspectie',
     Edit_inspection         : 'Inspectie aanpassen',
-    Actions                 : 'Acties (uitgevoerd)',
+    Actions                 : 'Acties',
     Conditions              : 'Bevindingen (geïnspecteerd)',
     edit                    : 'Aanpassen',
     Hive_brood_layers       : 'Broedkamers',
@@ -376,6 +376,10 @@
 
     not_filled              : 'is verplicht, maar niet ingevuld',
     cannot_deselect         : 'Dit item kan niet worden verwijderd, omdat het een verplicht item bevat',
+    sensor_key              : 'Sensor code', 
+    Undelete                : 'Niet verwijderen',
+    the_field               : 'Vul een',
+    is_required             : 'in',
  };
 
 

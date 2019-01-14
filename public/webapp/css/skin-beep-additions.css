@@ -591,15 +591,25 @@ input.rn-stepper{
 		position: relative;
 		width: 90%;
 		height: 24px;
-		display: block;
 		text-align: center;
+		text-align: -webkit-center;
+	    display: flex;
+		-webkit-display:-webkit-flex;
+		-webkit-justify-content:space-around;
+		justify-content:space-around;
+		flex-direction: row;
+		-webkit-flex-direction: row; 
+		align-items: flex-end;
+		-webkit-flex-align-items: flex-end;
+		flex-wrap: wrap;
 		margin-bottom: 5px;
 		max-width: 140px;
 		overflow: hidden;
 	}
 		.info > a {
+			position: relative;
 			color: #333;
-			display: block; 
+			display: inline-block; 
 			width: 24px; 
 			height: 24px; 
 			margin:0; 
@@ -607,26 +617,20 @@ input.rn-stepper{
 			border: 2px solid #333;
 			text-align: center;
 			line-height: 20px;
+			overflow: hidden;
 		}
 
 			.info > a.attention-icon {
-				position: absolute;
-				left: 0;
 				background-color: #D0021B;
 				color: #fff;
 				font-size: 16px;
 				font-weight: bold;
 			}
 			.info > a.queen-icon {
-				position: absolute;
-				left: 50%;
-    			transform: translate(-50%, 0);
-    			background-size: 12px;
+				background-size: 12px;
 			}
 			.info > a.impression-icon {
 				background-color: #F8B133; 
-				position: absolute;
-				right: 0;
 			}
 				.info > a.impression-icon.frown {
 					background-color: #D0021B; 
@@ -634,10 +638,18 @@ input.rn-stepper{
 				.info > a.impression-icon.smile {
 					background-color: #7ED321; 
 				}
-				.info > a > i {
+				.info > a.impression-icon i {
 					position: absolute;
 				    top: -4px;
 				    left: -2px;
+				}
+			.info > a.sensor-icon {
+				background-color: #FFF; 
+			}
+				.info > a.sensor-icon i {
+					position: absolute;
+				    top: 3px;
+				    left: 6px;
 				}
 
 		.info.mobile{
@@ -645,23 +657,8 @@ input.rn-stepper{
 			width: 100%;
 			max-width: 120px;
 			height: 24px;
-			display: block;
 			text-align: left;
 		}
-			.info.mobile > a {
-				display: inline-block; 
-				margin-right: 10px;
-			}
-				.info.mobile > a.attention-icon, .info.mobile > a.queen-icon, .info.mobile > a.impression-icon{
-					position: relative;
-					transform: none;
-					left: inherit;
-				}
-				@media screen and (-webkit-min-device-pixel-ratio:0){ /* chrome only */
-					.info.mobile > a.attention-icon{
-						top:-6px;
-					}
-				}
 
 	p.notes, span.notes{
 		display: block;
@@ -889,6 +886,9 @@ input.rn-stepper{
 	.table.inspections.mobile .tdc{
 		min-width: 100px;
 		max-width: 100px;
+	}
+	table.inspections th.tdc{
+		vertical-align: top;
 	}
 	.table.inspections .filler
 	{

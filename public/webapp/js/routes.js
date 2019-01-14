@@ -57,6 +57,12 @@ app.config(['$routeProvider', '$locationProvider',  function($routeProvider)
 
 
   // overview
+  .when('/measurements/:sensorId',
+  {
+      controller  : 'MeasurementsCtrl',
+      templateUrl : 'views/measurements.html?v=2',
+  })
+
   .when('/measurements',
   {
       controller  : 'MeasurementsCtrl',
@@ -127,8 +133,8 @@ app.config(['$routeProvider', '$locationProvider',  function($routeProvider)
    // sensors
   .when('/sensors',
   {
-      controller  : 'HivesCtrl',
-      templateUrl : 'views/sensors_na.html',
+      controller  : 'SensorsCtrl',
+      templateUrl : 'views/sensors.html',
   })
 
 

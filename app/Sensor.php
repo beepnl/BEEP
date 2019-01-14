@@ -8,8 +8,8 @@ class Sensor extends Model
 {
     protected $fillable = ['user_id', 'hive_id', 'category_id', 'name', 'key'];
 	protected $guarded 	= ['id'];
-    protected $hidden   = ['user_id', 'category_id'];
-    protected $appends  = ['type'];
+    protected $hidden   = ['user_id', 'category_id', 'deleted_at'];
+    protected $appends  = ['type','hive_name', 'location_name'];
 
     public $timestamps = false;
 
@@ -17,6 +17,16 @@ class Sensor extends Model
     public function getTypeAttribute()
     {
         return Category::find($this->category_id)->name;
+    }
+
+    public function getHiveNameAttribute()
+    {
+        return $this->hive->name;
+    }
+
+    public function getLocationNameAttribute()
+    {
+        return $this->hive->getLocationAttribute();
     }
     
 	public function hive()

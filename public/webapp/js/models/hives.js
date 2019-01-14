@@ -20,6 +20,7 @@ app.service('hives', ['$http', '$rootScope', 'api', 'settings', function($http, 
 		this.frame_width_mobile 	 = 3;
 		this.hive_width_start_mobile = 10;
 		this.open_loc_ids 	  = [];
+		this.sensors 	  	  = [];
 	}
 
 	this.toggle_open_loc = function(id)
@@ -211,6 +212,19 @@ app.service('hives', ['$http', '$rootScope', 'api', 'settings', function($http, 
 					if (hive.inspection_count > 0)
 						self.hives_inspected.push(hive);
 				}
+				for (var k = 0; k < h.sensors.length; k++) 
+				{
+					var s = h.sensors[k];
+					self.sensors.push(s);
+				}
+			}
+			if (typeof loc.sensors != 'undefined')
+			{
+				for (var k = 0; k < loc.sensors.length; k++) 
+				{
+					var s = loc.sensors[k];
+					self.sensors.push(s);
+				}
 			}
 		}
 		
@@ -240,5 +254,7 @@ app.service('hives', ['$http', '$rootScope', 'api', 'settings', function($http, 
 
 	self.reset();
 	$rootScope.$on('reset', self.reset);
+	self.loadRemoteLocations();
+	
 
 }]);

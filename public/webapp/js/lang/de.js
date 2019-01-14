@@ -168,7 +168,7 @@ LANG['de'] =
 	Inspections : 'Durchsichten', 
 	New_inspection : 'Neue Durchsicht', 
 	Edit_inspection : 'Bearbeite Durchsicht', 
-	Actions : 'Bearbeitungen (ausgeführt)', 
+	Actions : 'Bearbeitungen', 
 	Conditions : 'Bedingungen (geprüft)', 
 	edit : 'Bearbeite', 
 	Hive_brood_layers : 'Brutzargen', 
@@ -178,7 +178,7 @@ LANG['de'] =
 	Birth_date : 'Geburtstag', 
 	Color : 'Farbe', 
 	Queen_colored : 'Königin gezeichnet', 
-	Queen_clipped : 'Königin gezeichnet', 
+	Queen_clipped : 'Flügel beschnitten', 
 	Queen_fertilized : 'Königin begattet', 
 	Age : 'Alter', 
 	year : 'Jahre alt', 
@@ -372,5 +372,9 @@ LANG['de'] =
 
     not_filled              : 'is required, but not filled out',
     cannot_deselect         : 'Unable to remove this item, because it contains a required item',
+    sensor_key              : 'Sensor key',
+    Undelete                : 'Do not delete',
+    the_field               : 'The',
+    is_required             : 'is required',
     
 };

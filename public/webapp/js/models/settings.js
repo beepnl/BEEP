@@ -21,6 +21,7 @@ app.service('settings', ['$http', '$rootScope', 'api', function($http, $rootScop
 
 		this.beeraces  	  		= [];
 		this.hivetypes 	  		= [];
+		this.sensortypes 	  	= [];
 		this.taxonomy			= [];
 		this.settings_array		= [];
 	}
@@ -45,6 +46,9 @@ app.service('settings', ['$http', '$rootScope', 'api', function($http, $rootScop
 		}
 		if (typeof data.beeraces != 'undefined')
 			self.beeraces  = data.beeraces;
+
+		if (typeof data.sensortypes != 'undefined')
+			self.sensortypes = data.sensortypes;
 
 		if (typeof data.hivetypes != 'undefined')
 			self.hivetypes = data.hivetypes;

@@ -168,7 +168,7 @@
     Inspections             : 'Inspections',
     New_inspection          : 'New inspection',
     Edit_inspection         : 'Edit inspection',
-    Actions                 : 'Actions (carried out)',
+    Actions                 : 'Actions',
     Conditions              : 'Conditions (inspected)',
     edit                    : 'Edit',
     Hive_brood_layers       : 'Brood layers',
@@ -381,6 +381,10 @@
 
     not_filled              : 'not filled out',
     cannot_deselect         : 'Unable to remove this item, because it contains a required item',
+    sensor_key              : 'Sensor key',
+    Undelete                : 'Do not delete',
+    the_field               : 'The',
+    is_required             : 'is required',
 
  };
 

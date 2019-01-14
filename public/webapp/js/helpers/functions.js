@@ -434,6 +434,16 @@ var versionCompare = function(v1, v2, options)
     return 0;
 }
 
+function randomString(length=16) {
+  var text = "";
+  var possible = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghjklmnpqrstuvwxyz0123456789"; // excluded o and O to avoid confusion with 0
+
+  for (var i = 0; i < length; i++)
+    text += possible.charAt(Math.floor(Math.random() * possible.length));
+
+  return text;
+}
+
 /*
  * Natural Sort algorithm for Javascript - Version 0.7 - Released under MIT license
  * Author: Jim Palmer (based on chunking idea from Dave Koelle)

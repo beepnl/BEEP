@@ -54,7 +54,13 @@ app.service('measurements', ['$http', '$rootScope', '$interval', 'api', 'setting
 				return sensor;
 		}
 		return null;
-	}	
+	}
+
+	this.getSensorByIndex = function(i)
+	{
+		return typeof this.sensors[i] != 'undefined' ? this.sensors[i] : null;
+	}
+
 
 	// Data from one sensor
 	this.loadRemoteSensorMeasurements = function(interval, timeIndex, timeGroup, timeZone, sensorId)
@@ -143,6 +149,7 @@ app.service('measurements', ['$http', '$rootScope', '$interval', 'api', 'setting
 	};
 
 	$rootScope.$on('sensorsLoaded', self.handleSensors);
+	$rootScope.$on('saveSensorsLoaded', self.handleSensors);
 	$rootScope.$on('sensorsError', self.sensorsError);
 
 

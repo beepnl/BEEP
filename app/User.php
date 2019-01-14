@@ -54,16 +54,6 @@ class User extends Authenticatable
         return $this->hasMany(Location::class);
     }
 
-    public function conditions()
-    {
-        return $this->hasManyThrough(Condition::class, Hive::class);
-    }
-
-    public function actions()
-    {
-        return $this->hasManyThrough(Action::class, Hive::class);
-    }
-
     // TODO: Add GUI for attaching sensor rights to users
     public function sensors()
     {

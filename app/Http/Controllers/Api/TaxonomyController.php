@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Api;
 use App\Category;
 use App\Taxonomy;
 use App\Hive;
-use App\HiveType;
 use App\BeeRace;
 use App\Inspection;
 use App\InspectionItem;

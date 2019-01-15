@@ -380,6 +380,12 @@
     Undelete                : 'Niet verwijderen',
     the_field               : 'Vul een',
     is_required             : 'in',
+
+    Groups                  : 'Samenwerken',
+    Group                   : 'Samenwerkingsgroep',
+    group                   : 'samenwerkingsgroep',
+    to_share                : 'om te delen met de groep. 1x klikken = delen om te bekijken, 2x klikken is delen met aanpassingsmogelijkheid',
+
  };
 
 

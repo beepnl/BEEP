@@ -26,13 +26,13 @@
 	      </div>
 	    </div>
 	    <!-- /.box-header -->
-	    <div ng-if="sensors.length == 0" class="box-body">
+	    <div ng-if="Object.keys(sensors).length == 0" class="box-body">
 	      
-	      <p>{{lang.sensors_na}}</p>
+	      <p>{{lang.Groups}} {{lang.not_available}}</p>
 
 	    </div>
 
-	    <div ng-if="sensors.length > 0" class="box-body">
+	    <div ng-if="Object.keys(sensors).length > 0" class="box-body">
 
 	    	<table class="table table-striped">
 	    		<thead>

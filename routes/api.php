@@ -83,6 +83,7 @@ Route::group(['middleware' => \Barryvdh\Cors\HandleCors::class], function()
 		// Control resources 
 		Route::resource('checklists', 		'Api\ChecklistController',		 		['except'=>['create','edit']]);
 		Route::resource('categories', 		'Api\CategoryController',		 		['except'=>['create','edit']]);
+		Route::resource('groups', 			'Api\GroupController', 			 		['except'=>['create','edit']]);
 		Route::resource('hives', 			'Api\HiveController', 			 		['except'=>['create','edit']]);
 		Route::resource('locations', 		'Api\LocationController', 	 			['except'=>['create','edit']]);
 		Route::resource('productions',		'Api\ProductionController',				['except'=>['create','edit']]);

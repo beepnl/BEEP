@@ -17,7 +17,7 @@ class User extends Authenticatable
 
     protected $fillable = ['name', 'email', 'password', 'api_token', 'last_login', 'policy_accepted'];
 
-    protected $hidden = ['password', 'remember_token'];
+    protected $hidden = ['password', 'remember_token', 'api_token'];
 
     protected $guarded  = ['id'];
 
@@ -58,6 +58,11 @@ class User extends Authenticatable
     public function sensors()
     {
         return $this->hasMany(Sensor::class);
+    }
+
+    public function groups()
+    {
+        return $this->belongsToMany(Group::class, 'group_user');
     }
 
     // public function groups()

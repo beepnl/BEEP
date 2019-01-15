@@ -13,7 +13,7 @@ class Hive extends Model
     protected $cascadeDeletes = ['queen','inspections','layers','frames','productions'];
     protected $fillable = ['user_id', 'location_id', 'hive_type_id', 'color', 'name'];
     protected $guarded  = ['id'];
-	protected $hidden 	= ['user_id'];
+	protected $hidden 	= ['user_id','deleted_at'];
     protected $appends  = ['type','location','attention','impression','reminder','reminder_date','inspection_count','sensors'];
 
     public $timestamps = false;
@@ -73,6 +73,13 @@ class Hive extends Model
     public function getSensorsAttribute()
     {
         return $this->sensors()->pluck('id')->toArray();
+    }
+
+    public function getNameAndLocationAttribute()
+    {
+        $out  = $this->name;
+        $out .= isset($this->location_id) ? ' - '.$this->getLocationAttribute() : '';
+        return $out;
     }
 
     private function getLastInspectionItem($name)

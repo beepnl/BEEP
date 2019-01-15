@@ -547,7 +547,14 @@ input.rn-stepper{
 	margin: 5px;
 }
 
+.hives-container.selection{
+	-webkit-justify-content:flex-start;
+	justify-content:flex-start;
+}
+
+
 .hive-container{
+	position: relative;
 	margin-right: 5px;
 	text-align: center;
 	text-align: -webkit-center;
@@ -555,6 +562,35 @@ input.rn-stepper{
 	display: inline-block;
     float: none;
 }
+	.hive-container.small p.title{
+		max-width: 60px;
+		line-height: 14px;
+		height: 30px;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		color: #000;
+	}
+		.hive-container.small > p.title.selected{
+			font-weight: bold;
+		}
+
+		.hive-container.small .select-icon{
+			position: absolute;
+			top: -10px;
+			right: 0px;
+			width: 28px;
+			height: 28px;
+			border-radius: 50%;
+			border: 2px solid #000;
+			background-color: #fff;
+			color: #000;
+		}
+
+			.hive-container.small .select-icon i{
+				font-size: 18px;
+				margin-top: 3px;
+			}
+
 .hive{
 	text-align: center;
 	text-align: -webkit-center;
@@ -606,7 +642,7 @@ input.rn-stepper{
 		max-width: 140px;
 		overflow: hidden;
 	}
-		.info > a {
+		.info > * {
 			position: relative;
 			color: #333;
 			display: inline-block; 
@@ -620,30 +656,34 @@ input.rn-stepper{
 			overflow: hidden;
 		}
 
-			.info > a.attention-icon {
+		.info > a{
+			color: #333;
+		}
+
+			.info > .attention-icon {
 				background-color: #D0021B;
 				color: #fff;
 				font-size: 16px;
 				font-weight: bold;
 			}
-			.info > a.queen-icon {
+			.info > .queen-icon {
 				background-size: 12px;
 			}
-			.info > a.impression-icon {
+			.info > .impression-icon {
 				background-color: #F8B133; 
 			}
-				.info > a.impression-icon.frown {
+				.info > .impression-icon.frown {
 					background-color: #D0021B; 
 				}
-				.info > a.impression-icon.smile {
+				.info > .impression-icon.smile {
 					background-color: #7ED321; 
 				}
-				.info > a.impression-icon i {
+				.info > .impression-icon i {
 					position: absolute;
 				    top: -4px;
 				    left: -2px;
 				}
-			.info > a.sensor-icon {
+			.info > .sensor-icon {
 				background-color: #FFF; 
 			}
 				.info > a.sensor-icon i {

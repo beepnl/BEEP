@@ -49,6 +49,12 @@
             <span ng-cloak>{{lang.Hives}}</span>
           </a>
       </li>
+      <li ng-class="{active: pageSlug == 'groups'}">
+          <a ng-click="switchMenu($event, true, '/groups')" data-toggle="{{ mobile ? 'offcanvas' : '' }}">
+            <i class="fa fa-users"></i>
+            <span ng-cloak>{{lang.Groups}}</span>
+          </a>
+      </li>
       <li ng-class="{active: pageSlug == 'measurements'}">
           <a ng-click="switchMenu($event, true, '/measurements')" data-toggle="{{ mobile ? 'offcanvas' : '' }}">
             <i class="fa fa-line-chart"></i>

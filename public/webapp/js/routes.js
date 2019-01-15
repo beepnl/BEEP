@@ -123,6 +123,28 @@ app.config(['$routeProvider', '$locationProvider',  function($routeProvider)
       templateUrl : 'views/hives.html?v=3',
   })
 
+  // groups
+  .when('/groups',
+  {
+      controller  : 'GroupsCtrl',
+      templateUrl : 'views/groups.html?v=1',
+  })
+  .when('/groups/create',
+  {
+      controller  : 'GroupsCtrl',
+      templateUrl : 'views/group_edit.html?v=1',
+  })
+  .when('/groups/:groupId/edit',
+  {
+      controller  : 'GroupsCtrl',
+      templateUrl : 'views/group_edit.html?v=1',
+  })
+  .when('/groups/:groupId/inspections',
+  {
+      controller  : 'InspectionsCtrl',
+      templateUrl : 'views/inspections.html?v=4',
+  })
+
   // checklist
   .when('/checklist/:checklistId/edit',
   {

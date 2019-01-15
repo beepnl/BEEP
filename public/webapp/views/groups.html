@@ -1,0 +1,71 @@
+<section class="content-header">
+	<h1>
+		{{lang.Groups}}
+		<div class="pull-right">
+	    	<div>
+				<a href="#!/groups/create" class="btn btn-primary"><i class="fa fa-plus"></i> {{mobile ? lang.New : lang.create_new}} {{lang.group}}</a>
+			</div>
+	    </div>
+	</h1>
+
+</section>
+
+<section class="content" >
+	
+	<div class="box" ng-if="groups == null">
+		<div class="box-header with-border">
+	      <h3 class="box-title">{{lang.Groups}}</h3>
+	    </div>
+
+	    <div class="box-body" ng-class="{'no-padding':mobile}" style="min-height: 300px;">
+	    </div>
+
+		<div class="overlay">
+          <i class="fa fa-refresh fa-spin"></i>
+        </div>
+	 </div>
+
+
+	<div class="box" ng-repeat="(key, group) in groups | orderBy:'name':false:natSort" ng-class="{'collapsed-box':!group.open}">
+	    <div class="box-header with-border">
+	      <div class="box-tools">
+	        <button type="button" class="btn btn-box-tool" ng-click="toggleGroup(group)"> <i class="fa" ng-class="{'fa-plus':!group.open, 'fa-minus':group.open}"></i>
+	        </button>
+
+	        <!--button type="button" class="btn btn-box-tool" data-widget="remove"><i class="fa fa-times"></i></button-->
+	      </div>
+	      <h3 class="box-title">{{group.name}}</h3>
+	      <a href="#!/groups/{{group.id}}/edit" class="icon-button" title="{{lang.edit}}"><i class="fa fa-pencil"></i></a>
+
+	    </div>
+	    <!-- /.box-header -->
+	    <div class="box-body" ng-class="{'no-padding':mobile}">
+	      	
+	      	<div ng-if="!mobile" class="hives-container">
+	      		<div ng-repeat="(key, hive) in group.hives | orderBy:'name':false:natSort" class="hive-container" >
+	            	<beep-hive-group hive="hive" hiveview="true"></beep-hive-group>
+	            </div>
+	      	</div>
+
+	      	<table ng-if="mobile" class="table table-striped">
+	      		<thead></thead>
+				<tbody>
+					<tr ng-repeat="(key, hive) in group.hives | orderBy:'name':false:natSort">
+						<td>
+							<beep-hive-group hive="hive" hiveview="true"></beep-hive-group>
+			            </td>
+					</tr>
+				</tbody>
+			</table>
+
+	    </div>
+	    <!-- /.box-body -->
+	    <!-- <div class="box-footer clearfix">
+	    </div> -->
+	    <!-- /.box-footer -->
+	    <div class="overlay" ng-if="loading">
+          <i class="fa fa-refresh fa-spin"></i>
+        </div>
+	 </div>
+
+</section>

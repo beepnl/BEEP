@@ -137,11 +137,13 @@ class GroupController extends Controller
         }
         if (count($invite_grp) > 0)
         {
+            $emails = [];
             foreach ($invite_grp as $email => $admin) 
             {
                 Mail::to($email)->send(new GroupInvitation($group, $admin));
+                $emails[] = $email;
             }
-            return ['message'=>'Invited: '.implode($invite_grp, ', ')];
+            return ['message'=>'Invited: '.implode($emails, ', ')];
         }
         else if (count($invite_new) > 0)
         {

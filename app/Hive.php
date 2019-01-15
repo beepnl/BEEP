@@ -107,6 +107,11 @@ class Hive extends Model
         return $this->belongsTo(User::class);
     }
 
+    public function groups()
+    {
+        return $this->hasMany(Group::class, 'group_hive');
+    }
+
     public function checklists()
     {
         return $this->belongsToMany(Checklist::class, 'checklist_hive');

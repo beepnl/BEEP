@@ -16,6 +16,7 @@ app.controller('GroupsCtrl', function($scope, $rootScope, $window, $location, $f
 	$scope.hive 			= null;
 	$scope.locations 		= null;
 	$scope.error_msg 		= null;
+	$scope.success_msg 		= null;
 	$scope.selectedGroupIndex= 0;
 	$scope.orderName        = 'name';
 	$scope.orderDirection   = false;
@@ -58,6 +59,21 @@ app.controller('GroupsCtrl', function($scope, $rootScope, $window, $location, $f
 	{
 		groups.toggle_open_group(group.id);
 	}
+
+	$scope.addGroupUser = function()
+    {
+        $scope.group.users.push({'name':$rootScope.lang.Member+' '+($scope.group.users.length+1), 'email':'', 'admin':0, 'creator':0});
+    }
+
+    $scope.deleteGroupUser = function(userIndex)
+    {
+        var u = $scope.group.users[userIndex];
+        if (typeof u.delete == 'undefined')
+            u.delete = true;
+        else
+            u.delete = u.delete ? false : true;
+    }
+
 
 	$scope.selectGroupHive = function(hive)
 	{
@@ -105,7 +121,7 @@ app.controller('GroupsCtrl', function($scope, $rootScope, $window, $location, $f
 		
 		if ($location.path().indexOf('/groups/create') > -1)
 		{
-			$scope.group = {'name':$rootScope.lang.Group+' '+($scope.groups.length+1) ,'color':'', 'description':'', 'hives_selected':[], 'hives_editable':[]};
+			$scope.group = {'name':$rootScope.lang.Group+' '+($scope.groups.length+1) ,'color':'', 'description':'', 'hives_selected':[], 'hives_editable':[], 'users':[{'name':$rootScope.user.name, 'email':$rootScope.user.email, 'admin':1, 'creator':1, 'invited':null}]};
 			//console.log($scope.hive);
 		}
 		else
@@ -164,7 +180,7 @@ app.controller('GroupsCtrl', function($scope, $rootScope, $window, $location, $f
 
 	$scope.saveGroup = function(back)
 	{
-		var postGroup = {'name':$scope.group.name, 'description':$scope.group.description, 'hex_color':$scope.group.hex_color, 'hives_selected':$scope.group.hives_selected, 'hives_editable':$scope.group.hives_editable};
+		var postGroup = {'name':$scope.group.name, 'description':$scope.group.description, 'hex_color':$scope.group.hex_color, 'hives_selected':$scope.group.hives_selected, 'hives_editable':$scope.group.hives_editable, 'users':$scope.group.users};
 		if ($location.path().indexOf('/groups/create') > -1)
 		{
 			api.postApiRequest('saveGroup', 'groups', postGroup);
@@ -193,9 +209,15 @@ app.controller('GroupsCtrl', function($scope, $rootScope, $window, $location, $f
 		$scope.error_msg = $rootScope.lang.empty_fields + (error.status == 422 ? ". Error: "+convertOjectToArray(error.message).join(', ') : '');
 	}
 
-	$scope.groupChanged = function()
+	$scope.groupsMessage = function(type, data)
 	{
-		if ($scope.redirect != null)
+		console.log(data);
+		$scope.success_msg = data.message;
+	}
+
+	$scope.groupChanged = function(type, data)
+	{
+		if ($scope.redirect != null && typeof data.message == 'undefined')
 		{
 			$location.path($scope.redirect);
 			$scope.redirect = null;
@@ -209,6 +231,7 @@ app.controller('GroupsCtrl', function($scope, $rootScope, $window, $location, $f
 	$scope.groupsHandler 		= $rootScope.$on('groupsUpdated', $scope.groupsUpdate);
 	$scope.hivesHandler 		= $rootScope.$on('hivesUpdated', $scope.hivesUpdate);
 	$scope.groupsErrorHandler 	= $rootScope.$on('groupsError', $scope.groupsError);
+	$scope.groupsMessageHandler = $rootScope.$on('groupsMessage', $scope.groupsMessage);
 
 	$scope.back = function()
 	{
@@ -236,6 +259,7 @@ app.controller('GroupsCtrl', function($scope, $rootScope, $window, $location, $f
 		$scope.groupsSaveHandler();
 		$scope.groupsHandler();
 		$scope.groupsErrorHandler();
+		$scope.groupsMessageHandler();
 		$scope.backListener();
     };
     

@@ -6,7 +6,9 @@ use Iatstuti\Database\Support\CascadeSoftDeletes;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
+use DB;
 use Auth;
+use App\Hive;
 
 class Group extends Model
 {
@@ -34,28 +36,31 @@ class Group extends Model
 
     public function getHiveIdsAttribute()
     {
-    	return $this->hives()->pluck('editable','id');
+    	$hive_ids = DB::table('group_hive')->where('group_id',$this->id)->pluck('hive_id')->toArray();
+        return $hive_ids; //Hive::whereIn('id',$hive_ids)->pluck('id');
     }
 
     public function getUsersAttribute()
     {
-        return $this->users()->withPivot('admin', 'creator')->get()->map(function ($item, $key)
+        return $this->users()->withPivot('admin', 'creator', 'invited', 'accepted')->get()->map(function ($item, $key)
         {
-            $user          = $item->only(['id','name','avatar','email']);
+            $user           = $item->only(['id','name','avatar','email']);
             $user['admin']  = $item->pivot->admin;
             $user['creator']= $item->pivot->creator;
+            $user['invited']= $item->pivot->invited;
+            $user['accepted']= $item->pivot->accepted;
             return $user; 
         });
     }
 
     public function getAdminAttribute()
     {
-        return $this->users()->where('id',Auth::user()->id)->where('admin',1)->count();
+        return $this->users()->where('id',Auth::user()->id)->where('admin',1)->count(); // myself
     }
 
     public function getCreatorAttribute()
     {
-        return $this->users()->where('id',Auth::user()->id)->where('creator',1)->count();
+        return $this->users()->where('id',Auth::user()->id)->where('creator',1)->count(); // myself
     }
 
     public function users()

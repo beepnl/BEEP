@@ -4,7 +4,7 @@
     {{ pageTitle || group.name }}
     <div class="pull-right">
     	<div>
-	    	<a ng-if="group.id != undefined" ng-click="confirmDeleteGroup()" class="btn btn-danger">{{lang.Delete}}</a>
+	    	<a ng-if="group.id != undefined && group.creator" ng-click="confirmDeleteGroup()" class="btn btn-danger">{{lang.Delete}}</a>
 	    </div>
     </div>
   </h1>
@@ -61,13 +61,13 @@
         </div>
 	</div>
 
-	<!-- Queen -->
-	<div class="box">
+	<!-- Hives -->
+	<div class="box collapsed-box">
 	    <div class="box-header with-border">
 	      <h3 class="box-title">{{ lang.Select }} {{lang.hives.toLowerCase()}}</h3>
 
 	      <div class="box-tools pull-right">
-	        <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
+	        <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-plus"></i>
 	        </button>
 	        <!--button type="button" class="btn btn-box-tool" data-widget="remove"><i class="fa fa-times"></i></button-->
 	      </div>
@@ -84,7 +84,7 @@
 	    		<dt>{{loc.name}}</dt>
 	    		<dd>
 	    			<div class="hives-container selection">
-		    			<div hive="hive" selecthive="selectGroupHive" selectedids="group.hives_selected" editableids=group.hives_editable ng-repeat="(j, hive) in loc.hives track by j" beep-hive-selector></div>
+		    			<div hive="hive" selecthive="selectGroupHive" selectedids="group.hives_selected" editableids="group.hives_editable" ng-repeat="(j, hive) in loc.hives track by j" beep-hive-selector></div>
 		    		</div>
 	    		</dd>
 	    	</dl>
@@ -96,6 +96,52 @@
         </div>
 	    
 	</div>
+
+	<!-- Users -->
+	<div class="box collapsed-box">
+	    <div class="box-header with-border">
+	      <h3 class="box-title">{{ lang.Members }}</h3>
+
+	      <div class="box-tools pull-right">
+	        <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-plus"></i>
+	        </button>
+	        <!--button type="button" class="btn btn-box-tool" data-widget="remove"><i class="fa fa-times"></i></button-->
+	      </div>
+	    </div>
+	    <!-- /.box-header -->
+	    <div class="box-body">
+			<div>
+	    		<p>{{ lang.Select }} {{ lang.Members.toLowerCase() }}
+					<a ng-click="addGroupUser()" class="btn btn-primary pull-right"><i class="fa fa-plus"></i> {{mobile ? lang.add : lang.add}} {{lang.Member.toLowerCase()}}</a>
+				</p>
+		    </div>
+			<table class="table table-striped">
+	    		<thead>
+	    			<tr class="trh">
+		    			<th class="col-xs-1">#</th>
+		    			<th class="col-xs-3">{{lang.Name}}</th>
+		    			<th class="col-xs-3">{{lang.email}}</th>
+		    			<th class="col-xs-3">{{lang.Invited}}</th>
+		    			<th class="col-xs-2">{{lang.Type}} {{lang.Member.toLowerCase()}}</th>
+		    			<th class="col-xs-2">{{lang.Creator}}</th>
+		    			<th class="col-xs-1">{{lang.Actions}}</th>
+		    		</tr>
+	    		</thead>
+	    		<tbody>
+    				<tr user="user" index="u" delete="deleteGroupUser" ng-repeat="(u, user) in group.users track by u" beep-user-selector></tr>
+    			</tbody>
+    		</table>
+	    </div>
+	     
+	    <div class="overlay" ng-if="loading">
+          <i class="fa fa-refresh fa-spin"></i>
+        </div>
+	    
+	</div>
+
+	<div class="alert alert-success" ng-show="success_msg != null">
+        <p>{{ success_msg }}</p>
+    </div>
 
 	<div class="alert alert-danger" ng-show="error_msg != null">
         <p>{{ error_msg }}</p>

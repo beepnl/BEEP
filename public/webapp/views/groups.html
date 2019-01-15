@@ -7,11 +7,15 @@
 			</div>
 	    </div>
 	</h1>
+	<div class="alert alert-success" ng-show="success_msg != null">
+        <p>{{ success_msg }}</p>
+    </div>
 
 </section>
 
 <section class="content" >
 	
+
 	<div class="box" ng-if="groups == null">
 		<div class="box-header with-border">
 	      <h3 class="box-title">{{lang.Groups}}</h3>
@@ -27,6 +31,7 @@
 
 
 	<div class="box" ng-repeat="(key, group) in groups | orderBy:'name':false:natSort" ng-class="{'collapsed-box':!group.open}">
+	    <!-- <div class="box-header with-border" style="{{ group.hex_color ? 'background-color: '+group.hex_color+';' : '' }}"> -->
 	    <div class="box-header with-border">
 	      <div class="box-tools">
 	        <button type="button" class="btn btn-box-tool" ng-click="toggleGroup(group)"> <i class="fa" ng-class="{'fa-plus':!group.open, 'fa-minus':group.open}"></i>
@@ -34,9 +39,12 @@
 
 	        <!--button type="button" class="btn btn-box-tool" data-widget="remove"><i class="fa fa-times"></i></button-->
 	      </div>
-	      <h3 class="box-title">{{group.name}}</h3>
-	      <a href="#!/groups/{{group.id}}/edit" class="icon-button" title="{{lang.edit}}"><i class="fa fa-pencil"></i></a>
-
+	      <div class="group-color" style="background-color: {{ group.hex_color }};"></div>
+	      <div class="group-title">
+		      <h3 class="box-title">{{group.name}}</h3>
+		      <a ng-if="group.admin" href="#!/groups/{{group.id}}/edit" class="icon-button" title="{{lang.edit}}"><i class="fa fa-pencil"></i></a>
+		      <p ng-if="group.description" class="box-description">{{group.description}}</p>
+		  </div>
 	    </div>
 	    <!-- /.box-header -->
 	    <div class="box-body" ng-class="{'no-padding':mobile}">

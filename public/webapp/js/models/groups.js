@@ -80,7 +80,10 @@ app.service('groups', ['$http', '$rootScope', 'api', 'hives', function($http, $r
 		// get the result
 		var result = data;
 		
-		if (result != null)
+		if (typeof result.message != 'undefined')
+			return $rootScope.$broadcast('groupsMessage', result);
+
+		if (result != null && result.length > 0)
 			self.groups = result;
 		
 		var group_ids = [];

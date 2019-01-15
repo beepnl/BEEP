@@ -54,6 +54,7 @@ a {
 	.box-header > .box-tools .btn-box-tool{
 		position: relative;
 		width: 100%;
+		height: 100%;
 		text-align: right;
 		z-index: 2;
 	}
@@ -528,6 +529,21 @@ input.rn-stepper{
 	border-top-left-radius: 0; 
 	font-size: 24px;
 	padding-top: 8px;
+}
+
+.group-color{
+	position: relative;
+	display: inline-block;
+	width: 40px;
+	height: 40px;
+	border-radius: 50%;
+	border: 2px solid #333;
+}
+.group-title{
+	display: inline-block;
+	margin-left: 10px;
+	height: 30px;
+	vertical-align: top;
 }
 
 /* Hive */

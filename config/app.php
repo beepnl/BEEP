@@ -239,7 +239,7 @@ return [
         'Image' => Intervention\Image\Facades\Image::class,
         'LaravelLocalization'   => Mcamara\LaravelLocalization\Facades\LaravelLocalization::class,
         'Influx' => Pdffiller\LaravelInfluxProvider\InfluxDBFacade::class,
-        'Excel' => Maatwebsite\Excel\Facades\Excel::class,
+        //'Excel' => Maatwebsite\Excel\Facades\Excel::class,
         // 'Debugbar' => Barryvdh\Debugbar\Facade::class,
     ],
 

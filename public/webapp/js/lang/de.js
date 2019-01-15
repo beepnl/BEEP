@@ -377,6 +377,12 @@ LANG['de'] =
     the_field               : 'The',
     is_required             : 'is required',
 
+    Users                   : 'Benutzer',
+    Member                  : 'Group member',
+    Members                 : 'Group members',
+    Invited                 : 'Invited',
+    Admin                   : 'Administrator',
+    Creator                 : 'Group owner',
     Groups                  : 'Kooperieren',
     Group                   : 'Collabiration group',
     group                   : 'collabiration group',

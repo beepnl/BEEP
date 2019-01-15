@@ -381,6 +381,12 @@
     the_field               : 'Vul een',
     is_required             : 'in',
 
+    Users                   : 'Gebruikers',
+    Member                  : 'Groepslid',
+    Members                 : 'Groepsleden',
+    Invited                 : 'Uitgenodigd',
+    Admin                   : 'Beheerder',
+    Creator                 : 'Groep eigenaar',
     Groups                  : 'Samenwerken',
     Group                   : 'Samenwerkingsgroep',
     group                   : 'samenwerkingsgroep',

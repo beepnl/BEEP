@@ -379,6 +379,12 @@
     the_field               : 'The',
     is_required             : 'is required',
 
+    Users                   : 'Users',
+    Member                  : 'Group member',
+    Members                 : 'Group members',
+    Invited                 : 'Invited',
+    Admin                   : 'Administrator',
+    Creator                 : 'Group owner',
     Groups                  : 'Collaborate',
     Group                   : 'Collabiration group',
     group                   : 'collabiration group',

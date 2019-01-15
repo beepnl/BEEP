@@ -17,7 +17,7 @@ class User extends Authenticatable
 
     protected $fillable = ['name', 'email', 'password', 'api_token', 'last_login', 'policy_accepted'];
 
-    protected $hidden = ['password', 'remember_token', 'api_token'];
+    protected $hidden = ['password', 'remember_token'];
 
     protected $guarded  = ['id'];
 

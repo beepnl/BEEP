@@ -386,6 +386,7 @@
     the_field               : 'The',
     is_required             : 'is required',
 
+    Users                   : 'Users',
     Groups                  : 'Collaborate',
     Group                   : 'Collabiration group',
     group                   : 'collabiration group',

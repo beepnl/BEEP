@@ -16,6 +16,8 @@ class AddGroupUserAdmin extends Migration
         Schema::table('group_user', function (Blueprint $table) {
             $table->boolean('creator')->default(false);
             $table->boolean('admin')->default(false);
+            $table->timestamp('invited')->nullable();
+            $table->timestamp('accepted')->nullable();
         });
     }
 
@@ -29,6 +31,8 @@ class AddGroupUserAdmin extends Migration
         Schema::table('group_user', function (Blueprint $table) {
             $table->dropColumn('creator');
             $table->dropColumn('admin');
+            $table->dropColumn('invited');
+            $table->dropColumn('accepted');
         });
     }
 }

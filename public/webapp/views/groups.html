@@ -27,7 +27,7 @@
 	 </div>
 
 
-	<div class="box" ng-repeat="(key, group) in groups | orderBy:'name':false:natSort" ng-class="{'collapsed-box':!group.open}">
+	<div class="box" ng-repeat="(key, group) in groups | orderBy:'name':false:natSort track by $index" ng-class="{'collapsed-box':!group.open}">
 	    <!-- <div class="box-header with-border" style="{{ group.hex_color ? 'background-color: '+group.hex_color+';' : '' }}"> -->
 	    <div class="box-header with-border">
 	      <div class="box-tools">
@@ -47,7 +47,7 @@
 	    <div class="box-body" ng-class="{'no-padding':mobile}">
 	      	
 	      	<div ng-if="!mobile" class="hives-container">
-	      		<div ng-repeat="(key, hive) in group.hives | orderBy:'name':false:natSort" class="hive-container" >
+	      		<div ng-repeat="(key, hive) in group.hives | orderBy:'name':false:natSort track by $index" class="hive-container" >
 	            	<beep-hive-group hive="hive" hiveview="true"></beep-hive-group>
 	            </div>
 	      	</div>

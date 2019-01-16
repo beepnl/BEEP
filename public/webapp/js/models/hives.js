@@ -148,7 +148,7 @@ app.service('hives', ['$http', '$rootScope', 'api', 'settings', function($http, 
 		}
 		else
 		{
-			hive.queen.created_at = hive.queen.created_at.substr(0,10); // YYYY-MM-DD
+			hive.queen.created_at = hive.queen.created_at != null ? hive.queen.created_at.substr(0,10) : null; // YYYY-MM-DD
 			hive.queen.clipped 	  = parseInt(hive.queen.clipped);
 			hive.queen.fertilized = parseInt(hive.queen.fertilized);
 		}

@@ -8,10 +8,10 @@ app.directive('beepUserSelector', ['$rootScope', function($rootScope) {
               '<p ng-bind="index+1"></p>'+
             '</td>'+
             '<td>'+
-              '<input class="form-control" ng-model="user.name" ng-disabled="user.id != null">'+
+              '<input class="form-control" ng-model="user.name" placeholder="{{lang.invitee_name}}" ng-disabled="user.id != null">'+
             '</td>'+
             '<td>'+
-              '<input class="form-control" ng-model="user.email" ng-disabled="user.id != null">'+
+              '<input class="form-control" ng-model="user.email" placeholder="{{lang.email_is_required}}" ng-disabled="user.id != null">'+
             '</td>'+
             '<td>'+
               '<p ng-if="user.accepted == null">{{user.invited}}</p>'+
@@ -21,7 +21,7 @@ app.directive('beepUserSelector', ['$rootScope', function($rootScope) {
               '<p ng-if="user.creator">{{lang.Creator}}</p>'+
             '</td>'+
             '<td>'+
-              '<a ng-if="user.creator" ng-click="delete(index)" class="btn" ng-class="{\'btn-warning\':user.delete, \'btn-danger\':!user.delete}" title="{{user.delete ? lang.Undelete : lang.Delete}}"><i class="fa fa-trash"></i></a>'+
+              '<a ng-if="!user.creator" ng-click="delete(index)" class="btn" ng-class="{\'btn-danger\':user.delete, \'btn-warning\':!user.delete}" title="{{user.delete ? lang.Undelete : lang.Delete}}"><i class="fa fa-trash"></i></a>'+
             '</td>',
 
       scope: {

@@ -28,20 +28,13 @@ class User extends Authenticatable
     //protected $appends  = ['inspectioncount'];
 
 
-    public function inspectionCount()
-    {
-        $actions    = $this->actions()->count();
-        $conditions = $this->conditions()->count();
-        return max($actions, $conditions);
-    }
-
     // links
     public function hives()
     {
         return $this->hasMany(Hive::class);
     }
 
-    public function allHhives() // IncludingGroupHives
+    public function allHhives() // Including Group hives
     {
         $own_ids = $this->hives()->pluck('id');
         $grp_ids = $this->groupHives()->pluck('id');
@@ -72,7 +65,7 @@ class User extends Authenticatable
 
     public function groups()
     {
-        return $this->belongsToMany(Group::class, 'group_user');
+        return $this->belongsToMany(Group::class, 'group_user')->whereNotNull('accepted');
     }
 
     public function groupHives()

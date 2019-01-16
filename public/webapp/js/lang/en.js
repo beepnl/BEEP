@@ -392,6 +392,10 @@
     group                   : 'collabiration group',
     to_share                : 'to share with this group. 1 click = group members can view only, 2 clicks = group members can edit',
     Invitation_accepted     : 'Invitation accepted',
+    My_shared               : 'My shared',
+    invitee_name            : 'Invitee name',
+    Remove_group            : 'Are you sure you want to competely remove this shared group for all it\'s members',
+    Detach_from_group       : 'Remove me and my hives from this group',
  };
 
 

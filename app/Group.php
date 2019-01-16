@@ -73,4 +73,14 @@ class Group extends Model
         return $this->belongsToMany(Hive::class, 'group_hive');
     }
 
+    public function delete()
+    {
+        // delete all related items 
+        $this->hives()->detach();
+        $this->users()->detach();
+
+        // delete the user
+        return parent::delete();
+    }
+
 }

@@ -10,5 +10,5 @@ return [
     'group'         => 'groep',
     'Group'         => 'Groep',
     'Accept_invite' => 'Accepteer de uitnodiging',
-
+    'Dear'          => 'Beste',
 ];

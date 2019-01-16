@@ -5,6 +5,7 @@
     <div class="pull-right">
     	<div>
 	    	<a ng-if="group.id != undefined && group.creator" ng-click="confirmDeleteGroup()" class="btn btn-danger">{{lang.Delete}}</a>
+	    	<a ng-if="group.id != undefined && !group.admin && !group.creator" ng-click="confirmDetachGroup()" class="btn btn-danger">{{lang.Detach_from_group}}</a>
 	    </div>
     </div>
   </h1>
@@ -17,12 +18,12 @@
 <section class="content" >
 	
 	<!-- Settings -->
-	<div class="box" ng-if="group.admin || group.creator">
+	<div class="box collapsed-box" ng-if="group.admin || group.creator">
 	    <div class="box-header with-border">
 	      <h3 class="box-title">{{lang.Group}} {{lang.settings.toLowerCase()}}</h3>
 
 	      <div class="box-tools pull-right">
-	        <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
+	        <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-plus"></i>
 	        </button>
 	      </div>
 	    </div>
@@ -61,13 +62,54 @@
         </div>
 	</div>
 
-	<!-- Hives -->
-	<div class="box collapsed-box">
+
+	<!-- Users -->
+	<div class="box collapsed-box" ng-if="group.admin || group.creator">
 	    <div class="box-header with-border">
-	      <h3 class="box-title">{{ lang.Select }} {{lang.hives.toLowerCase()}}</h3>
+	      <h3 class="box-title">{{ lang.Members }}</h3>
 
 	      <div class="box-tools pull-right">
 	        <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-plus"></i>
+	        </button>
+	        <!--button type="button" class="btn btn-box-tool" data-widget="remove"><i class="fa fa-times"></i></button-->
+	      </div>
+	    </div>
+	    <!-- /.box-header -->
+	    <div class="box-body">
+			<div>
+	    		<a ng-click="addGroupUser()" class="btn btn-primary pull-right"><i class="fa fa-plus"></i> {{mobile ? lang.add : lang.add}} {{lang.Member.toLowerCase()}}</a>
+		    </div>
+			<table class="table table-striped">
+	    		<thead>
+	    			<tr class="trh">
+		    			<th class="col-xs-1">#</th>
+		    			<th class="col-xs-3">{{lang.Name}}</th>
+		    			<th class="col-xs-3">{{lang.email}}</th>
+		    			<th class="col-xs-2">{{lang.Invited}}</th>
+		    			<th class="col-xs-2">{{lang.Type}} {{lang.Member.toLowerCase()}}</th>
+		    			<th class="col-xs-1">{{lang.Actions}}</th>
+		    		</tr>
+	    		</thead>
+	    		<tbody>
+    				<tr user="user" index="u" delete="deleteGroupUser" ng-class="{'delete':user.delete}" ng-repeat="(u, user) in group.users" beep-user-selector></tr>
+    			</tbody>
+    		</table>
+	    </div>
+	     
+	    <div class="overlay" ng-if="loading">
+          <i class="fa fa-refresh fa-spin"></i>
+        </div>
+	    
+	</div>
+
+
+	<!-- Hives -->
+	<div class="box">
+	    <div class="box-header with-border">
+	      <h3 class="box-title">{{ lang.My_shared }} {{lang.hives.toLowerCase()}}</h3>
+
+	      <div class="box-tools pull-right" ng-if="group.admin">
+	        <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
 	        </button>
 	        <!--button type="button" class="btn btn-box-tool" data-widget="remove"><i class="fa fa-times"></i></button-->
 	      </div>
@@ -89,47 +131,6 @@
 	    		</dd>
 	    	</dl>
 	    	
-	    </div>
-	     
-	    <div class="overlay" ng-if="loading">
-          <i class="fa fa-refresh fa-spin"></i>
-        </div>
-	    
-	</div>
-
-	<!-- Users -->
-	<div class="box collapsed-box" ng-if="group.admin || group.creator">
-	    <div class="box-header with-border">
-	      <h3 class="box-title">{{ lang.Members }}</h3>
-
-	      <div class="box-tools pull-right">
-	        <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-plus"></i>
-	        </button>
-	        <!--button type="button" class="btn btn-box-tool" data-widget="remove"><i class="fa fa-times"></i></button-->
-	      </div>
-	    </div>
-	    <!-- /.box-header -->
-	    <div class="box-body">
-			<div>
-	    		<p>{{ lang.Select }} {{ lang.Members.toLowerCase() }}
-					<a ng-click="addGroupUser()" class="btn btn-primary pull-right"><i class="fa fa-plus"></i> {{mobile ? lang.add : lang.add}} {{lang.Member.toLowerCase()}}</a>
-				</p>
-		    </div>
-			<table class="table table-striped">
-	    		<thead>
-	    			<tr class="trh">
-		    			<th class="col-xs-1">#</th>
-		    			<th class="col-xs-3">{{lang.Name}}</th>
-		    			<th class="col-xs-3">{{lang.email}}</th>
-		    			<th class="col-xs-2">{{lang.Invited}}</th>
-		    			<th class="col-xs-2">{{lang.Type}} {{lang.Member.toLowerCase()}}</th>
-		    			<th class="col-xs-1">{{lang.Actions}}</th>
-		    		</tr>
-	    		</thead>
-	    		<tbody>
-    				<tr user="user" index="u" delete="deleteGroupUser" ng-repeat="(u, user) in group.users track by u" beep-user-selector></tr>
-    			</tbody>
-    		</table>
 	    </div>
 	     
 	    <div class="overlay" ng-if="loading">

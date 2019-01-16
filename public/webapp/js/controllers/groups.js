@@ -73,7 +73,7 @@ app.controller('GroupsCtrl', function($scope, $rootScope, $window, $location, $f
 		
 		if ($location.path().indexOf('/groups/create') > -1)
 		{
-			$scope.group = {'name':$rootScope.lang.Group+' '+($scope.groups.length+1) ,'color':'', 'description':'', 'hives_selected':[], 'hives_editable':[], 'users':[{'name':$rootScope.user.name, 'email':$rootScope.user.email, 'admin':1, 'creator':1, 'invited':null}]};
+			$scope.group = {'name':$rootScope.lang.Group+' '+($scope.groups.length+1) ,'color':'', 'description':'', 'hives_selected':[], 'hives_editable':[], 'users':[{'name':$rootScope.user.name, 'email':$rootScope.user.email, 'admin':true, 'creator':true, 'invited':null}]};
 			//console.log($scope.hive);
 		}
 		else
@@ -90,7 +90,7 @@ app.controller('GroupsCtrl', function($scope, $rootScope, $window, $location, $f
 
 	$scope.addGroupUser = function()
     {
-        $scope.group.users.push({'name':$rootScope.lang.Member+' '+($scope.group.users.length+1), 'email':'', 'admin':0, 'creator':0});
+        $scope.group.users.push({'name':'', 'email':'', 'admin':false, 'creator':false});
     }
 
     $scope.deleteGroupUser = function(userIndex)
@@ -185,7 +185,7 @@ app.controller('GroupsCtrl', function($scope, $rootScope, $window, $location, $f
 		}
 	}
 
-	$scope.saveGroup = function(back)
+	$scope.saveGroup = function()
 	{
 		var postGroup = {'name':$scope.group.name, 'description':$scope.group.description, 'hex_color':$scope.group.hex_color, 'hives_selected':$scope.group.hives_selected, 'hives_editable':$scope.group.hives_editable, 'users':$scope.group.users};
 		if ($location.path().indexOf('/groups/create') > -1)
@@ -199,7 +199,26 @@ app.controller('GroupsCtrl', function($scope, $rootScope, $window, $location, $f
 		$scope.redirect = "/groups";
 	}
 
-	
+	$scope.detachGroup = function()
+	{
+		$scope.redirect = "/groups";
+		for(var user in $scope.group.users)
+		{
+			if (user.id == $rootScope.user.id)
+			{
+				user.delete = true;
+				break;
+			}
+		}
+		$scope.saveGroup();
+	}
+
+	$scope.confirmDetachGroup = function()
+	{
+		$rootScope.showConfirm($rootScope.lang.Detach_from_group+'?', $scope.detachGroup);
+	}
+
+
 	$scope.deleteGroup = function()
 	{
 		$scope.redirect = "/groups";
@@ -208,7 +227,7 @@ app.controller('GroupsCtrl', function($scope, $rootScope, $window, $location, $f
 
 	$scope.confirmDeleteGroup = function()
 	{
-		$rootScope.showConfirm($rootScope.lang.remove_hive+'?', $scope.deleteGroup);
+		$rootScope.showConfirm($rootScope.lang.Remove_group+'?', $scope.deleteGroup);
 	}
 
 	$scope.groupsError = function(type, error)
@@ -220,6 +239,7 @@ app.controller('GroupsCtrl', function($scope, $rootScope, $window, $location, $f
 	{
 		//console.log(data);
 		$scope.success_msg = data.message;
+		$scope.error_msg   = null;
 	}
 
 	$scope.groupChanged = function(type, data)

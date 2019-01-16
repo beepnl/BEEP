@@ -394,6 +394,10 @@
     group                   : 'samenwerkingsgroep',
     to_share                : 'om te delen met de groep. 1x klikken = delen om te bekijken, 2x klikken is delen met aanpassingsmogelijkheid',
     Invitation_accepted     : 'Uitnodiging geaccepteerd',
+    My_shared               : 'Mijn gedeelde',
+    invitee_name            : 'Naam genodigde',
+    Remove_group            : 'Weet u zeker dat u deze gedeelde groep voor alle leden wilt verwijderen',
+    Detach_from_group       : 'Verwijder mij en mijn kasten uit deze groep',
 
  };
 

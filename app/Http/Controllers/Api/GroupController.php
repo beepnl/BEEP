@@ -53,8 +53,13 @@ class GroupController extends Controller
         $this->syncHives($request, $group);
         
         $msg = $this->syncUsers($request, $group);
-        if (gettype($msg) == 'array' && isset($msg['message']))
-            return response()->json($msg, 201);
+        if (gettype($msg) == 'array')
+        {
+            if (isset($msg['message']))
+                return response()->json($msg, 201);
+            else if (isset($msg['error']))
+                return response()->json($msg, 422);
+        }
 
         return $this->index($request, 201);
     }
@@ -76,15 +81,22 @@ class GroupController extends Controller
         $requestData = $request->only(['id','name','description','hex_color']);
         $group = $request->user()->groups()->find($id);
 
-        if ($group && $group->getAdminAttribute())
+        if ($group)
         {
-            $group->update($requestData);
-            
             $this->syncHives($request, $group);
             
-            $msg = $this->syncUsers($request, $group);
-            if (gettype($msg) == 'array' && isset($msg['message']))
-                return response()->json($msg, 201);
+            if ($group->getAdminAttribute())
+            {
+                $group->update($requestData);
+                $msg = $this->syncUsers($request, $group);
+                if (gettype($msg) == 'array')
+                {
+                    if (isset($msg['message']))
+                        return response()->json($msg, 201);
+                    else if (isset($msg['error']))
+                        return response()->json($msg, 422);
+                }
+            }
 
             return $this->index($request, 200);
         }
@@ -127,48 +139,76 @@ class GroupController extends Controller
         $invite_grp = [];
         $invite_new = [];
         $updated_msg= [];
+        $error_msg  = [];
 
         foreach ($users as $i => $user) 
         {
             $validUser = null;
-
-            if (isset($user['id']))
-                $validUser = User::where('id',$user['id'])->orWhere('email',$user['email'])->first();
-            else
+            $user_id   = '';
+            
+            if (isset($user['email']))
+            {
                 $validUser = User::where('email',$user['email'])->first();
+                $user_id   = isset($validUser) ? ','.$validUser->id : '';
+            }
+
+            $validator = Validator::make($user, [
+                'id'     => 'nullable|integer|exists:users,id',
+                'name'   => 'nullable|string',
+                'email'  => 'required|email|unique:users,email'.$user_id,
+                'admin'  => 'required|boolean',
+                'delete' => 'nullable|boolean',
+            ]);
+            if ($validator->fails())
+            {
+                $error_msg[] = $validator->errors();
+                continue;
+            }
+
+            $validData = $validator->validated();
+            $email     = $validData['email'];
+            $name      = isset($validData['name']) ? $validData['name'] : $validUser['name'];
+            $admin     = (isset($validData['admin']) && $validData['admin']);
+            $delete    = (isset($validData['delete']) && $validData['delete']);
+
+            if (isset($validData['id']))
+                $validUser = User::where('id',$validData['id'])->orWhere('email',$email)->first();
+            else
+                $validUser = User::where('email',$email)->first();
 
             if ($validUser)
             {
-                $alreadyIn = ($groupUsers->where('email',$user['email'])->count() > 0);
+                $alreadyIn = ($groupUsers->where('email',$email)->count() > 0);
                 // check if we need to invite
                 if ($alreadyIn)
                 {
-                    if (isset($user['delete']) && $user['delete'])
+                    if ($delete)
                     {
                         $validUser->groups()->detach($group->id);
                     }
                     else // update user
                     {
-                        $res = DB::table('group_user')->where('user_id',$validUser->id)->where('group_id',$group->group_id)->update(['admin'=>$user['admin']]);
-                        die(print_r($user));
-                        if ($res)
-                            $updated_msg[] = $user['name'];
+                        $res = DB::table('group_user')->where('user_id',$validUser->id)->where('group_id',$group->id)->update(['admin'=>$admin]);
+                        if ($res && $validUser->id != $request->user()->id)
+                            $updated_msg[] = $name;
+
+                        // die(print_r(['admin'=>$admin,'del'=>$delete,'invite_new'=>$invite_new, 'invite_grp'=>$invite_grp, 'updated_msg'=>$updated_msg, 'u'=>$validUser->id, 'g'=>$group->group_id]));
                     }
                 }
                 else
                 {
                     // invite existing Beep user for group
                     $token = str_random(30);
-                    $validUser->groups()->attach($group->id, ['creator'=>false,'admin'=>$user['admin'],'invited'=>now(),'token'=>$token]);
-                    $invite_grp[$validUser->email] = ['admin'=>$user['admin'], 'token'=>$token];
+                    $validUser->groups()->attach($group->id, ['creator'=>false,'admin'=>$admin,'invited'=>now(),'token'=>$token]);
+                    $invite_grp[$validUser->email] = ['name'=>$name, 'admin'=>$admin, 'token'=>$token];
                 }
             }
             else
             {
                 // invite non-existing Beep user for group
-                //die(print_r(['invite_new_user'=>$user['email']]));
-                if (!isset($user['delete']) || $user['delete'])
-                    $invite_grp[$user['email']] = $user['admin'];
+                //die(print_r(['invite_new_user'=>$email]));
+                if ($delete)
+                    $invite_grp[$email] = $admin;
             }
         }
         if (count($invite_grp) > 0)
@@ -176,7 +216,7 @@ class GroupController extends Controller
             $emails = [];
             foreach ($invite_grp as $email => $user) 
             {
-                Mail::to($email)->send(new GroupInvitation($group, $user['admin'], $user['token']));
+                Mail::to($email)->send(new GroupInvitation($group, $name, $admin, $user['token']));
                 $emails[] = $email;
             }
             return ['message'=>'Invited: '.implode($emails, ', ')];
@@ -188,6 +228,10 @@ class GroupController extends Controller
         else if (count($updated_msg) > 0)
         {
             return ['message'=>'Updated: '.implode($updated_msg, ', ')];
+        }
+        else if (count($error_msg) > 0)
+        {
+            return ['error'=>implode($error_msg, ', ')];
         }
         return $group->users();
     }

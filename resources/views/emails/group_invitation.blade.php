@@ -1,5 +1,5 @@
 @component('mail::message')
-{{ __('group.group_data') }}
+{{ __('group.Dear') }} {{$name}},
 
 {{ __('group.group_text') }}
 

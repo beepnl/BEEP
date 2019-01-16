@@ -531,6 +531,10 @@ input.rn-stepper{
 	padding-top: 8px;
 }
 
+.table-striped>tbody>tr.delete{
+	background-color: rgba(255,0,0,0.2);
+}
+
 .group-color{
 	position: relative;
 	display: inline-block;

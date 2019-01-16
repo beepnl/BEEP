@@ -134,6 +134,11 @@ app.config(['$routeProvider', '$locationProvider',  function($routeProvider)
       controller  : 'GroupsCtrl',
       templateUrl : 'views/group_edit.html?v=1',
   })
+  .when('/groups/:groupId/token/:token',
+  {
+      controller  : 'GroupsCtrl',
+      templateUrl : 'views/group_edit.html?v=1',
+  })
   .when('/groups/:groupId/edit',
   {
       controller  : 'GroupsCtrl',

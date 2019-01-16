@@ -10,6 +10,9 @@ use App\Hive;
 use App\User;
 use App\Mail\GroupInvitation;
 
+use DB;
+use Validator;
+
 class GroupController extends Controller
 {
 
@@ -19,13 +22,36 @@ class GroupController extends Controller
         return response()->json($groups, $code);
     }
 
+    public function checktoken(Request $request)
+    {
+        $validator = Validator::make($request->only('token','group_id'), [
+            'token'     => 'required|exists:group_user,token',
+            'group_id'  => 'required|exists:group_user,group_id',
+        ]);
+
+        if ($validator->fails())
+        {
+            return response()->json(['errors'=>$validator->errors()]);
+        }
+        else
+        {
+            $valid_data = $validator->validated();
+            $res = DB::table('group_user')->where('token',$valid_data['token'])->where('group_id',$valid_data['group_id'])->update(['invited'=>null,'accepted'=>now(),'declined'=>null,'token'=>null]);
+            if ($res)
+                return response()->json(['message'=>'group_activated']);
+        }
+        return response()->json('token_error',500);
+    }
+
 
     public function store(Request $request)
     {
         $requestData = $request->only(['name','description','hex_color']);
         $group       = Group::create($requestData);
         $request->user()->groups()->attach($group, ['creator'=>true,'admin'=>true,'accepted'=>now()]);
+        
         $this->syncHives($request, $group);
+        
         $msg = $this->syncUsers($request, $group);
         if (gettype($msg) == 'array' && isset($msg['message']))
             return response()->json($msg, 201);
@@ -50,10 +76,12 @@ class GroupController extends Controller
         $requestData = $request->only(['id','name','description','hex_color']);
         $group = $request->user()->groups()->find($id);
 
-        if ($group && $group->getAdminAttribute() === 1)
+        if ($group && $group->getAdminAttribute())
         {
             $group->update($requestData);
+            
             $this->syncHives($request, $group);
+            
             $msg = $this->syncUsers($request, $group);
             if (gettype($msg) == 'array' && isset($msg['message']))
                 return response()->json($msg, 201);
@@ -68,7 +96,7 @@ class GroupController extends Controller
     {
         $group = $request->user()->groups()->findOrFail($id);
         
-        if ($group && $group->getCreatorAttribute() === 1)
+        if ($group && $group->getCreatorAttribute())
             $group->delete();
         
         return $this->index($request);
@@ -98,6 +126,7 @@ class GroupController extends Controller
         $users      = $request->input('users');
         $invite_grp = [];
         $invite_new = [];
+        $updated_msg= [];
 
         foreach ($users as $i => $user) 
         {
@@ -114,33 +143,40 @@ class GroupController extends Controller
                 // check if we need to invite
                 if ($alreadyIn)
                 {
-                    if (isset($user['delete']) && $user['delete'] == 1)
+                    if (isset($user['delete']) && $user['delete'])
                     {
                         $validUser->groups()->detach($group->id);
+                    }
+                    else // update user
+                    {
+                        $res = DB::table('group_user')->where('user_id',$validUser->id)->where('group_id',$group->group_id)->update(['admin'=>$user['admin']]);
+                        die(print_r($user));
+                        if ($res)
+                            $updated_msg[] = $user['name'];
                     }
                 }
                 else
                 {
                     // invite existing Beep user for group
-                    //die(print_r(['invite'=>$validUser->email, 'currentusers'=>$groupUsers->toArray()]));
-                    $validUser->groups()->attach($group->id, ['creator'=>false,'admin'=>($user['admin']==1),'invited'=>now()]);
-                    $invite_grp[$validUser->email] = ($user['admin']==1);
+                    $token = str_random(30);
+                    $validUser->groups()->attach($group->id, ['creator'=>false,'admin'=>$user['admin'],'invited'=>now(),'token'=>$token]);
+                    $invite_grp[$validUser->email] = ['admin'=>$user['admin'], 'token'=>$token];
                 }
             }
             else
             {
                 // invite non-existing Beep user for group
                 //die(print_r(['invite_new_user'=>$user['email']]));
-                if (!isset($user['delete']) || $user['delete'] == 0)
-                    $invite_grp[$user['email']] = ($user['admin']==1);
+                if (!isset($user['delete']) || $user['delete'])
+                    $invite_grp[$user['email']] = $user['admin'];
             }
         }
         if (count($invite_grp) > 0)
         {
             $emails = [];
-            foreach ($invite_grp as $email => $admin) 
+            foreach ($invite_grp as $email => $user) 
             {
-                Mail::to($email)->send(new GroupInvitation($group, $admin));
+                Mail::to($email)->send(new GroupInvitation($group, $user['admin'], $user['token']));
                 $emails[] = $email;
             }
             return ['message'=>'Invited: '.implode($emails, ', ')];
@@ -148,6 +184,10 @@ class GroupController extends Controller
         else if (count($invite_new) > 0)
         {
             return ['message'=>'These users are not yet members of Beep: '.implode($invite_new, ', ')];
+        }
+        else if (count($updated_msg) > 0)
+        {
+            return ['message'=>'Updated: '.implode($updated_msg, ', ')];
         }
         return $group->users();
     }

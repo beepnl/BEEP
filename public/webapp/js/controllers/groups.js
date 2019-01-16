@@ -30,6 +30,12 @@ app.controller('GroupsCtrl', function($scope, $rootScope, $window, $location, $f
 		}
 		else if ($location.path().indexOf('/groups') > -1)
 		{
+			if ($routeParams.token != undefined && $location.path().indexOf('/groups/') > -1 && $location.path().indexOf('/token/') > -1)
+			{
+				$rootScope.title = $rootScope.lang.Invitation_accepted;
+				$scope.redirect  = "/groups/"+$routeParams.groupId;
+				api.postApiRequest('checkToken', 'groups/checktoken', {'group_id':$routeParams.groupId, 'token':$routeParams.token});
+			} 
 			if ($routeParams.groupId != undefined || $location.path().indexOf('/groups/create') > -1)
 			{
 				$scope.initGroups();
@@ -53,6 +59,28 @@ app.controller('GroupsCtrl', function($scope, $rootScope, $window, $location, $f
 		}
 
 	};
+
+	$scope.initGroups = function()
+	{
+		$scope.hivesUpdate();
+		
+		if (groups.groups.length > 0)
+		{
+			$scope.groups = groups.groups;
+		}
+		$scope.showMore = $scope.groups.length > 1 ? true : false;
+		
+		
+		if ($location.path().indexOf('/groups/create') > -1)
+		{
+			$scope.group = {'name':$rootScope.lang.Group+' '+($scope.groups.length+1) ,'color':'', 'description':'', 'hives_selected':[], 'hives_editable':[], 'users':[{'name':$rootScope.user.name, 'email':$rootScope.user.email, 'admin':1, 'creator':1, 'invited':null}]};
+			//console.log($scope.hive);
+		}
+		else
+		{
+			$scope.loadGroupIndex();
+		}
+	}
 
 
 	$scope.toggleGroup = function(group)
@@ -108,27 +136,6 @@ app.controller('GroupsCtrl', function($scope, $rootScope, $window, $location, $f
 		//console.log(hive_id, $scope.group.hives_selected, $scope.group.hives_editable)
 	}
 
-	$scope.initGroups = function()
-	{
-		$scope.hivesUpdate();
-		
-		if (groups.groups.length > 0)
-		{
-			$scope.groups = groups.groups;
-		}
-		$scope.showMore = $scope.groups.length > 1 ? true : false;
-		
-		
-		if ($location.path().indexOf('/groups/create') > -1)
-		{
-			$scope.group = {'name':$rootScope.lang.Group+' '+($scope.groups.length+1) ,'color':'', 'description':'', 'hives_selected':[], 'hives_editable':[], 'users':[{'name':$rootScope.user.name, 'email':$rootScope.user.email, 'admin':1, 'creator':1, 'invited':null}]};
-			//console.log($scope.hive);
-		}
-		else
-		{
-			$scope.loadGroupIndex();
-		}
-	}
 
 	$scope.groupsUpdate = function(e, type)
 	{
@@ -211,7 +218,7 @@ app.controller('GroupsCtrl', function($scope, $rootScope, $window, $location, $f
 
 	$scope.groupsMessage = function(type, data)
 	{
-		console.log(data);
+		//console.log(data);
 		$scope.success_msg = data.message;
 	}
 
@@ -228,6 +235,7 @@ app.controller('GroupsCtrl', function($scope, $rootScope, $window, $location, $f
 	$scope.groupsSaveError 		= $rootScope.$on('saveGroupError', $scope.groupsError);
 	$scope.groupsDeleteHandler 	= $rootScope.$on('deleteGroupLoaded', $scope.groupChanged);
 	$scope.groupsSaveHandler 	= $rootScope.$on('saveGroupLoaded', $scope.groupChanged);
+	$scope.groupsTokenHandler 	= $rootScope.$on('checkTokenLoaded', $scope.groupChanged);
 	$scope.groupsHandler 		= $rootScope.$on('groupsUpdated', $scope.groupsUpdate);
 	$scope.hivesHandler 		= $rootScope.$on('hivesUpdated', $scope.hivesUpdate);
 	$scope.groupsErrorHandler 	= $rootScope.$on('groupsError', $scope.groupsError);

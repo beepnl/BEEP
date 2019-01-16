@@ -44,7 +44,7 @@ class InspectionsController extends Controller
      */
     public function hive(Request $request, $hive_id)
     {
-        $hive   = $request->user()->hives()->findOrFail($hive_id);
+        $hive   = $request->user()->allHhives()->findOrFail($hive_id);
         $locale = $request->filled('locale') ? $request->input('locale') : LaravelLocalization::getCurrentLocale();
 
         $inspections   = $hive->inspections_by_date();
@@ -74,7 +74,7 @@ class InspectionsController extends Controller
             
             $data         = $request->except(['hive_id','items','date']);
             $user         = Auth::user();
-            $hive         = $user->hives()->find($request->input('hive_id'));
+            $hive         = $user->allHhives()->find($request->input('hive_id'));
             $location     = $user->locations()->find($request->input('location_id'));
 
             $data['created_at'] = $date;

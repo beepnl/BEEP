@@ -381,6 +381,8 @@
     the_field               : 'Vul een',
     is_required             : 'in',
 
+    No_groups               : 'Geen groepen beschikbaar',
+    not_available_yet       : 'nog niet beschikbaar. Maak de eerste aan.',
     Users                   : 'Gebruikers',
     Member                  : 'Groepslid',
     Members                 : 'Groepsleden',
@@ -391,6 +393,7 @@
     Group                   : 'Samenwerkingsgroep',
     group                   : 'samenwerkingsgroep',
     to_share                : 'om te delen met de groep. 1x klikken = delen om te bekijken, 2x klikken is delen met aanpassingsmogelijkheid',
+    Invitation_accepted     : 'Uitnodiging geaccepteerd',
 
  };
 

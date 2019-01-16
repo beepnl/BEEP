@@ -29,7 +29,7 @@ class Group extends Model
         {
             $editable = $item->pivot->edit_hive;
             unset($item->pivot);
-            $item->editable = $editable;
+            $item->editable = (bool)$editable;
             return $item; 
         });
     }
@@ -44,10 +44,10 @@ class Group extends Model
     {
         return $this->users()->withPivot('admin', 'creator', 'invited', 'accepted')->get()->map(function ($item, $key)
         {
-            $user           = $item->only(['id','name','avatar','email']);
-            $user['admin']  = $item->pivot->admin;
-            $user['creator']= $item->pivot->creator;
-            $user['invited']= $item->pivot->invited;
+            $user            = $item->only(['id','name','avatar','email']);
+            $user['admin']   = (bool)$item->pivot->admin;
+            $user['creator'] = (bool)$item->pivot->creator;
+            $user['invited'] = $item->pivot->invited;
             $user['accepted']= $item->pivot->accepted;
             return $user; 
         });
@@ -55,12 +55,12 @@ class Group extends Model
 
     public function getAdminAttribute()
     {
-        return $this->users()->where('id',Auth::user()->id)->where('admin',1)->count(); // myself
+        return (bool)($this->users()->where('id',Auth::user()->id)->where('admin',1)->count() > 0); // myself
     }
 
     public function getCreatorAttribute()
     {
-        return $this->users()->where('id',Auth::user()->id)->where('creator',1)->count(); // myself
+        return (bool)($this->users()->where('id',Auth::user()->id)->where('creator',1)->count() > 0); // myself
     }
 
     public function users()

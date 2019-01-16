@@ -14,7 +14,7 @@ class Hive extends Model
     protected $fillable = ['user_id', 'location_id', 'hive_type_id', 'color', 'name'];
     protected $guarded  = ['id'];
 	protected $hidden 	= ['user_id','deleted_at'];
-    protected $appends  = ['type','location','attention','impression','reminder','reminder_date','inspection_count','sensors'];
+    protected $appends  = ['type','location','attention','impression','reminder','reminder_date','inspection_count','sensors','groups'];
 
     public $timestamps = false;
 
@@ -91,6 +91,13 @@ class Hive extends Model
         return null;
     }
 
+    public function getGroupsAttribute()
+    {
+        return $this->groups()->pluck('group_id')->toArray();
+    }
+
+
+
 
     public function queen()
     {
@@ -109,7 +116,7 @@ class Hive extends Model
 
     public function groups()
     {
-        return $this->hasMany(Group::class, 'group_hive');
+        return $this->belongsToMany(Group::class, 'group_hive');
     }
 
     public function checklists()

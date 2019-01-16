@@ -38,6 +38,8 @@ Route::group(['middleware' => \Barryvdh\Cors\HandleCors::class], function()
 	Route::get('email/verify/{id}', 'Api\Auth\VerificationController@verify')->name('apiverification.verify');
 	Route::post('email/resend', 'Api\Auth\VerificationController@resend')->name('apiverification.resend');
 
+	Route::post('groups/checktoken', 'Api\GroupController@checktoken');
+
 
 	Route::group(['middleware'=>['auth:api', 'verifiedApi']], function()
 	{  

@@ -10,6 +10,8 @@ use Zizaco\Entrust\Traits\EntrustUserTrait;
 use App\Notifications\VerifyEmail;
 use App\Notifications\ResetPassword;
 
+use DB;
+
 class User extends Authenticatable
 {
     use Notifiable;
@@ -39,6 +41,14 @@ class User extends Authenticatable
         return $this->hasMany(Hive::class);
     }
 
+    public function allHhives() // IncludingGroupHives
+    {
+        $own_ids = $this->hives()->pluck('id');
+        $grp_ids = $this->groupHives()->pluck('id');
+        $all_ids = $own_ids->merge($grp_ids);
+        return Hive::whereIn('id',$all_ids);
+    }
+
     public function checklists()
     {
         return $this->belongsToMany(Checklist::class, 'checklist_user');
@@ -65,10 +75,13 @@ class User extends Authenticatable
         return $this->belongsToMany(Group::class, 'group_user');
     }
 
-    // public function groups()
-    // {
-    //     return $this->belongsToMany(Group::class,'group_user');
-    // }
+    public function groupHives()
+    {
+        $group_ids = $this->groups->pluck('id')->toArray();
+        $hive_ids  = DB::table('group_hive')->whereIn('group_id',$group_ids)->distinct('hive_id')->pluck('hive_id')->toArray();
+        //die(print_r(['group_ids'=>$group_ids,'hive_ids'=>$hive_ids]));
+        return Hive::whereIn('id',$hive_ids);
+    }
 
     public function settings()
     {

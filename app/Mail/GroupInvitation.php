@@ -18,10 +18,11 @@ class GroupInvitation extends Mailable
      *
      * @return void
      */
-    public function __construct(Group $group, $admin)
+    public function __construct(Group $group, $admin, $token)
     {
         $this->group = $group;
         $this->admin = $admin;
+        $this->token = $token;
     }
 
     /**
@@ -31,6 +32,6 @@ class GroupInvitation extends Mailable
      */
     public function build()
     {
-        return $this->markdown('emails.group_invitation',['group'=>$this->group, 'admin'=>$this->admin]);
+        return $this->markdown('emails.group_invitation',['group'=>$this->group, 'admin'=>$this->admin, 'acceptUrl'=>url('/webapp/index.html#!/groups/'.$this->group->id.'/token/'.$this->token)]);
     }
 }

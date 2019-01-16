@@ -130,7 +130,7 @@ app.controller('InspectionsCtrl', function($scope, $rootScope, $window, $locatio
 		}
 		else
 		{
-			$location.path('/hives/'+$routeParams.hiveId+'/inspect'); // create first inspection
+			//$location.path('/hives/'+$routeParams.hiveId+'/inspect'); // create first inspection
 		}
 
 	};

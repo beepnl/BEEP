@@ -17,7 +17,7 @@
 <section class="content" >
 	
 	<!-- Settings -->
-	<div class="box">
+	<div class="box" ng-if="group.admin || group.creator">
 	    <div class="box-header with-border">
 	      <h3 class="box-title">{{lang.Group}} {{lang.settings.toLowerCase()}}</h3>
 
@@ -98,7 +98,7 @@
 	</div>
 
 	<!-- Users -->
-	<div class="box collapsed-box">
+	<div class="box collapsed-box" ng-if="group.admin || group.creator">
 	    <div class="box-header with-border">
 	      <h3 class="box-title">{{ lang.Members }}</h3>
 
@@ -121,9 +121,8 @@
 		    			<th class="col-xs-1">#</th>
 		    			<th class="col-xs-3">{{lang.Name}}</th>
 		    			<th class="col-xs-3">{{lang.email}}</th>
-		    			<th class="col-xs-3">{{lang.Invited}}</th>
+		    			<th class="col-xs-2">{{lang.Invited}}</th>
 		    			<th class="col-xs-2">{{lang.Type}} {{lang.Member.toLowerCase()}}</th>
-		    			<th class="col-xs-2">{{lang.Creator}}</th>
 		    			<th class="col-xs-1">{{lang.Actions}}</th>
 		    		</tr>
 	    		</thead>

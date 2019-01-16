@@ -16,17 +16,14 @@
 <section class="content" >
 	
 
-	<div class="box" ng-if="groups == null">
+	<div class="box" ng-if="groups == null || groups.length == 0">
 		<div class="box-header with-border">
 	      <h3 class="box-title">{{lang.Groups}}</h3>
 	    </div>
 
 	    <div class="box-body" ng-class="{'no-padding':mobile}" style="min-height: 300px;">
+	    	<p>{{ lang.No_groups }}</p>
 	    </div>
-
-		<div class="overlay">
-          <i class="fa fa-refresh fa-spin"></i>
-        </div>
 	 </div>
 
 
@@ -42,7 +39,7 @@
 	      <div class="group-color" style="background-color: {{ group.hex_color }};"></div>
 	      <div class="group-title">
 		      <h3 class="box-title">{{group.name}}</h3>
-		      <a ng-if="group.admin" href="#!/groups/{{group.id}}/edit" class="icon-button" title="{{lang.edit}}"><i class="fa fa-pencil"></i></a>
+		      <a href="#!/groups/{{group.id}}/edit" class="icon-button" title="{{lang.edit}}"><i class="fa fa-pencil"></i></a>
 		      <p ng-if="group.description" class="box-description">{{group.description}}</p>
 		  </div>
 	    </div>

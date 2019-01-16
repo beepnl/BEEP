@@ -377,6 +377,8 @@ LANG['de'] =
     the_field               : 'The',
     is_required             : 'is required',
 
+    No_groups               : 'No groups available',
+    not_available_yet       : 'not yet available. Please create the first one here.',
     Users                   : 'Benutzer',
     Member                  : 'Group member',
     Members                 : 'Group members',
@@ -387,5 +389,6 @@ LANG['de'] =
     Group                   : 'Collabiration group',
     group                   : 'collabiration group',
     to_share                : 'to share with this group. 1 click = group members can view only, 2 clicks = group members can edit',
+    Invitation_accepted     : 'Invitation accepted',
     
 };

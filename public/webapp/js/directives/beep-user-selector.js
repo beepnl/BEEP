@@ -17,13 +17,11 @@ app.directive('beepUserSelector', ['$rootScope', function($rootScope) {
               '<p ng-if="user.accepted == null">{{user.invited}}</p>'+
             '</td>'+
             '<td>'+
-              '{{lang.Admin}} <input type="checkbox" ng-model="user.admin" ng-disabled="user.delete || user.creator==1" ng-checked="user.admin==1">'+
+              '<p ng-if="!user.creator">{{lang.Admin}} <input type="checkbox" ng-model="user.admin" ng-disabled="user.delete" ng-checked="user.admin"></p>'+
+              '<p ng-if="user.creator">{{lang.Creator}}</p>'+
             '</td>'+
             '<td>'+
-              '<p ng-if="user.creator==1">{{lang.Creator}}</p>'+
-            '</td>'+
-            '<td>'+
-              '<a ng-if="user.creator==0" ng-click="delete(index)" class="btn" ng-class="{\'btn-warning\':user.delete, \'btn-danger\':!user.delete}" title="{{user.delete ? lang.Undelete : lang.Delete}}"><i class="fa fa-trash"></i></a>'+
+              '<a ng-if="user.creator" ng-click="delete(index)" class="btn" ng-class="{\'btn-warning\':user.delete, \'btn-danger\':!user.delete}" title="{{user.delete ? lang.Undelete : lang.Delete}}"><i class="fa fa-trash"></i></a>'+
             '</td>',
 
       scope: {

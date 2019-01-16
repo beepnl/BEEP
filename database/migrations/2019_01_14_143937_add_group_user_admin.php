@@ -18,6 +18,8 @@ class AddGroupUserAdmin extends Migration
             $table->boolean('admin')->default(false);
             $table->timestamp('invited')->nullable();
             $table->timestamp('accepted')->nullable();
+            $table->timestamp('declined')->nullable();
+            $table->string('token',100)->nullable();
         });
     }
 
@@ -33,6 +35,8 @@ class AddGroupUserAdmin extends Migration
             $table->dropColumn('admin');
             $table->dropColumn('invited');
             $table->dropColumn('accepted');
+            $table->dropColumn('declined');
+            $table->dropColumn('token');
         });
     }
 }

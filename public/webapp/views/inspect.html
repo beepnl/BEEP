@@ -1,7 +1,7 @@
 <section class="content-header">
   <h1>
-  	<a ng-if="inspection_id == null" class="icn prev" ng-class="{'mobile':mobile}" href="#!/locations"></a>
-  	<a ng-if="inspection_id != null" class="icn prev" ng-class="{'mobile':mobile}" ng-click="back()"></a>
+  	<!-- <a ng-if="inspection_id == null" class="icn prev" ng-class="{'mobile':mobile}" href="#!/locations"></a> -->
+  	<a class="icn prev" ng-class="{'mobile':mobile}" ng-click="back()"></a>
     {{mobile ? '' : inspection_id ? lang.Edit_inspection + ' - ' : lang.New_inspection + ' - '}} {{hive.name}}
 
     <div class="pull-right" >

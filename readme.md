@@ -48,8 +48,12 @@ a. Make the ```run_actions.sh``` file executable by ```chmod +x run_actions.sh``
 
 b. Then run it: ```./run_actions.sh```
 
-## 4. Make sure your server has 2 different virtual hosts for the API and the APP
-API (replace 'beep.nl' with your own server)
+## 4. Set up your end-points
+
+a. Make sure your server has 2 different virtual hosts for the API and the APP
+
+
+API (replace 'beep.nl' with your own server/test domain)
 ```
 <VirtualHost api.beep.nl:80>
     
@@ -82,6 +86,8 @@ APP (replace 'beep.nl' with your own server)
 
 </VirtualHost>
 ```
+
+b. Optionally, install SSL certificates to your endpoints with [Let's Encrypt](https://letsencrypt.org/getting-started/)
 
 ## 5. If you would like to easily deploy your fork (or this repo), 
 

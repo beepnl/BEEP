@@ -16,18 +16,15 @@ You are free to use the BEEP app, it's free and it will be developed further in 
 
 ## 0. Server specs
 
-* Linux Debian (7+)
+* Linux Debian (8+)
 * Software installed
   * PHP 7.2
   * MariaDB/MySQL
   * Apache 2 (or Nginx, creating Nginx 'server blocks' in step 4)
+  * [Composer](https://getcomposer.org/download/) - Installation tool for PHP/Laravel dependencies for API
+  * [npm](https://www.npmjs.com/get-npm) - Installation tool for Javascript/Angular dependencies for App
+  * [Bower](https://bower.io/) ```npm install -g bower``` - Installation tool for front-end dependencies for App
 * Optional: Letsencrypt SSL certificate generation
-
-Make sure these dependencies are installed on your system:
-
-* [Composer](https://getcomposer.org/download/) - Installation tool for PHP/Laravel dependencies for API
-* [npm](https://www.npmjs.com/get-npm) - Installation tool for Javascript/Angular dependencies for App
-* [Bower](https://bower.io/) ```npm install -g bower``` - Installation tool for front-end dependencies for App
 
 
 **NB: You can use this gist to install all the software you need: [LAMP PHP 7.2](https://gist.github.com/pvgennip/84f935e13207db71259f1f57c2667bbd)**

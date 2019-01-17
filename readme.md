@@ -29,9 +29,8 @@ Make sure these dependencies are installed on your system:
 * [npm](https://www.npmjs.com/get-npm) - Installation tool for Javascript/Angular dependencies for App
 * [Bower](https://bower.io/) ```npm install -g bower``` - Installation tool for front-end dependencies for App
 
-NB: You can use this gist to install all the software you need.
 
-[LAMP PHP 7.2](https://gist.github.com/pvgennip/84f935e13207db71259f1f57c2667bbd)
+**NB: You can use this gist to install all the software you need: [LAMP PHP 7.2](https://gist.github.com/pvgennip/84f935e13207db71259f1f57c2667bbd)**
 
 
 ## 1. Clone this repo anywhere you like

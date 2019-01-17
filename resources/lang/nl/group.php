@@ -11,4 +11,6 @@ return [
     'Group'         => 'Groep',
     'Accept_invite' => 'Accepteer de uitnodiging',
     'Dear'          => 'Beste',
+    'accepted'      => 'heeft de uitnodiging geaccepteerd voor groep: ',
+    'subject_accept'=> 'Groep acceptate',
 ];

@@ -9,6 +9,7 @@ use App\Group;
 use App\Hive;
 use App\User;
 use App\Mail\GroupInvitation;
+use App\Mail\GroupAcceptation;
 
 use DB;
 use Validator;
@@ -36,11 +37,29 @@ class GroupController extends Controller
         else
         {
             $valid_data = $validator->validated();
+            $group_user = DB::table('group_user')->where('token',$valid_data['token'])->where('group_id',$valid_data['group_id'])->value('user_id');
+            $user_name  = User::where('id',$group_user)->value('name');
+            
             $res = DB::table('group_user')->where('token',$valid_data['token'])->where('group_id',$valid_data['group_id'])->update(['invited'=>null,'accepted'=>now(),'declined'=>null,'token'=>null]);
             if ($res)
+            {
+                $this->sendAcceptMailToGroupAdmins($valid_data['group_id'], $user_name);
                 return response()->json(['message'=>'group_activated']);
+            }
         }
         return response()->json('token_error',500);
+    }
+
+    private function sendAcceptMailToGroupAdmins($group_id, $user_name)
+    {
+        $group_name  = Group::find($group_id)->value('name');
+        $group_admin = DB::table('group_user')->where('group_id',$group_id)->where('admin',1)->pluck('user_id')->toArray();
+        $admin_mails = User::whereIn('id',$group_admin)->pluck('name','email')->toArray();
+
+        foreach ($admin_mails as $email => $name) 
+        {
+            Mail::to($email)->send(new GroupAcceptation($name, $group_name, $user_name));
+        }
     }
 
 

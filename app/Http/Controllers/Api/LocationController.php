@@ -11,6 +11,8 @@ use App\Http\Requests\PostLocationRequest;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Cache;
 
+use Validator;
+
 class LocationController extends Controller
 {
 
@@ -49,8 +51,17 @@ class LocationController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(PostLocationRequest $request)
+    public function store(Request $request)
     {
+        $validator = Validator::make($request->only('name','hive_type_id'),
+        [
+            'name'          => 'required|string',
+            'hive_type_id'  => 'nullable|integer|exists:categories,id',
+        ]);
+
+        if ($validator->fails())
+            return response()->json(['errors'=>$validator->errors()], 422);
+       
         $name             = $request->input('name'); 
         $prefix           = $request->filled('prefix') == false && isset($name)? $name : $request->input('prefix'); 
         $continent        = Continent::where('abbr', $request->input('continent','eu'))->first();

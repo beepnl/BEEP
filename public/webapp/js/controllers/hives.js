@@ -330,7 +330,10 @@ app.controller('HivesCtrl', function($scope, $rootScope, $window, $location, $fi
 
 	$scope.hivesError = function(type, error)
 	{
-		$scope.error_msg = $rootScope.lang.empty_fields + (error.status == 422 ? ". Error: "+convertOjectToArray(error.message).join(', ') : '');
+		if (typeof error.errors != 'undefined')
+			$scope.error_msg = $rootScope.lang.empty_fields + (error.status == 422 ? ". Error: "+convertOjectToArray(error.errors).join(', ') : '');
+		else
+			$scope.error_msg = $rootScope.lang.empty_fields + (error.status == 422 ? ". Error: "+convertOjectToArray(error.message).join(', ') : '');
 	}
 
 	$scope.hiveChanged = function()

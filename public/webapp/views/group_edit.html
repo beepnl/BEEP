@@ -17,6 +17,14 @@
 
 <section class="content" >
 	
+	<div class="alert alert-success" ng-show="success_msg != null">
+        <p>{{ success_msg }}</p>
+    </div>
+
+	<div class="alert alert-danger" ng-show="error_msg != null">
+        <p>{{ error_msg }}</p>
+    </div>
+
 	<!-- Settings -->
 	<div class="box collapsed-box" ng-if="group.admin || group.creator">
 	    <div class="box-header with-border">
@@ -150,13 +158,5 @@
         </div>
 	    
 	</div>
-
-	<div class="alert alert-success" ng-show="success_msg != null">
-        <p>{{ success_msg }}</p>
-    </div>
-
-	<div class="alert alert-danger" ng-show="error_msg != null">
-        <p>{{ error_msg }}</p>
-    </div>
 
 </section>

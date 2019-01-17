@@ -3,11 +3,11 @@
 		<a class="icn prev" ng-class="{'mobile':mobile}" ng-click="back()"></a>
 		{{mobile ? '' : lang.Inspections}} {{mobile ? '' : hive.location + ' - '}} {{hive.name}}
 		<div class="pull-right" >
-			<a href="#!/hives/{{hiveId}}/inspect" class="btn btn-primary"><i class="fa fa-plus"></i> {{mobile ? '' : lang.New_inspection}}</a>
-			<div ng-if="showMore" class="arrows">
+			<a ng-if="hive.editable != false" href="#!/hives/{{hiveId}}/inspect" class="btn btn-primary"><i class="fa fa-plus"></i> {{mobile ? '' : lang.New_inspection}}</a>
+			<!-- <div ng-if="showMore" class="arrows">
 				<a class="icn prev" ng-class="{'mobile':mobile}" ng-click="prevHive()"></a>
 				<a class="icn next" ng-click="nextHive()"></a>
-			</div>
+			</div> -->
 		</div>
 	</h1>
 	<!-- <ol class="breadcrumb">

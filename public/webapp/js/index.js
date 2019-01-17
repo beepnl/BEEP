@@ -383,11 +383,14 @@ app.run(function($rootScope, $location, $window, $route, $routeParams, amMoment,
 
 
     // basic history function 
-    var history = [];
+    $rootScope.history = [];
 
     $rootScope.$on('$routeChangeSuccess', function() 
     {
-        history.push($location.path());
+        if ($location.path().indexOf('/locations') > -1)
+            $rootScope.history = [];
+
+        $rootScope.history.push($location.path());
     });
 
 

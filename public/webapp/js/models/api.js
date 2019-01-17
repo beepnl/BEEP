@@ -282,8 +282,8 @@ app.service('api', ['$http', '$rootScope', function($http, $rootScope)
 			}
 			, function(response) // error
 			{
-				var error = (response != undefined) ? (response.data != undefined) ? (response.data.message != undefined) ? response.data.message : response.data : response : 'error';
-				var status= (response != undefined) ? response.status : 0;
+				var error = (typeof response != 'undefined') ? (typeof response.data != 'undefined') ? (typeof response.data.errors != 'undefined') ? response.data.errors : (typeof response.data.message != 'undefined') ? response.data.message : response.data : response : 'error';
+				var status= (typeof response != 'undefined') ? response.status : 0;
 				// set the listeners
 				self.handleResponses(type+'Error', {'message':error, 'status':status});
 				$rootScope.$broadcast('endLoading');

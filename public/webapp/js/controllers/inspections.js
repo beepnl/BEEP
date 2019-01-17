@@ -90,9 +90,9 @@ app.controller('InspectionsCtrl', function($scope, $rootScope, $window, $locatio
 		else
 		{
 			$scope.hiveId 	= $routeParams.hiveId;
-			$scope.hive 	= hives.getHiveById($routeParams.hiveId);
+			$scope.hive 	= hives.getHiveById($scope.hiveId);
 			if ($scope.hive == null)
-				$scope.hive = groups.getHiveById($routeParams.hiveId);
+				$scope.hive = groups.getHiveById($scope.hiveId);
 			
 			$scope.showMore = hives.hives_inspected.length > 1 ? true : false;
 			$scope.setScales();
@@ -109,7 +109,7 @@ app.controller('InspectionsCtrl', function($scope, $rootScope, $window, $locatio
 
 	$scope.loadInspections = function(e)
 	{
-		inspections.loadRemoteInspections($routeParams.hiveId);
+		inspections.loadRemoteInspections($scope.hiveId);
 	}
 
 	$scope.rounddec = function(v, d)
@@ -219,7 +219,19 @@ app.controller('InspectionsCtrl', function($scope, $rootScope, $window, $locatio
 		}
 		else
 		{
-			$rootScope.historyBack();
+			for (var i = $rootScope.history.length - 1; i >= 0; i--) // make sure that back goes to the previous main screen
+			{
+				var path = $rootScope.history[i];
+				var go   = false;
+				var hive_id = typeof $scope.hive != 'undefined' && $scope.hive != null ? $scope.hive.id : '';
+
+				if (path.indexOf('/locations') > -1 || (path.indexOf('/hives') > -1 && path.indexOf('/hives/') == -1) || path.indexOf('/groups') > -1)
+					go = true;
+
+				if (go)
+					return $location.path(path);
+			}
+			$location.path('/locations');
 		}
 	};
 

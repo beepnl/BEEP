@@ -270,6 +270,18 @@ app.controller('InspectionCreateCtrl', function($scope, $rootScope, $window, $lo
 		}
 		else
 		{
+			for (var i = $rootScope.history.length - 1; i >= 0; i--) // make sure that back goes to the previous main screen
+			{
+				var path = $rootScope.history[i];
+				var go   = false;
+				var hive_id = typeof $scope.hive != 'undefined' && $scope.hive != null  ? $scope.hive.id : '';
+				
+				if ( (path.indexOf('/inspections') > -1 && path.indexOf('/inspections/') == -1) || path.indexOf('/locations') > -1 || (path.indexOf('/hives') > -1 && path.indexOf('/hives/'+hive_id) == -1) || path.indexOf('/groups') > -1)
+					go = true;
+
+				if (go)
+					return $location.path(path);
+			}
 			$rootScope.historyBack();
 		}
 	};

@@ -35,9 +35,11 @@ You are free to use the BEEP app, it's free and it will be developed further in 
 
 ## 2. Database
 
-Create a MySQL database (type: InnoDB, encoding: UTF_8, collation: utf8_unicode_ci) called ```bee_data```
+Create a MySQL database (type: InnoDB, encoding: UTF_8, collation: utf8_unicode_ci) called: 
 
-NB: Make sure to pass the user and credentials to the newly made .env file after step 4.
+```bee_data```
+
+**NB: Make sure to pass the user and credentials to the newly made .env file after step 4.**
 
 
 ## 3. Install required vendor libraries 

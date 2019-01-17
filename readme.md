@@ -118,7 +118,7 @@ d. Go to ```api.[your_domain]/admin``` to log in with the same credentials that 
 e. You should see the back-end dashboard, looking like this:
 
 ## Management interface
-![BEEP Management interface](https://github.com/beepnl/BEEP/raw/master/BEEP-management-interface.png)
+![BEEP Management interface](https://github.com/beepnl/BEEP/blob/bob-additions/BEEP-management-interface.png)
 
 
 # Contributing

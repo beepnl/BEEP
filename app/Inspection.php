@@ -7,6 +7,8 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use LaravelLocalization;
 
+use Auth;
+
 class Inspection extends Model
 {
     use SoftDeletes, CascadeSoftDeletes;
@@ -35,7 +37,19 @@ class Inspection extends Model
 
     protected $hidden   = ['pivot','deleted_at'];
 
+    protected $appends  = ['owner'];
+
     public $timestamps = false;
+
+
+
+    public function getOwnerAttribute()
+    {
+        if ($this->users()->whereIn('id', [Auth::user()->id])->count() > 0)
+            return true;
+        
+        return false;
+    }
 
     public function users()
     {

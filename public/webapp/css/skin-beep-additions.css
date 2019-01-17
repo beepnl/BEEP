@@ -550,6 +550,10 @@ input.rn-stepper{
 	vertical-align: top;
 }
 
+dl.hive-select{
+	margin-bottom: 5px;
+}
+
 /* Hive */
 .hives-container{
 	position: relative;
@@ -584,10 +588,10 @@ input.rn-stepper{
 }
 	.hive-container.small p.title{
 		max-width: 60px;
-		line-height: 14px;
-		height: 30px;
+		line-height: 10px;
+		margin-bottom: 2px;
+		height: 22px;
 		overflow: hidden;
-		text-overflow: ellipsis;
 		color: #000;
 	}
 		.hive-container.small > p.title.selected{
@@ -616,6 +620,10 @@ input.rn-stepper{
 	text-align: -webkit-center;
 	max-width: 270px;
 	overflow: hidden;
+}
+
+.hive.mobile{
+	text-align: left;
 }
 
 	.hive-name-mobile{
@@ -661,10 +669,16 @@ input.rn-stepper{
 		margin-bottom: 5px;
 		max-width: 140px;
 		overflow: hidden;
+		color: #333;
 	}
+
+	.hive.mobile > .info {
+		-webkit-justify-content:space-between;
+		justify-content:space-between;
+	}
+
 		.hive > .info > * {
 			position: relative;
-			color: #333;
 			display: inline-block; 
 			width: 24px; 
 			height: 24px; 
@@ -712,13 +726,7 @@ input.rn-stepper{
 				    left: 6px;
 				}
 
-		.hive > .info.mobile{
-			position: relative;
-			width: 100%;
-			max-width: 120px;
-			height: 24px;
-			text-align: left;
-		}
+		
 
 	p.notes, span.notes{
 		display: block;
@@ -737,8 +745,9 @@ input.rn-stepper{
 	    max-width: 60%;
 	}
 
-		p.notes.mobile, span.notes.mobile{
+		.hive.mobile > p.notes, span.notes{
 			max-height: 24px;
+			max-width: 100%;
 			-webkit-line-clamp: 2;
 		}
 
@@ -948,7 +957,7 @@ input.rn-stepper{
 		max-width: 100px;
 	}
 	table.inspections th.tdc{
-		vertical-align: top;
+		vertical-align: bottom;
 	}
 	.table.inspections .filler
 	{

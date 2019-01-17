@@ -61,7 +61,6 @@ app.service('measurements', ['$http', '$rootScope', '$interval', 'api', 'setting
 		return typeof this.sensors[i] != 'undefined' ? this.sensors[i] : null;
 	}
 
-
 	// Data from one sensor
 	this.loadRemoteSensorMeasurements = function(interval, timeIndex, timeGroup, timeZone, sensorId)
 	{

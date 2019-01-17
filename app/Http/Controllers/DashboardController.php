@@ -53,7 +53,7 @@ class DashboardController extends Controller
         $data['frames']     = HiveLayerFrame::count();
         $data['inspections']= Inspection::count();
         $data['inspectionitems']= InspectionItem::count();
-        $data['itemsperinspection']= round($data['inspectionitems'] / $data['inspections'], 1);
+        $data['itemsperinspection']= $data['inspections'] == 0 ? 0 : round($data['inspectionitems'] / $data['inspections'], 1);
         $data['queens']     = Queen::count();
         $data['checklists'] = Checklist::count();
         $data['checklists_edited'] = Checklist::whereRaw('updated_at - created_at > 60')->count();

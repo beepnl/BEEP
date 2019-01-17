@@ -4,7 +4,7 @@
  *
  * Dashboard controller
  */
-app.controller('InspectionsCtrl', function($scope, $rootScope, $window, $location, $filter, $routeParams, settings, api, moment, hives, inspections) 
+app.controller('InspectionsCtrl', function($scope, $rootScope, $window, $location, $filter, $routeParams, settings, api, moment, hives, inspections, groups) 
 {
 
 	$rootScope.title    	= $rootScope.lang.Inspections;
@@ -91,6 +91,9 @@ app.controller('InspectionsCtrl', function($scope, $rootScope, $window, $locatio
 		{
 			$scope.hiveId 	= $routeParams.hiveId;
 			$scope.hive 	= hives.getHiveById($routeParams.hiveId);
+			if ($scope.hive == null)
+				$scope.hive = groups.getHiveById($routeParams.hiveId);
+			
 			$scope.showMore = hives.hives_inspected.length > 1 ? true : false;
 			$scope.setScales();
 			$scope.loadInspections();

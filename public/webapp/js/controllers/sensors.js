@@ -56,9 +56,18 @@ app.controller('SensorsCtrl', function($scope, $rootScope, $timeout, $interval, 
         $scope.sensors.push({'name':'Sensor '+($scope.sensors.length+1), 'key':key});
     }
 
+    $scope.removeSensorByIndex = function(i)
+    {
+        return typeof $scope.sensors[i] != 'undefined' ? $scope.sensors.splice(i,1) : null;
+    }
+
     $scope.deleteSensor = function(sensorIndex)
     {
         var s = measurements.getSensorByIndex(sensorIndex);
+
+        if (typeof s.id == 'undefined')
+            return $scope.removeSensorByIndex(sensorIndex);
+
         if (typeof s.delete == 'undefined')
             s.delete = true;
         else

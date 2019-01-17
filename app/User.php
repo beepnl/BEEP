@@ -34,7 +34,7 @@ class User extends Authenticatable
         return $this->hasMany(Hive::class);
     }
 
-    public function allHhives() // Including Group hives
+    public function allHives() // Including Group hives
     {
         $own_ids = $this->hives()->pluck('id');
         $grp_ids = $this->groupHives()->pluck('id');
@@ -52,12 +52,29 @@ class User extends Authenticatable
         return $this->belongsToMany(Inspection::class, 'inspection_user');
     }
     
+    public function allInspections() // Including Group hive locations
+    {
+        $own_ids = $this->inspections()->pluck('id');
+        $grp_ids = $this->groupHives()->pluck('id');
+        $ins_ids = DB::table('inspection_hive')->whereIn('hive_id',$grp_ids)->distinct('inspection_id')->pluck('inspection_id')->toArray();
+        $all_ids = $own_ids->merge($ins_ids);
+        return Inspection::whereIn('id',$all_ids);
+    }
+
     public function locations()
     {
         return $this->hasMany(Location::class);
     }
 
-    // TODO: Add GUI for attaching sensor rights to users
+    public function allLocations() // Including Group hive locations
+    {
+        $own_ids = $this->locations()->pluck('id');
+        $grp_ids = $this->groupHives()->pluck('id');
+        $loc_ids = DB::table('hives')->whereIn('id',$grp_ids)->distinct('hive_id')->pluck('location_id')->toArray();
+        $all_ids = $own_ids->merge($loc_ids);
+        return Location::whereIn('id',$all_ids);
+    }
+
     public function sensors()
     {
         return $this->hasMany(Sensor::class);

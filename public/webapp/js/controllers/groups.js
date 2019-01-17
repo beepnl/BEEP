@@ -93,9 +93,18 @@ app.controller('GroupsCtrl', function($scope, $rootScope, $window, $location, $f
         $scope.group.users.push({'name':'', 'email':'', 'admin':false, 'creator':false});
     }
 
+    $scope.removeGroupUserByIndex = function(i)
+	{
+		return typeof $scope.group.users[i] != 'undefined' ? $scope.group.users.splice(i,1) : null;
+	}
+
     $scope.deleteGroupUser = function(userIndex)
     {
         var u = $scope.group.users[userIndex];
+        
+        if (typeof u.id == 'undefined')
+            return $scope.removeGroupUserByIndex(userIndex);
+
         if (typeof u.delete == 'undefined')
             u.delete = true;
         else

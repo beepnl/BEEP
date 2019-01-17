@@ -26,31 +26,32 @@
 	      </div>
 	    </div>
 	    <!-- /.box-header -->
-	    <div ng-if="Object.keys(sensors).length == 0" class="box-body">
+	    <div ng-if="sensors.length == 0" class="box-body">
 	      
-	      <p>{{lang.Groups}} {{lang.not_available_yet}}</p>
+	      <p>{{lang.sensors}} {{lang.not_available_yet}}</p>
 
 	    </div>
 
-	    <div ng-if="Object.keys(sensors).length > 0" class="box-body">
+	    <div ng-if="sensors.length > 0" class="box-body no-padding" >
 
-	    	<table class="table table-striped">
-	    		<thead>
-	    			<tr class="trh">
-		    			<th class="col-xs-1">#</th>
-		    			<th class="col-xs-2">{{lang.Name}}</th>
-		    			<th class="col-xs-2">{{lang.sensor_key}}</th>
-		    			<th class="col-xs-2">{{lang.Type}}</th>
-		    			<th class="col-xs-2">{{lang.Hive}}</th>
-		    			<th class="col-xs-2">{{lang.Select}} {{lang.hive}}</th>
-		    			<th class="col-xs-1">{{lang.Actions}}</th>
-		    		</tr>
-	    		</thead>
-	    		<tbody>
-					<tr sensor="sensor" index="i" hives="hives" sensortypes="sensortypes" change="selectSensorHive" changetype="selectSensorType" delete="deleteSensor" ng-repeat="(i, sensor) in sensors track by i" beep-sensor></tr>
-				</tbody>
-			</table>
-
+	    	<div class="table-responsive">
+	    		<table class="table table-striped no-margin" style="min-width: 700px;">
+		    		<thead>
+		    			<tr class="trh">
+			    			<th class="col-xs-1">#</th>
+			    			<th class="col-xs-2">{{lang.Name}}</th>
+			    			<th class="col-xs-2">{{lang.sensor_key}}</th>
+			    			<th class="col-xs-2">{{lang.Type}}</th>
+			    			<th class="col-xs-2">{{lang.Hive}}</th>
+			    			<th class="col-xs-2">{{lang.Select}} {{lang.hive}}</th>
+			    			<th class="col-xs-1">{{lang.Actions}}</th>
+			    		</tr>
+		    		</thead>
+		    		<tbody>
+						<tr sensor="sensor" index="i" hives="hives" ng-class="{'delete':sensor.delete}" sensortypes="sensortypes" change="selectSensorHive" changetype="selectSensorType" delete="deleteSensor" ng-repeat="(i, sensor) in sensors track by i" beep-sensor></tr>
+					</tbody>
+				</table>
+			</div>
 	    </div>
 
 	 	<div class="overlay" ng-if="loading">

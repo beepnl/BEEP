@@ -28,7 +28,7 @@ app.directive('beepSensor', ['$rootScope', function($rootScope) {
               '</select>'+
             '</td>'+
             '<td>'+
-              '<a ng-click="delete(index)" class="btn" ng-class="{\'btn-warning\':sensor.delete, \'btn-danger\':!sensor.delete}" title="{{sensor.delete ? lang.Undelete : lang.Delete}}"><i class="fa fa-trash"></i></a>'+
+              '<a ng-click="delete(index)" class="btn" ng-class="{\'btn-danger\':sensor.delete, \'btn-warning\':!sensor.delete}" title="{{sensor.delete ? lang.Undelete : lang.Delete}}"><i class="fa fa-trash"></i></a>'+
             '</td>',
 
       scope: {

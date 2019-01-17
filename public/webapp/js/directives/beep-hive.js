@@ -63,10 +63,10 @@ app.directive('beepHive', ['$rootScope', function($rootScope) {
                 '</a>'+
               '</div>'+
             '</div>'+
-            '<div class="col-xs-6">'+
+            '<div class="col-xs-6 hive mobile">'+
               '<p class="hive-name-mobile">{{hive.name}}</p>'+
-              '<p ng-if="hiveview" class="location notes mobile">({{ hive.location }})</p>'+
-              '<p ng-if="hive.reminder != null && hive.reminder != \'\'" class="reminder notes mobile" title="{{ hive.reminder }}">{{hive.reminder}}</p>'+
+              '<p ng-if="hiveview" class="location notes">({{ hive.location }})</p>'+
+              '<p ng-if="hive.reminder != null && hive.reminder != \'\'" class="reminder notes" title="{{ hive.reminder }}">{{hive.reminder}}</p>'+
               '<p ng-if="hive.reminder_date != null && hive.reminder_date != \'\'" class="notes reminder-date">{{hive.reminder_date | amDateFormat:\'dd D MMM YYYY HH:mm\'}}</p>'+
               '<div class="info mobile">'+
                 '<a ng-if="hive.attention == 1" href="#!/hives/{{hive.id}}/inspections" class="attention-icon">!</a>'+

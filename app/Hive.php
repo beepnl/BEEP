@@ -6,6 +6,8 @@ use Iatstuti\Database\Support\CascadeSoftDeletes;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
+use Auth;
+
 class Hive extends Model
 {
     use SoftDeletes, CascadeSoftDeletes;
@@ -14,7 +16,7 @@ class Hive extends Model
     protected $fillable = ['user_id', 'location_id', 'hive_type_id', 'color', 'name'];
     protected $guarded  = ['id'];
 	protected $hidden 	= ['user_id','deleted_at'];
-    protected $appends  = ['type','location','attention','impression','reminder','reminder_date','inspection_count','sensors','groups'];
+    protected $appends  = ['type','location','attention','impression','reminder','reminder_date','inspection_count','sensors','owner'];
 
     public $timestamps = false;
 
@@ -94,6 +96,14 @@ class Hive extends Model
     public function getGroupsAttribute()
     {
         return $this->groups()->pluck('group_id')->toArray();
+    }
+
+    public function getOwnerAttribute()
+    {
+        if ($this->user_id == Auth::user()->id)
+            return true;
+        
+        return false;
     }
 
 

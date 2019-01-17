@@ -4,7 +4,7 @@
     {{ pageTitle || hive.name }}
     <div class="pull-right">
     	<div>
-	    	<a ng-if="hive.id != undefined" ng-click="confirmDeleteHive()" class="btn btn-danger">{{lang.Delete}}</a>
+	    	<a ng-if="hive.id != undefined && hive.owner" ng-click="confirmDeleteHive()" class="btn btn-danger">{{lang.Delete}}</a>
 	    </div>
     </div>
   </h1>
@@ -35,9 +35,11 @@
 	    	<dl class="dl-horizontal">
 	    		<dt>{{lang.Location}}*</dt>
 	    		<dd>
-	    			<select ng-model="hive_loc" ng-options="item as item.name for item in locations  | orderBy:'name' track by item.id" type="select" class="form-control" required="required">
+	    			<select ng-if="hive.id == undefined || hive.owner" ng-model="hive_loc" ng-options="item as item.name for item in locations  | orderBy:'name' track by item.id" type="select" class="form-control" required="required">
 	    				<option value=''>{{lang.Select}} {{lang.location}}...</option>
 	    			</select>
+	    			<input ng-if="hive.id != undefined && !hive.owner" ng-value="hive.location" ng-disabled="true" type="text" class="form-control">
+	    			<input ng-if="hive.id != undefined && !hive.owner" ng-model="hive_loc" type="hidden">
 	    		</dd>
 	    	</dl>
 	    	<dl class="dl-horizontal">
@@ -124,7 +126,7 @@
 					  <div class="input-group-addon">
 					    <i class="fa fa-calendar"></i>
 					  </div>
-					  <input class="form-control pull-right" pick-a-date="date" pick-a-date-options="datePickerOptions" type="text" ng-model="hive.queen.created_at">
+					  <input class="form-control pull-right" data-field="date" type="text" ng-model="hive.queen.created_at">
 					</div>
 	    		</dd>
 	    	</dl>
@@ -180,3 +182,5 @@
 	<button ng-click="saveHive(true)" class="btn btn-primary btn-block">{{lang.save_and_return}}</button>
 
 </section>
+
+<div id="dtBox"></div>

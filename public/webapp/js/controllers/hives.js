@@ -4,7 +4,7 @@
  *
  * Dashboard controller
  */
-app.controller('HivesCtrl', function($scope, $rootScope, $window, $location, $filter, $routeParams, settings, api, moment, hives, inspections) 
+app.controller('HivesCtrl', function($scope, $rootScope, $window, $location, $filter, $routeParams, settings, api, moment, hives, inspections, groups) 
 {
 
 	$rootScope.title    	= $rootScope.lang.hives_title;
@@ -26,12 +26,31 @@ app.controller('HivesCtrl', function($scope, $rootScope, $window, $location, $fi
 	$scope.orderName        = 'name';
 	$scope.orderDirection   = false;
 
-	$scope.datePickerOptions = {
-	  format: 'yyyy-mm-dd', // ISO formatted date
-	  onClose: function(e) 
-	  {
-	  }
-	}
+	$scope.dateFormat   	= 'yyyy-MM-dd';
+
+	$scope.setDateLanguage = function()
+	{
+		$("#dtBox").DateTimePicker(
+        {
+            dateFormat 		: $scope.dateFormat, // ISO formatted date
+			language 		: $rootScope.locale,
+			mode 			: 'date',
+			formatHumanDate : function(dateObj, mode, format)
+						        {
+					        		var output = '';
+					        		output 	  += dateObj.day + ' ';
+					        		output 	  += parseInt(dateObj.dd) + ' ';
+					        		output 	  += dateObj.month + ' ';
+					        		output 	  += dateObj.yyyy;
+					        		return output;
+						    	},
+			afterShow 		: function(inputElement)
+								{
+					        		$("#dtBox .dtpicker-compValue").attr('type', 'tel'); // set mobile input keyboard to numeric
+								}
+        });
+	};
+
 
 	$scope.init = function()
 	{
@@ -44,6 +63,7 @@ app.controller('HivesCtrl', function($scope, $rootScope, $window, $location, $fi
 		{
 			if ($routeParams.hiveId != undefined || $location.path().indexOf('/hives/create') > -1)
 			{
+				$scope.setDateLanguage();
 				$scope.initHives();
 				$rootScope.title = $rootScope.lang.Hive;
 				if ($location.path().indexOf('/hives/create') > -1)
@@ -176,13 +196,16 @@ app.controller('HivesCtrl', function($scope, $rootScope, $window, $location, $fi
 	{
 		$scope.hive	= hives.getHiveById($routeParams.hiveId);
 
+		if ($scope.hive == null)
+			$scope.hive = groups.getHiveById($routeParams.hiveId);
+
 		if ($scope.hive != undefined && ($location.path().indexOf('/hives/create') > -1 || $location.path().indexOf('/edit') > -1))
 		{
 			//console.log('loadHiveIndex', $routeParams.hiveId, $scope.hive.name);
 			$scope.pageTitle = $scope.hive.name;
 
 			if ($scope.hive.queen != undefined && $scope.hive.queen != null && $scope.hive.queen.created_at == null)
-				$scope.hive.queen.created_at = moment().format(inspections.DATE_FORMAT_API);
+				$scope.hive.queen.created_at = moment().format($scope.dateFormat.toUpperCase());
 
 			$scope.queen_colored = ($scope.hive.queen.color != '' && $scope.hive.queen.color != null);
 			$scope.queenBirthColor();
@@ -217,7 +240,7 @@ app.controller('HivesCtrl', function($scope, $rootScope, $window, $location, $fi
 
 	$scope.queenBirthColor = function(forceChangeColor)
 	{
-		format 	 = $scope.datePickerOptions.format.toUpperCase();
+		format 	 = $scope.dateFormat.toUpperCase();
 		date 	 = $scope.hive.queen.created_at;
 		dateNow  = moment();
 		dateBirth= moment(date, format);

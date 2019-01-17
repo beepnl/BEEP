@@ -21,12 +21,18 @@ class Sensor extends Model
 
     public function getHiveNameAttribute()
     {
-        return $this->hive->name;
+        if (isset($this->hive))
+            return $this->hive->name;
+
+        return '';
     }
 
     public function getLocationNameAttribute()
     {
-        return $this->hive->getLocationAttribute();
+        if (isset($this->hive))
+            return $this->hive->getLocationAttribute();
+
+        return '';
     }
     
 	public function hive()

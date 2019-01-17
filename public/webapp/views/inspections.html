@@ -29,14 +29,14 @@
 		  </div>
 	    </div>
 
-	    <div ng-if="inspections.length > 0" class="box-body table-responsive inspections no-padding">
-			<div>
+	    <div ng-if="inspections.length > 0" class="box-body inspections no-padding">
+			<div class="table-responsive">
 				<table class="table table-striped inspections" ng-class="{'mobile':mobile}">
 					<thead>
 						<tr class="trh">
 							<th class="tdr"><strong>{{lang.Inspections}}</strong></th>
 							<th ng-repeat="inspection in inspections track by $index" class="tdc">
-								<div class="inspection-actions">
+								<div class="inspection-actions" ng-if="inspection.owner">
 									<a href="#!/hives/{{hiveId}}/inspections/{{inspection.id}}" class="icon-button"><i class="fa fa-pencil"></i></a>
 									<a ng-click="confirmDeleteInspection(inspection.id)" class="icon-button delete"><i class="fa fa-trash"></i></a>
 								</div>

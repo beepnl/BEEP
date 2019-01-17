@@ -13,6 +13,7 @@ app.service('groups', ['$http', '$rootScope', 'api', 'hives', function($http, $r
 	{
 		this.refreshCount 	  = 0;
 		this.groups		  	  = [];
+		this.hives		  	  = [];
 		this.open_group_ids	  = [];
 	}
 
@@ -67,14 +68,24 @@ app.service('groups', ['$http', '$rootScope', 'api', 'hives', function($http, $r
 		return hive != null ? hive.name : null;
 	}
 
-	// Locations
+	this.getHiveById = function(id)
+	{
+		for (var i = 0; i < self.hives.length; i++) 
+		{
+			var hive = self.hives[i];
+			if (hive.id == id)
+				return hive;
+		}
+		return null;
+	}
+
+	// Load groups (including hives, to not interfere with your own hives in hives.hives)
 	this.loadRemoteGroups = function()
 	{
 		api.getApiRequest('groups', 'groups');
 	};
 
 	
-
 	this.groupsHandler = function(e, data)
 	{
 		// get the result
@@ -116,11 +127,11 @@ app.service('groups', ['$http', '$rootScope', 'api', 'hives', function($http, $r
 				group.open = false;
 			}
 		}
-		self.addHivesToGroups();
+		self.processGroupHives();
 		self.refresh();
 	};
 
-	this.addHivesToGroups = function(e, data)
+	this.processGroupHives = function(e, data)
 	{
 		for (var i = 0; i < self.groups.length; i++) 
 		{
@@ -130,6 +141,7 @@ app.service('groups', ['$http', '$rootScope', 'api', 'hives', function($http, $r
 			{
 				group.hives_selected = [];
 				group.hives_editable = [];
+				self.hives 			 = [];
 
 				for (var j = group.hives.length - 1; j >= 0; j--)
 				{
@@ -141,6 +153,8 @@ app.service('groups', ['$http', '$rootScope', 'api', 'hives', function($http, $r
 
 						group.hives_selected.push(hive.id);
 						hive = hives.addHiveCalculations(hive);
+
+						self.hives.push(hive);
 					}
 				}
 			}

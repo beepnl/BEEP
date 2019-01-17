@@ -89,6 +89,8 @@ APP (replace 'beep.nl' with your own server)
 
 b. Optionally, install SSL certificates to your endpoints with [Let's Encrypt](https://letsencrypt.org/getting-started/)
 
+With command: ```sudo certbot --authenticator webroot --installer apache```
+
 ## 5. If you would like to easily deploy your fork (or this repo), 
 
 a. Make sure to add your repo to git remote: ```git remote set url https://github.com/beepnl/BEEP.git```

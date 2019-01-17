@@ -662,7 +662,7 @@ input.rn-stepper{
 		max-width: 140px;
 		overflow: hidden;
 	}
-		.info > * {
+		.hive > .info > * {
 			position: relative;
 			color: #333;
 			display: inline-block; 
@@ -676,43 +676,43 @@ input.rn-stepper{
 			overflow: hidden;
 		}
 
-		.info > a{
+		.hive > .info > a{
 			color: #333;
 		}
 
-			.info > .attention-icon {
+			.hive > .info > .attention-icon {
 				background-color: #D0021B;
 				color: #fff;
 				font-size: 16px;
 				font-weight: bold;
 			}
-			.info > .queen-icon {
+			.hive > .info > .queen-icon {
 				background-size: 12px;
 			}
-			.info > .impression-icon {
+			.hive > .info > .impression-icon {
 				background-color: #F8B133; 
 			}
-				.info > .impression-icon.frown {
+				.hive > .info > .impression-icon.frown {
 					background-color: #D0021B; 
 				}
-				.info > .impression-icon.smile {
+				.hive > .info > .impression-icon.smile {
 					background-color: #7ED321; 
 				}
-				.info > .impression-icon i {
+				.hive > .info > .impression-icon i {
 					position: absolute;
 				    top: -4px;
 				    left: -2px;
 				}
-			.info > .sensor-icon {
+			.hive > .info > .sensor-icon {
 				background-color: #FFF; 
 			}
-				.info > a.sensor-icon i {
+				.hive > .info > a.sensor-icon i {
 					position: absolute;
 				    top: 3px;
 				    left: 6px;
 				}
 
-		.info.mobile{
+		.hive > .info.mobile{
 			position: relative;
 			width: 100%;
 			max-width: 120px;

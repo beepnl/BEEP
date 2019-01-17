@@ -17,25 +17,24 @@ You are free to use the BEEP app, it's free and it will be developed further in 
 ## 1. Clone this repo anywhere you like
 ```git clone https://github.com/beepnl/BEEP.git```
 
-## 2. Install required vendor libraries by running 
+## 2. Database
 
-Make sure these dependencies are installed on your system:
+Create a MySQL database (type: InnoDB, encoding: UTF_8, collation: utf8_unicode_ci) called ```bee_data```
+
+NB: Make sure to pass the user and credentials to the newly made .env file after step 4.
+
+
+## 3. Install required vendor libraries by running 
+
+a. Make sure these dependencies are installed on your system:
 
 * [Composer](https://getcomposer.org/download/) - Installation tool for PHP/Laravel dependencies for API
 * [npm](https://www.npmjs.com/get-npm) - Installation tool for Javascript/Angular dependencies for App
 * [Bower](https://bower.io/) ```npm install -g bower``` - Installation tool for front-end dependencies for App
 
-Make the run_actions.sh executable by ```chmod +x run_actions.sh```
+b. Make the ```run_actions.sh``` file executable by ```chmod +x run_actions.sh```. This bash script will install all the packages and vendor dependencies that you need at once.
 
-Then run it: ```./run_actions.sh```
-
-This will install all the packages and vendor dependencies that you need at once.
-
-## 3. If you would like to easily deploy your fork (or this repo), 
-
-a. Make sure to add your repo to git remote: ```git remote set url https://github.com/beepnl/BEEP.git```
-
-b. Run ```./deploy.sh``` to update your clone on any server
+c. Then run it: ```./run_actions.sh```
 
 ## 4. Make sure your server has 2 different virtual hosts for the API and the APP
 API (replace 'beep.nl' with your own server)
@@ -71,6 +70,36 @@ APP (replace 'beep.nl' with your own server)
 
 </VirtualHost>
 ```
+
+## 5. If you would like to easily deploy your fork (or this repo), 
+
+a. Make sure to add your repo to git remote: ```git remote set url https://github.com/beepnl/BEEP.git```
+
+b. Run ```./deploy.sh``` to update your clone on any server
+
+
+# Creating a super administrator user and configuring the back-end system
+
+## 1. Check database tables
+
+If you did not run ```./run_actions```, please do so, to install all the database tables and set up the default categorization.
+
+## 2. Set up valid e-mail credentials in the ```.env``` config file
+
+## 3. Register new user
+
+a. Go to ```[your_domain]/webapp/index.html#!/login/create```
+
+b. Create a new user
+
+c. Open your database (with a database viewer like PhpMyadmin, Sequel Pro, MySQL Workbench, etc.), or just do a command line query defining a relation in table ```role_user``` with ```(1,1)``` (linking user_id 1 to role_id 1). Your user has just been promoted to the super administrator of the system, so you can use the back-end management interface to configure the complete system.
+
+d. Go to ```[your_domain]/admin``` to log in with the same credentials that you created your app user with in step 3b.
+
+e. You should see the back-end dashboard, looking like this:
+
+## Management interface
+![BEEP Management interface](https://github.com/beepnl/BEEP/raw/master/BEEP-management-interface.png)
 
 
 # Contributing

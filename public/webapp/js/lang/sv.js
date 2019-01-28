@@ -388,7 +388,7 @@
 
     Users                   : 'Users',
     Groups                  : 'Collaborate',
-    Group                   : 'Collabiration group',
+    Group                   : 'Collaboration group',
     group                   : 'collabiration group',
     to_share                : 'to share with this group. 1 click = group members can view only, 2 clicks = group members can edit',
 

@@ -11,5 +11,7 @@ return [
     'Group'         => 'group',
     'Accept_invite' => 'Accept the invitation',
     'Dear'          => 'Dear',
+    'accepted'      => 'accepted to join',
+    'subject_accept'=> 'Group acceptation',
 
 ];

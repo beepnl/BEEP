@@ -73,8 +73,8 @@ app.controller('GroupsCtrl', function($scope, $rootScope, $window, $location, $f
 		
 		if ($location.path().indexOf('/groups/create') > -1)
 		{
-			$scope.group = {'name':$rootScope.lang.Group+' '+($scope.groups.length+1) ,'color':'', 'description':'', 'hives_selected':[], 'hives_editable':[], 'users':[{'name':$rootScope.user.name, 'email':$rootScope.user.email, 'admin':true, 'creator':true, 'invited':null}]};
-			//console.log($scope.hive);
+			$scope.group = {'creator':true, 'name':$rootScope.lang.Group+' '+($scope.groups.length+1) ,'color':'', 'description':'', 'hives_selected':[], 'hives_editable':[], 'users':[{'name':$rootScope.user.name, 'email':$rootScope.user.email, 'admin':true, 'creator':true, 'invited':null}]};
+			console.log($scope.group);
 		}
 		else
 		{

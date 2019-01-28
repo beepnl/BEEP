@@ -26,7 +26,7 @@ Route::get('admin', function(){
 });
 
 Route::get('info', function(){
-	return view(phpinfo());
+	return view('phpinfo');
 });
 
 // Hack for redirecting e-mail reset password link to webapp

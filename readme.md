@@ -104,7 +104,12 @@ b. Run ```./deploy.sh``` to update your clone on any server
 
 If you did not run ```./run_actions```, please do so, to install all the database tables and set up the default categorization.
 
-## 2. Set up valid e-mail credentials in the ```.env``` config file
+## 2. Set up valid credentials
+
+a. Set up e-mail credentials in the ```.env``` config file
+
+b. For the webapp to reach the API, rename the file 'public/webapp/js/constants.js.example' to 'public/webapp/js/constants.js' and edit it to change the 'api_url' to your own back-end API end-point
+
 
 ## 3. Register new user
 

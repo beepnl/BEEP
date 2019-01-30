@@ -1,3 +1,4 @@
 *
 !public/
 !.gitignore
+!new_taxonomy_tables.sql

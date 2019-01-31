@@ -91,6 +91,8 @@ Route::group(['middleware' => \Barryvdh\Cors\HandleCors::class], function()
 		Route::resource('productions',		'Api\ProductionController',				['except'=>['create','edit']]);
 		Route::resource('queens', 			'Api\QueenController',		 			['except'=>['create','edit']]);
 
+		Route::delete('groups/detach/{id}', 'Api\GroupController@detach');
+
 		Route::get('export',				'Api\ExportController@all');
 		
 	});

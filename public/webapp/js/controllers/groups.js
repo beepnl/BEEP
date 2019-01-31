@@ -211,15 +211,17 @@ app.controller('GroupsCtrl', function($scope, $rootScope, $window, $location, $f
 	$scope.detachGroup = function()
 	{
 		$scope.redirect = "/groups";
-		for(var user in $scope.group.users)
+		for(var id in $scope.group.users)
 		{
+			var user = $scope.group.users[id];
 			if (user.id == $rootScope.user.id)
 			{
+				console.log('detach user',user.id);
 				user.delete = true;
 				break;
 			}
 		}
-		$scope.saveGroup();
+		api.deleteApiRequest('detachGroup', 'groups/detach/'+$scope.group.id);
 	}
 
 	$scope.confirmDetachGroup = function()

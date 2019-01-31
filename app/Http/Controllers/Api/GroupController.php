@@ -122,6 +122,27 @@ class GroupController extends Controller
         return response()->json('no_group_found', 404);
     }
 
+    public function detach(Request $request, $id)
+    {
+        $this->detachFromGroup($request->user(), $request->user()->groups()->findOrFail($id));
+
+        return response()->json('no_group_found', 404);
+    }
+
+    private function detachFromGroup($user, $group)
+    {
+        $user_hive_ids       = $user->hives()->pluck('hives.id')->toArray();
+        $group_hive_ids      = $group->hives()->pluck('hives.id')->toArray();
+        $user_group_hive_ids = array_intersect($group_hive_ids, $user_hive_ids);
+        
+        //die(print_r(['user_hives'=>$user_hive_ids,'hives'=>$group_hive_ids, 'match'=>$user_group_hive_ids]));
+        
+        $group->hives()->detach($user_group_hive_ids);
+        $user->groups()->detach($group->id);
+        
+        // ToDo make next admin in group owner
+        return true;
+    }
 
     public function destroy(Request $request, $id)
     {
@@ -149,6 +170,7 @@ class GroupController extends Controller
         }
         return $group->hives()->sync($sync_ids);
     }
+
 
     private function syncUsers(Request $request, $group)
     {   
@@ -203,12 +225,7 @@ class GroupController extends Controller
                 {
                     if ($delete) // detach user and it's hives from the group
                     {
-                        $user_hive_ids       = $validUser->hives()->pluck('id');
-                        $group_hive_ids      = $group->hives()->pluck('id');
-                        $user_group_hive_ids = array_intersect($group_hive_ids, $user_hive_ids);
-                        //die(print_r(['user_hives'=>$user_hive_ids,'hives'=>$group->hives()->toArray()]));
-                        $group->hives()->detach($user_group_hive_ids);
-                        $validUser->groups()->detach($group->id);
+                        $this->detachFromGroup($validUser, $group);
                     }
                     else // update user
                     {

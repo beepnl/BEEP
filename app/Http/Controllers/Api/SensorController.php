@@ -427,7 +427,10 @@ class SensorController extends Controller
         $sensor_key = $data_array['key']; // save sensor data under sensor key
         $sensor     = Sensor::where('key', $sensor_key)->first();
         if(!$sensor)
-             return Response::json('No valid key provided', 401);
+        {
+            Storage::disk('local')->put('invalid_sensor.log', json_encode($sensor));
+            return Response::json('No valid key provided', 401);
+        }
 
         unset($data_array['key']);
 
@@ -717,8 +720,9 @@ class SensorController extends Controller
 
         if ($request->has('LrnDevEui'))
             $data_array['key'] = $request->input('LrnDevEui');
-        if (isset($data_obj['LrnDevEui'])) // KPN Simpoint msg
+        else if (isset($data_obj['LrnDevEui'])) // KPN Simpoint msg
             $data_array['key'] = $data_obj['LrnDevEui'];
+
         if (isset($data_obj['DevEUI_uplink']['LrrRSSI']))
             $data_array['rssi'] = $data_obj['DevEUI_uplink']['LrrRSSI'];
         if (isset($data_obj['DevEUI_uplink']['LrrSNR']))

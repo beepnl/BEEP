@@ -201,8 +201,13 @@ class GroupController extends Controller
                 // check if we need to invite
                 if ($alreadyIn)
                 {
-                    if ($delete)
+                    if ($delete) // detach user and it's hives from the group
                     {
+                        $user_hive_ids       = $validUser->hives()->pluck('id');
+                        $group_hive_ids      = $group->hives()->pluck('id');
+                        $user_group_hive_ids = array_intersect($group_hive_ids, $user_hive_ids);
+                        //die(print_r(['user_hives'=>$user_hive_ids,'hives'=>$group->hives()->toArray()]));
+                        $group->hives()->detach($user_group_hive_ids);
                         $validUser->groups()->detach($group->id);
                     }
                     else // update user
@@ -228,6 +233,8 @@ class GroupController extends Controller
                 //die(print_r(['invite_new_user'=>$email]));
                 if ($delete)
                     $invite_grp[$email] = $admin;
+                else
+                    $invite_new[$user['email']] = $user['name'];
             }
         }
         if (count($invite_grp) > 0)
@@ -242,7 +249,7 @@ class GroupController extends Controller
         }
         else if (count($invite_new) > 0)
         {
-            return ['message'=>'These users are not yet members of Beep: '.implode($invite_new, ', ')];
+            return ['error'=>'These users are not yet members of Beep: '.implode($invite_new, ', ')];
         }
         else if (count($updated_msg) > 0)
         {

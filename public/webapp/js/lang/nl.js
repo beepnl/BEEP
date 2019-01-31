@@ -386,6 +386,7 @@
     Users                   : 'Gebruikers',
     Member                  : 'Groepslid',
     Members                 : 'Groepsleden',
+    Invite                  : 'Uitnodigen',
     Invited                 : 'Uitgenodigd',
     Admin                   : 'Beheerder',
     Creator                 : 'Groep eigenaar',

@@ -241,7 +241,7 @@ app.controller('GroupsCtrl', function($scope, $rootScope, $window, $location, $f
 
 	$scope.groupsError = function(type, error)
 	{
-		$scope.error_msg = $rootScope.lang.empty_fields + (error.status == 422 ? ". Error: "+convertOjectToArray(error.message).join(', ') : '');
+		$scope.error_msg = error.status == 422 ? "Error: "+convertOjectToArray(error.message).join(', ') : $rootScope.lang.empty_fields+'.';
 	}
 
 	$scope.groupsMessage = function(type, data)

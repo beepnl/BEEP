@@ -382,6 +382,7 @@ LANG['de'] =
     Users                   : 'Benutzer',
     Member                  : 'Group member',
     Members                 : 'Group members',
+    Invite                  : 'Invite',
     Invited                 : 'Invited',
     Admin                   : 'Administrator',
     Creator                 : 'Group owner',

@@ -1,4 +1,4 @@
-app.directive('beepHiveGroup', ['$rootScope', function($rootScope) {
+app.directive('beepGroupHive', ['$rootScope', function($rootScope) {
     return {
       restrict: 'EA',
       template:

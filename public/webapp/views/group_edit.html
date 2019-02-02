@@ -5,7 +5,7 @@
     <div class="pull-right">
     	<div>
 	    	<a ng-if="group.id != undefined && group.creator" ng-click="confirmDeleteGroup()" class="btn btn-danger">{{lang.Delete}}</a>
-	    	<a ng-if="group.id != undefined && !group.admin && !group.creator" ng-click="confirmDetachGroup()" class="btn btn-danger">{{lang.Detach_from_group}}</a>
+	    	<a ng-if="group.id != undefined && !group.creator" ng-click="confirmDetachGroup()" class="btn btn-danger">{{lang.Detach_from_group}}</a>
 	    </div>
     </div>
   </h1>
@@ -78,7 +78,7 @@
 	<!-- Users -->
 	<div class="box collapsed-box" ng-if="group.admin || group.creator">
 	    <div class="box-header with-border">
-	      <h3 class="box-title">{{ lang.Members }}</h3>
+	      <h3 class="box-title">{{ lang.Members }} ({{ group.users.length }})</h3>
 
 	      <div class="box-tools pull-right">
 	        <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-plus"></i>
@@ -112,8 +112,8 @@
           <i class="fa fa-refresh fa-spin"></i>
         </div>
 
-        <div class="box-footer">
-        	<button ng-click="saveGroup(true)" class="btn btn-primary btn-block">{{lang.Invite}}</button>
+        <div class="box-footer" ng-if="deletedUser || addedUser">
+        	<button ng-click="saveGroup(true)" class="btn btn-primary btn-block">{{ addedUser && deletedUser ? lang.Save : addedUser ? lang.Invite : deletedUser ? lang.Delete : lang.save_and_return }}</button>
         </div>
 	    
 	</div>

@@ -20,6 +20,8 @@ app.controller('GroupsCtrl', function($scope, $rootScope, $window, $location, $f
 	$scope.selectedGroupIndex= 0;
 	$scope.orderName        = 'name';
 	$scope.orderDirection   = false;
+	$scope.addedUser 		= false;
+	$scope.deletedUser 		= false;
 
 	$scope.init = function()
 	{
@@ -33,28 +35,25 @@ app.controller('GroupsCtrl', function($scope, $rootScope, $window, $location, $f
 			if ($routeParams.token != undefined && $location.path().indexOf('/groups/') > -1 && $location.path().indexOf('/token/') > -1)
 			{
 				$rootScope.title = $rootScope.lang.Invitation_accepted;
-				$scope.redirect  = "/groups/"+$routeParams.groupId;
-				api.postApiRequest('checkToken', 'groups/checktoken', {'group_id':$routeParams.groupId, 'token':$routeParams.token});
-			} 
-			if ($routeParams.groupId != undefined || $location.path().indexOf('/groups/create') > -1)
+				$scope.checkToken($routeParams.token, $routeParams.groupId);
+			}
+			else if ($routeParams.groupId != undefined || $location.path().indexOf('/groups/create') > -1)
 			{
+				$scope.success_msg = $routeParams.success;
+
 				$scope.initGroups();
-				$rootScope.title = $rootScope.lang.Group;
 				if ($location.path().indexOf('/groups/create') > -1)
 				{
 					$scope.pageTitle = $rootScope.mobile ? $rootScope.lang.New + ' ' +$rootScope.lang.group : $rootScope.lang.create_new + ' ' +$rootScope.lang.group;
 				}
+				else
+				{
+					groups.loadRemoteGroups();
+				}
 			} 
 			else
 			{
-				if (groups.groups.length > 0)
-				{
-					$scope.initGroups();
-				}
-				else
-				{
-					$location.path('/groups');
-				}
+				groups.loadRemoteGroups();
 			}
 		}
 
@@ -70,11 +69,15 @@ app.controller('GroupsCtrl', function($scope, $rootScope, $window, $location, $f
 		}
 		$scope.showMore = $scope.groups.length > 1 ? true : false;
 		
+		if (groups.invitations.length > 0)
+		{
+			$scope.invitations = groups.invitations;
+		}
 		
 		if ($location.path().indexOf('/groups/create') > -1)
 		{
 			$scope.group = {'creator':true, 'name':$rootScope.lang.Group+' '+($scope.groups.length+1) ,'color':'', 'description':'', 'hives_selected':[], 'hives_editable':[], 'users':[{'name':$rootScope.user.name, 'email':$rootScope.user.email, 'admin':true, 'creator':true, 'invited':null}]};
-			console.log($scope.group);
+			//console.log($scope.group);
 		}
 		else
 		{
@@ -88,8 +91,16 @@ app.controller('GroupsCtrl', function($scope, $rootScope, $window, $location, $f
 		groups.toggle_open_group(group.id);
 	}
 
+	$scope.checkToken = function(token, groupId)
+	{
+		$scope.redirect    = "/groups/"+groupId+"/edit";
+		$scope.success_msg = $rootScope.lang.Invitation_accepted;
+		api.postApiRequest('checkToken', 'groups/checktoken', {'group_id':groupId, 'token':token});
+	}
+
 	$scope.addGroupUser = function()
     {
+        $scope.addedUser = true;
         $scope.group.users.push({'name':'', 'email':'', 'admin':false, 'creator':false});
     }
 
@@ -109,6 +120,9 @@ app.controller('GroupsCtrl', function($scope, $rootScope, $window, $location, $f
             u.delete = true;
         else
             u.delete = u.delete ? false : true;
+
+        if (u.delete == true)
+        	$scope.deletedUser = true;
     }
 
 
@@ -159,7 +173,7 @@ app.controller('GroupsCtrl', function($scope, $rootScope, $window, $location, $f
 
 	$scope.hiveFilter = function(a, b)
 	{
-		console.log(a,b);
+		//console.log(a,b);
 	}
 
 	$scope.setOrder = function(name)
@@ -210,22 +224,31 @@ app.controller('GroupsCtrl', function($scope, $rootScope, $window, $location, $f
 
 	$scope.detachGroup = function()
 	{
+		var detach = false;
 		$scope.redirect = "/groups";
+		var i = 0;
 		for(var id in $scope.group.users)
 		{
 			var user = $scope.group.users[id];
 			if (user.id == $rootScope.user.id)
 			{
-				console.log('detach user',user.id);
-				user.delete = true;
+				//console.log('detach user',user.id);
+				$scope.removeGroupUserByIndex(i);
+				detach = true;
 				break;
 			}
+			i++;
 		}
-		api.deleteApiRequest('detachGroup', 'groups/detach/'+$scope.group.id);
+		if (detach)
+		{
+			var group = groups.getGroupById($routeParams.groupId);
+			api.deleteApiRequest('detachGroup', 'groups/detach/'+$scope.group.id);
+		}
 	}
 
 	$scope.confirmDetachGroup = function()
 	{
+		$scope.redirect = "/groups";
 		$rootScope.showConfirm($rootScope.lang.Detach_from_group+'?', $scope.detachGroup);
 	}
 
@@ -255,13 +278,18 @@ app.controller('GroupsCtrl', function($scope, $rootScope, $window, $location, $f
 
 	$scope.groupChanged = function(type, data)
 	{
-		if ($scope.redirect != null && typeof data.message == 'undefined')
+		if ($scope.redirect != null && ( typeof data.message == 'undefined' || (data.message == 'group_detached' || data.message == 'group_activated')) )
 		{
 			$location.path($scope.redirect);
-			$scope.redirect = null;
+			if ($scope.success_msg != null)
+				$location.search('success', $scope.success_msg);
+
+			$scope.success_msg = null;
+			$scope.redirect    = null;
 		}
 	}
 
+	$scope.groupsDetachHandler 	= $rootScope.$on('detachGroupLoaded', $scope.groupChanged);
 	$scope.groupsDeleteError 	= $rootScope.$on('deleteGroupError', $scope.groupsError);
 	$scope.groupsSaveError 		= $rootScope.$on('saveGroupError', $scope.groupsError);
 	$scope.groupsDeleteHandler 	= $rootScope.$on('deleteGroupLoaded', $scope.groupChanged);
@@ -292,11 +320,14 @@ app.controller('GroupsCtrl', function($scope, $rootScope, $window, $location, $f
 	// remove references to the controller
     $scope.removeListeners = function()
     {
+		$scope.groupsDetachHandler();
 		$scope.groupsDeleteError();
 		$scope.groupsSaveError();
 		$scope.groupsDeleteHandler();
 		$scope.groupsSaveHandler();
+		$scope.groupsTokenHandler();
 		$scope.groupsHandler();
+		$scope.hivesHandler();
 		$scope.groupsErrorHandler();
 		$scope.groupsMessageHandler();
 		$scope.backListener();

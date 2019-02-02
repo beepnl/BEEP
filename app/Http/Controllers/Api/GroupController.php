@@ -20,7 +20,8 @@ class GroupController extends Controller
     public function index(Request $request, $code=200)
     {
         $groups = $request->user()->groups()->orderBy('name')->get();
-        return response()->json($groups, $code);
+        $invite = $request->user()->groupInvitations();
+        return response()->json(['invitations'=>$invite, 'groups'=>$groups], $code);
     }
 
     public function checktoken(Request $request)
@@ -124,9 +125,11 @@ class GroupController extends Controller
 
     public function detach(Request $request, $id)
     {
-        $this->detachFromGroup($request->user(), $request->user()->groups()->findOrFail($id));
+        $res = $this->detachFromGroup($request->user(), $request->user()->groups()->findOrFail($id));
+        if ($res)
+            return response()->json('group_detached', 200);
 
-        return response()->json('no_group_found', 404);
+        return response()->json('no_group_detached', 404);
     }
 
     private function detachFromGroup($user, $group)

@@ -127,22 +127,22 @@ app.config(['$routeProvider', '$locationProvider',  function($routeProvider)
   .when('/groups',
   {
       controller  : 'GroupsCtrl',
-      templateUrl : 'views/groups.html?v=1',
+      templateUrl : 'views/groups.html?v=2',
   })
   .when('/groups/create',
   {
       controller  : 'GroupsCtrl',
-      templateUrl : 'views/group_edit.html?v=1',
+      templateUrl : 'views/group_edit.html?v=2',
   })
   .when('/groups/:groupId/token/:token',
   {
       controller  : 'GroupsCtrl',
-      templateUrl : 'views/group_edit.html?v=1',
+      templateUrl : 'views/group_edit.html?v=2',
   })
   .when('/groups/:groupId/edit',
   {
       controller  : 'GroupsCtrl',
-      templateUrl : 'views/group_edit.html?v=1',
+      templateUrl : 'views/group_edit.html?v=2',
   })
   .when('/groups/:groupId/inspections',
   {

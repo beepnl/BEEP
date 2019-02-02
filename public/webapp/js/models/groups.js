@@ -13,30 +13,32 @@ app.service('groups', ['$http', '$rootScope', 'api', 'hives', function($http, $r
 	{
 		this.refreshCount 	  = 0;
 		this.groups		  	  = [];
+		this.invitations	  = [];
 		this.hives		  	  = [];
 		this.open_group_ids	  = [];
 	}
 
 	this.toggle_open_group = function(id)
 	{
-		var loc = self.getGroupById(id);
-		if (loc)
+		var group = self.getGroupById(id);
+		if (group)
 		{
-			loc.open = !loc.open;
+			group.open = !group.open;
 
-			if (loc.open && self.open_group_ids.indexOf(loc.id) == -1)
+			if (group.open && self.open_group_ids.indexOf(group.id) == -1)
 			{
-				self.open_group_ids.push(loc.id);
-				//console.log('open loc', loc.name, self.open_group_ids);
+				self.open_group_ids.push(group.id);
+				//console.log('open group', group.name, self.open_group_ids);
 			}
-			else if (self.open_group_ids.indexOf(loc.id) > -1)
+			else if (self.open_group_ids.indexOf(group.id) > -1)
 			{
-				var index = self.open_group_ids.indexOf(loc.id)
+				var index = self.open_group_ids.indexOf(group.id)
 				self.open_group_ids.splice(index, 1);
-				//console.log('close loc', loc.name, self.open_group_ids);
+				//console.log('close group', group.name, self.open_group_ids);
 			}
 			api.setLocalStoreValue('open_group_ids', self.open_group_ids.join(','));
 		}
+		//console.log('open_group_ids', self.open_group_ids);
 		self.refresh();
 	}
 
@@ -94,11 +96,15 @@ app.service('groups', ['$http', '$rootScope', 'api', 'hives', function($http, $r
 		if (typeof result.message != 'undefined')
 			return $rootScope.$broadcast('groupsMessage', result);
 
-		if (result != null && result.length > 0)
-			self.groups = result;
-		
+		if (result != null && typeof result.groups != 'undefined')
+			self.groups = result.groups;
+
+		if (result != null && typeof result.invitations != 'undefined')
+			self.invitations = result.invitations;
+
 		var group_ids = [];
 		var open_group_ids = api.getLocalStoreValue('open_group_ids');
+		//console.log('open_group_ids', open_group_ids);
 
 		if (open_group_ids != null)
 		{

@@ -1,6 +1,11 @@
 <section class="content-header">
   <h1>
     {{lang.sensors_title}}
+    <div class="pull-right">
+	    <div>
+  			<a ng-click="addSensor()" class="btn btn-primary pull-right"><i class="fa fa-plus"></i> {{mobile ? lang.New : lang.create_new}} {{lang.sensor}}</a>
+  		</div>
+  	</div>
   </h1>
   <!-- <ol class="breadcrumb">
     <li><a href="/"><i class="fa fa-home"></i> Home</a></li>
@@ -51,7 +56,6 @@
 			    		</tr>
 		    		</thead>
 		    		<tbody>
-		    			<tr><td colspan="7"><a ng-click="addSensor()" class="btn btn-primary pull-right"><i class="fa fa-plus"></i> {{mobile ? lang.New : lang.create_new}} {{lang.sensor}}</a></td></tr>
 						<tr sensor="sensor" index="i" hives="hives" ng-class="{'delete':sensor.delete}" sensortypes="sensortypes" change="selectSensorHive" changetype="selectSensorType" delete="deleteSensor" ng-repeat="(i, sensor) in sensors track by i" beep-sensor></tr>
 					</tbody>
 				</table>

@@ -2522,6 +2522,34 @@ ALTER TABLE `checklist_category`
 ALTER TABLE `translations`
   ADD CONSTRAINT `translations_language_id_foreign` FOREIGN KEY (`language_id`) REFERENCES `languages` (`id`) ON UPDATE CASCADE;
 
+
+DROP TABLE IF EXISTS `continents`;
+
+CREATE TABLE `continents` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `name` text COLLATE utf8_unicode_ci,
+  `abbr` char(2) COLLATE utf8_unicode_ci DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `continents_id_index` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
+LOCK TABLES `continents` WRITE;
+/*!40000 ALTER TABLE `continents` DISABLE KEYS */;
+
+INSERT INTO `continents` (`id`, `name`, `abbr`)
+VALUES
+  (1,'Africa','af'),
+  (2,'Antarctica','an'),
+  (3,'Asia','as'),
+  (4,'Europe','eu'),
+  (5,'North America','na'),
+  (6,'Oceania','oc'),
+  (7,'South and Central America','sa');
+
+/*!40000 ALTER TABLE `continents` ENABLE KEYS */;
+UNLOCK TABLES;
+
+
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;

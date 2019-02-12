@@ -389,7 +389,7 @@ LANG['de'] =
     Creator                 : 'Group owner',
     Groups                  : 'Kooperieren',
     Group                   : 'Collaboration group',
-    group                   : 'collabiration group',
+    group                   : 'collaboration group',
     to_share                : 'to share with this group. 1 click = group members can view only, 2 clicks = group members can edit',
     Invitation_accepted     : 'Invitation accepted',
     Accept                  : 'Accept',

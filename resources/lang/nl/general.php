@@ -77,5 +77,6 @@ return [
     'Icon'          => 'Icoon',
     'No'            => 'Nee',
     'Yes'           => 'Ja',
+    'Measurements'  => 'Sensormetingen',
 
 ];

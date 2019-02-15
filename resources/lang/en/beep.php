@@ -32,4 +32,6 @@ return [
     'Webapp'            => 'Web app',
     'language'          => 'language',
     'required_in_inspection' => 'Required in inspection',
+    'Measurement'       => 'Measurement',
+    'measurement'       => 'sensor measurement',
 ];

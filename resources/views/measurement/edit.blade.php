@@ -1,18 +1,19 @@
 @extends('layouts.app')
 
-@section('page-title') {{ __('crud.create', ['item'=>__('beep.physicalquantity')]) }}
+@section('page-title') {{ __('crud.edit').' '.__('beep.measurement').': '.(isset($measurement->name) ? $measurement->name : '') }}
 @endsection
 
 @section('content')
     @component('components/box')
         @slot('title')
-            {{ __('crud.create', ['item'=>__('beep.physicalquantity')]) }}
+            {{ __('crud.edit').' '.__('crud.attributes') }}
         @endslot
 
         @slot('bodyClass')
         @endslot
 
         @slot('body')
+
 
             @if ($errors->any())
                 <ul class="alert alert-danger">
@@ -22,14 +23,16 @@
                 </ul>
             @endif
 
-            <form method="POST" action="{{ route('physicalquantity.store') }}" accept-charset="UTF-8" class="form-horizontal" enctype="multipart/form-data">
+            <form method="POST" action="{{ route('measurement.update',$measurement->id) }}" accept-charset="UTF-8" class="form-horizontal" enctype="multipart/form-data">
+                
+                {{ method_field('PATCH') }}
                 {{ csrf_field() }}
 
-                @include ('physicalquantity.form')
+                @include ('measurement.form', ['submitButtonText' => 'Update'])
 
             </form>
 
 
-        @endslot
+      @endslot
     @endcomponent
 @endsection

@@ -18,90 +18,20 @@ use App\Http\Requests\PostSensorRequest;
 class SensorController extends Controller
 {
     protected $respose;
-    protected $valid_sensors = [
-            't'         => 'temperature',
-            'h'         => 'humidity',
-            'p'         => 'air_pressure',
-            'w'         => 'weight_sum',
-            'l'         => 'light',
-            'bv'        => 'bat_volt',
-            'w_v'       => 'weight_combined_kg',
-            'w_fl'      => 'weight_front_left',
-            'w_fr'      => 'weight_front_right',
-            'w_bl'      => 'weight_back_left',
-            'w_br'      => 'weight_back_right',
-            's_fan_4'   => 'sound_fanning_4days',
-            's_fan_6'   => 'sound_fanning_6days',
-            's_fan_9'   => 'sound_fanning_9days',
-            's_fly_a'   => 'sound_flying_adult',
-            's_tot'     => 'sound_total',
-            't_i'       => 'temp_inside',
-            'bc_i'      => 'bee_count_in',
-            'bc_o'      => 'bee_count_out',
-            'weight_kg' => 'weight_kg',
-            'weight_kg_corrected' => 'weight_kg_corrected',
-            'rssi'      => 'rssi',
-            'snr'       => 'snr',
-            'lat'       => 'lat',
-            'lon'       => 'lon',
-            's_bin098_146Hz' => '098_146Hz',
-            's_bin146_195Hz' => '146_195Hz',
-            's_bin195_244Hz' => '195_244Hz',
-            's_bin244_293Hz' => '244_293Hz',
-            's_bin293_342Hz' => '293_342Hz',
-            's_bin342_391Hz' => '342_391Hz',
-            's_bin391_439Hz' => '391_439Hz',
-            's_bin439_488Hz' => '439_488Hz',
-            's_bin488_537Hz' => '488_537Hz',
-            's_bin537_586Hz' => '537_586Hz',    
-            'calibrating_weight' => 'calibrating_weight',
-            'w_fl_kg_per_val'    => 'w_fl_kg_per_val',    
-            'w_fr_kg_per_val'    => 'w_fr_kg_per_val',    
-            'w_bl_kg_per_val'    => 'w_bl_kg_per_val',    
-            'w_br_kg_per_val'    => 'w_br_kg_per_val',    
-            'w_fl_offset'        => 'w_fl_offset',    
-            'w_fr_offset'        => 'w_fr_offset',    
-            'w_bl_offset'        => 'w_bl_offset',    
-            'w_br_offset'        => 'w_br_offset',  
-    ];
-    protected $output_sensors = [
-            't',
-            'h',
-            'p',
-            'l',
-            'bv',
-            's_fan_4',
-            's_fan_6',
-            's_fan_9',
-            's_fly_a',
-            's_tot',
-            't_i',
-            'bc_i',
-            'bc_o',
-            'weight_kg',
-            'weight_kg_corrected',
-            'rssi',
-            'snr',
-            'lat',
-            'lon',
-            's_bin098_146Hz',
-            's_bin146_195Hz',
-            's_bin195_244Hz',
-            's_bin244_293Hz',
-            's_bin293_342Hz',
-            's_bin342_391Hz',
-            's_bin391_439Hz',
-            's_bin439_488Hz',
-            's_bin488_537Hz',
-            's_bin537_586Hz',     
-        ];
+    protected $valid_sensors = [];
+    protected $output_sensors = [];
     protected $precision   = 's';
     protected $timeFormat  = 'Y-m-d H:i:s';
     protected $maxDataPoints = 5000;
  
+    public function __construct()
+    {
+        $this->valid_sensors  = Measurement::all()->pluck('pq', 'abbreviation')->toArray();
+        $this->output_sensors = Measurement::where('show_in_charts', '=', 1)->pluck('abbreviation')->toArray();
+        //die(print_r($this->valid_sensors));
+    }
    
     // Sensor crud functions
-
     public function index(Request $request)
     {
         $sensor_amount = $request->user()->sensors()->count();

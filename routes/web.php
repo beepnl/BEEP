@@ -103,6 +103,7 @@ Route::group(
 				Route::resource('physicalquantity', 'PhysicalQuantityController');
 				Route::resource('categoryinputs', 	'CategoryInputsController');
 				Route::resource('inspection-items', 'InspectionItemsController');
+				Route::resource('measurement', 		'MeasurementController');
 
 				Route::resource('categories', 		'CategoriesController');
 				Route::delete('categories/{id}/pop',['as'=>'categories.pop','uses'=>'CategoriesController@pop','middleware' => ['permission:taxonomy-delete']]);

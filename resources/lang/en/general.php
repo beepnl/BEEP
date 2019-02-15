@@ -77,5 +77,5 @@ return [
     'Icon'          => 'Icon',
     'No'            => 'No',
     'Yes'           => 'Yes',
-
+    'Measurements'  => 'Sensor measurements',
 ];

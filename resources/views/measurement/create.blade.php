@@ -1,12 +1,12 @@
 @extends('layouts.app')
 
-@section('page-title') {{ __('crud.create', ['item'=>__('beep.physicalquantity')]) }}
+@section('page-title') {{ __('crud.create', ['item'=>__('beep.measurement')]) }}
 @endsection
 
 @section('content')
     @component('components/box')
         @slot('title')
-            {{ __('crud.create', ['item'=>__('beep.physicalquantity')]) }}
+            {{ __('crud.create', ['item'=>__('beep.measurement')]) }}
         @endslot
 
         @slot('bodyClass')
@@ -22,10 +22,10 @@
                 </ul>
             @endif
 
-            <form method="POST" action="{{ route('physicalquantity.store') }}" accept-charset="UTF-8" class="form-horizontal" enctype="multipart/form-data">
+            <form method="POST" action="{{ route('measurement.store') }}" accept-charset="UTF-8" class="form-horizontal" enctype="multipart/form-data">
                 {{ csrf_field() }}
 
-                @include ('physicalquantity.form')
+                @include ('measurement.form')
 
             </form>
 

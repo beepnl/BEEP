@@ -121,8 +121,7 @@ app.controller('GroupsCtrl', function($scope, $rootScope, $window, $location, $f
         else
             u.delete = u.delete ? false : true;
 
-        if (u.delete == true)
-        	$scope.deletedUser = true;
+       	$scope.deletedUser = u.delete;
     }
 
 

@@ -546,7 +546,8 @@ input.rn-stepper{
 .group-title{
 	display: inline-block;
 	margin-left: 10px;
-	height: 30px;
+	max-width: 80%;
+	max-height: 60px;
 	vertical-align: top;
 }
 

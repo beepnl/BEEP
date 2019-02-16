@@ -7,6 +7,7 @@ use App\User;
 use App\Sensor;
 use App\Setting;
 use App\Category;
+use App\Measurement;
 // use App\Transformer\SensorTransformer;
 use Validator;
 use InfluxDB;

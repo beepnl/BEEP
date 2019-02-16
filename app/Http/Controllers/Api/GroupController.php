@@ -66,6 +66,13 @@ class GroupController extends Controller
 
     public function store(Request $request)
     {
+        $userExist = $this->checkIfUsersExist($request);
+        if (gettype($userExist) == 'array')
+        {
+            if (isset($userExist['error']))
+                return response()->json($userExist, 422);
+        }
+
         $requestData = $request->only(['name','description','hex_color']);
         $group       = Group::create($requestData);
         $request->user()->groups()->attach($group, ['creator'=>true,'admin'=>true,'accepted'=>now()]);
@@ -98,6 +105,13 @@ class GroupController extends Controller
 
     public function update(Request $request, $id)
     {
+        $userExist = $this->checkIfUsersExist($request);
+        if (gettype($userExist) == 'array')
+        {
+            if (isset($userExist['error']))
+                return response()->json($userExist, 422);
+        }
+
         $requestData = $request->only(['id','name','description','hex_color']);
         $group = $request->user()->groups()->find($id);
 
@@ -174,6 +188,30 @@ class GroupController extends Controller
         return $group->hives()->sync($sync_ids);
     }
 
+
+    private function checkIfUsersExist(Request $request)
+    {
+        $users      = $request->input('users');
+        $error_msg  = [];
+        foreach ($users as $i => $user) 
+        {
+            $validUser = null;
+            $user_id   = '';
+            
+            if (isset($user['email']))
+            {
+                $validUser = User::where('email',$user['email'])->first();
+                if (!isset($validUser))
+                    $error_msg[] = $user['email'];
+            }
+        }
+
+        if (count($error_msg) > 0)
+        {
+            return ['error'=>__('group.email_na').implode($error_msg, ', ')];
+        }
+        return true;
+    }
 
     private function syncUsers(Request $request, $group)
     {   
@@ -265,15 +303,15 @@ class GroupController extends Controller
                 Mail::to($email)->send(new GroupInvitation($group, $name, $admin, $user['token']));
                 $emails[] = $email;
             }
-            return ['message'=>'Invited: '.implode($emails, ', ')];
+            return ['message'=>__('group.Invited').implode($emails, ', ')];
         }
         else if (count($invite_new) > 0)
         {
-            return ['error'=>'These users are not yet members of Beep: '.implode($invite_new, ', ')];
+            return ['error'=>__('group.email_na').implode($invite_new, ', ')];
         }
         else if (count($updated_msg) > 0)
         {
-            return ['message'=>'Updated: '.implode($updated_msg, ', ')];
+            return ['message'=>__('group.Updated').implode($updated_msg, ', ')];
         }
         else if (count($error_msg) > 0)
         {

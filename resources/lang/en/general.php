@@ -78,4 +78,5 @@ return [
     'No'            => 'No',
     'Yes'           => 'Yes',
     'Measurements'  => 'Sensor measurements',
+    'Error'         => 'Error',
 ];

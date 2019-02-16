@@ -401,6 +401,7 @@
     invitee_name            : 'Naam genodigde',
     Remove_group            : 'Weet u zeker dat u deze gedeelde groep voor alle leden wilt verwijderen',
     Detach_from_group       : 'Verwijder mij en mijn kasten uit deze groep',
+    my_hive                 : 'Mijn kast',
 
  };
 

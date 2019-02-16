@@ -115,6 +115,10 @@
 					</fieldset>
 				</div>
 
+				<div class="overlay" ng-if="loading">
+		          <i class="fa fa-refresh fa-spin"></i>
+		        </div>
+				
 				<div class="box-footer">
 					<div class="alert alert-danger" ng-show="error_msg != null">
                         <p>{{ error_msg }}</p>
@@ -122,9 +126,6 @@
 				    <button ng-click="saveLocation()" class="btn btn-primary btn-block">{{lang.save}}</button>
 				</div>
 
-				<div class="overlay" ng-if="loading">
-		          <i class="fa fa-refresh fa-spin"></i>
-		        </div>
 			</div>
 
 		</form>

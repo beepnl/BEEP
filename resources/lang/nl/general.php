@@ -78,5 +78,6 @@ return [
     'No'            => 'Nee',
     'Yes'           => 'Ja',
     'Measurements'  => 'Sensormetingen',
+    'Error'         => 'Fout',
 
 ];

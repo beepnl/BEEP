@@ -13,5 +13,8 @@ return [
     'Dear'          => 'Dear',
     'accepted'      => 'accepted to join',
     'subject_accept'=> 'Group acceptation',
+    'email_na'      => 'These e-mail addresses are not yet members of Beep: ',
+    'Invited'       => 'Invited: ',
+    'Updated'       => 'Updated: ',
 
 ];

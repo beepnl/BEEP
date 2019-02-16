@@ -386,11 +386,27 @@
     the_field               : 'The',
     is_required             : 'is required',
 
+    No_groups               : 'No groups available',
+    not_available_yet       : 'not yet available. Please create the first one here.',
     Users                   : 'Users',
+    Member                  : 'Group member',
+    Members                 : 'Group members',
+    Invite                  : 'Invite',
+    Invited                 : 'Invited',
+    invitations             : 'invitations',
+    Admin                   : 'Administrator',
+    Creator                 : 'Group owner',
     Groups                  : 'Collaborate',
     Group                   : 'Collaboration group',
     group                   : 'collaboration group',
     to_share                : 'to share with this group. 1 click = group members can view only, 2 clicks = group members can edit',
+    Invitation_accepted     : 'Invitation accepted',
+    Accept                  : 'Accept',
+    My_shared               : 'My shared',
+    invitee_name            : 'Invitee name',
+    Remove_group            : 'Are you sure you want to competely remove this shared group for all it\'s members',
+    Detach_from_group       : 'Remove me and my hives from this group',
+    my_hive                 : 'My hive',
 
  };
 

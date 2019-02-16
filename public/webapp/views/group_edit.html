@@ -16,13 +16,9 @@
 </section>
 
 <section class="content" >
-	
+
 	<div class="alert alert-success" ng-show="success_msg != null">
         <p>{{ success_msg }}</p>
-    </div>
-
-	<div class="alert alert-danger" ng-show="error_msg != null">
-        <p>{{ error_msg }}</p>
     </div>
 
 	<!-- Settings -->
@@ -69,9 +65,9 @@
           <i class="fa fa-refresh fa-spin"></i>
         </div>
 
-        <div class="box-footer">
+       <!--  <div class="box-footer">
         	<button ng-click="saveGroup(true)" class="btn btn-primary btn-block">{{lang.save_and_return}}</button>
-        </div>
+        </div> -->
 	</div>
 
 
@@ -112,9 +108,9 @@
           <i class="fa fa-refresh fa-spin"></i>
         </div>
 
-        <div class="box-footer" ng-if="deletedUser || addedUser">
-        	<button ng-click="saveGroup(true)" class="btn btn-primary btn-block">{{ addedUser && deletedUser ? lang.Save : addedUser ? lang.Invite : deletedUser ? lang.Delete : lang.save_and_return }}</button>
-        </div>
+       <!--  <div class="box-footer" ng-if="deletedUser || addedUser">
+        	<button ng-click="saveGroup(true)" class="btn btn-primary btn-block">{{ addedUser && deletedUser ? lang.save : addedUser ? lang.Invite : deletedUser ? lang.Delete : lang.save_and_return }}</button>
+        </div> -->
 	    
 	</div>
 
@@ -153,10 +149,16 @@
           <i class="fa fa-refresh fa-spin"></i>
         </div>
 
-        <div class="box-footer">
+        <!-- <div class="box-footer">
         	<button ng-click="saveGroup(true)" class="btn btn-primary btn-block">{{lang.save_and_return}}</button>
-        </div>
+        </div> -->
 	    
 	</div>
+
+	<div class="alert alert-danger" ng-show="error_msg != null">
+        <p>{{ error_msg }}</p>
+    </div>
+
+	<button ng-click="saveGroup(true)" class="btn btn-primary btn-block">{{lang.save}}</button>
 
 </section>

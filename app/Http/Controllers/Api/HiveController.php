@@ -57,13 +57,14 @@ class HiveController extends Controller
 
         $hive = $this->hiveFactory->createHive($user_id, $location, $name, $hive_type_id, $color, $broodLayerAmount, $honeyLayerAmount, $frameAmount);
 
-        if ($request->input('queen.created_at') != null)
+        if ($request->filled('queen.race_id'))
         {
             $race_id = Category::findCategoryIdByParentAndName('subspecies', 'other');
+            $date  = $request->filled('queen.created_at') ? $request->input('queen.created_at') : date("Y-m-d");
             $queen = [
                     'name'          =>$request->input('queen.name'),
                     'race_id'       =>$request->input('queen.race_id', $race_id),
-                    'created_at'    =>$request->input('queen.created_at').' 00:00:00',
+                    'created_at'    =>$date.' 00:00:00',
                     'color'         =>$request->input('queen.color'),
                     'clipped'       =>boolval($request->input('queen.clipped')),
                     'fertilized'    =>boolval($request->input('queen.fertilized')),
@@ -107,13 +108,14 @@ class HiveController extends Controller
 
         $hive = $this->hiveFactory->updateHive($hive, $location, $name, $hive_type_id, $color, $broodLayerAmount, $honeyLayerAmount, $frameAmount);
 
-        if ($request->input('queen.created_at') != null)
+        if ($request->filled('queen.race_id'))
         {
             $race_id = Category::findCategoryIdByParentAndName('subspecies', 'other');
+            $date  = $request->filled('queen.created_at') ? $request->input('queen.created_at') : date("Y-m-d");
             $queen = [
                     'name'          =>$request->input('queen.name'),
                     'race_id'       =>$request->input('queen.race_id', $race_id),
-                    'created_at'    =>$request->input('queen.created_at').' 00:00:00',
+                    'created_at'    =>$date.' 00:00:00',
                     'color'         =>$request->input('queen.color'),
                     'clipped'       =>boolval($request->input('queen.clipped')),
                     'fertilized'    =>boolval($request->input('queen.fertilized')),

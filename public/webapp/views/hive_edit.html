@@ -36,7 +36,7 @@
 	    	<dl class="dl-horizontal">
 	    		<dt>{{lang.Location}}*</dt>
 	    		<dd>
-	    			<select ng-if="hive.id == undefined || hive.owner" ng-model="hive_loc" ng-options="item as item.name for item in locations  | orderBy:'name' track by item.id" type="select" class="form-control" required="required">
+	    			<select ng-if="hive.id == undefined || hive.owner" ng-model="hive_loc" ng-options="item as item.name for item in locations  | orderBy:'name' track by item.id" type="select" class="form-control" ng-change="selectLocation(hive_loc)" required="required">
 	    				<option value=''>{{lang.Select}} {{lang.location}}...</option>
 	    			</select>
 	    			<input ng-if="hive.id != undefined && !hive.owner" ng-value="hive.location" ng-disabled="true" type="text" class="form-control">
@@ -46,7 +46,7 @@
 	    	<dl class="dl-horizontal">
 	    		<dt>{{lang.Type}}*</dt>
 	    		<dd>
-	                <select ng-model="hive_type" ng-options="item as item.trans[locale] group by item.group[locale] for item in hivetypes | orderBy:transSort track by item.id" type="select" class="form-control" required="required">
+	                <select ng-model="hive_type" ng-options="item as item.trans[locale] group by item.group[locale] for item in hivetypes | orderBy:transSort track by item.id" type="select" class="form-control" ng-change="selectHiveType(hive_type)"  required="required">
 	                	<option value=''>{{lang.Select}} {{lang.Hive_type}}...</option>
 	                </select>
 	            </dd>
@@ -117,7 +117,7 @@
 	    	<dl class="dl-horizontal">
 	    		<dt>{{lang.Bee_race}}</dt>
 	    		<dd>
-    				<select ng-model="bee_race" ng-options="item as item.trans[locale] for item in beeraces | orderBy:transSort track by item.id" type="select" class="form-control">
+    				<select ng-model="bee_race" ng-options="item as item.trans[locale] for item in beeraces | orderBy:transSort track by item.id" type="select" ng-change="selectBeeRace(bee_race)" class="form-control">
     					<option value=''>{{lang.Select}} {{lang.Bee_race}}...</option>
     				</select>
 	            </dd>

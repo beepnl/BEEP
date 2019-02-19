@@ -102,14 +102,10 @@ app.controller('HivesCtrl', function($scope, $rootScope, $window, $location, $fi
 		{
 			$scope.hive_loc   = {id:parseInt($routeParams.location_id)};
 		}
-		else
-		{
-			$scope.hive_loc    = {id:1};
-		}
 
 		if ($location.path().indexOf('/hives/create') > -1)
 		{
-			$scope.hive = {'location_id':$scope.hive_loc.id, 'name':$rootScope.lang.Hive+' '+($scope.hives.length+1) ,'color':'', 'hive_type_id':'', 'brood_layers':1, 'honey_layers':1, 'frames':10, 'queen':{}};
+			$scope.hive = {'location_id': $scope.hive_loc != null ? $scope.hive_loc.id : null, 'name':$rootScope.lang.Hive+' '+($scope.hives.length+1) ,'color':'', 'hive_type_id':'', 'brood_layers':1, 'honey_layers':1, 'frames':10, 'queen':{}};
 			//console.log($scope.hive);
 		}
 		else
@@ -192,6 +188,19 @@ app.controller('HivesCtrl', function($scope, $rootScope, $window, $location, $fi
 		$scope.initHives();
 	};
 
+	$scope.selectLocation = function(item)
+	{
+		$scope.hive.location_id = item.id;
+	}
+	$scope.selectHiveType = function(item)
+	{
+		$scope.hive.hive_type_id = item.id;
+	}
+	$scope.selectBeeRace = function(item)
+	{
+		$scope.hive.queen.race_id = item.id;
+	}
+
 	$scope.loadHiveIndex = function()
 	{
 		$scope.hive	= hives.getHiveById($routeParams.hiveId);
@@ -220,9 +229,9 @@ app.controller('HivesCtrl', function($scope, $rootScope, $window, $location, $fi
 		    $scope.$watch('hive.honey_layers', function(o,n){ if (n != o) $scope.layersChange(o-n, 'honey') });
 			$scope.$watch('hive.frames', 	   function(o,n){ if (n != o) $scope.framesChange(o-n) });
 			$scope.$watch('hive.queen.created_at', function(o,n){ if (n != o) $scope.queenBirthColor(true) });
-			$scope.$watch('hive_loc', function(o,n){ if (n != o && $scope.hive_loc != null) $scope.hive.location_id = $scope.hive_loc.id });
-			$scope.$watch('hive_type', function(o,n){ if (n != o && $scope.hive_type != null) $scope.hive.hive_type_id = $scope.hive_type.id; });
-			$scope.$watch('bee_race', function(o,n){ if (n != o && $scope.bee_race != null) $scope.hive.queen.race_id = $scope.bee_race.id });
+			// $scope.$watch('hive_loc', function(o,n){ if (n != o && $scope.hive_loc != null) $scope.hive.location_id = $scope.hive_loc.id });
+			// $scope.$watch('hive_type', function(o,n){ if (n != o && $scope.hive_type != null) $scope.hive.hive_type_id = $scope.hive_type.id; });
+			//$scope.$watch('bee_race', function(o,n){ if (n != o && $scope.bee_race != null) $scope.hive.queen.race_id = $scope.bee_race.id });
 		}
 	}
 

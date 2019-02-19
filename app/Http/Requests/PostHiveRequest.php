@@ -25,8 +25,11 @@ class PostHiveRequest extends Request {
 	{
 		return [
 			'name' 					=> 'required|string',
-            'location_id' 			=> 'required|exists:locations,id',
+            'location_id' 			=> 'required|integer|exists:locations,id',
 			'hive_type_id'			=> 'nullable|integer|exists:categories,id',
+			'queen.race_id'			=> 'nullable|integer|exists:categories,id',
+			'queen.created_at'		=> 'nullable|date',
+			'queen.name'			=> 'nullable|string',
 		];
 	}
 

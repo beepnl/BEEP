@@ -17,6 +17,11 @@ a {
 	cursor: pointer;
 }
 
+.input-group.date input{
+	color: transparent;
+	text-shadow: 0 0 0 #555;
+}
+
 .header-spacer{
 	display: block;
 	width: 100%;

@@ -138,7 +138,7 @@
 	    		<dt>{{loc.name}}</dt>
 	    		<dd>
 	    			<div class="hives-container selection">
-		    			<div hive="hive" selecthive="selectGroupHive" selectedids="group.hives_selected" editableids="group.hives_editable" ng-repeat="(j, hive) in loc.hives track by j" beep-hive-selector></div>
+		    			<div hive="hive" selecthive="selectGroupHive" selectedids="group.hives_selected" editableids="group.hives_editable" ng-repeat="(j, hive) in loc.hives | orderBy:'name':false:natSort track by j" beep-hive-selector></div>
 		    		</div>
 	    		</dd>
 	    	</dl>

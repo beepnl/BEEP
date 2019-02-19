@@ -52,6 +52,7 @@ app.controller('InspectionCreateCtrl', function($scope, $rootScope, $window, $lo
 				$scope.inspection_id = $routeParams.inspectionId;
 				inspections.loadRemoteInspection($routeParams.inspectionId);
 			}
+			console.log('init-inspection', $scope.inspection);
 		}
 	};
 
@@ -88,7 +89,9 @@ app.controller('InspectionCreateCtrl', function($scope, $rootScope, $window, $lo
 
 	$scope.inspectionGeneralItem = function(type, id, value, items)
 	{
+		console.log('inspectionGeneralItem', type, id, value, items);
 		inspections.createInspectionObject(type, id, value, items);
+		console.log('inspection', $scope.inspection);
 	}
 
 	$scope.renderSliders = function()

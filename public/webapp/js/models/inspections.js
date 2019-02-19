@@ -60,7 +60,7 @@ app.service('inspections', ['$http', '$rootScope', 'api', 'settings', function($
 		'grade': 0,
 	}
 	
-	this.newSaveObject = function(data)
+	this.newSaveObject = function(data, init=false)
 	{
 		self.saveObject = 
 		{
@@ -81,7 +81,15 @@ app.service('inspections', ['$http', '$rootScope', 'api', 'settings', function($
 			//console.log('newSaveObject checklist cloned');
 		}
 
-		if (typeof data != 'undefined')
+		if (init) // initialize first
+		{
+			self.createInspectionObject('impression', null, -1, false);
+			self.createInspectionObject('attention', null, -1, false);
+			self.createInspectionObject('reminder', null, '', false);
+			self.createInspectionObject('notes', null, '', false);
+		}
+
+		if (typeof data != 'undefined' && data != null)
 		{
 			//console.log('newSaveObject filling checklist with available data');
 			if (typeof data.impression != 'undefined' && data.impression != null)
@@ -127,7 +135,7 @@ app.service('inspections', ['$http', '$rootScope', 'api', 'settings', function($
 			}
 		}
 
-		console.log('newSaveObject', self.saveObject.date);
+		console.log('newSaveObject', self.saveObject);
 		return self.saveObject;
 	}
 

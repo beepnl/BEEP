@@ -421,14 +421,17 @@ class SensorController extends Controller
     private function storeMeasurements($data_array)
     {
         if (!in_array('key', array_keys($data_array)) || $data_array['key'] == '' || $data_array['key'] == null)
+        {
+            Storage::disk('local')->put('sensors/sensor_no_key.log', json_encode($sensor));
             return Response::json('No key provided', 400);
+        }
 
         // Check if key is valid
         $sensor_key = $data_array['key']; // save sensor data under sensor key
         $sensor     = Sensor::where('key', $sensor_key)->first();
         if(!$sensor)
         {
-            Storage::disk('local')->put('invalid_sensor.log', json_encode($sensor));
+            Storage::disk('local')->put('sensors/sensor_invalid_key.log', json_encode($sensor));
             return Response::json('No valid key provided', 401);
         }
 
@@ -457,6 +460,7 @@ class SensorController extends Controller
         } 
         else
         {
+            Storage::disk('local')->put('sensors/sensor_write_error.log', json_encode($data_array));
             return Response::json('sensor-write-error', 500);
         }
     }
@@ -752,8 +756,9 @@ class SensorController extends Controller
         }        
 
         //die(print_r($data_array));
+        $logFileName = isset($data_array['key']) ? 'lora_sensor_'.$data_array['key'].'.json' : 'lora_sensor_no_key.json';
+        Storage::disk('local')->put('sensors/'.$logFileName, '["lora_object":'.json_encode($data_obj).',"data_array":'.json_encode($data_array).']');
 
-        Storage::disk('local')->put('lora_sensors.log', '['.json_encode($data_obj).','.json_encode($data_array).']');
         return $this->storeMeasurements($data_array);
     }
 

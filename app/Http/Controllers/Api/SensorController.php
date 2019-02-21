@@ -248,7 +248,7 @@ class SensorController extends Controller
 
         for ($i=0; $i < $limit; $i++) 
         { 
-            if (isset($output[$i]))
+            if (isset($output[$i]) && gettype($output[$i]) == 'array')
             {
                 foreach ($output[$i] as $key => $val) 
                 {
@@ -422,7 +422,7 @@ class SensorController extends Controller
     {
         if (!in_array('key', array_keys($data_array)) || $data_array['key'] == '' || $data_array['key'] == null)
         {
-            Storage::disk('local')->put('sensors/sensor_no_key.log', json_encode($sensor));
+            Storage::disk('local')->put('sensors/sensor_no_key.log', json_encode($data_array));
             return Response::json('No key provided', 400);
         }
 
@@ -431,7 +431,7 @@ class SensorController extends Controller
         $sensor     = Sensor::where('key', $sensor_key)->first();
         if(!$sensor)
         {
-            Storage::disk('local')->put('sensors/sensor_invalid_key.log', json_encode($sensor));
+            Storage::disk('local')->put('sensors/sensor_invalid_key.log', json_encode($data_array));
             return Response::json('No valid key provided', 401);
         }
 
@@ -723,9 +723,20 @@ class SensorController extends Controller
         //die(print_r($data_obj));
 
         if ($request->has('LrnDevEui'))
-            $data_array['key'] = $request->input('LrnDevEui');
-        else if (isset($data_obj['LrnDevEui'])) // KPN Simpoint msg
-            $data_array['key'] = $data_obj['LrnDevEui'];
+            if (Sensor::where('key', $request->input('LrnDevEui'))->count() > 0)
+                $data_array['key'] = $request->input('LrnDevEui');
+
+        if (isset($data_obj['LrnDevEui'])) // KPN Simpoint msg
+            if (Sensor::where('key', $data_obj['LrnDevEui'])->count() > 0)
+                $data_array['key'] = $data_obj['LrnDevEui'];
+
+        if (isset($data_obj['DevEUI_uplink']['DevEUI'])) // KPN Simpoint msg
+            if (Sensor::where('key', $data_obj['DevEUI_uplink']['DevEUI'])->count() > 0)
+                $data_array['key'] = $data_obj['DevEUI_uplink']['DevEUI'];
+
+        if (isset($data_obj['DevEUI_location']['DevEUI'])) // KPN Simpoint msg
+            if (Sensor::where('key', $data_obj['DevEUI_location']['DevEUI'])->count() > 0)
+                $data_array['key'] = $data_obj['DevEUI_location']['DevEUI'];
 
         if (isset($data_obj['DevEUI_uplink']['LrrRSSI']))
             $data_array['rssi'] = $data_obj['DevEUI_uplink']['LrrRSSI'];
@@ -757,7 +768,7 @@ class SensorController extends Controller
 
         //die(print_r($data_array));
         $logFileName = isset($data_array['key']) ? 'lora_sensor_'.$data_array['key'].'.json' : 'lora_sensor_no_key.json';
-        Storage::disk('local')->put('sensors/'.$logFileName, '["lora_object":'.json_encode($data_obj).',"data_array":'.json_encode($data_array).']');
+        Storage::disk('local')->put('sensors/'.$logFileName, '[{"lora_object":'.json_encode($data_obj).'},{"data_array":'.json_encode($data_array).'}]');
 
         return $this->storeMeasurements($data_array);
     }

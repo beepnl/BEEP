@@ -55,7 +55,7 @@
             <span ng-cloak>{{lang.Groups}}</span>
           </a>
       </li>
-      <li ng-class="{active: pageSlug == 'measurements'}">
+      <li ng-if="hasSensors" ng-class="{active: pageSlug == 'measurements'}">
           <a ng-click="switchMenu($event, true, '/measurements')" data-toggle="{{ mobile ? 'offcanvas' : '' }}">
             <i class="fa fa-line-chart"></i>
             <span ng-cloak>{{lang.measurements}}</span>

@@ -1,4 +1,5 @@
 function Decoder(bytes, port) {
+  // BEEP TTN mesurement system LoRa payload decoder
   // Decode an uplink message from a buffer
   // (array) of bytes to an object of fields.
   var decoded = {};
@@ -7,7 +8,7 @@ function Decoder(bytes, port) {
   {
     decoded.length = bytes.length;
 
-    if (bytes.length == 7)
+    if (bytes.length == 7) // fw v1-3
     {
       decoded.t     =  bytes[0];
       decoded.h     =  bytes[1];
@@ -18,7 +19,7 @@ function Decoder(bytes, port) {
       decoded.s_tot =  bytes[6];
       decoded.long  =  false;
     }
-    else if (bytes.length == 14)
+    else if (bytes.length == 14) // fw v4-6
     {
       decoded.t     =  (bytes[0]  << 8) + bytes[1];
       decoded.h     =  (bytes[2]  << 8) + bytes[3];
@@ -29,7 +30,7 @@ function Decoder(bytes, port) {
       decoded.s_tot =  (bytes[12] << 8) + bytes[13];
       decoded.long  =  false;
     }
-    else if (bytes.length == 19)
+    else if (bytes.length == 19)  // fw v7+
     {
       decoded.t     =  bytes[0];
       decoded.h     =  bytes[1];

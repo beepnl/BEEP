@@ -5,6 +5,11 @@
 
 @section('content')
 
+	@if ($connection !== true)
+		<div class="alert alert-danger">
+			No InfluxBD connection: {{ substr($connection, 0, 200) }}...
+		</div>
+	@endif
 	
 	<div class="row">
 

@@ -141,7 +141,17 @@ class DashboardController extends Controller
         }
 
         //die(print_r($inspection_terms));
+        $connection = true;
+        try
+        {
+            $client = new \Influx;
+            $client::query('SELECT COUNT(*) as "count" FROM "sensors"')->getPoints(); // get first sensor date
+        }
+        catch(\Exception $e)
+        {
+            $connection = $e;
+        }
             
-        return view('dashboard.index', compact('data'));
+        return view('dashboard.index', compact('data', 'connection'));
     }
 }

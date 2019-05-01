@@ -5,7 +5,7 @@
  */
 var LANG 					= [];
 //var API_URL           	= (document.URL.indexOf('beep.test') === -1) ? 'https://test.beep.nl/api/' : 'https://beep.test/api/';
-var API_URL 				= 'https://bee.iconize.nl/api/';
+var API_URL 				= 'https://api.beep.nl/api/';
 var CONNECTION_FREQ_REMOTE  = ((60)*1000);
 
 var COLORS = 
@@ -62,40 +62,30 @@ var SENSOR_COLOR = {
 	's_bin537_586Hz': COLORS.lightgrey2,
 }
 
-var SENSOR_NAMES =
+var SENSOR_MIN =
 {
-	t      	: 't',   
-	h      	: 'h', 
-	l      	: 'l',  
-	p 		: 'p',
-	bv 		: 'bv',
-	s_fan_4 : 's_fan_4',
-	s_fan_6 : 's_fan_6',
-	s_fan_9 : 's_fan_9',
-	s_fly_a : 's_fly_a',
-	s_tot 	: 's_tot',
-	bc_i	: 'bc_i',
-	bc_o	: 'bc_o',
-	weight_kg			: 'weight_kg',
-	weight_kg_corrected	: 'weight_kg_corrected',
-	t_i		: 't_i',
-	rssi	: 'rssi',
-	snr 	: 'snr', 
-	lat 	: 'lat', 
-	lon 	: 'lon', 
-	's_bin098_146Hz': '098_146Hz',
-	's_bin146_195Hz': '146_195Hz',
-	's_bin195_244Hz': '195_244Hz',
-	's_bin244_293Hz': '244_293Hz',
-	's_bin293_342Hz': '293_342Hz',
-	's_bin342_391Hz': '342_391Hz',
-	's_bin391_439Hz': '391_439Hz',
-	's_bin439_488Hz': '439_488Hz',
-	's_bin488_537Hz': '488_537Hz',
-	's_bin537_586Hz': '537_586Hz',
+	t      	: 0,   
+	h      	: 0, 
+	l      	: 0,  
+	p 		: 0,
+	bv 		: 0,
+	s_fan_4 : 0,
+	s_fan_6 : 0,
+	s_fan_9 : 0,
+	s_fly_a : 0,
+	s_tot 	: 0,
+	bc_i	: 0,
+	bc_o	: 0,
+	weight_kg			: 0,
+	weight_kg_corrected	: 0,
+	t_i		: 0,
+	rssi	: -120,
+	snr 	: -10, 
+	lat 	: 0, 
+	lon 	: 0, 
 };
 
-var SENSOR_MIN =
+var SENSOR_LOW =
 {
 	t      	: 0,   
 	h      	: 40, 
@@ -118,13 +108,13 @@ var SENSOR_MIN =
 	lon 	: 0, 
 };
 
-var SENSOR_MAX =
+var SENSOR_HIGH =
 {
 	t      	: 30,   
-	h      	: 80, 
+	h      	: 90, 
 	l      	: 10000,  
 	p 		: 1100,
-	bv 		: 3.0,
+	bv 		: 3.4,
 	s_fan_4 : 5,
 	s_fan_6 : 5,
 	s_fan_9 : 5,
@@ -136,7 +126,30 @@ var SENSOR_MAX =
 	weight_kg_corrected	: 100,
 	t_i		: 37,
 	rssi	: -70,
-	snr 	: 7, 
+	snr 	: 15, 
+	lat 	: 180, 
+	lon 	: 180, 
+};
+
+var SENSOR_MAX =
+{
+	t      	: 50,   
+	h      	: 100, 
+	l      	: 100000,  
+	p 		: 1200,
+	bv 		: 3.5,
+	s_fan_4 : 10,
+	s_fan_6 : 10,
+	s_fan_9 : 10,
+	s_fly_a : 10,
+	s_tot 	: 50,
+	bc_i	: 50000,
+	bc_o	: 50000,
+	weight_kg			: 125,
+	weight_kg_corrected	: 125,
+	t_i		: 50,
+	rssi	: 0,
+	snr 	: 20, 
 	lat 	: 180, 
 	lon 	: 180, 
 };

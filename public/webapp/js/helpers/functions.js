@@ -122,8 +122,8 @@ var convertInfluxMeasurementsArrayToChartObject = function(obj_arr, lang, labelS
   console.log('Converting '+obj_arr.length+' Influx measurements to chart object');
   //console.log(labelSize);
 
-  var yAxisL  = {display: true, position: 'left', id:'y1', scaleLabel:{display:true, labelArray:[], labelString:'', fontSize: labelSize}, ticks: { fontSize: labelSize } };
-  var yAxisR  = {display: false, position: 'right', id:'y2', scaleLabel:{display:true, labelArray:[], labelString:'', fontSize: labelSize}, ticks: { fontSize: labelSize } };
+  var yAxisL  = {display: true, position: 'left', id:'y1', scaleLabel:{display:false, labelArray:[], labelString:'', fontSize: labelSize}, ticks: { fontSize: labelSize } };
+  var yAxisR  = {display: false, position: 'right', id:'y2', scaleLabel:{display:false, labelArray:[], labelString:'', fontSize: labelSize}, ticks: { fontSize: labelSize } };
   var noAxis  = {display: false, offsetGridLines: true};
   
   var sensors  = {datasets:[], series:[], data:[], colors:[], yAxes:[angular.copy(yAxisL), angular.copy(yAxisR)]};
@@ -171,6 +171,10 @@ var convertInfluxMeasurementsArrayToChartObject = function(obj_arr, lang, labelS
             chart.yAxes[0].scaleLabel.labelArray.push(axisUnit);
 
           new_dataset.pointBorderWidth = 2;    // dots
+
+          new_dataset.borderColor = color.borderColor;
+          new_dataset.pointBorderColor = color.pointBorderColor;
+          new_dataset.pointHoverBorderColor = color.pointHoverBorderColor;
         }
         else
         {
@@ -242,10 +246,10 @@ var convertInfluxMeasurementsArrayToChartObject = function(obj_arr, lang, labelS
             if (val != null || firstLast)
             {
               //console.log(name, val, dataSetIndex, firstLast);
-              if (Math.abs(val) > 100 && chart.series.length > 1) // transfer unit to y-scale 2
+              if (!isSensor && Math.abs(val) > 100 && chart.series.length > 1) // transfer unit to y-scale 2
               {
-                chart.datasets[dataSetIndex].yAxisID = 'y2';
                 chart.yAxes[1].display = true;
+                chart.datasets[dataSetIndex].yAxisID = 'y2';
                 var label = '';
                 
                 if (unit != null && unit != '' && chart.yAxes[1].scaleLabel.labelArray.indexOf(unit) == -1)
@@ -267,6 +271,8 @@ var convertInfluxMeasurementsArrayToChartObject = function(obj_arr, lang, labelS
                 // set axis label
                 if (label != '')
                 {
+                  chart.yAxes[0].scaleLabel.display = true;
+                  chart.yAxes[1].scaleLabel.display = true;
                   var index = chart.yAxes[0].scaleLabel.labelArray.indexOf(label);
                   if (index > -1)
                   {

@@ -57,8 +57,6 @@
 				    	append="{{sensorUnits[sensor.name]}}">
 				    </ng-gauge>
 				</div>
-
-
 			</div>
 	       
 		</div>
@@ -102,19 +100,30 @@
 					    	<div class="measurement-info-wrapper">
 
 					    		<div ng-if="showChart">
-									<div class="chart-holder">
-										<canvas id="line1" class="chart chart-line" chart-data="measurementData.sensors.data" chart-dataset-override="measurementData.sensors.datasets" chart-series="measurementData.sensors.series" chart-colors="measurementData.sensors.colors" chart-options="chart.optionsSensors" ></canvas> 
+					    			<div ng-if="measurementData.sensors.data.length > 0">
+										<h3 ng-if="!mobile">{{lang.sensors}}</h3>
+										<div class="chart-holder chart-narrow" ng-class="{'small':measurementData.sensors.data.length > 1}" ng-repeat="(key, data) in measurementData.sensors.data">
+											<canvas id="line1" class="chart chart-line" chart-data="data" chart-dataset-override="measurementData.sensors.datasets[key]" chart-series="measurementData.sensors.series[key]" chart-colors="measurementData.sensors.colors" chart-options="chart.optionsSensors" ></canvas> 
+										</div>
+										<!-- <div ng-if="allinone" class="chart-holder">
+											<canvas id="line1" class="chart chart-line" chart-data="measurementData.sensors.data" chart-dataset-override="measurementData.sensors.datasets" chart-series="measurementData.sensors.series" chart-colors="measurementData.sensors.colors" chart-options="chart.optionsSensors" ></canvas> 
+										</div> -->
 									</div>
 
-									<h3>{{lang.Sound_measurements}}</h3>
-									<div class="chart-holder chart-narrow">
-										<canvas id="line2" class="chart chart-line" chart-data="measurementData.sound.data" chart-dataset-override="measurementData.sound.datasets" chart-series="measurementData.sound.series" chart-colors="measurementData.sound.colors" chart-options="chart.optionsSound" ></canvas> 
+									<div ng-if="measurementData.sound.data.length > 0">
+										<h3>{{lang.Sound_measurements}}</h3>
+										<div class="chart-holder chart-narrow">
+											<canvas id="line2" class="chart chart-line" chart-data="measurementData.sound.data" chart-dataset-override="measurementData.sound.datasets" chart-series="measurementData.sound.series" chart-colors="measurementData.sound.colors" chart-options="chart.optionsSound" ></canvas> 
+										</div>
 									</div>
 
-									<h3>{{lang.Sensor_info}}</h3>
-									<div class="chart-holder chart-narrow">
-										<canvas id="line3" class="chart chart-line" chart-data="measurementData.debug.data" chart-dataset-override="measurementData.debug.datasets" chart-series="measurementData.debug.series" chart-colors="measurementData.debug.colors" chart-options="chart.optionsDebug" ></canvas> 
+									<div ng-if="measurementData.debug.data.length > 0">
+										<h3>{{lang.Sensor_info}}</h3>
+										<div class="chart-holder chart-narrow">
+											<canvas id="line3" class="chart chart-line" chart-data="measurementData.debug.data" chart-dataset-override="measurementData.debug.datasets" chart-series="measurementData.debug.series" chart-colors="measurementData.debug.colors" chart-options="chart.optionsDebug" ></canvas> 
+										</div>
 									</div>
+
 									<!-- <div class="chart-holder actuators" ng-if="showChart && showActuators">
 										<canvas id="line2" class="chart chart-line" chart-data="measurementData.actuators.data" chart-dataset-override="measurementData.actuators.datasets" chart-labels="measurementData.actuators.labels" chart-series="measurementData.actuators.series" chart-colors="measurementData.actuators.colors" chart-options="chart.optionsActuators" ></canvas> 
 									</div> -->

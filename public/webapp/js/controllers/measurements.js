@@ -45,6 +45,7 @@ app.controller('MeasurementsCtrl', function($scope, $rootScope, $timeout, $inter
     $scope.sensorHigh   = SENSOR_HIGH;
     $scope.sensorMax    = SENSOR_MAX;
     $scope.sensorUnits  = SENSOR_UNITS;
+    $scope.allinone     = false;
 
     $scope.measurementData = null;
 
@@ -380,10 +381,10 @@ app.controller('MeasurementsCtrl', function($scope, $rootScope, $timeout, $inter
             {
                 //console.log($scope.measurementData);
                 // Set axes
-                $scope.chart.optionsSensors.scales.yAxes = typeof $scope.measurementData.sensors.yAxes != 'undefined' ? $scope.measurementData.sensors.yAxes : [];
-                $scope.chart.optionsSound.scales.yAxes = typeof $scope.measurementData.sound.yAxes != 'undefined' ? $scope.measurementData.sound.yAxes : [];
-                $scope.chart.optionsDebug.scales.yAxes = typeof $scope.measurementData.debug.yAxes != 'undefined' ? $scope.measurementData.debug.yAxes : [];
-                $scope.chart.optionsActuators.scales.yAxes = typeof $scope.measurementData.actuators.yAxes != 'undefined' ? $scope.measurementData.actuators.yAxes : [];
+                $scope.chart.optionsSensors.scales.yAxes    = typeof $scope.measurementData.sensors.yAxes != 'undefined' ? $scope.measurementData.sensors.yAxes : [];
+                $scope.chart.optionsSound.scales.yAxes      = typeof $scope.measurementData.sound.yAxes != 'undefined' ? $scope.measurementData.sound.yAxes : [];
+                $scope.chart.optionsDebug.scales.yAxes      = typeof $scope.measurementData.debug.yAxes != 'undefined' ? $scope.measurementData.debug.yAxes : [];
+                $scope.chart.optionsActuators.scales.yAxes  = typeof $scope.measurementData.actuators.yAxes != 'undefined' ? $scope.measurementData.actuators.yAxes : [];
                 
                 $scope.chart.optionsSensors.scales.xAxes[0].time.tooltipFormat   = tooltipTimeFormat;
                 $scope.chart.optionsSound.scales.xAxes[0].time.tooltipFormat     = tooltipTimeFormat;

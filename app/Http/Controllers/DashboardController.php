@@ -13,6 +13,8 @@ use App\Queen;
 use App\Checklist;
 use App\ChecklistCategory;
 use App\HiveLayerFrame;
+use App\Sensor;
+use App\Measurement;
 use DB;
 
 use Moment\Moment;
@@ -57,6 +59,7 @@ class DashboardController extends Controller
         $data['queens']     = Queen::count();
         $data['checklists'] = Checklist::count();
         $data['checklists_edited'] = Checklist::whereRaw('updated_at - created_at > 60')->count();
+        $data['sensors']    = Sensor::count();
 
         $data['checklist_categories_max'] = DB::table('checklist_category')
                                             ->selectRaw('checklist_id, COUNT(*) as count')
@@ -67,14 +70,14 @@ class DashboardController extends Controller
                                             ->get()
                                             ->toArray();
 
-        $data['checklist_categories_min'] = DB::table('checklist_category')
-                                            ->selectRaw('checklist_id, COUNT(*) as count')
-                                            ->groupBy('checklist_id')
-                                            ->having('count', '>', 0)
-                                            ->orderBy('count', 'asc')
-                                            ->limit(5)
-                                            ->get()
-                                            ->toArray();
+        // $data['checklist_categories_min'] = DB::table('checklist_category')
+        //                                     ->selectRaw('checklist_id, COUNT(*) as count')
+        //                                     ->groupBy('checklist_id')
+        //                                     ->having('count', '>', 0)
+        //                                     ->orderBy('count', 'asc')
+        //                                     ->limit(5)
+        //                                     ->get()
+        //                                     ->toArray();
 
         
         //die(print_r($data['checklist_categories_max']));
@@ -141,16 +144,44 @@ class DashboardController extends Controller
         }
 
         //die(print_r($inspection_terms));
+        $sensor_counts = [];
         $connection = true;
         try
         {
             $client = new \Influx;
-            $client::query('SELECT COUNT(*) as "count" FROM "sensors"')->getPoints(); // get first sensor date
+            $sensor_counts = $client::query('SELECT COUNT(*) as "count" FROM "sensors"')->getPoints(); // get first sensor date
         }
         catch(\Exception $e)
         {
             $connection = $e;
         }
+        $sensor_count = [];
+        $sensor_total = 0;
+        $measurements = Measurement::all()->pluck('pq', 'abbreviation')->toArray();
+
+        //die(print_r($measurements));
+
+        if (count($sensor_counts) > 0 && count(reset($sensor_counts)) > 1)
+        {
+            $arr = reset($sensor_counts);
+            foreach ($arr as $key => $val) 
+            {
+                $sensor_abbr = substr($key, 6);
+                $sensor_name = in_array($sensor_abbr, array_keys($measurements)) ? $measurements[$sensor_abbr].' ('.$sensor_abbr.')' : null;
+                //die(print_r($val));
+
+                if ($sensor_name != null)
+                {
+                    $count = intval($val);
+                    $sensor_count[$sensor_name] = $count;
+                    $sensor_total += $count;
+                }
+            }
+
+            ksort($sensor_count);
+        }
+        $data['measurements']= $sensor_total;
+        $data['measurement_details']= $sensor_count;
             
         return view('dashboard.index', compact('data', 'connection'));
     }

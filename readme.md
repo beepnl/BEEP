@@ -21,6 +21,7 @@ You are free to use the BEEP app, it's free and it will be developed further in 
   * PHP 7.2
   * MariaDB/MySQL
   * Apache 2 (or Nginx, creating Nginx 'server blocks' in step 4)
+  * InfluxDB (https://docs.influxdata.com/influxdb/v1.7/introduction/installation/)
   * [Composer](https://getcomposer.org/download/) - Installation tool for PHP/Laravel dependencies for API
   * [npm](https://www.npmjs.com/get-npm) - Installation tool for Javascript/Angular dependencies for App
   * [Bower](https://bower.io/) ```npm install -g bower``` - Installation tool for front-end dependencies for App
@@ -39,7 +40,7 @@ Create a MySQL database (type: InnoDB, encoding: UTF_8, collation: utf8_unicode_
 
 ```bee_data```
 
-**NB: Make sure to pass the user and credentials to the newly made .env file after step 4.**
+**NB: Make sure to pass the user and credentials to the newly made .env file after step 3.**
 
 
 ## 3. Install required vendor libraries 
@@ -91,7 +92,17 @@ b. Optionally, install SSL certificates to your endpoints with [Let's Encrypt](h
 
 With command: ```sudo certbot --authenticator webroot --installer apache```
 
-## 5. If you would like to easily deploy your fork (or this repo), 
+## 5. Add Influx database
+```
+sudo influx
+> CREATE USER user_influx WITH PASSWORD 'pass_influx' WITH ALL PRIVILEGES
+> CREATE DATABASE bee_data
+> exit
+```
+**NB: Make sure to pass the user and credentials to the .env file that has been created in step 3.**
+
+
+## 6. If you would like to easily deploy your fork (or this repo), 
 
 a. Make sure to add your repo to git remote: ```git remote set url https://github.com/beepnl/BEEP.git```
 

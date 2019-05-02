@@ -64,14 +64,17 @@ class Measurement extends Model
     public function pq_name()
     {
         // add sensor name (temporarily)
-        $abbr = '';
-        if (isset($this->abbreviation))
+        
+        $name = $this->physical_quantity()->value('name');
+        if (($name != '' && $name != '-') && isset($this->abbreviation))
         {
+            $abbr = '';
             $mabb = $this->abbreviation;
             $aind = strpos($mabb, '_'); 
             $abbr = ' - '.($aind ? substr($mabb, 0, $aind) : $mabb);
+            $name .= $abbr;
         }
-        return $this->physical_quantity()->value('name').$abbr;
+        return $name;
     }
 
     public function unit()
@@ -83,7 +86,7 @@ class Measurement extends Model
     {
         if ($this->physical_quantity_id != null)
         {
-            $unit = $this->unit() != null && $this->unit() != '' ? ' ('.$this->unit().')' : '';
+            $unit = $this->unit() != null && $this->unit() != '' && $this->unit() != '-' ? ' ('.$this->unit().')' : '';
             $name = $this->pq_name().$unit;
             if ($name)
                 return $name;

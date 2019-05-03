@@ -21,8 +21,6 @@ For RTL add
 mix.styles([
 	'node_modules/normalize-css/normalize.css',
 	'node_modules/admin-lte/bootstrap/css/bootstrap.min.css',
-	'node_modules/admin-lte/plugins/datatables/dataTables.bootstrap.css',
-	'node_modules/datatables.net-bs4/css/dataTables.bootstrap4.min.css',
 	'node_modules/jstree/dist/themes/default/style.min.css',
 	'resources/assets/css/portal.css',
 	'resources/assets/css/skin-beep.css',
@@ -36,7 +34,7 @@ mix.styles([
 	'node_modules/angularjs-slider/dist/rzslider.min.css',
 	'node_modules/datetimepicker/dist/DateTimePicker.min.css',
 	'resources/assets/css/measurements.css',
-	], 'public/webapp/css/skin.css').version();
+	], 'public/app/css/skin.css').version();
 
 mix.styles([
 	'resources/assets/css/skin-beep-additions.css'
@@ -68,18 +66,14 @@ mix.babel([
     ], 'public/js/scripts-portal.js').version();
 
 mix.copyDirectory('node_modules/datatables.net-plugins/i18n', 'public/js/datatables/i18n');
-mix.scripts([
-	'node_modules/datatables.net/js/jquery.dataTables.js',
-	'node_modules/datatables.net-bs/js/dataTables.bootstrap.js'
-	], 'public/js/datatables.js');
 
 mix.babel([
 	'resources/assets/js/constants.js',
-    ], 'public/webapp/js/constants.js').version();
+    ], 'public/app/js/constants.js').version();
 
 mix.babel([
     'node_modules/angular/angular.min.js',
-    ], 'public/webapp/js/angular.js').version();
+    ], 'public/app/js/angular.js').version();
 
 mix.babel([
     'node_modules/angular-route/angular-route.min.js',
@@ -98,7 +92,7 @@ mix.babel([
     'node_modules/ng-iScroll/src/ng-iscroll.js',
     'node_modules/angularjs-gauge/src/angularjs-gauge.js', 
     'node_modules/datetimepicker/src/DateTimePicker.js', 
-	], 'public/webapp/js/angular-modules.js').version();
+	], 'public/app/js/angular-modules.js').version();
 
 mix.babel([
 	'node_modules/angular-gestures/src/gestures.js',
@@ -107,7 +101,7 @@ mix.babel([
     'resources/assets/js/helpers/functions.js',
 	'resources/assets/js/filters/icon-filters.js',
     'resources/assets/js/filters/text-filters.js',
-   	], 'public/webapp/js/angular-helpers.js').version();
+   	], 'public/app/js/angular-helpers.js').version();
 
 mix.babel([
     'resources/assets/js/index.js',
@@ -120,7 +114,7 @@ mix.babel([
     'node_modules/datetimepicker/src/i18n/DateTimePicker-i18n.js',
     'node_modules/datetimepicker/src/i18n/DateTimePicker-i18n-nl.js',
     'node_modules/datetimepicker/src/i18n/DateTimePicker-i18n-de.js',
-     ], 'public/webapp/js/angular-index.js').version();
+     ], 'public/app/js/angular-index.js').version();
 
 mix.babel([   
     'node_modules/angular-ui-switch/angular-ui-switch.min.js',
@@ -139,7 +133,7 @@ mix.babel([
     'resources/assets/js/directives/beep-sensor.js',
     'resources/assets/js/directives/angular-country-select.js',
     'node_modules/angular-password/angular-password.min.js',
-	], 'public/webapp/js/angular-directives.js').version();
+	], 'public/app/js/angular-directives.js').version();
 
 mix.babel([  
     'resources/assets/js/models/api.js',
@@ -161,11 +155,11 @@ mix.babel([
     'resources/assets/js/controllers/export.js',
     'resources/assets/js/controllers/sensors.js',
     'resources/assets/js/controllers/groups.js',
-	], 'public/webapp/js/angular-code.js').version();
+	], 'public/app/js/angular-code.js').version();
 
 
 mix.copyDirectory('node_modules/components-font-awesome/webfonts', 'public/webfonts');
-mix.copyDirectory('resources/assets/webapp-views', 'public/webapp/views');
+mix.copyDirectory('resources/assets/app-views', 'public/app/views');
 
 mix.copy('resources/terms', 'public');
 

@@ -21,10 +21,11 @@
 
     <!-- admin LTE template -->
     <link rel="stylesheet" href="{{ mix('css/skin-base.css') }}" media="screen">
-    <link rel="stylesheet" href="{{ mix('css/skin-additions.css') }}" media="screen">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.10.19/css/dataTables.bootstrap4.min.css">
+    <link rel="stylesheet" href="{{ mix('css/skin-additions.css') }}" media="screen">
 
-    <script src="{{ mix('js/jquery.js') }}"></script>
+    <script type="text/javascript" src="{{ mix('js/jquery.js') }}"></script>
 
     <!-- CSRF Token -->
     <meta name="csrf-token" content="{{ csrf_token() }}">
@@ -96,7 +97,9 @@
 
     <script src="{{ mix('js/scripts-base.js') }}"></script>
     <script src="{{ mix('js/scripts-portal.js') }}"></script>
-    <script src="{{ mix('js/datatables.js') }}"></script>
+
+    <script type="text/javascript" src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js"></script>
+    <script type="text/javascript" src="https://cdn.datatables.net/1.10.19/js/dataTables.bootstrap4.min.js"></script>
 
         
 </body>

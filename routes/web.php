@@ -30,7 +30,7 @@ Route::get('info', function(){
 });
 
 Route::get('webapp', function(){
-	return view('webapp/index');
+	return view('app/index');
 });
 
 // Hack for redirecting e-mail reset password link to webapp

@@ -40,7 +40,7 @@
 
         <!-- admin LTE template -->
         <link rel="stylesheet" href="{{ mix('css/skin-base.css') }}" media="screen">
-        <link rel="stylesheet" href="{{ mix('webapp/css/skin.css') }}" media="screen">
+        <link rel="stylesheet" href="{{ mix('app/css/skin.css') }}" media="screen">
         <link rel="stylesheet" href="{{ mix('css/skin-additions.css') }}" media="screen">
         <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
                 
@@ -58,10 +58,10 @@
         <div ng-class="{'wrapper':showAdminTemplate}">
 
           <!-- Main Header -->
-          <div ng-include="'views/template/template-block-header.html?v=3'" ng-show="showAdminTemplate"></div>
+          <div ng-include="'/app/views/template/template-block-header.html?v=3'" ng-show="showAdminTemplate"></div>
 
           <!-- Left side column. contains the logo and sidebar -->
-          <div ng-include="'views/template/template-block-sidebar-left.html?v=2'" ng-show="showAdminTemplate"></div>
+          <div ng-include="'/app/views/template/template-block-sidebar-left.html?v=2'" ng-show="showAdminTemplate"></div>
 
           <!-- Content Wrapper. Contains page content -->
           <div ng-class="{'content-wrapper':showAdminTemplate}">
@@ -69,7 +69,7 @@
           </div>
           
           <!-- Main Footer -->
-          <div ng-include="'views/template/template-block-footer.html'" ng-show="showAdminTemplate"></div>
+          <div ng-include="'/app/views/template/template-block-footer.html'" ng-show="showAdminTemplate"></div>
           
         </div>
 
@@ -81,13 +81,13 @@
         <script src="{{ mix('js/scripts-base.js') }}"></script>
 
         <!-- Angular app -->
-        <script src="{{ mix('webapp/js/constants.js') }}"></script>
-        <script src="{{ mix('webapp/js/angular.js') }}"></script>
-        <script src="{{ mix('webapp/js/angular-modules.js') }}"></script>
-        <script src="{{ mix('webapp/js/angular-helpers.js') }}"></script>
-        <script src="{{ mix('webapp/js/angular-index.js') }}"></script>
-        <script src="{{ mix('webapp/js/angular-directives.js') }}"></script>
-        <script src="{{ mix('webapp/js/angular-code.js') }}"></script>
+        <script src="{{ mix('app/js/constants.js') }}"></script>
+        <script src="{{ mix('app/js/angular.js') }}"></script>
+        <script src="{{ mix('app/js/angular-modules.js') }}"></script>
+        <script src="{{ mix('app/js/angular-helpers.js') }}"></script>
+        <script src="{{ mix('app/js/angular-index.js') }}"></script>
+        <script src="{{ mix('app/js/angular-directives.js') }}"></script>
+        <script src="{{ mix('app/js/angular-code.js') }}"></script>
 
         <!-- external: Google maps API for easy address input -->
         <script src="https://maps.google.com/maps/api/js?libraries=places&key=AIzaSyBfJTNckKBKFFDhx99kUt9RmKkRBlvyISs"></script>

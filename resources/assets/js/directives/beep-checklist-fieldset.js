@@ -9,6 +9,6 @@ app.directive('checklistFieldset', ['$rootScope', function($rootScope) {
           scope.lang = $rootScope.lang;
           scope.locale = $rootScope.locale;
         },
-        templateUrl: 'views/forms/checklist_fieldset.html'
+        templateUrl: '/app/views/forms/checklist_fieldset.html'
     };
 }]);

@@ -392,7 +392,7 @@ app.directive('checklistFieldset', ['$rootScope', function ($rootScope) {
       scope.lang = $rootScope.lang;
       scope.locale = $rootScope.locale;
     },
-    templateUrl: 'views/forms/checklist_fieldset.html'
+    templateUrl: '/app/views/forms/checklist_fieldset.html'
   };
 }]);
 app.directive('checklistInput', ['$rootScope', function ($rootScope) {
@@ -582,7 +582,7 @@ app.directive('checklistInput', ['$rootScope', function ($rootScope) {
         }
       };
     },
-    templateUrl: 'views/forms/checklist_input.html'
+    templateUrl: '/app/views/forms/checklist_input.html'
   };
 }]);
 app.directive('beepHive', ['$rootScope', function ($rootScope) {

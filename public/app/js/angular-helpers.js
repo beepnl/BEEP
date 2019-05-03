@@ -1155,7 +1155,7 @@ var convertOjectToFormDataArray = function convertOjectToFormDataArray(obj, name
 
 var solidColorObj = function solidColorObj(rgbaStr, borderRgbaStr) // This is the only way to pass a losid color value, RGB values get converted to alpha 0.2 in angular-chart.js
 {
-  cObj = {
+  var cObj = {
     backgroundColor: rgbaStr,
     pointBackgroundColor: rgbaStr,
     pointHoverBackgroundColor: rgbaStr

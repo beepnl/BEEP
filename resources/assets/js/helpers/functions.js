@@ -312,14 +312,17 @@ var convertInfluxMeasurementsArrayToChartObject = function(obj_arr, lang, labelS
 
   // Fill sensor axis labels
   
-  // for (axisIndex in obj_out.sensors.yAxes) 
-  // {
-  //   var axisLabels = obj_out.sensors.yAxes[axisIndex].scaleLabel.labelArray.join();
-  //   obj_out.sensors.yAxes[axisIndex].scaleLabel.labelString = axisLabels;
-  // }
-  // // Fill actuator axis 
-  // var labelAmount = obj_out.actuators.series.length;
-  // obj_out.actuators.yAxes[0].ticks = {min:0, max:highestActuatorY+1};
+  if (obj_out.sensors.yAxes.length > 0)
+  {
+    for (axisIndex in obj_out.sensors.yAxes) 
+    {
+      var axisLabels = obj_out.sensors.yAxes[axisIndex].scaleLabel.labelArray.join();
+      obj_out.sensors.yAxes[axisIndex].scaleLabel.labelString = axisLabels;
+    }
+  }
+  // Fill actuator axis 
+  var labelAmount = obj_out.actuators.series.length;
+  obj_out.actuators.yAxes[0].ticks = {min:0, max:highestActuatorY+1};
   
   //console.log(obj_out);
 

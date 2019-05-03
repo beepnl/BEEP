@@ -33,6 +33,6 @@ class GroupInvitation extends Mailable
      */
     public function build()
     {
-        return $this->markdown('emails.group_invitation',['group'=>$this->group, 'name'=>$this->name, 'admin'=>$this->admin, 'acceptUrl'=>url('/webapp/index.html#!/groups/'.$this->group->id.'/token/'.$this->token)])->subject(__('group.subject_invite'));
+        return $this->markdown('emails.group_invitation',['group'=>$this->group, 'name'=>$this->name, 'admin'=>$this->admin, 'acceptUrl'=>url('/webapp#!/groups/'.$this->group->id.'/token/'.$this->token)])->subject(__('group.subject_invite'));
     }
 }

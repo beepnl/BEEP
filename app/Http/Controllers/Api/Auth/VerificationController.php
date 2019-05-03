@@ -28,7 +28,7 @@ class VerificationController extends Controller
      *
      * @var string
      */
-    protected $redirectTo = '/webapp/index.html#!/login?msg=email_verified';
+    protected $redirectTo = '/webapp#!/login?msg=email_verified';
 
 
     /**

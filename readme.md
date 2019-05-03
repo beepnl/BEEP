@@ -124,7 +124,7 @@ b. For the webapp to reach the API, rename the file 'public/webapp/js/constants.
 
 ## 3. Register new user
 
-a. Go to ```api.[your_domain]/webapp/index.html#!/login/create```
+a. Go to ```api.[your_domain]/webapp#!/login/create```
 
 b. Create a new user
 

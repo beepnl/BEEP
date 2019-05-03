@@ -88,7 +88,7 @@
       <li class="{{ Route::currentRouteNamed('inspections.index') ? 'active' : '' }}"><a href="{{ route('inspections.index') }}"><i class="fa fa-check-circle"></i><span>{{ __('beep.Inspections') }}</span></a></li>
 
       <li class="header">{{ __('beep.Webapp') }}</li>
-      <li><a href="/webapp/index.html" target="_blank"><i class="fa fa-mobile-phone"></i><span>{{ __('beep.Webapp') }}</span></a></li>
+      <li><a href="/webapp" target="_blank"><i class="fa fa-mobile-phone"></i><span>{{ __('beep.Webapp') }}</span></a></li>
     </ul>
     <!-- /.sidebar-menu -->
 

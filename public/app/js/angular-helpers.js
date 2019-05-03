@@ -1407,9 +1407,9 @@ var convertInfluxMeasurementsArrayToChartObject = function convertInfluxMeasurem
 
 
   if (obj_out.sensors.yAxes.length > 0) {
-    for (axisIndex in obj_out.sensors.yAxes) {
-      var axisLabels = obj_out.sensors.yAxes[axisIndex].scaleLabel.labelArray.join();
-      obj_out.sensors.yAxes[axisIndex].scaleLabel.labelString = axisLabels;
+    for (var i = 0; i < obj_out.sensors.yAxes.length; i++) {
+      var axisLabels = obj_out.sensors.yAxes[i].scaleLabel.labelArray.join();
+      obj_out.sensors.yAxes[i].scaleLabel.labelString = axisLabels;
     }
   } // Fill actuator axis 
 

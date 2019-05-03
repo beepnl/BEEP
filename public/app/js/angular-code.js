@@ -3157,7 +3157,7 @@ app.controller('MeasurementsCtrl', function ($scope, $rootScope, $timeout, $inte
     labels: {
       usePointStyle: true,
       fontSize: $rootScope.mobile ? $scope.fontSizeMob : $scope.fontSize,
-      boxWidth: $rootScope.mobile ? $scope.fontSizeMob : $scope.fontSize,
+      boxWidth: $rootScope.mobile ? $scope.fontSizeMob : $scope.fontSize + 2,
       padding: $rootScope.mobile ? 6 : 10,
       fullWidth: $rootScope.mobile ? false : true // generateLabels: function(chart) 
       // {
@@ -3822,7 +3822,12 @@ app.controller('GroupsCtrl', function ($scope, $rootScope, $window, $location, $
 
   $scope.deleteGroupUser = function (userIndex) {
     var u = $scope.group.users[userIndex];
-    if (typeof u.id == 'undefined') return $scope.removeGroupUserByIndex(userIndex);
+
+    if (typeof u.id == 'undefined') {
+      $scope.addedUser = false;
+      return $scope.removeGroupUserByIndex(userIndex);
+    }
+
     if (typeof u["delete"] == 'undefined') u["delete"] = true;else u["delete"] = u["delete"] ? false : true;
     $scope.deletedUser = u["delete"];
   };

@@ -26,6 +26,15 @@ mix.styles([
 	'resources/assets/css/skin-beep.css',
 	], 'public/css/skin-base.css').version();
 
+
+mix.copy([
+	'node_modules/admin-lte/bootstrap/css/bootstrap.min.css.map',
+	], 'public/css');
+
+mix.copy([
+	'node_modules/hammerjs/hammer.min.js.map',
+	], 'public/js');
+
 mix.styles([
 	'node_modules/animate.css/animate.min.css',
 	'node_modules/ng-dialog/css/ngDialog..min.css',

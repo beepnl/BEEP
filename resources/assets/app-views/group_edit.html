@@ -97,7 +97,7 @@
 			    		</tr>
 		    		</thead>
 		    		<tbody>
-		    			<tr><td colspan="6"><a ng-click="addGroupUser()" class="btn btn-primary pull-right"><i class="fa fa-plus"></i> {{mobile ? lang.add : lang.add}} {{lang.Member.toLowerCase()}}</a></td></tr>
+		    			<tr><td colspan="6"><a ng-click="addGroupUser();" role="button" class="btn btn-primary pull-right"><i class="fa fa-plus"></i> {{mobile ? lang.add : lang.add}} {{lang.Member.toLowerCase()}}</a></td></tr>
 	    				<tr user="user" index="u" delete="deleteGroupUser" ng-class="{'delete':user.delete}" ng-repeat="(u, user) in group.users" beep-user-selector></tr>
 	    			</tbody>
     			</table>
@@ -116,11 +116,11 @@
 
 
 	<!-- Hives -->
-	<div class="box">
+	<div class="box" ng-class="{'collapsed-box':addedUser}">
 	    <div class="box-header with-border">
 	      <h3 class="box-title">{{ lang.My_shared }} {{lang.hives.toLowerCase()}}</h3>
 
-	      <div class="box-tools pull-right" ng-if="group.admin">
+	      <div class="box-tools pull-right" ng-if="group.admin" id="hive-box" >
 	        <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
 	        </button>
 	        <!--button type="button" class="btn btn-box-tool" data-widget="remove"><i class="fa fa-times"></i></button-->

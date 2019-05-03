@@ -114,7 +114,10 @@ app.controller('GroupsCtrl', function($scope, $rootScope, $window, $location, $f
         var u = $scope.group.users[userIndex];
         
         if (typeof u.id == 'undefined')
+        {
+            $scope.addedUser = false;
             return $scope.removeGroupUserByIndex(userIndex);
+        }
 
         if (typeof u.delete == 'undefined')
             u.delete = true;

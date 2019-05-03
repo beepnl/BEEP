@@ -29,6 +29,10 @@ Route::get('info', function(){
 	return view('phpinfo');
 });
 
+Route::get('webapp', function(){
+	return view('webapp/index');
+});
+
 // Hack for redirecting e-mail reset password link to webapp
 // Route::get('password/reset/{token}',['as'=>'password.reset', function ($token) {
 //     return redirect(env('APP_URL').'/#!/login/reset/'.$token);

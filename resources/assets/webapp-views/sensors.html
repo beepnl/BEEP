@@ -1,0 +1,75 @@
+<section class="content-header">
+  <h1>
+    {{lang.sensors_title}}
+    <div class="pull-right">
+	    <div>
+  			<a ng-click="addSensor()" class="btn btn-primary pull-right"><i class="fa fa-plus"></i> {{mobile ? lang.New : lang.create_new}} {{lang.sensor}}</a>
+  		</div>
+  	</div>
+  </h1>
+  <!-- <ol class="breadcrumb">
+    <li><a href="/"><i class="fa fa-home"></i> Home</a></li>
+    <li class="active">{{lang.sensors}}</li>
+  </ol> -->
+</section>
+
+<section class="content" >
+	
+	<div class="alert alert-success" ng-show="success_msg != null">
+        <p>{{ success_msg }}</p>
+    </div>
+
+	<div class="alert alert-danger" ng-show="error_msg != null">
+        <p>{{ error_msg }}</p>
+    </div>
+	
+	<div class="box">
+	    <div class="box-header with-border">
+	      <h3 class="box-title">{{lang.sensors}}</h3>
+
+	      <div class="box-tools pull-right">
+	        <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
+	        </button>
+	        <!--button type="button" class="btn btn-box-tool" data-widget="remove"><i class="fa fa-times"></i></button-->
+	      </div>
+	    </div>
+	    <!-- /.box-header -->
+	    <div ng-if="sensors.length == 0" class="box-body">
+	      
+	      <p>{{lang.sensors}} {{lang.not_available_yet}}</p>
+
+	    </div>
+
+	    <div ng-if="sensors.length > 0" class="box-body no-padding" >
+
+	    	<div class="table-responsive">
+	    		<table class="table table-striped no-margin" style="min-width: 700px;">
+		    		<thead>
+		    			<tr class="trh">
+			    			<th class="col-xs-1">#</th>
+			    			<th class="col-xs-2">{{lang.Name}}</th>
+			    			<th class="col-xs-2">{{lang.sensor_key}}</th>
+			    			<th class="col-xs-2">{{lang.Type}}</th>
+			    			<th class="col-xs-2">{{lang.Hive}}</th>
+			    			<th class="col-xs-2">{{lang.Select}} {{lang.hive}}</th>
+			    			<th class="col-xs-1">{{lang.Actions}}</th>
+			    		</tr>
+		    		</thead>
+		    		<tbody>
+						<tr sensor="sensor" index="i" hives="hives" ng-class="{'delete':sensor.delete}" sensortypes="sensortypes" change="selectSensorHive" changetype="selectSensorType" delete="deleteSensor" ng-repeat="(i, sensor) in sensors track by i" beep-sensor></tr>
+					</tbody>
+				</table>
+			</div>
+	    </div>
+
+	 	<div class="overlay" ng-if="loading">
+          <i class="fa fa-refresh fa-spin"></i>
+        </div>
+	    
+	    <div ng-if="sensors.length > 0" class="box-footer">
+	        <button ng-if="sensors.length > 0" ng-click="saveSensors()" class="btn btn-primary btn-block">{{lang.save}}</button>
+	    </div>
+
+	</div>
+
+</section>

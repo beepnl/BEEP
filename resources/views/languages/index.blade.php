@@ -28,7 +28,7 @@
                     {
                     "language": 
                         @php
-                            echo File::get(public_path('webapp/vendor/datatables.net-plugins/i18n/'.LaravelLocalization::getCurrentLocaleName().'.lang'));
+                            echo File::get(public_path('js/datatables/i18n/'.LaravelLocalization::getCurrentLocaleName().'.lang'));
                         @endphp
                     ,
                     "order": 
@@ -51,7 +51,7 @@
                 <tr>
                     <td>{{ $loop->iteration or $item->id }}</td>
                     <td>{{ $item->name }}</td><td>{{ $item->name_english }}</td>
-                    <td><img src="/webapp/img/{{ $item->icon }}" style="width: 30px;"> {{ $item->icon }}</td>
+                    <td><img src="/img/{{ $item->icon }}" style="width: 30px;"> {{ $item->icon }}</td>
                     <td>{{ $item->abbreviation }}</td>
                     <td>{{ $item->twochar }}</td>
                     <td col-sm-1>

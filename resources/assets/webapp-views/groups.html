@@ -1,0 +1,131 @@
+<section class="content-header">
+	<h1>
+		{{lang.Groups}}
+		<div class="pull-right">
+	    	<div>
+				<a href="#!/groups/create" class="btn btn-primary"><i class="fa fa-plus"></i> {{mobile ? lang.New : lang.create_new}} {{lang.group}}</a>
+			</div>
+	    </div>
+	</h1>
+	<div class="alert alert-success" ng-show="success_msg != null">
+        <p>{{ success_msg }}</p>
+    </div>
+
+</section>
+
+<section class="content" >
+	
+
+	<div class="box" ng-if="groups == null || groups.length == 0">
+		<div class="box-header with-border">
+	      <h3 class="box-title">{{lang.Groups}}</h3>
+	    </div>
+
+	    <div class="box-body" ng-class="{'no-padding':mobile}" style="min-height: 300px;">
+	    	<p>{{ lang.No_groups }}</p>
+	    </div>
+	 </div>
+
+
+	<div class="box" ng-if="invitations.length > 0">
+	    <!-- <div class="box-header with-border" style="{{ group.hex_color ? 'background-color: '+group.hex_color+';' : '' }}"> -->
+	    <div class="box-header with-border">
+	      <div class="box-tools">
+	        <button type="button" class="btn btn-box-tool"> <i class="fa fa-minus"></i>
+	        </button>
+
+	        <!--button type="button" class="btn btn-box-tool" data-widget="remove"><i class="fa fa-times"></i></button-->
+	      </div>
+		  <h3 class="box-title">{{lang.Group}} {{lang.invitations}}</h3>
+	    </div>
+	    <!-- /.box-header -->
+	    <div class="box-body" ng-class="{'no-padding':mobile}">
+	      	
+	      	<div class="table-responsive">
+				<table class="table table-striped no-margin table-responsive">
+		      		<thead>
+		      			<tr>
+		      				<th>{{ lang.Name }}</th>
+		      				<th>{{ lang.Description }}</th>
+		      				<th>{{ lang.Date }}</th>
+		      				<th>{{ lang.Users }}</th>
+		      				<th>{{ lang.Hives }}</th>
+		      				<th>{{ lang.Actions }}</th>
+		      			</tr>
+		      		</thead>
+					<tbody>
+						<tr ng-repeat="(key, group) in invitations | orderBy:'name':false:natSort track by $index">
+							<td>{{ group.name }}</td>
+							<td>{{ group.description }}</td>
+							<td>{{ group.invited }}</td>
+							<td>{{ group.usercount }}</td>
+							<td>{{ group.hivecount }}</td>
+							<td>
+								<a ng-click="checkToken(group.token, group.id)" class="btn btn-success">{{ lang.Accept }}</a>
+								<!-- <a ng-click="checkToken(group.token, group.id, false)" class="btn btn-danger">{{ lang.Decline }}</a> -->
+							</td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+	    </div>
+	    <!-- /.box-body -->
+	    <!-- <div class="box-footer clearfix">
+	    </div> -->
+	    <!-- /.box-footer -->
+	    <div class="overlay" ng-if="loading">
+          <i class="fa fa-refresh fa-spin"></i>
+        </div>
+	 </div>
+
+	<div class="box" ng-repeat="(key, group) in groups | orderBy:'name':false:natSort track by $index" ng-class="{'collapsed-box':!group.open}">
+	    <!-- <div class="box-header with-border" style="{{ group.hex_color ? 'background-color: '+group.hex_color+';' : '' }}"> -->
+	    <div class="box-header with-border">
+	      <div class="box-tools">
+	        <button type="button" class="btn btn-box-tool" ng-click="toggleGroup(group)"> <i class="fa" ng-class="{'fa-plus':!group.open, 'fa-minus':group.open}"></i>
+	        </button>
+
+	        <!--button type="button" class="btn btn-box-tool" data-widget="remove"><i class="fa fa-times"></i></button-->
+	      </div>
+	      <div class="group-color" style="background-color: {{ group.hex_color }};"></div>
+	      <div class="group-title">
+		      <h3 class="box-title">{{group.name}}</h3>
+		      <a href="#!/groups/{{group.id}}/edit" class="icon-button" title="{{lang.edit}}"><i class="fa fa-pencil"></i></a>
+		      <p class="box-description">
+		      	<span ng-if="group.description">{{group.description}}</span>
+		      	(<span>{{group.hives.length}} {{lang.Hives.toLowerCase()}}</span>,
+		      	 <span>{{group.users.length}} {{lang.Users.toLowerCase()}}</span>)
+		      </p>
+		  </div>
+	    </div>
+	    <!-- /.box-header -->
+	    <div class="box-body" ng-class="{'no-padding':mobile}">
+	      	
+	      	<div ng-if="!mobile" class="hives-container">
+	      		<div ng-repeat="(key, hive) in group.hives | orderBy:'name':false:natSort track by $index" class="hive-container" >
+	            	<beep-group-hive hive="hive" hiveview="true"></beep-group-hive>
+	            </div>
+	      	</div>
+
+	      	<table ng-if="mobile" class="table table-striped">
+	      		<thead></thead>
+				<tbody>
+					<tr ng-repeat="(key, hive) in group.hives | orderBy:'name':false:natSort">
+						<td>
+							<beep-group-hive hive="hive" hiveview="true"></beep-group-hive>
+			            </td>
+					</tr>
+				</tbody>
+			</table>
+
+	    </div>
+	    <!-- /.box-body -->
+	    <!-- <div class="box-footer clearfix">
+	    </div> -->
+	    <!-- /.box-footer -->
+	    <div class="overlay" ng-if="loading">
+          <i class="fa fa-refresh fa-spin"></i>
+        </div>
+	 </div>
+
+</section>

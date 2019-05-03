@@ -1,0 +1,164 @@
+<section class="content-header">
+  <h1>
+    <a class="icn prev" ng-class="{'mobile':mobile}" ng-click="back()"></a>
+    {{ pageTitle || group.name }}
+    <div class="pull-right">
+    	<div>
+	    	<a ng-if="group.id != undefined && group.creator" ng-click="confirmDeleteGroup()" class="btn btn-danger">{{lang.Delete}}</a>
+	    	<a ng-if="group.id != undefined && !group.creator" ng-click="confirmDetachGroup()" class="btn btn-danger">{{lang.Detach_from_group}}</a>
+	    </div>
+    </div>
+  </h1>
+  <!-- <ol class="breadcrumb">
+    <li><a href="/"><i class="fa fa-home"></i> Home</a></li>
+    <li class="active">{{lang.groups}}</li>
+  </ol> -->
+</section>
+
+<section class="content" >
+
+	<div class="alert alert-success" ng-show="success_msg != null">
+        <p>{{ success_msg }}</p>
+    </div>
+
+	<!-- Settings -->
+	<div class="box collapsed-box" ng-if="group.admin || group.creator">
+	    <div class="box-header with-border">
+	      <h3 class="box-title">{{lang.Group}} {{lang.settings.toLowerCase()}}</h3>
+
+	      <div class="box-tools pull-right">
+	        <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-plus"></i>
+	        </button>
+	      </div>
+	    </div>
+
+	    <div class="box-body">
+	    	<dl class="dl-horizontal">
+	    		<dt>{{lang.Name}}*</dt>
+	    		<dd><input ng-model="group.name" name="name" type="text" placeholder="{{ lang.name }}" class="form-control" required="required"></dd>
+	    	</dl>
+	    	
+	    	<!-- <dl class="dl-horizontal">
+	    		<dt>{{lang.Type}}*</dt>
+	    		<dd>
+	                <select ng-model="group_type" ng-options="item as item.trans[locale] group by item.group[locale] for item in grouptypes | orderBy:transSort track by item.id" type="select" class="form-control" required="required">
+	                	<option value=''>{{lang.Select}} {{lang.Hive_type}}...</option>
+	                </select>
+	            </dd>
+	    	</dl> -->
+	    	<dl class="dl-horizontal">
+	    		<dt>{{lang.Description}}</dt>
+	    		<dd>
+		            <textarea ng-model="group.description" name="description" placeholder="{{ lang.Description }}" class="form-control"></textarea>
+	    		</dd>
+	    	</dl>
+	    	<dl class="dl-horizontal">
+	    		<dt>{{lang.Group}} {{lang.color}}</dt>
+	    		<dd>
+					<color-picker ng-model="group.hex_color"></color-picker>
+	    		</dd>
+	    	</dl>
+
+	    </div>
+
+	    <div class="overlay" ng-if="loading">
+          <i class="fa fa-refresh fa-spin"></i>
+        </div>
+
+       <!--  <div class="box-footer">
+        	<button ng-click="saveGroup(true)" class="btn btn-primary btn-block">{{lang.save_and_return}}</button>
+        </div> -->
+	</div>
+
+
+	<!-- Users -->
+	<div class="box collapsed-box" ng-if="group.admin || group.creator">
+	    <div class="box-header with-border">
+	      <h3 class="box-title">{{ lang.Members }} ({{ group.users.length }})</h3>
+
+	      <div class="box-tools pull-right">
+	        <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-plus"></i>
+	        </button>
+	        <!--button type="button" class="btn btn-box-tool" data-widget="remove"><i class="fa fa-times"></i></button-->
+	      </div>
+	    </div>
+	    <!-- /.box-header -->
+	    <div class="box-body no-padding">
+			<div class="table-responsive">
+				<table class="table table-striped no-margin table-responsive" style="min-width: 700px;">
+		    		<thead>
+		    			<tr class="trh">
+			    			<th class="col-xs-1">#</th>
+			    			<th class="col-xs-3">{{lang.Name}}</th>
+			    			<th class="col-xs-3">{{lang.email}}</th>
+			    			<th class="col-xs-2">{{lang.Invited}}</th>
+			    			<th class="col-xs-2">{{lang.Type}} {{lang.Member.toLowerCase()}}</th>
+			    			<th class="col-xs-1">{{lang.Actions}}</th>
+			    		</tr>
+		    		</thead>
+		    		<tbody>
+		    			<tr><td colspan="6"><a ng-click="addGroupUser()" class="btn btn-primary pull-right"><i class="fa fa-plus"></i> {{mobile ? lang.add : lang.add}} {{lang.Member.toLowerCase()}}</a></td></tr>
+	    				<tr user="user" index="u" delete="deleteGroupUser" ng-class="{'delete':user.delete}" ng-repeat="(u, user) in group.users" beep-user-selector></tr>
+	    			</tbody>
+    			</table>
+    		</div>
+	    </div>
+	     
+	    <div class="overlay" ng-if="loading">
+          <i class="fa fa-refresh fa-spin"></i>
+        </div>
+
+       <!--  <div class="box-footer" ng-if="deletedUser || addedUser">
+        	<button ng-click="saveGroup(true)" class="btn btn-primary btn-block">{{ addedUser && deletedUser ? lang.save : addedUser ? lang.Invite : deletedUser ? lang.Delete : lang.save_and_return }}</button>
+        </div> -->
+	    
+	</div>
+
+
+	<!-- Hives -->
+	<div class="box">
+	    <div class="box-header with-border">
+	      <h3 class="box-title">{{ lang.My_shared }} {{lang.hives.toLowerCase()}}</h3>
+
+	      <div class="box-tools pull-right" ng-if="group.admin">
+	        <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
+	        </button>
+	        <!--button type="button" class="btn btn-box-tool" data-widget="remove"><i class="fa fa-times"></i></button-->
+	      </div>
+	    </div>
+	    <!-- /.box-header -->
+	    <div class="box-body">
+	    	<dl class="dl-horizontal hive-select">
+	    		<dt>{{lang.Hives}}</dt>
+	    		<dd>
+	    			<p>{{ lang.Select }} {{ lang.hives.toLowerCase() }} {{ lang.to_share }}</p>
+	    		</dd>
+	    	</dl>
+	    	<dl class="dl-horizontal hive-select" ng-repeat="(i, loc) in locations track by i">
+	    		<dt>{{loc.name}}</dt>
+	    		<dd>
+	    			<div class="hives-container selection">
+		    			<div hive="hive" selecthive="selectGroupHive" selectedids="group.hives_selected" editableids="group.hives_editable" ng-repeat="(j, hive) in loc.hives | orderBy:'name':false:natSort track by j" beep-hive-selector></div>
+		    		</div>
+	    		</dd>
+	    	</dl>
+	    	
+	    </div>
+	     
+	    <div class="overlay" ng-if="loading">
+          <i class="fa fa-refresh fa-spin"></i>
+        </div>
+
+        <!-- <div class="box-footer">
+        	<button ng-click="saveGroup(true)" class="btn btn-primary btn-block">{{lang.save_and_return}}</button>
+        </div> -->
+	    
+	</div>
+
+	<div class="alert alert-danger" ng-show="error_msg != null">
+        <p>{{ error_msg }}</p>
+    </div>
+
+	<button ng-click="saveGroup(true)" class="btn btn-primary btn-block">{{lang.save}}</button>
+
+</section>

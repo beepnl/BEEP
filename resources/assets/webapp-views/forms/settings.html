@@ -1,0 +1,78 @@
+<section class="content-header">
+  <h1>
+	<a class="icn prev" ng-class="{'mobile':mobile}" ng-click="back()"></a>
+	{{lang.sensors_title}}
+  <!-- <ol class="breadcrumb">
+    <li><a href="/"><i class="fa fa-home"></i> Home</a></li>
+    <li class="active">{{lang.dashboard}}</li>
+  </ol> -->
+  </h1>
+  <br>
+	<select ng-if="sensors.length > 0" ng-model="selectedSensor" ng-options="sensor as sensor.name for sensor in sensors" ng-change="getSensorValues(selectedSensor.id)" class="form-control">
+	</select>
+</section>
+
+<section class="content" >
+
+<div ng-iscroll="settings-form-wrapper" class="view-content" ng-class="{loading : isLoading}">	
+	<div id="settings-form-wrapper" class="iscroll-wrapper">
+	    
+	    	<div class="box" ng-show="selectedSensorId">
+			    <div class="box-header with-border">
+			     	<h3 class="box-title">
+				      	{{lang.calibrate_weight}} {{selectedSensor.name}}
+    				</h3>
+			     
+			    </div>
+			    <!-- /.box-header -->
+			    <div class="box-body">
+
+					<div class="row" ng-if="lastSensorDate" >
+						<div class="col-xs-12">
+							<div ng-if="lastSensorValues.length > 0">
+								<h3>{{lang.last_measurement}}: {{ lastSensorDate }}</h3>
+								<ul class="sensor">
+									<li class="measurement" ng-repeat="sensor in lastSensorValues | filter:true:inSensorNames">
+										<span class="icn {{sensor.name}}"></span> <span class="name">{{lang[sensor.name]}}</span> <span class="value">{{sensor.value | number: 1}}</span> <span class="unit">{{sensorUnits[sensor.name]}}</span>
+									</li>
+								</ul>
+								<hr>
+							</div>
+
+							<div ng-if="selectedSensorId != null">
+								<h3>{{lang.calibrate_weight}}</h3>
+								<p>{{lang.calibrate_explanation}}</p>
+								<ul><li ng-repeat="sensor in weightSensors | filter:nonZeroWeight">{{lang[sensor.name]}}: {{sensor.value}}</li></ul>
+								<a class="btn btn-default" ng-click="offsetWeight()">{{lang.set_as_zero_value}}</a>
+
+								<br><hr>
+							
+								<h3>{{lang.set_weight_factor}}</h3>
+								<p>{{lang.own_weight_kg}}</p>
+								<input class="form-control" type="text" ng-model="calibrate_weight" placeholder="{{lang.weight}}" name="weight_kg" />
+							
+								<br>
+							
+								<p>{{calibrate_msg ? calibrate_msg : lang.start_calibration}}</p>
+								<a class="btn btn-default" ng-click="calibrateWeight(calibrate_weight)" ng-disabled="calibrating"><i class="fa fa-refresh fa-spin" ng-if="calibrating"></i> {{lang.currently_there_is}} {{ calibrate_weight != undefined && calibrate_weight != 0 ? calibrate_weight + ' kg' : lang.nothing}} {{lang.on_the_scale}}</a>
+							</div>
+
+						</div>
+						<br>
+	    				<!-- <button type="submit" class="btn btn-primary btn-block" ng-class="{'disabled':!changed}">{{lang.save}}</button> -->
+	    			</div>
+
+	    			<p ng-if="!lastSensorDate" >{{lang.no_data}}</p>
+					
+				</div>
+
+				<div class="overlay" ng-if="loading">
+		          <i class="fa fa-refresh fa-spin"></i>
+		        </div>
+
+			</div>
+
+	</div>
+</div>
+
+</section>

@@ -1,0 +1,177 @@
+<section class="content-header">
+    <h1>
+		<a class="icn prev" ng-class="{'mobile':mobile}" ng-click="back()"></a>
+		{{mobile ? '' : lang.Inspections}} {{mobile ? '' : hive.location + ' - '}} {{hive.name}}
+		<div class="pull-right" >
+			<a ng-if="hive.editable != false" href="#!/hives/{{hiveId}}/inspect" class="btn btn-primary"><i class="fa fa-plus"></i> {{mobile ? '' : lang.New_inspection}}</a>
+			<!-- <div ng-if="showMore" class="arrows">
+				<a class="icn prev" ng-class="{'mobile':mobile}" ng-click="prevHive()"></a>
+				<a class="icn next" ng-click="nextHive()"></a>
+			</div> -->
+		</div>
+	</h1>
+	<!-- <ol class="breadcrumb">
+	<li><a href="/"><i class="fa fa-home"></i> Home</a></li>
+	<li class="active">{{lang.inspections}}</li>
+	</ol> -->
+</section>
+
+<section class="content" >
+	
+	<div class="box">
+
+	    <div ng-if="inspections.length == 0">
+	      <div class="box-header with-border">
+		      <h3 class="box-title">{{lang.Inspections}}</h3>
+		  </div>
+	      <div class="box-body">
+		      <p>{{lang.Inspections}} {{lang.not_available_yet}}</p>
+		  </div>
+	    </div>
+
+	    <div ng-if="inspections.length > 0" class="box-body inspections no-padding">
+			<div class="table-responsive">
+				<table class="table table-striped inspections" ng-class="{'mobile':mobile}">
+					<thead>
+						<tr class="trh">
+							<th class="tdr"><strong>{{lang.Inspections}}</strong></th>
+							<th ng-repeat="inspection in inspections track by $index" class="tdc">
+								<div class="inspection-actions" ng-if="inspection.owner">
+									<a href="#!/hives/{{hiveId}}/inspections/{{inspection.id}}" class="icon-button"><i class="fa fa-pencil"></i></a>
+									<a ng-click="confirmDeleteInspection(inspection.id)" class="icon-button delete"><i class="fa fa-trash"></i></a>
+								</div>
+								<strong ng-if="!mobile">{{ inspection.created_at | amDateFormat:'dd D MMMM YYYY HH:mm' }}</strong>
+								<strong ng-if="mobile">{{ inspection.created_at | amDateFormat:'dd D MMM HH:mm' }}</strong>
+							</th>
+							<th class="filler"></th>
+						</tr>
+					</thead>
+
+
+					<tbody>
+						<tr>
+							<td class="tdr">{{lang.positive_impression}}</td>
+							<td ng-repeat="ins in inspections track by $index" class="tdc">
+								<div ng-if="ins.impression != null && ins.impression > -1" class="fa-stack smile filled">
+									<i class="fa fa-circle fa-stack-2x" ng-class="{'frown':ins.impression==1, 'meh':ins.impression==2, 'smile':ins.impression==3}"></i>
+									<i class="fa fa-stack-2x face" ng-class="{'fa-frown-o':ins.impression==1, 'fa-meh-o':ins.impression==2, 'fa-smile-o':ins.impression==3}"></i>
+								</div>
+							</td>
+							<td class="filler"></td>
+						</tr>
+						<tr>
+							<td class="tdr">{{lang.needs_attention}}</td>
+							<td ng-repeat="ins in inspections track by $index" class="tdc">
+								<div ng-if="ins.attention != null && ins.attention > -1" ng-class="{'yes':!parseBool(ins.attention), 'no':parseBool(ins.attention)}" class="inspection-icon">{{ parseBool(ins.attention) ? lang.yes : lang.no}}</div>
+							</td>
+							<td class="filler"></td>
+						</tr>
+						<tr>
+							<td class="tdr">{{lang.notes}}</td>
+							<td ng-repeat="ins in inspections track by $index" class="tdc">
+								<span class="notes" ng-class="{'mobile':mobile}" title="{{ ins.notes }}">{{ ins.notes }}</span>
+							</td>
+							<td class="filler"></td>
+						</tr>
+
+						<tr>
+							<td class="tdr">{{lang.reminder}}</td>
+							<td ng-repeat="ins in inspections track by $index" class="tdc">
+								<span class="notes reminder" ng-class="{'mobile':mobile}" title="{{ ins.reminder }}">{{ ins.reminder }}</span>
+								<span ng-if="ins.reminder_date">
+									<addtocalendar
+									    start-date="{{ ins.reminder_date | amDateFormat:'YYYYMMDDTHHmmss' }}"
+									    end-date="{{ ins.reminder_date | amAdd : '1' : 'hours' | amDateFormat:'YYYYMMDDTHHmmss' }}"
+									    title="Beep {{ lang.reminder }}: {{ ins.reminder }}"
+									    location="{{ hive.location }} - {{ hive.name }}"
+									    class-name="btn btn-xs btn-default {{ mobile ? 'mobile' : ''}}"
+									    use-bootstrap="true"
+									    btn-text="{{lang.add_to_calendar}}"
+									    description="Beep app {{lang.Inspection}} @ {{ inspection.created_at | amDateFormat:'ddd D MMMM YYYY HH:mm' }}">
+									</addtocalendar>
+								</span>
+							</td>
+							<td class="filler"></td>
+						</tr>
+
+						<tr>
+							<td class="tdr">{{lang.remind_date}}</td>
+							<td ng-repeat="ins in inspections track by $index" class="tdc">
+								<span class="notes reminder-date" ng-class="{'mobile':mobile}" title="{{ ins.reminder_date }}">{{ ins.reminder_date | amDateFormat:'dd D MMMM YYYY HH:mm' }}</span>
+							</td>
+							<td class="filler"></td>
+						</tr>
+
+						<tr ng-repeat="items in items_by_date track by $index">
+							<td class="tdr" ng-class="{'header':items.items == null}">
+								<span ng-if="items.items != null" class="ancestors">{{items.anc}}</span>
+								<span ng-class="{'header':items.items == null}">{{items.name}}</span>
+							</td>
+
+							<td ng-if="items.items == null" colspan="{{inspections.length+1}}" class="header"></td> 
+							<td ng-if="items.items != null" ng-repeat="item in items.items track by $index" class="tdc">
+
+								<span ng-if="item.type == 'slider'">{{item.val}}</span>
+								
+								<span ng-if="item.type == 'list'">
+									<div ng-repeat="opt in item.val.split(',') | orderBy:opt" style="margin-bottom: 3px;" class="label label-default label-block">{{opt}}</div>
+								</span>
+								
+								<span ng-if="item.type == 'options'">{{ item.val }}</span>
+								<span ng-if="item.type == 'select'">{{ item.val }}</span>
+								<span ng-if="item.type == 'text'">{{ item.val }}</span>
+								<span ng-if="item.type == 'date'">{{ item.val | amDateFormat:'dd D MMM YYYY HH:mm' }}</span>
+								<span ng-if="item.type.indexOf('number') > -1">{{ item.val }}</span>
+								
+								<span ng-if="item.type == 'boolean' || item.type == 'list_item'">
+									<div ng-class="{'yes':parseBool(item.value), 'no':!parseBool(item.value)}" class="inspection-icon {{item.name}}">{{ parseBool(item.value) ? lang.yes : lang.no}}</div>
+								</span>
+								<span ng-if="item.type == 'boolean_yes_red'">
+									<div ng-class="{'yes':!parseBool(item.value), 'no':parseBool(item.value)}" class="inspection-icon {{item.name}}">{{ parseBool(item.value) ? lang.yes : lang.no}}</div>
+								</span>
+								
+								<span ng-if="item.type == 'smileys_3' && item.value != null">
+									<div class="fa-stack smile filled">
+										<i class="fa fa-circle fa-stack-2x" ng-class="{'frown':item.value==1, 'meh':item.value==2, 'smile':item.value==3}"></i>
+										<i class="fa fa-stack-2x face" ng-class="{'fa-frown-o':item.value==1, 'fa-meh-o':item.value==2, 'fa-smile-o':item.value==3}"></i>
+
+									</div>
+								</span>
+								<span ng-if="item.type == 'score'">
+									<ul class="star-rating">
+										<li ng-repeat="i in [0,1,2,3,4] track by $index" ng-class="{'filled':i < item.val}" class="star display"><i class="fa fa-star"></i></li>
+									</ul>
+								</span>
+
+								<span ng-if="item.type == 'grade'" style="color: {{ gradeColor(item.value) }}; font-weight: bold;">{{ item.val }}</span>
+						        <span ng-if="item.type == 'score_quality'" style="color: {{ qualityColor(item.value) }};">{{ scoreQualityOptions[item.value] }}</span>
+								<span ng-if="item.type == 'score_amount'" style="color: {{ amountColor(item.value) }}; font-weight: bold;">{{ scoreAmountOptions[item.value] }}</span>
+
+								<span ng-if="item.type == 'select_apiary'">{{item.val}}</span>
+								<span ng-if="item.type == 'select_hive'">{{item.val}}</span>
+								<span ng-if="item.type == 'select_country'">{{item.val.toUpperCase()}}</span>
+								<span ng-if="item.type == 'bee_subspecies'">{{item.val}}</span>
+								<span ng-if="item.type == 'select_hive_type'">{{item.val}}</span>
+
+								<span ng-if="item.unit != null">{{item.unit}}</span>
+
+							</td>
+							<td ng-if="items.items != null" class="filler"></td>
+						</tr>
+					</tbody>
+				</table>
+			<div>
+
+	    </div>
+
+	    <div class="overlay" ng-if="loading">
+          <i class="fa fa-refresh fa-spin"></i>
+        </div>
+
+	</div>
+
+	<div class="alert alert-danger" ng-show="error_msg != null">
+        <p>{{ error_msg }}</p>
+    </div>
+
+</section>

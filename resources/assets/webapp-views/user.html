@@ -1,0 +1,91 @@
+<section class="content-header">
+  <h1>
+    <a class="icn prev" ng-class="{'mobile':mobile}" ng-click="back()"></a>
+    {{lang.edit}} {{lang.user_data}}
+    <div class="pull-right">
+    	<div>
+	    	<a ng-click="confirmDeleteUser()" class="btn btn-danger">{{lang.Delete}}</a>
+	    </div>
+    </div>
+  </h1>
+  <!-- <ol class="breadcrumb">
+    <li><a href="/"><i class="fa fa-home"></i> Home</a></li>
+    <li class="active">{{lang.hives}}</li>
+  </ol> -->
+</section>
+
+<section class="content" >
+	
+	<div class="alert alert-danger" ng-show="error_msg != null">
+        <p>{{ error_msg }}</p>
+    </div>
+	
+	<!-- Settings -->
+	<div class="box">
+	    <div class="box-header with-border">
+	      <h3 class="box-title">{{lang.User_data}}</h3>
+	    </div>
+
+	    <div class="box-body">
+	    	
+			<form name="edit" id="user-edit-form" class="form user-form">
+		        <div class="alert alert-{{message.resultType}}" ng-show="message.show">
+			    	<p>{{message.resultMessage}}</p>
+			    </div>
+
+			    <div ng-show="formStatus=='edited'" class="alert alert-success">
+					<p class="summary">{{lang.User_data}} {{lang.updated}}</p>
+				</div>
+
+		    	<dl class="dl-horizontal">
+		    		<dt>{{lang.username}}</dt>
+		    		<dd><input ng-model="fields.edit.name" name="name" type="text" placeholder="{{ lang.name }}" autocorrect="off" autocapitalize="none" class="form-control"></dd>
+		    	</dl>
+		    	<dl class="dl-horizontal">
+		    		<dt>{{lang.email}}</dt>
+		    		<dd>
+		    			<div class="form-group has-feedback" ng-class="{'has-error':error.email}">
+							<input type="email" class="form-control" name="email" ng-model="fields.edit.email" autocorrect="off" autocapitalize="none" placeholder="{{lang.email}}" required="required" />
+						</div>
+					</dd>
+		    	</dl>
+		    	<dl class="dl-horizontal">
+		    		<dt>{{lang.password_recovery_reset_password}}</dt>
+		    		<dd>
+		    			<div class="form-group has-feedback" ng-class="{'has-error':error.password}">
+							<input type="password" class="form-control" name="password" ng-model="fields.edit.password" placeholder="{{lang.password}}" />
+						</div>
+					</dd>
+		    	</dl>
+		    	<dl class="dl-horizontal">
+		    		<dt>{{lang.confirm_password}}</dt>
+		    		<dd>
+				    	<div class="form-group has-feedback" ng-class="{'has-error':error.password_retype}">
+							<input type="password" class="form-control" name="password_retype" ng-model="fields.edit.password_confirmation" match-password="password" placeholder="{{lang.confirm_password}}" />
+						</div>
+					</dd>
+				</dl>
+				<dl class="dl-horizontal">
+		    		<dt>{{lang.Terms_of_use}}</dt>
+		    		<dd>
+						<div class="form-group has-feedback" ng-class="{'has-error':error.policy_accepted}">
+						    <label>
+						      <input icheck type="checkbox" ng-model="fields.edit.policy_accepted"> {{lang.accept_policy}}: <a href="{{lang.policy_url}}" target="_blank">{{lang.Terms_of_use}}</a>
+						    </label>
+						</div>
+					</dd>
+				</dl>
+				
+			</form>
+		</div>
+
+		<div class="box-footer">
+			<button ng-click="editUser()" class="btn btn-primary btn-block">{{lang.save}}</button>
+		</div>
+
+	    <div class="overlay" ng-if="loading">
+          <i class="fa fa-refresh fa-spin"></i>
+        </div>
+	</div>
+
+</section>

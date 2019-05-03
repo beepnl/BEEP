@@ -3,8 +3,8 @@
     "Regards": "Vriendelijke groet",
     "Verify Email Address": "Activeer je account",
     "Reset Password Notification": "Wachtwoord reset link",
-    "Please click the button below to verify your email address.": "Klik op de onderstaande knop om je account te activeren.",
-    "If you did not create an account, no further action is required.": "Als je geen account hebt aangemaakt, kun je dit bericht negeren.",
+    "Please click the button below to verify your email address. This one-time account activation has been added to better protect your BEEP account. This now checks whether you have access to the e-mail address used.": "Klik op de onderstaande knop om je account te activeren. Deze eenmalige accountactivatie is toegevoegd om je BEEP account beter te beveiligen. Hiermee is nu gecontroleerd of je toegang hebt tot het gebruikte e-mail adres.",
+    "If you did not create, or do not own a BEEP account, no further action is required.": "Als je geen BEEP account hebt (aangemaakt), kun je dit bericht negeren.",
     "If you did not request a password reset, no further action is required.": "Als je geen wachtwoord reset hebt aangevraagd, kun je dit bericht negeren.",
     "You are receiving this email because we received a password reset request for your account.": "Hierbij je aangevraagde wachtwoord reset link. Na het aanklikken van de link kun je zelf een nieuw wachtwoord instellen en weer inloggen.",
 	"If you’re having trouble clicking the \":actionText\" button, copy and paste the URL below\ninto your web browser: [:actionURL](:actionURL)": "Als je problemen hebt met het aanklikken van de \":actionText\" knop, kopieer en plak deze URL dan in je webbrowser:\n[:actionURL](:actionURL)"

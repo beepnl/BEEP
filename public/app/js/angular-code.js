@@ -3157,6 +3157,7 @@ app.controller('MeasurementsCtrl', function ($scope, $rootScope, $timeout, $inte
     labels: {
       usePointStyle: true,
       fontSize: $rootScope.mobile ? $scope.fontSizeMob : $scope.fontSize,
+      boxWidth: $rootScope.mobile ? $scope.fontSizeMob : $scope.fontSize,
       padding: $rootScope.mobile ? 6 : 10,
       fullWidth: $rootScope.mobile ? false : true // generateLabels: function(chart) 
       // {

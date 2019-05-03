@@ -45,7 +45,7 @@ app.run(function ($rootScope, $location, $window, $route, $routeParams, amMoment
 
   $rootScope.locale = typeof $rootScope.supportedLocales[navLocale] != 'undefined' ? navLocale : 'nl'; // set the chart colors 
 
-  Chart.defaults.global.defaultFontFamily = "'DinPro', 'MAIN', sans-serif";
+  Chart.defaults.global.defaultFontFamily = "'DinPro', 'MAIN', 'Roboto Condensed', sans-serif";
   Chart.defaults.global.defaultFontSize = 16;
   Chart.defaults.global.defaultFontStyle = "normal";
   Chart.defaults.global.defaultFontColor = "#444444";

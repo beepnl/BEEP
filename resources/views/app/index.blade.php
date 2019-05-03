@@ -39,11 +39,12 @@
         <link href="/img/splash/apple-touch-startup-ipad-retina-landscape.png" media="only screen and (device-width: 1536px) and (orientation: landscape) and (-webkit-device-pixel-ratio: 2)" rel="apple-touch-startup-image">
 
         <!-- admin LTE template -->
+        <link href="https://fonts.googleapis.com/css?family=Roboto+Condensed:300,300i,400,700" rel="stylesheet">
         <link rel="stylesheet" href="{{ mix('css/skin-base.css') }}" media="screen">
         <link rel="stylesheet" href="{{ mix('app/css/skin.css') }}" media="screen">
         <link rel="stylesheet" href="{{ mix('css/skin-additions.css') }}" media="screen">
         <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
-                
+
         <!--[if lt IE 9]>
             <link rel="stylesheet" type="text/css" href="vendor/datetimepicker/src/DateTimePicker-ltie9.css" />
             <script type="text/javascript" src="vendor/datetimepicker/src/DateTimePicker-ltie9.js"></script>

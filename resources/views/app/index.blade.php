@@ -90,7 +90,7 @@
         <script src="{{ mix('app/js/angular-code.js') }}"></script>
 
         <!-- external: Google maps API for easy address input -->
-        <script src="https://maps.google.com/maps/api/js?libraries=places&key=AIzaSyBfJTNckKBKFFDhx99kUt9RmKkRBlvyISs"></script>
+        <script src="https://maps.google.com/maps/api/js?libraries=places&key={{ env('GOOGLE_MAPS_KEY') }}"></script>
 
     </body>
 </html>

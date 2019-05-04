@@ -87,13 +87,6 @@ app.controller('InspectionCreateCtrl', function($scope, $rootScope, $window, $lo
 		inspections.createInspectionObject(type, id, value, items);
 	}
 
-	$scope.inspectionGeneralItem = function(type, id, value, items)
-	{
-		console.log('inspectionGeneralItem', type, id, value, items);
-		inspections.createInspectionObject(type, id, value, items);
-		console.log('inspection', $scope.inspection);
-	}
-
 	$scope.renderSliders = function()
 	{
 		$timeout(function() 
@@ -106,8 +99,15 @@ app.controller('InspectionCreateCtrl', function($scope, $rootScope, $window, $lo
 	$scope.saveInspection = function()
 	{
 		var data  	 = inspections.validateChecklist();
+		// set general items
+		data.impression 	=  $scope.inspection.impression;
+		data.attention	 	=  $scope.inspection.attention;
+		data.notes 			=  $scope.inspection.notes;
+		data.remind_date 	=  $scope.inspection.remind_date;
+		data.reminder 		=  $scope.inspection.reminder;
+
 		data.hive_id = $routeParams.hiveId;
-		//console.log("saveInspection", data);
+		console.log("saveInspection", data);
 		if (data.valid === false)
 		{
 			var msg = '\'' + data.unfilled.join('\', \'') + '\' ' + $rootScope.lang['not_filled'];

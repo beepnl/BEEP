@@ -12,11 +12,11 @@ angular.module('revolunet.stepper', [])
             ngDisabled: '='
         },
         template: '<a ng-if="mobile == false" class="btn btn-primary rn-stepper left" ng-disabled="isOverMin()" ng-click="decrement()" ng-mousedown="startTimer(-1)" ng-mouseup="stopTimer()" ng-mouseout="stopTimer()" >-</a>' +
-                  '<a ng-if="mobile == true" class="btn btn-primary rn-stepper left" ng-disabled="isOverMin()" ng-click="decrement()" ng-mouseup="stopTimer()" hm-press="startTimer(-1)" hm-release="stopTimer()" >-</a>' +
-                  '<input ng-if="step < 1" type="text" ng-model="ngModel" ng-disabled="{{ngDisabled}}" placeholder="0" class="rn-stepper">' +
-                  '<input ng-if="step >= 1" type="tel" ng-model="ngModel" ng-disabled="{{ngDisabled}}" placeholder="0" class="rn-stepper">' +
+                  '<a ng-if="mobile == true" class="btn btn-primary rn-stepper left" ng-disabled="isOverMin()" ng-click="decrement()" ng-mouseup="stopTimer()" hm-press="startTimer(-1)" hm-release="stopTimer()" hm-pressup="stopTimer()">-</a>' +
+                  '<input ng-show="step < 1" type="text" ng-model="ngModel" ng-disabled="{{ngDisabled}}" placeholder="0" class="rn-stepper">' +
+                  '<input ng-show="step >= 1" type="tel" ng-model="ngModel" ng-disabled="{{ngDisabled}}" placeholder="0" class="rn-stepper">' +
                   '<a ng-if="mobile == false" class="btn btn-primary rn-stepper right" ng-disabled="isOverMax()" ng-click="increment()" ng-mousedown="startTimer(1)" ng-mouseup="stopTimer()" ng-mouseout="stopTimer()" >+</a>' +
-                  '<a ng-if="mobile == true" class="btn btn-primary rn-stepper right" ng-disabled="isOverMax()" ng-click="increment()" ng-mouseup="stopTimer()" hm-press="startTimer(1)" hm-release="stopTimer()" >+</a>',
+                  '<a ng-if="mobile == true" class="btn btn-primary rn-stepper right" ng-disabled="isOverMax()" ng-click="increment()" ng-mouseup="stopTimer()" hm-press="startTimer(1)" hm-release="stopTimer()" hm-pressup="stopTimer()" >+</a>',
         
         link: function(scope, iElement, iAttrs, ngModelController) {
 
@@ -106,7 +106,7 @@ angular.module('revolunet.stepper', [])
             scope.startTimer = function(inc)
             {
                 scope.stopTimer();
-                scope.incTimer = $timeout(startInterval, 500, true, inc);
+                scope.incTimer = $timeout(startInterval, 300, true, inc);
             }
 
             scope.stopTimer = function()

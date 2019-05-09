@@ -12,19 +12,22 @@ class CreateMeasurementsTable extends Migration
      */
     public function up()
     {
-        Schema::create('measurements', function (Blueprint $table) 
+        if (!Schema::hasTable('measurements')) 
         {
-            $table->increments('id');
-            $table->string('abbreviation');
-            $table->boolean('show_in_charts')->default(true);
-            $table->integer('chart_group')->unsigned()->default(1);
-            $table->integer('physical_quantity_id')->unsigned();
+            Schema::create('measurements', function (Blueprint $table) 
+            {
+                $table->increments('id');
+                $table->string('abbreviation');
+                $table->boolean('show_in_charts')->default(true);
+                $table->integer('chart_group')->unsigned()->default(1);
+                $table->integer('physical_quantity_id')->unsigned();
 
-            $table->foreign('physical_quantity_id')->references('id')->on('physical_quantities')
-                ->onUpdate('cascade')->onDelete('cascade');
+                $table->foreign('physical_quantity_id')->references('id')->on('physical_quantities')
+                    ->onUpdate('cascade')->onDelete('cascade');
 
-            $table->timestamps();
-        });
+                $table->timestamps();
+            });
+        }
     }
 
     /**

@@ -15,8 +15,11 @@ class AddHighLowValues extends Migration
     {
         Schema::table('physical_quantities', function (Blueprint $table) 
         {
-            $table->float('low_value')->nullable();
-            $table->float('high_value')->nullable();
+            if (!Schema::hasColumn('physical_quantities','low_value'))
+                $table->float('low_value')->nullable();
+
+            if (!Schema::hasColumn('physical_quantities','high_value'))
+                $table->float('high_value')->nullable();
         });
     }
 

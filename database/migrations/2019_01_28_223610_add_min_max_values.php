@@ -14,9 +14,12 @@ class AddMinMaxValues extends Migration
     public function up()
     {
         Schema::table('measurements', function (Blueprint $table) {
-            $table->float('min_value')->nullable();
-            $table->float('max_value')->nullable();
-            $table->string('hex_color', 6)->nullable()->default('333333');
+            if (!Schema::hasColumn('measurements','min_value'))
+                $table->float('min_value')->nullable();
+            if (!Schema::hasColumn('measurements','max_value'))
+                $table->float('max_value')->nullable();
+            if (!Schema::hasColumn('measurements','hex_color'))
+                $table->string('hex_color', 6)->nullable()->default('333333');
         });
     }
 

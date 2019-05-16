@@ -1280,7 +1280,7 @@ var convertInfluxMeasurementsArrayToChartObject = function convertInfluxMeasurem
           g: 150,
           b: 150
         };
-        var color = solidColorObj('rgba(' + rgb.r + ',' + rgb.g + ',' + rgb.b + ', 0.1)', 'rgba(' + rgb.r + ',' + rgb.g + ',' + rgb.b + ', 1)'); //console.log(name, color);
+        var color = solidColorObj('rgba(' + rgb.r + ',' + rgb.g + ',' + rgb.b + ',0.1)', 'rgba(' + rgb.r + ',' + rgb.g + ',' + rgb.b + ',1)'); //console.log(name, color);
 
         if (!isActuator) {
           // set y-axis label
@@ -1295,9 +1295,9 @@ var convertInfluxMeasurementsArrayToChartObject = function convertInfluxMeasurem
         } else {
           new_dataset.yAxisID = null; // no y axis
 
-          new_dataset.pointBorderColor = 'rgba(' + rgb.r + ',' + rgb.g + ',' + rgb.b + ', 1)'; // solid dots
+          new_dataset.pointBorderColor = 'rgba(' + rgb.r + ',' + rgb.g + ',' + rgb.b + ',1)'; // solid dots
 
-          new_dataset.pointBackgroundColor = 'rgba(' + rgb.r + ',' + rgb.g + ',' + rgb.b + ', 1)'; // solid dots
+          new_dataset.pointBackgroundColor = 'rgba(' + rgb.r + ',' + rgb.g + ',' + rgb.b + ',1)'; // solid dots
         }
 
         new_dataset.label = nameAndUnit;

@@ -168,7 +168,7 @@ var convertInfluxMeasurementsArrayToChartObject = function(obj_arr, lang, labelS
         var abbrName      = readableName.substring(0, unitLenMx);
        
         var rgb   = (typeof SENSOR_COLOR[name] !== 'undefined') ? SENSOR_COLOR[name] : {r:150, g: 150, b:150};
-        var color = solidColorObj('rgba('+rgb.r+','+rgb.g+','+rgb.b+', 0.1)', 'rgba('+rgb.r+','+rgb.g+','+rgb.b+', 1)');
+        var color = solidColorObj('rgba('+rgb.r+','+rgb.g+','+rgb.b+',0.1)', 'rgba('+rgb.r+','+rgb.g+','+rgb.b+',1)');
         //console.log(name, color);
 
         if (!isActuator)
@@ -188,8 +188,8 @@ var convertInfluxMeasurementsArrayToChartObject = function(obj_arr, lang, labelS
         else
         {
           new_dataset.yAxisID              = null; // no y axis
-          new_dataset.pointBorderColor     = 'rgba('+rgb.r+','+rgb.g+','+rgb.b+', 1)'; // solid dots
-          new_dataset.pointBackgroundColor = 'rgba('+rgb.r+','+rgb.g+','+rgb.b+', 1)'; // solid dots
+          new_dataset.pointBorderColor     = 'rgba('+rgb.r+','+rgb.g+','+rgb.b+',1)'; // solid dots
+          new_dataset.pointBackgroundColor = 'rgba('+rgb.r+','+rgb.g+','+rgb.b+',1)'; // solid dots
         }
 
         new_dataset.label = nameAndUnit;

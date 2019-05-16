@@ -403,7 +403,7 @@ app.controller('MeasurementsCtrl', function($scope, $rootScope, $timeout, $inter
                 $scope.chart.optionsActuators.scales.xAxes[0].time.min  = $scope.startTime;
                 $scope.chart.optionsActuators.scales.xAxes[0].time.max  = $scope.endTime;
 
-                // console.log($scope.measurementData);
+                console.log($scope.measurementData);
             }
             $scope.showChart = ($scope.measurementData == null) ? false : true;
             //$rootScope.refreshInterface();

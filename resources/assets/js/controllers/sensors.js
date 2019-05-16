@@ -61,6 +61,12 @@ app.controller('SensorsCtrl', function($scope, $rootScope, $timeout, $interval, 
         return typeof $scope.sensors[i] != 'undefined' ? $scope.sensors.splice(i,1) : null;
     }
 
+    $scope.showMeasurements = function(sensorIndex)
+    {
+        var s = measurements.getSensorByIndex(sensorIndex);
+        return $location.path('/measurements/'+s.id);
+    }
+
     $scope.deleteSensor = function(sensorIndex)
     {
         var s = measurements.getSensorByIndex(sensorIndex);

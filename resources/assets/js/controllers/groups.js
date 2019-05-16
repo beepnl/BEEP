@@ -4,11 +4,11 @@
  *
  * Dashboard controller
  */
-app.controller('GroupsCtrl', function($scope, $rootScope, $window, $location, $filter, $routeParams, groups, api, moment, hives, inspections) 
+app.controller('GroupsCtrl', function($scope, $rootScope, $window, $location, $filter, $routeParams, $timeout, groups, api, moment, hives, inspections) 
 {
 
-	$rootScope.title    	= $rootScope.lang.groups_title;
-	$scope.pageTitle       = '';
+	$rootScope.title    	= $rootScope.lang.Groups;
+	$scope.pageTitle        = '';
 	$scope.showMore 		= false; // multiple groups
 	$scope.redirect 		= null;
 	$scope.hives 			= [];
@@ -39,25 +39,40 @@ app.controller('GroupsCtrl', function($scope, $rootScope, $window, $location, $f
 			}
 			else if ($routeParams.groupId != undefined || $location.path().indexOf('/groups/create') > -1)
 			{
-				$scope.success_msg = $routeParams.success;
 
-				$scope.initGroups();
 				if ($location.path().indexOf('/groups/create') > -1)
 				{
 					$scope.pageTitle = $rootScope.mobile ? $rootScope.lang.New + ' ' +$rootScope.lang.group : $rootScope.lang.create_new + ' ' +$rootScope.lang.group;
 				}
-				else
-				{
-					groups.loadRemoteGroups();
+				else 
+				{	
+					if (groups.groups.length > 0)
+						$scope.initGroups();
+					else
+						groups.loadRemoteGroups();
 				}
 			} 
 			else
 			{
-				groups.loadRemoteGroups();
+				if (groups.groups.length > 0)
+					$scope.initGroups();
+				else
+					groups.loadRemoteGroups();
+			}
+			// show message
+			if (typeof $routeParams.success != 'undefined')
+			{
+				$scope.displaySuccessMessage($routeParams.success);
 			}
 		}
 
 	};
+
+	$scope.displaySuccessMessage = function(msg)
+	{
+		$scope.success_msg = msg;
+		//$timeout(function(){ $location.search('success', ''); }, 5000 );
+	}
 
 	$scope.initGroups = function()
 	{
@@ -271,23 +286,20 @@ app.controller('GroupsCtrl', function($scope, $rootScope, $window, $location, $f
 		$scope.error_msg = error.status == 422 ? "Error: "+convertOjectToArray(error.message).join(', ') : $rootScope.lang.empty_fields+'.';
 	}
 
-	$scope.groupsMessage = function(type, data)
+	$scope.groupChanged = function(type, data, status)
 	{
-		//console.log(data);
-		$scope.success_msg = data.message;
-		$scope.error_msg   = null;
-	}
-
-	$scope.groupChanged = function(type, data)
-	{
-		if ($scope.redirect != null && ( typeof data.message == 'undefined' || (data.message == 'group_detached' || data.message == 'group_activated')) )
+		if ($scope.redirect != null)
 		{
 			$location.path($scope.redirect);
-			if ($scope.success_msg != null)
-				$location.search('success', $scope.success_msg);
+			if (data.message != null)
+				$location.search('success', data.message);
 
 			$scope.success_msg = null;
 			$scope.redirect    = null;
+		}
+		else if (data.message != null)
+		{
+			$scope.success_msg = data.message;
 		}
 	}
 
@@ -300,7 +312,6 @@ app.controller('GroupsCtrl', function($scope, $rootScope, $window, $location, $f
 	$scope.groupsHandler 		= $rootScope.$on('groupsUpdated', $scope.groupsUpdate);
 	$scope.hivesHandler 		= $rootScope.$on('hivesUpdated', $scope.hivesUpdate);
 	$scope.groupsErrorHandler 	= $rootScope.$on('groupsError', $scope.groupsError);
-	$scope.groupsMessageHandler = $rootScope.$on('groupsMessage', $scope.groupsMessage);
 
 	$scope.back = function()
 	{
@@ -331,7 +342,6 @@ app.controller('GroupsCtrl', function($scope, $rootScope, $window, $location, $f
 		$scope.groupsHandler();
 		$scope.hivesHandler();
 		$scope.groupsErrorHandler();
-		$scope.groupsMessageHandler();
 		$scope.backListener();
     };
     

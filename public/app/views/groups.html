@@ -7,14 +7,13 @@
 			</div>
 	    </div>
 	</h1>
-	<div class="alert alert-success" ng-show="success_msg != null">
-        <p>{{ success_msg }}</p>
-    </div>
-
 </section>
 
 <section class="content" >
 	
+	<div class="alert alert-success" ng-show="success_msg != null">
+        <p>{{ success_msg }}</p>
+    </div>	
 
 	<div class="box" ng-if="groups == null || groups.length == 0">
 		<div class="box-header with-border">

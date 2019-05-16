@@ -127,9 +127,9 @@ app.service('api', ['$http', '$rootScope', function ($http, $rootScope) {
     }
   };
 
-  this.handleResponses = function (type, result) {
-    console.info(type, result != undefined ? _typeof(result) == 'object' ? result.length == undefined ? Object.keys(result).length : result.length : '' : '');
-    $rootScope.$broadcast(type, result);
+  this.handleResponses = function (type, result, status) {
+    console.info(type, status, result != undefined ? _typeof(result) == 'object' ? result.length == undefined ? Object.keys(result).length : result.length : '' : '');
+    $rootScope.$broadcast(type, result, status);
 
     switch (type) {
       case "authenticateLoaded":
@@ -217,9 +217,10 @@ app.service('api', ['$http', '$rootScope', function ($http, $rootScope) {
     $http(req).then(function (response) // success
     {
       // set the data
+      var status = typeof response != 'undefined' ? response.status : 0;
       var result = response.data != undefined ? response.data : response; // set the listeners
 
-      self.handleResponses(type + 'Loaded', result);
+      self.handleResponses(type + 'Loaded', result, status);
       $rootScope.$broadcast('endLoading');
     }, function (response) // error
     {
@@ -229,7 +230,7 @@ app.service('api', ['$http', '$rootScope', function ($http, $rootScope) {
       self.handleResponses(type + 'Error', {
         'message': error,
         'status': status
-      });
+      }, status);
       $rootScope.$broadcast('endLoading');
 
       if (status == 401 || type == 'checkAuthentication' && status == 302) // re-authenticate
@@ -1110,7 +1111,6 @@ app.service('groups', ['$http', '$rootScope', 'api', 'hives', function ($http, $
   this.groupsHandler = function (e, data) {
     // get the result
     var result = data;
-    if (typeof result.message != 'undefined') return $rootScope.$broadcast('groupsMessage', result);
     if (result != null && typeof result.groups != 'undefined') self.groups = result.groups;
     if (result != null && typeof result.invitations != 'undefined') self.invitations = result.invitations;
     var group_ids = [];
@@ -1140,30 +1140,35 @@ app.service('groups', ['$http', '$rootScope', 'api', 'hives', function ($http, $
 
     self.processGroupHives();
     self.refresh();
-  };
+  }; // Put all group-hives in hives array and add id's to selected and editable arrays
+
 
   this.processGroupHives = function (e, data) {
+    self.hives = [];
+
     for (var i = 0; i < self.groups.length; i++) {
       var group = self.groups[i];
 
       if (typeof group.hives != 'undefined' && group.hives.length > 0) {
         group.hives_selected = [];
         group.hives_editable = [];
-        self.hives = [];
 
         for (var j = group.hives.length - 1; j >= 0; j--) {
           var hive = group.hives[j];
 
           if (hive != null && typeof hive.id != 'undefined') {
-            if (hive.editable) group.hives_editable.push(hive.id);
+            if (hive.editable == 'true') group.hives_editable.push(hive.id);
             group.hives_selected.push(hive.id);
             hive = hives.addHiveCalculations(hive);
+            hive.group_name = group.name;
             self.hives.push(hive);
+            if (hive.id == 8499) console.log(hive);
           }
         }
       }
-    } //console.log(self.groups);
+    }
 
+    console.log(self.hives);
   };
 
   this.groupsError = function (e, error) {
@@ -1183,8 +1188,7 @@ app.service('groups', ['$http', '$rootScope', 'api', 'hives', function ($http, $
   };
 
   self.reset();
-  $rootScope.$on('reset', self.reset);
-  self.loadRemoteGroups();
+  $rootScope.$on('reset', self.reset); //self.loadRemoteGroups();
 }]);
 /*
  * BEEP app
@@ -2424,7 +2428,7 @@ app.controller('PasswordCtrl', function ($scope, $rootScope, $window, $location,
  * Dashboard controller
  */
 
-app.controller('InspectionCreateCtrl', function ($scope, $rootScope, $window, $location, $filter, $routeParams, $timeout, settings, api, moment, hives, inspections) {
+app.controller('InspectionCreateCtrl', function ($scope, $rootScope, $window, $location, $filter, $routeParams, $timeout, settings, api, moment, hives, groups, inspections) {
   $rootScope.title = $rootScope.lang.Inspections;
   $scope.showMore = false; // multiple inspections
 
@@ -2452,6 +2456,7 @@ app.controller('InspectionCreateCtrl', function ($scope, $rootScope, $window, $l
       $rootScope.hives = hives.hives;
       $rootScope.locations = hives.locations;
       $scope.hive = hives.getHiveById($routeParams.hiveId);
+      if ($scope.hive == null) $scope.hive = groups.getHiveById($routeParams.hiveId);
       $scope.inspection = inspections.newSaveObject();
       $scope.checklistsUpdated();
       $scope.checklist = inspections.checklist;
@@ -2747,7 +2752,8 @@ app.controller('InspectionsCtrl', function ($scope, $rootScope, $window, $locati
       if ($scope.hive == null) $scope.hive = groups.getHiveById($scope.hiveId);
       $scope.showMore = hives.hives_inspected.length > 1 ? true : false;
       $scope.setScales();
-      $scope.loadInspections(); //console.log($scope.hive);
+      $scope.loadInspections();
+      console.log($scope.hive);
     }
   };
 
@@ -3616,6 +3622,11 @@ app.controller('SensorsCtrl', function ($scope, $rootScope, $timeout, $interval,
     return typeof $scope.sensors[i] != 'undefined' ? $scope.sensors.splice(i, 1) : null;
   };
 
+  $scope.showMeasurements = function (sensorIndex) {
+    var s = measurements.getSensorByIndex(sensorIndex);
+    return $location.path('/measurements/' + s.id);
+  };
+
   $scope.deleteSensor = function (sensorIndex) {
     var s = measurements.getSensorByIndex(sensorIndex);
     if (typeof s.id == 'undefined') return $scope.removeSensorByIndex(sensorIndex);
@@ -3726,8 +3737,8 @@ app.controller('SensorsCtrl', function ($scope, $rootScope, $timeout, $interval,
  * Dashboard controller
  */
 
-app.controller('GroupsCtrl', function ($scope, $rootScope, $window, $location, $filter, $routeParams, groups, api, moment, hives, inspections) {
-  $rootScope.title = $rootScope.lang.groups_title;
+app.controller('GroupsCtrl', function ($scope, $rootScope, $window, $location, $filter, $routeParams, $timeout, groups, api, moment, hives, inspections) {
+  $rootScope.title = $rootScope.lang.Groups;
   $scope.pageTitle = '';
   $scope.showMore = false; // multiple groups
 
@@ -3752,18 +3763,24 @@ app.controller('GroupsCtrl', function ($scope, $rootScope, $window, $location, $
         $rootScope.title = $rootScope.lang.Invitation_accepted;
         $scope.checkToken($routeParams.token, $routeParams.groupId);
       } else if ($routeParams.groupId != undefined || $location.path().indexOf('/groups/create') > -1) {
-        $scope.success_msg = $routeParams.success;
-        $scope.initGroups();
-
         if ($location.path().indexOf('/groups/create') > -1) {
           $scope.pageTitle = $rootScope.mobile ? $rootScope.lang.New + ' ' + $rootScope.lang.group : $rootScope.lang.create_new + ' ' + $rootScope.lang.group;
         } else {
-          groups.loadRemoteGroups();
+          if (groups.groups.length > 0) $scope.initGroups();else groups.loadRemoteGroups();
         }
       } else {
-        groups.loadRemoteGroups();
+        if (groups.groups.length > 0) $scope.initGroups();else groups.loadRemoteGroups();
+      } // show message
+
+
+      if (typeof $routeParams.success != 'undefined') {
+        $scope.displaySuccessMessage($routeParams.success);
       }
     }
+  };
+
+  $scope.displaySuccessMessage = function (msg) {
+    $scope.success_msg = msg; //$timeout(function(){ $location.search('success', ''); }, 5000 );
   };
 
   $scope.initGroups = function () {
@@ -3956,18 +3973,14 @@ app.controller('GroupsCtrl', function ($scope, $rootScope, $window, $location, $
     $scope.error_msg = error.status == 422 ? "Error: " + convertOjectToArray(error.message).join(', ') : $rootScope.lang.empty_fields + '.';
   };
 
-  $scope.groupsMessage = function (type, data) {
-    //console.log(data);
-    $scope.success_msg = data.message;
-    $scope.error_msg = null;
-  };
-
-  $scope.groupChanged = function (type, data) {
-    if ($scope.redirect != null && (typeof data.message == 'undefined' || data.message == 'group_detached' || data.message == 'group_activated')) {
+  $scope.groupChanged = function (type, data, status) {
+    if ($scope.redirect != null) {
       $location.path($scope.redirect);
-      if ($scope.success_msg != null) $location.search('success', $scope.success_msg);
+      if (data.message != null) $location.search('success', data.message);
       $scope.success_msg = null;
       $scope.redirect = null;
+    } else if (data.message != null) {
+      $scope.success_msg = data.message;
     }
   };
 
@@ -3980,7 +3993,6 @@ app.controller('GroupsCtrl', function ($scope, $rootScope, $window, $location, $
   $scope.groupsHandler = $rootScope.$on('groupsUpdated', $scope.groupsUpdate);
   $scope.hivesHandler = $rootScope.$on('hivesUpdated', $scope.hivesUpdate);
   $scope.groupsErrorHandler = $rootScope.$on('groupsError', $scope.groupsError);
-  $scope.groupsMessageHandler = $rootScope.$on('groupsMessage', $scope.groupsMessage);
 
   $scope.back = function () {
     if ($rootScope.optionsDialog) {
@@ -4003,7 +4015,6 @@ app.controller('GroupsCtrl', function ($scope, $rootScope, $window, $location, $
     $scope.groupsHandler();
     $scope.hivesHandler();
     $scope.groupsErrorHandler();
-    $scope.groupsMessageHandler();
     $scope.backListener();
   };
 

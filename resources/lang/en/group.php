@@ -16,5 +16,6 @@ return [
     'email_na'      => 'These e-mail addresses are not yet members of Beep: ',
     'Invited'       => 'Invited: ',
     'Updated'       => 'Updated: ',
-
+    'Created'       => 'Created: ',
+    'Deleted'       => 'Deleted: ',
 ];

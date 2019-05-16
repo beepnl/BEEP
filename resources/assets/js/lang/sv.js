@@ -407,7 +407,7 @@
     Remove_group            : 'Are you sure you want to competely remove this shared group for all it\'s members',
     Detach_from_group       : 'Remove me and my hives from this group',
     my_hive                 : 'My hive',
-
+    created                 : 'created',
  };
 
 

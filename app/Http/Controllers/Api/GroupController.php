@@ -18,11 +18,11 @@ use Validator;
 class GroupController extends Controller
 {
 
-    public function index(Request $request, $code=200)
+    public function index(Request $request, $code=200, $message=null, $error=null)
     {
         $groups = $request->user()->groups()->orderBy('name')->get();
         $invite = $request->user()->groupInvitations();
-        return response()->json(['invitations'=>$invite, 'groups'=>$groups], $code);
+        return response()->json(['invitations'=>$invite, 'groups'=>$groups, 'message'=>$message, 'error'=>$error], $code);
     }
 
     public function checktoken(Request $request)
@@ -84,12 +84,12 @@ class GroupController extends Controller
         if (gettype($msg) == 'array')
         {
             if (isset($msg['message']))
-                return response()->json($msg, 201);
+                return $this->index($request, 201, $msg['message']);
             else if (isset($msg['error']))
-                return response()->json($msg, 422);
+                return $this->index($request, 422, null, $msg['error']);
         }
 
-        return $this->index($request, 201);
+        return $this->index($request, 201, __('group.Created').$requestData['name']);
     }
 
 
@@ -98,7 +98,7 @@ class GroupController extends Controller
         $group = $request->user()->groups()->find($id);
         if ($group)
         {
-            return response()->json($group); // formatting for jsTree
+            return response()->json($group); 
         }
         return response()->json(null, 404);
     }
@@ -127,13 +127,13 @@ class GroupController extends Controller
                 if (gettype($msg) == 'array')
                 {
                     if (isset($msg['message']))
-                        return response()->json($msg, 201);
+                        return $this->index($request, 201, $msg['message']);
                     else if (isset($msg['error']))
-                        return response()->json($msg, 422);
+                        return $this->index($request, 422, null, $msg['error']);
                 }
             }
 
-            return $this->index($request, 200);
+            return $this->index($request, 200, __('group.Updated').$requestData['name']);
         }
         return response()->json('no_group_found', 404);
     }
@@ -165,11 +165,16 @@ class GroupController extends Controller
     public function destroy(Request $request, $id)
     {
         $group = $request->user()->groups()->findOrFail($id);
-        
+        $name  = $group->name;
+        $del   = false;
+
         if ($group && $group->getCreatorAttribute())
-            $group->delete();
+        {
+            $del = $group->delete();
+            return $this->index($request, 200, __('group.Deleted').$name);
+        }
         
-        return $this->index($request);
+        return $this->index($request, 404, null, 'no_group_creator');
     }
     
     

@@ -32,6 +32,14 @@ class GroupAcceptation extends Mailable
      */
     public function build()
     {
-        return $this->markdown('emails.group_acceptation',['group'=>$this->group, 'name'=>$this->name, 'user'=>$this->user])->subject(__('group.subject_accept'));
+        return $this->markdown(
+            'emails.group_acceptation',
+            [
+                'group'=>$this->group, 
+                'name'=>$this->name, 
+                'user'=>$this->user
+            ]
+        )
+        ->subject(__('group.subject_accept'));
     }
 }

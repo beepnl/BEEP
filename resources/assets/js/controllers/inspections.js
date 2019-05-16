@@ -97,7 +97,7 @@ app.controller('InspectionsCtrl', function($scope, $rootScope, $window, $locatio
 			$scope.showMore = hives.hives_inspected.length > 1 ? true : false;
 			$scope.setScales();
 			$scope.loadInspections();
-			//console.log($scope.hive);
+			console.log($scope.hive);
 		}
 	};
 

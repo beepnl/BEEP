@@ -56,7 +56,7 @@
 			    		</tr>
 		    		</thead>
 		    		<tbody>
-						<tr sensor="sensor" index="i" hives="hives" ng-class="{'delete':sensor.delete}" sensortypes="sensortypes" change="selectSensorHive" changetype="selectSensorType" delete="deleteSensor" ng-repeat="(i, sensor) in sensors track by i" beep-sensor></tr>
+						<tr sensor="sensor" index="i" hives="hives" ng-class="{'delete':sensor.delete}" sensortypes="sensortypes" change="selectSensorHive" changetype="selectSensorType" delete="deleteSensor" show="showMeasurements" ng-repeat="(i, sensor) in sensors track by i" beep-sensor></tr>
 					</tbody>
 				</table>
 			</div>

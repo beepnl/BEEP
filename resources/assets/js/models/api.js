@@ -155,10 +155,10 @@ app.service('api', ['$http', '$rootScope', function($http, $rootScope)
 	}
 
 
-	this.handleResponses = function(type, result)
+	this.handleResponses = function(type, result, status)
 	{
-		console.info(type, (result != undefined ? typeof result == 'object' ? result.length == undefined ? Object.keys(result).length : result.length : '' : ''));
-		$rootScope.$broadcast(type, result);
+		console.info(type, status, (result != undefined ? typeof result == 'object' ? result.length == undefined ? Object.keys(result).length : result.length : '' : ''));
+		$rootScope.$broadcast(type, result, status);
 		
 		switch(type)
 		{
@@ -274,10 +274,11 @@ app.service('api', ['$http', '$rootScope', function($http, $rootScope)
 			function(response) // success
 			{
 				// set the data
+				var status = (typeof response != 'undefined') ? response.status : 0;
 				var result = (response.data != undefined) ? response.data : response;
 
 				// set the listeners
-				self.handleResponses(type+'Loaded', result);
+				self.handleResponses(type+'Loaded', result, status);
 				$rootScope.$broadcast('endLoading');
 			}
 			, function(response) // error
@@ -285,7 +286,7 @@ app.service('api', ['$http', '$rootScope', function($http, $rootScope)
 				var error = (typeof response != 'undefined') ? (typeof response.data != 'undefined') ? (typeof response.data.errors != 'undefined') ? response.data.errors : (typeof response.data.message != 'undefined') ? response.data.message : response.data : response : 'error';
 				var status= (typeof response != 'undefined') ? response.status : 0;
 				// set the listeners
-				self.handleResponses(type+'Error', {'message':error, 'status':status});
+				self.handleResponses(type+'Error', {'message':error, 'status':status}, status);
 				$rootScope.$broadcast('endLoading');
 
 				if(status == 401 || (type == 'checkAuthentication' && status == 302)) // re-authenticate

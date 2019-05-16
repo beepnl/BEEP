@@ -4,7 +4,7 @@
  *
  * Dashboard controller
  */
-app.controller('InspectionCreateCtrl', function($scope, $rootScope, $window, $location, $filter, $routeParams, $timeout, settings, api, moment, hives, inspections) 
+app.controller('InspectionCreateCtrl', function($scope, $rootScope, $window, $location, $filter, $routeParams, $timeout, settings, api, moment, hives, groups, inspections) 
 {
 
 	$rootScope.title    	= $rootScope.lang.Inspections;
@@ -41,7 +41,11 @@ app.controller('InspectionCreateCtrl', function($scope, $rootScope, $window, $lo
 			$rootScope.hivetypes  = settings.hivetypes;
 			$rootScope.hives  	  = hives.hives;
 			$rootScope.locations  = hives.locations;
+			
 			$scope.hive 	  	  = hives.getHiveById($routeParams.hiveId);
+			if ($scope.hive == null)
+				$scope.hive = groups.getHiveById($routeParams.hiveId);
+
 			$scope.inspection 	  = inspections.newSaveObject();
 			$scope.checklistsUpdated();
 			$scope.checklist      = inspections.checklist;

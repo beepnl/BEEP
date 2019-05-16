@@ -5,7 +5,8 @@ app.directive('beepSensor', ['$rootScope', function($rootScope) {
          
           // Table row
             '<td>'+
-              '<p ng-bind="index+1"></p>'+
+              '<span ng-bind="index+1" style="margin-right: 5px;"></span>'+
+              '<a ng-click="show(index)" class="btn btn-default"><i class="fa fa-line-chart"></i></a>'+
             '</td>'+
             '<td>'+
               '<input class="form-control" ng-model="sensor.name" ng-disabled="sensor.delete">'+
@@ -38,6 +39,7 @@ app.directive('beepSensor', ['$rootScope', function($rootScope) {
         change: '=?',
         changetype: '=?',
         delete: '=?',
+        show: '=?',
         index: '=?'
       },
       link: function(scope, element, attributes) {

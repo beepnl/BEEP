@@ -91,9 +91,6 @@ app.service('groups', ['$http', '$rootScope', 'api', 'hives', function($http, $r
 		// get the result
 		var result = data;
 		
-		if (typeof result.message != 'undefined')
-			return $rootScope.$broadcast('groupsMessage', result);
-
 		if (result != null && typeof result.groups != 'undefined')
 			self.groups = result.groups;
 
@@ -137,8 +134,11 @@ app.service('groups', ['$http', '$rootScope', 'api', 'hives', function($http, $r
 		self.refresh();
 	};
 
+	// Put all group-hives in hives array and add id's to selected and editable arrays
 	this.processGroupHives = function(e, data)
 	{
+		self.hives = [];
+
 		for (var i = 0; i < self.groups.length; i++) 
 		{
 			var group = self.groups[i];
@@ -147,25 +147,27 @@ app.service('groups', ['$http', '$rootScope', 'api', 'hives', function($http, $r
 			{
 				group.hives_selected = [];
 				group.hives_editable = [];
-				self.hives 			 = [];
 
 				for (var j = group.hives.length - 1; j >= 0; j--)
 				{
 					var hive = group.hives[j];
 					if (hive != null && typeof hive.id != 'undefined')
 					{
-						if (hive.editable)
+						if (hive.editable == 'true')
 							group.hives_editable.push(hive.id);
 
 						group.hives_selected.push(hive.id);
 						hive = hives.addHiveCalculations(hive);
+						hive.group_name = group.name;
 
 						self.hives.push(hive);
+						if (hive.id == 8499)
+							console.log(hive);
 					}
 				}
 			}
 		}
-		//console.log(self.groups);
+		console.log(self.hives);
 	}
 
 	this.groupsError = function(e, error)
@@ -192,7 +194,7 @@ app.service('groups', ['$http', '$rootScope', 'api', 'hives', function($http, $r
 
 	self.reset();
 	$rootScope.$on('reset', self.reset);
-	self.loadRemoteGroups();
+	//self.loadRemoteGroups();
 	
 
 }]);

@@ -18,13 +18,12 @@ You are free to use the BEEP app, it's free and it will be developed further in 
 
 * Linux Debian (8+)
 * Software installed
-  * PHP 7.2
+  * PHP 7.1+
   * MariaDB/MySQL
   * Apache 2 (or Nginx, creating Nginx 'server blocks' in step 4)
   * InfluxDB (https://docs.influxdata.com/influxdb/v1.7/introduction/installation/)
   * [Composer](https://getcomposer.org/download/) - Installation tool for PHP/Laravel dependencies for API
   * [npm](https://www.npmjs.com/get-npm) - Installation tool for Javascript/Angular dependencies for App
-  * [Bower](https://bower.io/) ```npm install -g bower``` - Installation tool for front-end dependencies for App
 * Optional: Letsencrypt SSL certificate generation
 
 
@@ -94,7 +93,7 @@ With command: ```sudo certbot --authenticator webroot --installer apache```
 
 ## 5. Add Influx database
 ```
-sudo influx
+influx
 > CREATE USER user_influx WITH PASSWORD 'pass_influx' WITH ALL PRIVILEGES
 > CREATE DATABASE bee_data
 > exit

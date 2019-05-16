@@ -16,4 +16,6 @@ return [
     'email_na'      => 'Deze e-mail adressen zijn nog geen lid van Beep: ',
     'Invited'       => 'Uitgenodigd: ',
     'Updated'       => 'Geupdate: ',
+    'Created'       => 'Aangemaakt: ',
+    'Deleted'       => 'Verwijderd: ',
 ];

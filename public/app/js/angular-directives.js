@@ -582,7 +582,7 @@ app.directive('checklistInput', ['$rootScope', function ($rootScope) {
         }
       };
     },
-    templateUrl: '/app/views/forms/checklist_input.html'
+    templateUrl: '/app/views/forms/checklist_input.html?v=1'
   };
 }]);
 app.directive('beepHive', ['$rootScope', function ($rootScope) {

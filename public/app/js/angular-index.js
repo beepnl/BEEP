@@ -522,19 +522,19 @@ app.config(['$routeProvider', '$locationProvider', function ($routeProvider) {
   }) // hives
   .when('/hives/create', {
     controller: 'HivesCtrl',
-    templateUrl: '/app/views/hive_edit.html?v=2'
+    templateUrl: '/app/views/hive_edit.html?v=3'
   }).when('/hives/:hiveId/inspect', {
     controller: 'InspectionCreateCtrl',
-    templateUrl: '/app/views/inspect.html?v=5'
+    templateUrl: '/app/views/inspect.html?v=6'
   }).when('/hives/:hiveId/inspections/:inspectionId', {
     controller: 'InspectionCreateCtrl',
-    templateUrl: '/app/views/inspect.html?v=5'
+    templateUrl: '/app/views/inspect.html?v=6'
   }).when('/hives/:hiveId/inspections', {
     controller: 'InspectionsCtrl',
     templateUrl: '/app/views/inspections.html?v=4'
   }).when('/hives/:hiveId/edit', {
     controller: 'HivesCtrl',
-    templateUrl: '/app/views/hive_edit.html?v=2'
+    templateUrl: '/app/views/hive_edit.html?v=3'
   }).when('/hives', {
     controller: 'HivesCtrl',
     templateUrl: '/app/views/hives.html?v=3'

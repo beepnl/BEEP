@@ -95,7 +95,7 @@
 	      <div class="group-title">
 		      <h3 class="box-title">{{group.name}}</h3>
 		      <a href="#!/groups/{{group.id}}/edit" class="icon-button" title="{{lang.edit}}"><i class="fa fa-pencil"></i></a>
-		      <p class="box-description">
+		      <p ng-if="!mobile" class="box-description">
 		      	<span ng-if="group.description">{{group.description}}</span>
 		      	(<span>{{group.hives.length}} {{lang.Hives.toLowerCase()}}</span>,
 		      	 <span>{{group.users.length}} {{lang.Users.toLowerCase()}}</span>)

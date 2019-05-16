@@ -260,8 +260,17 @@
 	   		height: 40vh;
 		}
 			.chart-narrow{
+				position: relative;
+				display: inline-block;
 				max-height: 200px;
 				height: 200px;
+			}
+
+			.chart-holder.small{
+				display: inline-block;
+				position: relative;
+				padding-right: 10px;
+				width: 50%;
 			}
 
 		/* Due to no axes */

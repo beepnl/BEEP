@@ -100,7 +100,7 @@ sudo influx
 > exit
 ```
 **NB: Make sure to pass the user and credentials to the .env file that has been created in step 3.**
-
+**NB: If your Influx version was < 1.1.x (no TSI support), when using backups to transfer data: first install the old version that you are currently using on a new server, import the backups, then update to the newest Influx version!**
 
 ## 6. If you would like to easily deploy your fork (or this repo), 
 
@@ -163,9 +163,10 @@ Please request access to https://trello.com/b/Eb3CcKES/beep-hive-check-app if yo
 Upcoming:
 * Hardware weighing scale + audio measurement kit development (2018 Q2-Q4)
   * See https://www.openhardware.io/view/630
-* Bee keeping teacher support - Inspection list sharing (2018 Q3)
 * Integration sensor data / hive inspections (2018 Q4)
-* User feedback improvements (2019 Q1)
+* User feedback improvements (2019 Q1 + Q2)
+* Bee keeping teacher support - Inspection list sharing (2019 Q2)
+* Hardware measurement system version 3 (2019 Q3)
 * Many new features for health checking and sensor (2019 Q3 - 2023 Q3)
 
 History:

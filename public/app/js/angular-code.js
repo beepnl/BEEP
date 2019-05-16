@@ -806,9 +806,9 @@ app.service('inspections', ['$http', '$rootScope', 'api', 'settings', function (
 
         $rootScope.$broadcast('checklistUpdated');
       }
-    }
+    } //console.log('newSaveObject', self.saveObject);
 
-    console.log('newSaveObject', self.saveObject);
+
     return self.saveObject;
   };
 
@@ -2455,9 +2455,8 @@ app.controller('InspectionCreateCtrl', function ($scope, $rootScope, $window, $l
       if ($routeParams.inspectionId) {
         $scope.inspection_id = $routeParams.inspectionId;
         inspections.loadRemoteInspection($routeParams.inspectionId);
-      }
+      } //console.log('init-inspection', $scope.inspection);
 
-      console.log('init-inspection', $scope.inspection);
     }
   };
 
@@ -2498,10 +2497,11 @@ app.controller('InspectionCreateCtrl', function ($scope, $rootScope, $window, $l
   $scope.saveInspection = function () {
     var data = inspections.validateChecklist(); // set general items
 
+    data.date = $scope.inspection.date;
     data.impression = $scope.inspection.impression;
     data.attention = $scope.inspection.attention;
     data.notes = $scope.inspection.notes;
-    data.remind_date = $scope.inspection.remind_date;
+    data.reminder_date = $scope.inspection.reminder_date;
     data.reminder = $scope.inspection.reminder;
     data.hive_id = $routeParams.hiveId;
     console.log("saveInspection", data);
@@ -3462,8 +3462,7 @@ app.controller('MeasurementsCtrl', function ($scope, $rootScope, $timeout, $inte
         $scope.chart.optionsDebug.scales.xAxes[0].time.max = $scope.endTime; //$scope.chart.optionsActuators.scales.xAxes[0].time.unit = $scope.activeUnit;
 
         $scope.chart.optionsActuators.scales.xAxes[0].time.min = $scope.startTime;
-        $scope.chart.optionsActuators.scales.xAxes[0].time.max = $scope.endTime;
-        console.log($scope.measurementData);
+        $scope.chart.optionsActuators.scales.xAxes[0].time.max = $scope.endTime; // console.log($scope.measurementData);
       }
 
       $scope.showChart = $scope.measurementData == null ? false : true; //$rootScope.refreshInterface();

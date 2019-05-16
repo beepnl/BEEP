@@ -10,7 +10,7 @@ app.directive('beepHive', ['$rootScope', function($rootScope) {
             '<p ng-if="hive.reminder_date != null && hive.reminder_date != \'\'" class="notes reminder-date">{{hive.reminder_date | amDateFormat:\'dd D MMMM YYYY HH:mm\'}}</p>'+
             '<div class="info">'+
               '<a ng-if="hive.attention == 1" href="#!/hives/{{hive.id}}/inspections" class="attention-icon" title="{{lang.needs_attention}}">!</a>'+
-              '<a ng-if="hive.queen.color != null && hive.queen.color != \'\'" href="#!/hives/{{hive.id}}/edit" class="queen-icon" style="background-color: {{hive.queen.color}};" title="{{hive.queen.name}}"></a>'+
+              '<a ng-if="hive.queen.color != null && hive.queen.color != \'\'" href="#!/hives/{{hive.id}}/edit#queen" class="queen-icon" style="background-color: {{hive.queen.color}};" title="{{hive.queen.name}}"></a>'+
               '<a ng-if="hive.impression > 0" href="#!/hives/{{hive.id}}/inspections" class="impression-icon" ng-class="{\'frown\':hive.impression==1, \'meh\':hive.impression==2, \'smile\':hive.impression==3}">'+
                 '<i class="fa fa-2x" ng-class="{\'fa-frown-o\':hive.impression==1, \'fa-meh-o\':hive.impression==2, \'fa-smile-o\':hive.impression==3}"></i>'+
               '</a>'+
@@ -70,7 +70,7 @@ app.directive('beepHive', ['$rootScope', function($rootScope) {
               '<p ng-if="hive.reminder_date != null && hive.reminder_date != \'\'" class="notes reminder-date">{{hive.reminder_date | amDateFormat:\'dd D MMM YYYY HH:mm\'}}</p>'+
               '<div class="info mobile">'+
                 '<a ng-if="hive.attention == 1" href="#!/hives/{{hive.id}}/inspections" class="attention-icon">!</a>'+
-                '<a ng-if="hive.queen.color != null && hive.queen.color != \'\'" href="#!/hives/{{hive.id}}/edit" class="queen-icon" style="background-color: {{hive.queen.color}};"></a>'+
+                '<a ng-if="hive.queen.color != null && hive.queen.color != \'\'" href="#!/hives/{{hive.id}}/edit#queen" class="queen-icon" style="background-color: {{hive.queen.color}};"></a>'+
                 '<a ng-if="hive.impression > 0" href="#!/hives/{{hive.id}}/inspections" class="impression-icon" ng-class="{\'frown\':hive.impression==1, \'meh\':hive.impression==2, \'smile\':hive.impression==3}">'+
                   '<i class="fa fa-2x" ng-class="{\'fa-frown-o\':hive.impression==1, \'fa-meh-o\':hive.impression==2, \'fa-smile-o\':hive.impression==3}"></i>'+
                 '</a>'+

@@ -141,6 +141,7 @@ mix.babel([
     'resources/assets/js/directives/beep-user-selector.js',
     'resources/assets/js/directives/beep-sensor.js',
     'resources/assets/js/directives/angular-country-select.js',
+    'resources/assets/js/directives/angular-restrict-input.js',
     'node_modules/angular-password/angular-password.min.js',
 	], 'public/app/js/angular-directives.js').version();
 

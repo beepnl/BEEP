@@ -52,7 +52,7 @@ app.controller('InspectionCreateCtrl', function($scope, $rootScope, $window, $lo
 				$scope.inspection_id = $routeParams.inspectionId;
 				inspections.loadRemoteInspection($routeParams.inspectionId);
 			}
-			console.log('init-inspection', $scope.inspection);
+			//console.log('init-inspection', $scope.inspection);
 		}
 	};
 
@@ -100,10 +100,11 @@ app.controller('InspectionCreateCtrl', function($scope, $rootScope, $window, $lo
 	{
 		var data  	 = inspections.validateChecklist();
 		// set general items
+		data.date 			=  $scope.inspection.date;
 		data.impression 	=  $scope.inspection.impression;
 		data.attention	 	=  $scope.inspection.attention;
 		data.notes 			=  $scope.inspection.notes;
-		data.remind_date 	=  $scope.inspection.remind_date;
+		data.reminder_date 	=  $scope.inspection.reminder_date;
 		data.reminder 		=  $scope.inspection.reminder;
 
 		data.hive_id = $routeParams.hiveId;

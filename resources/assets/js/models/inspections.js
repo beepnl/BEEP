@@ -135,7 +135,7 @@ app.service('inspections', ['$http', '$rootScope', 'api', 'settings', function($
 			}
 		}
 
-		console.log('newSaveObject', self.saveObject);
+		//console.log('newSaveObject', self.saveObject);
 		return self.saveObject;
 	}
 

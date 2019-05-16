@@ -12,7 +12,7 @@ return [
     'Accept_invite' => 'Accepteer de uitnodiging',
     'Dear'          => 'Beste',
     'accepted'      => 'heeft de uitnodiging geaccepteerd voor groep: ',
-    'subject_accept'=> 'Groep acceptate',
+    'subject_accept'=> 'Groep acceptatie',
     'email_na'      => 'Deze e-mail adressen zijn nog geen lid van Beep: ',
     'Invited'       => 'Uitgenodigd: ',
     'Updated'       => 'Geupdate: ',

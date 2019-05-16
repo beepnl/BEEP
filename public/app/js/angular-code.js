@@ -3748,7 +3748,7 @@ app.controller('GroupsCtrl', function ($scope, $rootScope, $window, $location, $
     if (api.getApiToken() == null) {
       $location.path('/login');
     } else if ($location.path().indexOf('/groups') > -1) {
-      if ($routeParams.token != undefined && $location.path().indexOf('/groups/') > -1 && $location.path().indexOf('/token/') > -1) {
+      if ($routeParams.token != undefined && $routeParams.groupId != undefined && $location.path().indexOf('/groups/') > -1 && $location.path().indexOf('/token/') > -1) {
         $rootScope.title = $rootScope.lang.Invitation_accepted;
         $scope.checkToken($routeParams.token, $routeParams.groupId);
       } else if ($routeParams.groupId != undefined || $location.path().indexOf('/groups/create') > -1) {

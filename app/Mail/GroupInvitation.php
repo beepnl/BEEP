@@ -18,12 +18,13 @@ class GroupInvitation extends Mailable
      *
      * @return void
      */
-    public function __construct(Group $group, $name, $admin, $token)
+    public function __construct(Group $group, $name, $admin, $token, $invited_by)
     {
         $this->group = $group;
         $this->name  = $name;
         $this->admin = $admin;
         $this->token = $token;
+        $this->invited_by = $invited_by;
     }
 
     /**
@@ -33,6 +34,13 @@ class GroupInvitation extends Mailable
      */
     public function build()
     {
-        return $this->markdown('emails.group_invitation',['group'=>$this->group, 'name'=>$this->name, 'admin'=>$this->admin, 'acceptUrl'=>url('/webapp#!/groups/'.$this->group->id.'/token/'.$this->token)])->subject(__('group.subject_invite'));
+        return $this->markdown('emails.group_invitation',
+        [
+            'group'=>$this->group, 
+            'name'=>$this->name, 
+            'admin'=>$this->admin, 
+            'acceptUrl'=>url('/webapp#!/groups/'.$this->group->id.'/token/'.$this->token), 
+            'invited_by'=>$this->invited_by
+        ])->subject(__('group.subject_invite'));
     }
 }

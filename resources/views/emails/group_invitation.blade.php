@@ -1,7 +1,7 @@
 @component('mail::message')
 {{ __('group.Dear') }} {{$name}},
 
-{{ __('group.group_text') }}
+{{ __('group.group_text', ['invited_by' => $invited_by]) }}
 
 {{ $admin ? __('group.Admin').' '.__('group.of').' '.__('group.group') : __('group.Group') }}:
 {{ $group->name }}

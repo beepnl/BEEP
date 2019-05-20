@@ -401,6 +401,8 @@
     Detach_from_group       : 'Remove me and my hives from this group',
     my_hive                 : 'My hive',
     created                 : 'created',
+    group_detached          : 'Successfully left the group',
+    group_activated         : 'Group invitation accepted',
  };
 
 

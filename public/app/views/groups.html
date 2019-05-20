@@ -15,21 +15,6 @@
         <p>{{ success_msg }}</p>
     </div>	
 
-	<div class="box" ng-if="groups == null || groups.length == 0">
-		<div class="box-header with-border">
-	      <h3 class="box-title">{{lang.Groups}}</h3>
-	    </div>
-
-	    <div class="box-body" ng-class="{'no-padding':mobile}" style="min-height: 300px;">
-	    	<p>{{ lang.No_groups }}</p>
-	    </div>
-
-	    <div class="overlay" ng-if="loading">
-          <i class="fa fa-refresh fa-spin"></i>
-        </div>
-	 </div>
-
-
 	<div class="box" ng-if="invitations.length > 0">
 	    <!-- <div class="box-header with-border" style="{{ group.hex_color ? 'background-color: '+group.hex_color+';' : '' }}"> -->
 	    <div class="box-header with-border">
@@ -42,7 +27,7 @@
 		  <h3 class="box-title">{{lang.Group}} {{lang.invitations}}</h3>
 	    </div>
 	    <!-- /.box-header -->
-	    <div class="box-body" ng-class="{'no-padding':mobile}">
+	    <div class="box-body no-padding">
 	      	
 	      	<div class="table-responsive">
 				<table class="table table-striped no-margin table-responsive">
@@ -80,6 +65,20 @@
           <i class="fa fa-refresh fa-spin"></i>
         </div>
 	 </div>
+
+	<div class="box" ng-if="groups == null || groups.length == 0">
+		<div class="box-header with-border">
+	      <h3 class="box-title">{{lang.Groups}}</h3>
+	    </div>
+
+	    <div class="box-body" ng-class="{'no-padding':mobile}" style="min-height: 300px;">
+	    	<p>{{ lang.No_groups }}</p>
+	    </div>
+
+	    <div class="overlay" ng-if="loading">
+          <i class="fa fa-refresh fa-spin"></i>
+        </div>
+	</div>
 
 	<div class="box" ng-repeat="(key, group) in groups | orderBy:'name':false:natSort track by $index" ng-class="{'collapsed-box':!group.open}">
 	    <!-- <div class="box-header with-border" style="{{ group.hex_color ? 'background-color: '+group.hex_color+';' : '' }}"> -->

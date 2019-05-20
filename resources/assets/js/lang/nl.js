@@ -403,6 +403,8 @@
     Detach_from_group       : 'Verwijder mij en mijn kasten uit deze groep',
     my_hive                 : 'Mijn kast',
     created                 : 'aangemakt',
+    group_detached          : 'Succesvol uit de groep gestapt',
+    group_activated         : 'Groepsuitnodiging geaccepteerd',
  };
 
 

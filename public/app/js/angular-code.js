@@ -3779,6 +3779,7 @@ app.controller('GroupsCtrl', function ($scope, $rootScope, $window, $location, $
   };
 
   $scope.displaySuccessMessage = function (msg) {
+    if (typeof $rootScope.lang[msg] != 'undefined') msg = $rootScope.lang[msg];
     $scope.success_msg = msg; //$timeout(function(){ $location.search('success', ''); }, 5000 );
   };
 
@@ -3858,8 +3859,8 @@ app.controller('GroupsCtrl', function ($scope, $rootScope, $window, $location, $
   $scope.selectGroupHive = function (hive) {
     if (typeof $scope.group == 'undefined') return;
     var hive_id = hive.id;
-    if (typeof $scope.group.hives_selected == 'undefined') $scope.group.hives_selected = [];
-    if (typeof $scope.group.hives_editable == 'undefined') $scope.group.hives_editable = [];
+    if (typeof $scope.group.hives_selected == 'undefined' || $scope.group.hives_selected == null) $scope.group.hives_selected = [];
+    if (typeof $scope.group.hives_editable == 'undefined' || $scope.group.hives_editable == null) $scope.group.hives_editable = [];
     var selected_ind = $scope.group.hives_selected.indexOf(hive_id);
     var editable_ind = $scope.group.hives_editable.indexOf(hive_id);
 
@@ -3975,11 +3976,19 @@ app.controller('GroupsCtrl', function ($scope, $rootScope, $window, $location, $
   $scope.groupChanged = function (type, data, status) {
     if ($scope.redirect != null) {
       $location.path($scope.redirect);
-      if (data.message != null) $location.search('success', data.message);
+
+      if (data.message != null) {
+        var msg = data.message;
+        if (typeof $rootScope.lang[msg] != 'undefined') msg = $rootScope.lang[msg];
+        $location.search('success', msg);
+      }
+
       $scope.success_msg = null;
       $scope.redirect = null;
     } else if (data.message != null) {
-      $scope.success_msg = data.message;
+      var msg = data.message;
+      if (typeof $rootScope.lang[msg] != 'undefined') msg = $rootScope.lang[msg];
+      $scope.success_msg = msg;
     }
   };
 

@@ -161,13 +161,11 @@ app.service('groups', ['$http', '$rootScope', 'api', 'hives', function($http, $r
 						hive.group_name = group.name;
 
 						self.hives.push(hive);
-						if (hive.id == 8499)
-							console.log(hive);
 					}
 				}
 			}
 		}
-		console.log(self.hives);
+		//console.log(self.hives);
 	}
 
 	this.groupsError = function(e, error)
@@ -194,7 +192,7 @@ app.service('groups', ['$http', '$rootScope', 'api', 'hives', function($http, $r
 
 	self.reset();
 	$rootScope.$on('reset', self.reset);
-	//self.loadRemoteGroups();
+	self.loadRemoteGroups();
 	
 
 }]);

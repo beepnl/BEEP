@@ -44,13 +44,7 @@ app.controller('GroupsCtrl', function($scope, $rootScope, $window, $location, $f
 				{
 					$scope.pageTitle = $rootScope.mobile ? $rootScope.lang.New + ' ' +$rootScope.lang.group : $rootScope.lang.create_new + ' ' +$rootScope.lang.group;
 				}
-				else 
-				{	
-					if (groups.groups.length > 0)
-						$scope.initGroups();
-					else
-						groups.loadRemoteGroups();
-				}
+				$scope.initGroups();
 			} 
 			else
 			{

@@ -1162,13 +1162,11 @@ app.service('groups', ['$http', '$rootScope', 'api', 'hives', function ($http, $
             hive = hives.addHiveCalculations(hive);
             hive.group_name = group.name;
             self.hives.push(hive);
-            if (hive.id == 8499) console.log(hive);
           }
         }
       }
-    }
+    } //console.log(self.hives);
 
-    console.log(self.hives);
   };
 
   this.groupsError = function (e, error) {
@@ -1188,7 +1186,8 @@ app.service('groups', ['$http', '$rootScope', 'api', 'hives', function ($http, $
   };
 
   self.reset();
-  $rootScope.$on('reset', self.reset); //self.loadRemoteGroups();
+  $rootScope.$on('reset', self.reset);
+  self.loadRemoteGroups();
 }]);
 /*
  * BEEP app
@@ -3765,9 +3764,9 @@ app.controller('GroupsCtrl', function ($scope, $rootScope, $window, $location, $
       } else if ($routeParams.groupId != undefined || $location.path().indexOf('/groups/create') > -1) {
         if ($location.path().indexOf('/groups/create') > -1) {
           $scope.pageTitle = $rootScope.mobile ? $rootScope.lang.New + ' ' + $rootScope.lang.group : $rootScope.lang.create_new + ' ' + $rootScope.lang.group;
-        } else {
-          if (groups.groups.length > 0) $scope.initGroups();else groups.loadRemoteGroups();
         }
+
+        $scope.initGroups();
       } else {
         if (groups.groups.length > 0) $scope.initGroups();else groups.loadRemoteGroups();
       } // show message

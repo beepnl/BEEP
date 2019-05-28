@@ -35,11 +35,11 @@ class SensorController extends Controller
     // Sensor crud functions
     public function index(Request $request)
     {
-        $sensor_amount = $request->user()->sensors()->count();
+        $sensor_amount = $request->user()->allSensors()->count();
         if ($sensor_amount == 0)
             return Response::json('No sensors found', 404);
 
-        $sensors = $request->user()->sensors()->get();
+        $sensors = $request->user()->allSensors()->get();
         
         return Response::json($sensors);
     }
@@ -125,7 +125,7 @@ class SensorController extends Controller
             'hive_id'   => 'nullable|integer|exists:hives,id',
         ]);
         
-        $sensors = $request->user()->sensors();
+        $sensors = $request->user()->allSensors(); // inlude user Group - hive sensors
         if ($sensors->count() > 0)
         {
             if ($request->filled('id') && $request->input('id') != 'null')

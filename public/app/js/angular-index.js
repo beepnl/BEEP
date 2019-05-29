@@ -473,7 +473,7 @@ app.config(['$routeProvider', '$locationProvider', function ($routeProvider) {
     templateUrl: '/app/views/forms/logout.html'
   }).when('/login', {
     controller: 'UserCtrl',
-    templateUrl: '/app/views/forms/login.html'
+    templateUrl: '/app/views/forms/login.html?v=1'
   }) // login/create
   .when('/login/create', {
     controller: 'UserCtrl',

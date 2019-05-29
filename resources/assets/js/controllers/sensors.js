@@ -130,6 +130,13 @@ app.controller('SensorsCtrl', function($scope, $rootScope, $timeout, $interval, 
     {
         $scope.sensortypes  = settings.sensortypes;
         $scope.sensors      = measurements.sensors;
+
+        if ($scope.sensors.length == 0)
+        {
+            measurements.loadRemoteSensors();
+            return;
+        }
+
         $scope.hives        = hives.hives;
         
         for (var i = $scope.sensors.length - 1; i >= 0; i--) 

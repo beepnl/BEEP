@@ -169,9 +169,9 @@ mix.babel([
 
 
 mix.copyDirectory('node_modules/components-font-awesome/webfonts', 'public/webfonts');
-mix.copyDirectory('resources/assets/app-views', 'public/app/views');
+mix.copyDirectory('resources/assets/app-views', 'public/app/views').version();
 
 mix.copy('resources/terms', 'public');
 
-//mix.browserSync('https://sprockler.test');
+//mix.browserSync('https://beep.test');
 

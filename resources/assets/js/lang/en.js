@@ -361,7 +361,7 @@
     server_down             : 'The app is unavailable due to maintenance work, please try again later',
     add_to_calendar         : 'Add to calendar',
     sort_on                 : 'Sort on',
-    Whats_new               : 'New in v2!',
+    Whats_new               : 'New in v2.1!',
     Manual                  : 'Manual',
 
     Site_title              : 'BEEP | Bee monitor',

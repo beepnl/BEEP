@@ -26,6 +26,7 @@ Homestead.yaml
 .phpunit.result.cache
 .DS_Store
 .phpintel
+.log
 
 npm-debug.log
 yarn-error.log

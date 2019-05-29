@@ -62,7 +62,7 @@
           <div ng-include="'/app/views/template/template-block-header.html?v=3'" ng-show="showAdminTemplate"></div>
 
           <!-- Left side column. contains the logo and sidebar -->
-          <div ng-include="'/app/views/template/template-block-sidebar-left.html?v=2'" ng-show="showAdminTemplate"></div>
+          <div ng-include="'/app/views/template/template-block-sidebar-left.html?v=3'" ng-show="showAdminTemplate"></div>
 
           <!-- Content Wrapper. Contains page content -->
           <div ng-class="{'content-wrapper':showAdminTemplate}">
@@ -73,9 +73,6 @@
           <div ng-include="'/app/views/template/template-block-footer.html'" ng-show="showAdminTemplate"></div>
           
         </div>
-
-        <!-- cordova -->
-        <!--script src="cordova.js"></script-->
 
         <!-- AdminLTE App -->
         <script src="{{ mix('js/jquery.js') }}"></script>

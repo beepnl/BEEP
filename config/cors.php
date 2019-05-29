@@ -14,7 +14,7 @@ return [
    
     'supportsCredentials' => false,
     'allowedOrigins' => ['https://app.beep.nl'],
-    'allowedOriginsPatterns' => [],
+    'allowedOriginsPatterns' => ['*'],
     'allowedHeaders' => ['*'],
     'allowedMethods' => ['*'],
     'exposedHeaders' => [],

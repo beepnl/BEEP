@@ -20,7 +20,7 @@
 	    	<br>
 
 	    	<button class="btn btn-primary btn-block" onclick="history.back();">Go back</button>
-	    	<a class="btn btn-primary btn-block" href="app.beep.nl">Open app</a>
+	    	<a class="btn btn-primary btn-block" href="https://app.beep.nl">Open app</a>
 	    </div>
 	</div>
 @endsection

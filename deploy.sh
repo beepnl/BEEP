@@ -2,9 +2,9 @@
 branch=${1:-master}  
 
 # git
-git checkout $branch
-git fetch --all
-git reset --hard origin/$branch
+sudo git checkout $branch
+sudo git fetch --all
+sudo git reset --hard origin/$branch
 
 php artisan down
 

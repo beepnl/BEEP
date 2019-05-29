@@ -22,7 +22,7 @@ class ExportController extends Controller
 {
     public function all(Request $request)
     {
-        $fileType = $request->has('fileFormat') ? $request->input('fileFormat') : 'xlsx';
+        $fileType = $request->filled('fileFormat') ? $request->input('fileFormat') : 'xlsx';
         $fileName = strtolower(env('APP_NAME')).'-export-'.$request->user()->id.time();
         $user     = $request->user();
 

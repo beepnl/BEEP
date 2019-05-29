@@ -75,5 +75,9 @@ return [
     'unit'          => 'eenheid',
     'Source'        => 'Informatiebron',
     'Icon'          => 'Icoon',
+    'No'            => 'Nee',
+    'Yes'           => 'Ja',
+    'Measurements'  => 'Sensormetingen',
+    'Error'         => 'Fout',
 
 ];

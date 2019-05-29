@@ -36,7 +36,7 @@ class Checklist extends Model
 
     protected $hidden   = ['pivot','deleted_at'];
 
-    protected $appends  = ['category_ids'];
+    protected $appends  = ['category_ids', 'required_ids'];
     
     // check for deletion of linked items
     protected static function boot() {
@@ -53,6 +53,11 @@ class Checklist extends Model
     public function getCategoryIdsAttribute()
     {
         return $this->categoryIdArray();   
+    }
+
+    public function getRequiredIdsAttribute()
+    {
+        return $this->categories()->where('required', '=', true)->pluck('id')->toArray();
     }
 
     public function categories()

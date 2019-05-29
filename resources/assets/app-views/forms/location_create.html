@@ -1,0 +1,192 @@
+<section class="content-header">
+  <h1>{{lang.create_new}} {{lang.location}}</h1>
+  <!-- <ol class="breadcrumb">
+    <li><a href="/"><i class="fa fa-home"></i> Home</a></li>
+    <li class="active">{{lang.dashboard}}</li>
+  </ol> -->
+</section>
+
+<section class="content" >
+
+<div ng-iscroll="settings-form-wrapper" class="view-content" ng-class="{loading : isLoading}">	
+	<div id="settings-form-wrapper" class="iscroll-wrapper">
+		
+	    	<div class="box">
+			    <div class="box-header with-border">
+			      <h3 class="box-title">{{lang.Location}} {{lang.settings}}</h3>
+
+			      <!-- <div class="box-tools pull-right">
+			        <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>
+			        <button type="button" class="btn btn-box-tool" data-widget="remove"><i class="fa fa-times"></i></button>
+			      </div> -->
+			    </div>
+			    <!-- /.box-header -->
+			    <div class="box-body">
+
+					<fieldset>
+						<legend>{{ lang.General }}</legend>
+						<div class="row">
+					        <div class="col-xs-12">
+					            <div class="form-group">
+					                <label>{{ lang.Name }}*</label>
+					                <input ng-model="hive.name" name="name" type="text" placeholder="{{ lang.name }}" class="form-control" required="required" >
+					            </div>
+					        </div>
+					        <!-- <div class="col-xs-12">
+					            <div class="form-group">
+					                <label>{{ lang.Description }}</label>
+					                <textarea ng-model="hive.description" name="description" placeholder="{{ lang.Description }}" class="form-control"></textarea>
+					            </div>
+					        </div> -->
+					    </div>
+					</fieldset>
+
+					<fieldset>
+						<legend>{{ lang.Location }}</legend>
+					    <div class="row">
+					        <div class="col-xs-12">
+					        	<div class="form-group">
+					                <label>{{ lang.Address }}</label>
+									<input id="autocomplete" places-auto-complete maps-autocomplete-mobile size="80" autocomplete="on" ng-model="address" strict-bounds="false" placeholder="{{ lang.Address }}" 
+									circle-bounds="{{mybounds}}" types="{{types}}" on-place-changed="placeChanged()" class="form-control" >
+					            </div>
+					        </div>
+					    </div>
+					    <!-- <div class="row">
+					        <div class="col-xs-12">
+					        	<br>
+					        	<ng-map center="{{hive.lat+','+hive.lon}}" zoom="7"></ng-map>
+					        </div>
+					    </div> -->
+					    <div class="row">
+							<div class="col-xs-12 col-sm-4 col-md-4">
+					            <div class="form-group">
+					                <label>{{ lang.Country }}</label>
+					                <country-select model="hive.country_code"></country-select>
+					            </div>
+					        </div>
+					        <div class="col-xs-6 col-sm-4 col-md-4">
+					            <div class="form-group">
+					                <label>{{ lang.Lattitude }}</label>
+					                <div step="0.001" min="-90" max="90" ng-disabled="false" ng-model="hive.lat" rn-stepper></div>
+					            </div>
+					        </div>
+					        <div class="col-xs-6 col-sm-4 col-md-4">
+					            <div class="form-group">
+					                <label>{{ lang.Longitude }}</label>
+					                <div step="0.001" min="-180" max="180" ng-disabled="false" ng-model="hive.lon" rn-stepper></div>
+					            </div>
+					        </div>
+					    </div>
+						<div class="row">
+					        <div class="col-xs-12 col-sm-8 col-md-8">
+					            <div class="form-group">
+					                <label>{{ lang.City }}</label>
+					                <input ng-model="hive.city" name="city" type="text" placeholder="{{ lang.City }}" class="form-control">
+					            </div>
+					        </div>
+					        <div class="col-xs-12 col-sm-4 col-md-4">
+					            <div class="form-group">
+					                <label>{{ lang.Postal_code }}</label>
+					                <input ng-model="hive.postal_code" name="postal_code" type="text" placeholder="{{ lang.Postal_code }}" class="form-control">
+					            </div>
+					        </div>
+					        <div class="col-xs-8 col-sm-8 col-md-8">
+					            <div class="form-group">
+					                <label>{{ lang.Street }}</label>
+					                <input ng-model="hive.street" name="street" type="text" placeholder="{{ lang.Street }}" class="form-control">
+					            </div>
+					        </div>
+					        <div class="col-xs-4 col-sm-4 col-md-4">
+					            <div class="form-group">
+					                <label>{{ lang.Number }}</label>
+					                <input ng-model="hive.street_no" name="street_no" type="text" class="form-control">
+					            </div>
+					        </div>
+					    </div>
+					</fieldset>
+
+					<fieldset>
+						<legend>{{ lang.Hive_settings }}</legend>
+						<div class="row">
+					        <div class="col-xs-12 col-sm-6">
+						            <div class="form-group">
+						                <label>{{ lang.Hive_amount }}</label>
+						                <div rn-stepper ng-model="hive.hive_amount" ng-disabled="hive.hive_amount < 1" min="1" max="50" step="1"></div>
+						            </div>
+						            <div class="form-group">
+						                <label>{{ lang.Hive_prefix }}</label>
+						                <input ng-model="hive.prefix" name="prefix" type="text" placeholder="{{ lang.Hive_prefix }}" class="form-control">
+						            </div>
+						            <div class="form-group">
+						                <label>{{ lang.Hive_type }}*</label>
+						                <select ng-model="hive_type" ng-change="setHiveType(hive_type.id)" ng-options="item as item.trans[locale] group by item.group[locale] for item in hivetypes | orderBy:transSort track by item.id" type="select" class="form-control">
+						                	<option value=''>{{lang.Select}} {{lang.Hive_type}}...</option>
+						                </select>
+						            </div>
+					        </div>
+					        <div class="col-xs-12 col-sm-6">
+								<div class="form-group">
+						            <label style="display: block;">{{ lang.Hive_color }}</label>
+					            	<div class="hive-container color-hive">
+										<div class="hive small">
+							    			<p class="lid"></p>
+							            	<p class="layer honey" style="background-color: {{hive.color}};"></p>
+							            	<p class="layer honey" style="background-color: {{hive.color}};"></p>
+							            	<p class="layer brood" style="background-color: {{hive.color}};"></p>
+							            	<p class="layer brood" style="background-color: {{hive.color}};"></p>
+							            	<p class="bottom"></p>
+						            	</div>
+					            	</div>
+									<color-picker ng-model="hive.color"></color-picker>
+				            	</div>
+							</div>
+					    </div>
+					    <div class="row">
+					        <div class="col-xs-6 col-sm-6 col-md-3">
+					            <div class="form-group">
+					                <label>{{ lang.Hive_brood_layers }}</label>
+					                <div rn-stepper ng-model="hive.brood_layers" ng-disabled="hive.brood_layers < 1" min="1" max="5" step="1"></div>
+					            </div>
+					        </div>
+					        <div class="col-xs-6 col-sm-6 col-md-3">
+					            <div class="form-group">
+					                <label>{{ lang.Hive_honey_layers }}</label>
+					                <div rn-stepper ng-model="hive.honey_layers" ng-disabled="hive.honey_layers < 0" min="0" max="5" step="1"></div>
+					            </div>
+					        </div>
+					        <div class="col-xs-6 col-sm-6 col-md-3">
+					            <div class="form-group">
+					                <label>{{ lang.Hive_frames }}</label>
+					                <div rn-stepper ng-model="hive.frames" ng-disabled="hive.frames < 0" min="0" max="12" step="1"></div>
+					            </div>
+					        </div>
+					        <div class="col-xs-6 col-sm-6 col-md-3">
+					            <div class="form-group">
+					                <label>{{ lang.Hive_number_offset }}</label>
+					                <div rn-stepper ng-model="hive.offset" ng-disabled="false" step="1"></div>
+					            </div>
+					        </div>
+					    </div>
+					</fieldset>
+				</div>
+
+				<div class="box-footer">
+					<div class="alert alert-danger" ng-show="error_msg != null">
+                        <p>{{ error_msg }}</p>
+                    </div>
+				    
+				    <button ng-click="createLocation()" class="btn btn-primary btn-block">{{lang.create_new}} {{lang.location}}</button>
+				</div>
+
+				<div class="overlay" ng-if="loading">
+		          <i class="fa fa-refresh fa-spin"></i>
+		        </div>
+
+			</div>
+		</form>
+	</div>
+</div>
+
+</section>
+

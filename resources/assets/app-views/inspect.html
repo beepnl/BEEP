@@ -1,0 +1,156 @@
+<section class="content-header">
+  <h1>
+  	<!-- <a ng-if="inspection_id == null" class="icn prev" ng-class="{'mobile':mobile}" href="#!/locations"></a> -->
+  	<a class="icn prev" ng-class="{'mobile':mobile}" ng-click="back()"></a>
+    {{mobile ? '' : inspection_id ? lang.Edit_inspection + ' - ' : lang.New_inspection + ' - '}} {{hive.name}}
+
+    <div class="pull-right" >
+    	<div ng-if="showMore" style="display: inline-block; margin-left: 20px;">
+		  	<a class="icn prev" ng-class="{'mobile':mobile}" ng-click="prevHive()"></a>
+		  	<a class="icn next" ng-click="nextHive()"></a>
+		</div>
+	</div>
+  </h1>
+  <!-- <ol class="breadcrumb">
+    <li><a href="/"><i class="fa fa-home"></i> Home</a></li>
+    <li class="active">{{lang.inspections}}</li>
+  </ol> -->
+</section>
+
+<section class="content" >
+	
+
+	<div class="row">
+		<div class="col-xs-12 col-sm-4 col-md-4">
+        	<div class="form-group">
+				<label>{{ lang.Date_of_inspection }}*</label>
+				<div class="input-group date">
+				  <div class="input-group-addon">
+				    <i class="fa fa-calendar"></i>
+				  </div>
+				  <input class="form-control pull-right" data-field="datetime" type="text" readonly="true" ng-model="inspection.date" ng-change="inspectionGeneralItem('date', null, inspection.date, false)" required>
+				</div>
+			</div>
+		</div>
+
+	    <div class="col-xs-12 col-sm-4 col-md-4">
+        	<div ng-if="checklists.length > 1" class="form-group">
+				<label>{{ lang.Select }} {{ lang.Checklist.toLowerCase() }}</label>
+	        	<select ng-change="selectChecklist(checklist_id)" ng-model="checklist_id" class="form-control" >
+	        		<option ng-repeat="item in checklists track by item.id" value="{{item.id}}" ng-selected="item.id == checklist_id">{{ item.name || item.id }}</option>
+	        	</select>
+	    	</div>
+	    </div>
+
+		<div class="col-xs-12 col-sm-4 col-md-4">
+        	<div class="form-group">
+				<label>{{ lang.Checklist }}</label>
+	    		<br><a class="btn btn-default btn-block" ng-click="editChecklist()" title="{{ lang.edit }} {{ lang.Checklist }}"><i class="fa fa-pencil"></i> {{ lang.edit }} {{ lang.Checklist.toLowerCase() }}</a>
+	    	</div>
+	    </div>
+	</div>
+	<br>
+
+	<!-- Inspection items from checklist -->
+	<div class="box collapsed-box" ng-repeat="cat_main in checklist.categories">
+	    <div class="box-header with-border">
+	      <h3 class="box-title">{{cat_main.trans[locale] || cat_main.name}}</h3>
+
+	      <div class="box-tools pull-right">
+	        <button type="button" class="btn btn-box-tool" data-widget="collapse" ng-mouseup="renderSliders()"><i class="fa fa-plus"></i>
+	        </button>
+	      </div>
+	    </div>
+
+	    <!-- New dynamic checklist -->
+	    <div class="box-body">
+			<div class="row">
+				<div ng-repeat="cat in cat_main.children" class="{{ cat.children.length > 0 ? 'col-xs-12' : '' }}">
+					<checklist-fieldset cat="cat"></checklist-fieldset>
+				</div>
+			</div>
+	    </div>
+
+	    <div class="overlay" ng-if="loading">
+          <i class="fa fa-refresh fa-spin"></i>
+        </div>
+
+	</div>
+
+	<!-- General inspection items -->
+	<div class="box">
+	    <div class="box-header with-border">
+	      <h3 class="box-title">{{lang.overall}}</h3>
+
+	      <div class="box-tools pull-right">
+	        <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
+	        </button>
+	        <!--button type="button" class="btn btn-box-tool" data-widget="remove"><i class="fa fa-times"></i></button-->
+	      </div>
+	    </div>
+
+	    <div class="box-body">
+
+			<fieldset>
+				<legend>{{ lang.positive_impression }}</legend>
+				<div class="row">
+					<div class="col-xs-12 col-sm-4 col-md-4">
+			        	<div class="form-group">
+							<label>{{ lang.positive_impression }}</label>
+							<div max="3" ng-model="inspection.impression" readonly="false" smile-rating></div>
+						</div>
+					</div>
+					<div class="col-xs-12 col-sm-4 col-md-4">
+			        	<div class="form-group">
+							<label>{{ lang.needs_attention }}</label>
+							<div ng-model="inspection.attention" readonly="false" class="yes_red" yes="lang.yes" no="lang.no" yes-no-rating></div>
+						</div>
+					</div>
+					<div class="col-xs-12">
+			        	<div class="form-group">
+							<label>{{ lang.notes }}</label>
+							<textarea ng-model="inspection.notes" type="text" class="form-control" maxlength="1024"></textarea>
+						</div>
+					</div>
+				</div>
+			</fieldset>
+
+			<fieldset>
+				<legend>{{ lang.reminder }}</legend>
+				<div class="row">
+					<div class="col-xs-12 col-sm-4">
+			        	<div class="form-group">
+							<label>{{ lang.remind_date }}</label>
+							<div class="input-group date">
+								<div class="input-group-addon">
+							    <i class="fa fa-calendar"></i>
+							</div>
+							<input class="form-control pull-right" data-field="datetime" type="text" readonly="true" ng-model="inspection.reminder_date">
+						</div>
+				</div>
+					</div>
+					<div class="col-xs-12 col-sm-8">
+			        	<div class="form-group">
+							<label>{{ lang.reminder }}</label>
+							<textarea ng-model="inspection.reminder" type="text" placeholder="{{ lang.notes_for_next_inspection }}" class="form-control" maxlength="100"></textarea>
+						</div>
+					</div>
+				</div>
+			</fieldset>
+		</div>
+
+		<div class="overlay" ng-if="loading">
+          <i class="fa fa-refresh fa-spin"></i>
+        </div>
+	</div>
+	
+
+	<div class="alert alert-danger" ng-show="error_msg != null">
+        <p>{{ error_msg }}</p>
+    </div>
+
+	<button ng-click="saveInspection()" class="btn btn-primary btn-block">{{lang.save}} {{lang.inspection}}</button>
+
+</section>
+
+<div id="dtBox"></div>

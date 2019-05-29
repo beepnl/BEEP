@@ -81,21 +81,21 @@ class CreateChecklistsTable extends Migration
      */
     public function down()
     {
-        if (!Schema::hasTable('checklist_user')) 
+        if (Schema::hasTable('checklist_user')) 
         {
             Schema::table('checklist_user', function(Blueprint $table)
             {
                 $table->dropForeign(['checklist_id','user_id']);
             });
         }
-        if (!Schema::hasTable('checklist_hive')) 
+        if (Schema::hasTable('checklist_hive')) 
         {
             Schema::table('checklist_hive', function(Blueprint $table)
             {
                 $table->dropForeign(['checklist_id','hive_id']);
             });
         }
-        if (!Schema::hasTable('checklist_category')) 
+        if (Schema::hasTable('checklist_category')) 
         {
             Schema::table('checklist_category', function(Blueprint $table)
             {

@@ -9,14 +9,16 @@ use Illuminate\Support\Facades\DB;
 
 class Taxonomy extends Model
 {
+    // This model is used for the creation of the object tree for the JSTree elements
+
     use NodeTrait;
 
     protected $table    = 'categories';
 
-    protected $fillable = ['name', 'category_input_id', 'physical_quantity_id', 'parent_id', 'description', 'source', 'icon', 'type', 'old_id'];
+    protected $fillable = ['name', 'category_input_id', 'physical_quantity_id', 'parent_id', 'description', 'source', 'icon', 'type'];
 	protected $guarded 	= ['id'];
 
-	protected $hidden   = ['created_at','updated_at', 'category_input_id', 'physical_quantity_id','_lft','_rgt','pivot','old_id','description','type','input_type','options','parent_id', 'source','name'];
+	protected $hidden   = ['created_at','updated_at', 'category_input_id', 'physical_quantity_id','_lft','_rgt','pivot','old_id','description','type','input_type','options','parent_id', 'source','name','required'];
 
     protected $appends  = ['icon','text'];
 
@@ -46,7 +48,8 @@ class Taxonomy extends Model
 
     public function getTextAttribute()
     {
-        return $this->transName();
+        $req = ($this->required) ? ' *' : '';
+        return $this->transName().$req;
     }
 
     public function getParentAttribute()
@@ -256,6 +259,7 @@ class Taxonomy extends Model
         return Taxonomy::whereIsRoot()->whereNotIn('type', ['system'])->get()->pluck('id')->toArray();
     }
 
+    // Defines JSON tree for JSTree. See: https://www.jstree.com/docs/json/
     public static function getTaxonomy($rootNodes=null, $order=true, $flat=false)
     {
         $locale = LaravelLocalization::getCurrentLocale();
@@ -283,7 +287,7 @@ class Taxonomy extends Model
                     $taxonomy = $taxonomy
                         ->merge(Taxonomy::descendantsAndSelf($node)
                         ->whereNotIn('type', ['system'])
-                        ->map(function($cat, $key) use ($order) { $selected = in_array($cat->id, $order); $cat->state = ['selected'=>$selected, 'opened'=>$selected, 'cat'=>$cat->id]; return $cat; })
+                        ->map(function($cat, $key) use ($order) { $selected = in_array($cat->id, $order); $cat->state = ['selected'=>$selected, 'opened'=>$selected, 'cat'=>$cat->id, 'disabled'=>$cat->required]; return $cat; })
                         ->sortBy(function($cat, $key) use ($order) { return array_search($cat->id, $order); })
                         ->toTree());
                 else

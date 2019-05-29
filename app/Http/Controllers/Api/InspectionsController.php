@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Api;
 
 use App\Category;
 use App\Hive;
-use App\HiveType;
 use App\BeeRace;
 use App\Inspection;
 use App\InspectionItem;
@@ -45,8 +44,8 @@ class InspectionsController extends Controller
      */
     public function hive(Request $request, $hive_id)
     {
-        $hive   = $request->user()->hives()->findOrFail($hive_id);
-        $locale = $request->has('locale') ? $request->input('locale') : LaravelLocalization::getCurrentLocale();
+        $hive   = $request->user()->allHives()->findOrFail($hive_id);
+        $locale = $request->filled('locale') ? $request->input('locale') : LaravelLocalization::getCurrentLocale();
 
         $inspections   = $hive->inspections_by_date();
         $items_by_date = $hive->inspection_items_by_date($locale);
@@ -56,11 +55,11 @@ class InspectionsController extends Controller
 
     public function show(Request $request, $id)
     {
-        $inspection = $request->user()->inspections()->find($id);
+        $inspection = $request->user()->allInspections()->find($id);
         if (isset($inspection) == false)
-            response()->json(null, 404);
+            return response()->json(null, 404);
 
-        $inspection_items= InspectionItem::where('inspection_id',$inspection->id)->groupBy('category_id')->get();
+        $inspection_items  = InspectionItem::where('inspection_id',$inspection->id)->groupBy('category_id')->get();
         $inspection->items = $inspection_items;
         return response()->json($inspection);
     }
@@ -68,36 +67,37 @@ class InspectionsController extends Controller
 
     public function store(Request $request)
     {
-        if ($request->has('date') && $request->has('items'))
+        if ($request->filled('date') && $request->filled('items'))
         {
             $moment       = new Moment($request->input('date'));
             $date         = $moment->format('Y-m-d H:i:s');
             
             $data         = $request->except(['hive_id','items','date']);
             $user         = Auth::user();
-            $hive         = $user->hives()->find($request->input('hive_id'));
+            $hive         = $user->allHives()->find($request->input('hive_id'));
             $location     = $user->locations()->find($request->input('location_id'));
 
             $data['created_at'] = $date;
 
-            if ($request->has('reminder_date'))
+            if ($request->filled('reminder_date'))
             {
                 $reminder_moment = new Moment($request->input('reminder_date'));
                 $data['reminder_date'] = $reminder_moment->format('Y-m-d H:i:s');
             }
 
+            $inspection = null;
             if ($hive)
-                $inspection = $hive->inspections()->orderBy('created_at','desc')->whereDate('created_at', $moment->format('Y-m-d'))->first();
+                $inspection = $hive->inspections()->orderBy('created_at','desc')->where('created_at', $date)->first();
             else if ($location)
-                $inspection = $location->inspections()->orderBy('created_at','desc')->whereDate('created_at', $moment->format('Y-m-d'))->first();
+                $inspection = $location->inspections()->orderBy('created_at','desc')->where('created_at', $date)->first();
             else
-                $inspection = $user->inspections()->orderBy('created_at','desc')->whereDate('created_at', $moment->format('Y-m-d'))->first();
+                $inspection = $user->inspections()->orderBy('created_at','desc')->where('created_at', $date)->first();
 
             // filter -1 values for impression and attention
-            $data['impression'] = $request->has('impression') && $request->input('impression') > -1 ? $request->input('impression') : null;
-            $data['attention']  = $request->has('attention')  && $request->input('attention')  > -1 ? $request->input('attention')  : null;
+            $data['impression'] = $request->filled('impression') && $request->input('impression') > -1 ? $request->input('impression') : null;
+            $data['attention']  = $request->filled('attention')  && $request->input('attention')  > -1 ? $request->input('attention')  : null;
 
-            //die(print_r($data));
+            //die(print_r(['data'=>$data,'inspection'=>$inspection,'user'=>$user->inspections()->get()->toArray()]));
 
 
             if (isset($inspection))

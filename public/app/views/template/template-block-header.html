@@ -1,0 +1,43 @@
+<header class="main-header">
+
+  <!-- Logo -->
+  <!-- <div class="header-spacer" ng-if="mobile"></div> -->
+  
+  <a ng-if="!mobile" href="/" class="logo">
+    <img src="/img/logo.svg">
+  </a>
+
+  <!-- Header Navbar -->
+  <nav class="navbar navbar-static-top" role="navigation">
+    <!-- Sidebar toggle button-->
+    <a href="" class="sidebar-toggle" data-toggle="offcanvas" role="button">
+      <span class="sr-only">Menu</span>
+    </a>
+    <!-- Navbar Right Menu -->
+    <div class="header-title" ng-class="{'mobile':mobile}">{{ title }}</div>
+    
+    <div class="navbar-custom-menu">
+
+      <ul class="nav navbar-nav">
+        <!-- Messages: style can be found in dropdown.less-->
+        <!--li class="dropdown messages-menu" ng-include="'/app/views/template/template-block-header-messages.html'"></li-->
+
+        <!-- Notifications Menu -->
+        <!--li class="dropdown notifications-menu" ng-include="'/app/views/template/template-block-header-notifications.html'"></li-->
+      
+        <!-- Tasks Menu -->
+        <!--li class="dropdown tasks-menu" ng-include="'/app/views/template/template-block-header-tasks.html'"></li-->
+        <li class="dropdown tasks-menu" ng-include="'/app/views/template/template-block-header-language.html?v=1'"></li>
+      
+        <!-- User Account Menu -->
+        <li class="dropdown user user-menu" ng-include="'/app/views/template/template-block-header-usr.html'"></li>
+        
+        <!-- Control Sidebar Toggle Button -->
+        <!-- <li>
+          <a ng-click="switchMenu($event, true, '/settings')"><i class="fa fa-gears"></i></a>
+        </li> -->
+      </ul>
+
+    </div>
+  </nav>
+</header>

@@ -54,7 +54,14 @@ class SensorController extends Controller
         ]);
 
         $data = $request->all();
-        $data['hive_id'] = Hive::where('user_id', $request->input('user_id'))->first()->value('id');
+
+        $firstUserHive = Hive::where('user_id', $request->input('user_id'))->first();
+
+        if (isset($firstUserHive))
+            $data['hive_id'] = $firstUserHive->id;
+        else
+            return redirect()->route('sensors.index')->with('error','Sensor not created; because user has no hive to add it to');
+
         Sensor::create($data);
 
         return redirect()->route('sensors.index')
@@ -110,10 +117,23 @@ class SensorController extends Controller
             'name' => 'required',
             'key' => 'required',
             'user_id' => 'required',
-            'hive_id' => 'required',
+            'category_id' => 'required',
+            'hive_id' => 'nullable|integer',
         ]);
 
-        Sensor::find($id)->update($request->all());
+        $data   = $request->all();
+        $sensor = Sensor::findOrFail($id);
+
+        if ($sensor->user_id != $request->input('user_id'))
+        {
+            $firstUserHive = Hive::where('user_id', $request->input('user_id'))->first();
+            if (isset($firstUserHive))
+                $data['hive_id'] = $firstUserHive->id;
+            else
+                return redirect()->route('sensors.index')->with('error','Sensor not edited; because new user has no hive to add it to');
+        }
+
+        $sensor->update($data);
 
         return redirect()->route('sensors.index')
                         ->with('success','Sensor updated successfully');

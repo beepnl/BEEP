@@ -41,6 +41,7 @@
         <li class="{{ Route::currentRouteNamed('dashboard.index') ? 'active' : '' }}"><a href="{{ route('dashboard.index') }}"><i class="fa fa-dashboard"></i><span>{{ __('general.dashboard') }}</span></a></li>
         <li class="{{ Route::currentRouteNamed('users.index') ? 'active' : '' }}"><a href="{{ route('users.index') }}"><i class="fa fa-user-circle-o"></i><span>{{ __('general.Users') }}</span></a></li>
         <li class="{{ Route::currentRouteNamed('sensors.index') ? 'active' : '' }}"><a href="{{ route('sensors.index') }}"><i class="fa fa-wifi"></i><span>{{ __('general.Sensors') }}</span></a></li>
+        <li class="{{ Route::currentRouteNamed('measurement.index') ? 'active' : '' }}"><a href="{{ route('measurement.index') }}"><i class="fa fa-circle"></i><span>{{ __('general.Measurements') }}</span></a></li>
         <li class="{{ Route::currentRouteNamed('categories.index') ? 'active' : '' }}"><a href="{{ route('categories.index') }}"><i class="fa fa-list"></i><span>{{ __('general.Taxonomy') }}</span></a></li>
         <li class="{{ Route::currentRouteNamed('physicalquantity.index') ? 'active' : '' }}"><a href="{{ route('physicalquantity.index') }}"><i class="fa fa-balance-scale"></i><span>{{ __('beep.PhysicalQuantity') }}</span></a></li>
         <li class="{{ Route::currentRouteNamed('categoryinputs.index') ? 'active' : '' }}"><a href="{{ route('categoryinputs.index') }}"><i class="fa fa-list-ul"></i><span>{{ __('beep.CategoryInputs') }}</span></a></li>
@@ -87,7 +88,7 @@
       <li class="{{ Route::currentRouteNamed('inspections.index') ? 'active' : '' }}"><a href="{{ route('inspections.index') }}"><i class="fa fa-check-circle"></i><span>{{ __('beep.Inspections') }}</span></a></li>
 
       <li class="header">{{ __('beep.Webapp') }}</li>
-      <li><a href="/webapp/index.html" target="_blank"><i class="fa fa-mobile-phone"></i><span>{{ __('beep.Webapp') }}</span></a></li>
+      <li><a href="/webapp" target="_blank"><i class="fa fa-mobile-phone"></i><span>{{ __('beep.Webapp') }}</span></a></li>
     </ul>
     <!-- /.sidebar-menu -->
 

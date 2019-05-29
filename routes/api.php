@@ -16,31 +16,40 @@ use Illuminate\Http\Request;
 Route::group(['middleware' => \Barryvdh\Cors\HandleCors::class], function()
 {    
 
-
 	Route::get('/',function(){
 		return redirect('webapp');
 	});
 
+	// save sensor data of multiple sensors
+	Route::post('sensors', 		'Api\SensorController@storeMeasurementData');
+	Route::post('lora_sensors', 'Api\SensorController@lora_sensors');
+
+	// save sensor data of multiple sensors (unsecure)
+	Route::post('unsecure_sensors', 'Api\SensorController@storeMeasurementData');
+	
 	// User functions
 	Route::post('register', 	'Api\UserController@register');
 	Route::post('login', 		'Api\UserController@login');
 	Route::post('user/reminder','Api\UserController@reminder');
 	Route::post('user/reset', 	'Api\UserController@reset');
 
-	// save sensor data of multiple sensors
-	Route::post('sensors', 		'Api\SensorController@store');
-	Route::post('lora_sensors', 'Api\SensorController@lora_sensors');
+	// // Email Verification Routes...
+	Route::get('email/verify', 'Api\Auth\VerificationController@show')->name('apiverification.notice');
+	Route::get('email/verify/{id}', 'Api\Auth\VerificationController@verify')->name('apiverification.verify');
+	Route::post('email/resend', 'Api\Auth\VerificationController@resend')->name('apiverification.resend');
 
-	// save sensor data of multiple sensors (unsecure)
-	Route::post('unsecure_sensors', 'Api\SensorController@store');
+	Route::post('groups/checktoken', 'Api\GroupController@checktoken');
 
-	Route::group(['middleware'=>'auth:api'], function()
+
+	Route::group(['middleware'=>['auth:api', 'verifiedApi']], function()
 	{  
 		// Authenticate and provide the token
 		Route::post('authenticate', 		'Api\UserController@authenticate');
 
 		// get list of sensors
 		Route::get('sensors', 				'Api\SensorController@index');
+		Route::post('sensor', 				'Api\SensorController@update');
+		Route::post('sensors/store', 		'Api\SensorController@store');
 		// Route::post('lora_sensors', 		'Api\SensorController@lora_sensors'); // store TTN lora sensors with Bearer header
 
 		// get more data of 1 sensors
@@ -70,25 +79,23 @@ Route::group(['middleware' => \Barryvdh\Cors\HandleCors::class], function()
 		Route::post('inspections/store', 	'Api\InspectionsController@store');
 		Route::delete('inspections/{id}', 	'Api\InspectionsController@destroy');
 
-		// Store multiple inspection values at once
-		Route::post('actions/multiple', 	'Api\ActionController@storeMultiple');
-		Route::post('conditions/multiple', 	'Api\ConditionController@storeMultiple');
-
 		Route::delete('user', 				'Api\UserController@destroy');
 		Route::patch('user', 				'Api\UserController@edit');
 
 		// Control resources 
 		Route::resource('checklists', 		'Api\ChecklistController',		 		['except'=>['create','edit']]);
 		Route::resource('categories', 		'Api\CategoryController',		 		['except'=>['create','edit']]);
-		Route::resource('actions', 			'Api\ActionController',		 			['except'=>['create','edit']]);
-		Route::resource('conditions', 		'Api\ConditionController', 				['except'=>['create','edit']]);
+		Route::resource('groups', 			'Api\GroupController', 			 		['except'=>['create','edit']]);
 		Route::resource('hives', 			'Api\HiveController', 			 		['except'=>['create','edit']]);
 		Route::resource('locations', 		'Api\LocationController', 	 			['except'=>['create','edit']]);
 		Route::resource('productions',		'Api\ProductionController',				['except'=>['create','edit']]);
 		Route::resource('queens', 			'Api\QueenController',		 			['except'=>['create','edit']]);
+
+		Route::delete('groups/detach/{id}', 'Api\GroupController@detach');
 
 		Route::get('export',				'Api\ExportController@all');
 		
 	});
 
 });
+

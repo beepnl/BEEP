@@ -1,0 +1,189 @@
+<section class="content-header">
+  <h1>
+    <a class="icn prev" ng-class="{'mobile':mobile}" ng-click="back()"></a>
+    {{ pageTitle || hive.name }}
+    <div class="pull-right">
+    	<div>
+	    	<a ng-if="hive.id != undefined && hive.owner" ng-click="confirmDeleteHive()" class="btn btn-danger">{{lang.Delete}}</a>
+	    </div>
+    </div>
+  </h1>
+  <!-- <ol class="breadcrumb">
+    <li><a href="/"><i class="fa fa-home"></i> Home</a></li>
+    <li class="active">{{lang.hives}}</li>
+  </ol> -->
+</section>
+
+<section class="content" >
+	
+	
+	<!-- Settings -->
+	<div class="box">
+	    <div class="box-header with-border">
+	      <h3 class="box-title">{{lang.Hive}} {{lang.settings.toLowerCase()}}</h3>
+
+	      <div class="box-tools pull-right">
+	        <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
+	        </button>
+	      </div>
+	    </div>
+
+	    <div class="box-body">
+	    	<dl class="dl-horizontal">
+	    		<dt>{{lang.Name}}*</dt>
+	    		<dd><input ng-model="hive.name" name="name" type="text" placeholder="{{ lang.name }}" class="form-control" required="required"></dd>
+	    	</dl>
+	    	<dl class="dl-horizontal">
+	    		<dt>{{lang.Location}}*</dt>
+	    		<dd>
+	    			<select ng-if="hive.id == undefined || hive.owner" ng-model="hive_loc" ng-options="item as item.name for item in locations  | orderBy:'name' track by item.id" type="select" class="form-control" ng-change="selectLocation(hive_loc)" required="required">
+	    				<option value=''>{{lang.Select}} {{lang.location}}...</option>
+	    			</select>
+	    			<input ng-if="hive.id != undefined && !hive.owner" ng-value="hive.location" ng-disabled="true" type="text" class="form-control">
+	    			<input ng-if="hive.id != undefined && !hive.owner" ng-model="hive_loc" type="hidden">
+	    		</dd>
+	    	</dl>
+	    	<dl class="dl-horizontal">
+	    		<dt>{{lang.Type}}*</dt>
+	    		<dd>
+	                <select ng-model="hive_type" ng-options="item as item.trans[locale] group by item.group[locale] for item in hivetypes | orderBy:transSort track by item.id" type="select" class="form-control" ng-change="selectHiveType(hive_type)"  required="required">
+	                	<option value=''>{{lang.Select}} {{lang.Hive_type}}...</option>
+	                </select>
+	            </dd>
+	    	</dl>
+	    	<dl class="dl-horizontal">
+	    		<dt>{{lang.Hive_honey_layers}}</dt>
+	    		<dd>
+		            <div rn-stepper ng-model="hive.honey_layers" ng-disabled="hive.honey_layers < 0" min="0" max="5" step="1"></div>
+	    		</dd>
+	    	</dl>
+	    	<dl class="dl-horizontal">
+	    		<dt>{{lang.Hive_brood_layers}}</dt>
+	    		<dd>
+		            <div rn-stepper ng-model="hive.brood_layers" ng-disabled="hive.brood_layers < 0" min="0" max="5" step="1"></div>
+	    		</dd>
+	    	</dl>
+	    	<dl class="dl-horizontal">
+	    		<dt>{{lang.Hive_frames}}</dt>
+	    		<dd>
+	    			<div rn-stepper ng-model="hive.frames" ng-disabled="hive.frames < 1" min="1" max="20" step="1"></div>
+	    		</dd>
+	    	</dl>
+	    	<dl class="dl-horizontal" ng-if="hive.layers.length > 0">
+	    		<dt>{{lang.Hive}}</dt>
+	    		<dd>
+	    			<div class="hive left">
+		    			<p class="lid" style="width: {{hive.width*(mobile?4:1)}}px;"></p>
+		            	<p ng-repeat="(key, layer) in hive.layers | orderBy : '-type' " class="layer" ng-class="layer.type" style="background-color: {{hive.color}}; width: {{hive.width*(mobile?4:1)}}px;">
+		            		<span ng-repeat="(key, frame) in layer.frames track by $index" class="frame" ng-class="layer.type"></span>
+		            	</p>
+		            	<p class="bottom" style="width: {{hive.width*(mobile?4:1)}}px;"></p>
+	            	</div>
+	            </dd>
+	        </dl>
+			<dl class="dl-horizontal">
+	    		<dt>{{lang.Hive_color}}</dt>
+	    		<dd>
+					<color-picker ng-model="hive.color"></color-picker>
+	    		</dd>
+	    	</dl>
+
+	    </div>
+
+	    <div class="overlay" ng-if="loading">
+          <i class="fa fa-refresh fa-spin"></i>
+        </div>
+
+        
+	</div>
+
+	<!-- Queen -->
+	<div class="box">
+	    <div class="box-header with-border">
+	      <h3 id="queen" class="box-title">{{lang.Queen}}</h3>
+
+	      <div class="box-tools pull-right">
+	        <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
+	        </button>
+	        <!--button type="button" class="btn btn-box-tool" data-widget="remove"><i class="fa fa-times"></i></button-->
+	      </div>
+	    </div>
+	    <!-- /.box-header -->
+	    <div class="box-body">
+	    	<dl class="dl-horizontal">
+	    		<dt>{{lang.Queen}} {{lang.name}}</dt>
+	    		<dd><input ng-model="hive.queen.name" type="text" placeholder="{{lang.Queen}} {{lang.name}}" class="form-control"></dd>
+	    	</dl>
+	    	<dl class="dl-horizontal">
+	    		<dt>{{lang.Bee_race}}</dt>
+	    		<dd>
+    				<select ng-model="bee_race" ng-options="item as item.trans[locale] for item in beeraces | orderBy:transSort track by item.id" type="select" ng-change="selectBeeRace(bee_race)" class="form-control">
+    					<option value=''>{{lang.Select}} {{lang.Bee_race}}...</option>
+    				</select>
+	            </dd>
+	    	</dl>
+	    	<dl class="dl-horizontal">
+	    		<dt>{{lang.Birth_date}}</dt>
+	    		<dd>
+					<div class="input-group date">
+					  <div class="input-group-addon">
+					    <i class="fa fa-calendar"></i>
+					  </div>
+					  <input class="form-control pull-right" data-field="date" type="text" readonly="true" ng-model="hive.queen.created_at">
+					</div>
+	    		</dd>
+	    	</dl>
+	    	<dl class="dl-horizontal">
+	    		<dt>{{lang.Age}}</dt>
+	    		<dd>{{hive.queen.age}} {{ lang.year }}</dd>
+	    	</dl>
+
+	    	<dl class="dl-horizontal">
+	    		<dt>{{lang.Queen_colored}}</dt>
+	    		<dd>
+	    			<switch ng-model="queen_colored" class="wide" on="{{lang.yes}}" off="{{lang.no}}" ng-change="queen_colored_change()"></switch>
+	    		</dd>
+	    	</dl>
+
+			<dl class="dl-horizontal" ng-if="queen_colored">
+	    		<dt>{{lang.Color}}</dt>
+	    		<dd>
+		            <div>
+			            <div class="queen-icon" style="background-color: {{hive.queen.color}};"></div>
+			            <color-picker ng-model="hive.queen.color"></color-picker>
+			        </div>
+	    		</dd>
+	    	</dl>
+            
+	    	<dl class="dl-horizontal">
+	    		<dt>{{lang.Queen_clipped}}</dt>
+	    		<dd>
+	    			<switch ng-model="hive.queen.clipped" class="wide" on="{{lang.yes}}" off="{{lang.no}}"></switch>
+	    		</dd>
+	    	</dl>
+	    	<dl class="dl-horizontal">
+	    		<dt>{{lang.Queen_fertilized}}</dt>
+	    		<dd>
+	    			<switch ng-model="hive.queen.fertilized" class="wide" on="{{lang.yes}}" off="{{lang.no}}"></switch>
+	    		</dd>
+	    	</dl>
+	    	
+		    
+
+	    </div>
+	     
+	    <div class="overlay" ng-if="loading">
+          <i class="fa fa-refresh fa-spin"></i>
+        </div>
+	    
+	</div>
+
+	<div class="alert alert-danger" ng-show="error_msg != null">
+        <p>{{ error_msg }}</p>
+    </div>
+
+	<button ng-click="saveHive(true)" class="btn btn-primary btn-block">{{lang.save_and_return}}</button>
+
+</section>
+
+<div id="dtBox"></div>

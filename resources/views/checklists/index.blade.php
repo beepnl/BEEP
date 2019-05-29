@@ -36,7 +36,7 @@
                     {
                     "language": 
                         @php
-                            echo File::get(public_path('webapp/vendor/datatables.net-plugins/i18n/'.LaravelLocalization::getCurrentLocaleName().'.lang'));
+                            echo File::get(public_path('js/datatables/i18n/'.LaravelLocalization::getCurrentLocaleName().'.lang'));
                         @endphp
                     ,
                     "order": 

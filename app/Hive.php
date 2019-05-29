@@ -6,6 +6,8 @@ use Iatstuti\Database\Support\CascadeSoftDeletes;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
+use Auth;
+
 class Hive extends Model
 {
     use SoftDeletes, CascadeSoftDeletes;
@@ -13,8 +15,8 @@ class Hive extends Model
     protected $cascadeDeletes = ['queen','inspections','layers','frames','productions'];
     protected $fillable = ['user_id', 'location_id', 'hive_type_id', 'color', 'name'];
     protected $guarded  = ['id'];
-	protected $hidden 	= ['user_id'];
-    protected $appends  = ['type','location','attention','impression','reminder','reminder_date','inspection_count'];
+	protected $hidden 	= ['user_id','deleted_at'];
+    protected $appends  = ['type','location','attention','impression','reminder','reminder_date','inspection_count','sensors','owner'];
 
     public $timestamps = false;
 
@@ -70,6 +72,18 @@ class Hive extends Model
         return $this->layers()->where('category_id', Category::findCategoryIdByParentAndName('hive_layer','brood'))->count();
     }
 
+    public function getSensorsAttribute()
+    {
+        return $this->sensors()->pluck('id')->toArray();
+    }
+
+    public function getNameAndLocationAttribute()
+    {
+        $out  = $this->name;
+        $out .= isset($this->location_id) ? ' - '.$this->getLocationAttribute() : '';
+        return $out;
+    }
+
     private function getLastInspectionItem($name)
     {
         $item = $this->inspections()->orderBy('created_at','desc')->first();
@@ -78,6 +92,22 @@ class Hive extends Model
 
         return null;
     }
+
+    public function getGroupsAttribute()
+    {
+        return $this->groups()->pluck('group_id')->toArray();
+    }
+
+    public function getOwnerAttribute()
+    {
+        if ($this->user_id == Auth::user()->id)
+            return true;
+        
+        return false;
+    }
+
+
+
 
     public function queen()
     {
@@ -92,6 +122,11 @@ class Hive extends Model
 	public function user()
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function groups()
+    {
+        return $this->belongsToMany(Group::class, 'group_hive');
     }
 
     public function checklists()
@@ -120,33 +155,15 @@ class Hive extends Model
         return $this->hasManyThrough(HiveLayerFrame::class, HiveLayer::class, 'hive_id', 'layer_id');
     }
     
+    public function sensors()
+    {
+        return $this->hasMany(Sensor::class);
+    }
+
     // manually inserted items
-    public function conditions()
-    {
-        return $this->hasMany(Condition::class);
-    }
-
-    public function actions()
-    {
-        return $this->hasMany(Action::class);
-    }
-
     public function productions()
     {
         return $this->hasMany(Production::class);
-    }
-
-    public function inspectionDates()
-    {
-        $dates = $this->conditions()->pluck('created_at');
-        $dates = $dates->merge($this->actions()->pluck('created_at'));
-
-        if ($dates)
-        {
-            $dates_array = $dates->unique();
-            return $dates_array;
-        }
-        return collect([]);
     }
 
     public function inspections_by_date()

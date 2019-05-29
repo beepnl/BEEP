@@ -13,24 +13,19 @@
     <meta name="apple-mobile-web-app-title" content="BEEP">
     <meta name="apple-mobile-web-app-status-bar-style" content="black">
 
-    <link rel="shortcut icon" type="image/png" href="/webapp/img/icons/Icon-40.png"/>
-    <link rel="apple-touch-icon" href="/webapp/img/icons/Icon-60.png">
-    <link rel="apple-touch-icon" sizes="76x76" href="/webapp/img/icons/Icon-76.png">
-    <link rel="apple-touch-icon" sizes="120x120" href="/webapp/img/icons/Icon-60@2x.png">
-    <link rel="apple-touch-icon" sizes="152x152" href="/webapp/img/icons/Icon-72@2x.png">
+    <link rel="shortcut icon" type="image/png" href="/img/icons/Icon-40.png"/>
+    <link rel="apple-touch-icon" href="/img/icons/Icon-60.png">
+    <link rel="apple-touch-icon" sizes="76x76" href="/img/icons/Icon-76.png">
+    <link rel="apple-touch-icon" sizes="120x120" href="/img/icons/Icon-60@2x.png">
+    <link rel="apple-touch-icon" sizes="152x152" href="/img/icons/Icon-72@2x.png">
 
     <!-- admin LTE template -->
-    <link rel="stylesheet" href="/webapp/vendor/admin-lte/bootstrap/css/bootstrap.min.css">
-    <link rel="stylesheet" href="/webapp/vendor/datatables/media/css/dataTables.bootstrap4.min.css" media="screen">
-    <link rel="stylesheet" href="/webapp/vendor/font-awesome/css/font-awesome.min.css">
-    <link rel="stylesheet" href="/webapp/vendor/jstree/dist/themes/default/style.min.css" />
-{{--     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/ionicons/2.0.1/css/ionicons.min.css"> --}}
-    <link rel="stylesheet" href="/webapp/css/portal.css">
-    <link rel="stylesheet" href="/webapp/css/skin-beep.css">
+    <link rel="stylesheet" href="{{ mix('css/skin-base.css') }}" media="screen">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.10.19/css/dataTables.bootstrap4.min.css">
+    <link rel="stylesheet" href="{{ mix('css/skin-additions.css') }}" media="screen">
 
-    <link rel="stylesheet" href="/webapp/css/skin-beep-additions.css" />
-
-    <script src="/webapp/vendor/admin-lte/plugins/jQuery/jquery-2.2.3.min.js"></script>
+    <script type="text/javascript" src="{{ mix('js/jquery.js') }}"></script>
 
     <!-- CSRF Token -->
     <meta name="csrf-token" content="{{ csrf_token() }}">
@@ -100,14 +95,12 @@
 
     </div>
 
-    <!-- AdminLTE App -->
-    <script src="/webapp/vendor/admin-lte/bootstrap/js/bootstrap.min.js"></script>
-    <script src="/webapp/vendor/admin-lte/dist/js/app.js"></script>
-    <script src="/webapp/vendor/admin-lte/plugins/slimScroll/jquery.slimscroll.min.js"></script>
-    <script src="/webapp/vendor/jstree/dist/jstree.min.js"></script>
-    <script src="/webapp/vendor/datatables/media/js/jquery.dataTables.min.js"></script>
-    <script src="/webapp/vendor/datatables/media/js/dataTables.bootstrap4.min.js"></script>   
-    <script src="/js/beep.js?v1"></script>
+    <script src="{{ mix('js/scripts-base.js') }}"></script>
+    <script src="{{ mix('js/scripts-portal.js') }}"></script>
+
+    <script type="text/javascript" src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js"></script>
+    <script type="text/javascript" src="https://cdn.datatables.net/1.10.19/js/dataTables.bootstrap4.min.js"></script>
+
         
 </body>
 </html>

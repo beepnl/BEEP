@@ -108,39 +108,6 @@ class ChecklistFactory
                 }
 
                 //die(print_r($hive->actions()->pluck('created_at')->toArray()));
-
-                if ($hive->conditions()->count() + $hive->actions()->count() == 0)
-                    continue;
-
-                // Create an inspection for each date and convert Actions + Conditions to InspectionItems on the inspections
-                $dates = $hive->conditions()->orderBy('created_at', 'desc')->groupBy('created_at')->pluck('created_at');
-                $dates = $dates->merge($hive->actions()->orderBy('created_at', 'desc')->groupBy('created_at')->pluck('created_at'));
-                $dates_array = $dates->unique()->toArray();
-                //die(print_r($dates_array));
-                foreach ($dates_array as $date) 
-                {
-                    $date_ins = $hive->inspections()->where('created_at',$date);
-                    if ($date_ins->count() == 0)
-                    {
-                        $ins = Inspection::create(['created_at'=>$date,'attention'=>-1,'impression'=>-1,'notes'=>'']);
-                        $ins->users()->syncWithoutDetaching($user->id);
-                        $ins->hives()->syncWithoutDetaching($hive->id);
-                        $count['inspections']++; 
-                    }
-                    else
-                    {
-                        $ins = $date_ins->first();
-                    }
-
-                    $actions = $hive->actions()->orderBy('id', 'desc')->where('created_at',$date)->get()->unique('category_id'); 
-                    foreach ($actions as $a) 
-                        $count['actions'] += $this->createInspectionItem($a, $ins, $debug);
-                    
-                    $conditions = $hive->conditions()->orderBy('id', 'desc')->where('created_at',$date)->get()->unique('category_id');
-                    foreach ($conditions as $c) 
-                        $count['conditions'] += $this->createInspectionItem($c, $ins, $debug);
-
-                }
                 //die(print_r(['user'=>$user->name, 'count'=>$count]));
             }
             print_r(['id'=>$user->id, 'user'=>$user->name, 'count'=>$count]);

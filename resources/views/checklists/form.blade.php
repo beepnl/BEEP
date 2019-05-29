@@ -6,7 +6,7 @@
 	    	<input type="hidden" name="categories" id="categoryinput">
 	    	<input class="form-control" type="text" id="checklist-tree-search" placeholder="Search">
 		    <div id="checklist-tree">
-		        @include('categories.partials.tree', ['categories'=>$taxonomy, 'selected'=>$selected])
+		        @include('categories.partials.tree', ['categories'=>$taxonomy, 'selected'=>$selected, 'edit_checklist'=>true])
 		    </div>
 		</div>
 	</div>

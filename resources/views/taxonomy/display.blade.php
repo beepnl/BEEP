@@ -18,6 +18,7 @@
 
         @endslot
 
+        @slot('body')
         <div class="row">
             <div class="col-sm-12">
                 <h4>
@@ -154,6 +155,7 @@
                 </script>
             </div>
         </div>
+        @endslot
 
     @endcomponent
 

@@ -31,4 +31,7 @@ return [
 
     'Webapp'            => 'Webapp',
     'language'          => 'taal',
+    'required_in_inspection' => 'Verplicht bij inspectie',
+    'Measurement'       => 'Meting',
+    'measurement'       => 'sensormeting',
 ];

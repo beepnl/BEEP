@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Api;
 use App\Category;
 use App\Taxonomy;
 use App\Hive;
-use App\HiveType;
 use App\BeeRace;
 use App\Inspection;
 use App\InspectionItem;
@@ -34,7 +33,8 @@ class TaxonomyController extends Controller
             }
         }
 
-        $out['beeraces'] = Category::descendentsByRootParentAndName('bee_colony', 'characteristics', 'subspecies');
+        $out['beeraces']    = Category::descendentsByRootParentAndName('bee_colony', 'characteristics', 'subspecies');
+        $out['sensortypes'] = Category::descendentsByRootParentAndName('hive', 'app', 'sensor');
 
         return response()->json($out);
     }
@@ -43,8 +43,8 @@ class TaxonomyController extends Controller
     {
         $out = [];
         
-        $flat = ($request->has('flat') && $request->input('flat'));
-        $order= ($request->has('order') && $request->input('order'));
+        $flat = ($request->filled('flat') && $request->input('flat'));
+        $order= ($request->filled('order') && $request->input('order'));
 
         $out['taxonomy'] = $this->getLanguageOrderedTaxonomy($request, $order, $flat);
 
@@ -53,7 +53,7 @@ class TaxonomyController extends Controller
 
     private function getLanguageOrderedTaxonomy(Request $request, $order, $flat)
     {
-        $locale = $request->has('locale') ? $request->input('locale') : LaravelLocalization::getCurrentLocale();
+        $locale = $request->filled('locale') ? $request->input('locale') : LaravelLocalization::getCurrentLocale();
 
         if ($order)
             $cheklistRootNodes = Taxonomy::whereIsRoot()->whereNotIn('type', ['system'])->get()->sortBy("trans.$locale", SORT_NATURAL|SORT_FLAG_CASE)->pluck('id');

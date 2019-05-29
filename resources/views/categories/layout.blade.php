@@ -18,6 +18,7 @@
 
         @endslot
 
+        @slot('body')
         <div class="row">
             <div class="col-sm-4">
                 <h4>
@@ -37,6 +38,7 @@
                 @yield('body')
             </div>
         </div>
+        @endslot
 
     @endcomponent
 

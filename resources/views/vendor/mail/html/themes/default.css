@@ -142,7 +142,7 @@ img {
 }
 
 .subcopy p {
-    font-size: 12px;
+    font-size: 13px;
 }
 
 /* Footer */
@@ -203,43 +203,48 @@ img {
 
 .button {
     border-radius: 4px;
-    color: #FFF;
+    color: #333;
     display: inline-block;
     text-decoration: none;
     -webkit-text-size-adjust: none;
+    background-color: #EEEEEE;
+    border: 10px solid #EEEEEE;
 }
 
-.button-yellow {
-    background-color: #F8BA31;
-    border-top: 10px solid #F8BA31;
-    border-right: 18px solid #F8BA31;
-    border-bottom: 10px solid #F8BA31;
-    border-left: 18px solid #F8BA31;
-    color: #666;
+.button-primary {
+    background-color: #F29100;
+    border-top: 10px solid #F29100;
+    border-right: 18px solid #F29100;
+    border-bottom: 10px solid #F29100;
+    border-left: 18px solid #F29100;
+    color: #FFF;
 }
 
-.button-blue {
-    background-color: #F8BA31;
-    border-top: 10px solid #F8BA31;
-    border-right: 18px solid #F8BA31;
-    border-bottom: 10px solid #F8BA31;
-    border-left: 18px solid #F8BA31;
+.button-info {
+    background-color: #243D80;
+    border-top: 10px solid #243D80;
+    border-right: 18px solid #243D80;
+    border-bottom: 10px solid #243D80;
+    border-left: 18px solid #243D80;
+    color: #FFF;
 }
 
-.button-green {
+.button-success {
     background-color: #2ab27b;
     border-top: 10px solid #2ab27b;
     border-right: 18px solid #2ab27b;
     border-bottom: 10px solid #2ab27b;
     border-left: 18px solid #2ab27b;
+    color: #FFF;
 }
 
-.button-red {
+.button-error {
     background-color: #bf5329;
     border-top: 10px solid #bf5329;
     border-right: 18px solid #bf5329;
     border-bottom: 10px solid #bf5329;
     border-left: 18px solid #bf5329;
+    color: #FFF;
 }
 
 /* Panels */

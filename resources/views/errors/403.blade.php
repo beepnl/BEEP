@@ -6,7 +6,7 @@
 @section('content')
     <div class="login-box">
 	    <div class="login-logo">
-	        <a href="/admin"><img src="/webapp/img/beep-icon-logo.svg"></a> 
+	        <a href="/admin"><img src="/img/beep-icon-logo.svg"></a> 
 	    </div>
 
 	    <div class="login-box-body">

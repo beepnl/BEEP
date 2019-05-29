@@ -26,7 +26,11 @@ Route::get('admin', function(){
 });
 
 Route::get('info', function(){
-	return view(phpinfo());
+	return view('phpinfo');
+});
+
+Route::get('webapp', function(){
+	return view('app/index');
 });
 
 // Hack for redirecting e-mail reset password link to webapp
@@ -38,7 +42,7 @@ Route::get('info', function(){
 Route::group(
 	[
 		'prefix' => LaravelLocalization::setLocale(), 
-		'middleware' => ['auth', 'localeSessionRedirect', 'localizationRedirect']
+		'middleware' => ['auth', 'localeSessionRedirect', 'localizationRedirect', 'verified']
 	], 
 	function() 
 	{
@@ -103,6 +107,7 @@ Route::group(
 				Route::resource('physicalquantity', 'PhysicalQuantityController');
 				Route::resource('categoryinputs', 	'CategoryInputsController');
 				Route::resource('inspection-items', 'InspectionItemsController');
+				Route::resource('measurement', 		'MeasurementController');
 
 				Route::resource('categories', 		'CategoriesController');
 				Route::delete('categories/{id}/pop',['as'=>'categories.pop','uses'=>'CategoriesController@pop','middleware' => ['permission:taxonomy-delete']]);
@@ -116,3 +121,5 @@ Route::group(
 
 	}
 );
+Auth::routes(['verify' => true]);
+

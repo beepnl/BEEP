@@ -128,7 +128,8 @@ class CategoriesController extends Controller {
 			'parent_id' 			=> $input->input('parent_id'),
 			'category_input_id' 	=> null,
 			'physical_quantity_id' 	=> null,
-			'old_id' 	            => null,
+            'old_id'                => null,
+			'required' 	            => false,
 		];
 		
 		// Handle the upload of an icon
@@ -159,6 +160,9 @@ class CategoriesController extends Controller {
         // Handle old_id
         if ($input->has('old_id'))
             $cat_input['old_id'] = $input->input('old_id');
+
+        if ($input->has('required'))
+            $cat_input['required'] = $input->input('required');
 
 		$category->update($cat_input);
 

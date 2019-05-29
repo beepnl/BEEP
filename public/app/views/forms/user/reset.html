@@ -1,0 +1,57 @@
+<div class="login-box">
+	<div class="login-logo">
+		<a href="/"><img src="/img/beep-icon-logo.svg"></a>
+	</div>
+
+	<div class="login-box-body">
+		<h3 class="login-box-msg">{{lang.password_recovery_reset_title}}</h3>
+
+		<form name="reset" id="password-reminder-form" class="form user-form" novalidate="novalidate">
+
+			<div ng-show="formStatus=='password_reset'" class="form-result--message">
+				<p class="summary">{{lang.password_recovery_reset_success}}</p>
+				<a ng-click="goToPage('/')" class="btn btn-primary btn-block" title="{{lang.go_to_dashboard}}">{{lang.go_to_dashboard}}</a>
+			</div>
+
+			<div ng-show="formStatus!='password_reset'">
+
+				<p class="summary">{{lang.password_recovery_reset_summary}}</p>
+
+				<div class="alert alert-{{message.resultType}}" ng-show="message.show">
+					<p>{{message.resultMessage}}</p>
+				</div>
+
+				<div class="form-group has-feedback" ng-class="{'has-error':error.token}" >
+					<input type="text" class="form-control" name="token" ng-model="fields.reset.token" autocorrect="off" autocapitalize="none" placeholder="{{lang.token}}" required="required" />
+					<span class="glyphicon glyphicon-check form-control-feedback"></span>
+				</div>
+				<div class="form-group has-feedback">
+					<input type="email" class="form-control" name="email" ng-model="fields.reset.email" autocorrect="off" autocapitalize="none" placeholder="{{lang.email}}" ng-class="{error:error.email}"  required="required" />
+					<span class="glyphicon glyphicon-envelope form-control-feedback"></span>
+				</div>
+				<div class="form-group has-feedback" ng-class="{'has-error':error.password}">
+					<input type="password" class="form-control" name="password" ng-model="fields.reset.password" placeholder="{{lang.new_password}}" required="required" />
+					<span class="glyphicon glyphicon-lock form-control-feedback"></span>
+				</div>
+				<div class="form-group has-feedback" ng-class="{'has-error':error.password_confirm}">
+					<input type="password" class="form-control" name="password_confirm" ng-model="fields.reset.password_confirm" match-password="password" placeholder="{{lang.confirm_new_password}}" required="required"  />
+					<span class="glyphicon glyphicon-lock form-control-feedback"></span>
+				</div>
+
+				<div class="row">
+					<div class="col-xs-12">
+						<a ng-click="doReset($event);" class="btn btn-primary btn-block" ng-class="{loading:loading}">{{lang.password_recovery_reset_password}}</a>
+					</div>
+				</div>
+
+				<hr>
+
+				<a ng-click="goToPage('/login/reminder?email='+fields.reset.email)" title="{{lang.password_recovery_code_not_received}}">{{lang.password_recovery_code_not_received}}</a>
+
+			</div>
+
+		</form>
+
+	</div>
+</div>
+

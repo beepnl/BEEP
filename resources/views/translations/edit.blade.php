@@ -7,7 +7,7 @@
 
     @component('components/box')
         @slot('title')
-            <img src="/webapp/img/{{ $language->icon }}" style="width: 30px;"> App {{ __('general.translations') }} {{ $language->name_english }} 
+            <img src="/img/{{ $language->icon }}" style="width: 30px;"> App {{ __('general.translations') }} {{ $language->name_english }} 
         @endslot
 
         @slot('body')
@@ -34,7 +34,7 @@
 
     @component('components/box')
         @slot('title')
-            <img src="/webapp/img/{{ $language->icon }}" style="width: 30px;"> {{ __('beep.Checklist') }} {{ __('general.translations') }} {{ $language->name_english }}
+            <img src="/img/{{ $language->icon }}" style="width: 30px;"> {{ __('beep.Checklist') }} {{ __('general.translations') }} {{ $language->name_english }}
         @endslot
 
         @slot('action')

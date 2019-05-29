@@ -2,106 +2,121 @@
 namespace App\Http\Controllers\Api;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Auth;
 use App\User;
 use App\Sensor;
 use App\Setting;
+use App\Category;
+use App\Measurement;
 // use App\Transformer\SensorTransformer;
 use Validator;
 use InfluxDB;
 use Response;
 use Moment\Moment;
 use League\Fractal;
-use EllipseSynergie\ApiResponse\Contracts\Response as TransformerResponse;
+use App\Http\Requests\PostSensorRequest;
 
 class SensorController extends Controller
 {
     protected $respose;
-    protected $valid_sensors = [
-            't'         => 'temperature',
-            'h'         => 'humidity',
-            'p'         => 'air_pressure',
-            'w'         => 'weight_sum',
-            'l'         => 'light',
-            'bv'        => 'bat_volt',
-            'w_v'       => 'weight_combined_kg',
-            'w_fl'      => 'weight_front_left',
-            'w_fr'      => 'weight_front_right',
-            'w_bl'      => 'weight_back_left',
-            'w_br'      => 'weight_back_right',
-            's_fan_4'   => 'sound_fanning_4days',
-            's_fan_6'   => 'sound_fanning_6days',
-            's_fan_9'   => 'sound_fanning_9days',
-            's_fly_a'   => 'sound_flying_adult',
-            's_tot'     => 'sound_total',
-            't_i'       => 'temp_inside',
-            'bc_i'      => 'bee_count_in',
-            'bc_o'      => 'bee_count_out',
-            'weight_kg' => 'weight_kg',
-            'weight_kg_corrected' => 'weight_kg_corrected',
-            'rssi'      => 'rssi',
-            'snr'       => 'snr',
-            'lat'       => 'lat',
-            'lon'       => 'lon',
-            's_bin098_146Hz' => '098_146Hz',
-            's_bin146_195Hz' => '146_195Hz',
-            's_bin195_244Hz' => '195_244Hz',
-            's_bin244_293Hz' => '244_293Hz',
-            's_bin293_342Hz' => '293_342Hz',
-            's_bin342_391Hz' => '342_391Hz',
-            's_bin391_439Hz' => '391_439Hz',
-            's_bin439_488Hz' => '439_488Hz',
-            's_bin488_537Hz' => '488_537Hz',
-            's_bin537_586Hz' => '537_586Hz',    
-            'calibrating_weight' => 'calibrating_weight',
-            'w_fl_kg_per_val'    => 'w_fl_kg_per_val',    
-            'w_fr_kg_per_val'    => 'w_fr_kg_per_val',    
-            'w_bl_kg_per_val'    => 'w_bl_kg_per_val',    
-            'w_br_kg_per_val'    => 'w_br_kg_per_val',    
-            'w_fl_offset'        => 'w_fl_offset',    
-            'w_fr_offset'        => 'w_fr_offset',    
-            'w_bl_offset'        => 'w_bl_offset',    
-            'w_br_offset'        => 'w_br_offset',  
-    ];
-    protected $output_sensors = [
-            't',
-            'h',
-            'p',
-            'l',
-            'bv',
-            's_fan_4',
-            's_fan_6',
-            's_fan_9',
-            's_fly_a',
-            's_tot',
-            't_i',
-            'bc_i',
-            'bc_o',
-            'weight_kg',
-            'weight_kg_corrected',
-            'rssi',
-            'snr',
-            'lat',
-            'lon',
-            's_bin098_146Hz',
-            's_bin146_195Hz',
-            's_bin195_244Hz',
-            's_bin244_293Hz',
-            's_bin293_342Hz',
-            's_bin342_391Hz',
-            's_bin391_439Hz',
-            's_bin439_488Hz',
-            's_bin488_537Hz',
-            's_bin537_586Hz',     
-        ];
+    protected $valid_sensors = [];
+    protected $output_sensors = [];
     protected $precision   = 's';
     protected $timeFormat  = 'Y-m-d H:i:s';
     protected $maxDataPoints = 5000;
  
-    public function __construct(TransformerResponse $response)
+    public function __construct()
     {
-        $this->response = $response;
+        $this->valid_sensors  = Measurement::all()->pluck('pq', 'abbreviation')->toArray();
+        $this->output_sensors = Measurement::where('show_in_charts', '=', 1)->pluck('abbreviation')->toArray();
+        //die(print_r($this->valid_sensors));
+    }
+   
+    // Sensor crud functions
+    public function index(Request $request)
+    {
+        $sensor_amount = $request->user()->allSensors()->count();
+        if ($sensor_amount == 0)
+            return Response::json('No sensors found', 404);
+
+        $sensors = $request->user()->allSensors()->get();
+        
+        return Response::json($sensors);
+    }
+
+    public function store(Request $request)
+    {
+        //die(print_r($request->input()));
+        foreach ($request->input() as $sensor) 
+        {
+            $result = $this->updateOrCreateSensor($sensor);
+            if ($result == null || gettype($result) == 'array')
+                return Response::json($result, 500);
+        }
+        return $this->index($request);
+    }
+
+    public function update(Request $request)
+    {
+        $result = $this->updateOrCreateSensor($request->input());
+
+        return Response::json($result, $result == null || gettype($result) == 'array' ? 500 : 200);
+    }
+
+    public function updateOrCreateSensor($sensor)
+    {
+        $sid = isset($sensor['id']) ? ','.$sensor['id'] : '';
+        $validator = Validator::make($sensor, [
+            'id'                => 'nullable|integer|unique:sensors,id'.$sid,
+            'name'              => 'required|string',
+            'hive_id'           => 'required|exists:hives,id',
+            'type'              => 'required|string|exists:categories,name',
+            'key'               => 'required|string|min:4|unique:sensors,key'.$sid,
+            'delete'            => 'nullable|boolean'
+        ]);
+
+        if ($validator->fails())
+        {
+            return ['errors'=>$validator->errors()];
+        }
+        else
+        {
+            $valid_data = $validator->validated();
+            $sensor_obj = isset($valid_data['id']) ? Auth::user()->sensors()->find($valid_data['id']) : null;
+            $sensor_id  = null;
+            if ($sensor_obj == null)
+            {
+                //create
+                $sensor = [];
+            }
+            else
+            {
+                // delete
+                if (isset($valid_data['delete']) && $valid_data['delete'] === true)
+                {
+                    $sensor_obj->delete();
+                    return 'sensor_deleted';
+                }
+                // edit
+                $sensor    = $sensor_obj->toArray();
+                $sensor_id = $sensor_obj->id; 
+            }
+
+
+            $sensor['hive_id']            = $valid_data['hive_id'];
+            $sensor['name']               = $valid_data['name']; 
+            $sensor['key']                = $valid_data['key']; 
+            $sensor['category_id']        = Category::findCategoryIdByParentAndName('sensor', $valid_data['type']); 
+            
+            return Auth::user()->sensors()->updateOrCreate(['id'=>$sensor_id], $sensor);
+        }
+
+        return null;
     }
     
+
+    // Sensor measurement functions
+
     protected function get_user_sensor(Request $request)
     {
         $this->validate($request, [
@@ -110,20 +125,20 @@ class SensorController extends Controller
             'hive_id'   => 'nullable|integer|exists:hives,id',
         ]);
         
-        $sensors = $request->user()->sensors();
+        $sensors = $request->user()->allSensors(); // inlude user Group - hive sensors
         if ($sensors->count() > 0)
         {
-            if ($request->has('id') && $request->input('id') != 'null')
+            if ($request->filled('id') && $request->input('id') != 'null')
             {
                 $id = $request->input('id');
                 $check_sensor = $sensors->findOrFail($id);
             }
-            else if ($request->has('key') && $request->input('key') != 'null')
+            else if ($request->filled('key') && $request->input('key') != 'null')
             {
                 $key = $request->input('key');
                 $check_sensor = $sensors->where('key', $key)->first();
             }
-            else if ($request->has('hive_id') && $request->input('hive_id') != 'null')
+            else if ($request->filled('hive_id') && $request->input('hive_id') != 'null')
             {
                 $hive_id = $request->input('hive_id');
                 $check_sensor = $sensors->where('hive_id', $hive_id)->first();
@@ -642,8 +657,8 @@ class SensorController extends Controller
             return Response::json('validation-error', 500);
 
         $sensor           = $this->get_user_sensor($request); // requires id, key, hive_id, or nothing (if only one sensor) to be set
-        $next_measurement = $request->has('next_measurement') ? $request->input('next_measurement') : true;
-        $weight_kg        = floatval($request->has('weight_kg') ? $request->input('weight_kg') : $this->last_sensor_measurement_time_value($sensor, 'calibrating_weight'));
+        $next_measurement = $request->filled('next_measurement') ? $request->input('next_measurement') : true;
+        $weight_kg        = floatval($request->filled('weight_kg') ? $request->input('weight_kg') : $this->last_sensor_measurement_time_value($sensor, 'calibrating_weight'));
         $calibrated       = $this->calibrate_weight_sensors($sensor, $weight_kg, $next_measurement);
 
         if($calibrated === true)
@@ -667,20 +682,6 @@ class SensorController extends Controller
         
         return Response::json($offset, 500);
     }
-
-
-    public function index(Request $request)
-    {
-        $sensor_amount = $request->user()->sensors()->count();
-        if ($sensor_amount == 0)
-            return Response::json('No sensors found', 404);
-
-        $sensors = $request->user()->sensors()->get();
-        
-        return Response::json($sensors);
-    }
-
-    
 
     public function lastvalues(Request $request)
     {
@@ -722,7 +723,8 @@ class SensorController extends Controller
 
         //die(print_r($data_obj));
 
-        if ($request->has('LrnDevEui'))
+
+        if ($request->filled('LrnDevEui'))
             if (Sensor::where('key', $request->input('LrnDevEui'))->count() > 0)
                 $data_array['key'] = $request->input('LrnDevEui');
 
@@ -774,27 +776,27 @@ class SensorController extends Controller
     }
 
     
-    public function store(Request $request)
+    public function storeMeasurementData(Request $request)
     {
         // Check for valid data 
-        if ($request->has('payload_fields')) // TTN HTTP POST
+        if ($request->filled('payload_fields')) // TTN HTTP POST
         {
             $data_array = $request->input('payload_fields');
             if (isset($data_array['key']))
             {
                 // keep $data_array['key']
             }
-            else if ($request->has('hardware_serial'))
+            else if ($request->filled('hardware_serial'))
             {
                 $data_array['key'] = $request->input('hardware_serial'); // LoRa WAN = Device EUI
             }
 
-            if ($request->has('metadata.gateways.0.rssi'))
+            if ($request->filled('metadata.gateways.0.rssi'))
                 $data_array['rssi'] = $request->input('metadata.gateways.0.rssi');
-            if ($request->has('metadata.gateways.0.snr'))
+            if ($request->filled('metadata.gateways.0.snr'))
                 $data_array['snr']  = $request->input('metadata.gateways.0.snr');
         }
-        else if ($request->has('data')) // Check for sensor string (colon and pipe devided) fw v1-3
+        else if ($request->filled('data')) // Check for sensor string (colon and pipe devided) fw v1-3
         {
             $data_array = $this->convertSensorStringToArray($request->input('data'));
         }
@@ -857,7 +859,8 @@ class SensorController extends Controller
        
         if (count($names) == 0)
             Response::json('sensor-none-error', 500);
-        $durationInterval = $interval + 's';
+        
+        $durationInterval = $interval.'s';
         $requestInterval  = $interval;
         $resolution       = null;
         $staTimestamp = new Moment();

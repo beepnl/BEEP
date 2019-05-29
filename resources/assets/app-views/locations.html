@@ -1,0 +1,86 @@
+<section class="content-header">
+	<h1>
+		{{lang.Locations}}
+		<div class="pull-right">
+	    	<div>
+				<a href="#!/locations/create" class="btn btn-primary"><i class="fa fa-plus"></i> {{mobile ? lang.New : lang.create_new}} {{lang.location}}</a>
+			</div>
+	    </div>
+	</h1>
+  
+  <!-- <ol class="breadcrumb">
+    <li><a href="/"><i class="fa fa-home"></i> Home</a></li>
+    <li class="active">{{lang.locations}}</li>
+  </ol> -->
+
+</section>
+
+<section class="content" >
+	
+	<div class="box" ng-if="locations == null">
+		<div class="box-header with-border">
+	      <h3 class="box-title">{{lang.Locations}}</h3>
+	    </div>
+
+	    <div class="box-body" ng-class="{'no-padding':mobile}" style="min-height: 300px;">
+	    </div>
+
+		<div class="overlay">
+          <i class="fa fa-refresh fa-spin"></i>
+        </div>
+	 </div>
+
+
+	<div class="box" ng-repeat="(key, loc) in locations | orderBy:'name':false:natSort" ng-class="{'collapsed-box':!loc.open}">
+	    <div class="box-header with-border">
+	      <div class="box-tools">
+	        <button type="button" class="btn btn-box-tool" ng-click="toggleLoc(loc)"> <i class="fa" ng-class="{'fa-plus':!loc.open, 'fa-minus':loc.open}"></i>
+	        </button>
+
+	        <!--button type="button" class="btn btn-box-tool" data-widget="remove"><i class="fa fa-times"></i></button-->
+	      </div>
+	      <h3 class="box-title">{{loc.name}}</h3>
+	      <a href="#!/locations/{{loc.id}}/edit" class="icon-button" title="{{lang.edit}}"><i class="fa fa-pencil"></i></a>
+
+	    </div>
+	    <!-- /.box-header -->
+	    <div class="box-body" ng-class="{'no-padding':mobile}">
+	      	
+	      	<div ng-if="!mobile" class="hives-container">
+	      		<div ng-repeat="(key, hive) in loc.hives | orderBy:'name':false:natSort" class="hive-container" >
+	            	<beep-hive hive="hive"></beep-hive>
+	            </div>
+            	<!-- New hive -->
+            	<div class="hive-container" >
+	            	<beep-hive loc="loc" new="true"></beep-hive>
+            	</div>
+	      	</div>
+
+	      	<table ng-if="mobile" class="table table-striped">
+	      		<thead></thead>
+				<tbody>
+					<tr ng-repeat="(key, hive) in loc.hives | orderBy:'name':false:natSort">
+						<td>
+							<beep-hive hive="hive"></beep-hive>
+			            </td>
+					</tr>
+					<!-- New hive -->
+					<tr>
+						<td>
+							<beep-hive loc="loc" new="true"></beep-hive>
+			            </td>
+	            	</tr>
+				</tbody>
+			</table>
+
+	    </div>
+	    <!-- /.box-body -->
+	    <!-- <div class="box-footer clearfix">
+	    </div> -->
+	    <!-- /.box-footer -->
+	    <div class="overlay" ng-if="loading">
+          <i class="fa fa-refresh fa-spin"></i>
+        </div>
+	 </div>
+
+</section>

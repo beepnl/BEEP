@@ -3,9 +3,9 @@
   <!-- Logo -->
   <a href="/home" class="logo">
     <!-- mini logo for sidebar mini 50x50 pixels -->
-    <span class="logo-mini"><img src="/webapp/img/logo.png"></span>
+    <span class="logo-mini"><img src="/img/logo.png"></span>
     <!-- logo for regular state and mobile devices -->
-    <span class="logo-lg"><img src="/webapp/img/logo.png"></span>
+    <span class="logo-lg"><img src="/img/logo.png"></span>
   </a>
 
   <!-- Header Navbar -->

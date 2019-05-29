@@ -18,7 +18,7 @@
                
             @foreach(App\Language::all() as $lang )
 
-                <div style="margin: 20px;"><a href="{{ route('translations.index') }}/{{$lang->id}}"><img src="/webapp/img/{{ $lang->icon }}" style="width: 40px; display: inline-block; margin-right: 20px;"> {{ $lang->name }}</a></div>
+                <div style="margin: 20px;"><a href="{{ route('translations.index') }}/{{$lang->id}}"><img src="/img/{{ $lang->icon }}" style="width: 40px; display: inline-block; margin-right: 20px;"> {{ $lang->name }}</a></div>
 
             @endforeach
 

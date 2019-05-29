@@ -2,7 +2,7 @@
 <aside class="control-sidebar control-sidebar-light">
   <!-- Content of the sidebar goes here -->
     <section class="content">
-      <img src="/webapp/img/reports/legend.svg"/>
+      <img src="/img/reports/legend.svg"/>
       <br>
       <br>
       <button data-toggle="control-sidebar" class="btn btn-default">Close</button>

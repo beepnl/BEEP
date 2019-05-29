@@ -1,0 +1,122 @@
+<div class="inspection-item {{item.input == 'text' || cols == 12 ? 'col-xs-12' : 'col-xs-12 col-sm-6 col-md-4' }}">
+    <div class="form-group">
+        
+        <label title="{{ item.description != null ? item.description : '' }} {{ item.required == 1 ? lang.required : '' }}" ng-class="{required:item.required}">
+            {{item.trans[locale] || item.name}}{{item.unit != null ? ' ('+item.unit+')' : ''}} {{ item.required == 1 ? '*' : '' }}
+            <a ng-if="item.source != null" href="{{item.source}}" target="_blank"><i class="fa fa-info-circle"></i></a> 
+            <!-- <span class="dev-label">{{item.input}}</span>  -->
+        </label>
+        <br>
+        
+        <textarea ng-if="item.input == 'text'" ng-model="item.value" type="item.input" placeholder="{{ item.trans[locale] || item.name }}" class="form-control"></textarea>
+        
+        <!-- NB: decimals, min/max not taken from api, because makes API payload a lot bigger -->
+        <div ng-if="item.input == 'number'" step="1" ng-disabled="false" ng-model="item.value" rn-stepper></div>
+        <div ng-if="item.input == 'number_negative'" step="1" max="0" ng-disabled="false" ng-model="item.value" rn-stepper></div>
+        <div ng-if="item.input == 'number_positive'" step="1" min="0" ng-disabled="false" ng-model="item.value" rn-stepper></div>
+        <div ng-if="item.input == 'number_0_decimals'" step="1" ng-disabled="false" ng-model="item.value" rn-stepper></div>
+        <div ng-if="item.input == 'number_1_decimals'" step="0.1" ng-disabled="false" ng-model="item.value" rn-stepper></div>
+        <div ng-if="item.input == 'number_2_decimals'" step="0.01" ng-disabled="false" ng-model="item.value" rn-stepper></div>
+        <div ng-if="item.input == 'number_3_decimals'" step="0.001" ng-disabled="false" ng-model="item.value" rn-stepper></div>
+
+        <div ng-if="item.input == 'grade'">
+            <rzslider rz-slider-model="item.value" rz-slider-options="gradeOptions"></rzslider>
+        </div>
+
+        <div ng-if="item.input == 'number_percentage'">
+            <rzslider rz-slider-model="item.value" rz-slider-options="scorePercentageOptions"></rzslider>
+        </div>
+
+        <div ng-if="item.input == 'number_degrees'">
+            <rzslider rz-slider-model="item.value" rz-slider-options="{floor:-180, ceil:180, showTicks:45 }"></rzslider>
+        </div>
+
+        <div ng-if="item.input == 'slider'">
+            <rzslider rz-slider-model="item.value" rz-slider-options="{floor:-999, ceil:999, step:1, precision:0, showTicks:false }"></rzslider>
+        </div>
+
+        <div ng-if="item.input == 'score_amount'">
+            <rzslider rz-slider-model="item.value" rz-slider-options="scoreAmountOptions"></rzslider>
+        </div>
+
+        <div ng-if="item.input == 'score_quality'">
+            <rzslider rz-slider-model="item.value" rz-slider-options="scoreQualityOptions"></rzslider>
+        </div>
+
+        <div ng-if="item.input == 'score'" max="5" ng-model="item.value" readonly="false" star-rating></div>
+        <div ng-if="item.input == 'smileys_3'" max="3" ng-model="item.value" readonly="false" smile-rating></div>
+        
+        <div ng-if="item.input == 'boolean' || item.input == 'list_item'" ng-model="item.value" readonly="false" yes="lang.yes" no="lang.no" item-name="item.name" yes-no-rating></div>
+        <div ng-if="item.input == 'boolean_yes_red'" class="yes_red" ng-model="item.value" readonly="false" yes="lang.yes" no="lang.no" item-name="item.name" yes-no-rating></div>
+            <checklist-fieldset ng-if="item.children.length > 0 && (item.input == 'boolean' || item.input == 'boolean_yes_red' || item.input == 'list_item')" ng-show="item.value == 1" cat="item" cols="12"></checklist-fieldset>
+        
+        <input ng-if="item.input == 'file'" ng-model="item.value" readonly="false" type="file" item-name="item.name">
+        <input ng-if="item.input == 'image'" ng-model="item.value" readonly="false" type="file" item-name="item.name">
+        
+        <div ng-if="item.input == 'barcode'" ng-model="item.value" readonly="false" type="file" item-name="item.name">Barcode not supported in webapp, please wait for the native Beep app</div>
+        
+        
+        <select ng-if="item.input == 'select'" ng-model="item.value" class="form-control">
+            <option value=''>{{lang.Select}} {{item.trans[locale] || item.name}}...</option>
+            
+            <optgroup ng-repeat="opt in item.children track by opt.id" ng-if="opt.children.length > 0" label="{{opt.trans[locale] || opt.name}}">
+                <option ng-repeat="ogi in opt.children track by ogi.id" value="{{ogi.id}}">
+                    {{ogi.trans[locale] || ogi.name}}
+                </option>
+            </optgroup>
+
+            <option ng-repeat="opt in item.children" ng-if="opt.children.length == 0" value="{{opt.id}}">
+                {{opt.trans[locale] || opt.name}}
+            </option>
+            
+        </select>
+
+        <div ng-if="item.input == 'list'">
+            <label ng-repeat="opt in item.children track by opt.id" class="option-block" ng-if="opt.input == 'list_item' || opt.input == 'boolean'">
+            	<input type="checkbox" ng-model="opt.value" ng-click="addRemoveFromList(opt)" ng-checked="item.value.indexOf(opt.id) > -1">
+            	{{opt.trans[locale] || opt.name}}
+            </label>
+        </div>
+
+        <div ng-if="item.input == 'options'">
+            <label ng-repeat="opt in item.children track by opt.id" class="option-block" ng-if="opt.input == 'list_item'">
+                <input type="radio" value="{{opt.id}}" ng-model="item.value" ng-dblclick="item.value = ''" name="item.id">
+                {{opt.trans[locale] || opt.name}}
+            </label>
+        </div>
+        
+        <div ng-if="item.input == 'date'">
+    		<div class="input-group date">
+    		  <div class="input-group-addon">
+    		    <i class="fa fa-calendar"></i>
+    		  </div>
+    		  <input class="form-control pull-right" data-field="datetime" readonly="true" type="text" ng-model="item.value">
+    		</div>
+    	</div>
+
+        <select ng-if="item.input == 'select_apiary'" ng-model="item.value" ng-options="item.id as item.name for item in locations  | orderBy:'name' track by item.id" type="select" class="form-control">
+            <option value=''>{{lang.Select}} {{lang.location}}...</option>
+        </select>
+
+        <select ng-if="item.input == 'select_hive'" ng-model="item.value" ng-options="item.id as item.name group by item.location for item in hives  | orderBy:'name' track by item.id" type="select" class="form-control">
+            <option value=''>{{lang.Select}} {{lang.hive}}...</option>
+        </select>
+
+        <select ng-if="item.input == 'select_hive_type'" ng-model="item.value" ng-options="item.id as item.trans[locale] group by item.group[locale] for item in hivetypes | orderBy:transSort track by item.id" type="select" class="form-control">
+            <option value=''>{{lang.Select}} {{lang.Hive_type}}...</option>
+        </select>
+
+        <select ng-if="item.input == 'bee_subspecies'" ng-model="item.value" ng-options="item.id as item.trans[locale] for item in beeraces | orderBy:transSort track by item.id" type="select" class="form-control">
+            <option value=''>{{lang.Select}} {{lang.Bee_race}}...</option>
+        </select>
+
+        <div ng-if="item.input == 'select_country'">
+            <country-select model="item.value"></country-select>
+        </div>
+
+        <div ng-if="item.input == 'select_location' || item.input == 'select_hive_layer' || item.input == 'select_hive_layer_frame' || item.input == 'select_continent'">
+            <p>{{lang.Not_implemented_yet}}</p>
+        </div>
+
+    </div>
+</div>

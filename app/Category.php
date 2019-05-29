@@ -13,7 +13,7 @@ class Category extends Model
 
     protected $table    = 'categories';
 
-    protected $fillable = ['name', 'category_input_id', 'physical_quantity_id', 'parent_id', 'description', 'source', 'icon', 'type', 'old_id'];
+    protected $fillable = ['name', 'category_input_id', 'physical_quantity_id', 'parent_id', 'description', 'source', 'icon', 'type', 'required'];
 	protected $guarded 	= ['id'];
 
 	protected $hidden   = ['created_at','updated_at', 'category_input_id', 'physical_quantity_id','_lft','_rgt','pivot','description','input_type','options','parent_id','old_id'];

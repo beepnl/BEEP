@@ -1,0 +1,49 @@
+<div class="login-box">
+	<div class="login-logo">
+		<a href="/"><img src="/img/beep-icon-logo.svg"></a>
+	</div>
+
+	<div class="login-box-body">
+		<h3 class="login-box-msg">{{lang.password_recovery_title}}</h3>
+
+		<form name="reminder" id="password-reminder-form" class="form user-form" novalidate="novalidate">
+
+		    <div ng-show="formStatus=='reminder_sent'" class="form-result--message">
+				<p class="summary">{{lang.password_recovery_reminder_success}}</p>
+				<a ng-click="goToPage('/login/reset')" class="btn btn-primary btn-block" title="{{lang.password_recovery_enter_code}}">{{lang.password_recovery_enter_code}}</a>
+			</div>
+
+
+			<div ng-show="formStatus!='reminder_sent'">
+
+				<p class="summary">{{lang.password_recovery_reminder_summary}}</p>
+
+				<div class="alert alert-{{message.resultType}}" ng-show="message.show">
+					<p>{{message.resultMessage}}</p>
+				</div>
+
+				<div class="form-group has-feedback" ng-class="{'has-error':error.email}" >
+					<input type="email" class="form-control" name="email" ng-model="fields.reminder.email" autocorrect="off" autocapitalize="none" placeholder="{{lang.email}}" required="required" />
+					<span class="glyphicon glyphicon-envelope form-control-feedback"></span>
+				</div>
+
+				<div class="row">
+					<div class="col-xs-12">
+						<a ng-click="sendReminder($event);" class="btn btn-primary btn-block" ng-class="{loading:loading}">{{lang.password_recovery_send_mail}}</a>
+					</div>
+				</div>
+
+				<hr>
+
+				<a ng-click="goToPage('/login/reset')" title="{{lang.password_recovery_enter_code}}">{{lang.password_recovery_enter_code}}</a>
+				<br>
+    			<br>
+				<a ng-click="goToPage('/login')" title="{{lang.password_recovery_remembered}}">{{lang.password_recovery_remembered}}</a>
+
+			</div>
+
+		</form>
+
+	</div>
+</div>
+

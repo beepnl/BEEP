@@ -50,14 +50,14 @@
 # | CORS                                                                       |
 # ------------------------------------------------------------------------------
 <IfModule mod_headers.c>
-    Header set Access-Control-Allow-Origin "*"
+    Header set Access-Control-Allow-Origin "https://app.beep.nl"
 </IfModule>
 
 <IfModule mod_setenvif.c>
     <IfModule mod_headers.c>
         <FilesMatch "\.(cur|gif|ico|jpe?g|png|svgz?|webp)$">
             SetEnvIf Origin ":" IS_CORS
-            Header set Access-Control-Allow-Origin "*" env=IS_CORS
+            Header set Access-Control-Allow-Origin "https://app.beep.nl" env=IS_CORS
         </FilesMatch>
     </IfModule>
 </IfModule>

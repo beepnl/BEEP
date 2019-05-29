@@ -17,10 +17,9 @@
 	    	<br>
 	    	<br>
 	    	<br>
-	    	<br>
-
-	    	<button class="btn btn-primary btn-block" onclick="history.back();">Go back</button>
 	    	<a class="btn btn-primary btn-block" href="https://app.beep.nl">Open app</a>
+	    	<br>
+	    	<button class="btn btn-primary btn-block" onclick="history.back();">Go back</button>
 	    </div>
 	</div>
 @endsection

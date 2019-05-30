@@ -369,7 +369,7 @@
     add_to_calendar            : 'Ajouter au calendrier',
     sort_on                    : 'Trier sur',
     Whats_new                  : 'Nouveau dans v2.1!',
-    Manual                     : 'Manuel',
+    Manual                     : 'Manuel (EN)',
         
         
     Site_title                 : 'BEEP | Moniteur abeille',

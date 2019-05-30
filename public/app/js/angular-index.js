@@ -1,4 +1,4 @@
-var _LANG$nl, _LANG$en, _LANG$de;
+var _LANG$nl, _LANG$en, _LANG$de, _LANG$fr;
 
 function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
@@ -1158,7 +1158,201 @@ LANG['de'] = (_LANG$de = {
 
   /* settings */
   General: 'Generell'
-}, _defineProperty(_LANG$de, "Location", 'Standort'), _defineProperty(_LANG$de, "Country", 'Land'), _defineProperty(_LANG$de, "City", 'Stadt'), _defineProperty(_LANG$de, "Address", 'Addresse'), _defineProperty(_LANG$de, "Lattitude", 'Lattitude'), _defineProperty(_LANG$de, "Longitude", 'Longitude'), _defineProperty(_LANG$de, "Street", 'Straße'), _defineProperty(_LANG$de, "Number", 'Hausnummer.'), _defineProperty(_LANG$de, "Postal_code", 'Postleitzahl'), _defineProperty(_LANG$de, "Description", 'Beschreibung'), _defineProperty(_LANG$de, "Hive_settings", 'Beute Einstellung'), _defineProperty(_LANG$de, "Hive_amount", 'Anzahl der Beuten an diesem Ort'), _defineProperty(_LANG$de, "Hive_prefix", 'Beutenprefix (vor der Zahl)'), _defineProperty(_LANG$de, "Hive_number_offset", 'Startnummer Beute'), _defineProperty(_LANG$de, "Hive_type", 'Beutentyp'), _defineProperty(_LANG$de, "Hive_layers", 'Zargen'), _defineProperty(_LANG$de, "Hive_frames", 'Rähmchen per Zarge'), _defineProperty(_LANG$de, "Hive_color", 'Beutenfarbe'), _defineProperty(_LANG$de, "Queen", 'Königin'), _defineProperty(_LANG$de, "queen", 'Königin'), _defineProperty(_LANG$de, "settings_title", 'Einstellungen'), _defineProperty(_LANG$de, "settings_description", 'Einstellungen der Sensoren'), _defineProperty(_LANG$de, "settings", 'Einstellungen'), _defineProperty(_LANG$de, "sensors_title", 'Sensoreinstellungen'), _defineProperty(_LANG$de, "sensors_description", 'Sensor Status und Registrierung'), _defineProperty(_LANG$de, "sensors", 'Sensoren'), _defineProperty(_LANG$de, "sensor", 'Sensor'), _defineProperty(_LANG$de, "Select", 'Wähle'), _defineProperty(_LANG$de, "Not_selected", 'Nicht gewählt'), _defineProperty(_LANG$de, "Poor", 'Arm'), _defineProperty(_LANG$de, "Fair", 'Fair'), _defineProperty(_LANG$de, "Average", 'Durchschnitt'), _defineProperty(_LANG$de, "Good", 'Gut'), _defineProperty(_LANG$de, "Excellent", 'Excellent'), _defineProperty(_LANG$de, "Low", 'Tief'), _defineProperty(_LANG$de, "Medium", 'Mitte'), _defineProperty(_LANG$de, "High", 'Hoch'), _defineProperty(_LANG$de, "Extreme", 'Extrem'), _defineProperty(_LANG$de, "select_color", 'Wähle eine Farbe'), _defineProperty(_LANG$de, "advanced", 'Erweitert'), _defineProperty(_LANG$de, "Select_sensor", 'Wähle einen Sensor'), _defineProperty(_LANG$de, "temperature", 'Temperatur'), _defineProperty(_LANG$de, "t", 'Temperatur'), _defineProperty(_LANG$de, "light", 'Sonnenlicht'), _defineProperty(_LANG$de, "l", 'Sonnenlicht'), _defineProperty(_LANG$de, "water", 'Wasser'), _defineProperty(_LANG$de, "w", 'Wasser'), _defineProperty(_LANG$de, "humidity", 'Feuchtigkeit'), _defineProperty(_LANG$de, "h", 'Feuchtigkeit'), _defineProperty(_LANG$de, "air_pressure", 'Luftdruck'), _defineProperty(_LANG$de, "p", 'Luftdruck'), _defineProperty(_LANG$de, "weight", 'Gewicht'), _defineProperty(_LANG$de, "w_v", 'Gewichtssensor Wert für alle'), _defineProperty(_LANG$de, "w_fl", 'Gewichtssensor Wert vorne links'), _defineProperty(_LANG$de, "w_fr", 'Gewichtssensor Wert vorne rechts'), _defineProperty(_LANG$de, "w_bl", 'Gewichtssensor Wert hinten links'), _defineProperty(_LANG$de, "w_br", 'Gewichtssensor Wert hinten rechts'), _defineProperty(_LANG$de, "weight_kg", 'Gewicht'), _defineProperty(_LANG$de, "weight_kg_corrected", 'Gewicht (korrigiert)'), _defineProperty(_LANG$de, "weight_combined_kg", 'Gewicht kombiniert'), _defineProperty(_LANG$de, "bat_volt", 'Batterie'), _defineProperty(_LANG$de, "bv", 'Batterie'), _defineProperty(_LANG$de, "sound_fanning_4days", 'Fan 4d Bienen'), _defineProperty(_LANG$de, "s_fan_4", 'Fan 4d Bienens'), _defineProperty(_LANG$de, "sound_fanning_6days", 'Fan 6d Bienen'), _defineProperty(_LANG$de, "s_fan_6", 'Fan 6d Bienen'), _defineProperty(_LANG$de, "sound_fanning_9days", 'Fan 9d Bienens'), _defineProperty(_LANG$de, "s_fan_9", 'Fan 9d Bienen'), _defineProperty(_LANG$de, "sound_flying_adult", 'Fliegende Bienen'), _defineProperty(_LANG$de, "s_fly_a", 'Fliegende Bienen'), _defineProperty(_LANG$de, "sound_total", 'Totaler Sound'), _defineProperty(_LANG$de, "s_tot", 'Totaler Sound'), _defineProperty(_LANG$de, "bee_count_in", 'Bienenzähler nach innen'), _defineProperty(_LANG$de, "bc_i", 'Bienenzähler nach innen'), _defineProperty(_LANG$de, "bee_count_out", 'Bienenzähler nach außen'), _defineProperty(_LANG$de, "bc_o", 'Bienenzähler nach außen'), _defineProperty(_LANG$de, "t_i", 'Temp. innen'), _defineProperty(_LANG$de, "rssi", 'Signal Stärke'), _defineProperty(_LANG$de, "snr", 'Signal Krach'), _defineProperty(_LANG$de, "Sound_measurements", 'Soundmessungen'), _defineProperty(_LANG$de, "Sensor_info", 'Sensor info'), _defineProperty(_LANG$de, 's_bin098_146Hz', '098-146Hz'), _defineProperty(_LANG$de, 's_bin146_195Hz', '146-195Hz'), _defineProperty(_LANG$de, 's_bin195_244Hz', '195-244Hz'), _defineProperty(_LANG$de, 's_bin244_293Hz', '244-293Hz'), _defineProperty(_LANG$de, 's_bin293_342Hz', '293-342Hz'), _defineProperty(_LANG$de, 's_bin342_391Hz', '342-391Hz'), _defineProperty(_LANG$de, 's_bin391_439Hz', '391-439Hz'), _defineProperty(_LANG$de, 's_bin439_488Hz', '439-488Hz'), _defineProperty(_LANG$de, 's_bin488_537Hz', '488-537Hz'), _defineProperty(_LANG$de, 's_bin537_586Hz', '537-586Hz'), _defineProperty(_LANG$de, "hour", 'Stunde'), _defineProperty(_LANG$de, "day", 'Tag'), _defineProperty(_LANG$de, "week", 'Woche'), _defineProperty(_LANG$de, "month", 'Monat'), _defineProperty(_LANG$de, "year", 'Jahr'), _defineProperty(_LANG$de, "could_not_load_settings", 'Die Einstellungen konnten nicht geladen werden'), _defineProperty(_LANG$de, "offline", 'Keine Verbindung'), _defineProperty(_LANG$de, "remote", 'Fernbedienung'), _defineProperty(_LANG$de, "connected", 'Direkt'), _defineProperty(_LANG$de, "yes", 'Ja'), _defineProperty(_LANG$de, "no", 'Nein'), _defineProperty(_LANG$de, "footer_text", 'Open source beekeeping'), _defineProperty(_LANG$de, "beep_foundation", 'the BEEP foundation'), _defineProperty(_LANG$de, "Checklist", 'Stockkarte'), _defineProperty(_LANG$de, "Checklist_items", 'Stockkarte Artikel'), _defineProperty(_LANG$de, "edit_hive_checklist", 'Aktivieren / deaktivieren Sie die Kästchen in der Liste, um Artikel aus Ihrer Stockkarte hinzuzufügen / zu entfernen. Sie können die Artikel auch entfalten / falten und ziehen / ablegen, um sie an Ihren eigenen Stil anzupassen. Tipp: Wenn Sie einen Suchbegriff in das Suchfeld eingeben, werden alle Artikel, die diesen Begriff enthalten, ausgeklappt und rot gefärbt.'), _defineProperty(_LANG$de, "Data_export", 'Daten Export'), _defineProperty(_LANG$de, "Export_your_data", 'Exportiere alle Daten aus Deinem Account per Email (Exceldatei).'), _defineProperty(_LANG$de, "Terms_of_use", 'Nutzungsbedingungen (EN)'), _defineProperty(_LANG$de, "accept_policy", 'Ich akzeptiere die BEEP-Nutzungsbedingungen, die mit dem neuen europäischen Datenschutzgesetz vereinbar sind'), _defineProperty(_LANG$de, "policy_url", 'https://beep.nl/terms-of-service'), _defineProperty(_LANG$de, "policy_version", 'beep_terms_2018_05_25_avg_v1'), _defineProperty(_LANG$de, "approve_policy", 'Sie haben die aktuellen Nutzungsbedingungen noch nicht erfüllt.'), _defineProperty(_LANG$de, "calibrate_weight", 'Kalibriere Gewicht'), _defineProperty(_LANG$de, "calibrate_explanation", 'Stellen Sie das Gewicht der Sensoren auf 0 ein, indem Sie den aktuellen Messwert subtrahieren.'), _defineProperty(_LANG$de, "set_as_zero_value", 'Setzen Sie diese Werte als 0 Werte'), _defineProperty(_LANG$de, "set_weight_factor", 'Definiere den Gewichtsfaktor'), _defineProperty(_LANG$de, "own_weight_kg", 'Wie hoch ist Ihr Eigengewicht in kg??'), _defineProperty(_LANG$de, "start_calibration", 'Treten Sie nun auf die Waage und drücken Sie die Taste unten, um den Gewichtsfaktor festzulegen. Verteilen Sie Ihr Gewicht gleichmäßig.'), _defineProperty(_LANG$de, "currently_there_is", 'Da ist ein Gewicht von'), _defineProperty(_LANG$de, "nothing", 'nichts'), _defineProperty(_LANG$de, "on_the_scale", 'auf der Skala'), _defineProperty(_LANG$de, "calibration_started", 'Calibration started... Wait for the next measurement to take effect.'), _defineProperty(_LANG$de, "calibration_ended", 'Calibration succeeded!'), _defineProperty(_LANG$de, "server_down", 'Die App ist aufgrund von Wartungsarbeiten nicht verfügbar. Bitte versuche es später erneut'), _defineProperty(_LANG$de, "add_to_calendar", 'Zum Kalender hinzufügen'), _defineProperty(_LANG$de, "sort_on", 'Sortieren nach'), _defineProperty(_LANG$de, "Whats_new", 'Neu in v2!'), _defineProperty(_LANG$de, "Manual", 'Handbuch (EN)'), _defineProperty(_LANG$de, "Site_title", 'BEEP | Bienenmonitor'), _defineProperty(_LANG$de, "could_not_create_user", 'User cannot be created at this moment. Sorry for the inconvenience, please try again later.'), _defineProperty(_LANG$de, "email_verified", 'Your e-mail address has been verified.'), _defineProperty(_LANG$de, "email_not_verified", 'Your e-mail address has not yet been verified.'), _defineProperty(_LANG$de, "email_new_verification", 'Click on this link to send a new verification e-mail.'), _defineProperty(_LANG$de, "email_verification_sent", 'A message with a verification link has been sent to your e-mail address. Click the link in the e-mail to activate your account and log in.'), _defineProperty(_LANG$de, "not_filled", 'is required, but not filled out'), _defineProperty(_LANG$de, "cannot_deselect", 'Unable to remove this item, because it contains a required item'), _defineProperty(_LANG$de, "sensor_key", 'Sensor key'), _defineProperty(_LANG$de, "Undelete", 'Do not delete'), _defineProperty(_LANG$de, "the_field", 'The'), _defineProperty(_LANG$de, "is_required", 'is required'), _defineProperty(_LANG$de, "No_groups", 'No groups available'), _defineProperty(_LANG$de, "not_available_yet", 'not yet available. Please create the first one here.'), _defineProperty(_LANG$de, "Users", 'Benutzer'), _defineProperty(_LANG$de, "Member", 'Group member'), _defineProperty(_LANG$de, "Members", 'Group members'), _defineProperty(_LANG$de, "Invite", 'Invite'), _defineProperty(_LANG$de, "Invited", 'Invited'), _defineProperty(_LANG$de, "invitations", 'invitations'), _defineProperty(_LANG$de, "Admin", 'Administrator'), _defineProperty(_LANG$de, "Creator", 'Group owner'), _defineProperty(_LANG$de, "Groups", 'Kooperieren'), _defineProperty(_LANG$de, "Group", 'Collaboration group'), _defineProperty(_LANG$de, "group", 'collaboration group'), _defineProperty(_LANG$de, "to_share", 'to share with this group. 1 click = group members can view only, 2 clicks = group members can edit'), _defineProperty(_LANG$de, "Invitation_accepted", 'Invitation accepted'), _defineProperty(_LANG$de, "Accept", 'Accept'), _defineProperty(_LANG$de, "My_shared", 'My shared'), _defineProperty(_LANG$de, "invitee_name", 'Invitee name'), _defineProperty(_LANG$de, "Remove_group", 'Are you sure you want to competely remove this shared group for all it\'s members'), _defineProperty(_LANG$de, "Detach_from_group", 'Remove me and my hives from this group'), _defineProperty(_LANG$de, "my_hive", 'My hive'), _defineProperty(_LANG$de, "created", 'created'), _defineProperty(_LANG$de, "group_detached", 'Successfully left the group'), _defineProperty(_LANG$de, "group_activated", 'Group invitation accepted'), _defineProperty(_LANG$de, "group_explanation_1", '1. Create a cooperation group with a clear title, and an optional description'), _defineProperty(_LANG$de, "group_explanation_2", '2. Invite other Beep users on their Beep e-mail address'), _defineProperty(_LANG$de, "group_explanation_3", '3. Share specific hives to be viewed by others, of to cooperate on'), _LANG$de); //! moment.js locale configuration
+}, _defineProperty(_LANG$de, "Location", 'Standort'), _defineProperty(_LANG$de, "Country", 'Land'), _defineProperty(_LANG$de, "City", 'Stadt'), _defineProperty(_LANG$de, "Address", 'Addresse'), _defineProperty(_LANG$de, "Lattitude", 'Lattitude'), _defineProperty(_LANG$de, "Longitude", 'Longitude'), _defineProperty(_LANG$de, "Street", 'Straße'), _defineProperty(_LANG$de, "Number", 'Hausnummer.'), _defineProperty(_LANG$de, "Postal_code", 'Postleitzahl'), _defineProperty(_LANG$de, "Description", 'Beschreibung'), _defineProperty(_LANG$de, "Hive_settings", 'Beute Einstellung'), _defineProperty(_LANG$de, "Hive_amount", 'Anzahl der Beuten an diesem Ort'), _defineProperty(_LANG$de, "Hive_prefix", 'Beutenprefix (vor der Zahl)'), _defineProperty(_LANG$de, "Hive_number_offset", 'Startnummer Beute'), _defineProperty(_LANG$de, "Hive_type", 'Beutentyp'), _defineProperty(_LANG$de, "Hive_layers", 'Zargen'), _defineProperty(_LANG$de, "Hive_frames", 'Rähmchen per Zarge'), _defineProperty(_LANG$de, "Hive_color", 'Beutenfarbe'), _defineProperty(_LANG$de, "Queen", 'Königin'), _defineProperty(_LANG$de, "queen", 'Königin'), _defineProperty(_LANG$de, "settings_title", 'Einstellungen'), _defineProperty(_LANG$de, "settings_description", 'Einstellungen der Sensoren'), _defineProperty(_LANG$de, "settings", 'Einstellungen'), _defineProperty(_LANG$de, "sensors_title", 'Sensoreinstellungen'), _defineProperty(_LANG$de, "sensors_description", 'Sensor Status und Registrierung'), _defineProperty(_LANG$de, "sensors", 'Sensoren'), _defineProperty(_LANG$de, "sensor", 'Sensor'), _defineProperty(_LANG$de, "Select", 'Wähle'), _defineProperty(_LANG$de, "Not_selected", 'Nicht gewählt'), _defineProperty(_LANG$de, "Poor", 'Arm'), _defineProperty(_LANG$de, "Fair", 'Fair'), _defineProperty(_LANG$de, "Average", 'Durchschnitt'), _defineProperty(_LANG$de, "Good", 'Gut'), _defineProperty(_LANG$de, "Excellent", 'Excellent'), _defineProperty(_LANG$de, "Low", 'Tief'), _defineProperty(_LANG$de, "Medium", 'Mitte'), _defineProperty(_LANG$de, "High", 'Hoch'), _defineProperty(_LANG$de, "Extreme", 'Extrem'), _defineProperty(_LANG$de, "select_color", 'Wähle eine Farbe'), _defineProperty(_LANG$de, "advanced", 'Erweitert'), _defineProperty(_LANG$de, "Select_sensor", 'Wähle einen Sensor'), _defineProperty(_LANG$de, "temperature", 'Temperatur'), _defineProperty(_LANG$de, "t", 'Temperatur'), _defineProperty(_LANG$de, "light", 'Sonnenlicht'), _defineProperty(_LANG$de, "l", 'Sonnenlicht'), _defineProperty(_LANG$de, "water", 'Wasser'), _defineProperty(_LANG$de, "w", 'Wasser'), _defineProperty(_LANG$de, "humidity", 'Feuchtigkeit'), _defineProperty(_LANG$de, "h", 'Feuchtigkeit'), _defineProperty(_LANG$de, "air_pressure", 'Luftdruck'), _defineProperty(_LANG$de, "p", 'Luftdruck'), _defineProperty(_LANG$de, "weight", 'Gewicht'), _defineProperty(_LANG$de, "w_v", 'Gewichtssensor Wert für alle'), _defineProperty(_LANG$de, "w_fl", 'Gewichtssensor Wert vorne links'), _defineProperty(_LANG$de, "w_fr", 'Gewichtssensor Wert vorne rechts'), _defineProperty(_LANG$de, "w_bl", 'Gewichtssensor Wert hinten links'), _defineProperty(_LANG$de, "w_br", 'Gewichtssensor Wert hinten rechts'), _defineProperty(_LANG$de, "weight_kg", 'Gewicht'), _defineProperty(_LANG$de, "weight_kg_corrected", 'Gewicht (korrigiert)'), _defineProperty(_LANG$de, "weight_combined_kg", 'Gewicht kombiniert'), _defineProperty(_LANG$de, "bat_volt", 'Batterie'), _defineProperty(_LANG$de, "bv", 'Batterie'), _defineProperty(_LANG$de, "sound_fanning_4days", 'Fan 4d Bienen'), _defineProperty(_LANG$de, "s_fan_4", 'Fan 4d Bienens'), _defineProperty(_LANG$de, "sound_fanning_6days", 'Fan 6d Bienen'), _defineProperty(_LANG$de, "s_fan_6", 'Fan 6d Bienen'), _defineProperty(_LANG$de, "sound_fanning_9days", 'Fan 9d Bienens'), _defineProperty(_LANG$de, "s_fan_9", 'Fan 9d Bienen'), _defineProperty(_LANG$de, "sound_flying_adult", 'Fliegende Bienen'), _defineProperty(_LANG$de, "s_fly_a", 'Fliegende Bienen'), _defineProperty(_LANG$de, "sound_total", 'Totaler Sound'), _defineProperty(_LANG$de, "s_tot", 'Totaler Sound'), _defineProperty(_LANG$de, "bee_count_in", 'Bienenzähler nach innen'), _defineProperty(_LANG$de, "bc_i", 'Bienenzähler nach innen'), _defineProperty(_LANG$de, "bee_count_out", 'Bienenzähler nach außen'), _defineProperty(_LANG$de, "bc_o", 'Bienenzähler nach außen'), _defineProperty(_LANG$de, "t_i", 'Temp. innen'), _defineProperty(_LANG$de, "rssi", 'Signal Stärke'), _defineProperty(_LANG$de, "snr", 'Signal Krach'), _defineProperty(_LANG$de, "Sound_measurements", 'Soundmessungen'), _defineProperty(_LANG$de, "Sensor_info", 'Sensor info'), _defineProperty(_LANG$de, 's_bin098_146Hz', '098-146Hz'), _defineProperty(_LANG$de, 's_bin146_195Hz', '146-195Hz'), _defineProperty(_LANG$de, 's_bin195_244Hz', '195-244Hz'), _defineProperty(_LANG$de, 's_bin244_293Hz', '244-293Hz'), _defineProperty(_LANG$de, 's_bin293_342Hz', '293-342Hz'), _defineProperty(_LANG$de, 's_bin342_391Hz', '342-391Hz'), _defineProperty(_LANG$de, 's_bin391_439Hz', '391-439Hz'), _defineProperty(_LANG$de, 's_bin439_488Hz', '439-488Hz'), _defineProperty(_LANG$de, 's_bin488_537Hz', '488-537Hz'), _defineProperty(_LANG$de, 's_bin537_586Hz', '537-586Hz'), _defineProperty(_LANG$de, "hour", 'Stunde'), _defineProperty(_LANG$de, "day", 'Tag'), _defineProperty(_LANG$de, "week", 'Woche'), _defineProperty(_LANG$de, "month", 'Monat'), _defineProperty(_LANG$de, "year", 'Jahr'), _defineProperty(_LANG$de, "could_not_load_settings", 'Die Einstellungen konnten nicht geladen werden'), _defineProperty(_LANG$de, "offline", 'Keine Verbindung'), _defineProperty(_LANG$de, "remote", 'Fernbedienung'), _defineProperty(_LANG$de, "connected", 'Direkt'), _defineProperty(_LANG$de, "yes", 'Ja'), _defineProperty(_LANG$de, "no", 'Nein'), _defineProperty(_LANG$de, "footer_text", 'Open source beekeeping'), _defineProperty(_LANG$de, "beep_foundation", 'the BEEP foundation'), _defineProperty(_LANG$de, "Checklist", 'Stockkarte'), _defineProperty(_LANG$de, "Checklist_items", 'Stockkarte Artikel'), _defineProperty(_LANG$de, "edit_hive_checklist", 'Aktivieren / deaktivieren Sie die Kästchen in der Liste, um Artikel aus Ihrer Stockkarte hinzuzufügen / zu entfernen. Sie können die Artikel auch entfalten / falten und ziehen / ablegen, um sie an Ihren eigenen Stil anzupassen. Tipp: Wenn Sie einen Suchbegriff in das Suchfeld eingeben, werden alle Artikel, die diesen Begriff enthalten, ausgeklappt und rot gefärbt.'), _defineProperty(_LANG$de, "Data_export", 'Daten Export'), _defineProperty(_LANG$de, "Export_your_data", 'Exportiere alle Daten aus Deinem Account per Email (Exceldatei).'), _defineProperty(_LANG$de, "Terms_of_use", 'Nutzungsbedingungen (EN)'), _defineProperty(_LANG$de, "accept_policy", 'Ich akzeptiere die BEEP-Nutzungsbedingungen, die mit dem neuen europäischen Datenschutzgesetz vereinbar sind'), _defineProperty(_LANG$de, "policy_url", 'https://beep.nl/terms-of-service'), _defineProperty(_LANG$de, "policy_version", 'beep_terms_2018_05_25_avg_v1'), _defineProperty(_LANG$de, "approve_policy", 'Sie haben die aktuellen Nutzungsbedingungen noch nicht erfüllt.'), _defineProperty(_LANG$de, "calibrate_weight", 'Kalibriere Gewicht'), _defineProperty(_LANG$de, "calibrate_explanation", 'Stellen Sie das Gewicht der Sensoren auf 0 ein, indem Sie den aktuellen Messwert subtrahieren.'), _defineProperty(_LANG$de, "set_as_zero_value", 'Setzen Sie diese Werte als 0 Werte'), _defineProperty(_LANG$de, "set_weight_factor", 'Definiere den Gewichtsfaktor'), _defineProperty(_LANG$de, "own_weight_kg", 'Wie hoch ist Ihr Eigengewicht in kg??'), _defineProperty(_LANG$de, "start_calibration", 'Treten Sie nun auf die Waage und drücken Sie die Taste unten, um den Gewichtsfaktor festzulegen. Verteilen Sie Ihr Gewicht gleichmäßig.'), _defineProperty(_LANG$de, "currently_there_is", 'Da ist ein Gewicht von'), _defineProperty(_LANG$de, "nothing", 'nichts'), _defineProperty(_LANG$de, "on_the_scale", 'auf der Skala'), _defineProperty(_LANG$de, "calibration_started", 'Calibration started... Wait for the next measurement to take effect.'), _defineProperty(_LANG$de, "calibration_ended", 'Calibration succeeded!'), _defineProperty(_LANG$de, "server_down", 'Die App ist aufgrund von Wartungsarbeiten nicht verfügbar. Bitte versuche es später erneut'), _defineProperty(_LANG$de, "add_to_calendar", 'Zum Kalender hinzufügen'), _defineProperty(_LANG$de, "sort_on", 'Sortieren nach'), _defineProperty(_LANG$de, "Whats_new", 'Neu in v2!'), _defineProperty(_LANG$de, "Manual", 'Handbuch (EN)'), _defineProperty(_LANG$de, "Site_title", 'BEEP | Bienenmonitor'), _defineProperty(_LANG$de, "could_not_create_user", 'User cannot be created at this moment. Sorry for the inconvenience, please try again later.'), _defineProperty(_LANG$de, "email_verified", 'Your e-mail address has been verified.'), _defineProperty(_LANG$de, "email_not_verified", 'Your e-mail address has not yet been verified.'), _defineProperty(_LANG$de, "email_new_verification", 'Click on this link to send a new verification e-mail.'), _defineProperty(_LANG$de, "email_verification_sent", 'A message with a verification link has been sent to your e-mail address. Click the link in the e-mail to activate your account and log in.'), _defineProperty(_LANG$de, "not_filled", 'is required, but not filled out'), _defineProperty(_LANG$de, "cannot_deselect", 'Unable to remove this item, because it contains a required item'), _defineProperty(_LANG$de, "sensor_key", 'Sensor key'), _defineProperty(_LANG$de, "Undelete", 'Do not delete'), _defineProperty(_LANG$de, "the_field", 'The'), _defineProperty(_LANG$de, "is_required", 'is required'), _defineProperty(_LANG$de, "No_groups", 'No groups available'), _defineProperty(_LANG$de, "not_available_yet", 'not yet available. Please create the first one here.'), _defineProperty(_LANG$de, "Users", 'Benutzer'), _defineProperty(_LANG$de, "Member", 'Group member'), _defineProperty(_LANG$de, "Members", 'Group members'), _defineProperty(_LANG$de, "Invite", 'Invite'), _defineProperty(_LANG$de, "Invited", 'Invited'), _defineProperty(_LANG$de, "invitations", 'invitations'), _defineProperty(_LANG$de, "Admin", 'Administrator'), _defineProperty(_LANG$de, "Creator", 'Group owner'), _defineProperty(_LANG$de, "Groups", 'Kooperieren'), _defineProperty(_LANG$de, "Group", 'Collaboration group'), _defineProperty(_LANG$de, "group", 'collaboration group'), _defineProperty(_LANG$de, "to_share", 'to share with this group. 1 click = group members can view only, 2 clicks = group members can edit'), _defineProperty(_LANG$de, "Invitation_accepted", 'Invitation accepted'), _defineProperty(_LANG$de, "Accept", 'Accept'), _defineProperty(_LANG$de, "My_shared", 'My shared'), _defineProperty(_LANG$de, "invitee_name", 'Invitee name'), _defineProperty(_LANG$de, "Remove_group", 'Are you sure you want to competely remove this shared group for all it\'s members'), _defineProperty(_LANG$de, "Detach_from_group", 'Remove me and my hives from this group'), _defineProperty(_LANG$de, "my_hive", 'My hive'), _defineProperty(_LANG$de, "created", 'created'), _defineProperty(_LANG$de, "group_detached", 'Successfully left the group'), _defineProperty(_LANG$de, "group_activated", 'Group invitation accepted'), _defineProperty(_LANG$de, "group_explanation_1", '1. Create a cooperation group with a clear title, and an optional description'), _defineProperty(_LANG$de, "group_explanation_2", '2. Invite other Beep users on their Beep e-mail address'), _defineProperty(_LANG$de, "group_explanation_3", '3. Share specific hives to be viewed by others, of to cooperate on'), _LANG$de);
+/*  
+ * Beep - Translations  
+ * Author: Pim van Gennip (pim@iconize.nl)  
+ *  
+ */
+
+LANG['fr'] = (_LANG$fr = {
+  /* Date picker */
+  monthsFull: ['Janvier ', ' Février ', ' Mars ', ' Avril ', ' Mai ', ' Juin ', ' Juillet ', ' Août ', ' Septembre ', ' Octobre ', ' Novembre ', ' Décembre '],
+  monthsShort: ['Jan ', ' Fév ', ' Mar ', ' Avr ', ' Mai ', ' Juin ', ' Juil ', ' Août ', ' Sep ', ' Oct ', ' Nov ', ' Dec'],
+  weekdaysFull: ['Dimanche ', ' Lundi ', ' Mardi ', ' Mercredi ', ' Jeudi ', ' Vendredi ', ' Samedi '],
+  weekdaysShort: ['Dim', 'Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam'],
+  Today: 'Aujourd\'hui',
+  Clear: 'Effacer',
+  Close: 'Fermer',
+  firstDay: 1,
+  format: 'jjjj j mmmm aaaa',
+
+  /* main */
+  Website: 'Site Web',
+  Feedback: 'Avis',
+  Feedback_mail_header: 'Commentaires de l\'application beep',
+  Feedback_mail_body: 'Cher Beep foundation, % 0D % 0A % 0D % 0AVoici mon commentaire sur l\'application Beep. % 0D % 0A % 0D % 0AI a découvert ceci : % 0D % 0A % 0D % 0AJuste avant que cela ne se produise, j\'ai fait : % 0D % 0A % 0D % 0AL\'écran ressemblait (s\'il vous plaît inclure une capture d\'écran) : % 0D % 0A % 0A % 0D % 0A % 0A % 0A % 0A D % 0A % 0D % 0A',
+  Diagnostic_info: 'Informations de diagnostic (en cas de bogue) : % 0D % 0A',
+  back: 'Retourner',
+  menu: 'Menu',
+  lighting: 'Éclairage',
+  camera: 'Appareil photo',
+  weather: 'Météo',
+  sensors: 'Capteurs',
+  sensors_na: 'Des capteurs BEEP pour surveiller à distance votre ruche seront bientôt disponibles..',
+  no_valid_authentication: 'Aucune donnée d\'authentification valide n\'a été reçue',
+  succesfully_saved: 'Sauvegardé avec succès',
+  switch_language: 'Changez de langue',
+  Delete: 'Supprimer',
+  Search: 'Recherche...',
+
+  /* user error messages */
+  User: 'Utilisateur',
+  User_data: 'Données utilisateur',
+  user_data: 'données utilisateur',
+  updated: 'mis à jour',
+  delete_complete_account: 'Êtes-vous sûr de vouloir supprimer votre compte complet, y compris tous les ruchers, ruches et inspections ? C\'est irréversible.',
+  username_is_required: 'Veuillez saisir le nom d\'utilisateur',
+  username_already_exists: 'Le nom d\'utilisateur existe déjà',
+  password_is_required: 'Veuillez saisir un mot de passe',
+  email_is_required: 'Veuillez saisir un e-mail',
+  email_already_exists: 'L\'adresse e-mail est déjà utilisée',
+  'policy accepted_is_required': 'Vous devez accepter les conditions de service pour vous inscrire',
+  already_registered: 'Je suis déjà inscrit',
+  invalid_user: 'Utilisateur inconnu ou mot de passe incorrect',
+  invalid_password: 'Mot de passe trop court (min. 8 caractères)',
+  no_password_match: 'Les mots de passe ne correspondent pas',
+  invalid_token: 'Code non valide',
+  no_valid_email: 'Adresse e-mail non valide',
+  empty_fields: 'Veuillez remplir tous les champs',
+  match_passwords: 'Les mots de passe ne correspondent pas',
+  succesfully_registered: 'Vous êtes enregistré avec succès',
+  authentication_failed: 'Échec de l\'authentification',
+  no_valid_input_received: 'Les données n\'ont pas pu être enregistrées, aucune entrée valide n\'a été reçue',
+  remove_all_settings: 'Supprimez tous les paramètres',
+  remove_apiary: 'Enlevez le rucher',
+  remove_hive: 'Enlevez la ruche',
+  remove_inspection: 'Retirer l\'inspection',
+  Error: 'Erreur',
+  Warning: 'Attention',
+  first_remove_hives: 'Attention : il y a encore des ruches à ce rucher. Vous pouvez enregistrer des ruches spécifiques (et leurs inspections) en les déplaçant d\'abord vers un autre rucher. Si vous continuez à supprimer, vous supprimerez TOUTES les ruches et les inspections présentes à cet emplacement',
+  Date: 'Rendez-vous',
+  ok: 'Ok',
+  previous: 'Précédent',
+  prev: 'précédent',
+  next: 'Suivant',
+  add: 'Ajouter',
+  create_new: 'Créer un nouveau',
+  New: 'Nouveau',
+  warning: 'Attention',
+  apply: 'Appliquer',
+  Cancel: 'Annuler',
+  automatic: 'Automatique',
+  manually: 'Manuel',
+  on: 'On',
+  off: 'Off',
+
+  /* login */
+  login_title: 'Connectez-vous',
+  login: 'Connectez-vous',
+  back_to_login: 'Retour à la connexion',
+  forgot_password: 'Vous avez oublié votre mot de passe ?',
+  username: 'Nom d\'utilisateur',
+  password: 'Mot de passe',
+  confirm_password: 'Confirmez le mot de passe',
+  email: 'E-mail',
+  token: 'Code',
+  create_login_question: 'Pas encore de compte ? Inscrivez-vous en tant que nouvel utilisateur',
+  create_login: 'Inscrivez-vous en tant que nouvel utilisateur',
+  create_login_summary: 'Créez un nouveau compte d\'utilisateur',
+  save: 'Sauvegarder et retour',
+  save_and_return: 'Sauvegarder et retour',
+  logout: 'Se déconnecter',
+  logout_title: 'Se déconnecter en tant que',
+  logout_now: 'Voulez-vous vraiment vous déconnecter maintenant ?',
+  member_since: 'Beep depuis',
+
+  /* password recovery */
+  password_recovery_title: 'Vous avez oublié votre mot de passe ?',
+  password_recovery_remembered: 'Oh, maintenant je me suis rappelé mon mot de passe !',
+  password_recovery_user: 'Informations utilisateur',
+  password_recovery_send_mail: 'Envoyer le code de vérification',
+  password_recovery_code_not_received: 'Code non reçu dans les 5 minutes ?',
+  password_recovery_enter_code: 'Vous avez déjà un code de vérification ? Entrez le ici',
+  password_recovery_reset_title: 'Entrez un nouveau mot de passe',
+  password_recovery_reset_password: 'Changer le mot de passe',
+  password_recovery_reminder_success: 'Un e-mail a été envoyé. Cliquez sur le lien dans l\'e-mail pour réinitialiser votre mot de passe pour ce compte',
+  password_recovery_reminder_summary: 'Entrez votre adresse e-mail. Vous recevrez un e-mail avec un lien pour changer votre mot de passe à l\'étape suivante',
+  password_recovery_reset_summary: 'Utilisez le code que vous avez reçu pour définir un nouveau mot de passe pour votre compte',
+  password_recovery_reset_success: 'Vous passowrd est modifié avec succès, et vous êtes connecté.',
+  new_password: 'Nouveau mot de passe',
+  confirm_new_password: 'Confirmez le nouveau mot de passe',
+  go_to_dashboard: 'Allez sur mon tableau de bord',
+
+  /* overview */
+  overview_title: 'Vue d\'ensemble',
+  overview: 'Vue d\'ensemble',
+  color: 'Couleur',
+  state: 'Marche/arrêt',
+  connection_state: 'État de la connexion',
+
+  /* hives */
+  locations_title: 'Beep',
+  hives_title: 'Beep',
+  Hive: 'Ruche',
+  hive: 'ruche',
+  Location: 'rucher',
+  location: 'rucher',
+  Hives: 'Ruches',
+  hives: 'Ruches',
+  Locations: 'Ruchers',
+  locations: 'ruchers',
+  Name: 'Nom',
+  name: 'nom',
+  Type: 'Tapez',
+  type: 'tapez',
+  Layer: 'Element',
+  layer: 'element',
+  brood: 'Couvain',
+  honey: 'Miel',
+  inspect: 'Inspecter',
+  inspection: 'inspection',
+  Inspection: 'Inspection',
+  Inspections: 'Inspections',
+  New_inspection: 'Nouvelle inspection',
+  Edit_inspection: 'Modifier l\'inspection',
+  Actions: 'Actions',
+  Conditions: 'Conditions (inspectées)',
+  edit: 'Modifier',
+  Hive_brood_layers: 'Cadre de couvain',
+  Hive_honey_layers: 'Cadre de miel',
+  Hive_layer_amount: 'Quantité d\'éléments',
+  Bee_race: 'Course d\'abeilles',
+  Birth_date: 'Date de naissance',
+  Color: 'Couleur',
+  Queen_colored: 'Reine marquée',
+  Queen_clipped: 'Reine clipée',
+  Queen_fertilized: 'Reine fécondée',
+  Age: 'Âge',
+  year: 'ans',
+
+  /* Hive check items */
+  Date_of_inspection: 'Date de l\'inspection',
+  action: 'Action',
+  reminder: 'Rappel',
+  remind_date: 'Date de rappel',
+  overall: 'Dans l\'ensemble',
+  positive_impression: 'Impression totale',
+  needs_attention: 'Besoin d\'attention',
+  notes: 'Notes',
+  notes_for_next_inspection: 'Brève note pour la prochaine inspection (visible sur la vue d\'ensemble)',
+  Not_implemented_yet: 'Cet élément n\'est pas encore implémenté',
+  save_input_first: 'Voulez-vous d\'abord enregistrer votre saisie ?',
+
+  /* dashboard */
+  dashboard_title: 'Tableau de bord',
+  dashboard: 'Tableau de bord',
+  measurements: 'Mesures',
+  measurementsError: 'Impossible de charger les mesures, vérifiez la connexion réseau',
+  last_measurement: 'Dernière mesure',
+  at: 'à',
+  measurement_system: 'Système de mesure Beep',
+  no_data: 'Aucune donnée disponible',
+  no_chart_data: 'Aucune donnée graphique pour la période sélectionnée',
+
+  /* settings */
+  General: 'Général'
+}, _defineProperty(_LANG$fr, "Location", 'Emplacement'), _defineProperty(_LANG$fr, "Country", 'Pays'), _defineProperty(_LANG$fr, "City", 'Ville'), _defineProperty(_LANG$fr, "Address", 'Adresse'), _defineProperty(_LANG$fr, "Lattitude", 'Lattitude'), _defineProperty(_LANG$fr, "Longitude", 'Longitude'), _defineProperty(_LANG$fr, "Street", 'Rue'), _defineProperty(_LANG$fr, "Number", 'Non'), _defineProperty(_LANG$fr, "Postal_code", 'Code postal'), _defineProperty(_LANG$fr, "Description", 'Description'), _defineProperty(_LANG$fr, "Hive_settings", 'Paramètres de la ruche'), _defineProperty(_LANG$fr, "Hive_amount", 'Nombe de ruches à cet emplacement'), _defineProperty(_LANG$fr, "Hive_prefix", 'Nom de la ruche préfixe (avant numéro)'), _defineProperty(_LANG$fr, "Hive_number_offset", 'Début de numérotation'), _defineProperty(_LANG$fr, "Hive_type", 'Type de ruche'), _defineProperty(_LANG$fr, "Hive_layers", 'Element de ruche'), _defineProperty(_LANG$fr, "Hive_frames", 'Cadres par élément'), _defineProperty(_LANG$fr, "Hive_color", 'Couleur ruche'), _defineProperty(_LANG$fr, "Queen", 'Reine'), _defineProperty(_LANG$fr, "queen", 'reine'), _defineProperty(_LANG$fr, "settings_title", 'Paramètres'), _defineProperty(_LANG$fr, "settings_description", 'Réglages des capteurs'), _defineProperty(_LANG$fr, "settings", 'Paramètres'), _defineProperty(_LANG$fr, "sensors_title", 'Réglages du capteur'), _defineProperty(_LANG$fr, "sensors_description", 'État et enregistrement des capteurs'), _defineProperty(_LANG$fr, "sensors", 'Capteurs'), _defineProperty(_LANG$fr, "sensor", 'Capteur'), _defineProperty(_LANG$fr, "Select", 'Sélectionner'), _defineProperty(_LANG$fr, "Not_selected", 'Non sélectionné'), _defineProperty(_LANG$fr, "Poor", 'Pauvre'), _defineProperty(_LANG$fr, "Fair", 'Juste'), _defineProperty(_LANG$fr, "Average", 'Moyenne'), _defineProperty(_LANG$fr, "Good", 'Bon'), _defineProperty(_LANG$fr, "Excellent", 'Très bien'), _defineProperty(_LANG$fr, "Low", 'Faible'), _defineProperty(_LANG$fr, "Medium", 'Moyenne'), _defineProperty(_LANG$fr, "High", 'Elevé'), _defineProperty(_LANG$fr, "Extreme", 'Extrême'), _defineProperty(_LANG$fr, "select_color", 'Sélectionnez une couleur'), _defineProperty(_LANG$fr, "advanced", 'Avancé'), _defineProperty(_LANG$fr, "Select_sensor", 'Sélectionnez un capteur'), _defineProperty(_LANG$fr, "temperature", 'Température'), _defineProperty(_LANG$fr, "t", 'Température'), _defineProperty(_LANG$fr, "light", 'Lumière du soleil'), _defineProperty(_LANG$fr, "l", 'Lumière du soleil'), _defineProperty(_LANG$fr, "water", 'Eau'), _defineProperty(_LANG$fr, "w", 'Eau'), _defineProperty(_LANG$fr, "humidity", 'Humidité'), _defineProperty(_LANG$fr, "h", 'Humidité'), _defineProperty(_LANG$fr, "air_pressure", 'Pression de l\'air'), _defineProperty(_LANG$fr, "p", 'Pression de l\'air'), _defineProperty(_LANG$fr, "weight", 'Poids'), _defineProperty(_LANG$fr, "w_v", 'Valeur du capteur de poids tous les capteurs'), _defineProperty(_LANG$fr, "w_fl", 'Valeur du capteur de poids avant gauche'), _defineProperty(_LANG$fr, "w_fr", 'Valeur du capteur de poids avant droit'), _defineProperty(_LANG$fr, "w_bl", 'Valeur du capteur de poids arrière gauche'), _defineProperty(_LANG$fr, "w_br", 'Valeur du capteur de poids retour à droite'), _defineProperty(_LANG$fr, "weight_kg", 'Poids'), _defineProperty(_LANG$fr, "weight_kg_corrected", 'Poids (corr)'), _defineProperty(_LANG$fr, "weight_combined_kg", 'Poids combiné'), _defineProperty(_LANG$fr, "bat_volt", 'Batterie'), _defineProperty(_LANG$fr, "bv", 'Batterie'), _defineProperty(_LANG$fr, "sound_fanning_4days", 'Fan 4d abeilles'), _defineProperty(_LANG$fr, "s_fan_4", 'Fan 4d abeilles'), _defineProperty(_LANG$fr, "sound_fanning_6days", 'Fan 6d abeilles'), _defineProperty(_LANG$fr, "s_fan_6", 'Fan 6d abeilles'), _defineProperty(_LANG$fr, "sound_fanning_9days", 'Fan 9d abeilles'), _defineProperty(_LANG$fr, "s_fan_9", 'Fan 9d abeilles'), _defineProperty(_LANG$fr, "sound_flying_adult", 'Abeilles volantes'), _defineProperty(_LANG$fr, "s_fly_a", 'Abeilles volantes'), _defineProperty(_LANG$fr, "sound_total", 'Son total'), _defineProperty(_LANG$fr, "s_tot", 'Son total'), _defineProperty(_LANG$fr, "bee_count_in", 'Comptez les abeilles'), _defineProperty(_LANG$fr, "bc_i", 'Comptez les abeilles'), _defineProperty(_LANG$fr, "bee_count_out", 'Comptage d\'abeilles sorties'), _defineProperty(_LANG$fr, "bc_o", 'Comptage d\'abeilles sorties'), _defineProperty(_LANG$fr, "t_i", 'Temp. à l\'intérieur'), _defineProperty(_LANG$fr, "rssi", 'Force du signal'), _defineProperty(_LANG$fr, "snr", 'Bruit de signal'), _defineProperty(_LANG$fr, "Sound_measurements", 'Mesures sonores'), _defineProperty(_LANG$fr, "Sensor_info", 'Informations sur le capteur'), _defineProperty(_LANG$fr, 's_bin098_146Hz', '098-146Hz'), _defineProperty(_LANG$fr, 's_bin146_195Hz', '146-195 Hz'), _defineProperty(_LANG$fr, 's_bin195_244Hz', '195-244Hz'), _defineProperty(_LANG$fr, 's_bin244_293Hz', '244-293Hz'), _defineProperty(_LANG$fr, 's_bin293_342Hz', '293-342Hz'), _defineProperty(_LANG$fr, 's_bin342_391Hz', '342-391Hz'), _defineProperty(_LANG$fr, 's_bin391_439Hz', '391-439Hz'), _defineProperty(_LANG$fr, 's_bin439_488Hz', '439-488Hz'), _defineProperty(_LANG$fr, 's_bin488_537Hz', '488-537Hz'), _defineProperty(_LANG$fr, 's_bin537_586Hz', '537-586Hz'), _defineProperty(_LANG$fr, "hour", 'Heure'), _defineProperty(_LANG$fr, "day", 'Jour'), _defineProperty(_LANG$fr, "week", 'Semaine'), _defineProperty(_LANG$fr, "month", 'Mois'), _defineProperty(_LANG$fr, "year", 'Année'), _defineProperty(_LANG$fr, "could_not_load_settings", 'Impossible de charger les paramètres'), _defineProperty(_LANG$fr, "offline", 'Pas de connexion'), _defineProperty(_LANG$fr, "remote", 'À distance'), _defineProperty(_LANG$fr, "connected", 'Direct'), _defineProperty(_LANG$fr, "yes", 'Oui'), _defineProperty(_LANG$fr, "no", 'Non'), _defineProperty(_LANG$fr, "footer_text", 'Apiculture open source'), _defineProperty(_LANG$fr, "beep_foundation", 'la fondation BEEP'), _defineProperty(_LANG$fr, "Checklist", 'Liste de contrôle'), _defineProperty(_LANG$fr, "Checklist_items", 'Éléments de la liste de contrôle'), _defineProperty(_LANG$fr, "edit_hive_checklist", 'Cochez ou décochez les cases de la liste ci-dessous pour ajouter/supprimer des éléments de votre liste de vérification de la ruche. Vous pouvez également déplier/plier et glisser/déposer les éléments pour les réorganiser à votre propre style. Astuce : si vous entrez un terme dans le champ de recherche, tous les éléments contenant ce terme seront pliés et colorés en rouge'), _defineProperty(_LANG$fr, "Data_export", 'Exportation de données'), _defineProperty(_LANG$fr, "Export_your_data", 'Exportez toutes les données qui se trouvent dans votre compte BEEP et envoyez un e-mail contenant les données en tant que fichier Excel 2007'), _defineProperty(_LANG$fr, "Terms_of_use", 'Conditions d\'utilisation'), _defineProperty(_LANG$fr, "accept_policy", 'J\'accepte les conditions d\'utilisation de BEEP, qui sont compatibles avec la nouvelle loi européenne sur la protection de la vie privée'), _defineProperty(_LANG$fr, "policy_url", 'https://beep.nl/terms-of-service'), _defineProperty(_LANG$fr, "policy_version", 'beep_terms_2018_05_25_avg_v1'), _defineProperty(_LANG$fr, "approve_policy", 'Vous n\'avez pas encore respecté les dernières conditions d\'utilisation'), _defineProperty(_LANG$fr, "server_down", 'L\'application n\'est pas disponible en raison  de maintenance. Veuillez réessayer plus tard'), _defineProperty(_LANG$fr, "add_to_calendar", 'Ajouter au calendrier'), _defineProperty(_LANG$fr, "sort_on", 'Trier sur'), _defineProperty(_LANG$fr, "Whats_new", 'Nouveau dans v2 !'), _defineProperty(_LANG$fr, "Manual", 'Manuel (EN)'), _defineProperty(_LANG$fr, "calibrate_weight", 'Étalonner le poids'), _defineProperty(_LANG$fr, "calibrate_explanation", 'Réglez le poids des capteurs à 0 en soustrayant la valeur de mesure actuelle'), _defineProperty(_LANG$fr, "set_as_zero_value", 'Définissez ces valeurs en tant que valeurs 0'), _defineProperty(_LANG$fr, "set_weight_factor", 'Définissez le facteur de poids'), _defineProperty(_LANG$fr, "own_weight_kg", 'Quel est votre propre poids en kg ?'), _defineProperty(_LANG$fr, "start_calibration", 'Maintenant, marchez sur la balance et appuyez sur le bouton ci-dessous pour définir le facteur de poids. Répartissez votre poids également'), _defineProperty(_LANG$fr, "currently_there_is", 'Il y a un poids de'), _defineProperty(_LANG$fr, "nothing", 'rien'), _defineProperty(_LANG$fr, "on_the_scale", 'sur la balance'), _defineProperty(_LANG$fr, "calibration_started", 'L\'étalonnage a commencé... Attendez que la prochaine mesure prenne effet'), _defineProperty(_LANG$fr, "calibration_ended", 'L\'étalonnage a réussi !'), _defineProperty(_LANG$fr, "server_down", 'L\'application n\'est pas disponible en raison de maintenance. Veuillez réessayer plus tard'), _defineProperty(_LANG$fr, "add_to_calendar", 'Ajouter au calendrier'), _defineProperty(_LANG$fr, "sort_on", 'Trier sur'), _defineProperty(_LANG$fr, "Whats_new", 'Nouveau dans v2.1!'), _defineProperty(_LANG$fr, "Manual", 'Manuel'), _defineProperty(_LANG$fr, "Site_title", 'BEEP | Moniteur abeille'), _defineProperty(_LANG$fr, "could_not_create_user", 'L\'utilisateur ne peut pas être créé pour le moment. Désolé pour la gêne occasionnée, veuillez réessayer plus tard'), _defineProperty(_LANG$fr, "email_verified", 'Votre adresse e-mail a été vérifiée'), _defineProperty(_LANG$fr, "email_not_verified", 'Votre adresse e-mail n\'a pas encore été vérifiée'), _defineProperty(_LANG$fr, "email_new_verification", 'Cliquez sur ce lien pour envoyer un nouvel e-mail de vérification'), _defineProperty(_LANG$fr, "email_verification_sent", 'Un message avec un lien de vérification a été envoyé à votre adresse e-mail. Cliquez sur le lien dans l\'e-mail pour activer votre compte et vous connecter'), _defineProperty(_LANG$fr, "not_filled", 'non rempli'), _defineProperty(_LANG$fr, "cannot_deselect", 'Impossible de supprimer cet élément, car il contient un élément requis'), _defineProperty(_LANG$fr, "sensor_key", 'Clé du capteur'), _defineProperty(_LANG$fr, "Undelete", 'Ne pas supprimer'), _defineProperty(_LANG$fr, "the_field", 'Le'), _defineProperty(_LANG$fr, "is_required", 'est obligatoire'), _defineProperty(_LANG$fr, "No_groups", 'Aucun groupe n\'est disponible'), _defineProperty(_LANG$fr, "not_available_yet", 'pas encore disponible. S\'il vous plaît créer le premier ici.'), _defineProperty(_LANG$fr, "Users", 'Utilisateurs'), _defineProperty(_LANG$fr, "Member", 'Membre du groupe'), _defineProperty(_LANG$fr, "Members", 'Membres du groupe'), _defineProperty(_LANG$fr, "Invite", 'Inviter'), _defineProperty(_LANG$fr, "Invited", 'Invité'), _defineProperty(_LANG$fr, "invitations", 'invitations'), _defineProperty(_LANG$fr, "Admin", 'Administrateur'), _defineProperty(_LANG$fr, "Creator", 'Propriétaire du groupe'), _defineProperty(_LANG$fr, "Groups", 'Collaborer'), _defineProperty(_LANG$fr, "Group", 'Groupe de collaboration'), _defineProperty(_LANG$fr, "group", 'groupe de collaboration'), _defineProperty(_LANG$fr, "to_share", 'pour partager avec ce groupe. 1 clic = les membres du groupe peuvent afficher uniquement, 2 clics = les membres du groupe peuvent modifier'), _defineProperty(_LANG$fr, "Invitation_accepted", 'Invitation acceptée'), _defineProperty(_LANG$fr, "Accept", 'Accepter'), _defineProperty(_LANG$fr, "My_shared", 'Mon partage'), _defineProperty(_LANG$fr, "invitee_name", 'Nom de l\'invité'), _defineProperty(_LANG$fr, "Remove_group", 'Êtes-vous sûr de vouloir supprimer ce groupe partagé en compétition pour tous ses membres'), _defineProperty(_LANG$fr, "Detach_from_group", 'Retirez moi et mes ruches de ce groupe'), _defineProperty(_LANG$fr, "my_hive", 'Ma ruche'), _defineProperty(_LANG$fr, "created", 'created'), _defineProperty(_LANG$fr, "group_detached", 'Successfully left the group'), _defineProperty(_LANG$fr, "group_activated", 'Group invitation accepted'), _defineProperty(_LANG$fr, "group_explanation_1", '1. Create a cooperation group with a clear title, and an optional description'), _defineProperty(_LANG$fr, "group_explanation_2", '2. Invite other Beep users on their Beep e-mail address'), _defineProperty(_LANG$fr, "group_explanation_3", '3. Share specific hives to be viewed by others, of to cooperate on'), _LANG$fr); //! moment.js locale configuration
 
 ;
 
@@ -1311,6 +1505,87 @@ LANG['de'] = (_LANG$de = {
     }
   });
   return de;
+}); //! moment.js locale configuration
+
+
+;
+
+(function (global, factory) {
+  (typeof exports === "undefined" ? "undefined" : _typeof(exports)) === 'object' && typeof module !== 'undefined' && typeof require === 'function' ? factory(require('../moment')) : typeof define === 'function' && define.amd ? define(['../moment'], factory) : factory(global.moment);
+})(this, function (moment) {
+  'use strict';
+
+  var fr = moment.defineLocale('fr', {
+    months: 'janvier_février_mars_avril_mai_juin_juillet_août_septembre_octobre_novembre_décembre'.split('_'),
+    monthsShort: 'janv._févr._mars_avr._mai_juin_juil._août_sept._oct._nov._déc.'.split('_'),
+    monthsParseExact: true,
+    weekdays: 'dimanche_lundi_mardi_mercredi_jeudi_vendredi_samedi'.split('_'),
+    weekdaysShort: 'dim._lun._mar._mer._jeu._ven._sam.'.split('_'),
+    weekdaysMin: 'di_lu_ma_me_je_ve_sa'.split('_'),
+    weekdaysParseExact: true,
+    longDateFormat: {
+      LT: 'HH:mm',
+      LTS: 'HH:mm:ss',
+      L: 'DD/MM/YYYY',
+      LL: 'D MMMM YYYY',
+      LLL: 'D MMMM YYYY HH:mm',
+      LLLL: 'dddd D MMMM YYYY HH:mm'
+    },
+    calendar: {
+      sameDay: '[Aujourd’hui à] LT',
+      nextDay: '[Demain à] LT',
+      nextWeek: 'dddd [à] LT',
+      lastDay: '[Hier à] LT',
+      lastWeek: 'dddd [dernier à] LT',
+      sameElse: 'L'
+    },
+    relativeTime: {
+      future: 'dans %s',
+      past: 'il y a %s',
+      s: 'quelques secondes',
+      ss: '%d secondes',
+      m: 'une minute',
+      mm: '%d minutes',
+      h: 'une heure',
+      hh: '%d heures',
+      d: 'un jour',
+      dd: '%d jours',
+      M: 'un mois',
+      MM: '%d mois',
+      y: 'un an',
+      yy: '%d ans'
+    },
+    dayOfMonthOrdinalParse: /\d{1,2}(er|)/,
+    ordinal: function ordinal(number, period) {
+      switch (period) {
+        // TODO: Return 'e' when day of month > 1. Move this case inside
+        // block for masculine words below.
+        // See https://github.com/moment/moment/issues/3375
+        case 'D':
+          return number + (number === 1 ? 'er' : '');
+        // Words with masculine grammatical gender: mois, trimestre, jour
+
+        default:
+        case 'M':
+        case 'Q':
+        case 'DDD':
+        case 'd':
+          return number + (number === 1 ? 'er' : 'e');
+        // Words with feminine grammatical gender: semaine
+
+        case 'w':
+        case 'W':
+          return number + (number === 1 ? 're' : 'e');
+      }
+    },
+    week: {
+      dow: 1,
+      // Monday is the first day of the week.
+      doy: 4 // The week that contains Jan 4th is the first week of the year.
+
+    }
+  });
+  return fr;
 });
 /* ----------------------------------------------------------------------------- 
 
@@ -1808,6 +2083,46 @@ LANG['de'] = (_LANG$de = {
     clearButtonContent: "Zurücksetzen",
     formatHumanDate: function formatHumanDate(oDate, sMode, sFormat) {
       if (sMode === "date") return oDate.dayShort + ", " + oDate.dd + " " + oDate.month + ", " + oDate.yyyy;else if (sMode === "time") return oDate.HH + ":" + oDate.mm + ":" + oDate.ss;else if (sMode === "datetime") return oDate.dayShort + ", " + oDate.dd + " " + oDate.month + ", " + oDate.yyyy + " " + oDate.HH + ":" + oDate.mm + ":" + oDate.ss;
+    }
+  });
+})(jQuery);
+/* ----------------------------------------------------------------------------- 
+
+  jQuery DateTimePicker - Responsive flat design jQuery DateTime Picker plugin for Web & Mobile
+  Version 0.1.39
+  Copyright (c)2014-2019 Lajpat Shah
+  Contributors : https://github.com/nehakadam/DateTimePicker/contributors
+  Repository : https://github.com/nehakadam/DateTimePicker
+  Documentation : https://nehakadam.github.io/DateTimePicker
+
+ ----------------------------------------------------------------------------- */
+
+/*
+
+	language: French
+	file: DateTimePicker-i18n-fr
+	author: LivioGama(https://github.com/LivioGama)
+
+*/
+
+
+(function ($) {
+  $.DateTimePicker.i18n["fr"] = $.extend($.DateTimePicker.i18n["fr"], {
+    language: "fr",
+    dateTimeFormat: "dd-MM-yyyy HH:mm",
+    dateFormat: "dd-MM-yyyy",
+    timeFormat: "HH:mm",
+    shortDayNames: ["Dim", "Lun", "Mar", "Mer", "Jeu", "Ven", "Sam"],
+    fullDayNames: ["Dimanche", "Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi"],
+    shortMonthNames: ["Jan", "Fév", "Mar", "Avr", "Mai", "Jun", "Jul", "Aoû", "Sep", "Oct", "Nov", "Déc"],
+    fullMonthNames: ["Janvier", "Février", "Mars", "Avril", "Mai", "Juin", "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre"],
+    titleContentDate: "Choisir une date",
+    titleContentTime: "Choisir un horaire",
+    titleContentDateTime: "Choisir une date et un horaire",
+    setButtonContent: "Choisir",
+    clearButtonContent: "Effacer",
+    formatHumanDate: function formatHumanDate(oDate, sMode, sFormat) {
+      if (sMode === "date") return oDate.dayShort + " " + oDate.dd + " " + oDate.month + " " + oDate.yyyy;else if (sMode === "time") return oDate.HH + ":" + oDate.mm + ":" + oDate.ss;else if (sMode === "datetime") return oDate.dayShort + " " + oDate.dd + " " + oDate.month + " " + oDate.yyyy + ", " + oDate.HH + ":" + oDate.mm + ":" + oDate.ss;
     }
   });
 })(jQuery);

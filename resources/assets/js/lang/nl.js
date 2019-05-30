@@ -405,7 +405,7 @@
     created                 : 'aangemakt',
     group_detached          : 'Succesvol uit de groep gestapt',
     group_activated         : 'Groepsuitnodiging geaccepteerd',
-    group_explanation_1     : '1. Maak een groep aan met een duidelijke titel en evt. beschrijving',
+    group_explanation_1     : '1. Maak een nieuwe samenwerkingsgroep aan met een duidelijke titel en evt. beschrijving',
     group_explanation_2     : '2. Nodig andere Beep gebruikers uit op hun Beep e-mail adres',
     group_explanation_3     : '3. Deel specifieke kasten om te bekijken, of om samen aan te werken',
  };

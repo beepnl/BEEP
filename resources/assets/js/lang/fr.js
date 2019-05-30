@@ -408,12 +408,12 @@
     Remove_group               : 'Êtes-vous sûr de vouloir supprimer ce groupe partagé en compétition pour tous ses membres',
     Detach_from_group          : 'Retirez moi et mes ruches de ce groupe',
     my_hive                    : 'Ma ruche',
-    created                 : 'created',
-    group_detached          : 'Successfully left the group',
-    group_activated         : 'Group invitation accepted',
-    group_explanation_1     : '1. Create a cooperation group with a clear title, and an optional description',
-    group_explanation_2     : '2. Invite other Beep users on their Beep e-mail address',
-    group_explanation_3     : '3. Share specific hives to be viewed by others, of to cooperate on',
+    created                    : 'créé',
+    group_detached             : 'A quitté le groupe avec succès',
+    group_activated            : 'Invitation de groupe acceptée',
+    group_explanation_1        : '1. Créer un nouveau groupe de coopération avec un titre clair et une description facultative',
+    group_explanation_2        : '2. Inviter d\'autres utilisateurs Beep sur leur adresse e-mail Beep',
+    group_explanation_3        : '3. Partager des ruches spécifiques pour être vues par d\'autres, pour coopérer',
  };
 
 

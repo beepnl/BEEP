@@ -179,6 +179,9 @@
 		.measurement-form .tab-bar-wrapper menu.tab-bar{
 			max-width: 100%;
 		}
+		.chart-holder, .chart-holder.small{
+			width: 100%;
+		}
 	}
 	@media screen and (min-width: 740px){
 		.show-when-small{

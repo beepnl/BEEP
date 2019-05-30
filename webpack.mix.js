@@ -58,7 +58,7 @@ mix.copy([
 mix.copy('resources/assets/fonts', 'public/fonts');
 mix.copy('node_modules/admin-lte/bootstrap/fonts/', 'public/fonts');
 
-mix.babel(
+mix.scripts(
 	['node_modules/admin-lte/plugins/jQuery/jquery-2.2.3.min.js'],
 	'public/js/jquery.js');
 
@@ -80,7 +80,7 @@ mix.babel([
 	'resources/assets/js/constants.js',
     ], 'public/app/js/constants.js').version();
 
-mix.babel([
+mix.scripts([
     'node_modules/angular/angular.min.js',
     ], 'public/app/js/angular.js').version();
 

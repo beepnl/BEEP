@@ -410,6 +410,9 @@
     created                 : 'created',
     group_detached          : 'Successfully left the group',
     group_activated         : 'Group invitation accepted',
+    group_explanation_1     : '1. Create a cooperation group with a clear title, and an optional description',
+    group_explanation_2     : '2. Invite other Beep users on their Beep e-mail address',
+    group_explanation_3     : '3. Share specific hives to be viewed by others, of to cooperate on',
  };
 
 

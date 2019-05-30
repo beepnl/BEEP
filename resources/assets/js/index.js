@@ -26,7 +26,8 @@ app.run(function($rootScope, $location, $window, $route, $routeParams, amMoment,
     $rootScope.supportedLocales = {
         "nl":"Nederlands", 
         "en":"English",
-        "de":"Deutsch"
+        "de":"Deutsch",
+        "fr":"Français"
     };
 
     var setLang     = api.getLocalStoreValue('lang');

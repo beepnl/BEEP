@@ -712,45 +712,34 @@ class SensorController extends Controller
 
     
 
-    public function lora_sensors(Request $request)
+    private function parse_kpn_payload($request_data)
     {
         $data_array = [];
+        //die(print_r($request_data));
+        if (isset($request_data['LrnDevEui'])) // KPN Simpoint msg
+            if (Sensor::all()->where('key', $request_data['LrnDevEui'])->count() > 0)
+                $data_array['key'] = $request_data['LrnDevEui'];
 
-        // if (gettype($request->input()) == 'array' && )
-        //     $data_obj = $request->input()[0];
-        // else
-        $data_obj = $request->input();
+        if (isset($request_data['DevEUI_uplink']['DevEUI'])) // KPN Simpoint msg
+            if (Sensor::where('key', $request_data['DevEUI_uplink']['DevEUI'])->count() > 0)
+                $data_array['key'] = $request_data['DevEUI_uplink']['DevEUI'];
 
-        //die(print_r($data_obj));
+        if (isset($request_data['DevEUI_location']['DevEUI'])) // KPN Simpoint msg
+            if (Sensor::where('key', $request_data['DevEUI_location']['DevEUI'])->count() > 0)
+                $data_array['key'] = $request_data['DevEUI_location']['DevEUI'];
 
 
-        if ($request->filled('LrnDevEui'))
-            if (Sensor::where('key', $request->input('LrnDevEui'))->count() > 0)
-                $data_array['key'] = $request->input('LrnDevEui');
+        if (isset($request_data['DevEUI_uplink']['LrrRSSI']))
+            $data_array['rssi'] = $request_data['DevEUI_uplink']['LrrRSSI'];
+        if (isset($request_data['DevEUI_uplink']['LrrSNR']))
+            $data_array['snr']  = $request_data['DevEUI_uplink']['LrrSNR'];
+        if (isset($request_data['DevEUI_uplink']['LrrLAT']))
+            $data_array['lat']  = $request_data['DevEUI_uplink']['LrrLAT'];
+        if (isset($request_data['DevEUI_uplink']['LrrLON']))
+            $data_array['lon']  = $request_data['DevEUI_uplink']['LrrLON'];
 
-        if (isset($data_obj['LrnDevEui'])) // KPN Simpoint msg
-            if (Sensor::where('key', $data_obj['LrnDevEui'])->count() > 0)
-                $data_array['key'] = $data_obj['LrnDevEui'];
-
-        if (isset($data_obj['DevEUI_uplink']['DevEUI'])) // KPN Simpoint msg
-            if (Sensor::where('key', $data_obj['DevEUI_uplink']['DevEUI'])->count() > 0)
-                $data_array['key'] = $data_obj['DevEUI_uplink']['DevEUI'];
-
-        if (isset($data_obj['DevEUI_location']['DevEUI'])) // KPN Simpoint msg
-            if (Sensor::where('key', $data_obj['DevEUI_location']['DevEUI'])->count() > 0)
-                $data_array['key'] = $data_obj['DevEUI_location']['DevEUI'];
-
-        if (isset($data_obj['DevEUI_uplink']['LrrRSSI']))
-            $data_array['rssi'] = $data_obj['DevEUI_uplink']['LrrRSSI'];
-        if (isset($data_obj['DevEUI_uplink']['LrrSNR']))
-            $data_array['snr']  = $data_obj['DevEUI_uplink']['LrrSNR'];
-        if (isset($data_obj['DevEUI_uplink']['LrrLAT']))
-            $data_array['lat']  = $data_obj['DevEUI_uplink']['LrrLAT'];
-        if (isset($data_obj['DevEUI_uplink']['LrrLON']))
-            $data_array['lon']  = $data_obj['DevEUI_uplink']['LrrLON'];
-
-        if (isset($data_obj['DevEUI_uplink']['payload_hex']))
-            $data_array = array_merge($data_array, $this->decode_simpoint_payload($data_obj['DevEUI_uplink']['payload_hex']));
+        if (isset($request_data['DevEUI_uplink']['payload_hex']))
+            $data_array = array_merge($data_array, $this->decode_simpoint_payload($request_data['DevEUI_uplink']['payload_hex']));
 
         if (isset($data_array['w_fl']) || isset($data_array['w_fr']) || isset($data_array['w_bl']) || isset($data_array['w_br'])) // v7 firmware
         {
@@ -766,76 +755,70 @@ class SensorController extends Controller
             $data_array = $this->floatify_sensor_val($data_array, 'w_fr');
             $data_array = $this->floatify_sensor_val($data_array, 'w_bl');
             $data_array = $this->floatify_sensor_val($data_array, 'w_br');
-        }        
+        }
+        return $data_array;
+    }
+    
+    private function parse_ttn_payload($request_data)
+    {
+        $data_array = $request_data['payload_fields'];
+
+        if (isset($request_data['hardware_serial']) && !isset($data_array['key']))
+            $data_array['key'] = $request_data['hardware_serial']; // LoRa WAN = Device EUI
+        if (isset($request_data['metadata.gateways.0.rssi']))
+            $data_array['rssi'] = $request_data['metadata.gateways.0.rssi'];
+        if (isset($request_data['metadata.gateways.0.snr']))
+            $data_array['snr']  = $request_data['metadata.gateways.0.snr'];
+
+        return $data_array;
+    }
+
+    public function lora_sensors(Request $request)
+    {
+        $data_array   = [];
+        $request_data = $request->input();
+        $payload_type = '';
+
+        // distinguish type of data
+        if ($request->filled('LrnDevEui') && $request->filled('DevEUI_uplink.payload_hex')) // KPN/Simpoint
+        {
+            $data_array = $this->parse_kpn_payload($request_data);
+            $payload_type = 'kpn';
+        }
+        else if ($request->filled('payload_fields') && $request->filled('hardware_serial')) // TTN HTTP POST
+        {
+            $data_array = $this->parse_ttn_payload($request_data);
+            $payload_type = 'ttn';
+        }
 
         //die(print_r($data_array));
         $logFileName = isset($data_array['key']) ? 'lora_sensor_'.$data_array['key'].'.json' : 'lora_sensor_no_key.json';
-        Storage::disk('local')->put('sensors/'.$logFileName, '[{"lora_object":'.json_encode($data_obj).'},{"data_array":'.json_encode($data_array).'}]');
+        Storage::disk('local')->put('sensors/'.$logFileName, '[{"payload_type":"'.$payload_type.'"},{"request_input":'.json_encode($request_data).'},{"data_array":'.json_encode($data_array).'}]');
 
         return $this->storeMeasurements($data_array);
     }
 
-    
+
     public function storeMeasurementData(Request $request)
     {
+        $request_data = $request->input();
         // Check for valid data 
         if ($request->filled('payload_fields')) // TTN HTTP POST
         {
-            $data_array = $request->input('payload_fields');
-            if (isset($data_array['key']))
-            {
-                // keep $data_array['key']
-            }
-            else if ($request->filled('hardware_serial'))
-            {
-                $data_array['key'] = $request->input('hardware_serial'); // LoRa WAN = Device EUI
-            }
-
-            if ($request->filled('metadata.gateways.0.rssi'))
-                $data_array['rssi'] = $request->input('metadata.gateways.0.rssi');
-            if ($request->filled('metadata.gateways.0.snr'))
-                $data_array['snr']  = $request->input('metadata.gateways.0.snr');
+            $data_array = $this->parse_ttn_payload($request_data);
         }
         else if ($request->filled('data')) // Check for sensor string (colon and pipe devided) fw v1-3
         {
-            $data_array = $this->convertSensorStringToArray($request->input('data'));
+            $data_array = $this->convertSensorStringToArray($request_data['data']);
         }
         else // Assume post data input
         {
-            $data_array = $request->input();
+            $data_array = $request_data;
         }
         
         //die(print_r($data_array));
         return $this->storeMeasurements($data_array);
     }
-
-
-
-    // public function data(Request $request, $name)
-    // {
-    //     $client = new \Influx;
-    //     //Get the sensor
-    //     $sensor  = $this->get_user_sensor($request);
-        
-    //     $sensor_name = array_search($name, $this->valid_sensors);
-    //     if ($sensor_name)
-    //     {
-    //         try
-    //         {
-    //             $result  = $client::query('SELECT "name",* from "sensors" WHERE "key" = \''.$sensor->key.'\' AND "name" = \''.$sensor_name.'\' AND time > now() - 24h GROUP BY "name" ORDER BY time DESC LIMIT 1000');
-    //             $sensors = $result->getPoints();
-    //             if ($sensors) 
-    //             {
-    //                 return $this->response->withCollection($sensors, new SensorTransformer());
-    //             }
-    //         }
-    //         catch(\Exception $e)
-    //         {
-    //             return Response::json('sensor-get-error', 500);
-    //         }
-    //     }
-    //     return Response::json('sensor-none-error', 500);
-    // }
 
    
     public function data(Request $request)

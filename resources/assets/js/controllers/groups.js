@@ -13,6 +13,7 @@ app.controller('GroupsCtrl', function($scope, $rootScope, $window, $location, $f
 	$scope.redirect 		= null;
 	$scope.hives 			= [];
 	$scope.groups 			= [];
+	$scope.invitations		= [];
 	$scope.hive 			= null;
 	$scope.locations 		= null;
 	$scope.error_msg 		= null;
@@ -79,11 +80,19 @@ app.controller('GroupsCtrl', function($scope, $rootScope, $window, $location, $f
 		{
 			$scope.groups = groups.groups;
 		}
+		else
+		{
+			$scope.groups = [];
+		}
 		$scope.showMore = $scope.groups.length > 1 ? true : false;
 		
 		if (groups.invitations.length > 0)
 		{
 			$scope.invitations = groups.invitations;
+		}
+		else
+		{
+			$scope.invitations = [];
 		}
 		
 		if ($location.path().indexOf('/groups/create') > -1)
@@ -105,7 +114,7 @@ app.controller('GroupsCtrl', function($scope, $rootScope, $window, $location, $f
 
 	$scope.checkToken = function(token, groupId)
 	{
-		$scope.redirect    = "/groups/"+groupId+"/edit";
+		$scope.redirect    = "/groups";
 		$scope.success_msg = $rootScope.lang.Invitation_accepted;
 		api.postApiRequest('checkToken', 'groups/checktoken', {'group_id':groupId, 'token':token});
 	}
@@ -285,6 +294,9 @@ app.controller('GroupsCtrl', function($scope, $rootScope, $window, $location, $f
 
 	$scope.groupChanged = function(type, data, status)
 	{
+		if (type.name == 'checkTokenLoaded') // invlitation accepted
+			groups.loadRemoteGroups();
+
 		if ($scope.redirect != null)
 		{
 			$location.path($scope.redirect);

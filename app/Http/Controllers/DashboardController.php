@@ -34,8 +34,8 @@ class DashboardController extends Controller
     public function index(Request $request)
     {
         $moment             = new Moment();
-        $last_hour          = $moment->subtractHours(1)->format('Y-m-d H:i:s');
-        $last_day           = $moment->subtractDays(1)->format('Y-m-d H:i:s');
+        $last_hour          = $moment->subtractHours(1)->format('H:i:s');
+        $last_day           = $moment->subtractDays(1)->format('Y-m-d');
         $last_week          = $moment->subtractDays(7)->format('Y-m-d H:i:s');
         $last_month         = $moment->subtractMonths(1)->format('Y-m-d');
         $last_qrt           = $moment->subtractMonths(3)->format('Y-m-d');
@@ -44,8 +44,8 @@ class DashboardController extends Controller
 
         $data               = [];
         $data['users']      = User::count();
-        $data['newusers']   = User::whereDate('created_at', '>', $last_week)->count();
-        $data['hourusers']  = User::whereDate('last_login', '>', $last_hour)->count();
+        $data['newusers']   = User::where('created_at', '>', $last_week)->count();
+        $data['hourusers']  = User::whereHour('last_login', '>', $last_hour)->count();
         $data['dayusers']   = User::whereDate('last_login', '>', $last_day)->count();
         $data['activeusers']= User::whereDate('last_login', '>', $last_month)->count();
         $data['qrtusers']   = User::whereDate('last_login', '>', $last_qrt)->count();

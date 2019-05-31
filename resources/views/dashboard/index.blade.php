@@ -34,7 +34,7 @@
 			<div class="small-box bg-primary">
 				<div class="inner">
 					<h3>{{ $data['hourusers'] }} / {{ $data['dayusers'] }}</h3>
-					<p>Active users last hour / day</p>
+					<p>Active users last hour / since yesterday</p>
 				</div>
 				<div class="icon">
 					<i class="fa fa-user-circle-o"></i>

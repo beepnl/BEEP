@@ -283,6 +283,7 @@ app.run(function ($rootScope, $location, $window, $route, $routeParams, amMoment
     e.preventDefault();
 
     if (doLink) {
+      $location.search('success', null);
       $location.path(link);
     } // switch the class
 

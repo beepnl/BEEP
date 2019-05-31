@@ -8,7 +8,7 @@ app.directive('beepHiveSelector', ['$rootScope', function($rootScope) {
                       '<p ng-repeat="(key, layer) in hive.layers | orderBy : \'-type\' " class="layer" ng-class="layer.type" style="background-color: {{hive.color}}; width: {{width}}px;"></p>'+
                       '<p class="bottom" style="width: {{width}}px;"></p>'+
                     '</div>'+
-                    '<div ng-if="selectedids.indexOf(hive.id) > -1" class="select-icon">'+
+                    '<div ng-if="selectedids.indexOf(hive.id) > -1 && editableids.indexOf(hive.id) == -1" class="select-icon">'+
                       '<i class="fa fa-2x fa-eye"></i>'+
                     '</div>'+
                     '<div ng-if="editableids.indexOf(hive.id) > -1" class="select-icon edit">'+

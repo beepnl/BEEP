@@ -356,6 +356,7 @@ app.controller('GroupsCtrl', function($scope, $rootScope, $window, $location, $f
     $scope.$on('$destroy', function() 
     {
         $scope.removeListeners();
+        
     });
 
     // call the init function

@@ -1157,7 +1157,7 @@ app.service('groups', ['$http', '$rootScope', 'api', 'hives', function ($http, $
           var hive = group.hives[j];
 
           if (hive != null && typeof hive.id != 'undefined') {
-            if (hive.editable == 'true') group.hives_editable.push(hive.id);
+            if (hive.editable) group.hives_editable.push(hive.id);
             group.hives_selected.push(hive.id);
             hive = hives.addHiveCalculations(hive);
             hive.group_name = group.name;

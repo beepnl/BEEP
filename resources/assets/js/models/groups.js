@@ -153,7 +153,7 @@ app.service('groups', ['$http', '$rootScope', 'api', 'hives', function($http, $r
 					var hive = group.hives[j];
 					if (hive != null && typeof hive.id != 'undefined')
 					{
-						if (hive.editable == 'true')
+						if (hive.editable)
 							group.hives_editable.push(hive.id);
 
 						group.hives_selected.push(hive.id);

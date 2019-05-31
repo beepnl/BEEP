@@ -13,6 +13,7 @@
         <meta name="apple-mobile-web-app-title" content="Beep">
         <meta name="apple-mobile-web-app-status-bar-style" content="black">
 
+        <link rel="manifest" href="/manifest.json">
         <link rel="shortcut icon" type="image/png" href="/img/icons/icon_beep.png">
         <link rel="apple-touch-icon" href="/img/icons/Icon-60.png">
         <link rel="apple-touch-icon" sizes="76x76" href="/img/icons/Icon-76.png">

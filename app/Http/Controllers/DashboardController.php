@@ -45,7 +45,7 @@ class DashboardController extends Controller
         $data               = [];
         $data['users']      = User::count();
         $data['newusers']   = User::where('created_at', '>', $last_week)->count();
-        $data['hourusers']  = User::whereHour('last_login', '>', $last_hour)->count();
+        $data['hourusers']  = User::whereTime('last_login', '>', $last_hour)->count();
         $data['dayusers']   = User::whereDate('last_login', '>', $last_day)->count();
         $data['activeusers']= User::whereDate('last_login', '>', $last_month)->count();
         $data['qrtusers']   = User::whereDate('last_login', '>', $last_qrt)->count();

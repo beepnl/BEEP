@@ -83,7 +83,7 @@ app.controller('GroupsCtrl', function($scope, $rootScope, $window, $location, $f
 		else
 		{
 			$scope.groups = [];
-		}
+		}	
 		$scope.showMore = $scope.groups.length > 1 ? true : false;
 		
 		if (groups.invitations.length > 0)
@@ -294,7 +294,7 @@ app.controller('GroupsCtrl', function($scope, $rootScope, $window, $location, $f
 
 	$scope.groupChanged = function(type, data, status)
 	{
-		if (type.name == 'checkTokenLoaded') // invlitation accepted
+		if (type.name == 'checkTokenLoaded' || 'detachGroupLoaded' || 'deleteGroupLoaded') // invlitation accepted
 			groups.loadRemoteGroups();
 
 		if ($scope.redirect != null)

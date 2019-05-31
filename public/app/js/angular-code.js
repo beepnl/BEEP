@@ -3985,7 +3985,7 @@ app.controller('GroupsCtrl', function ($scope, $rootScope, $window, $location, $
   };
 
   $scope.groupChanged = function (type, data, status) {
-    if (type.name == 'checkTokenLoaded') // invlitation accepted
+    if (type.name == 'checkTokenLoaded' || 'detachGroupLoaded' || 'deleteGroupLoaded') // invlitation accepted
       groups.loadRemoteGroups();
 
     if ($scope.redirect != null) {

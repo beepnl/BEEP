@@ -23,6 +23,26 @@ class HiveController extends Controller
         $this->hiveFactory = $hiveFactory;
     }
 
+    private function saveQueen(Request $request, $hive)
+    {
+        if ($request->filled('queen.race_id') || $request->filled('queen.name') || $request->filled('queen.created_at') || $request->filled('queen.color') || $request->filled('queen.clipped') || $request->filled('queen.fertilized'))
+        {
+            $race_id = Category::findCategoryIdByParentAndName('subspecies', 'other');
+            $date  = $request->filled('queen.created_at') ? $request->input('queen.created_at') : date("Y-m-d");
+            $queen = [
+                    'name'          =>$request->input('queen.name'),
+                    'race_id'       =>$request->input('queen.race_id', $race_id),
+                    'created_at'    =>$date.' 00:00:00',
+                    'color'         =>$request->input('queen.color'),
+                    'clipped'       =>boolval($request->input('queen.clipped')),
+                    'fertilized'    =>boolval($request->input('queen.fertilized')),
+                ];
+
+            $hive->queen()->updateOrCreate(['id'=>$request->input('queen.id', null)], $queen);
+        }
+        return $hive;
+    }
+
     /**
      * Display a listing of the resource.
      *
@@ -56,22 +76,7 @@ class HiveController extends Controller
         $frameAmount      = $request->input('frames', 10);
 
         $hive = $this->hiveFactory->createHive($user_id, $location, $name, $hive_type_id, $color, $broodLayerAmount, $honeyLayerAmount, $frameAmount);
-
-        if ($request->filled('queen.race_id'))
-        {
-            $race_id = Category::findCategoryIdByParentAndName('subspecies', 'other');
-            $date  = $request->filled('queen.created_at') ? $request->input('queen.created_at') : date("Y-m-d");
-            $queen = [
-                    'name'          =>$request->input('queen.name'),
-                    'race_id'       =>$request->input('queen.race_id', $race_id),
-                    'created_at'    =>$date.' 00:00:00',
-                    'color'         =>$request->input('queen.color'),
-                    'clipped'       =>boolval($request->input('queen.clipped')),
-                    'fertilized'    =>boolval($request->input('queen.fertilized')),
-                ];
-
-            $hive->queen()->updateOrCreate(['id'=>$request->input('queen.id', null)], $queen);
-        }
+        $hive = $this->saveQueen($request, $hive);
 
         return $this->show($request, $hive);
     }
@@ -107,22 +112,7 @@ class HiveController extends Controller
         $frameAmount      = $request->input('frames', 10);
 
         $hive = $this->hiveFactory->updateHive($hive, $location, $name, $hive_type_id, $color, $broodLayerAmount, $honeyLayerAmount, $frameAmount);
-
-        if ($request->filled('queen.race_id'))
-        {
-            $race_id = Category::findCategoryIdByParentAndName('subspecies', 'other');
-            $date  = $request->filled('queen.created_at') ? $request->input('queen.created_at') : date("Y-m-d");
-            $queen = [
-                    'name'          =>$request->input('queen.name'),
-                    'race_id'       =>$request->input('queen.race_id', $race_id),
-                    'created_at'    =>$date.' 00:00:00',
-                    'color'         =>$request->input('queen.color'),
-                    'clipped'       =>boolval($request->input('queen.clipped')),
-                    'fertilized'    =>boolval($request->input('queen.fertilized')),
-                ];
-
-            $hive->queen()->updateOrCreate(['id'=>$request->input('queen.id', null)], $queen);
-        }
+        $hive = $this->saveQueen($request, $hive);
 
         return $this->show($request, $hive);
     }

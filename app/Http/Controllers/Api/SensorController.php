@@ -468,7 +468,11 @@ class SensorController extends Controller
         }
         
         //die(print_r($sensor_key));
-        $stored = $this->storeInfluxData($data_array, $sensor_key, time());
+        $time = time();
+        if (isset($data_array['time']))
+            $time = intVal($data_array['time']);
+
+        $stored = $this->storeInfluxData($data_array, $sensor_key, $time);
         if($stored) 
         {
             return Response::json("saved", 201);

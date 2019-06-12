@@ -120,27 +120,27 @@ app.controller('MeasurementsCtrl', function($scope, $rootScope, $timeout, $inter
         },
         tooltips: 
         {
-            mode: 'nearest',
-            intersect: true,
-            bodySpacing: 5,
-            xPadding: 10,
-            yPadding: 10,
-            displayColors: false,
-            callbacks: 
-            {
-                // title: function(tooltipItem, data) 
-                // {
-                //     var date = tooltipItem[0].xLabel; // .substr(0, 19)
-                //     console.log(date, $scope.tooltTimeFrmt);
-                //     return moment(date, $scope.chartParseFmt).format($scope.tooltTimeFrmt);
-                // },
-                label: function(tooltipItem, data) 
-                {
-                    var name = data.datasets[tooltipItem.datasetIndex].name;
-                    var unit = data.datasets[tooltipItem.datasetIndex].unit;
-                    return name + ': ' + round_dec(tooltipItem.yLabel, 1) + ' ' + unit;
-                }
-            }
+            mode: 'nearest'
+            // intersect: true,
+            // bodySpacing: 5,
+            // xPadding: 10,
+            // yPadding: 10,
+            // displayColors: false,
+            // callbacks: 
+            // {
+            //     // title: function(tooltipItem, data) 
+            //     // {
+            //     //     var date = tooltipItem[0].xLabel; // .substr(0, 19)
+            //     //     console.log(date, $scope.tooltTimeFrmt);
+            //     //     return moment(date, $scope.chartParseFmt).format($scope.tooltTimeFrmt);
+            //     // },
+            //     label: function(tooltipItem, data) 
+            //     {
+            //         var name = data.datasets[tooltipItem.datasetIndex].name;
+            //         var unit = data.datasets[tooltipItem.datasetIndex].unit;
+            //         return name + ': ' + round_dec(tooltipItem.yLabel, 1) + ' ' + unit;
+            //     }
+            // }
         },
         animation: {
             onComplete: function () {

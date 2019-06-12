@@ -151,7 +151,6 @@
 			.chart-holder.small{
 				display: inline-block;
 				position: relative;
-				padding-right: 10px;
 				width: 50%;
 			}
 
@@ -162,11 +161,7 @@
 			height: 200px;
 		}
 
-			.chart-holder .chart{
-				position: relative;
-				overflow: hidden;
-				width: 100%;
-			}
+			
 
 
 	@media screen and (max-width: 740px){

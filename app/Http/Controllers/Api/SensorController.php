@@ -82,7 +82,7 @@ class SensorController extends Controller
         else
         {
             $valid_data = $validator->validated();
-            $sensor_obj = isset($valid_data['id']) ? Auth::user()->sensors()->find($valid_data['id']) : null;
+            $sensor_obj = isset($valid_data['id']) ? Auth::user()->sensors->find($valid_data['id']) : null;
             $sensor_id  = null;
             if ($sensor_obj == null)
             {
@@ -94,6 +94,16 @@ class SensorController extends Controller
                 // delete
                 if (isset($valid_data['delete']) && $valid_data['delete'] == true)
                 {
+                    try
+                    {
+                        $client = new \Influx;
+                        $query  = 'DELETE from "sensors" WHERE "key" = \''.$sensor_obj->key.'\'';
+                        $result = $client::query($query);
+                    }
+                    catch(\Exception $e)
+                    {
+                        return ['errors'=>'Data values cannot be deleted'];
+                    }
                     $sensor_obj->delete();
                     return 'sensor_deleted';
                 }

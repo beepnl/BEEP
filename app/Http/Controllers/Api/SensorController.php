@@ -92,7 +92,7 @@ class SensorController extends Controller
             else
             {
                 // delete
-                if (isset($valid_data['delete']) && $valid_data['delete'] === true)
+                if (isset($valid_data['delete']) && $valid_data['delete'] == true)
                 {
                     $sensor_obj->delete();
                     return 'sensor_deleted';

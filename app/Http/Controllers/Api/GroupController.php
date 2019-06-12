@@ -142,9 +142,9 @@ class GroupController extends Controller
     {
         $res = $this->detachFromGroup($request->user(), $request->user()->groups()->findOrFail($id));
         if ($res)
-            return response()->json('group_detached', 200);
+            return response()->json(['message'=>'group_detached'], 200);
 
-        return response()->json('no_group_detached', 404);
+        return response()->json(['error'=>'no_group_detached'], 404);
     }
 
     private function detachFromGroup($user, $group)

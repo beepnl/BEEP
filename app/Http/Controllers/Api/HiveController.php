@@ -102,8 +102,8 @@ class HiveController extends Controller
      */
     public function update(PostHiveRequest $request, Hive $hive)
     {
-        $hive             = $request->user()->allhives()->findOrFail($hive->id);
-        $location         = $request->user()->allLocations()->findOrFail($request->input('location_id'));
+        $hive             = $request->user()->allhives(true)->findOrFail($hive->id);
+        $location         = $request->user()->allLocations(true)->findOrFail($request->input('location_id'));
         $name             = $request->input('name'); 
         $hive_type_id     = $request->input('hive_type_id'); 
         $color            = $request->input('color', '#FABB13'); // yellow

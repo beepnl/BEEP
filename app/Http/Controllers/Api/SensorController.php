@@ -35,13 +35,12 @@ class SensorController extends Controller
     // Sensor crud functions
     public function index(Request $request)
     {
-        $sensor_amount = $request->user()->allSensors()->count();
-        if ($sensor_amount == 0)
+        $sensors = $request->user()->allSensors();
+        
+        if ($sensors->count() == 0)
             return Response::json('No sensors found', 404);
 
-        $sensors = $request->user()->allSensors()->get();
-        
-        return Response::json($sensors);
+        return Response::json($sensors->get());
     }
 
     public function store(Request $request)
@@ -102,7 +101,7 @@ class SensorController extends Controller
                     }
                     catch(\Exception $e)
                     {
-                        return ['errors'=>['Data values of sensor with key '.$sensor_obj->key.' cannot be deleted']];
+                        return ['errors'=>'Data values of sensor with key '.$sensor_obj->key.' cannot be deleted, try again later...'];
                     }
                     $sensor_obj->delete();
                     return 'sensor_deleted';
@@ -127,7 +126,7 @@ class SensorController extends Controller
 
     // Sensor measurement functions
 
-    protected function get_user_sensor(Request $request)
+    protected function get_user_sensor(Request $request, $mine = false)
     {
         $this->validate($request, [
             'id'        => 'nullable|integer|exists:sensors,id',
@@ -135,7 +134,7 @@ class SensorController extends Controller
             'hive_id'   => 'nullable|integer|exists:hives,id',
         ]);
         
-        $sensors = $request->user()->allSensors(); // inlude user Group - hive sensors
+        $sensors = $request->user()->allSensors($mine); // inlude user Group hive sensors ($mine == editable)
         if ($sensors->count() > 0)
         {
             if ($request->filled('id') && $request->input('id') != 'null')
@@ -670,7 +669,7 @@ class SensorController extends Controller
         if ($validator->fails())
             return Response::json('validation-error', 500);
 
-        $sensor           = $this->get_user_sensor($request); // requires id, key, hive_id, or nothing (if only one sensor) to be set
+        $sensor           = $this->get_user_sensor($request, true); // requires id, key, hive_id, or nothing (if only one sensor) to be set
         $next_measurement = $request->filled('next_measurement') ? $request->input('next_measurement') : true;
         $weight_kg        = floatval($request->filled('weight_kg') ? $request->input('weight_kg') : $this->last_sensor_measurement_time_value($sensor, 'calibrating_weight'));
         $calibrated       = $this->calibrate_weight_sensors($sensor, $weight_kg, $next_measurement);
@@ -688,7 +687,7 @@ class SensorController extends Controller
 
     public function offsetweight(Request $request)
     {
-        $sensor = $this->get_user_sensor($request); // requires id, key, hive_id, or nothing (if only one sensor) to be set
+        $sensor = $this->get_user_sensor($request, true); // requires id, key, hive_id, or nothing (if only one sensor) to be set
         $offset = $this->offset_weight_sensors($sensor);
 
         if($offset === true)

@@ -6,6 +6,8 @@ use Iatstuti\Database\Support\CascadeSoftDeletes;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
+use Auth;
+
 class Location extends Model
 {
     use SoftDeletes, CascadeSoftDeletes;
@@ -15,7 +17,7 @@ class Location extends Model
     protected $fillable = ['user_id', 'continent_id', 'category_id', 'name', 'coordinate_lat', 'coordinate_lon', 'street', 'street_no', 'postal_code', 'country_code', 'city'];
 	protected $guarded 	= ['id'];
     protected $hidden   = ['user_id', 'continent_id', 'category_id'];
-    protected $appends  = ['type', 'continent'];
+    protected $appends  = ['type', 'continent', 'owner'];
 
     public $timestamps = false;
 
@@ -28,6 +30,14 @@ class Location extends Model
     public function getContinentAttribute()
     {
         return Continent::find($this->continent_id)->name;
+    }
+
+    public function getOwnerAttribute()
+    {
+        if ($this->user_id == Auth::user()->id)
+            return true;
+        
+        return false;
     }
 
 	public function hives()

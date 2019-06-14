@@ -34,14 +34,6 @@ class User extends Authenticatable
         return $this->hasMany(Hive::class);
     }
 
-    public function allHives() // Including Group hives
-    {
-        $own_ids = $this->hives()->pluck('id');
-        $grp_ids = $this->groupHives()->pluck('id');
-        $all_ids = $own_ids->merge($grp_ids);
-        return Hive::whereIn('id',$all_ids);
-    }
-
     public function checklists()
     {
         return $this->belongsToMany(Checklist::class, 'checklist_user');
@@ -52,10 +44,47 @@ class User extends Authenticatable
         return $this->belongsToMany(Inspection::class, 'inspection_user');
     }
     
-    public function allInspections() // Including Group hive locations
+    public function sensors()
+    {
+        return $this->hasMany(Sensor::class);
+    }
+
+    public function groups()
+    {
+        return $this->belongsToMany(Group::class, 'group_user')->whereNotNull('accepted');
+    }
+
+    public function settings()
+    {
+        return $this->hasMany(Setting::class);
+    }
+
+
+    public function groupHives($mine = false)
+    {
+        $group_ids = $this->groups->pluck('id')->toArray();
+
+        $hive_ids  = [];
+        if ($mine)
+            $hive_ids  = DB::table('group_hive')->where('edit_hive', 1)->whereIn('group_id',$group_ids)->distinct('hive_id')->pluck('hive_id')->toArray();
+        else
+            $hive_ids  = DB::table('group_hive')->whereIn('group_id',$group_ids)->distinct('hive_id')->pluck('hive_id')->toArray();
+        //die(print_r(['group_ids'=>$group_ids,'hive_ids'=>$hive_ids]));
+        return Hive::whereIn('id',$hive_ids);
+    }
+
+    public function allHives($mine = false) // Including Group hives
+    {
+        $own_ids = $this->hives()->pluck('id');
+        $hiv_ids = $this->groupHives($mine)->pluck('id');
+        $all_ids = $own_ids->merge($hiv_ids);
+        return Hive::whereIn('id',$all_ids);
+    }
+
+    public function allInspections($mine = false) // Including Group hive locations
     {
         $own_ids = $this->inspections()->pluck('id');
-        $hiv_ids = $this->groupHives()->pluck('id');
+        $hiv_ids = $this->groupHives($mine)->pluck('id');
         $ins_ids = DB::table('inspection_hive')->whereIn('hive_id',$hiv_ids)->distinct('inspection_id')->pluck('inspection_id')->toArray();
         $all_ids = $own_ids->merge($ins_ids);
         return Inspection::whereIn('id',$all_ids);
@@ -66,33 +95,26 @@ class User extends Authenticatable
         return $this->hasMany(Location::class);
     }
 
-    public function allLocations() // Including Group hive locations
+    public function allLocations($mine = false) // Including Group hive locations
     {
         $own_ids = $this->locations()->pluck('id');
-        $hiv_ids = $this->groupHives()->pluck('id');
+        $hiv_ids = $this->groupHives($mine)->pluck('id');
         $loc_ids = DB::table('hives')->whereIn('id',$hiv_ids)->distinct('hive_id')->pluck('location_id')->toArray();
         $all_ids = $own_ids->merge($loc_ids);
         return Location::whereIn('id',$all_ids);
     }
 
-    public function sensors()
-    {
-        return $this->hasMany(Sensor::class);
-    }
-
-    public function allSensors() // Including Group hive locations
+    
+    public function allSensors($mine = false) // Including Group hive locations
     {
         $own_ids = $this->sensors()->pluck('id');
-        $hiv_ids = $this->groupHives()->pluck('id');
+        $hiv_ids = $this->groupHives($mine)->pluck('id');
         $sen_ids = DB::table('sensors')->whereIn('hive_id',$hiv_ids)->distinct('hive_id')->pluck('id')->toArray();
         $all_ids = $own_ids->merge($sen_ids);
         return Sensor::whereIn('id',$all_ids);
     }
 
-    public function groups()
-    {
-        return $this->belongsToMany(Group::class, 'group_user')->whereNotNull('accepted');
-    }
+
 
     public function groupInvitations()
     {
@@ -107,19 +129,6 @@ class User extends Authenticatable
             $invite['usercount'] = $item->users->count();
             return $invite; 
         });
-    }
-
-    public function groupHives()
-    {
-        $group_ids = $this->groups->pluck('id')->toArray();
-        $hive_ids  = DB::table('group_hive')->whereIn('group_id',$group_ids)->distinct('hive_id')->pluck('hive_id')->toArray();
-        //die(print_r(['group_ids'=>$group_ids,'hive_ids'=>$hive_ids]));
-        return Hive::whereIn('id',$hive_ids);
-    }
-
-    public function settings()
-    {
-        return $this->hasMany(Setting::class);
     }
 
     public function inspectionDates()

@@ -74,8 +74,8 @@ class InspectionsController extends Controller
             
             $data         = $request->except(['hive_id','items','date']);
             $user         = Auth::user();
-            $hive         = $user->allHives()->find($request->input('hive_id'));
-            $location     = $user->locations()->find($request->input('location_id'));
+            $hive         = $user->allHives(true)->find($request->input('hive_id'));
+            $location     = $user->allLocations(true)->find($request->input('location_id'));
 
             $data['created_at'] = $date;
 
@@ -122,36 +122,21 @@ class InspectionsController extends Controller
             // add items in input
             foreach ($request->input('items') as $cat_id => $value) 
             {
-                // $inspectionItem = $inspection->items()->where('category_id',$cat_id)->first();
-
-                // if ($inspectionItem)
-                // {
-                //     $inspectionItem->value = $value;
-                //     $inspectionItem->save();
-                // }
-                // else
-                // {
-                    $category = Category::find($cat_id);
-                    if (isset($category) && isset($value))
-                    {
-                        $itemData = 
-                        [
-                            'category_id'   => $category->id,
-                            'inspection_id' => $inspection->id,
-                            'value'         => $value,
-                        ];
-                        InspectionItem::create($itemData);
-                    }
-                // }
+                $category = Category::find($cat_id);
+                if (isset($category) && isset($value))
+                {
+                    $itemData = 
+                    [
+                        'category_id'   => $category->id,
+                        'inspection_id' => $inspection->id,
+                        'value'         => $value,
+                    ];
+                    InspectionItem::create($itemData);
+                }
             }
-            // Delete removed inspection items
-            // $remove = array_intersect($inspection->items()->pluck('category_id')->toArray(), array_keys($request->input('items')));
-            // die(print_r($remove));
-
         }
         if (isset($inspection))
             return response()->json($inspection->id, 201);
-            //return $this->show($request, $condition);
 
     }
 

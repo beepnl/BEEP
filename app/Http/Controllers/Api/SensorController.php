@@ -92,7 +92,7 @@ class SensorController extends Controller
             else
             {
                 // delete
-                if (isset($valid_data['delete']) && $valid_data['delete'] == true)
+                if (isset($valid_data['delete']) && boolval($valid_data['delete']) === true)
                 {
                     try
                     {
@@ -102,7 +102,7 @@ class SensorController extends Controller
                     }
                     catch(\Exception $e)
                     {
-                        return ['errors'=>'Data values cannot be deleted'];
+                        return ['errors'=>['Data values of sensor with key '.$sensor_obj->key.' cannot be deleted']];
                     }
                     $sensor_obj->delete();
                     return 'sensor_deleted';

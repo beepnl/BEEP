@@ -35,6 +35,10 @@ mix.copy([
 	'node_modules/hammerjs/hammer.min.js.map',
 	], 'public/js');
 
+mix.copy([
+    'resources/assets/js/lang/*',
+    ], 'public/js/languages');
+
 mix.styles([
 	'node_modules/animate.css/animate.min.css',
 	'node_modules/ng-dialog/css/ngDialog..min.css',

@@ -1,6 +1,6 @@
 <div class="col-xs-12">
 	<div class="form-group {{ $errors->has('notes') ? 'has-error' : ''}}">
-	    <label for="notes" control-label">{{ 'Notes' }}</label>
+	    <label for="notes" control-label>{{ 'Notes' }}</label>
 	    <div>
 	        <textarea class="form-control" rows="5" name="notes" type="textarea" id="notes" >{{ $inspection->notes or ''}}</textarea>
 	        {!! $errors->first('notes', '<p class="help-block">:message</p>') !!}
@@ -8,7 +8,7 @@
 	</div>
 </div><div class="col-xs-12">
 	<div class="form-group {{ $errors->has('impression') ? 'has-error' : ''}}">
-	    <label for="impression" control-label">{{ 'Impression' }}</label>
+	    <label for="impression" control-label>{{ 'Impression' }}</label>
 	    <div>
 	        <input class="form-control" name="impression" type="number" id="impression" value="{{ $inspection->impression or ''}}" >
 	        {!! $errors->first('impression', '<p class="help-block">:message</p>') !!}
@@ -16,7 +16,7 @@
 	</div>
 </div><div class="col-xs-12">
 	<div class="form-group {{ $errors->has('attention') ? 'has-error' : ''}}">
-	    <label for="attention" control-label">{{ 'Attention' }}</label>
+	    <label for="attention" control-label>{{ 'Attention' }}</label>
 	    <div>
 	        <div class="radio">
 			    <label>
@@ -32,7 +32,7 @@
 	</div>
 </div><div class="col-xs-12">
 	<div class="form-group {{ $errors->has('created_at') ? 'has-error' : ''}}">
-	    <label for="created_at" control-label">{{ 'Created At' }}</label>
+	    <label for="created_at" control-label>{{ 'Created At' }}</label>
 	    <div>
 	        <input class="form-control" name="created_at" type="text" id="created_at" value="{{ $inspection->created_at or ''}}" >
 	        {!! $errors->first('created_at', '<p class="help-block">:message</p>') !!}

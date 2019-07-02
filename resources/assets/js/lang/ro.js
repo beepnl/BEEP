@@ -3,7 +3,7 @@
  * Author: Pim van Gennip (pim@iconize.nl)
  *
  */
- LANG['da'] = 
+ LANG['ro'] = 
  {
     /* Date picker */
     monthsFull              : [ 'January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December' ],
@@ -61,7 +61,7 @@
     empty_fields            : 'Please fill in all the fields',
     match_passwords         : 'Passwords do not match',
 
-    succesfully_registered  : 'You are succesfully registered',
+    succesfully_registered  : 'You are succesfully registered.',
     authentication_failed   : 'Failed to authenticate',
 
     no_valid_input_received : 'Data could not be saved, no valid input received.',
@@ -296,6 +296,8 @@
     t_i                     : 'Temp. inside',
     rssi                    : 'Signal strength',
     snr                     : 'Signal noise',
+    lat                     : 'Lattitude',
+    lon                     : 'Longitude',
     Sound_measurements      : 'Sound measurements',
     Sensor_info             : 'Sensor info',
     's_bin098_146Hz'        : '098-146Hz',
@@ -334,7 +336,7 @@
 
     /* user */
     Data_export             : 'Data export',
-    Export_your_data        : 'Export all data that is in your Beep account and send an e-mail cointaining the data as an Excel 2007 file.',
+    Export_your_data        : 'Export all data that is in your Beep account and send an e-mail cointaining the data as an Excel file. The Excel file has different tabs containing your personal, hive, location, and inspection data.',
 
     Terms_of_use            : 'Terms of service',
     accept_policy           : 'I accept the BEEP terms of service, that are compatible with the new European privacy law',
@@ -342,13 +344,6 @@
     policy_version          : 'beep_terms_2018_05_25_avg_v1',
     approve_policy          : 'You did not yet comply with the latest terms of service.',
 
-    /* General items */
-    server_down             : 'The app is unavailable due to maintenance work, please try again later',
-    add_to_calendar         : 'Add to calendar',
-    sort_on                 : 'Sort on',
-    Whats_new               : 'New in v2.1!',
-    Manual                  : 'Manual',
-    
     /* weight calibration settings */
     calibrate_weight        : 'Calibrate weight',
     calibrate_explanation   : 'Set the weight of the sensors to 0 by subtracting the current measurement value.',
@@ -369,7 +364,6 @@
     Whats_new               : 'New in v2.1!',
     Manual                  : 'Manual',
 
-    
     Site_title              : 'BEEP | Bee monitor',
 
     could_not_create_user   : 'User cannot be created at this moment. Sorry for the inconvenience, please try again later.',
@@ -378,7 +372,7 @@
     email_new_verification  : 'Click on this link to send a new verification e-mail.',
     email_verification_sent : 'A message with a verification link has been sent to your e-mail address. Click the link in the e-mail to activate your account and log in.',
 
-    not_filled              : 'not filled out',
+    not_filled              : 'is required, but not filled out',
     cannot_deselect         : 'Unable to remove this item, because it contains a required item',
     sensor_key              : 'Sensor key',
     Undelete                : 'Do not delete',

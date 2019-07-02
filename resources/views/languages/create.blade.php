@@ -25,7 +25,7 @@
             <form method="POST" action="{{ route('languages.store') }}" accept-charset="UTF-8" class="form-horizontal" enctype="multipart/form-data">
                 {{ csrf_field() }}
 
-                @include ('languages.form')
+                @include ('languages.form', ['language'=>new App\Language(), 'submitButtonText' => 'Create'])
 
             </form>
 

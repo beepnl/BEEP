@@ -38,28 +38,34 @@
 	      <h3 class="box-title">{{lang.Hives}}</h3>
 
 	      <div class="box-tools pull-right">
+	      	<span ng-if="!mobile">{{lang.Filter_and_sort_on}}</span>
 
-	      	<a class="btn btn-xs btn-{{orderName == 'name' ? 'primary' : 'default'}}" ng-click="setOrder('name')">
+	      	<a class="btn btn-xs btn-{{orderName == 'name' ? 'primary' : 'default'}}" ng-click="setOrder('name')" title="{{lang.Name}}">
 	      		<i class="fa fa-long-arrow-{{orderName == 'name' ? orderDirection ? 'up' : 'down' : 'down'}}"></i> 
 	      		{{ lang.Name }}
 	      	</a>
 
-	      	<a class="btn btn-xs btn-{{orderName == 'impression' ? 'primary' : 'default'}}" ng-click="setOrder('impression')">
+	      	<a class="btn btn-xs btn-{{orderName == 'sensors' ? 'primary' : 'default'}}" ng-click="setOrder('sensors')" title="{{lang.sensors}}">
+	      		<i class="fa fa-long-arrow-{{orderName == 'sensors' ? orderDirection ? 'up' : 'down' : 'down'}}"></i> 
+	      		<i class="fa fa-feed"></i>
+	      	</a>
+
+	      	<a class="btn btn-xs btn-{{orderName == 'impression' ? 'primary' : 'default'}}" ng-click="setOrder('impression')" title="{{lang.positive_impression}}">
 	      		<i class="fa fa-long-arrow-{{orderName == 'impression' ? orderDirection ? 'up' : 'down' : 'down'}}"></i> 
 	      		<i class="fa fa-smile-o"></i>
 	      	</a>
 
-	      	<a class="btn btn-xs btn-{{orderName == 'attention' ? 'primary' : 'default'}}" ng-click="setOrder('attention')">
+	      	<a class="btn btn-xs btn-{{orderName == 'attention' ? 'primary' : 'default'}}" ng-click="setOrder('attention')" title="{{lang.needs_attention}}">
 	      		<i class="fa fa-long-arrow-{{orderName == 'attention' ? orderDirection ? 'up' : 'down' : 'down'}}"></i> 
 	      		<i class="fa fa-exclamation"></i>
 	      	</a>
 
-	      	<a class="btn btn-xs btn-{{orderName == 'reminder_date' ? 'primary' : 'default'}}" ng-click="setOrder('reminder_date')">
+	      	<a class="btn btn-xs btn-{{orderName == 'reminder_date' ? 'primary' : 'default'}}" ng-click="setOrder('reminder_date')" title="{{lang.reminder}}">
 	      		<i class="fa fa-long-arrow-{{orderName == 'reminder_date' ? orderDirection ? 'up' : 'down' : 'down'}}"></i> 
 	      		<i class="fa fa-calendar"></i>
 	      	</a>
 
-	      	<a class="btn btn-xs btn-{{orderName == 'location' ? 'primary' : 'default'}}" ng-click="setOrder('location')">
+	      	<a class="btn btn-xs btn-{{orderName == 'location' ? 'primary' : 'default'}}" ng-click="setOrder('location')" title="{{lang.Location}} {{lang.name}}">
 	      		<i class="fa fa-long-arrow-{{orderName == 'location' ? orderDirection ? 'up' : 'down' : 'down'}}"></i> 
 	      		<i class="fa fa-map-marker"></i>
 	      	</a>

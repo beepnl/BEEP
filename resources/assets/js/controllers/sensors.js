@@ -16,6 +16,7 @@ app.controller('SensorsCtrl', function($scope, $rootScope, $timeout, $interval, 
     $scope.measurementData = null;
     $scope.success_msg  = null;
     $scope.error_msg    = null;
+    $scope.sensorTimer  = null;
 
     // handle loading of all the settings
     $scope.init = function()
@@ -28,12 +29,12 @@ app.controller('SensorsCtrl', function($scope, $rootScope, $timeout, $interval, 
 
     $scope.selectSensorHive = function(sensorIndex, hiveId)
     {
-        var s = measurements.getSensorByIndex(sensorIndex);
+        var s = measurements.getSensorOwnedByIndex(sensorIndex);
         if (s != null)
         {
             s.selected_hive_id = {id:hiveId};
             s.hive_id = hiveId;
-            s.hive    = hives.getHiveById(hiveId);
+            s.hive    = hives.getHiveOwnedById(hiveId);
             //console.log('selectSensorHive', sensorIndex, hiveId, s.hive.name);
         }
     }
@@ -41,7 +42,7 @@ app.controller('SensorsCtrl', function($scope, $rootScope, $timeout, $interval, 
 
     $scope.selectSensorType = function(sensorIndex, type)
     {
-        var s = measurements.getSensorByIndex(sensorIndex);
+        var s = measurements.getSensorOwnedByIndex(sensorIndex);
         if (s != null)
         {
             s.selected_type = {name:type};
@@ -69,7 +70,7 @@ app.controller('SensorsCtrl', function($scope, $rootScope, $timeout, $interval, 
 
     $scope.deleteSensor = function(sensorIndex)
     {
-        var s = measurements.getSensorByIndex(sensorIndex);
+        var s = measurements.getSensorOwnedByIndex(sensorIndex);
 
         if (typeof s.id == 'undefined')
             return $scope.removeSensorByIndex(sensorIndex);
@@ -129,15 +130,19 @@ app.controller('SensorsCtrl', function($scope, $rootScope, $timeout, $interval, 
     $scope.updateSensors = function()
     {
         $scope.sensortypes  = settings.sensortypes;
-        $scope.sensors      = measurements.sensors;
+        $scope.sensors      = measurements.sensors_owned;
 
-        if ($scope.sensors.length == 0)
+        if ($scope.sensors.length == 0 && $scope.sensorTimer == null)
         {
-            measurements.loadRemoteSensors();
+            $scope.sensorTimer = $timeout( function()
+                {
+                    measurements.loadRemoteSensors();
+                }
+            , 500);
             return;
         }
 
-        $scope.hives        = hives.hives;
+        $scope.hives = hives.hives_owned;
         
         for (var i = $scope.sensors.length - 1; i >= 0; i--) 
         {

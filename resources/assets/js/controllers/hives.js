@@ -90,11 +90,11 @@ app.controller('HivesCtrl', function($scope, $rootScope, $window, $location, $fi
 	{
 		$scope.beeraces  = settings.beeraces;
 		$scope.hivetypes = settings.hivetypes;
-		$scope.locations = hives.locations;
+		$scope.locations = hives.locations_owned;
 		
 		if (hives.hives.length > 0)
 		{
-			$scope.hives = hives.hives;
+			$scope.hives = hives.hives_owned;
 		}
 		$scope.showMore = $scope.hives.length > 1 ? true : false;
 		
@@ -137,7 +137,7 @@ app.controller('HivesCtrl', function($scope, $rootScope, $window, $location, $fi
 		}
 		else 
 		{
-			if (name == 'attention')
+			if (name == 'attention' || 'impression')
 			{
 				$scope.orderDirection = true;
 			}
@@ -355,8 +355,8 @@ app.controller('HivesCtrl', function($scope, $rootScope, $window, $location, $fi
 	{
 		if ($scope.redirect != null)
 		{
-			$location.path($scope.redirect);
 			$scope.redirect = null;
+			$scope.back();
 		}
 	}
 
@@ -375,6 +375,18 @@ app.controller('HivesCtrl', function($scope, $rootScope, $window, $location, $fi
 		}
 		else
 		{
+			for (var i = $rootScope.history.length - 1; i >= 0; i--) 
+			{
+				var path = $rootScope.history[i];
+				var go   = false;
+				var hive_id = typeof $scope.hive != 'undefined' && $scope.hive != null  ? $scope.hive.id : '';
+				
+				if (path.indexOf('/locations') > -1 || (path.indexOf('/hives') > -1 && path.indexOf('/hives/'+hive_id) == -1) || path.indexOf('/groups') > -1)
+					go = true;
+
+				if (go)
+					return $location.path(path);
+			}
 			$rootScope.historyBack();
 		}
 	};

@@ -333,13 +333,14 @@ app.service('hives', ['$http', '$rootScope', 'api', 'settings', function ($http,
     this.refreshCount = 0;
     this.hives_inspected = [];
     this.hives = [];
+    this.hives_owned = [];
     this.locations = [];
+    this.locations_owned = [];
     this.frame_width = 11;
     this.hive_width_start = 30;
     this.frame_width_mobile = 3;
     this.hive_width_start_mobile = 10;
     this.open_loc_ids = [];
-    this.sensors = [];
   };
 
   this.toggle_open_loc = function (id) {
@@ -372,9 +373,27 @@ app.service('hives', ['$http', '$rootScope', 'api', 'settings', function ($http,
     return null;
   };
 
+  this.getHiveOwnedById = function (id) {
+    for (var i = 0; i < self.hives_owned.length; i++) {
+      var hive = self.hives_owned[i];
+      if (hive.id == id) return hive;
+    }
+
+    return null;
+  };
+
   this.getHiveIndex = function (hiveId) {
     for (var i = 0; i < self.hives.length; i++) {
       var hive = self.hives[i];
+      if (hive.id == hiveId) return i;
+    }
+
+    return null;
+  };
+
+  this.getHiveOwnedIndex = function (hiveId) {
+    for (var i = 0; i < self.hives_owned.length; i++) {
+      var hive = self.hives_owned[i];
       if (hive.id == hiveId) return i;
     }
 
@@ -399,6 +418,15 @@ app.service('hives', ['$http', '$rootScope', 'api', 'settings', function ($http,
   this.getHiveLocationById = function (id) {
     for (var i = 0; i < self.locations.length; i++) {
       var loc = self.locations[i];
+      if (loc.id == id) return loc;
+    }
+
+    return null;
+  };
+
+  this.getHiveLocationOwnedById = function (id) {
+    for (var i = 0; i < self.locations_owned.length; i++) {
+      var loc = self.locations_owned[i];
       if (loc.id == id) return loc;
     }
 
@@ -462,7 +490,13 @@ app.service('hives', ['$http', '$rootScope', 'api', 'settings', function ($http,
     var result = data.locations; //console.log(result);
 
     self.locations = result;
-    if (self.locations.length > 0) self.hives = [];
+    self.locations_owned = [];
+
+    if (self.locations.length > 0) {
+      self.hives = [];
+      self.hives_owned = [];
+    }
+
     var loc_ids = [];
     var open_loc_ids = api.getLocalStoreValue('open_loc_ids'); //console.log('open_loc_ids', open_loc_ids);
 
@@ -489,28 +523,37 @@ app.service('hives', ['$http', '$rootScope', 'api', 'settings', function ($http,
 
       if (typeof loc.coordinate_lat != 'undefined') loc.lat = parseFloat(loc.coordinate_lat);
       if (typeof loc.coordinate_lon != 'undefined') loc.lon = parseFloat(loc.coordinate_lon);
+      if (loc.owner) self.locations_owned.push(loc); // Get hives from locations
 
       for (var j = 0; j < loc.hives.length; j++) {
         var h = loc.hives[j];
 
         if (typeof h != 'undefined') {
-          hive = self.addHiveCalculations(h);
+          var hive = self.addHiveCalculations(h);
           self.hives.push(hive);
           if (hive.inspection_count > 0) self.hives_inspected.push(hive);
-        }
+          if (hive.owner) self.hives_owned.push(hive);
+        } // Get sensors from hives
+        // for (var k = 0; k < h.sensors.length; k++) 
+        // {
+        // 	var s = h.sensors[k];
+        // 	self.sensors.push(s);
+        // 	if (s.owner)
+        // 		self.sensors_owned.push(s);
+        // }
 
-        for (var k = 0; k < h.sensors.length; k++) {
-          var s = h.sensors[k];
-          self.sensors.push(s);
-        }
-      }
+      } // // Get sensors from locations
+      // if (typeof loc.sensors != 'undefined')
+      // {
+      // 	for (var k = 0; k < loc.sensors.length; k++) 
+      // 	{
+      // 		var s = loc.sensors[k];
+      // 		self.sensors.push(s);
+      // 		if (s.owner)
+      // 			self.sensors_owned.push(s);
+      // 	}
+      // }
 
-      if (typeof loc.sensors != 'undefined') {
-        for (var k = 0; k < loc.sensors.length; k++) {
-          var s = loc.sensors[k];
-          self.sensors.push(s);
-        }
-      }
     } //console.table(self.hives);
 
 
@@ -547,6 +590,7 @@ app.service('measurements', ['$http', '$rootScope', '$interval', 'api', 'setting
 
   this.reset = function () {
     this.sensors = [];
+    this.sensors_owned = [];
     this.lastSensorValues = {};
     this.lastSensorDate = null;
     this.sensorId = null;
@@ -584,6 +628,15 @@ app.service('measurements', ['$http', '$rootScope', '$interval', 'api', 'setting
     if (updated) $rootScope.$broadcast('weightSensorsUpdated');
   };
 
+  this.getSensorOwnedById = function (id) {
+    for (var i in this.sensors_owned) {
+      var sensor = this.sensors_owned[i];
+      if (sensor.id == id) return sensor;
+    }
+
+    return null;
+  };
+
   this.getSensorById = function (id) {
     for (var i in this.sensors) {
       var sensor = this.sensors[i];
@@ -591,6 +644,10 @@ app.service('measurements', ['$http', '$rootScope', '$interval', 'api', 'setting
     }
 
     return null;
+  };
+
+  this.getSensorOwnedByIndex = function (i) {
+    return typeof this.sensors_owned[i] != 'undefined' ? this.sensors_owned[i] : null;
   };
 
   this.getSensorByIndex = function (i) {
@@ -621,6 +678,13 @@ app.service('measurements', ['$http', '$rootScope', '$interval', 'api', 'setting
   this.handleSensors = function (e, result) {
     if (result.length > 0) {
       self.sensors = result;
+      self.sensors_owned = [];
+
+      for (var i = 0; i < result.length; i++) {
+        var s = result[i];
+        if (s.owner) self.sensors_owned.push(s);
+      }
+
       $rootScope.hasSensors = true;
       $rootScope.$broadcast('sensorsUpdated');
     } //console.log(self.sensors);
@@ -1993,10 +2057,10 @@ app.controller('HivesCtrl', function ($scope, $rootScope, $window, $location, $f
   $scope.initHives = function () {
     $scope.beeraces = settings.beeraces;
     $scope.hivetypes = settings.hivetypes;
-    $scope.locations = hives.locations;
+    $scope.locations = hives.locations_owned;
 
     if (hives.hives.length > 0) {
-      $scope.hives = hives.hives;
+      $scope.hives = hives.hives_owned;
     }
 
     $scope.showMore = $scope.hives.length > 1 ? true : false;
@@ -2040,7 +2104,7 @@ app.controller('HivesCtrl', function ($scope, $rootScope, $window, $location, $f
     if ($scope.orderName == name) {
       $scope.orderDirection = !$scope.orderDirection;
     } else {
-      if (name == 'attention') {
+      if (name == 'attention' || 'impression') {
         $scope.orderDirection = true;
       } else {
         $scope.orderDirection = false;
@@ -2210,8 +2274,8 @@ app.controller('HivesCtrl', function ($scope, $rootScope, $window, $location, $f
 
   $scope.hiveChanged = function () {
     if ($scope.redirect != null) {
-      $location.path($scope.redirect);
       $scope.redirect = null;
+      $scope.back();
     }
   };
 
@@ -2226,6 +2290,14 @@ app.controller('HivesCtrl', function ($scope, $rootScope, $window, $location, $f
     if ($rootScope.optionsDialog) {
       $rootScope.optionsDialog.close();
     } else {
+      for (var i = $rootScope.history.length - 1; i >= 0; i--) {
+        var path = $rootScope.history[i];
+        var go = false;
+        var hive_id = typeof $scope.hive != 'undefined' && $scope.hive != null ? $scope.hive.id : '';
+        if (path.indexOf('/locations') > -1 || path.indexOf('/hives') > -1 && path.indexOf('/hives/' + hive_id) == -1 || path.indexOf('/groups') > -1) go = true;
+        if (go) return $location.path(path);
+      }
+
       $rootScope.historyBack();
     }
   }; //close options dialog
@@ -3577,7 +3649,8 @@ app.controller('SensorsCtrl', function ($scope, $rootScope, $timeout, $interval,
   $scope.selectedSensorId = null;
   $scope.measurementData = null;
   $scope.success_msg = null;
-  $scope.error_msg = null; // handle loading of all the settings
+  $scope.error_msg = null;
+  $scope.sensorTimer = null; // handle loading of all the settings
 
   $scope.init = function () {
     if ($rootScope.pageSlug == 'sensors') {
@@ -3586,19 +3659,19 @@ app.controller('SensorsCtrl', function ($scope, $rootScope, $timeout, $interval,
   };
 
   $scope.selectSensorHive = function (sensorIndex, hiveId) {
-    var s = measurements.getSensorByIndex(sensorIndex);
+    var s = measurements.getSensorOwnedByIndex(sensorIndex);
 
     if (s != null) {
       s.selected_hive_id = {
         id: hiveId
       };
       s.hive_id = hiveId;
-      s.hive = hives.getHiveById(hiveId); //console.log('selectSensorHive', sensorIndex, hiveId, s.hive.name);
+      s.hive = hives.getHiveOwnedById(hiveId); //console.log('selectSensorHive', sensorIndex, hiveId, s.hive.name);
     }
   };
 
   $scope.selectSensorType = function (sensorIndex, type) {
-    var s = measurements.getSensorByIndex(sensorIndex);
+    var s = measurements.getSensorOwnedByIndex(sensorIndex);
 
     if (s != null) {
       s.selected_type = {
@@ -3627,7 +3700,7 @@ app.controller('SensorsCtrl', function ($scope, $rootScope, $timeout, $interval,
   };
 
   $scope.deleteSensor = function (sensorIndex) {
-    var s = measurements.getSensorByIndex(sensorIndex);
+    var s = measurements.getSensorOwnedByIndex(sensorIndex);
     if (typeof s.id == 'undefined') return $scope.removeSensorByIndex(sensorIndex);
     if (typeof s["delete"] == 'undefined') s["delete"] = true;else s["delete"] = s["delete"] ? false : true;
   };
@@ -3681,14 +3754,16 @@ app.controller('SensorsCtrl', function ($scope, $rootScope, $timeout, $interval,
 
   $scope.updateSensors = function () {
     $scope.sensortypes = settings.sensortypes;
-    $scope.sensors = measurements.sensors;
+    $scope.sensors = measurements.sensors_owned;
 
-    if ($scope.sensors.length == 0) {
-      measurements.loadRemoteSensors();
+    if ($scope.sensors.length == 0 && $scope.sensorTimer == null) {
+      $scope.sensorTimer = $timeout(function () {
+        measurements.loadRemoteSensors();
+      }, 500);
       return;
     }
 
-    $scope.hives = hives.hives;
+    $scope.hives = hives.hives_owned;
 
     for (var i = $scope.sensors.length - 1; i >= 0; i--) {
       var s = $scope.sensors[i];
@@ -3775,7 +3850,7 @@ app.controller('GroupsCtrl', function ($scope, $rootScope, $window, $location, $
 
         $scope.initGroups();
       } else {
-        if (groups.groups.length > 0) $scope.initGroups();else groups.loadRemoteGroups();
+        groups.loadRemoteGroups();
       } // show message
 
 

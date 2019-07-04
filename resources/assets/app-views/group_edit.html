@@ -77,15 +77,15 @@
 	      <h3 class="box-title">{{ lang.Members }} ({{ group.users.length }})</h3>
 
 	      <div class="box-tools pull-right">
-	        <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
-	        </button>
+			<button ng-click="addGroupUser();" class="btn btn-primary btn-xs" style="display: inline-block;"><i class="fa fa-plus"></i> {{mobile ? lang.add : lang.add}} {{lang.Member.toLowerCase()}}</button>
+	        <button type="button" class="btn btn-box-tool" data-widget="collapse" style="width: auto;"><i class="fa fa-minus"></i></button>
 	        <!--button type="button" class="btn btn-box-tool" data-widget="remove"><i class="fa fa-times"></i></button-->
 	      </div>
 	    </div>
 	    <!-- /.box-header -->
 	    <div class="box-body no-padding">
 			<div class="table-responsive">
-				<table class="table table-striped no-margin table-responsive" style="min-width: 700px;">
+				<table class="table table-striped no-margin" style="min-width: 700px;">
 		    		<thead>
 		    			<tr class="trh">
 			    			<th class="col-xs-1">#</th>
@@ -97,7 +97,6 @@
 			    		</tr>
 		    		</thead>
 		    		<tbody>
-		    			<tr><td colspan="6"><a ng-click="addGroupUser();" role="button" class="btn btn-primary pull-right"><i class="fa fa-plus"></i> {{mobile ? lang.add : lang.add}} {{lang.Member.toLowerCase()}}</a></td></tr>
 	    				<tr user="user" index="u" delete="deleteGroupUser" ng-class="{'delete':user.delete}" ng-repeat="(u, user) in group.users" beep-user-selector></tr>
 	    			</tbody>
     			</table>

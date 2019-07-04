@@ -2,6 +2,16 @@
     "/css/skin-base.css": "/css/skin-base.css?id=c6deffafd9b4738206c4",
     "/css/bootstrap.min.css.map": "/css/bootstrap.min.css.map?id=35b79ebe0b7805c1c845",
     "/js/hammer.min.js.map": "/js/hammer.min.js.map?id=c917f2c743974d32b16d",
+    "/js/languages/da.js": "/js/languages/da.js?id=535e753fe5ada2f73de8",
+    "/js/languages/de.js": "/js/languages/de.js?id=59655e9e04ebab0f107f",
+    "/js/languages/en.js": "/js/languages/en.js?id=b5b8000c5bfab599f3c9",
+    "/js/languages/fi.js": "/js/languages/fi.js?id=28ad6dd867ce8ba200ba",
+    "/js/languages/fr.js": "/js/languages/fr.js?id=4150004a85f758c068ae",
+    "/js/languages/it.js": "/js/languages/it.js?id=9287b7121d861864ff98",
+    "/js/languages/nl.js": "/js/languages/nl.js?id=06a05a570ed258946b62",
+    "/js/languages/po.js": "/js/languages/po.js?id=031b292c07211a15400c",
+    "/js/languages/ro.js": "/js/languages/ro.js?id=590d041b20a5cb9f7150",
+    "/js/languages/sv.js": "/js/languages/sv.js?id=b7e11ebbc055c7af1190",
     "/app/css/skin.css": "/app/css/skin.css?id=0b0b49d9b10a19e38fdf",
     "/css/skin-additions.css": "/css/skin-additions.css?id=1c42c592199b81272e34",
     "/css/32px.png": "/css/32px.png?id=2c5e54868b551d6d1ac6",
@@ -14,7 +24,7 @@
     "/app/js/angular.js": "/app/js/angular.js?id=0f146391dfc57e3e0506",
     "/app/js/angular-modules.js": "/app/js/angular-modules.js?id=ecb1bc64efcfb5dfa779",
     "/app/js/angular-helpers.js": "/app/js/angular-helpers.js?id=2098021eeae06581d4b9",
-    "/app/js/angular-index.js": "/app/js/angular-index.js?id=64bc1c6dad3464c25021",
+    "/app/js/angular-index.js": "/app/js/angular-index.js?id=6a10475ecd972ec358c9",
     "/app/js/angular-directives.js": "/app/js/angular-directives.js?id=fda06b9d120a66bf39ac",
-    "/app/js/angular-code.js": "/app/js/angular-code.js?id=3ac1d41987be76990eef"
+    "/app/js/angular-code.js": "/app/js/angular-code.js?id=bf14acc192cd277074dc"
 }

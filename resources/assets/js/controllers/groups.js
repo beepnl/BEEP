@@ -49,10 +49,7 @@ app.controller('GroupsCtrl', function($scope, $rootScope, $window, $location, $f
 			} 
 			else
 			{
-				if (groups.groups.length > 0)
-					$scope.initGroups();
-				else
-					groups.loadRemoteGroups();
+				groups.loadRemoteGroups();
 			}
 			// show message
 			if (typeof $routeParams.success != 'undefined')

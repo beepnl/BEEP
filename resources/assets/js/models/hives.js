@@ -14,13 +14,14 @@ app.service('hives', ['$http', '$rootScope', 'api', 'settings', function($http, 
 		this.refreshCount 	  = 0;
 		this.hives_inspected  = [];
 		this.hives 		  	  = [];
+		this.hives_owned	  = [];
 		this.locations 	  	  = [];
+		this.locations_owned  = [];
 		this.frame_width      = 11;
 		this.hive_width_start = 30;
 		this.frame_width_mobile 	 = 3;
 		this.hive_width_start_mobile = 10;
 		this.open_loc_ids 	  = [];
-		this.sensors 	  	  = [];
 	}
 
 	this.toggle_open_loc = function(id)
@@ -57,11 +58,33 @@ app.service('hives', ['$http', '$rootScope', 'api', 'settings', function($http, 
 		return null;
 	}
 
+	this.getHiveOwnedById = function(id)
+	{
+		for (var i = 0; i < self.hives_owned.length; i++) 
+		{
+			var hive = self.hives_owned[i];
+			if (hive.id == id)
+				return hive;
+		}
+		return null;
+	}
+
 	this.getHiveIndex = function(hiveId)
 	{
 		for (var i = 0; i < self.hives.length; i++) 
 		{
 			var hive = self.hives[i];
+			if (hive.id == hiveId)
+				return i;
+		}
+		return null;
+	}
+
+	this.getHiveOwnedIndex = function(hiveId)
+	{
+		for (var i = 0; i < self.hives_owned.length; i++) 
+		{
+			var hive = self.hives_owned[i];
 			if (hive.id == hiveId)
 				return i;
 		}
@@ -91,6 +114,17 @@ app.service('hives', ['$http', '$rootScope', 'api', 'settings', function($http, 
 		for (var i = 0; i < self.locations.length; i++) 
 		{
 			var loc = self.locations[i];
+			if (loc.id == id)
+				return loc;
+		}
+		return null;
+	}
+
+	this.getHiveLocationOwnedById = function(id)
+	{
+		for (var i = 0; i < self.locations_owned.length; i++) 
+		{
+			var loc = self.locations_owned[i];
 			if (loc.id == id)
 				return loc;
 		}
@@ -160,10 +194,14 @@ app.service('hives', ['$http', '$rootScope', 'api', 'settings', function($http, 
 		// get the result
 		var result = data.locations;
 		//console.log(result);
-		self.locations = result;
-		
+		self.locations 		 = result;
+		self.locations_owned = [];
+
 		if (self.locations.length > 0)
-			self.hives = [];
+		{
+			self.hives 		 = [];
+			self.hives_owned = [];
+		}
 
 		var loc_ids = [];
 		var open_loc_ids = api.getLocalStoreValue('open_loc_ids');
@@ -204,31 +242,45 @@ app.service('hives', ['$http', '$rootScope', 'api', 'settings', function($http, 
 			if (typeof loc.coordinate_lon != 'undefined')
 				loc.lon = parseFloat(loc.coordinate_lon);
 
+			if (loc.owner)
+				self.locations_owned.push(loc);
+
+			// Get hives from locations
 			for (var j = 0; j < loc.hives.length; j++) 
 			{
 				var h = loc.hives[j];
 				if (typeof h != 'undefined')
 				{
-					hive = self.addHiveCalculations(h)
+					var hive = self.addHiveCalculations(h)
 					self.hives.push(hive);
 					
 					if (hive.inspection_count > 0)
 						self.hives_inspected.push(hive);
+					
+					if (hive.owner)
+						self.hives_owned.push(hive);
 				}
-				for (var k = 0; k < h.sensors.length; k++) 
-				{
-					var s = h.sensors[k];
-					self.sensors.push(s);
-				}
+				// Get sensors from hives
+				// for (var k = 0; k < h.sensors.length; k++) 
+				// {
+				// 	var s = h.sensors[k];
+				// 	self.sensors.push(s);
+				// 	if (s.owner)
+				// 		self.sensors_owned.push(s);
+				// }
 			}
-			if (typeof loc.sensors != 'undefined')
-			{
-				for (var k = 0; k < loc.sensors.length; k++) 
-				{
-					var s = loc.sensors[k];
-					self.sensors.push(s);
-				}
-			}
+
+			// // Get sensors from locations
+			// if (typeof loc.sensors != 'undefined')
+			// {
+			// 	for (var k = 0; k < loc.sensors.length; k++) 
+			// 	{
+			// 		var s = loc.sensors[k];
+			// 		self.sensors.push(s);
+			// 		if (s.owner)
+			// 			self.sensors_owned.push(s);
+			// 	}
+			// }
 		}
 		
 		//console.table(self.hives);

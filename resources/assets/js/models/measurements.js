@@ -12,6 +12,7 @@ app.service('measurements', ['$http', '$rootScope', '$interval', 'api', 'setting
 	this.reset = function()
 	{
 		this.sensors 	  	  	= [];
+		this.sensors_owned 	  	= [];
 		this.lastSensorValues 	= {};
 		this.lastSensorDate     = null;
 	    this.sensorId 	  	  	= null;
@@ -45,6 +46,17 @@ app.service('measurements', ['$http', '$rootScope', '$interval', 'api', 'setting
 			$rootScope.$broadcast('weightSensorsUpdated');
 	}
 
+	this.getSensorOwnedById = function(id)
+	{
+		for(var i in this.sensors_owned)
+		{
+			var sensor = this.sensors_owned[i]
+			if (sensor.id == id)
+				return sensor;
+		}
+		return null;
+	}
+
 	this.getSensorById = function(id)
 	{
 		for(var i in this.sensors)
@@ -54,6 +66,11 @@ app.service('measurements', ['$http', '$rootScope', '$interval', 'api', 'setting
 				return sensor;
 		}
 		return null;
+	}
+
+	this.getSensorOwnedByIndex = function(i)
+	{
+		return typeof this.sensors_owned[i] != 'undefined' ? this.sensors_owned[i] : null;
 	}
 
 	this.getSensorByIndex = function(i)
@@ -98,6 +115,15 @@ app.service('measurements', ['$http', '$rootScope', '$interval', 'api', 'setting
 		if (result.length > 0)
 		{
 			self.sensors = result;
+			self.sensors_owned = [];
+
+			for (var i=0; i < result.length; i++) 
+			{
+				var s = result[i];
+				if (s.owner)
+					self.sensors_owned.push(s);
+			}
+
 			$rootScope.hasSensors = true;
 			$rootScope.$broadcast('sensorsUpdated');
 		}

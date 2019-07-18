@@ -52,6 +52,18 @@ b. Then run it: ```./run_actions.sh```
 
 a. Make sure your server has 2 different virtual hosts for the API and the APP
 
+NB: On AMAzon AWS (Bitnami LAMP_7.1): 
+a. Make sure your Bitnami server includes your apps/apache_vhost.conf in 
+```
+sudo nano /opt/bitnami/apache2/conf/bitnami/bitnami-apps-vhosts.conf
+```
+
+Contains one or more Includes:
+```
+# Bitnami applications installed in a Virtual Host
+Include "/opt/bitnami/apps/apache/portal.conf"
+```
+
 
 API (replace 'beep.nl' with your own server/test domain)
 ```

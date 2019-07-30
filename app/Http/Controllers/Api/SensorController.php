@@ -362,15 +362,6 @@ class SensorController extends Controller
             'w_br_lb', // 18  
         ];
 
-        if (strlen($payload) == 8 && substr($payload, 6, 2) // Bat payload
-        {
-            $beep_sensors = [
-                'bv'  , // 0,1
-                'son'  , // 2,3
-                'pir' // 4,5
-            ];
-        }
-
         $minLength = min(strlen($payload)/2, count($beep_sensors));
 
         for ($i=0; $i < $minLength; $i++) 

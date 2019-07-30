@@ -1,0 +1,3 @@
+# Crontab for nightly backup
+
+0 0 * * * /home/bitnami/apps/BEEP/backup.sh >> /home/bitnami/backups/cron.log 2>&1 

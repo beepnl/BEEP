@@ -26,7 +26,7 @@ if [ -d "$MDIR" ]
 then
 	sudo rm -rf $MDIR
 fi
-sudo mkdir $MDIR
+mkdir $MDIR
 sudo cp backups/mysql/bee_base.sql.gz $MDIR
 
 echo "Backing up Influx database"
@@ -36,7 +36,7 @@ if [ -d "$IDIR" ]
 then
 	sudo rm -rf $IDIR
 fi
-sudo mkdir $IDIR
+mkdir $IDIR
 influxd backup -database bee_data -retention autogen $IDIR
 
 sudo rm backups/influx/*.00

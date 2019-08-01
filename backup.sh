@@ -21,7 +21,7 @@ fi
 echo "Backing up MySQL database"
 MDIR="backups/mysql/$DATE"
 MYSQL_PASS=$(grep -oP '^DB_PASSWORD=\K.*' apps/BEEP/.env)
-mysqldump -u beep -p"$MYSQL_PASS" bee_base | gzip > backups/mysql/bee_base.sql.gz
+ /opt/bitnami/mysql/bin/mysqldump -u beep -p"$MYSQL_PASS" bee_base | gzip > backups/mysql/bee_base.sql.gz
 if [ -d "$MDIR" ]
 then
 	sudo rm -rf $MDIR

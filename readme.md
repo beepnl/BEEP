@@ -61,7 +61,7 @@ sudo nano /opt/bitnami/apache2/conf/bitnami/bitnami-apps-vhosts.conf
 Contains one or more Includes:
 ```
 # Bitnami applications installed in a Virtual Host
-Include "/opt/bitnami/apps/apache/portal.conf"
+Include "/opt/bitnami/apps/apache/portal-vhost.conf"
 ```
 
 

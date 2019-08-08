@@ -1,45 +1,52 @@
- #!/bin/sh 
+#!/bin/sh
 
 DATE=$(date +"%Y-%m-%d")
 
-cd ~/
-if [ ! -d "backups" ]
+if [ ! -d "/home/bitnami/backups" ]
 then
-	sudo mkdir backups
+	sudo mkdir /home/bitnami/backups
 fi
 
-if [ ! -d "backups/mysql" ]
+if [ ! -d "/home/bitnami/backups/mysql" ]
 then
-	sudo mkdir backups/mysql
+	sudo mkdir /home/bitnami/backups/mysql
 fi
 
-if [ ! -d "backups/influx" ]
+if [ ! -d "/home/bitnami/backups/influx" ]
 then
-	sudo mkdir backups/influx
+	sudo mkdir /home/bitnami/backups/influx
 fi
 
 echo "Backing up MySQL database"
-MDIR="backups/mysql/$DATE"
-MYSQL_PASS=$(grep -oP '^DB_PASSWORD=\K.*' apps/BEEP/.env)
- /opt/bitnami/mysql/bin/mysqldump -u beep -p"$MYSQL_PASS" bee_base | gzip > backups/mysql/bee_base.sql.gz
+MDIR="/home/bitnami/backups/mysql/$DATE"
+MYSQL_PASS=$(/bin/grep -oP '^DB_PASSWORD=\K.*' /home/bitnami/apps/BEEP/.env)
+/opt/bitnami/mysql/bin/mysqldump -u beep -p"$MYSQL_PASS" bee_base | /bin/gzip > /home/bitnami/backups/mysql/bee_base.sql.gz
+
 if [ -d "$MDIR" ]
 then
+	echo "Removing existing MySQL backup dir $MDIR"
 	sudo rm -rf $MDIR
 fi
-mkdir $MDIR
-sudo cp backups/mysql/bee_base.sql.gz $MDIR
+sudo mkdir $MDIR
+echo "Copying MySQL backup to dir $MDIR"
+sudo cp /home/bitnami/backups/mysql/bee_base.sql.gz $MDIR
 
 echo "Backing up Influx database"
-IDIR="backups/influx/$DATE"
+IDIR="/home/bitnami/backups/influx/$DATE"
 
 if [ -d "$IDIR" ]
 then
+	echo "Removing existing Influx backup dir $IDIR"
 	sudo rm -rf $IDIR
 fi
-mkdir $IDIR
+sudo mkdir $IDIR
 influxd backup -database bee_data -retention autogen $IDIR
 
-sudo rm backups/influx/*.00
-sudo cp $IDIR/*.00 backups/influx/
+sudo rm /home/bitnami/backups/influx/*.00
+echo "Copying Influx backup to dir $IDIR"
+sudo cp $IDIR/*.00 /home/bitnami/backups/influx/
+
+echo "Finished backup for $DATE"
+echo ""
 
 exit 0

@@ -61,86 +61,92 @@ class DashboardController extends Controller
         $data['checklists_edited'] = Checklist::whereRaw('updated_at - created_at > 60')->count();
         $data['sensors']    = Sensor::count();
 
-        $data['checklist_categories_max'] = DB::table('checklist_category')
-                                            ->selectRaw('checklist_id, COUNT(*) as count')
-                                            ->groupBy('checklist_id')
-                                            ->having('count', '>', 0)
-                                            ->orderBy('count', 'desc')
-                                            ->limit(5)
-                                            ->get()
-                                            ->toArray();
-
-        // $data['checklist_categories_min'] = DB::table('checklist_category')
-        //                                     ->selectRaw('checklist_id, COUNT(*) as count')
-        //                                     ->groupBy('checklist_id')
-        //                                     ->having('count', '>', 0)
-        //                                     ->orderBy('count', 'asc')
-        //                                     ->limit(5)
-        //                                     ->get()
-        //                                     ->toArray();
-
-        
-        //die(print_r($data['checklist_categories_max']));
-
-        // Only take into account the amount of users with > 10 inspections
-        $inspectionUserCount  = DB::table('inspection_user')
-                                ->selectRaw('user_id, COUNT(*) as count')
-                                ->groupBy('user_id')
-                                ->having('count', '>', 10)
-                                ->get()
-                                ->toArray();
-
-        $data['inspection_valid_user_count'] = count($inspectionUserCount);
-
-        $validInspections = [];
-        foreach ($inspectionUserCount as $key => $val) 
+        $checklist_details = false;
+        if ($request->has('checklist_details') && $request->input('checklist_details') == '1')
         {
-            $user_id = $val->user_id;
-            $inspections = User::find($user_id)->inspections()->pluck('id')->toArray();
-            $validInspections = array_merge($validInspections, $inspections);
-        }
-        $userInspectionsIds = array_unique($validInspections);
-        $validInspections   = Inspection::whereIn('id', $userInspectionsIds)->get();
+            $checklist_details = true;
+            $data['checklist_categories_max'] = DB::table('checklist_category')
+                                                ->selectRaw('checklist_id, COUNT(*) as count')
+                                                ->groupBy('checklist_id')
+                                                ->having('count', '>', 0)
+                                                ->orderBy('count', 'desc')
+                                                ->limit(5)
+                                                ->get()
+                                                ->toArray();
 
-        //die(print_r($validInspections->where('impression', '>', -1)->toArray()));
-        $countImp = $validInspections->where('impression', '>', -1)->count();
-        $countAtt = $validInspections->where('attention', '>', -1)->count();
-        $countNts = $validInspections->where('notes', '!=', null)->where('notes', '!=', '')->count();
-        $countRmd = $validInspections->where('reminder_date', '!=', null)->count();
-        $countRmn = $validInspections->where('reminder', '!=', null)->where('reminder', '!=', '')->count();
+            // $data['checklist_categories_min'] = DB::table('checklist_category')
+            //                                     ->selectRaw('checklist_id, COUNT(*) as count')
+            //                                     ->groupBy('checklist_id')
+            //                                     ->having('count', '>', 0)
+            //                                     ->orderBy('count', 'asc')
+            //                                     ->limit(5)
+            //                                     ->get()
+            //                                     ->toArray();
 
-        $data['ins_vars'] = [];
-        $data['ins_vars'][__('export.impression')]    = ['count'=>$countImp, 'glyphicon'=>'star'];
-        $data['ins_vars'][__('export.attention')]     = ['count'=>$countAtt, 'glyphicon'=>'remove-sign'];
-        $data['ins_vars'][__('export.notes')]         = ['count'=>$countNts, 'glyphicon'=>'align-left'];
-        $data['ins_vars'][__('export.reminder_date')] = ['count'=>$countRmd, 'glyphicon'=>'calendar'];
-        $data['ins_vars'][__('export.reminder')]      = ['count'=>$countRmn, 'glyphicon'=>'align-left'];
+            
+            //die(print_r($data['checklist_categories_max']));
+
+            // Only take into account the amount of users with > 10 inspections
+            $inspectionUserCount  = DB::table('inspection_user')
+                                    ->selectRaw('user_id, COUNT(*) as count')
+                                    ->groupBy('user_id')
+                                    ->having('count', '>', 10)
+                                    ->get()
+                                    ->toArray();
+
+            $data['inspection_valid_user_count'] = count($inspectionUserCount);
+
+            $validInspections = [];
+            foreach ($inspectionUserCount as $key => $val) 
+            {
+                $user_id = $val->user_id;
+                $inspections = User::find($user_id)->inspections()->pluck('id')->toArray();
+                $validInspections = array_merge($validInspections, $inspections);
+            }
+            $userInspectionsIds = array_unique($validInspections);
+            $validInspections   = Inspection::whereIn('id', $userInspectionsIds)->get();
+
+            //die(print_r($validInspections->where('impression', '>', -1)->toArray()));
+            $countImp = $validInspections->where('impression', '>', -1)->count();
+            $countAtt = $validInspections->where('attention', '>', -1)->count();
+            $countNts = $validInspections->where('notes', '!=', null)->where('notes', '!=', '')->count();
+            $countRmd = $validInspections->where('reminder_date', '!=', null)->count();
+            $countRmn = $validInspections->where('reminder', '!=', null)->where('reminder', '!=', '')->count();
+
+            $data['ins_vars'] = [];
+            $data['ins_vars'][__('export.impression')]    = ['count'=>$countImp, 'glyphicon'=>'star'];
+            $data['ins_vars'][__('export.attention')]     = ['count'=>$countAtt, 'glyphicon'=>'remove-sign'];
+            $data['ins_vars'][__('export.notes')]         = ['count'=>$countNts, 'glyphicon'=>'align-left'];
+            $data['ins_vars'][__('export.reminder_date')] = ['count'=>$countRmd, 'glyphicon'=>'calendar'];
+            $data['ins_vars'][__('export.reminder')]      = ['count'=>$countRmn, 'glyphicon'=>'align-left'];
 
 
-        $inspection_terms = DB::table('inspection_items')
-                                ->selectRaw('category_id, COUNT(*) as count')
-                                ->whereIn('inspection_id', $userInspectionsIds)
-                                ->groupBy('category_id')
-                                ->having('count', '>', 10)
-                                ->orderBy('count', 'desc')
-                                ->limit(100)
-                                ->get()
-                                ->toArray();
+            $inspection_terms = DB::table('inspection_items')
+                                    ->selectRaw('category_id, COUNT(*) as count')
+                                    ->whereIn('inspection_id', $userInspectionsIds)
+                                    ->groupBy('category_id')
+                                    ->having('count', '>', 10)
+                                    ->orderBy('count', 'desc')
+                                    ->limit(100)
+                                    ->get()
+                                    ->toArray();
 
-        $transscription                 = [];
-        $transscription['smileys_3']    = __('taxonomy.smileys');
-        $transscription['boolean']      = __('taxonomy.boolean');
-        $transscription['boolean_yes_red'] = __('taxonomy.boolean');
-        $transscription['score_quality']= __('taxonomy.quality');
-        $transscription['score_amount'] = __('taxonomy.amounts');
+            $transscription                 = [];
+            $transscription['smileys_3']    = __('taxonomy.smileys');
+            $transscription['boolean']      = __('taxonomy.boolean');
+            $transscription['boolean_yes_red'] = __('taxonomy.boolean');
+            $transscription['score_quality']= __('taxonomy.quality');
+            $transscription['score_amount'] = __('taxonomy.amounts');
 
-        $data['terms'] = [];
-        foreach ($inspection_terms as $value) 
-        {
-            $cat  = Category::find($value->category_id);
-            $type = $cat->inputTypeType();
-            $term = $cat->ancName().$cat->transName();
-            $data['terms'][$term] = ['count'=>$value->count, 'glyphicon'=>$cat->inputTypeIcon(), 'type'=>$type];
+            $data['terms'] = [];
+            foreach ($inspection_terms as $value) 
+            {
+                $cat  = Category::find($value->category_id);
+                $type = $cat->inputTypeType();
+                $term = $cat->ancName().$cat->transName();
+                $data['terms'][$term] = ['count'=>$value->count, 'glyphicon'=>$cat->inputTypeIcon(), 'type'=>$type];
+            }
+
         }
 
         //die(print_r($inspection_terms));
@@ -183,6 +189,6 @@ class DashboardController extends Controller
         $data['measurements']= $sensor_total;
         $data['measurement_details']= $sensor_count;
             
-        return view('dashboard.index', compact('data', 'connection'));
+        return view('dashboard.index', compact('data', 'connection', 'checklist_details'));
     }
 }

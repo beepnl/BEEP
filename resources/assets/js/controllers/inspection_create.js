@@ -278,7 +278,8 @@ app.controller('InspectionCreateCtrl', function($scope, $rootScope, $window, $lo
 		}
 		else
 		{
-			for (var i = $rootScope.history.length - 1; i >= 0; i--) // make sure that back goes to the previous main screen
+			// make sure that back goes to the last main screen in the history
+			for (var i = $rootScope.history.length - 1; i >= 0; i--) 
 			{
 				var path = $rootScope.history[i];
 				var go   = false;

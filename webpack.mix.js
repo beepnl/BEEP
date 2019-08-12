@@ -123,13 +123,19 @@ mix.babel([
     'resources/assets/js/lang/en.js',
     'resources/assets/js/lang/de.js',
     'resources/assets/js/lang/fr.js',
+    'resources/assets/js/lang/ro.js',
+    // 'resources/assets/js/lang/pt.js',
     'node_modules/moment/locale/nl.js',
     'node_modules/moment/locale/de.js',
     'node_modules/moment/locale/fr.js',
+    'node_modules/moment/locale/ro.js',
+    // 'node_modules/moment/locale/pt.js',
     'node_modules/datetimepicker/src/i18n/DateTimePicker-i18n.js',
     'node_modules/datetimepicker/src/i18n/DateTimePicker-i18n-nl.js',
     'node_modules/datetimepicker/src/i18n/DateTimePicker-i18n-de.js',
     'node_modules/datetimepicker/src/i18n/DateTimePicker-i18n-fr.js',
+    'node_modules/datetimepicker/src/i18n/DateTimePicker-i18n-ro.js',
+    // 'node_modules/datetimepicker/src/i18n/DateTimePicker-i18n-pt.js',
      ], 'public/app/js/angular-index.js').version();
 
 mix.babel([   

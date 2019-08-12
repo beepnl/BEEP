@@ -3,7 +3,7 @@
  * Author: Pim van Gennip (pim@iconize.nl)
  *
  */
- LANG['po'] = 
+ LANG['pt'] = 
  {
     /* Date picker */
     monthsFull              : [ 'January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December' ],

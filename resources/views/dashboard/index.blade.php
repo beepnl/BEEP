@@ -298,25 +298,6 @@
 			</div>
 		</div>
 		
-		@else
-
-			<div class="col-lg-8 col-xs-12">
-			<!-- small box -->
-				<div class="small-box bg-red">
-					<div class="inner">
-						<h3>Get inspection variable usage</h3>
-					</div>
-					<div class="icon">
-						<i class="fa fa-check-circle"></i>
-					</div>
-					<a href="/dashboard?checklist_details=1" class="small-box-footer">
-		               Load data <i class="fa fa-arrow-circle-right"></i>
-		            </a>
-				</div>
-			</div>
-
-		@endif
-
 		<div class="col-lg-4 col-xs-6">
 		<!-- small box -->
 			<div class="small-box bg-orange">
@@ -340,6 +321,27 @@
 			</div>
 		</div>
 
+
+		@else
+
+			<div class="col-lg-12 col-xs-12">
+			<!-- small box -->
+				<div class="small-box bg-red">
+					<div class="inner">
+						<h3>Get inspection variable usage and sensor measurements</h3>
+					</div>
+					<div class="icon">
+						<i class="fa fa-check-circle"></i>
+					</div>
+					<a href="/dashboard?checklist_details=1" class="small-box-footer">
+		               Load data <i class="fa fa-arrow-circle-right"></i>
+		            </a>
+				</div>
+			</div>
+
+
+
+		@endif
 
 	</div>
 

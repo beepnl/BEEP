@@ -3467,9 +3467,11 @@ app.controller('MeasurementsCtrl', function ($scope, $rootScope, $timeout, $inte
       } // set timer
 
 
-      $scope.loadLastSensorValuesTimer = $interval(function () {
-        measurements.loadLastSensorValues();
-      }, 20000);
+      if ($scope.periodIndex == 0) {
+        $scope.loadLastSensorValuesTimer = $interval(function () {
+          measurements.loadLastSensorValues();
+        }, 20000);
+      }
     }
   };
 

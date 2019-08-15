@@ -29,7 +29,7 @@ app.controller('MeasurementsCtrl', function($scope, $rootScope, $timeout, $inter
         "millisecond": 'HH:mm:ss',
     };
     $scope.showChart    = false;
-    $scope.showActuators= true;
+    // $scope.showActuators= true;
     $scope.chartTitle   = null;
     $scope.fontSize     = 15;
     $scope.fontSizeMob  = 10;
@@ -227,10 +227,56 @@ app.controller('MeasurementsCtrl', function($scope, $rootScope, $timeout, $inter
             if ($routeParams.sensorId != undefined)
                 measurements.sensorId = $routeParams.sensorId;
 
+            $scope.setDateLanguage();
             $scope.updateSensors();
             $scope.loadData();
         }
     };
+
+    $scope.dateFormat      = 'yyyy-MM-dd';
+    $scope.selectedDate    = '';
+    $scope.setDateLanguage = function()
+    {
+        $("#dtBox").DateTimePicker(
+        {
+            dateFormat      : $scope.dateFormat, // ISO formatted date
+            language        : $rootScope.locale,
+            mode            : 'date',
+            formatHumanDate : function(dateObj, mode, format)
+                                {
+                                    var output = '';
+                                    output    += dateObj.day + ' ';
+                                    output    += parseInt(dateObj.dd) + ' ';
+                                    output    += dateObj.month + ' ';
+                                    output    += dateObj.yyyy;
+                                    return output;
+                                },
+            afterShow       : function(inputElement)
+                                {
+                                    $("#dtBox .dtpicker-compValue").attr('type', 'tel'); // set mobile input keyboard to numeric
+                                }
+        });
+    };
+
+    $scope.selectDate = function(selectedDate)
+    {
+        var p = $scope.activePeriod;
+        var d = p + 's';
+        
+        var selectedMoment = moment(selectedDate);
+        var currentMoment  = moment();
+        var periodeDiff    = currentMoment.diff(selectedMoment, d);
+
+        if (!isNaN(periodeDiff))
+        {
+            $scope.periodIndex = periodeDiff;
+            $scope.loadData();
+        }
+        else
+        {
+            console.log('Error selectDate: '+selectedDate);
+        }
+    }
 
     $scope.handleLastSensorValues = function()
     {
@@ -300,7 +346,7 @@ app.controller('MeasurementsCtrl', function($scope, $rootScope, $timeout, $inter
         var timeGroup = (period ==  'hour') ? null : period; // get all measurements
         //console.log('loadData', period, $scope.periodIndex);
         
-        $scope.showActuators = (period != 'year');
+        // $scope.showActuators = (period != 'year');
         $scope.setDataTitle();
 
         console.log('loadData id',id);
@@ -341,6 +387,7 @@ app.controller('MeasurementsCtrl', function($scope, $rootScope, $timeout, $inter
         var pStaTime = moment().subtract(i, d).startOf(p);
         var pEndTime = moment().subtract(i, d).endOf(ep);
         
+        //console.log('selectedDate = '+$scope.selectedDate);
         var s = pStaTime.format(startTimeFormat);
         var e = pEndTime.format(endTimeFormat);  
         $scope.chartTitle = s + '' + ((endTimeFormat != null) ? ' - ' + e : '');
@@ -348,6 +395,7 @@ app.controller('MeasurementsCtrl', function($scope, $rootScope, $timeout, $inter
         $scope.startTime = pStaTime; //.format($scope.parseFormat);
         $scope.endTime   = pEndTime; //.format($scope.parseFormat);
 
+        $scope.selectedDate = pStaTime.format($scope.dateFormat.toUpperCase()); // for moment formatting has to be uppercase
         //console.log(i, startTimeFormat, endTimeFormat, s, e, $scope.startTime.format($scope.timeFormat), $scope.endTime.format($scope.timeFormat));
     }
 

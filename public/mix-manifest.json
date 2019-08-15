@@ -1,5 +1,5 @@
 {
-    "/css/skin-base.css": "/css/skin-base.css?id=c6deffafd9b4738206c4",
+    "/css/skin-base.css": "/css/skin-base.css?id=abfa9a98d37c82051c32",
     "/css/bootstrap.min.css.map": "/css/bootstrap.min.css.map?id=35b79ebe0b7805c1c845",
     "/js/hammer.min.js.map": "/js/hammer.min.js.map?id=c917f2c743974d32b16d",
     "/js/languages/da.js": "/js/languages/da.js?id=535e753fe5ada2f73de8",
@@ -12,7 +12,7 @@
     "/js/languages/pt.js": "/js/languages/pt.js?id=6648104ecd10655318f1",
     "/js/languages/ro.js": "/js/languages/ro.js?id=0d8d433f93a0c9c02ef3",
     "/js/languages/sv.js": "/js/languages/sv.js?id=b7e11ebbc055c7af1190",
-    "/app/css/skin.css": "/app/css/skin.css?id=0b0b49d9b10a19e38fdf",
+    "/app/css/skin.css": "/app/css/skin.css?id=a372928506e40e15fa80",
     "/css/skin-additions.css": "/css/skin-additions.css?id=1c42c592199b81272e34",
     "/css/32px.png": "/css/32px.png?id=2c5e54868b551d6d1ac6",
     "/css/40px.png": "/css/40px.png?id=2842a9b1f1e2f5a0f948",
@@ -26,5 +26,5 @@
     "/app/js/angular-helpers.js": "/app/js/angular-helpers.js?id=2098021eeae06581d4b9",
     "/app/js/angular-index.js": "/app/js/angular-index.js?id=b2e07357322fb3060778",
     "/app/js/angular-directives.js": "/app/js/angular-directives.js?id=fda06b9d120a66bf39ac",
-    "/app/js/angular-code.js": "/app/js/angular-code.js?id=24f363ad6569aff77a4f"
+    "/app/js/angular-code.js": "/app/js/angular-code.js?id=e17d90d5b50cd0152474"
 }

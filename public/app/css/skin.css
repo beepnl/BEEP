@@ -196,6 +196,21 @@
 			-webkit-justify-content:center;
 			align-items: center;
 		}
+
+			.measurement-form .tab-bar-wrapper .date-nav .hiddenDateSelector {
+				position: absolute; 
+				z-index: 0; 
+				color: #FFF; 
+				width: 170px;
+				margin: 0;
+				opacity: 0;
+				overflow: hidden;
+			}
+
+				.measurement-form .tab-bar-wrapper.mobile .date-nav .hiddenDateSelector {
+					width: 100px;
+				}
+
 			.measurement-form .tab-bar-wrapper .date-nav h3{
 				margin: 0;
 			}

@@ -89,7 +89,14 @@
 								
 								<div class="date-nav">
 									<a class="icn prev" ng-click="setPeriodIndex(1)"></a>
-									<h3>{{chartTitle}}</h3>
+									<div>
+										<div class="hiddenDateSelector">
+											  <input data-field="date" type="text" readonly="true" ng-model="selectedDate" ng-change="selectDate(selectedDate)">
+										</div>
+										<h3>
+											{{chartTitle}}
+										</h3>
+									</div>
 									<a class="icn next" ng-click="setPeriodIndex(-1)" ng-class="{'disabled':periodIndex == 0}" ng-disabled="periodIndex == 0"></a>
 									<!-- <a class="icn next hide-when-small" ng-click="setPeriodIndex(-1)" ng-class="{'disabled':periodIndex == 0}" ng-disabled="periodIndex == 0"></a> -->
 								</div>
@@ -168,3 +175,5 @@
 	</div>
 
 </section>
+
+<div id="dtBox"></div>

@@ -16,9 +16,9 @@
 
         @slot('body')
                
-            @foreach(App\Language::all() as $lang )
+            @foreach(App\Language::all()->sortBy('name_english') as $lang )
 
-                <div style="margin: 20px;"><a href="{{ route('translations.index') }}/{{$lang->id}}"><img src="/img/{{ $lang->icon }}" style="width: 40px; display: inline-block; margin-right: 20px;"> {{ $lang->name }}</a></div>
+                <div style="margin: 20px;"><a href="{{ route('translations.index') }}/{{$lang->id}}"><img src="/img/{{ $lang->icon }}" style="width: 40px; display: inline-block; margin-right: 20px;"> {{ $lang->name_english }} ({{ $lang->name }})</a></div>
 
             @endforeach
 

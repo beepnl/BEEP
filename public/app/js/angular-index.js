@@ -1,4 +1,4 @@
-var _LANG$nl, _LANG$en, _LANG$de, _LANG$fr, _LANG$ro;
+var _LANG$nl, _LANG$en, _LANG$de, _LANG$fr, _LANG$ro, _LANG$pt;
 
 function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
@@ -31,7 +31,7 @@ app.run(function ($rootScope, $location, $window, $route, $routeParams, amMoment
     "de": "Deutsch",
     "en": "English",
     "fr": "Français",
-    // "pt":"português",
+    "pt": "português",
     "ro": "română"
   };
   var setLang = api.getLocalStoreValue('lang');
@@ -1549,7 +1549,201 @@ LANG['ro'] = (_LANG$ro = {
 
   /* settings */
   General: 'General'
-}, _defineProperty(_LANG$ro, "Location", 'Locație'), _defineProperty(_LANG$ro, "Country", 'Țară'), _defineProperty(_LANG$ro, "City", 'Oraș'), _defineProperty(_LANG$ro, "Address", 'Adresă'), _defineProperty(_LANG$ro, "Lattitude", 'Latitudine'), _defineProperty(_LANG$ro, "Longitude", 'Longitudine'), _defineProperty(_LANG$ro, "Street", 'Stradă'), _defineProperty(_LANG$ro, "Number", 'Nr.'), _defineProperty(_LANG$ro, "Postal_code", 'Cod poștal'), _defineProperty(_LANG$ro, "Description", 'Descriere'), _defineProperty(_LANG$ro, "Hive_settings", 'Setările stupului'), _defineProperty(_LANG$ro, "Hive_amount", 'Numărul de stupi în această locație'), _defineProperty(_LANG$ro, "Hive_prefix", 'Prefixul stupului (înainte de număr)'), _defineProperty(_LANG$ro, "Hive_number_offset", 'Numărul de pornire al stupilor'), _defineProperty(_LANG$ro, "Hive_type", 'Tipul de stup'), _defineProperty(_LANG$ro, "Hive_layers", 'Straturi stups'), _defineProperty(_LANG$ro, "Hive_frames", 'Rame pe strat'), _defineProperty(_LANG$ro, "Hive_color", 'Culoarea stupului'), _defineProperty(_LANG$ro, "Queen", 'Matcă'), _defineProperty(_LANG$ro, "queen", 'Matcă'), _defineProperty(_LANG$ro, "settings_title", 'Setări'), _defineProperty(_LANG$ro, "settings_description", 'Setări ale senzorilor'), _defineProperty(_LANG$ro, "settings", 'Setări'), _defineProperty(_LANG$ro, "sensors_title", 'Setările senzorului'), _defineProperty(_LANG$ro, "sensors_description", 'Statusul senzorilor și înregisrtarea'), _defineProperty(_LANG$ro, "sensors", 'Senzori'), _defineProperty(_LANG$ro, "sensor", 'Senzor'), _defineProperty(_LANG$ro, "Select", 'Selectați'), _defineProperty(_LANG$ro, "Not_selected", 'Nu a fost selectat'), _defineProperty(_LANG$ro, "Poor", 'Slab'), _defineProperty(_LANG$ro, "Fair", 'Potrivit'), _defineProperty(_LANG$ro, "Average", 'Mediu'), _defineProperty(_LANG$ro, "Good", 'Bine'), _defineProperty(_LANG$ro, "Excellent", 'Excelent'), _defineProperty(_LANG$ro, "Low", 'Scăzut'), _defineProperty(_LANG$ro, "Medium", 'Mediu'), _defineProperty(_LANG$ro, "High", 'Ridicat'), _defineProperty(_LANG$ro, "Extreme", 'Extrem'), _defineProperty(_LANG$ro, "select_color", 'Selectați o culoare'), _defineProperty(_LANG$ro, "advanced", 'Avansat'), _defineProperty(_LANG$ro, "Select_sensor", 'Selectați un senzor'), _defineProperty(_LANG$ro, "temperature", 'Temperatură'), _defineProperty(_LANG$ro, "t", 'Temperatură'), _defineProperty(_LANG$ro, "light", 'Lumina (soarelui)'), _defineProperty(_LANG$ro, "l", 'Lumina (soarelui)'), _defineProperty(_LANG$ro, "water", 'Apă'), _defineProperty(_LANG$ro, "w", 'Apă'), _defineProperty(_LANG$ro, "humidity", 'Umiditate'), _defineProperty(_LANG$ro, "h", 'Umiditate'), _defineProperty(_LANG$ro, "air_pressure", 'Presiune atmosferică'), _defineProperty(_LANG$ro, "p", 'Presiune atmosferică'), _defineProperty(_LANG$ro, "weight", 'Greutate'), _defineProperty(_LANG$ro, "w_v", 'Senzorul de greutate, valoarea tuturor senzorilor'), _defineProperty(_LANG$ro, "w_fl", 'Senzorul de greutate, valorare față stânga'), _defineProperty(_LANG$ro, "w_fr", 'Senzorul de greutate, valoare față dreapta'), _defineProperty(_LANG$ro, "w_bl", 'Senzorul de greutate, valoare spate stânga'), _defineProperty(_LANG$ro, "w_br", 'Senzorul de greutate, valoare spate dreapta'), _defineProperty(_LANG$ro, "weight_kg", 'Greutate'), _defineProperty(_LANG$ro, "weight_kg_corrected", 'Greutate (corecție)'), _defineProperty(_LANG$ro, "weight_combined_kg", 'Greutate, combinată '), _defineProperty(_LANG$ro, "bat_volt", 'Baterie'), _defineProperty(_LANG$ro, "bv", 'Baterie'), _defineProperty(_LANG$ro, "sound_fanning_4days", 'Ventilație albine 4z'), _defineProperty(_LANG$ro, "s_fan_4", 'Ventilație albine 4z'), _defineProperty(_LANG$ro, "sound_fanning_6days", 'Ventilație albine 6z'), _defineProperty(_LANG$ro, "s_fan_6", 'Ventilație albine 6z'), _defineProperty(_LANG$ro, "sound_fanning_9days", 'Ventilație albine 9z'), _defineProperty(_LANG$ro, "s_fan_9", 'Ventilație albine 9z'), _defineProperty(_LANG$ro, "sound_flying_adult", 'Albine care zboară'), _defineProperty(_LANG$ro, "s_fly_a", 'Albine care zboară'), _defineProperty(_LANG$ro, "sound_total", 'Sunet total'), _defineProperty(_LANG$ro, "s_tot", 'Sunet total'), _defineProperty(_LANG$ro, "bee_count_in", 'Număr albine intrate'), _defineProperty(_LANG$ro, "bc_i", 'Număr albine intrate'), _defineProperty(_LANG$ro, "bee_count_out", 'Număr albine ieșite'), _defineProperty(_LANG$ro, "bc_o", 'Număr albine ieșite'), _defineProperty(_LANG$ro, "t_i", 'Temp. interior'), _defineProperty(_LANG$ro, "rssi", 'Puterea semnalului'), _defineProperty(_LANG$ro, "snr", 'Raport semnal/zgomot'), _defineProperty(_LANG$ro, "lat", 'Latitudine'), _defineProperty(_LANG$ro, "lon", 'Longitudine'), _defineProperty(_LANG$ro, "Sound_measurements", 'Măsurători sunet'), _defineProperty(_LANG$ro, "Sensor_info", 'Informații senzor'), _defineProperty(_LANG$ro, 's_bin098_146Hz', '098-146Hz'), _defineProperty(_LANG$ro, 's_bin146_195Hz', '146-195Hz'), _defineProperty(_LANG$ro, 's_bin195_244Hz', '195-244Hz'), _defineProperty(_LANG$ro, 's_bin244_293Hz', '244-293Hz'), _defineProperty(_LANG$ro, 's_bin293_342Hz', '293-342Hz'), _defineProperty(_LANG$ro, 's_bin342_391Hz', '342-391Hz'), _defineProperty(_LANG$ro, 's_bin391_439Hz', '391-439Hz'), _defineProperty(_LANG$ro, 's_bin439_488Hz', '439-488Hz'), _defineProperty(_LANG$ro, 's_bin488_537Hz', '488-537Hz'), _defineProperty(_LANG$ro, 's_bin537_586Hz', '537-586Hz'), _defineProperty(_LANG$ro, "hour", 'Oră'), _defineProperty(_LANG$ro, "day", 'Zi'), _defineProperty(_LANG$ro, "week", 'Săptămână'), _defineProperty(_LANG$ro, "month", 'Lună'), _defineProperty(_LANG$ro, "year", 'An'), _defineProperty(_LANG$ro, "could_not_load_settings", 'Setările nu au putut fi încărcate'), _defineProperty(_LANG$ro, "offline", 'Nici o conexiune'), _defineProperty(_LANG$ro, "remote", 'La distanță'), _defineProperty(_LANG$ro, "connected", 'Direct'), _defineProperty(_LANG$ro, "yes", 'Da'), _defineProperty(_LANG$ro, "no", 'Nu'), _defineProperty(_LANG$ro, "footer_text", 'Apicultură cu sursă deschisă'), _defineProperty(_LANG$ro, "beep_foundation", 'fundația BEEP'), _defineProperty(_LANG$ro, "Checklist", 'Listă de verificare'), _defineProperty(_LANG$ro, "Checklist_items", 'Elemente din lista de verificare'), _defineProperty(_LANG$ro, "edit_hive_checklist", 'Bifați/debifați casetele din lista de mai jos pentru a adăuga/elimina elemente din lista de verificare a stupului. De asemenea, puteți desfășura/acoperi și glisa/fixa elementele pentru a le rearanja stilului dumneavoastră. Recomandare: dacă introduceți un termen în câmpul de căutare, toate elementele care conțin termenul respectiv vor apărea pe ecran și vor avea culoarea roșie.'), _defineProperty(_LANG$ro, "Data_export", 'Exportarea datelor'), _defineProperty(_LANG$ro, "Export_your_data", 'Exportați toate datele din contul dvs. BEEP și trimiteți un e-mail care conține datele într-un fișier Excel. Fișierul va avea file diferite care conțin datele dvs. personale despre stup, locație și inspecție. '), _defineProperty(_LANG$ro, "Terms_of_use", 'Termenii serviciului'), _defineProperty(_LANG$ro, "accept_policy", 'Accept termenii serviciului BEEP, care sunt compatibili cu noua lege Europeană privind confidențialitatea datelor.'), _defineProperty(_LANG$ro, "policy_url", 'https://beep.nl/terms-of-service'), _defineProperty(_LANG$ro, "policy_version", 'beep_terms_2018_05_25_avg_v1'), _defineProperty(_LANG$ro, "approve_policy", 'Nu v-ați dat încă acordul pentru ultimii termeni și condiții.'), _defineProperty(_LANG$ro, "calibrate_weight", 'Calivrați greutatea'), _defineProperty(_LANG$ro, "calibrate_explanation", 'Setați greutatea senzorilor la 0 scăzând valoarea măsurată curentă.'), _defineProperty(_LANG$ro, "set_as_zero_value", 'Setați aceste valori ca valoare 0.'), _defineProperty(_LANG$ro, "set_weight_factor", 'Definiți factorul de greutate'), _defineProperty(_LANG$ro, "own_weight_kg", 'Care este greutatea proprie în Kg?'), _defineProperty(_LANG$ro, "start_calibration", 'Acum, urcațivă pe cântar și apăsați butonul de mai jos pentru a defini factorul greutate. Distribuiți greutatea în mod egal.'), _defineProperty(_LANG$ro, "currently_there_is", 'există o greutate de'), _defineProperty(_LANG$ro, "nothing", 'nimic'), _defineProperty(_LANG$ro, "on_the_scale", 'pe cântar'), _defineProperty(_LANG$ro, "calibration_started", 'Calibrarea a început... Vă rugîm așteptați ca măsuratoarea următoare să intre în vigoare.'), _defineProperty(_LANG$ro, "calibration_ended", 'Calbrarea a reușit!'), _defineProperty(_LANG$ro, "server_down", 'Aplicația nu este disponibilă din cauza lucrărilor de întreținere, vă rugăm încercați din nou mai târziu.'), _defineProperty(_LANG$ro, "add_to_calendar", 'Adăugați în calendar'), _defineProperty(_LANG$ro, "sort_on", 'Sortează pe'), _defineProperty(_LANG$ro, "Whats_new", 'Nou în v2.1!'), _defineProperty(_LANG$ro, "Manual", 'Manual'), _defineProperty(_LANG$ro, "Site_title", 'BEEP | Bee monitor'), _defineProperty(_LANG$ro, "could_not_create_user", 'Utilizatorul nu poate fi creat în acest moment. Ne pare rău pentru neplăcerile cauzate, vă rugăm încercațimai târziu.'), _defineProperty(_LANG$ro, "email_verified", 'Adresa dvs. de e-mail a fost verificată.'), _defineProperty(_LANG$ro, "email_not_verified", 'Adresa dvs. de e-mail nu a fost încă verificată'), _defineProperty(_LANG$ro, "email_new_verification", 'Faceți clic pe acest linl pentru a trimite un nou e-mail de verificare.'), _defineProperty(_LANG$ro, "email_verification_sent", 'Un mesaj cu un link pentru verificare a fost trimis pe adresa dvs. de e-mail. Faceți click pe link-ul din e-mail pentru a vă activa contul și pentru a vă conecta.'), _defineProperty(_LANG$ro, "not_filled", 'este necesar, dar nu a fost completat'), _defineProperty(_LANG$ro, "cannot_deselect", 'Acest element nu poate fi eliminat, deoarece conține un element obligatoriu'), _defineProperty(_LANG$ro, "sensor_key", 'Cheie senzor'), _defineProperty(_LANG$ro, "Undelete", 'Nu ștergeți'), _defineProperty(_LANG$ro, "the_field", 'Acest'), _defineProperty(_LANG$ro, "is_required", 'este necesar.'), _defineProperty(_LANG$ro, "No_groups", 'Nu există grupuri disponibile'), _defineProperty(_LANG$ro, "not_available_yet", 'nu este încă disponibil. Vă rugăm să creați primul aici.'), _defineProperty(_LANG$ro, "Users", 'Utilizatori'), _defineProperty(_LANG$ro, "Member", 'Membrul grupului'), _defineProperty(_LANG$ro, "Members", 'Membrii grupului'), _defineProperty(_LANG$ro, "Invite", 'Invită'), _defineProperty(_LANG$ro, "Invited", 'Invitat'), _defineProperty(_LANG$ro, "invitations", 'invitații'), _defineProperty(_LANG$ro, "Admin", 'Administrator'), _defineProperty(_LANG$ro, "Creator", 'Proprietarul grupului'), _defineProperty(_LANG$ro, "Groups", 'Colabora'), _defineProperty(_LANG$ro, "Group", 'Grup de colaborare'), _defineProperty(_LANG$ro, "group", 'grup de colaborare'), _defineProperty(_LANG$ro, "to_share", 'pentru a partaja cu acest grup. 1 click = numai membrii grupului pot vedea, 2 click-uri = membrii grupului pot edita.'), _defineProperty(_LANG$ro, "Invitation_accepted", 'Invitație acceptată'), _defineProperty(_LANG$ro, "Accept", 'Accept'), _defineProperty(_LANG$ro, "My_shared", 'Partajarea mea'), _defineProperty(_LANG$ro, "invitee_name", 'Nume invitat'), _defineProperty(_LANG$ro, "Remove_group", 'Sigur doriți să eliminați complet acest grup partajat pentru toți membrii acestuia.'), _defineProperty(_LANG$ro, "Detach_from_group", 'Scoateți-mă pe mine și stupii mei din acest grup'), _defineProperty(_LANG$ro, "my_hive", 'Stupul meu'), _defineProperty(_LANG$ro, "created", 'creat'), _defineProperty(_LANG$ro, "group_detached", 'grupul a fost părăsit cu succes'), _defineProperty(_LANG$ro, "group_activated", 'Invitația în grup a fost acceptată.'), _defineProperty(_LANG$ro, "group_explanation_1", '1. Creați un nou grup de colaborare cu un titlu clar și o descriere opțională'), _defineProperty(_LANG$ro, "group_explanation_2", '2. Invitați alți utilizatori Beep adresa lor de e-mail Beep'), _defineProperty(_LANG$ro, "group_explanation_3", '3. Împărțiți informații specifice despre anumite colonii, care pot fi văzute de alți utilizatori pentru a coopera pe'), _defineProperty(_LANG$ro, "Filter_and_sort_on", 'Filtrați și sortați pe:'), _LANG$ro); //! moment.js locale configuration
+}, _defineProperty(_LANG$ro, "Location", 'Locație'), _defineProperty(_LANG$ro, "Country", 'Țară'), _defineProperty(_LANG$ro, "City", 'Oraș'), _defineProperty(_LANG$ro, "Address", 'Adresă'), _defineProperty(_LANG$ro, "Lattitude", 'Latitudine'), _defineProperty(_LANG$ro, "Longitude", 'Longitudine'), _defineProperty(_LANG$ro, "Street", 'Stradă'), _defineProperty(_LANG$ro, "Number", 'Nr.'), _defineProperty(_LANG$ro, "Postal_code", 'Cod poștal'), _defineProperty(_LANG$ro, "Description", 'Descriere'), _defineProperty(_LANG$ro, "Hive_settings", 'Setările stupului'), _defineProperty(_LANG$ro, "Hive_amount", 'Numărul de stupi în această locație'), _defineProperty(_LANG$ro, "Hive_prefix", 'Prefixul stupului (înainte de număr)'), _defineProperty(_LANG$ro, "Hive_number_offset", 'Numărul de pornire al stupilor'), _defineProperty(_LANG$ro, "Hive_type", 'Tipul de stup'), _defineProperty(_LANG$ro, "Hive_layers", 'Straturi stups'), _defineProperty(_LANG$ro, "Hive_frames", 'Rame pe strat'), _defineProperty(_LANG$ro, "Hive_color", 'Culoarea stupului'), _defineProperty(_LANG$ro, "Queen", 'Matcă'), _defineProperty(_LANG$ro, "queen", 'Matcă'), _defineProperty(_LANG$ro, "settings_title", 'Setări'), _defineProperty(_LANG$ro, "settings_description", 'Setări ale senzorilor'), _defineProperty(_LANG$ro, "settings", 'Setări'), _defineProperty(_LANG$ro, "sensors_title", 'Setările senzorului'), _defineProperty(_LANG$ro, "sensors_description", 'Statusul senzorilor și înregisrtarea'), _defineProperty(_LANG$ro, "sensors", 'Senzori'), _defineProperty(_LANG$ro, "sensor", 'Senzor'), _defineProperty(_LANG$ro, "Select", 'Selectați'), _defineProperty(_LANG$ro, "Not_selected", 'Nu a fost selectat'), _defineProperty(_LANG$ro, "Poor", 'Slab'), _defineProperty(_LANG$ro, "Fair", 'Potrivit'), _defineProperty(_LANG$ro, "Average", 'Mediu'), _defineProperty(_LANG$ro, "Good", 'Bine'), _defineProperty(_LANG$ro, "Excellent", 'Excelent'), _defineProperty(_LANG$ro, "Low", 'Scăzut'), _defineProperty(_LANG$ro, "Medium", 'Mediu'), _defineProperty(_LANG$ro, "High", 'Ridicat'), _defineProperty(_LANG$ro, "Extreme", 'Extrem'), _defineProperty(_LANG$ro, "select_color", 'Selectați o culoare'), _defineProperty(_LANG$ro, "advanced", 'Avansat'), _defineProperty(_LANG$ro, "Select_sensor", 'Selectați un senzor'), _defineProperty(_LANG$ro, "temperature", 'Temperatură'), _defineProperty(_LANG$ro, "t", 'Temperatură'), _defineProperty(_LANG$ro, "light", 'Lumina (soarelui)'), _defineProperty(_LANG$ro, "l", 'Lumina (soarelui)'), _defineProperty(_LANG$ro, "water", 'Apă'), _defineProperty(_LANG$ro, "w", 'Apă'), _defineProperty(_LANG$ro, "humidity", 'Umiditate'), _defineProperty(_LANG$ro, "h", 'Umiditate'), _defineProperty(_LANG$ro, "air_pressure", 'Presiune atmosferică'), _defineProperty(_LANG$ro, "p", 'Presiune atmosferică'), _defineProperty(_LANG$ro, "weight", 'Greutate'), _defineProperty(_LANG$ro, "w_v", 'Senzorul de greutate, valoarea tuturor senzorilor'), _defineProperty(_LANG$ro, "w_fl", 'Senzorul de greutate, valorare față stânga'), _defineProperty(_LANG$ro, "w_fr", 'Senzorul de greutate, valoare față dreapta'), _defineProperty(_LANG$ro, "w_bl", 'Senzorul de greutate, valoare spate stânga'), _defineProperty(_LANG$ro, "w_br", 'Senzorul de greutate, valoare spate dreapta'), _defineProperty(_LANG$ro, "weight_kg", 'Greutate'), _defineProperty(_LANG$ro, "weight_kg_corrected", 'Greutate (corecție)'), _defineProperty(_LANG$ro, "weight_combined_kg", 'Greutate, combinată '), _defineProperty(_LANG$ro, "bat_volt", 'Baterie'), _defineProperty(_LANG$ro, "bv", 'Baterie'), _defineProperty(_LANG$ro, "sound_fanning_4days", 'Ventilație albine 4z'), _defineProperty(_LANG$ro, "s_fan_4", 'Ventilație albine 4z'), _defineProperty(_LANG$ro, "sound_fanning_6days", 'Ventilație albine 6z'), _defineProperty(_LANG$ro, "s_fan_6", 'Ventilație albine 6z'), _defineProperty(_LANG$ro, "sound_fanning_9days", 'Ventilație albine 9z'), _defineProperty(_LANG$ro, "s_fan_9", 'Ventilație albine 9z'), _defineProperty(_LANG$ro, "sound_flying_adult", 'Albine care zboară'), _defineProperty(_LANG$ro, "s_fly_a", 'Albine care zboară'), _defineProperty(_LANG$ro, "sound_total", 'Sunet total'), _defineProperty(_LANG$ro, "s_tot", 'Sunet total'), _defineProperty(_LANG$ro, "bee_count_in", 'Număr albine intrate'), _defineProperty(_LANG$ro, "bc_i", 'Număr albine intrate'), _defineProperty(_LANG$ro, "bee_count_out", 'Număr albine ieșite'), _defineProperty(_LANG$ro, "bc_o", 'Număr albine ieșite'), _defineProperty(_LANG$ro, "t_i", 'Temp. interior'), _defineProperty(_LANG$ro, "rssi", 'Puterea semnalului'), _defineProperty(_LANG$ro, "snr", 'Raport semnal/zgomot'), _defineProperty(_LANG$ro, "lat", 'Latitudine'), _defineProperty(_LANG$ro, "lon", 'Longitudine'), _defineProperty(_LANG$ro, "Sound_measurements", 'Măsurători sunet'), _defineProperty(_LANG$ro, "Sensor_info", 'Informații senzor'), _defineProperty(_LANG$ro, 's_bin098_146Hz', '098-146Hz'), _defineProperty(_LANG$ro, 's_bin146_195Hz', '146-195Hz'), _defineProperty(_LANG$ro, 's_bin195_244Hz', '195-244Hz'), _defineProperty(_LANG$ro, 's_bin244_293Hz', '244-293Hz'), _defineProperty(_LANG$ro, 's_bin293_342Hz', '293-342Hz'), _defineProperty(_LANG$ro, 's_bin342_391Hz', '342-391Hz'), _defineProperty(_LANG$ro, 's_bin391_439Hz', '391-439Hz'), _defineProperty(_LANG$ro, 's_bin439_488Hz', '439-488Hz'), _defineProperty(_LANG$ro, 's_bin488_537Hz', '488-537Hz'), _defineProperty(_LANG$ro, 's_bin537_586Hz', '537-586Hz'), _defineProperty(_LANG$ro, "hour", 'Oră'), _defineProperty(_LANG$ro, "day", 'Zi'), _defineProperty(_LANG$ro, "week", 'Săptămână'), _defineProperty(_LANG$ro, "month", 'Lună'), _defineProperty(_LANG$ro, "year", 'An'), _defineProperty(_LANG$ro, "could_not_load_settings", 'Setările nu au putut fi încărcate'), _defineProperty(_LANG$ro, "offline", 'Nici o conexiune'), _defineProperty(_LANG$ro, "remote", 'La distanță'), _defineProperty(_LANG$ro, "connected", 'Direct'), _defineProperty(_LANG$ro, "yes", 'Da'), _defineProperty(_LANG$ro, "no", 'Nu'), _defineProperty(_LANG$ro, "footer_text", 'Apicultură cu sursă deschisă'), _defineProperty(_LANG$ro, "beep_foundation", 'fundația BEEP'), _defineProperty(_LANG$ro, "Checklist", 'Listă de verificare'), _defineProperty(_LANG$ro, "Checklist_items", 'Elemente din lista de verificare'), _defineProperty(_LANG$ro, "edit_hive_checklist", 'Bifați/debifați casetele din lista de mai jos pentru a adăuga/elimina elemente din lista de verificare a stupului. De asemenea, puteți desfășura/acoperi și glisa/fixa elementele pentru a le rearanja stilului dumneavoastră. Recomandare: dacă introduceți un termen în câmpul de căutare, toate elementele care conțin termenul respectiv vor apărea pe ecran și vor avea culoarea roșie.'), _defineProperty(_LANG$ro, "Data_export", 'Exportarea datelor'), _defineProperty(_LANG$ro, "Export_your_data", 'Exportați toate datele din contul dvs. BEEP și trimiteți un e-mail care conține datele într-un fișier Excel. Fișierul va avea file diferite care conțin datele dvs. personale despre stup, locație și inspecție. '), _defineProperty(_LANG$ro, "Terms_of_use", 'Termenii serviciului'), _defineProperty(_LANG$ro, "accept_policy", 'Accept termenii serviciului BEEP, care sunt compatibili cu noua lege Europeană privind confidențialitatea datelor.'), _defineProperty(_LANG$ro, "policy_url", 'https://beep.nl/terms-of-service'), _defineProperty(_LANG$ro, "policy_version", 'beep_terms_2018_05_25_avg_v1'), _defineProperty(_LANG$ro, "approve_policy", 'Nu v-ați dat încă acordul pentru ultimii termeni și condiții.'), _defineProperty(_LANG$ro, "calibrate_weight", 'Calivrați greutatea'), _defineProperty(_LANG$ro, "calibrate_explanation", 'Setați greutatea senzorilor la 0 scăzând valoarea măsurată curentă.'), _defineProperty(_LANG$ro, "set_as_zero_value", 'Setați aceste valori ca valoare 0.'), _defineProperty(_LANG$ro, "set_weight_factor", 'Definiți factorul de greutate'), _defineProperty(_LANG$ro, "own_weight_kg", 'Care este greutatea proprie în Kg?'), _defineProperty(_LANG$ro, "start_calibration", 'Acum, urcațivă pe cântar și apăsați butonul de mai jos pentru a defini factorul greutate. Distribuiți greutatea în mod egal.'), _defineProperty(_LANG$ro, "currently_there_is", 'există o greutate de'), _defineProperty(_LANG$ro, "nothing", 'nimic'), _defineProperty(_LANG$ro, "on_the_scale", 'pe cântar'), _defineProperty(_LANG$ro, "calibration_started", 'Calibrarea a început... Vă rugîm așteptați ca măsuratoarea următoare să intre în vigoare.'), _defineProperty(_LANG$ro, "calibration_ended", 'Calbrarea a reușit!'), _defineProperty(_LANG$ro, "server_down", 'Aplicația nu este disponibilă din cauza lucrărilor de întreținere, vă rugăm încercați din nou mai târziu.'), _defineProperty(_LANG$ro, "add_to_calendar", 'Adăugați în calendar'), _defineProperty(_LANG$ro, "sort_on", 'Sortează pe'), _defineProperty(_LANG$ro, "Whats_new", 'Nou în v2.1!'), _defineProperty(_LANG$ro, "Manual", 'Manual'), _defineProperty(_LANG$ro, "Site_title", 'BEEP | Bee monitor'), _defineProperty(_LANG$ro, "could_not_create_user", 'Utilizatorul nu poate fi creat în acest moment. Ne pare rău pentru neplăcerile cauzate, vă rugăm încercațimai târziu.'), _defineProperty(_LANG$ro, "email_verified", 'Adresa dvs. de e-mail a fost verificată.'), _defineProperty(_LANG$ro, "email_not_verified", 'Adresa dvs. de e-mail nu a fost încă verificată'), _defineProperty(_LANG$ro, "email_new_verification", 'Faceți clic pe acest linl pentru a trimite un nou e-mail de verificare.'), _defineProperty(_LANG$ro, "email_verification_sent", 'Un mesaj cu un link pentru verificare a fost trimis pe adresa dvs. de e-mail. Faceți click pe link-ul din e-mail pentru a vă activa contul și pentru a vă conecta.'), _defineProperty(_LANG$ro, "not_filled", 'este necesar, dar nu a fost completat'), _defineProperty(_LANG$ro, "cannot_deselect", 'Acest element nu poate fi eliminat, deoarece conține un element obligatoriu'), _defineProperty(_LANG$ro, "sensor_key", 'Cheie senzor'), _defineProperty(_LANG$ro, "Undelete", 'Nu ștergeți'), _defineProperty(_LANG$ro, "the_field", 'Acest'), _defineProperty(_LANG$ro, "is_required", 'este necesar.'), _defineProperty(_LANG$ro, "No_groups", 'Nu există grupuri disponibile'), _defineProperty(_LANG$ro, "not_available_yet", 'nu este încă disponibil. Vă rugăm să creați primul aici.'), _defineProperty(_LANG$ro, "Users", 'Utilizatori'), _defineProperty(_LANG$ro, "Member", 'Membrul grupului'), _defineProperty(_LANG$ro, "Members", 'Membrii grupului'), _defineProperty(_LANG$ro, "Invite", 'Invită'), _defineProperty(_LANG$ro, "Invited", 'Invitat'), _defineProperty(_LANG$ro, "invitations", 'invitații'), _defineProperty(_LANG$ro, "Admin", 'Administrator'), _defineProperty(_LANG$ro, "Creator", 'Proprietarul grupului'), _defineProperty(_LANG$ro, "Groups", 'Colabora'), _defineProperty(_LANG$ro, "Group", 'Grup de colaborare'), _defineProperty(_LANG$ro, "group", 'grup de colaborare'), _defineProperty(_LANG$ro, "to_share", 'pentru a partaja cu acest grup. 1 click = numai membrii grupului pot vedea, 2 click-uri = membrii grupului pot edita.'), _defineProperty(_LANG$ro, "Invitation_accepted", 'Invitație acceptată'), _defineProperty(_LANG$ro, "Accept", 'Accept'), _defineProperty(_LANG$ro, "My_shared", 'Partajarea mea'), _defineProperty(_LANG$ro, "invitee_name", 'Nume invitat'), _defineProperty(_LANG$ro, "Remove_group", 'Sigur doriți să eliminați complet acest grup partajat pentru toți membrii acestuia.'), _defineProperty(_LANG$ro, "Detach_from_group", 'Scoateți-mă pe mine și stupii mei din acest grup'), _defineProperty(_LANG$ro, "my_hive", 'Stupul meu'), _defineProperty(_LANG$ro, "created", 'creat'), _defineProperty(_LANG$ro, "group_detached", 'grupul a fost părăsit cu succes'), _defineProperty(_LANG$ro, "group_activated", 'Invitația în grup a fost acceptată.'), _defineProperty(_LANG$ro, "group_explanation_1", '1. Creați un nou grup de colaborare cu un titlu clar și o descriere opțională'), _defineProperty(_LANG$ro, "group_explanation_2", '2. Invitați alți utilizatori Beep adresa lor de e-mail Beep'), _defineProperty(_LANG$ro, "group_explanation_3", '3. Împărțiți informații specifice despre anumite colonii, care pot fi văzute de alți utilizatori pentru a coopera pe'), _defineProperty(_LANG$ro, "Filter_and_sort_on", 'Filtrați și sortați pe:'), _LANG$ro);
+/*
+ * Beep - Translations
+ * Author: Pim van Gennip (pim@iconize.nl)
+ *
+ */
+
+LANG['pt'] = (_LANG$pt = {
+  /* Date picker */
+  monthsFull: ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'],
+  monthsShort: ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'],
+  weekdaysFull: ['Domingo', 'Segunda-feira', 'Terça-feira', 'Quarta-feira', 'Quinta-feira', 'Sexta-feira', 'Sábado'],
+  weekdaysShort: ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sab'],
+  Today: 'Hoje',
+  Clear: 'Limpar',
+  Close: 'Fechar',
+  firstDay: 1,
+  format: 'dddd d mmmm yyyy',
+
+  /* main */
+  Website: 'Site da internet',
+  Feedback: 'Comentários',
+  Feedback_mail_header: 'Comentários da aplicação Beep',
+  Feedback_mail_body: 'Cara fundação Beep,%0D%0A%0D%0ADeixo abaixo os meus comentários sobre a aplicação Beep.%0D%0A%0D%0AEncontrei isto:%0D%0A%0D%0AMesmo antes de isto acontecer, fiz o seguinte:%0D%0A%0D%0AO monitor estava assim (por favor inclua uma captura de ecrã):%0D%0A%0D%0A%0D%0A%0D%0A',
+  Diagnostic_info: 'Informação de diagnóstico (no caso de um bug/problema):%0D%0A',
+  back: 'Para trás',
+  menu: 'Menu',
+  lighting: 'Iluminação',
+  camera: 'Câmera',
+  weather: 'Tempo',
+  sensors: 'Sensores',
+  sensors_na: 'Os sensores BEEP sensors para monitorizar remotamente a sua colmeia estarão brevemente disponíveis...',
+  no_valid_authentication: 'Nenhuns dados de autenticação recebidos',
+  succesfully_saved: 'Salvo com sucesso',
+  switch_language: 'Trocar linguagem',
+  Delete: 'Apagar',
+  Search: 'Procurar...',
+
+  /* user error messages */
+  User: 'Utilizador',
+  User_data: 'Dados de utilizador',
+  user_data: 'dados de utilizador ',
+  updated: 'atualizado',
+  delete_complete_account: 'Tem a certeza que quer apagar a sua conta por completo, incluindo todos os apiários, colmeias e inspeções? Esta ação é irrecuperável.',
+  username_is_required: 'Por favor introduza o seu nome de usuário',
+  username_already_exists: 'Nome de usuário já existe',
+  password_is_required: 'Por favor introduza uma senha',
+  email_is_required: 'Por favor introduza um email válido',
+  email_already_exists: 'Este email já está a ser utilizado',
+  'policy accepted_is_required': 'Precisa de aceitar os termos de serviço para se poder registar',
+  already_registered: 'Já estou registado',
+  invalid_user: 'Usuário desconhecido ou senha errada',
+  invalid_password: 'Senha muito curta (min. 8 caracteres)',
+  no_password_match: 'As senhas não coincidem',
+  invalid_token: 'Código inválido',
+  no_valid_email: 'Email inválido',
+  empty_fields: 'Por favor preencha todos os campos',
+  match_passwords: 'As passwords não coincidem',
+  succesfully_registered: 'Foi registado com sucesso.',
+  authentication_failed: 'Erro de autenticação',
+  no_valid_input_received: 'Os dados não puderam ser salvos, nenhuma entrada válida recebida.',
+  remove_all_settings: 'Remover todas as configurações',
+  remove_apiary: 'Remover apiário',
+  remove_hive: 'Remover colmeia',
+  remove_inspection: 'Remover inspeção',
+  Error: 'Erro',
+  Warning: 'Aviso',
+  first_remove_hives: 'Atenção: ainda há colmeias neste apiário. Pode salvar colmeias específicas (e suas inspeções) movendo-as primeiro para outro apiário. Se continuar com a eliminação, excluirá TODAS as colmeias e inspeções presentes neste local.',
+  Date: 'Data',
+  ok: 'Ok',
+  previous: 'Anterior',
+  prev: 'anterior',
+  next: 'Próximo',
+  add: 'Adicionar',
+  create_new: 'Criar novo',
+  New: 'Novo',
+  warning: 'Aviso',
+  apply: 'Aplicar',
+  Cancel: 'Cancelar',
+  automatic: 'Automático',
+  manually: 'Manual',
+  on: 'On',
+  off: 'Off',
+
+  /* login */
+  login_title: 'Login',
+  login: 'Login',
+  back_to_login: 'Regressar ao login',
+  forgot_password: 'Esqueceu-se da sua senha?',
+  username: 'Nome de usuário',
+  password: 'Password',
+  confirm_password: 'Confirmar senha',
+  email: 'Email',
+  token: 'Código',
+  create_login_question: 'Ainda não tem conta? Registe-se como novo usuário',
+  create_login: 'Registo como novo usuário',
+  create_login_summary: 'Criar uma nova conta de usuário',
+  save: 'Salvar',
+  save_and_return: 'Salvar e regressar',
+  logout: 'Sair',
+  logout_title: 'Sair como ',
+  logout_now: 'Quer mesmo sair agora?',
+  member_since: 'A usar o Beep desde',
+
+  /* password recovery */
+  password_recovery_title: ' Esqueceu-se da sua senha?',
+  password_recovery_remembered: 'Oh, lembrei-me agora da minha senha!',
+  password_recovery_user: 'Informação de usuário',
+  password_recovery_send_mail: 'Enviar código de verificação',
+  password_recovery_code_not_received: 'Código de verificação não recebido no espaço de 5 minutos? ',
+  password_recovery_enter_code: 'Já tem um código de verificação? Coloque-o aqui',
+  password_recovery_reset_title: 'Insira nova senha',
+  password_recovery_reset_password: 'Alterar senha',
+  password_recovery_reminder_success: ' Foi enviado um email. Clique no link do seu email para redefinir sua senha para esta conta.',
+  password_recovery_reminder_summary: ' Insira o seu endereço de email. Receberá um email com um link para alterar sua senha na próxima etapa.',
+  password_recovery_reset_summary: 'Use o código que recebeu para definir uma nova senha para a sua conta',
+  password_recovery_reset_success: 'A sua senha foi alterada com sucesso e está logado.',
+  new_password: 'Nova senha',
+  confirm_new_password: 'Confirmar nova senha',
+  go_to_dashboard: 'Ir para o meu painel',
+
+  /* overview */
+  overview_title: 'Visão global',
+  overview: 'Visão global',
+  color: 'Cor',
+  state: 'On/off',
+  connection_state: 'Estado da conexão',
+
+  /* hives */
+  locations_title: 'Beep',
+  hives_title: 'Beep',
+  Hive: 'Colmeia',
+  hive: 'colmeia',
+  Location: 'Apiário',
+  location: 'apiário',
+  Hives: 'Colmeias',
+  hives: 'Colmeias',
+  Locations: 'Apiários',
+  locations: 'Apiários',
+  Name: 'Nome',
+  name: 'nome',
+  Type: 'Tipo',
+  type: 'tipo',
+  Layer: 'Alça',
+  layer: 'alça',
+  brood: 'Criação',
+  honey: 'Mel',
+  inspect: 'Inspecionar',
+  inspection: 'inspeção',
+  Inspection: 'Inspeção',
+  Inspections: 'Inspeções',
+  New_inspection: 'Nova inspeção',
+  Edit_inspection: 'Editar inspeção',
+  Actions: 'Ações',
+  Conditions: 'Condições (inspecionada)',
+  edit: 'Edição',
+  Hive_brood_layers: 'Alças de criação',
+  Hive_honey_layers: 'Alças de mel',
+  Hive_layer_amount: 'Quantidade de alças',
+  Bee_race: 'Raça de abelha',
+  Birth_date: 'Data de nascimento',
+  Color: 'Cor',
+  Queen_colored: 'Rainha com cor',
+  Queen_clipped: 'Rainha com asa cortada',
+  Queen_fertilized: 'Rainha fertilizada',
+  Age: 'Idade',
+  year: 'anos',
+
+  /* Hive check items */
+  Date_of_inspection: 'Data de inspeção',
+  action: 'Ação',
+  reminder: 'Lembrete',
+  remind_date: 'Data de notificação',
+  overall: 'No geral',
+  positive_impression: 'Impressão total',
+  needs_attention: 'Precisa de atenção',
+  notes: 'Notas',
+  notes_for_next_inspection: 'Nota curta para a próxima inspecção (visível na visão global)',
+  Not_implemented_yet: ' Este item ainda não foi implementado',
+  save_input_first: ' Deseja salvar a sua entrada primeiro?',
+
+  /* dashboard */
+  dashboard_title: 'Painel de controlo',
+  dashboard: 'Painel de controlo',
+  measurements: 'Medições',
+  measurementsError: 'Não é possível carregar medições, verificar ligação à internet',
+  last_measurement: 'Última medição',
+  at: 'em',
+  measurement_system: 'Sistema de medição Beep',
+  no_data: 'Sem dados disponíveis',
+  no_chart_data: 'Nenhum dado do gráfico para o período selecionado',
+
+  /* settings */
+  General: 'Geral'
+}, _defineProperty(_LANG$pt, "Location", 'Localização'), _defineProperty(_LANG$pt, "Country", 'País'), _defineProperty(_LANG$pt, "City", 'Cidade'), _defineProperty(_LANG$pt, "Address", 'Morada'), _defineProperty(_LANG$pt, "Lattitude", 'Latitude'), _defineProperty(_LANG$pt, "Longitude", 'Longitude'), _defineProperty(_LANG$pt, "Street", 'Rua'), _defineProperty(_LANG$pt, "Number", 'Número'), _defineProperty(_LANG$pt, "Postal_code", 'Código Postal'), _defineProperty(_LANG$pt, "Description", 'Descrição'), _defineProperty(_LANG$pt, "Hive_settings", 'Configurações da colmeia'), _defineProperty(_LANG$pt, "Hive_amount", 'Quantidade de colmeias nesta localização'), _defineProperty(_LANG$pt, "Hive_prefix", 'Prefixo do nome da colmeia (antes do número)'), _defineProperty(_LANG$pt, "Hive_number_offset", 'Número de colmeias inciais'), _defineProperty(_LANG$pt, "Hive_type", 'Tipo de colmeias'), _defineProperty(_LANG$pt, "Hive_layers", 'Alças da colmeia'), _defineProperty(_LANG$pt, "Hive_frames", 'Quadros por alça'), _defineProperty(_LANG$pt, "Hive_color", 'Cor da colmeia'), _defineProperty(_LANG$pt, "Queen", 'Rainha'), _defineProperty(_LANG$pt, "queen", 'rainha'), _defineProperty(_LANG$pt, "settings_title", 'Definições'), _defineProperty(_LANG$pt, "settings_description", 'Definições dos sensores'), _defineProperty(_LANG$pt, "settings", 'Definições'), _defineProperty(_LANG$pt, "sensors_title", 'Definições do sensor'), _defineProperty(_LANG$pt, "sensors_description", 'Estado dos sensores e registo'), _defineProperty(_LANG$pt, "sensors", 'Sensores'), _defineProperty(_LANG$pt, "sensor", 'Sensor'), _defineProperty(_LANG$pt, "Select", 'Selecionar'), _defineProperty(_LANG$pt, "Not_selected", 'Não selecionado'), _defineProperty(_LANG$pt, "Poor", 'Pobre'), _defineProperty(_LANG$pt, "Fair", 'Razoável'), _defineProperty(_LANG$pt, "Average", 'Médio'), _defineProperty(_LANG$pt, "Good", 'Bom'), _defineProperty(_LANG$pt, "Excellent", 'Excelente'), _defineProperty(_LANG$pt, "Low", 'Baixo'), _defineProperty(_LANG$pt, "Medium", 'Médio'), _defineProperty(_LANG$pt, "High", 'Alto'), _defineProperty(_LANG$pt, "Extreme", 'Extremo'), _defineProperty(_LANG$pt, "select_color", 'Selecionar uma cor'), _defineProperty(_LANG$pt, "advanced", 'Avançado'), _defineProperty(_LANG$pt, "Select_sensor", 'Selecionar um sensor'), _defineProperty(_LANG$pt, "temperature", 'Temperatura'), _defineProperty(_LANG$pt, "t", 'Temperatura'), _defineProperty(_LANG$pt, "light", 'Luz solar'), _defineProperty(_LANG$pt, "l", 'Luz solar'), _defineProperty(_LANG$pt, "water", 'Água'), _defineProperty(_LANG$pt, "w", 'Água'), _defineProperty(_LANG$pt, "humidity", 'Humidade'), _defineProperty(_LANG$pt, "h", 'Humidade'), _defineProperty(_LANG$pt, "air_pressure", 'Pressão atmosférica'), _defineProperty(_LANG$pt, "p", 'Pressão atmosférica'), _defineProperty(_LANG$pt, "weight", 'Peso'), _defineProperty(_LANG$pt, "w_v", 'Sensor de peso valor de todos os sensores'), _defineProperty(_LANG$pt, "w_fl", 'Sensor de peso valor frente esquerda'), _defineProperty(_LANG$pt, "w_fr", 'Sensor de peso valor frente direita'), _defineProperty(_LANG$pt, "w_bl", 'Sensor de peso valor trás esquerda'), _defineProperty(_LANG$pt, "w_br", 'Sensor de peso valor trás direita'), _defineProperty(_LANG$pt, "weight_kg", 'Peso'), _defineProperty(_LANG$pt, "weight_kg_corrected", 'Peso (corr)'), _defineProperty(_LANG$pt, "weight_combined_kg", 'Peso combi'), _defineProperty(_LANG$pt, "bat_volt", 'Bateria'), _defineProperty(_LANG$pt, "bv", 'Bateria'), _defineProperty(_LANG$pt, "sound_fanning_4days", 'Ventilação 4d abelhas'), _defineProperty(_LANG$pt, "s_fan_4", 'Ventilação 4d abelhas'), _defineProperty(_LANG$pt, "sound_fanning_6days", 'Ventilação 6d abelhas'), _defineProperty(_LANG$pt, "s_fan_6", 'Ventilação 6d abelhas'), _defineProperty(_LANG$pt, "sound_fanning_9days", 'Ventilação 9d abelhas'), _defineProperty(_LANG$pt, "s_fan_9", 'Ventilação 9d abelhas'), _defineProperty(_LANG$pt, "sound_flying_adult", 'Abelhas em voo'), _defineProperty(_LANG$pt, "s_fly_a", 'Abelhas em voo'), _defineProperty(_LANG$pt, "sound_total", 'Som total'), _defineProperty(_LANG$pt, "s_tot", 'Som total'), _defineProperty(_LANG$pt, "bee_count_in", 'Contagem de abelhas dentro'), _defineProperty(_LANG$pt, "bc_i", 'Contagem de abelhas dentro'), _defineProperty(_LANG$pt, "bee_count_out", 'Contagem de abelhas fora'), _defineProperty(_LANG$pt, "bc_o", 'Contagem de abelhas fora'), _defineProperty(_LANG$pt, "t_i", 'Temp. dentro'), _defineProperty(_LANG$pt, "rssi", 'Força do sinal'), _defineProperty(_LANG$pt, "snr", 'Ruido do sinal'), _defineProperty(_LANG$pt, "lat", 'Latitude'), _defineProperty(_LANG$pt, "lon", 'Longitude'), _defineProperty(_LANG$pt, "Sound_measurements", 'Medições de som'), _defineProperty(_LANG$pt, "Sensor_info", 'Informação do sensor'), _defineProperty(_LANG$pt, 's_bin098_146Hz', '098-146Hz'), _defineProperty(_LANG$pt, 's_bin146_195Hz', '146-195Hz'), _defineProperty(_LANG$pt, 's_bin195_244Hz', '195-244Hz'), _defineProperty(_LANG$pt, 's_bin244_293Hz', '244-293Hz'), _defineProperty(_LANG$pt, 's_bin293_342Hz', '293-342Hz'), _defineProperty(_LANG$pt, 's_bin342_391Hz', '342-391Hz'), _defineProperty(_LANG$pt, 's_bin391_439Hz', '391-439Hz'), _defineProperty(_LANG$pt, 's_bin439_488Hz', '439-488Hz'), _defineProperty(_LANG$pt, 's_bin488_537Hz', '488-537Hz'), _defineProperty(_LANG$pt, 's_bin537_586Hz', '537-586Hz'), _defineProperty(_LANG$pt, "hour", 'Hora'), _defineProperty(_LANG$pt, "day", 'Dia'), _defineProperty(_LANG$pt, "week", 'Semana'), _defineProperty(_LANG$pt, "month", 'Mês'), _defineProperty(_LANG$pt, "year", 'Ano'), _defineProperty(_LANG$pt, "could_not_load_settings", 'Não foi possível carregar as configurações'), _defineProperty(_LANG$pt, "offline", 'Sem coneção'), _defineProperty(_LANG$pt, "remote", 'Remota'), _defineProperty(_LANG$pt, "connected", 'Direta'), _defineProperty(_LANG$pt, "yes", 'Sim'), _defineProperty(_LANG$pt, "no", 'Não'), _defineProperty(_LANG$pt, "footer_text", 'Apicultura em código aberto'), _defineProperty(_LANG$pt, "beep_foundation", 'A fundação BEEP'), _defineProperty(_LANG$pt, "Checklist", 'Lista de verificação'), _defineProperty(_LANG$pt, "Checklist_items", 'Itens da lista de verificação'), _defineProperty(_LANG$pt, "edit_hive_checklist", 'Marque/desmarque as caixas na lista abaixo para adicionar/remover itens da sua lista de verificação da colmeia. Também pode desdobrar/dobrar e arrastar/soltar os itens para reordená-los ao seu próprio estilo. Dica: se digitar um termo no campo de pesquisa, todos os itens que contenham esse termo serão dobrados e ficarão vermelhos.'), _defineProperty(_LANG$pt, "Data_export", 'Exportação de dados'), _defineProperty(_LANG$pt, "Export_your_data", 'Exportar todos os dados que estão na sua conta Beep e enviar um email contendo os dados como um ficheiro Excel. O ficheiro Excel possui seções diferentes que contêm os seus dados pessoais, das colmeias, de localização e de inspeção.'), _defineProperty(_LANG$pt, "Terms_of_use", 'Termos de serviço'), _defineProperty(_LANG$pt, "accept_policy", 'Aceito os termos de serviço do BEEP, compatíveis com a nova lei de privacidade europeia'), _defineProperty(_LANG$pt, "policy_url", 'https://beep.nl/terms-of-service'), _defineProperty(_LANG$pt, "policy_version", 'beep_terms_2018_05_25_avg_v1'), _defineProperty(_LANG$pt, "approve_policy", 'Você ainda não cumpriu com os últimos termos de serviço.'), _defineProperty(_LANG$pt, "calibrate_weight", 'Calibrar peso'), _defineProperty(_LANG$pt, "calibrate_explanation", 'Defina o peso dos sensores para 0 subtraindo o valor atual da medição.'), _defineProperty(_LANG$pt, "set_as_zero_value", 'D efina esses valores como 0'), _defineProperty(_LANG$pt, "set_weight_factor", 'Definir fator de peso'), _defineProperty(_LANG$pt, "own_weight_kg", 'Qual é o seu próprio peso em kg?'), _defineProperty(_LANG$pt, "start_calibration", 'Agora, pise na balança e pressione o botão abaixo para definir o fator de peso. Distribua seu peso igualmente.'), _defineProperty(_LANG$pt, "currently_there_is", 'Há um peso de'), _defineProperty(_LANG$pt, "nothing", 'nada'), _defineProperty(_LANG$pt, "on_the_scale", 'Na balança'), _defineProperty(_LANG$pt, "calibration_started", 'A calibração iniciou... Aguarde que a próxima medição entre em vigor.'), _defineProperty(_LANG$pt, "calibration_ended", 'Calibração bem sucedida!'), _defineProperty(_LANG$pt, "server_down", 'A app está indisponível devido a trabalhos de manutenção. Tente novamente mais tarde'), _defineProperty(_LANG$pt, "add_to_calendar", 'Adicionar ao calendário'), _defineProperty(_LANG$pt, "sort_on", 'Classificar em'), _defineProperty(_LANG$pt, "Whats_new", 'Novo na v2.1!'), _defineProperty(_LANG$pt, "Manual", 'Manual'), _defineProperty(_LANG$pt, "Site_title", 'BEEP | Monitorização de abelhas'), _defineProperty(_LANG$pt, "could_not_create_user", 'O usuário não pode ser criado neste momento. Desculpe pelo transtorno, tente novamente mais tarde.'), _defineProperty(_LANG$pt, "email_verified", 'O seu endereço de email foi verificado.'), _defineProperty(_LANG$pt, "email_not_verified", 'O seu endereço de email ainda não foi verificado.'), _defineProperty(_LANG$pt, "email_new_verification", ' Clique neste link para enviar um novo email de verificação.'), _defineProperty(_LANG$pt, "email_verification_sent", 'Uma mensagem com um link de verificação foi enviada para o seu endereço de email. Clique no link do email para ativar sua conta e fazer login.'), _defineProperty(_LANG$pt, "not_filled", 'é obrigatório, mas não está preenchido'), _defineProperty(_LANG$pt, "cannot_deselect", 'Não foi possível remover este item, pois contém um item obrigatório'), _defineProperty(_LANG$pt, "sensor_key", 'Sensor chave'), _defineProperty(_LANG$pt, "Undelete", 'Não apagar'), _defineProperty(_LANG$pt, "the_field", 'O'), _defineProperty(_LANG$pt, "is_required", 'é obrigatório'), _defineProperty(_LANG$pt, "No_groups", 'Nenhum grupo disponível'), _defineProperty(_LANG$pt, "not_available_yet", 'ainda não disponível. Por favor, crie o primeiro aqui.'), _defineProperty(_LANG$pt, "Users", 'Usuários'), _defineProperty(_LANG$pt, "Member", 'Membro do grupo'), _defineProperty(_LANG$pt, "Members", 'Membros do grupo'), _defineProperty(_LANG$pt, "Invite", 'Convidar'), _defineProperty(_LANG$pt, "Invited", 'Convidado'), _defineProperty(_LANG$pt, "invitations", 'Convites'), _defineProperty(_LANG$pt, "Admin", 'Administrador'), _defineProperty(_LANG$pt, "Creator", 'Proprietário do grupo'), _defineProperty(_LANG$pt, "Groups", 'Colaborar'), _defineProperty(_LANG$pt, "Group", 'Grupo de colaboração'), _defineProperty(_LANG$pt, "group", 'grupo de colaboração'), _defineProperty(_LANG$pt, "to_share", 'para partilhar com este grupo. 1 clique = os membros do grupo apenas podem visualizar, 2 cliques = os membros do grupo podem editar'), _defineProperty(_LANG$pt, "Invitation_accepted", 'Convite aceite'), _defineProperty(_LANG$pt, "Accept", 'Aceitar'), _defineProperty(_LANG$pt, "My_shared", 'Minha partilha'), _defineProperty(_LANG$pt, "invitee_name", 'Nome do convidado'), _defineProperty(_LANG$pt, "Remove_group", 'Tem a certeza de que deseja remover completamente este grupo de partilha para todos os seus membros '), _defineProperty(_LANG$pt, "Detach_from_group", 'Remova-me e às minhas colmeias deste grupo'), _defineProperty(_LANG$pt, "my_hive", 'Minha colmeia'), _defineProperty(_LANG$pt, "created", 'criada'), _defineProperty(_LANG$pt, "group_detached", 'Deixou o grupo com sucesso'), _defineProperty(_LANG$pt, "group_activated", 'Convite para o grupo aceite'), _defineProperty(_LANG$pt, "group_explanation_1", '1. Crie um novo grupo de cooperação com um título claro e uma descrição opcional'), _defineProperty(_LANG$pt, "group_explanation_2", '2. Convide outros usuários do Beep através do seu endereço de email do Beep'), _defineProperty(_LANG$pt, "group_explanation_3", '3. Compartilhar colmeias específicas para serem vistas por outras pessoas, ou para cooperar'), _defineProperty(_LANG$pt, "Filter_and_sort_on", 'Filtrar e classificar:'), _LANG$pt); //! moment.js locale configuration
 
 ;
 
@@ -1858,6 +2052,68 @@ LANG['ro'] = (_LANG$ro = {
     }
   });
   return ro;
+}); //! moment.js locale configuration
+
+
+;
+
+(function (global, factory) {
+  (typeof exports === "undefined" ? "undefined" : _typeof(exports)) === 'object' && typeof module !== 'undefined' && typeof require === 'function' ? factory(require('../moment')) : typeof define === 'function' && define.amd ? define(['../moment'], factory) : factory(global.moment);
+})(this, function (moment) {
+  'use strict';
+
+  var pt = moment.defineLocale('pt', {
+    months: 'Janeiro_Fevereiro_Março_Abril_Maio_Junho_Julho_Agosto_Setembro_Outubro_Novembro_Dezembro'.split('_'),
+    monthsShort: 'Jan_Fev_Mar_Abr_Mai_Jun_Jul_Ago_Set_Out_Nov_Dez'.split('_'),
+    weekdays: 'Domingo_Segunda-feira_Terça-feira_Quarta-feira_Quinta-feira_Sexta-feira_Sábado'.split('_'),
+    weekdaysShort: 'Dom_Seg_Ter_Qua_Qui_Sex_Sáb'.split('_'),
+    weekdaysMin: 'Do_2ª_3ª_4ª_5ª_6ª_Sá'.split('_'),
+    weekdaysParseExact: true,
+    longDateFormat: {
+      LT: 'HH:mm',
+      LTS: 'HH:mm:ss',
+      L: 'DD/MM/YYYY',
+      LL: 'D [de] MMMM [de] YYYY',
+      LLL: 'D [de] MMMM [de] YYYY HH:mm',
+      LLLL: 'dddd, D [de] MMMM [de] YYYY HH:mm'
+    },
+    calendar: {
+      sameDay: '[Hoje às] LT',
+      nextDay: '[Amanhã às] LT',
+      nextWeek: 'dddd [às] LT',
+      lastDay: '[Ontem às] LT',
+      lastWeek: function lastWeek() {
+        return this.day() === 0 || this.day() === 6 ? '[Último] dddd [às] LT' : // Saturday + Sunday
+        '[Última] dddd [às] LT'; // Monday - Friday
+      },
+      sameElse: 'L'
+    },
+    relativeTime: {
+      future: 'em %s',
+      past: 'há %s',
+      s: 'segundos',
+      ss: '%d segundos',
+      m: 'um minuto',
+      mm: '%d minutos',
+      h: 'uma hora',
+      hh: '%d horas',
+      d: 'um dia',
+      dd: '%d dias',
+      M: 'um mês',
+      MM: '%d meses',
+      y: 'um ano',
+      yy: '%d anos'
+    },
+    dayOfMonthOrdinalParse: /\d{1,2}º/,
+    ordinal: '%dº',
+    week: {
+      dow: 1,
+      // Monday is the first day of the week.
+      doy: 4 // The week that contains Jan 4th is the first week of the year.
+
+    }
+  });
+  return pt;
 });
 /* ----------------------------------------------------------------------------- 
 

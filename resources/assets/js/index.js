@@ -28,7 +28,7 @@ app.run(function($rootScope, $location, $window, $route, $routeParams, amMoment,
         "de":"Deutsch",
         "en":"English",
         "fr":"Français",
-        // "pt":"português",
+        "pt":"português",
         "ro":"română"
     };
 

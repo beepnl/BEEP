@@ -51,8 +51,9 @@ class ChecklistController extends Controller
         $selected       = $this->categoryFactory->get_old_ids_array();
         $users          = User::all()->pluck('name','id');
         $selectedUserId = Auth::user()->id;
+        $checklist      = Checklist::create([]);
 
-        return view('checklists.create', compact('taxonomy', 'selected', 'users', 'selectedUserId'));
+        return view('checklists.create', compact('taxonomy', 'selected', 'users', 'selectedUserId', 'checklist'));
     }
 
 

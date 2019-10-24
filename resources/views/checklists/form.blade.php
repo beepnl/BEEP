@@ -68,6 +68,6 @@
 
 <div class="col-xs-12" style="margin-top: 20px;">
 	<div class="form-group">
-    	<input class="btn btn-primary btn-block" type="submit" value="{{ $submitButtonText or 'Create' }}">
+    	<input class="btn btn-primary btn-block" type="submit" value="{{ isset($submitButtonText) ? $submitButtonText : 'Save' }}">
     </div>
 </div>

@@ -25,7 +25,7 @@
             <form method="POST" action="{{ route('checklists.store') }}" accept-charset="UTF-8" class="form-horizontal" enctype="multipart/form-data">
                 {{ csrf_field() }}
 
-                @include ('checklists.form', ['users'=>$users, 'selectedUserId'=>$selectedUserId])
+                @include ('checklists.form', ['users'=>$users, 'selectedUserId'=>$selectedUserId, 'submitButtonText' => 'Save'])
 
             </form>
 

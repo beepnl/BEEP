@@ -29,7 +29,8 @@ app.run(function($rootScope, $location, $window, $route, $routeParams, amMoment,
         "en":"English",
         "fr":"Français",
         "pt":"português",
-        "ro":"română"
+        "ro":"română",
+        "es":"Spanish"
     };
 
     var setLang     = api.getLocalStoreValue('lang');

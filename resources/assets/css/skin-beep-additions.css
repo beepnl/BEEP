@@ -29,6 +29,9 @@ a {
 	height: 20px;
 }
 
+.sidebar-menu > li.header {
+	text-transform: uppercase;
+}
 .sidebar-menu a, .content-header h1 a, .inspection-actions a{
     cursor: pointer;
 }

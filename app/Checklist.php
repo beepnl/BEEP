@@ -118,4 +118,9 @@ class Checklist extends Model
         }
         return false;
     }
+
+    public static function selectList()
+    {
+        return Checklist::orderBy('name')->pluck('name','id');
+    }
 }

@@ -108,6 +108,7 @@ Route::group(
 				Route::resource('categoryinputs', 	'CategoryInputsController');
 				Route::resource('inspection-items', 'InspectionItemsController');
 				Route::resource('measurement', 		'MeasurementController');
+				Route::resource('research', 		'ResearchController');
 
 				Route::resource('categories', 		'CategoriesController');
 				Route::delete('categories/{id}/pop',['as'=>'categories.pop','uses'=>'CategoriesController@pop','middleware' => ['permission:taxonomy-delete']]);
@@ -122,4 +123,3 @@ Route::group(
 	}
 );
 Auth::routes(['verify' => true]);
-

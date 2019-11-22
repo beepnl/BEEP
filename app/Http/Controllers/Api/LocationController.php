@@ -68,6 +68,7 @@ class LocationController extends Controller
         $category         = Category::findCategoryByParentAndName('location_type', $request->input('location_type','fixed'))->first();
         $location         = new Location([
                 'name'          =>$name, 
+                'roofed'        =>$request->input('roofed'),
                 'continent_id'  =>$continent->id, 
                 'category_id'   =>$category->id,
                 'coordinate_lat'=>$request->filled('lat') ? round($request->input('lat'),3) : null,
@@ -124,6 +125,7 @@ class LocationController extends Controller
         $location                = $request->user()->locations()->findOrFail($id);
         // To do: edit continent and type
         $location->name          = $request->input('name'); 
+        $location->roofed        = $request->input('roofed');
         $location->coordinate_lat= $request->filled('lat') ? round($request->input('lat'),3) : null;
         $location->coordinate_lon= $request->filled('lon') ? round($request->input('lon'),3) : null;
         $location->city          = $request->input('city');

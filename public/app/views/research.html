@@ -1,0 +1,86 @@
+<section class="content-header">
+  <h1>
+    <!-- <a class="icn prev" ng-class="{'mobile':mobile}" ng-click="back()"></a> -->
+    {{lang.research}}
+  </h1>
+  <!-- <ol class="breadcrumb">
+    <li><a href="/"><i class="fa fa-home"></i> Home</a></li>
+    <li class="active">{{lang.hives}}</li>
+  </ol> -->
+</section>
+
+<section class="content" >
+	
+	<div class="alert alert-danger" ng-show="error_msg != null">
+        <p>{{ error_msg }}</p>
+    </div>
+	
+	<!-- Settings -->
+	<div class="box">
+	    <div class="box-header with-border">
+	      <h3 class="box-title">{{lang.research}}</h3>
+	    </div>
+
+	    <div class="box-body">
+			<p>{{ lang.research_info }}</p>
+			<p>{{ lang.research_explanation }}</p>
+			<p><strong>{{ lang.my_beep_data }}:</strong></p>
+			<div class="row">
+				<div class="col-xs-4">
+					<span class=""><i class="fa fa-map-marker"></i> {{lang.locations}}: {{apiaries.length}}</span>
+				</div>
+				<div class="col-xs-4">
+					<span class=""><i class="fa fa-archive"></i> {{lang.hives}}: {{hives.length}}</span>
+				</div>
+				<div class="col-xs-4">
+					<span class=""><i class="fa fa-feed"></i> {{lang.sensors}}: {{sensors.length}}</span>
+				</div>
+			</div>
+		</div>
+
+		<div ng-if="researches.length > 0" class="box-body no-padding" >
+
+	    	<div class="table-responsive">
+	    		<table class="table table-striped no-margin" style="min-width: 700px;">
+		    		<thead>
+		    			<tr class="trh">
+			    			<th class="col-xs-2">{{lang.Name}}</th>
+			    			<th class="col-xs-2">{{lang.purpose}}</th>
+			    			<th class="col-xs-1">{{lang.institution}}</th>
+			    			<th class="col-xs-1">{{lang.start_date}}</th>
+			    			<th class="col-xs-1">{{lang.end_date}}</th>
+			    			<th class="col-xs-2">{{lang.type_of_data_used}}</th>
+			    			<th class="col-xs-3">{{lang.consent}}</th>
+			    		</tr>
+		    		</thead>
+		    		<tbody>
+						<tr ng-repeat="r in researches">
+			    			<td>{{r.name}}</td>
+			    			<td>{{r.purpose}}</td>
+			    			<td>{{r.institution}}</td>
+			    			<td>{{r.start_date}}</td>
+			    			<td>{{r.end_date}}</td>
+			    			<td>{{r.type_of_data_used}}</td>
+			    			<td><button ng-click="consent_toggle()" class="btn btn-block" ng-class="{'btn-danger':r.consent==0, 'btn-success':r.consent==1}">{{ r.consent ? lang.consent_yes : lang.consent_no }}</button></td>
+			    		</tr>
+					</tbody>
+				</table>
+			</div>
+	    </div>
+	    <div ng-if="researches.length == 0">
+	    	<p>{{lang.no_data}}</p>
+	    </div>
+
+		<!-- <div class="box-footer">
+			
+		</div> -->
+		
+	    <div class="overlay" ng-if="loading">
+          <i class="fa fa-refresh fa-spin"></i>
+        </div>
+	</div>
+
+
+
+
+</section>

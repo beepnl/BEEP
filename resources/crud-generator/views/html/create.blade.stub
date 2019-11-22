@@ -1,12 +1,12 @@
 @extends('layouts.app')
 
-@section('page-title') {{ __('crud.create', ['item'=>__('beep.%%modelName%%')]) }}
+@section('page-title') {{ __('crud.create', ['item'=>__('site.%%modelName%%')]) }}
 @endsection
 
 @section('content')
     @component('components/box')
         @slot('title')
-            {{ __('crud.create', ['item'=>__('beep.%%modelName%%')]) }}
+            {{ __('crud.create', ['item'=>__('site.%%modelName%%')]) }}
         @endslot
 
         @slot('bodyClass')

@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('page-title') {{ __('crud.edit').' '.__('beep.%%modelName%%').': '.(isset($%%crudNameSingular%%->name) ? $%%crudNameSingular%%->name : '') }}
+@section('page-title') {{ __('crud.edit').' '.__('site.%%modelName%%').': '.(isset($%%crudNameSingular%%->name) ? $%%crudNameSingular%%->name : '') }}
 @endsection
 
 @section('content')

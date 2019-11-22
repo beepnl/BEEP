@@ -18,12 +18,11 @@ class DummyClass extends Controller
     public function index(Request $request)
     {
         $keyword = $request->get('search');
-        $perPage = {{pagination}};
 
         if (!empty($keyword)) {
-            ${{crudName}} = {{modelName}}::{{whereSnippet}}paginate($perPage);
+            ${{crudName}} = {{modelName}}::{{whereSnippet}}get();
         } else {
-            ${{crudName}} = {{modelName}}::paginate($perPage);
+            ${{crudName}} = {{modelName}}::all();
         }
 
         return view('{{viewPath}}{{viewName}}.index', compact('{{crudName}}'));

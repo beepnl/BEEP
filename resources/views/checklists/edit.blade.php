@@ -28,7 +28,7 @@
                 {{ method_field('PATCH') }}
                 {{ csrf_field() }}
 
-                @include ('checklists.form', ['submitButtonText' => 'Update', 'selected'=>$selected, 'users'=>$users, 'selectedUserId'=>$selectedUserId])
+                @include ('checklists.form', ['submitButtonText' => 'Update', 'selected'=>$selected, 'users'=>$users, 'selectedUserIds'=>$selectedUserIds, 'checklist'=>$checklist])
 
             </form>
 

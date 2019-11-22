@@ -16,7 +16,7 @@
 			<div class="form-group {{ $errors->has('name') ? 'has-error' : ''}}">
 			    <label for="name" control-label>{{ __('crud.name') }}</label>
 			    <div>
-			        <input class="form-control" name="name" type="text" id="name" value="{{ $checklist->name or ''}}" >
+			        <input class="form-control" name="name" type="text" id="name" value="{{ $checklist->name }}" >
 			        {!! $errors->first('name', '<p class="help-block">:message</p>') !!}
 			    </div>
 			</div>
@@ -25,7 +25,7 @@
 			<div class="form-group {{ $errors->has('type') ? 'has-error' : ''}}">
 			    <label for="type" control-label>{{ __('crud.type') }}</label>
 			    <div>
-			        <input class="form-control" name="type" type="text" id="type" value="{{ $checklist->type or ''}}" >
+			        <input class="form-control" name="type" type="text" id="type" value="{{ $checklist->type }}" >
 			        {!! $errors->first('type', '<p class="help-block">:message</p>') !!}
 			    </div>
 			</div>
@@ -34,7 +34,7 @@
 			<div class="form-group {{ $errors->has('description') ? 'has-error' : ''}}">
 			    <label for="description" control-label>{{ __('crud.description') }}</label>
 			    <div>
-			        <input class="form-control" name="description" type="text" id="description" value="{{ $checklist->description or ''}}" >
+			        <input class="form-control" name="description" type="text" id="description" value="{{ $checklist->description }}" >
 			        {!! $errors->first('description', '<p class="help-block">:message</p>') !!}
 			    </div>
 			</div>
@@ -45,7 +45,7 @@
 			<div class="form-group {{ $errors->has('user_id') ? 'has-error' : ''}}">
 			    <label for="user_id" control-label>{{ __('general.User') }}</label>
 			    <div>
-			        {!! Form::select('user_id', $users, $selectedUserId, array('id'=>'user_id','class' => 'form-control', 'placeholder'=>'Select a user...')) !!}
+			        {!! Form::select('user_id', $users, $selectedUserIds, array('id'=>'user_id', 'multiple'=>'multiple', 'class' => 'form-control', 'placeholder'=>'Select users...')) !!}
 			        {!! $errors->first('user_id', '<p class="help-block">:message</p>') !!}
 			    </div>
 			</div>

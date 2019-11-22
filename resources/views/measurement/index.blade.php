@@ -57,7 +57,7 @@
             <tbody>
             @foreach($measurement as $item)
                 <tr>
-                    <td>{{ $loop->iteration or $item->id }}</td>
+                    <td>{{ $item->id }}</td>
                     <td>{{ $item->abbreviation }}</td>
                     <td>{{ $item->pq_name_unit() }}</td>
                     <td>{{ isset($item->show_in_charts) && 1 == $item->show_in_charts ? 'Yes' : 'No' }}</td>

@@ -574,6 +574,9 @@ app.config(['$routeProvider', '$locationProvider', function ($routeProvider) {
   }).when('/export', {
     controller: 'ExportCtrl',
     templateUrl: '/app/views/export.html'
+  }).when('/research', {
+    controller: 'SettingsCtrl',
+    templateUrl: '/app/views/research.html'
   }) // none...
   .otherwise({
     redirectTo: '/load'

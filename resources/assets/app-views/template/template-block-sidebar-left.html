@@ -76,19 +76,19 @@
 
       <li class="header">INFO</li>
       <li data-toggle="{{ mobile ? 'offcanvas' : '' }}">
-        <a ng-click="locale == 'nl' ? loadUrl('https://beep.nl/handleiding-v2#samenwerken') : locale == 'de' ? loadUrl('https://beep.nl/anleitung#kooperieren') : loadUrl('https://beep.nl/manual-v2#cooperation')">
+        <a ng-click="loadUrl('https://beep.nl/app-home')">
           <i class="fa fa-star"></i>
           <span ng-cloak>{{lang.Whats_new}}</span>
         </a>    
       </li>  
       <li data-toggle="{{ mobile ? 'offcanvas' : '' }}">
-        <a ng-click="locale == 'nl' ? loadUrl('https://beep.nl/handleiding-v2') : locale == 'de' ? loadUrl('https://beep.nl/anleitung') : loadUrl('https://beep.nl/manual-v2')">
+        <a ng-click="loadUrl('https://beep.nl/app-manual-'+locale)">
           <i class="fa fa-book"></i>
           <span ng-cloak>{{lang.Manual}}</span>
         </a>    
       </li>  
       <li data-toggle="{{ mobile ? 'offcanvas' : '' }}">
-        <a ng-click="loadUrl('https://beep.nl')">
+        <a ng-click="locale == 'nl' ? loadUrl('https://beep.nl') : loadUrl('https://beep.nl/home-english')">
           <i class="fa fa-info-circle"></i>
           <span ng-cloak>Beep {{lang.Website}}</span>
         </a>    

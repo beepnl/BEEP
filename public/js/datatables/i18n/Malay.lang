@@ -20,7 +20,7 @@
    "oPaginate": {
        "sFirst":    	"Pertama",
        "sPrevious": 	"Sebelum",
-       "sNext":     	"Seterusnya",
+       "sNext":     	"Kemudian",
        "sLast":     	"Akhir"
    },
    "oAria": {

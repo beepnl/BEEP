@@ -7,8 +7,7 @@
 
 {
 	"sEmptyTable":   "Não foi encontrado nenhum registo",
-	"sLoadingRecords": "A carregar...",
-	"sProcessing":   "A processar...",
+	"sProcessing":   "A carregar...",
 	"sLengthMenu":   "Mostrar _MENU_ registos",
 	"sZeroRecords":  "Não foram encontrados resultados",
 	"sInfo":         "Mostrando de _START_ até _END_ de _TOTAL_ registos",

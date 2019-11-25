@@ -409,6 +409,23 @@
     group_explanation_2     : '2. Nodig andere Beep gebruikers uit op hun Beep e-mail adres',
     group_explanation_3     : '3. Deel specifieke kasten om te bekijken, of om samen aan te werken',
     Filter_and_sort_on      : 'Filter en sorteer op:',
+
+    info                    : 'Info',
+    research                : 'Onderzoek',
+    roofed                  : 'Heeft de bijenstand een dak?',
+    research_explanation    : 'Dit scherm bevat de beschikbare onderzoeken waarvoor u zich kunt aanmelden om uw gegevens mee te delen. Lees voordat je je aanmeldt de onderzoeksbeschrijving aandachtig door om er zeker van te zijn dat je ermee instemt dat het specifieke deel van je gegevens gedurende de aangegeven periode met het onderzoek wordt gedeeld. Onthoud dat je je weer kunt afmelden wanneer je maar wilt.',
+    research_info           : 'Door uw gegevens met onderzoekers te delen, helpt u hen om meer gegevens te kunnen analyseren en tot betere conclusies te komen voor hun onderzoek.',
+    start_date              : 'Startdatum',
+    end_date                : 'Einddatum',
+    purpose                 : 'Onderzoeksdoel',
+    institution             : 'Onderzoeksinstituut',
+    type_of_data_used       : 'Type data dat gebruikt wordt',
+    link                    : 'Link',
+    consent                 : 'Huidige toestemming',
+    consent_yes             : 'Ik sta toe mijn data te gebruiken',
+    consent_no              : 'Ik sta NIET toe mijn data te gebruiken',
+    my_beep_data            : 'Mijn eigen BEEP gegevens',
+
  };
 
 

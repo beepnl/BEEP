@@ -180,7 +180,7 @@ app.config(['$routeProvider', '$locationProvider',  function($routeProvider)
 
   .when('/research', 
  {
-        controller:'SettingsCtrl',
+        controller:'ResearchesCtrl',
         templateUrl:'/app/views/research.html'
  })
 

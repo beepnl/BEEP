@@ -16,6 +16,9 @@ class Picture extends Model
     public static function store($requestData, $type='')
     {
         //get file extension
+        if (!isset($requestData['image']))
+            return null;
+
         $imageFile = $requestData['image'];
         $extension = $imageFile->getClientOriginalExtension();
 
@@ -29,10 +32,11 @@ class Picture extends Model
         {
             $fileName      = substr($filePath, strlen(Picture::$imagePath) + strlen($pathname) + 1); // only file name
             $filePath      = Storage::disk('public')->putFileAs(Picture::$thumbPath.$pathname, $imageFile, $fileName);
-            $photoFilePath = public_path('/storage/'.$filePath);
-            Image::make($photoFilePath)->resize(Picture::$thumbPixels, Picture::$thumbPixels, function($constraint) { $constraint->aspectRatio(); })->save($photoFilePath, Picture::$thumbQuality);
+            $imageFilePath = public_path('/storage/'.$filePath);
+            //die(print_r([$fileName, $filePath, $imageFilePath]));
+            Image::make($imageFilePath)->resize(Picture::$thumbPixels, Picture::$thumbPixels, function($constraint) { $constraint->aspectRatio(); })->save($imageFilePath, Picture::$thumbQuality);
         
-            return $fileName;
+            return '/storage/'.$filePath;
         }
         return null;
     }

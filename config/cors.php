@@ -13,7 +13,7 @@ return [
     */
    
     'supportsCredentials' => false,
-    'allowedOrigins' => ['https://app.beep.nl'],
+    'allowedOrigins' => [env('ALLOWED_ORIGINS', 'https://app.beep.nl')],
     'allowedOriginsPatterns' => ['*'],
     'allowedHeaders' => ['*'],
     'allowedMethods' => ['*'],

@@ -26,14 +26,14 @@ app.controller('ResearchesCtrl', function($scope, $rootScope, $window, $timeout,
 
     $scope.loadResearches = function()
     {
-        $scope.researches = api.getApiRequest('researches', 'researches', $scope.sensors);
+        $scope.researches = api.getApiRequest('research', 'research', $scope.sensors);
     }
 
     $scope.updateResearches = function(e, data)
     {
         $scope.researches = data;
     }
-    $scope.researchesLoadedHandler = $rootScope.$on('researchesLoaded', $scope.updateResearches);
+    $scope.researchLoadedHandler = $rootScope.$on('researchLoaded', $scope.updateResearches);
 
 
     $scope.back = function()
@@ -65,7 +65,7 @@ app.controller('ResearchesCtrl', function($scope, $rootScope, $window, $timeout,
     // remove listeners
     $scope.removeListeners = function()
     {
-        $scope.researchesLoadedHandler();
+        $scope.researchLoadedHandler();
         $scope.backListener();
     };
 

@@ -26,7 +26,7 @@ class Research extends Model
      *
      * @var array
      */
-    protected $fillable = ['description', 'name', 'image', 'type', 'institution', 'type_of_data_used', 'start_date', 'end_date', 'checklist_id'];
+    protected $fillable = ['description', 'name', 'url', 'image', 'type', 'institution', 'type_of_data_used', 'start_date', 'end_date', 'checklist_id'];
     
     public static $pictureType = 'research';
 

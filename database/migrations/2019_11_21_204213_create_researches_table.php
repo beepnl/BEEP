@@ -16,8 +16,9 @@ class CreateResearchesTable extends Migration
             $table->increments('id');
             $table->timestamps();
             $table->string('name');
+            $table->string('url')->nullable();
             $table->string('image')->nullable();
-            $table->string('description')->nullable();
+            $table->text('description')->nullable();
             $table->string('type')->nullable();
             $table->string('institution')->nullable();
             $table->string('type_of_data_used')->nullable();

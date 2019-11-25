@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('page-title') {{ __('crud.edit').' '.__('site.Research').': '.(isset($research->name) ? $research->name : '') }}
+@section('page-title') {{ __('crud.edit').' '.__('beep.Research').': '.(isset($research->name) ? $research->name : '') }}
 @endsection
 
 @section('content')

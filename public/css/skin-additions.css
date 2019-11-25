@@ -894,6 +894,28 @@ dl.hive-select{
 	height: auto !important;
 }
 
+/* Research related */
+.icon-line{
+	display: block;
+	border: 1px solid #333;
+	border-radius: 10px;
+	padding: 10px;
+	padding-top: 0px;
+	margin-bottom: 10px;
+}
+
+.image-icon {
+	display: inline-block;
+	width: 40px;
+	height: 40px;
+	overflow: hidden;
+	background-color: grey;
+	border: 1px solid #333;
+	border-radius: 10%;
+	vertical-align: top;
+	margin-right: 10px; 
+}
+
 /* Table items */
 
 .table-responsive{

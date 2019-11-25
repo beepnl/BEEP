@@ -25,7 +25,7 @@
 			<p>{{ lang.research_info }}</p>
 			<p>{{ lang.research_explanation }}</p>
 			<p><strong>{{ lang.my_beep_data }}:</strong></p>
-			<div class="row">
+			<div class="row" style="margin-bottom: 20px;">
 				<div class="col-xs-4">
 					<span class=""><i class="fa fa-map-marker"></i> {{lang.locations}}: {{apiaries.length}}</span>
 				</div>
@@ -36,40 +36,61 @@
 					<span class=""><i class="fa fa-feed"></i> {{lang.sensors}}: {{sensors.length}}</span>
 				</div>
 			</div>
+
+
+			<div ng-if="researches.length > 0" class="row" >
+
+				<div class="col-xs-12 " ng-repeat="(i, r) in researches | orderBy:'name' ">
+		    		
+			    	<div class="icon-line">
+				    	<h2>
+				    		<img class="image-icon" src="{{r.image}}">
+				    		{{r.name}}
+				    	</h2>
+				    	<div class="row">
+					    	<div class="col-md-8 col-xs-12">
+					    		<dl class="dl-horizontal">
+
+					    			<dt ng-if="r.purpose != null">{{lang.purpose}}</dt>
+					    			<dd>{{r.description}}</dd>
+					    			
+					    			<dt ng-if="r.url != null">{{lang.link}}</dt>
+					    			<dd><a href="{{r.url}}" target="_blank">{{r.url}}</a></dd>
+
+					    			<dt ng-if="r.institution != null">{{lang.institution}}</dt>
+					    			<dd>{{r.institution}}</dd>
+					    			
+					    			<dt ng-if="r.type_of_data_used != null">{{lang.type_of_data_used}}</dt>
+					    			<dd>{{r.type_of_data_used}}</dd>
+
+					    			<dt ng-if="r.start_date != null">{{lang.start_date}}</dt>
+					    			<dd>{{r.start_date}}</dd>
+					    			
+					    			<dt ng-if="r.end_date != null">{{lang.end_date}}</dt>
+					    			<dd>{{r.end_date}}</dd>
+								</dl>
+							</div>
+							<div class="col-md-4 col-xs-12">
+								<dl class="dl-horizontal">
+									<dt>
+										{{ lang.consent }}
+									</dt>
+									<dd>
+										<strong ng-class="{'btn-danger':r.consent==null, 'btn-danger':r.consent==0, 'btn-success':r.consent==1}">{{ r.consent ? lang.consent_yes : lang.consent_no }}</strong>
+									</dd>
+								</dl>
+								<button ng-click="consent_toggle()" class="btn btn-block btn-primary" ng-class="{'btn-danger':r.consent==1, 'btn-success':r.consent==0}">{{ r.consent==1 ? lang.consent_no : lang.consent_yes }}</button>
+							</div>
+						</div>
+					</div>
+				</div>
+		    </div>
+		    <div ng-if="researches.length == 0">
+		    	<p>{{lang.no_data}}</p>
+		    </div>
+
+
 		</div>
-
-		<div ng-if="researches.length > 0" class="box-body no-padding" >
-
-	    	<div class="table-responsive">
-	    		<table class="table table-striped no-margin" style="min-width: 700px;">
-		    		<thead>
-		    			<tr class="trh">
-			    			<th class="col-xs-2">{{lang.Name}}</th>
-			    			<th class="col-xs-2">{{lang.purpose}}</th>
-			    			<th class="col-xs-1">{{lang.institution}}</th>
-			    			<th class="col-xs-1">{{lang.start_date}}</th>
-			    			<th class="col-xs-1">{{lang.end_date}}</th>
-			    			<th class="col-xs-2">{{lang.type_of_data_used}}</th>
-			    			<th class="col-xs-3">{{lang.consent}}</th>
-			    		</tr>
-		    		</thead>
-		    		<tbody>
-						<tr ng-repeat="r in researches">
-			    			<td>{{r.name}}</td>
-			    			<td>{{r.purpose}}</td>
-			    			<td>{{r.institution}}</td>
-			    			<td>{{r.start_date}}</td>
-			    			<td>{{r.end_date}}</td>
-			    			<td>{{r.type_of_data_used}}</td>
-			    			<td><button ng-click="consent_toggle()" class="btn btn-block" ng-class="{'btn-danger':r.consent==0, 'btn-success':r.consent==1}">{{ r.consent ? lang.consent_yes : lang.consent_no }}</button></td>
-			    		</tr>
-					</tbody>
-				</table>
-			</div>
-	    </div>
-	    <div ng-if="researches.length == 0">
-	    	<p>{{lang.no_data}}</p>
-	    </div>
 
 		<!-- <div class="box-footer">
 			

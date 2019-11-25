@@ -29,7 +29,7 @@
     <!-- Sidebar Menu -->
     <ul class="sidebar-menu">
 
-      <li class="header">MENU</li>
+      <li class="header">{{lang.menu}}</li>
       <!-- Optionally, you can add icons to the links -->
       <!-- <li ng-class="{active: pageSlug == 'dashboard'}">
           <a ng-click="switchMenu($event, true, '/dashboard')">
@@ -74,7 +74,15 @@
         </a>    
       </li>     
 
-      <li class="header">INFO</li>
+      <li class="header">{{lang.research}}</li>
+      <li ng-class="{active: pageSlug == 'research'}">
+        <a ng-click="switchMenu($event, true, '/research')" data-toggle="{{ mobile ? 'offcanvas' : '' }}">
+          <i class="fa fa-graduation-cap"></i>
+          <span ng-cloak>{{lang.research}}</span>
+        </a>    
+      </li>     
+
+      <li class="header">{{lang.info}}</li>
       <li data-toggle="{{ mobile ? 'offcanvas' : '' }}">
         <a ng-click="loadUrl('https://beep.nl/app-home')">
           <i class="fa fa-star"></i>

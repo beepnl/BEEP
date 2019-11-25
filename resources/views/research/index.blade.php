@@ -18,6 +18,7 @@
         @endslot
 
         @slot('bodyClass')
+            table-responsive
         @endslot
 
         @slot('body')
@@ -50,10 +51,14 @@
             @foreach($research as $item)
                 <tr>
                     <td>{{ $loop->iteration or $item->id }}</td>
-                    <td>{{ $item->name }}</td><td>{{ $item->description }}</td><td>{{ $item->type }}</td><td>{{ $item->institution }}</td><td>{{ $item->type_of_data_used }}</td><td>{{ $item->start_date }}</td><td>{{ $item->end_date }}</td>
-                    <td col-sm-1>
-                        <a href="{{ route('research.show', $item->id) }}" title="{{ __('crud.show') }}"><button class="btn btn-default"><i class="fa fa-eye" aria-hidden="true"></i></button></a>
-
+                    <td><a href="{{$item->url}}" target="_blank">@if(isset($item->image))<img src="{{$item->image}}" style="width:30px; height: 30px; border-radius: 20%; border: 1px solid #333; display: inline-block;">@endif {{ $item->name }}</a></td>
+                    <td>{{ $item->description }}</td>
+                    <td>{{ $item->type }}</td>
+                    <td>{{ $item->institution }}</td>
+                    <td>{{ $item->type_of_data_used }}</td>
+                    <td>{{ $item->start_date }}</td>
+                    <td>{{ $item->end_date }}</td>
+                    <td style="min-width: 100px;">
                         <a href="{{ route('research.edit', $item->id) }}" title="{{ __('crud.edit') }}"><button class="btn btn-primary"><i class="fa fa-pencil" aria-hidden="true"></i></button></a>
 
                         <form method="POST" action="{{ route('research.destroy', $item->id) }}" accept-charset="UTF-8" style="display:inline">

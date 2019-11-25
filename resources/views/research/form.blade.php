@@ -7,11 +7,23 @@
 	        {!! $errors->first('name', '<p class="help-block">:message</p>') !!}
 	    </div>
 	</div>
-</div><div class="col-xs-12">
+</div>
+<div class="col-xs-12">
+	<div class="form-group {{ $errors->has('url') ? 'has-error' : ''}}">
+	    <label for="url" control-label>{{ 'URL' }}</label>
+	    <div>
+	        <input class="form-control" name="url" type="text" id="url" value="{{ isset($research->url) ? $research->url : '' }}" >
+
+	        {!! $errors->first('url', '<p class="help-block">:message</p>') !!}
+	    </div>
+	</div>
+</div>
+<div class="col-xs-12">
 	<div class="form-group {{ $errors->has('image') ? 'has-error' : ''}}">
 	    <label for="image" control-label>{{ 'Image' }}</label>
 	    <div>
-	        <input class="form-control" name="image" type="file" id="image" value="{{ isset($research->image) ? $research->image : '' }}" >
+	        <image src="{{ isset($research->image) ? $research->image : ''}}">
+	        <input class="form-control" name="image" type="file" id="image" >
 
 	        {!! $errors->first('image', '<p class="help-block">:message</p>') !!}
 	    </div>
@@ -56,7 +68,7 @@
 	<div class="form-group {{ $errors->has('start_date') ? 'has-error' : ''}}">
 	    <label for="start_date" control-label>{{ 'Start Date' }}</label>
 	    <div>
-	        <input class="form-control" name="start_date" type="datetime-local" id="start_date" value="{{ isset($research->start_date) ? $research->start_date : '' }}" >
+	        <input class="form-control" name="start_date" type="datetime" id="start_date" value="{{ isset($research->start_date) ? $research->start_date : '' }}" >
 	        {!! $errors->first('start_date', '<p class="help-block">:message</p>') !!}
 	    </div>
 	</div>
@@ -64,7 +76,7 @@
 	<div class="form-group {{ $errors->has('end_date') ? 'has-error' : ''}}">
 	    <label for="end_date" control-label>{{ 'End Date' }}</label>
 	    <div>
-	        <input class="form-control" name="end_date" type="datetime-local" id="end_date" value="{{ isset($research->end_date) ? $research->end_date : '' }}" >
+	        <input class="form-control" name="end_date" type="datetime" id="end_date" value="{{ isset($research->end_date) ? $research->end_date : '' }}" >
 	        {!! $errors->first('end_date', '<p class="help-block">:message</p>') !!}
 	    </div>
 	</div>

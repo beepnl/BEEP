@@ -23,6 +23,7 @@ class ResearchController extends Controller
         if (!empty($keyword)) {
             $research = Research::where('description', 'LIKE', "%$keyword%")
                 ->orWhere('name', 'LIKE', "%$keyword%")
+                ->orWhere('url', 'LIKE', "%$keyword%")
                 ->orWhere('type', 'LIKE', "%$keyword%")
                 ->orWhere('institution', 'LIKE', "%$keyword%")
                 ->orWhere('type_of_data_used', 'LIKE', "%$keyword%")
@@ -59,14 +60,16 @@ class ResearchController extends Controller
         
         $this->validate($request, [
             'name'          => 'required|string',
-            'file'          => 'nullable|image',
-            'start_date'    => 'required|date',
+            'url'           => 'nullable|url',
+            'image'         => 'nullable|image|max:2000',
+            'start_date'    => 'nullable|date',
             'end_date'      => 'nullable|date|after:start',
             'checklist_id'  => 'nullable|exists:checklists,id',
         ]);
 
-        $requestData         = $request->all();
-        $requestData['file'] = Research::storeImage($requestData);
+        $requestData = $request->all();
+        if (isset($requestData['image']))
+            $requestData['image']= Research::storeImage($requestData);
 
         Research::create($requestData);
 
@@ -111,9 +114,20 @@ class ResearchController extends Controller
      */
     public function update(Request $request, $id)
     {
-        
+        $this->validate($request, [
+            'name'          => 'required|string',
+            'url'           => 'nullable|url',
+            'image'         => 'nullable|image|max:2000',
+            'start_date'    => 'nullable|date',
+            'end_date'      => 'nullable|date|after:start',
+            'checklist_id'  => 'nullable|exists:checklists,id',
+        ]);
+
         $requestData = $request->all();
         
+        if (isset($requestData['image']))
+            $requestData['image'] = Research::storeImage($requestData);
+
         $research = Research::findOrFail($id);
         $research->update($requestData);
 

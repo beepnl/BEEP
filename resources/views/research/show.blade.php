@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('page-title') {{ __('site.Research').': '.(isset($research->name) ? $research->name : __('general.Item')).' ('.$research->id.')' }}
+@section('page-title') {{ __('beep.Research').': '.(isset($research->name) ? $research->name : __('general.Item')).' ('.$research->id.')' }}
 @endsection
 
 @section('content')

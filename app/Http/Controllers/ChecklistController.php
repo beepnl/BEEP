@@ -50,10 +50,10 @@ class ChecklistController extends Controller
         $taxonomy       = Category::getTaxonomy();
         $selected       = $this->categoryFactory->get_old_ids_array();
         $users          = User::all()->pluck('name','id');
-        $selectedUserId = Auth::user()->id;
+        $selectedUserIds= [Auth::user()->id];
         $checklist      = Checklist::create([]);
 
-        return view('checklists.create', compact('taxonomy', 'selected', 'users', 'selectedUserId', 'checklist'));
+        return view('checklists.create', compact('taxonomy', 'selected', 'users', 'selectedUserIds', 'checklist'));
     }
 
 
@@ -112,10 +112,10 @@ class ChecklistController extends Controller
         $taxonomy  = $checklist->getOrderedChecklist($selected);
         
         $users     = User::all()->pluck('name','id');
-        $selectedUserId = $checklist->users()->value('id');
+        $selectedUserIds = $checklist->users()->pluck('id');
 
-        //die(print_r(['id'=>$selectedUserId]));
-        return view('checklists.edit', compact('checklist', 'taxonomy', 'selected', 'users', 'selectedUserId'));
+        //die(print_r(['id'=>$selectedUserIds, 'cl'=>$checklist->toArray()]));
+        return view('checklists.edit', compact('checklist', 'taxonomy', 'selected', 'users', 'selectedUserIds'));
     }
 
     private function addChecklistToUser(Request $request, $checklist)

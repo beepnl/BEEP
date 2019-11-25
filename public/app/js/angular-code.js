@@ -2250,13 +2250,13 @@ app.controller('HivesCtrl', function ($scope, $rootScope, $window, $location, $f
   };
 
   $scope.saveHive = function (back) {
+    $scope.redirect = "/locations";
+
     if ($location.path().indexOf('/hives/create') > -1) {
       api.postApiRequest('saveHive', 'hives', $scope.hive);
     } else {
       api.patchApiRequest('saveHive', 'hives/' + $scope.hive.id, $scope.hive);
     }
-
-    $scope.redirect = "/locations";
   };
 
   $scope.deleteHive = function () {
@@ -2294,8 +2294,12 @@ app.controller('HivesCtrl', function ($scope, $rootScope, $window, $location, $f
         var path = $rootScope.history[i];
         var go = false;
         var hive_id = typeof $scope.hive != 'undefined' && $scope.hive != null ? $scope.hive.id : '';
-        if (path.indexOf('/locations') > -1 || path.indexOf('/hives') > -1 && path.indexOf('/hives/' + hive_id) == -1 || path.indexOf('/groups') > -1) go = true;
-        if (go) return $location.path(path);
+        if (path.indexOf('/locations') > -1 || path.indexOf('/hives') > -1 && path.indexOf('/hives/' + hive_id) == -1 && path.indexOf('/hives/create') == -1 || path.indexOf('/groups') > -1) go = true;
+
+        if (go) {
+          //console.log('hiveChanged', $scope.redirect, $rootScope.history, path);
+          return $location.path(path);
+        }
       }
 
       $rootScope.historyBack();

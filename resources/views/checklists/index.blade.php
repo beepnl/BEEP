@@ -60,8 +60,10 @@
             <tbody>
             @foreach($checklists as $item)
                 <tr>
-                    <td>{{ $loop->iteration or $item->id }}</td>
-                    <td>{{ $item->name }}</td><td>{{ $item->type }}</td><td>{{ $item->description }}</td>
+                    <td>{{ $item->id }}</td>
+                    <td>{{ $item->name }}</td>
+                    <td>{{ $item->type }}</td>
+                    <td>{{ $item->description }}</td>
                     <td>{{ $item->categories()->count() }}</td>
                     <td>{{ $item->users->pluck('name')->implode(', ') }}</td>
                     <td col-sm-1>

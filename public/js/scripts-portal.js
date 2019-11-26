@@ -9,7 +9,11 @@ function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
 // BEEP js 
 // Dynamic Tree
 $(function () {
-  // Taxonomy editor
+  // Add select2 select input to classes 'select2'
+  $('.select2').select2({
+    theme: "classic"
+  }); // Taxonomy editor
+
   $('#category-tree').on("changed.jstree", function (e, data) {
     id = null;
 

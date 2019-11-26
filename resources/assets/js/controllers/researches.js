@@ -36,6 +36,19 @@ app.controller('ResearchesCtrl', function($scope, $rootScope, $window, $timeout,
     $scope.researchLoadedHandler = $rootScope.$on('researchLoaded', $scope.updateResearches);
 
 
+    $scope.consentToggle = function(research_id, consent)
+    {
+        if (consent)
+        {
+            api.postApiRequest('researchConsent', 'research/'+research_id+'/add_consent');
+        }
+        else
+        {
+            api.postApiRequest('researchConsent', 'research/'+research_id+'/remove_consent');
+        }
+    }
+    $scope.researchConsentLoadedHandler = $rootScope.$on('researchConsentLoaded', $scope.loadResearches);
+
     $scope.back = function()
     {
         if ($rootScope.optionsDialog)
@@ -66,6 +79,7 @@ app.controller('ResearchesCtrl', function($scope, $rootScope, $window, $timeout,
     $scope.removeListeners = function()
     {
         $scope.researchLoadedHandler();
+        $scope.researchConsentLoadedHandler();
         $scope.backListener();
     };
 

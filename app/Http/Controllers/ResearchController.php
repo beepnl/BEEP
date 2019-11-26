@@ -64,14 +64,17 @@ class ResearchController extends Controller
             'image'         => 'nullable|image|max:2000',
             'start_date'    => 'nullable|date',
             'end_date'      => 'nullable|date|after:start',
-            'checklist_id'  => 'nullable|exists:checklists,id',
+            'checklist_ids' => 'nullable|exists:checklists,id',
         ]);
 
         $requestData = $request->all();
+
         if (isset($requestData['image']))
             $requestData['image']= Research::storeImage($requestData);
 
-        Research::create($requestData);
+        $research = Research::create($requestData);
+
+        $research->checklists()->sync($requestData['checklist_ids']);
 
         return redirect('research')->with('flash_message', 'Research added!');
     }
@@ -120,7 +123,7 @@ class ResearchController extends Controller
             'image'         => 'nullable|image|max:2000',
             'start_date'    => 'nullable|date',
             'end_date'      => 'nullable|date|after:start',
-            'checklist_id'  => 'nullable|exists:checklists,id',
+            'checklist_ids' => 'nullable|exists:checklists,id',
         ]);
 
         $requestData = $request->all();
@@ -129,7 +132,9 @@ class ResearchController extends Controller
             $requestData['image'] = Research::storeImage($requestData);
 
         $research = Research::findOrFail($id);
+
         $research->update($requestData);
+        $research->checklists()->sync($requestData['checklist_ids']);
 
         return redirect('research')->with('flash_message', 'Research updated!');
     }

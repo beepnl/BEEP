@@ -419,7 +419,7 @@
     end_date                : 'Einddatum',
     purpose                 : 'Onderzoeksdoel',
     institution             : 'Onderzoeksinstituut',
-    type_of_data_used       : 'Type data dat gebruikt wordt',
+    type_of_data_used       : 'Gebruik data',
     link                    : 'Link',
     consent                 : 'Huidige toestemming',
     consent_yes             : 'Ik sta toe mijn data te gebruiken',

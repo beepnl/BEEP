@@ -79,6 +79,10 @@ Route::group(['middleware' => \Barryvdh\Cors\HandleCors::class], function()
 		Route::post('inspections/store', 	'Api\InspectionsController@store');
 		Route::delete('inspections/{id}', 	'Api\InspectionsController@destroy');
 
+		Route::get('research', 				'Api\ResearchController@index');
+		Route::post('research/{id}/add_consent',   'Api\ResearchController@add_consent');
+		Route::post('research/{id}/remove_consent','Api\ResearchController@remove_consent');
+
 		Route::delete('user', 				'Api\UserController@destroy');
 		Route::patch('user', 				'Api\UserController@edit');
 
@@ -90,7 +94,6 @@ Route::group(['middleware' => \Barryvdh\Cors\HandleCors::class], function()
 		Route::resource('locations', 		'Api\LocationController', 	 			['except'=>['create','edit']]);
 		Route::resource('productions',		'Api\ProductionController',				['except'=>['create','edit']]);
 		Route::resource('queens', 			'Api\QueenController',		 			['except'=>['create','edit']]);
-		Route::resource('research', 		'Api\ResearchController', 				['except'=>['create','edit']]);
 
 		Route::delete('groups/detach/{id}', 'Api\GroupController@detach');
 

@@ -68,7 +68,7 @@
 	<div class="form-group {{ $errors->has('start_date') ? 'has-error' : ''}}">
 	    <label for="start_date" control-label>{{ 'Start Date' }}</label>
 	    <div>
-	        <input class="form-control" name="start_date" type="datetime" id="start_date" value="{{ isset($research->start_date) ? $research->start_date : '' }}" >
+	        <input class="form-control" name="start_date" type="date" id="start_date" value="{{ isset($research->start_date) ? substr($research->start_date, 0, 10) : '' }}" >
 	        {!! $errors->first('start_date', '<p class="help-block">:message</p>') !!}
 	    </div>
 	</div>
@@ -76,17 +76,17 @@
 	<div class="form-group {{ $errors->has('end_date') ? 'has-error' : ''}}">
 	    <label for="end_date" control-label>{{ 'End Date' }}</label>
 	    <div>
-	        <input class="form-control" name="end_date" type="datetime" id="end_date" value="{{ isset($research->end_date) ? $research->end_date : '' }}" >
+	        <input class="form-control" name="end_date" type="date" id="end_date" value="{{ isset($research->end_date) ? substr($research->end_date, 0, 10) : '' }}" >
 	        {!! $errors->first('end_date', '<p class="help-block">:message</p>') !!}
 	    </div>
 	</div>
 </div><div class="col-xs-12">
-	<div class="form-group {{ $errors->has('checklist_id') ? 'has-error' : ''}}">
-	    <label for="checklist_id" control-label>{{ 'Checklist Id' }}</label>
+	<div class="form-group {{ $errors->has('checklist_ids') ? 'has-error' : ''}}">
+	    <label for="checklist_ids" control-label>{{ 'Checklists' }}</label>
 	    <div>
 	        {{-- <input class="form-control" name="checklist_id" type="number" id="checklist_id" value="{{ isset($research->checklist_id) ? $research->checklist_id : '' }}" > --}}
-	        {!! Form::select('checklist_id', App\Checklist::selectList(), isset($research->checklist_id) ? $research->checklist_id : null, array('id'=>'checklist_id','class' => 'form-control', 'placeholder'=>__('crud.select',['item'=>__('beep.checklist')]).'...')) !!}
-	        {!! $errors->first('checklist_id', '<p class="help-block">:message</p>') !!}
+	        {!! Form::select('checklist_ids[]', App\Checklist::selectList(), ($research->checklists->count() > 0) ? $research->checklists->pluck('id') : null, array('id'=>'checklist_ids','class' => 'form-control select2', 'multiple')) !!}
+	        {!! $errors->first('checklist_ids', '<p class="help-block">:message</p>') !!}
 	    </div>
 	</div>
 </div>

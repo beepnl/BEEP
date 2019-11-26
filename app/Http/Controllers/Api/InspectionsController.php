@@ -19,7 +19,7 @@ class InspectionsController extends Controller
     public function lists(Request $request)
     {
         $out               = [];
-        $checklists        = $request->user()->checklists();
+        $checklists        = $request->user()->allChecklists();
         $out['checklists'] = $checklists->orderBy('name')->get();
         
         $checklist    = null;
@@ -27,7 +27,7 @@ class InspectionsController extends Controller
         if ($checklists->where('id',intval($request->input('id')))->count() > 0)
             $checklist = $checklists->where('id',intval($request->input('id')))->first();
         else
-            $checklist = $request->user()->checklists()->orderBy('created_at', 'desc')->first();
+            $checklist = $request->user()->allChecklists()->orderBy('created_at', 'desc')->first();
     
         if ($checklist && $checklist->categories()->count() > 0)
             $checklist->categories = $checklist->categories()->get()->toTree();

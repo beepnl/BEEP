@@ -44,21 +44,32 @@
         <table id="table-research" class="table table-responsive table-striped">
             <thead>
                 <tr>
-                    <th>#</th><th>Name</th><th>Description</th><th>Type</th><th>Institution</th><th>Type Of Data Used</th><th>Start Date</th><th>End Date</th><th>Actions</th>
+                    <th col-xs-1>Image</th>
+                    <th col-xs-2>Name</th>
+                    <th col-xs-2>Description</th>
+                    <th col-xs-1>Type</th>
+                    <th col-xs-1>Institution</th>
+                    <th col-xs-1>Type Of Data Used</th>
+                    <th col-xs-1>Timespan</th>
+                    <th col-xs-1>Checklists</th>
+                    <th col-xs-1>User consent</th>
+                    <th style="min-width: 80px;">Actions</th>
                 </tr>
             </thead>
             <tbody>
             @foreach($research as $item)
                 <tr>
-                    <td>{{ $loop->iteration or $item->id }}</td>
-                    <td><a href="{{$item->url}}" target="_blank">@if(isset($item->image))<img src="{{$item->image}}" style="width:30px; height: 30px; border-radius: 20%; border: 1px solid #333; display: inline-block;">@endif {{ $item->name }}</a></td>
+                    {{-- <td>{{ $loop->iteration or $item->id }}</td> --}}
+                    <td><a href="{{$item->url}}" target="_blank">@if(isset($item->image))<img src="{{$item->image}}" style="width:40px; height: 40px; border-radius: 20%; border: 1px solid #333; display: inline-block;">@endif</a></td>
+                    <td><a href="{{$item->url}}" target="_blank">{{ $item->name }}</a></td>
                     <td>{{ $item->description }}</td>
                     <td>{{ $item->type }}</td>
                     <td>{{ $item->institution }}</td>
                     <td>{{ $item->type_of_data_used }}</td>
-                    <td>{{ $item->start_date }}</td>
-                    <td>{{ $item->end_date }}</td>
-                    <td style="min-width: 100px;">
+                    <td>{{ substr($item->start_date, 0, 10).' - '.substr($item->end_date, 0, 10) }}</td>
+                    <td>{{ $item->checklists->pluck('name')->join(', ') }}</td>
+                    <td>{{ $item->users->count() }}</td>
+                    <td>
                         <a href="{{ route('research.edit', $item->id) }}" title="{{ __('crud.edit') }}"><button class="btn btn-primary"><i class="fa fa-pencil" aria-hidden="true"></i></button></a>
 
                         <form method="POST" action="{{ route('research.destroy', $item->id) }}" accept-charset="UTF-8" style="display:inline">

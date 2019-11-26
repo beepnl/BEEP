@@ -12,7 +12,9 @@ class CreateResearchesTable extends Migration
      */
     public function up()
     {
-        Schema::create('researches', function (Blueprint $table) {
+        if (!Schema::hasTable('researches')) 
+        {
+            Schema::create('researches', function (Blueprint $table) {
             $table->increments('id');
             $table->timestamps();
             $table->string('name');
@@ -24,9 +26,43 @@ class CreateResearchesTable extends Migration
             $table->string('type_of_data_used')->nullable();
             $table->timestamp('start_date')->nullable();
             $table->timestamp('end_date')->nullable();
-            $table->integer('checklist_id')->unsigned()->nullable();
             $table->softDeletes();
             });
+        }
+
+        if (!Schema::hasTable('research_user')) 
+        {
+            Schema::create('research_user', function (Blueprint $table) {
+                $table->increments('id');
+                $table->timestamps();
+                $table->integer('user_id')->unsigned();
+                $table->integer('research_id')->unsigned();
+                $table->boolean('consent')->default(true);
+                $table->string('consent_location_ids')->nullable();
+                $table->string('consent_hive_ids')->nullable();
+                $table->string('consent_sensor_ids')->nullable();
+
+                $table->foreign('user_id')->references('id')->on('users')
+                    ->onUpdate('cascade')->onDelete('cascade');
+                $table->foreign('research_id')->references('id')->on('researches')
+                    ->onUpdate('cascade')->onDelete('cascade');
+            });
+        }
+
+        if (!Schema::hasTable('checklist_research')) 
+        {
+            Schema::create('checklist_research', function (Blueprint $table) {
+                $table->increments('id');
+                $table->timestamps();
+                $table->integer('research_id')->unsigned();
+                $table->integer('checklist_id')->unsigned();
+
+                $table->foreign('research_id')->references('id')->on('researches')
+                    ->onUpdate('cascade')->onDelete('cascade');
+                $table->foreign('checklist_id')->references('id')->on('checklists')
+                    ->onUpdate('cascade')->onDelete('cascade');
+            });
+        }
     }
 
     /**
@@ -36,6 +72,31 @@ class CreateResearchesTable extends Migration
      */
     public function down()
     {
-        Schema::drop('researches');
+        if (Schema::hasTable('research_user')) 
+        {
+            Schema::table('research_user', function (Blueprint $table) 
+            {
+                $table->dropForeign(['user_id']);
+                $table->dropForeign(['research_id']);
+                $table->drop();
+            });
+        }
+
+        if (Schema::hasTable('checklist_research')) 
+        {
+            Schema::table('checklist_research', function (Blueprint $table) 
+            {
+                $table->dropForeign(['checklist_id']);
+                $table->dropForeign(['research_id']);
+                $table->drop();
+            });
+        }
+
+        if (Schema::hasTable('researches')) 
+        {
+            Schema::drop('researches');
+        }
     }
 }
+
+

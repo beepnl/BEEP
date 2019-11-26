@@ -3,6 +3,10 @@
 // Dynamic Tree
 $(function () { 
 
+	// Add select2 select input to classes 'select2'
+	$('.select2').select2({
+		theme: "classic"
+	});
 
 	// Taxonomy editor
 	$('#category-tree')

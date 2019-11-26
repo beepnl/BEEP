@@ -417,7 +417,7 @@
     end_date                : 'End date',
     purpose                 : 'Research purpose',
     institution             : 'Research institution',
-    type_of_data_used       : 'Type of data that will be used',
+    type_of_data_used       : 'Data usage',
     link                    : 'Link',
     consent                 : 'Current consent',
     consent_yes             : 'I consent to share my data',

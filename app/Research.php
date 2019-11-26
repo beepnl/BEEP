@@ -4,6 +4,7 @@ namespace App;
 
 use Illuminate\Database\Eloquent\Model;
 use App\Picture;
+use Auth;
 
 class Research extends Model
 {
@@ -26,8 +27,10 @@ class Research extends Model
      *
      * @var array
      */
-    protected $fillable = ['description', 'name', 'url', 'image', 'type', 'institution', 'type_of_data_used', 'start_date', 'end_date', 'checklist_id'];
-    
+    protected $fillable = ['description', 'name', 'url', 'image', 'type', 'institution', 'type_of_data_used', 'start_date', 'end_date'];
+    protected $hidden   = ['users', 'deleted_at'];
+    protected $appends  = ['consent', 'checklists_names'];
+
     public static $pictureType = 'research';
 
     public static function storeImage($requestData)
@@ -35,9 +38,24 @@ class Research extends Model
         return Picture::store($requestData, Research::$pictureType);
     }
 
-    public function checklist()
+    public function getConsentAttribute()
     {
-        return $this->hasOne(Checklist::class);
+        return $this->users->contains(Auth::user()) ? true : false;
+    }
+
+    public function getChecklistsNamesAttribute()
+    {
+        return $this->checklists()->pluck('name');
+    }
+
+    public function users()
+    {
+        return $this->belongsToMany(User::class, 'research_user');
+    }
+
+    public function checklists()
+    {
+        return $this->belongsToMany(Checklist::class, 'checklist_research');
     }
     
     public function delete()

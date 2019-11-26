@@ -2,11 +2,10 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Http\Requests;
+use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 
 use App\Research;
-use Illuminate\Http\Request;
 
 class ResearchController extends Controller
 {
@@ -17,38 +16,7 @@ class ResearchController extends Controller
      */
     public function index(Request $request)
     {
-        $research = Research::all();
-
-        return $research;
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param \Illuminate\Http\Request $request
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function store(Request $request)
-    {
-        
-        $research = Research::create($request->all());
-
-        return response()->json($research, 201);
-    }
-
-    /**
-     * Display the specified resource.
-     *
-     * @param  int  $id
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function show($id)
-    {
-        $research = Research::findOrFail($id);
-
-        return $research;
+        return Research::all();
     }
 
     /**
@@ -59,26 +27,20 @@ class ResearchController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function add_consent(Request $request, $id)
     {
-        
         $research = Research::findOrFail($id);
-        $research->update($request->all());
+        $request->user()->researches()->attach($id);
 
         return response()->json($research, 200);
     }
 
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  int  $id
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy($id)
+    public function remove_consent(Request $request, $id)
     {
-        Research::destroy($id);
+        $research = Research::findOrFail($id);
+        $request->user()->researches()->detach($id);
 
-        return response()->json(null, 204);
+        return response()->json($research, 200);
     }
+
 }

@@ -43,6 +43,11 @@ class User extends Authenticatable
     {
         return $this->belongsToMany(Inspection::class, 'inspection_user');
     }
+
+    public function researches()
+    {
+        return $this->belongsToMany(Research::class, 'research_user');
+    }
     
     public function sensors()
     {
@@ -59,6 +64,23 @@ class User extends Authenticatable
         return $this->hasMany(Setting::class);
     }
 
+    public function researchChecklists()
+    {
+        $research_ids = $this->researches->pluck('id')->toArray();
+
+        $checklist_ids = DB::table('checklist_research')->whereIn('research_id',$research_ids)->distinct('checklist_id')->pluck('checklist_id')->toArray();
+        //die(print_r(['group_ids'=>$group_ids,'checklist_ids'=>$checklist_ids]));
+        return Checklist::whereIn('id',$checklist_ids);
+    }
+
+    public function allChecklists()
+    {
+        $own_checklists = $this->checklists()->pluck('id');
+        $research_cl    = $this->researchChecklists()->pluck('id');
+        $checklist_ids  = $own_checklists->merge($research_cl); 
+        
+        return Checklist::whereIn('id', $checklist_ids);
+    }
 
     public function groupHives($mine = false)
     {

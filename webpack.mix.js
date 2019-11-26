@@ -22,6 +22,7 @@ mix.styles([
 	'node_modules/normalize-css/normalize.css',
 	'node_modules/admin-lte/bootstrap/css/bootstrap.min.css',
 	'node_modules/jstree/dist/themes/default/style.min.css',
+    'node_modules/admin-lte/plugins/select2/select2.min.css',
 	'resources/assets/css/portal.css',
 	'resources/assets/css/skin-beep.css',
 	], 'public/css/skin-base.css').version();
@@ -70,6 +71,7 @@ mix.scripts([
 	'node_modules/admin-lte/bootstrap/js/bootstrap.min.js',
     'node_modules/admin-lte/dist/js/app.js',
     'node_modules/admin-lte/plugins/slimScroll/jquery.slimscroll.min.js',
+    'node_modules/admin-lte/plugins/select2/select2.min.js',
 	'node_modules/hammerjs/hammer.min.js',
     'node_modules/jstree/dist/jstree.min.js',   
 	], 'public/js/scripts-base.js').version();

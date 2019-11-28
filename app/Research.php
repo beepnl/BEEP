@@ -29,7 +29,7 @@ class Research extends Model
      */
     protected $fillable = ['description', 'name', 'url', 'image', 'type', 'institution', 'type_of_data_used', 'start_date', 'end_date'];
     protected $hidden   = ['users', 'deleted_at'];
-    protected $appends  = ['consent', 'checklists_names'];
+    protected $appends  = ['consent', 'checklist_names'];
 
     public static $pictureType = 'research';
 
@@ -43,7 +43,7 @@ class Research extends Model
         return $this->users->contains(Auth::user()) ? true : false;
     }
 
-    public function getChecklistsNamesAttribute()
+    public function getChecklistNamesAttribute()
     {
         return $this->checklists()->pluck('name');
     }

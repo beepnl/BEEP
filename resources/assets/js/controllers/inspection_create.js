@@ -42,20 +42,15 @@ app.controller('InspectionCreateCtrl', function($scope, $rootScope, $window, $lo
 			$rootScope.hives  	  = hives.hives;
 			$rootScope.locations  = hives.locations;
 			
+			$scope.showMore   	  = hives.hives.length > 1 ? true : false;
 			$scope.hive 	  	  = hives.getHiveById($routeParams.hiveId);
 			if ($scope.hive == null)
 				$scope.hive = groups.getHiveById($routeParams.hiveId);
 
 			$scope.inspection 	  = inspections.newSaveObject();
-			$scope.checklistsUpdated();
-			$scope.checklist      = inspections.checklist;
-			$scope.updateLists(false);
-			$scope.showMore   	  = hives.hives.length > 1 ? true : false;
-			if ($routeParams.inspectionId)
-			{
-				$scope.inspection_id = $routeParams.inspectionId;
-				inspections.loadRemoteInspection($routeParams.inspectionId);
-			}
+			// $scope.checklistsUpdated();
+			inspections.getChecklists();
+
 			//console.log('init-inspection', $scope.inspection);
 		}
 	};
@@ -208,6 +203,13 @@ app.controller('InspectionCreateCtrl', function($scope, $rootScope, $window, $lo
 	$scope.checklistsUpdated = function(e, type)
 	{
 		$scope.checklists = inspections.checklists;
+		$scope.checklist  = inspections.checklist;
+		$scope.updateLists(false);
+		if ($routeParams.inspectionId)
+		{
+			$scope.inspection_id = $routeParams.inspectionId;
+			inspections.loadRemoteInspection($routeParams.inspectionId);
+		}
 	};
 	$scope.checklistsHandler = $rootScope.$on('checklistsUpdated', $scope.checklistsUpdated);
 

@@ -52,7 +52,7 @@ b. Then run it: ```./run_actions.sh```
 
 a. Make sure your server has 2 different virtual hosts for the API and the APP
 
-NB: On AMAzon AWS (Bitnami LAMP_7.1): 
+NB: On Amazon AWS (Bitnami LAMP_7.1): 
 a. Make sure your Bitnami server includes your apps/apache_vhost.conf in 
 ```
 sudo nano /opt/bitnami/apache2/conf/bitnami/bitnami-apps-vhosts.conf
@@ -101,7 +101,12 @@ APP (replace 'beep.nl' with your own server)
 
 b. Optionally, install SSL certificates to your endpoints with [Let's Encrypt](https://letsencrypt.org/getting-started/)
 
-With command: ```sudo certbot --authenticator webroot --installer apache```
+On AWS:
+```
+sudo /opt/bitnami/letsencrypt/scripts/generate-certificate.sh -m pim@iconize.nl -d api.beep.nl -d app.beep.nl
+```
+
+On other servers with command: ```sudo certbot --authenticator webroot --installer apache```
 
 ## 5. Add Influx database
 ```

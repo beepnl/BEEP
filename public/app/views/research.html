@@ -68,8 +68,8 @@
 					    			<dt ng-if="r.institution != null">{{lang.institution}}</dt>
 					    			<dd>{{r.institution}}</dd>
 					    			
-					    			<dt ng-if="r.checklists.length > 0">{{lang.Checklist}}</dt>
-					    			<dd><span class="badge" style="margin-right: 5px;" ng-repeat="c in r.checklists">{{c}}</span></dd>
+					    			<dt ng-if="r.checklist_names.length > 0">{{lang.Checklist}}</dt>
+					    			<dd><span class="badge" style="margin-right: 5px;" ng-repeat="c in r.checklist_names">{{c}}</span></dd>
 
 					    			<dt ng-if="r.type_of_data_used != null">{{lang.type_of_data_used}}</dt>
 					    			<dd>{{r.type_of_data_used}}</dd>

@@ -36,20 +36,26 @@
 	    <div class="col-xs-12 col-sm-4 col-md-4">
         	<div ng-if="checklists.length > 1" class="form-group">
 				<label>{{ lang.Select }} {{ lang.Checklist.toLowerCase() }}</label>
-	        	<select ng-change="selectChecklist(checklist_id)" ng-model="checklist_id" class="form-control" >
+	        	<!-- <select ng-change="selectChecklist(checklist_id)" ng-model="checklist_id" class="form-control" >
 	        		<option ng-repeat="item in checklists track by item.id" value="{{item.id}}" ng-selected="item.id == checklist_id">{{ item.name || item.id }}</option>
+	        	</select> -->
+	        	<select ng-model="checklist" ng-options="checklist as checklist.name+(checklist.researches.length > 0 ? ' ('+lang.research+': '+checklist.researches[0]+')' : '') for checklist in checklists track by checklist.id" ng-change="selectChecklist(checklist.id)" class="form-control">
 	        	</select>
 	    	</div>
 	    </div>
 
 		<div class="col-xs-12 col-sm-4 col-md-4">
-        	<div class="form-group">
-				<label>{{ lang.Checklist }}</label>
+        	<div ng-if="checklist.owner" class="form-group">
+				<label>{{ lang.edit }} {{ lang.Checklist.toLowerCase() }}</label>
 	    		<br><a class="btn btn-default btn-block" ng-click="editChecklist()" title="{{ lang.edit }} {{ lang.Checklist }}"><i class="fa fa-pencil"></i> {{ lang.edit }} {{ lang.Checklist.toLowerCase() }}</a>
 	    	</div>
 	    </div>
+
+		<div class="col-xs-12">
+			<h4 ng-if="checklist.description != null">{{checklist.name}} - {{checklist.description}}</h4>
+			<br ng-if="checklist.description == null">
+		</div>
 	</div>
-	<br>
 
 	<!-- Inspection items from checklist -->
 	<div class="box collapsed-box" ng-repeat="cat_main in checklist.categories">

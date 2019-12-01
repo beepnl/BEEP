@@ -432,7 +432,6 @@ class SensorController extends Controller
             }
         }
         //die(print_r($points));
-        $stored = false;
         if (count($points) > 0)
         {
             try
@@ -443,8 +442,9 @@ class SensorController extends Controller
             {
                 return false; // gracefully do nothing
             }
+            return true;
         }
-        return $stored;
+        return false;
     }
 
 
@@ -647,7 +647,7 @@ class SensorController extends Controller
         $time   = time();
         $stored = $this->storeInfluxData($offset, $sensor->key, $time);
 
-        die(print_r(['sto'=>$stored, 'cal'=>$offset,'key'=>$sensor->key, 'time'=>$time]));
+        //die(print_r(['sto'=>$stored, 'cal'=>$offset,'key'=>$sensor->key, 'time'=>$time]));
 
         if ($stored)
             return true;

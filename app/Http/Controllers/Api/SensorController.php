@@ -717,7 +717,7 @@ class SensorController extends Controller
 
     public function lastweight(Request $request)
     {
-        $weight = ['w_fl', 'w_fr', 'w_bl', 'w_br', 'w_v', 'weight_kg','weight_kg_corrected','calibrating_weight'];
+        $weight = ['w_fl', 'w_fr', 'w_bl', 'w_br', 'w_v', 'weight_kg','weight_kg_corrected','calibrating_weight', 'w_v_offset'];
         $sensor = $this->get_user_sensor($request);
         $output = $this->last_sensor_values_array($sensor, implode('","',$weight));
 

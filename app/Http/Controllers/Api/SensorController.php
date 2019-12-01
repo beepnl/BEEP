@@ -435,10 +435,10 @@ class SensorController extends Controller
             }
             catch(\Exception $e)
             {
-                // gracefully do nothing
+                return false; // gracefully do nothing
             }
         }
-        return $stored;
+        return true;
     }
 
 

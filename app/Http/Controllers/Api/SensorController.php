@@ -644,9 +644,11 @@ class SensorController extends Controller
         if (count($offset) == 0)
             return 'no-weight-values-error';
 
-        //die(print_r(['cal'=>$offset,'key'=>$sensor->key]));
+        $time   = time();
+        $stored = $this->storeInfluxData($offset, $sensor->key, $time);
 
-        $stored = $this->storeInfluxData($offset, $sensor->key, time());
+        die(print_r(['sto'=>$stored, 'cal'=>$offset,'key'=>$sensor->key, 'time'=>$time]));
+
         if ($stored)
             return true;
 

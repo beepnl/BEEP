@@ -199,7 +199,7 @@ class SensorController extends Controller
                 {
                     // exclude from calculation
                 }
-                else if ($name_factor !== null) // factor available
+                else if ($name_factor !== null) // factor available, and offset 0 or available
                 {
                     $offset = isset($name_offset) ? floatval($name_offset) : 0;
                     $factor = floatval($name_factor);
@@ -207,6 +207,12 @@ class SensorController extends Controller
                     $totalWeight += $weight;
                     
                     //die("offset=$offset factor=$factor weight=$weight totalWeight=$totalWeight");
+                }
+                else if ($name_offset !== null) // only offset available
+                {
+                    $offset = isset($name_offset) ? floatval($name_offset) : 0;
+                    $weight = floatval($value) - $offset;
+                    $totalWeight += $weight;
                 }
                 else
                 {

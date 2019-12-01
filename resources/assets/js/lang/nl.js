@@ -348,6 +348,7 @@
 
     /* weight calibration settings */
     calibrate_weight        : 'Gewicht calibreren',
+    current_offset_is       : 'Huidige nulwaarde is',
     calibrate_explanation   : 'Gewicht van de sensoren bij de volgende meting op 0 zetten door de huidige waarde ervanaf te trekken.',
     set_as_zero_value       : 'Stel deze waarde(n) in als 0-waarde(n)',
     set_weight_factor       : 'Gewichtsfactor bepalen',

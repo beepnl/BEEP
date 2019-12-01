@@ -40,14 +40,15 @@
 							</div>
 
 							<div ng-if="selectedSensorId != null">
-								<h3>{{lang.calibrate_weight}}</h3>
-								<p>{{lang.calibrate_explanation}}</p>
-								<ul><li ng-repeat="sensor in weightSensors | filter:nonZeroWeight">{{lang[sensor.name]}}: {{sensor.value}}</li></ul>
+								<h3>{{ lang.calibrate_weight }}</h3>
+								<h4>1. {{ lang.set_as_zero_value }}</h4>
+								<p>{{ lang.calibrate_explanation }}</p>
+								<ul><li ng-repeat="sensor in weightSensors | filter:nonZeroWeight">{{lang[sensor.name]}}: {{sensor.value}}, {{ lang.current_offset_is }}: {{ sensor[sensor.name + '_offset'] }}</li></ul>
 								<a class="btn btn-default" ng-click="offsetWeight()">{{lang.set_as_zero_value}}</a>
 
 								<br><hr>
 							
-								<h3>{{lang.set_weight_factor}}</h3>
+								<h4>2. {{lang.set_weight_factor}}</h4>
 								<p>{{lang.own_weight_kg}}</p>
 								<input class="form-control" type="text" ng-model="calibrate_weight" placeholder="{{lang.weight}}" name="weight_kg" />
 							

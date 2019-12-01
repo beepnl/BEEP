@@ -426,19 +426,19 @@ class SensorController extends Controller
             }
         }
         //die(print_r($points));
-        $stored = false;
         if (count($points) > 0)
         {
             try
             {
-                $stored = $client::writePoints($points, InfluxDB\Database::PRECISION_SECONDS);
+                $client::writePoints($points, InfluxDB\Database::PRECISION_SECONDS);
             }
             catch(\Exception $e)
             {
                 return false; // gracefully do nothing
             }
+            return true;
         }
-        return true;
+        return false;
     }
 
 

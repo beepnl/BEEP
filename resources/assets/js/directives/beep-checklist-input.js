@@ -10,6 +10,7 @@ app.directive('checklistInput', ['$rootScope', function($rootScope) {
         {
           scope.lang   = $rootScope.lang;
           scope.locale = $rootScope.locale;
+          scope.hive   = $rootScope.hive;
           scope.hives  = $rootScope.hives;
           scope.locations = $rootScope.hives;
           scope.beeraces  = $rootScope.beeraces;

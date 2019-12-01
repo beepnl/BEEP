@@ -405,6 +405,7 @@ app.directive('checklistInput', ['$rootScope', function ($rootScope) {
     link: function link(scope, iElement, iAttrs) {
       scope.lang = $rootScope.lang;
       scope.locale = $rootScope.locale;
+      scope.hive = $rootScope.hive;
       scope.hives = $rootScope.hives;
       scope.locations = $rootScope.hives;
       scope.beeraces = $rootScope.beeraces;

@@ -52,8 +52,27 @@
         
         <input ng-if="item.input == 'file'" ng-model="item.value" readonly="false" type="file" item-name="item.name">
         <input ng-if="item.input == 'image'" ng-model="item.value" readonly="false" type="file" item-name="item.name" accept="image/*" capture="camera">
+
+        <div ng-if="item.input == 'colony_size_liebefeld'">
+            <div class="hive left">
+                <p class="lid" style="width: {{hive.width*(mobile?4:1)}}px;"></p>
+                <p ng-repeat="(key, layer) in hive.layers | orderBy : '-type' " class="layer" ng-class="layer.type" style="background-color: {{hive.color}}; width: {{hive.width*(mobile?4:1)}}px;">
+                    <span ng-repeat="(key, frame) in layer.frames track by $index" class="frame" ng-class="layer.type"></span>
+                </p>
+                <p class="bottom" style="width: {{hive.width*(mobile?4:1)}}px;"></p>
+            </div>
+            <p ng-repeat="(l, layer) in hive.layers" ng-if="layer.type == 'brood'">
+                {{lang.brood}} {{lang.layer}} {{ l+1 }}
+                <ol ng-repeat="(f, frame) in layer.frames track by $index">
+                        <label>BK {{ l+1 }} F {{ f+1 }}</label>
+                    <li ng-repeat="side in ['A','B']">
+                        <!-- <input readonly="false" type="file" item-name="liebefeld_photos[l + '_' + f + '_' + side]" accept="image/*" capture="camera"> -->
+                    </li>
+                </ol>
+            </p>
+        </div>
         
-        <div ng-if="item.input == 'barcode'" ng-model="item.value" readonly="false" type="file" item-name="item.name">Barcode not supported in webapp, please wait for the native Beep app</div>
+        <input ng-if="item.input == 'barcode'" ng-model="item.value" readonly="false" type="file" item-name="item.name" accept="image/*" capture="camera"></input>
         
         
         <select ng-if="item.input == 'select'" ng-model="item.value" class="form-control">
@@ -94,11 +113,11 @@
     		</div>
     	</div>
 
-        <select ng-if="item.input == 'select_apiary'" ng-model="item.value" ng-options="item.id as item.name for item in locations  | orderBy:'name' track by item.id" type="select" class="form-control">
+        <select ng-if="item.input == 'select_apiary'" ng-model="item.value" ng-options="item.id as item.name for item in locations | orderBy:'name' track by item.id" type="select" class="form-control">
             <option value=''>{{lang.Select}} {{lang.location}}...</option>
         </select>
 
-        <select ng-if="item.input == 'select_hive'" ng-model="item.value" ng-options="item.id as item.name group by item.location for item in hives  | orderBy:'name' track by item.id" type="select" class="form-control">
+        <select ng-if="item.input == 'select_hive'" ng-model="item.value" ng-options="item.id as item.name group by item.location for item in hives | orderBy:'name' track by item.id" type="select" class="form-control">
             <option value=''>{{lang.Select}} {{lang.hive}}...</option>
         </select>
 

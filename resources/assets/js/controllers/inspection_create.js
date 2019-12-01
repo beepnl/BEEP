@@ -47,6 +47,8 @@ app.controller('InspectionCreateCtrl', function($scope, $rootScope, $window, $lo
 			if ($scope.hive == null)
 				$scope.hive = groups.getHiveById($routeParams.hiveId);
 
+			$rootScope.hive  	  = $scope.hive;
+
 			$scope.inspection 	  = inspections.newSaveObject();
 			// $scope.checklistsUpdated();
 			inspections.getChecklists();
@@ -257,6 +259,8 @@ app.controller('InspectionCreateCtrl', function($scope, $rootScope, $window, $lo
 				$scope.hive = hives.hives[max];
 			}
 		}
+		$rootScope.hive = $scope.hive;
+
 		$location.path('/hives/'+$scope.hive.id+'/inspect');
 
 		//inspections.loadRemoteInspections($scope.hive.id);

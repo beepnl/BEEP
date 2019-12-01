@@ -2533,6 +2533,7 @@ app.controller('InspectionCreateCtrl', function ($scope, $rootScope, $window, $l
       $scope.showMore = hives.hives.length > 1 ? true : false;
       $scope.hive = hives.getHiveById($routeParams.hiveId);
       if ($scope.hive == null) $scope.hive = groups.getHiveById($routeParams.hiveId);
+      $rootScope.hive = $scope.hive;
       $scope.inspection = inspections.newSaveObject(); // $scope.checklistsUpdated();
 
       inspections.getChecklists(); //console.log('init-inspection', $scope.inspection);
@@ -2709,6 +2710,7 @@ app.controller('InspectionCreateCtrl', function ($scope, $rootScope, $window, $l
       }
     }
 
+    $rootScope.hive = $scope.hive;
     $location.path('/hives/' + $scope.hive.id + '/inspect'); //inspections.loadRemoteInspections($scope.hive.id);
   };
 

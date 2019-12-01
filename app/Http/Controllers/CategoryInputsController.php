@@ -37,7 +37,8 @@ class CategoryInputsController extends Controller
      */
     public function create()
     {
-        return view('categoryinputs.create');
+        $categoryinput = new CategoryInput();
+        return view('categoryinputs.create', compact('categoryinput'));
     }
 
     /**

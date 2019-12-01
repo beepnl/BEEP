@@ -27,9 +27,9 @@ class SensorController extends Controller
  
     public function __construct()
     {
+        // make sure to add to the measurements DB table w_v_kg_per_val, w_fl_kg_per_val, etc. and w_v_offset, w_fl_offset to let the calibration functions function correctly
         $this->valid_sensors  = Measurement::all()->pluck('pq', 'abbreviation')->toArray();
         $this->output_sensors = Measurement::where('show_in_charts', '=', 1)->pluck('abbreviation')->toArray();
-        //die(print_r($this->valid_sensors));
     }
    
     // Sensor crud functions

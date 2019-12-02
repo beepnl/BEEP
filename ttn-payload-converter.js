@@ -58,6 +58,15 @@ function Converter(decoded, port) {
     if (decoded.w_br > 0)
       converted.w_br    =  decoded.w_br / 300;
   }
+  else if (port == 3)
+  {
+    converted = decoded;
+    
+    if (decoded.t_i > 0)
+      converted.t_i =  decoded.t_i / 100;
+    if (decoded.bv > 0)
+      converted.bv =  decoded.bv / 1000;
+  }
 
   return converted;
 }

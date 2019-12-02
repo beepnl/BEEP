@@ -3587,15 +3587,15 @@ app.controller('MeasurementsCtrl', function ($scope, $rootScope, $timeout, $inte
         $scope.chart.optionsDebug.scales.xAxes[0].time.tooltipFormat = tooltipTimeFormat;
         $scope.chart.optionsActuators.scales.xAxes[0].time.tooltipFormat = tooltipTimeFormat; //$scope.chart.optionsSensors.scales.xAxes[0].time.unit   = $scope.activeUnit;
 
-        $scope.chart.optionsSensors.scales.xAxes[0].time.min = $scope.startTime;
-        $scope.chart.optionsSound.scales.xAxes[0].time.min = $scope.startTime;
-        $scope.chart.optionsDebug.scales.xAxes[0].time.min = $scope.startTime;
-        $scope.chart.optionsSensors.scales.xAxes[0].time.max = $scope.endTime;
-        $scope.chart.optionsSound.scales.xAxes[0].time.max = $scope.endTime;
-        $scope.chart.optionsDebug.scales.xAxes[0].time.max = $scope.endTime; //$scope.chart.optionsActuators.scales.xAxes[0].time.unit = $scope.activeUnit;
+        $scope.chart.optionsSensors.scales.xAxes[0].ticks.min = $scope.startTime;
+        $scope.chart.optionsSound.scales.xAxes[0].ticks.min = $scope.startTime;
+        $scope.chart.optionsDebug.scales.xAxes[0].ticks.min = $scope.startTime;
+        $scope.chart.optionsSensors.scales.xAxes[0].ticks.max = $scope.endTime;
+        $scope.chart.optionsSound.scales.xAxes[0].ticks.max = $scope.endTime;
+        $scope.chart.optionsDebug.scales.xAxes[0].ticks.max = $scope.endTime; //$scope.chart.optionsActuators.scales.xAxes[0].time.unit = $scope.activeUnit;
 
-        $scope.chart.optionsActuators.scales.xAxes[0].time.min = $scope.startTime;
-        $scope.chart.optionsActuators.scales.xAxes[0].time.max = $scope.endTime; // console.log($scope.measurementData);
+        $scope.chart.optionsActuators.scales.xAxes[0].ticks.min = $scope.startTime;
+        $scope.chart.optionsActuators.scales.xAxes[0].ticks.max = $scope.endTime; // console.log($scope.measurementData);
       }
 
       $scope.showChart = $scope.measurementData == null ? false : true; //$rootScope.refreshInterface();

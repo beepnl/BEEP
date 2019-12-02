@@ -27,6 +27,7 @@ class SensorController extends Controller
  
     public function __construct()
     {
+        // make sure to add to the measurements DB table w_v_kg_per_val, w_fl_kg_per_val, etc. and w_v_offset, w_fl_offset to let the calibration functions function correctly
         $this->valid_sensors  = Measurement::all()->pluck('pq', 'abbreviation')->toArray();
         $this->output_sensors = Measurement::where('show_in_charts', '=', 1)->pluck('abbreviation')->toArray();
         //die(print_r($this->valid_sensors));
@@ -711,7 +712,7 @@ class SensorController extends Controller
 
     public function lastweight(Request $request)
     {
-        $weight = ['w_fl', 'w_fr', 'w_bl', 'w_br', 'w_v', 'weight_kg','weight_kg_corrected','calibrating_weight'];
+        $weight = ['w_fl', 'w_fr', 'w_bl', 'w_br', 'w_v', 'weight_kg', 'weight_kg_corrected', 'calibrating_weight', 'w_v_offset', 'w_v_kg_per_val', 'w_fl_offset', 'w_fr_offset', 'w_bl_offset', 'w_br_offset'];
         $sensor = $this->get_user_sensor($request);
         $output = $this->last_sensor_values_array($sensor, implode('","',$weight));
 
@@ -778,10 +779,10 @@ class SensorController extends Controller
 
         if (isset($request_data['hardware_serial']) && !isset($data_array['key']))
             $data_array['key'] = $request_data['hardware_serial']; // LoRa WAN = Device EUI
-        if (isset($request_data['metadata.gateways.0.rssi']))
-            $data_array['rssi'] = $request_data['metadata.gateways.0.rssi'];
-        if (isset($request_data['metadata.gateways.0.snr']))
-            $data_array['snr']  = $request_data['metadata.gateways.0.snr'];
+        if (isset($request_data['metadata']['gateways'][0]['rssi']))
+            $data_array['rssi'] = $request_data['metadata']['gateways'][0]['rssi'];
+        if (isset($request_data['metadata']['gateways'][0]['snr']))
+            $data_array['snr']  = $request_data['metadata']['gateways'][0]['snr'];
 
         return $data_array;
     }

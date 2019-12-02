@@ -346,6 +346,7 @@
 
     /* weight calibration settings */
     calibrate_weight        : 'Calibrate weight',
+    current_offset_is       : 'Current zero value is',
     calibrate_explanation   : 'Set the weight of the sensors to 0 by subtracting the current measurement value.',
     set_as_zero_value       : 'Set these values as 0 values',
     set_weight_factor       : 'Define weight factor',
@@ -424,6 +425,7 @@
     consent_no              : 'I do NOT consent to share my data',
     my_beep_data            : 'My own BEEP data',
 
- };
+
+};
 
 

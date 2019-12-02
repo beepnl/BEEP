@@ -109,7 +109,7 @@
 					    		<div ng-if="showChart">
 					    			<div ng-if="measurementData.sensors.data.length > 0">
 										<h3 ng-if="!mobile">{{lang.sensors}}</h3>
-										<div class="chart-holder chart-narrow" ng-class="{'small':measurementData.sensors.data.length > 1}" ng-repeat="(key, data) in measurementData.sensors.data">
+										<div class="chart-holder chart-narrow" ng-repeat="(key, data) in measurementData.sensors.data">
 											<canvas id="line1" class="chart chart-line" chart-data="data" chart-dataset-override="measurementData.sensors.datasets[key]" chart-series="measurementData.sensors.series[key]" chart-colors="measurementData.sensors.colors" chart-options="chart.optionsSensors" ></canvas> 
 										</div>
 										<!-- <div ng-if="allinone" class="chart-holder">

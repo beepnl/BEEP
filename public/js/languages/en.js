@@ -425,7 +425,6 @@
     consent_no              : 'I do NOT consent to share my data',
     my_beep_data            : 'My own BEEP data',
 
-
 };
 
 

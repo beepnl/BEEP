@@ -167,7 +167,7 @@ var SENSOR_MIN = {
   weight_kg_corrected: 0,
   t_i: 0,
   rssi: -120,
-  snr: -10,
+  snr: -20,
   lat: 0,
   lon: 0
 };
@@ -187,8 +187,8 @@ var SENSOR_LOW = {
   weight_kg: 1,
   weight_kg_corrected: 1,
   t_i: 34,
-  rssi: -100,
-  snr: -15,
+  rssi: -90,
+  snr: -10,
   lat: 0,
   lon: 0
 };
@@ -208,8 +208,8 @@ var SENSOR_HIGH = {
   weight_kg: 100,
   weight_kg_corrected: 100,
   t_i: 37,
-  rssi: -20,
-  snr: 10,
+  rssi: 0,
+  snr: 11,
   lat: 180,
   lon: 180
 };

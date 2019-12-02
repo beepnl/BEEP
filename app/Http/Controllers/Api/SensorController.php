@@ -779,11 +779,10 @@ class SensorController extends Controller
 
         if (isset($request_data['hardware_serial']) && !isset($data_array['key']))
             $data_array['key'] = $request_data['hardware_serial']; // LoRa WAN = Device EUI
-        if (isset($request_data['metadata.gateways[0].rssi']))
-            $data_array['rssi'] = $request_data['metadata.gateways[0].rssi'];
-        if (isset($request_data['metadata.gateways[0].snr']))
-            $data_array['snr']  = $request_data['metadata.gateways[0].snr'];
-
+        if (isset($request_data['metadata']['gateways'][0]['rssi']))
+            $data_array['rssi'] = $request_data['metadata']['gateways'][0]['rssi'];
+        if (isset($request_data['metadata']['gateways'][0]['snr']))
+            $data_array['snr']  = $request_data['metadata']['gateways'][0]['snr'];
 
         return $data_array;
     }

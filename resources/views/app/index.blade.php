@@ -44,7 +44,7 @@
         <link rel="stylesheet" href="{{ mix('css/skin-base.css') }}" media="screen">
         <link rel="stylesheet" href="{{ mix('app/css/skin.css') }}" media="screen">
         <link rel="stylesheet" href="{{ mix('css/skin-additions.css') }}" media="screen">
-        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+        <link rel="stylesheet" href="/css/font-awesome.min.css">
 
         <!--[if lt IE 9]>
             <link rel="stylesheet" type="text/css" href="vendor/datetimepicker/src/DateTimePicker-ltie9.css" />

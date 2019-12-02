@@ -70,6 +70,7 @@
         "datatables.net-plugins": "github:DataTables/Plugins",
         "datetimepicker": "^0.1.38",
         "fastclick": "^1.0.6",
+        "font-awesome": "^4.7.0",
         "hammerjs": "^2.0.8",
         "iscroll": "^5.2.0",
         "jquery": "^3.2.1",

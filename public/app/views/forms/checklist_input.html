@@ -64,9 +64,9 @@
             <p ng-repeat="(l, layer) in hive.layers" ng-if="layer.type == 'brood'">
                 {{lang.brood}} {{lang.layer}} {{ l+1 }}
                 <ol ng-repeat="(f, frame) in layer.frames track by $index">
-                        <label>BK {{ l+1 }} F {{ f+1 }}</label>
                     <li ng-repeat="side in ['A','B']">
-                        <!-- <input readonly="false" type="file" item-name="liebefeld_photos[l + '_' + f + '_' + side]" accept="image/*" capture="camera"> -->
+                        <label for="{{ liebefeld_photos[l + '_' + f + '_' + side] }} ">BK {{ l+1 }} F {{ f+1 }}</label>
+                        <input readonly="false" type="file" item-name="liebefeld_photos[l + '_' + f + '_' + side]" accept="image/*" capture="camera">
                     </li>
                 </ol>
             </p>

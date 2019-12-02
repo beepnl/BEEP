@@ -14,7 +14,7 @@ class Location extends Model
 
     protected $cascadeDeletes = ['hives', 'inspections'];
 
-    protected $fillable = ['user_id', 'continent_id', 'category_id', 'name', 'coordinate_lat', 'coordinate_lon', 'street', 'street_no', 'postal_code', 'country_code', 'city'];
+    protected $fillable = ['user_id', 'continent_id', 'category_id', 'name', 'coordinate_lat', 'coordinate_lon', 'street', 'street_no', 'postal_code', 'country_code', 'city', 'roofed'];
 	protected $guarded 	= ['id'];
     protected $hidden   = ['user_id', 'continent_id', 'category_id'];
     protected $appends  = ['type', 'continent', 'owner'];

@@ -30,6 +30,8 @@ mix.styles([
 
 mix.copy([
 	'node_modules/admin-lte/bootstrap/css/bootstrap.min.css.map',
+    'node_modules/font-awesome/css/font-awesome.css.map',
+    'node_modules/font-awesome/css/font-awesome.min.css',
 	], 'public/css');
 
 mix.copy([
@@ -187,7 +189,7 @@ mix.babel([
 	], 'public/app/js/angular-code.js').version();
 
 
-mix.copyDirectory('node_modules/components-font-awesome/webfonts', 'public/webfonts');
+mix.copyDirectory('node_modules/font-awesome/fonts', 'public/fonts');
 mix.copyDirectory('resources/assets/app-views', 'public/app/views').version();
 
 mix.copy('resources/terms', 'public');

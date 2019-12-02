@@ -26,18 +26,18 @@
 					<fieldset>
 						<legend>{{ lang.General }}</legend>
 						<div class="row">
-					        <div class="col-xs-12">
+					        <div class="col-xs-12 col-md-8">
 					            <div class="form-group">
 					                <label>{{ lang.Name }}*</label>
 					                <input ng-model="hive.name" name="name" type="text" placeholder="{{ lang.name }}" class="form-control" required="required" >
 					            </div>
 					        </div>
-					        <!-- <div class="col-xs-12">
+					        <div class="col-xs-12 col-md-4">
 					            <div class="form-group">
-					                <label>{{ lang.Description }}</label>
-					                <textarea ng-model="hive.description" name="description" placeholder="{{ lang.Description }}" class="form-control"></textarea>
+					                <label>{{ lang.roofed }}:*</label>
+					                <div ng-model="hive.roofed" readonly="false" yes="lang.yes" no="lang.no" item-name="item.roofed" yes-no-rating></div>
 					            </div>
-					        </div> -->
+					        </div>
 					    </div>
 					</fieldset>
 

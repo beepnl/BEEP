@@ -159,7 +159,7 @@ var SENSOR_HIGH =
 	weight_kg_corrected	: 100,
 	t_i		: 37,
 	rssi	: 0,
-	snr 	: 11, 
+	snr 	: 15, 
 	lat 	: 180, 
 	lon 	: 180, 
 };
@@ -182,7 +182,7 @@ var SENSOR_MAX =
 	weight_kg_corrected	: 125,
 	t_i		: 50,
 	rssi	: 0,
-	snr 	: 11, 
+	snr 	: 20, 
 	lat 	: 180, 
 	lon 	: 180, 
 };

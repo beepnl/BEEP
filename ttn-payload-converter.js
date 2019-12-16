@@ -62,10 +62,26 @@ function Converter(decoded, port) {
   {
     converted = decoded;
     
-    if (decoded.t_i > 0)
-      converted.t_i =  decoded.t_i / 100;
+    // battery
     if (decoded.bv > 0)
       converted.bv =  decoded.bv / 1000;
+    
+    // weight is not converted
+
+    // temperature
+    if (decoded.amount_of_temperature_sensors == 1)
+    {
+      if (decoded.t_i > 0)
+        converted.t_i =  decoded.t_i / 100;
+      
+    }
+    else if (decoded.amount_of_temperature_sensors > 1)
+    {
+      for (var i = 0; i < decoded.amount_of_temperature_sensors; i++) 
+      {
+        converted['t_i_'+i] = decoded['t_i_'+i] / 100;
+      }
+    }
   }
 
   return converted;

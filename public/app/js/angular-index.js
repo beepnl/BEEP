@@ -577,6 +577,9 @@ app.config(['$routeProvider', '$locationProvider', function ($routeProvider) {
   }).when('/research', {
     controller: 'ResearchesCtrl',
     templateUrl: '/app/views/research.html'
+  }).when('/support', {
+    controller: 'SettingsCtrl',
+    templateUrl: '/app/views/support.html'
   }) // none...
   .otherwise({
     redirectTo: '/load'

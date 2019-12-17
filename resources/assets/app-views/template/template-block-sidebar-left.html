@@ -90,9 +90,9 @@
         </a>    
       </li>  
       <li data-toggle="{{ mobile ? 'offcanvas' : '' }}">
-        <a ng-click="loadUrl('https://beep.nl/app-manual-'+locale)">
-          <i class="fa fa-book"></i>
-          <span ng-cloak>{{lang.Manual}}</span>
+        <a ng-click="switchMenu($event, true, '/support')" data-toggle="{{ mobile ? 'offcanvas' : '' }}">
+          <i class="fa fa-question"></i>
+          <span ng-cloak>Helpdesk</span>
         </a>    
       </li>  
       <li data-toggle="{{ mobile ? 'offcanvas' : '' }}">

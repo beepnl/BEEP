@@ -178,6 +178,12 @@ app.config(['$routeProvider', '$locationProvider',  function($routeProvider)
         templateUrl:'/app/views/export.html'
  })
 
+  .when('/support', 
+ {
+        controller:'SettingsCtrl',
+        templateUrl:'/app/views/support.html'
+ })
+
   // none...
   .otherwise(
   {

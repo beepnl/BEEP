@@ -29,7 +29,7 @@
     <!-- Sidebar Menu -->
     <ul class="sidebar-menu">
 
-      <li class="header">{{lang.menu}}</li>
+      <li class="header">BEEP App v2.2.0</li>
       <!-- Optionally, you can add icons to the links -->
       <!-- <li ng-class="{active: pageSlug == 'dashboard'}">
           <a ng-click="switchMenu($event, true, '/dashboard')">
@@ -74,7 +74,9 @@
         </a>    
       </li>     
 
+
       <li class="header">{{lang.research}}</li>
+      
       <li ng-class="{active: pageSlug == 'research'}">
         <a ng-click="switchMenu($event, true, '/research')" data-toggle="{{ mobile ? 'offcanvas' : '' }}">
           <i class="fa fa-graduation-cap"></i>
@@ -82,17 +84,20 @@
         </a>    
       </li>     
 
+
+
       <li class="header">{{lang.info}}</li>
-      <li data-toggle="{{ mobile ? 'offcanvas' : '' }}">
-        <a ng-click="loadUrl('https://beep.nl/app-home')">
-          <i class="fa fa-star"></i>
-          <span ng-cloak>{{lang.Whats_new}}</span>
-        </a>    
-      </li>  
+      
       <li data-toggle="{{ mobile ? 'offcanvas' : '' }}">
         <a ng-click="switchMenu($event, true, '/support')" data-toggle="{{ mobile ? 'offcanvas' : '' }}">
           <i class="fa fa-question"></i>
           <span ng-cloak>Helpdesk</span>
+        </a>    
+      </li>  
+      <li data-toggle="{{ mobile ? 'offcanvas' : '' }}">
+        <a ng-click="switchMenu($event, true, '/new')" data-toggle="{{ mobile ? 'offcanvas' : '' }}">
+          <i class="fa fa-star"></i>
+          <span ng-cloak>{{lang.Whats_new}}</span>
         </a>    
       </li>  
       <li data-toggle="{{ mobile ? 'offcanvas' : '' }}">

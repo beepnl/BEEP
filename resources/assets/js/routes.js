@@ -191,6 +191,12 @@ app.config(['$routeProvider', '$locationProvider',  function($routeProvider)
         templateUrl:'/app/views/support.html'
   })
 
+  .when('/new', 
+  {
+        controller:'SettingsCtrl',
+        templateUrl:'/app/views/new.html'
+  })
+
   // none...
   .otherwise(
   {

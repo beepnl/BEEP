@@ -1,0 +1,85 @@
+<section class="content-header">
+  <h1>
+    <!-- <a class="icn prev" ng-class="{'mobile':mobile}" ng-click="back()"></a> -->
+    {{lang.Whats_new}}
+  </h1>
+  <!-- <ol class="breadcrumb">
+    <li><a href="/"><i class="fa fa-home"></i> Home</a></li>
+    <li class="active">{{lang.hives}}</li>
+  </ol> -->
+</section>
+
+<section class="content" >
+	
+	<div class="alert alert-danger" ng-show="error_msg != null">
+        <p>{{ error_msg }}</p>
+    </div>
+	
+	<!-- Settings -->
+	<div class="box">
+<!-- 	    <div class="box-header with-border">
+	      <h3 class="box-title">{{lang.Whats_new}}</h3>
+	    </div> -->
+
+	    <div class="box-body">
+			<h4>v2.2.0 (20-12-2019) - Current version</h4>
+			<p>
+				<ul>
+					<li>Photos: ability to add photos to inspections and apiaries</li>
+					<li>Research: <a ng-click="switchMenu($event, true, '/research')">ability to consent to sharing your data with research</a></li>
+					<li>Helpdesk: <a ng-click="switchMenu($event, true, '/support')">search the knowledge base for help, or file a support ticket directly from the app</a></li>
+					<li>{{lang.Whats_new}}: this in-app overview of new features with links to the features themselves</li>
+					<li>Bugfixes: small fixes for issues received as feedback</li>
+				</ul>
+			</p>
+			<hr>
+			<h4>v2.1.0 (29-05-2019)</h4>
+			<p>
+				<ul>
+					<li>Collaborate: <a ng-click="switchMenu($event, true, '/groups')">ability to share hives, inspections and measurements with other BEEP users</a></li>
+					<li>Bugfixes: small fixes for issues received as feedback</li>
+				</ul>
+			</p>
+			<hr>
+			<h4>v2.0.3 (30-04-2019)</h4>
+			<p>
+				<ul>
+					<li>Measurements: ability to input both <a href="https://thethingsnetwork.org" target="_blank">TTN</a> and <a href="https://www.simpoint.com/lora/" target="_blank">Simpoint</a> LoRa data to the API</li>
+				</ul>
+			</p>
+			<hr>
+			<h4>v2.0.2 (13-12-2018)</h4>
+			<p>
+				<ul>
+					<li>Measurements: <a ng-click="switchMenu($event, true, '/sensors')">ability to add new sensors for using API data input</a></li>
+					<li>Measurements: connect sensor to hive, show last measurement in gauge</li>
+				</ul>
+			</p>
+			<hr>
+			<h4>v2.0.1 (10-07-2018)</h4>
+			<p>
+				<ul>
+					<li>Usability: <a ng-click="switchMenu($event, true, '/locations')">Apiary and hive overview improved</a></li>
+					<li>Inspection: Dynamic inspection list</li>
+					<li>Inspection: Create your own inspection list and order</li>
+					<li>Measurements: Automatic measurement view improvement</li>
+				</ul>
+			</p>
+			<hr>
+			<h4>v1.1.1 (05-09-2017)</h4>
+			<p>
+				<ul>
+					<li>First official BEEP app release</li>
+				</ul>
+			</p>
+		</div>
+		
+	    <div class="overlay" ng-if="loading">
+          <i class="fa fa-refresh fa-spin"></i>
+        </div>
+	</div>
+
+
+
+
+</section>

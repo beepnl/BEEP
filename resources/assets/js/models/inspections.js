@@ -18,6 +18,7 @@ app.service('inspections', ['$http', '$rootScope', 'api', 'settings', function($
 		this.checklistTree= [];
 		this.checklist    = null; // use for filling
 		this.checklistNull= null; // clean loaded checklist
+		this.lastUsedChecklistId = null; // last loaded checklist id
 
 		this.saveObject   = {}; // hold inspection items for saving
 
@@ -168,6 +169,17 @@ app.service('inspections', ['$http', '$rootScope', 'api', 'settings', function($
 		return self.saveObject;
 	}
 
+	this.geChecklistById = function(id)
+	{
+		for (var i = 0; i < self.checklists.length; i++) 
+		{
+			var checklist = self.checklists[i];
+			if (checklist.id == id)
+				return checklist;
+		}
+		return null;
+	}
+
 	this.typeIsNonNumeric = function(type)
 	{
 		switch(type)
@@ -242,7 +254,10 @@ app.service('inspections', ['$http', '$rootScope', 'api', 'settings', function($
 	{
 		var suffix = '';
 		if (typeof id != 'undefined' && id != null)
+		{
 			suffix = '/'+id;
+			api.setLocalStoreValue('open_checklist_id');
+		}
 
 		api.getApiRequest('checklistTree', 'checklists'+suffix);
 	};
@@ -260,7 +275,12 @@ app.service('inspections', ['$http', '$rootScope', 'api', 'settings', function($
 	}
 	this.checklistsHandler = function(e, data)
 	{
-		self.checklists = data;
+		self.checklists 		 = data;
+		self.lastUsedChecklistId = api.getLocalStoreValue('open_checklist_id');
+
+		if (self.lastUsedChecklistId)
+			self.checklist = geChecklistById(self.lastUsedChecklistId);
+
 		$rootScope.$broadcast('checklistsUpdated');
 	};
 	$rootScope.$on('checklistsLoaded', self.checklistsHandler);

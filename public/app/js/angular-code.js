@@ -2,7 +2,7 @@ function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArra
 
 function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance"); }
 
-function _iterableToArrayLimit(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"] != null) _i["return"](); } finally { if (_d) throw _e; } } return _arr; }
+function _iterableToArrayLimit(arr, i) { if (!(Symbol.iterator in Object(arr) || Object.prototype.toString.call(arr) === "[object Arguments]")) { return; } var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"] != null) _i["return"](); } finally { if (_d) throw _e; } } return _arr; }
 
 function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
 
@@ -774,6 +774,8 @@ app.service('inspections', ['$http', '$rootScope', 'api', 'settings', function (
 
     this.checklistNull = null; // clean loaded checklist
 
+    this.lastUsedChecklistId = null; // last loaded checklist id
+
     this.saveObject = {}; // hold inspection items for saving
 
     this.DATE_FORMAT_API = 'YYYY-MM-DD HH:mm';
@@ -901,6 +903,15 @@ app.service('inspections', ['$http', '$rootScope', 'api', 'settings', function (
     return self.saveObject;
   };
 
+  this.geChecklistById = function (id) {
+    for (var i = 0; i < self.checklists.length; i++) {
+      var checklist = self.checklists[i];
+      if (checklist.id == id) return checklist;
+    }
+
+    return null;
+  };
+
   this.typeIsNonNumeric = function (type) {
     switch (type) {
       case 'default':
@@ -966,7 +977,12 @@ app.service('inspections', ['$http', '$rootScope', 'api', 'settings', function (
 
   this.loadChecklistTree = function (id) {
     var suffix = '';
-    if (typeof id != 'undefined' && id != null) suffix = '/' + id;
+
+    if (typeof id != 'undefined' && id != null) {
+      suffix = '/' + id;
+      api.setLocalStoreValue('open_checklist_id');
+    }
+
     api.getApiRequest('checklistTree', 'checklists' + suffix);
   };
 
@@ -983,6 +999,8 @@ app.service('inspections', ['$http', '$rootScope', 'api', 'settings', function (
 
   this.checklistsHandler = function (e, data) {
     self.checklists = data;
+    self.lastUsedChecklistId = api.getLocalStoreValue('open_checklist_id');
+    if (self.lastUsedChecklistId) self.checklist = geChecklistById(self.lastUsedChecklistId);
     $rootScope.$broadcast('checklistsUpdated');
   };
 
@@ -1348,8 +1366,8 @@ app.controller('UserCtrl', function ($scope, $rootScope, $window, $location, $ro
     }
 
     if ($routeParams.email != undefined && $routeParams.email != '') {
-      $scope.fields.login.email = $routeParams.email;
-      $scope.fields.register.email = $routeParams.email;
+      $scope.fields.login.email = $routeParams.email.replace(' ', '+');
+      $scope.fields.register.email = $routeParams.email.replace(' ', '+');
     }
   };
 
@@ -3065,9 +3083,8 @@ app.controller('ChecklistCtrl', function ($scope, $rootScope, $window, $location
   $scope.treeEventsObj = {
     'ready': readyCB,
     'select_node': selectNodeCB,
-    'deselect_node': deselectNodeCB // sorting categories
-
-  };
+    'deselect_node': deselectNodeCB
+  }; // sorting categories
 
   $scope.init = function () {
     if (api.getApiToken() == null) {
@@ -3388,12 +3405,12 @@ app.controller('MeasurementsCtrl', function ($scope, $rootScope, $timeout, $inte
           var unit = data.datasets[tooltipItem.datasetIndex].unit;
           return name + ': ' + $rootScope.lang['on'];
         }
-      } // tooltips: 
-      // {
-      //     enabled: false,
-      // }
+      }
+    } // tooltips: 
+    // {
+    //     enabled: false,
+    // }
 
-    }
   };
   $scope.chart.optionsSound = angular.copy($scope.chart.optionsSensors);
   $scope.chart.optionsDebug = angular.copy($scope.chart.optionsSensors);

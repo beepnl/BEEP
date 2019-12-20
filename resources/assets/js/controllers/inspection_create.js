@@ -168,11 +168,12 @@ app.controller('InspectionCreateCtrl', function($scope, $rootScope, $window, $lo
 
     $scope.updateLists = function(force=false)
 	{
-		var id = $scope.checklist ? $scope.checklist.id : null
+		var lastUsedChecklistId = api.getLocalStoreValue('open_checklist_id');
+		var currentChecklistId  = $scope.checklist ? $scope.checklist.id : lastUsedChecklistId
 		if (inspections.checklist == null || force)
 		{
 			$scope.setDateLanguage();
-			$scope.selectChecklist(id, force);
+			$scope.selectChecklist(currentChecklistId, force);
 			//console.log('selected checklist id NULL', id, force);
 		}
 		else
@@ -184,7 +185,7 @@ app.controller('InspectionCreateCtrl', function($scope, $rootScope, $window, $lo
 	
 	$scope.checklistUpdated = function(e, type)
 	{
-		$scope.checklist  = inspections.checklist;
+		$scope.checklist = inspections.checklist;
 		var id = $scope.checklist ? $scope.checklist.id : null
 		
 		if (id != null)

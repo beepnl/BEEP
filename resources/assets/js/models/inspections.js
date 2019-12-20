@@ -59,6 +59,8 @@ app.service('inspections', ['$http', '$rootScope', 'api', 'settings', function($
 		'smileys_3': -1,
 		'slider': 0,
 		'grade': 0,
+		'file': null,
+		'image': null,
 	}
 	
 	this.newSaveObject = function(data, init=false)
@@ -190,6 +192,8 @@ app.service('inspections', ['$http', '$rootScope', 'api', 'settings', function($
 			case 'list':
 			case 'select':
 			case 'select_country':
+			case 'file':
+			case 'image':
 				return true;
 		}
 		return false;
@@ -197,6 +201,8 @@ app.service('inspections', ['$http', '$rootScope', 'api', 'settings', function($
 
 	this.parseTypeValueForChecklistInput = function(type, value)
 	{
+		console.log(type, value);
+		
 		switch(type)
 		{
 			case 'list_item':
@@ -233,7 +239,10 @@ app.service('inspections', ['$http', '$rootScope', 'api', 'settings', function($
 	{
 		var suffix = '';
 		if (typeof id != 'undefined' && id != null)
+		{
 			suffix = 'id='+id;
+			api.setLocalStoreValue('open_checklist_id', id);
+		}
 
 		api.getApiRequest('checklist', 'inspections/lists', suffix);
 	};
@@ -254,10 +263,7 @@ app.service('inspections', ['$http', '$rootScope', 'api', 'settings', function($
 	{
 		var suffix = '';
 		if (typeof id != 'undefined' && id != null)
-		{
 			suffix = '/'+id;
-			api.setLocalStoreValue('open_checklist_id');
-		}
 
 		api.getApiRequest('checklistTree', 'checklists'+suffix);
 	};
@@ -275,12 +281,7 @@ app.service('inspections', ['$http', '$rootScope', 'api', 'settings', function($
 	}
 	this.checklistsHandler = function(e, data)
 	{
-		self.checklists 		 = data;
-		self.lastUsedChecklistId = api.getLocalStoreValue('open_checklist_id');
-
-		if (self.lastUsedChecklistId)
-			self.checklist = geChecklistById(self.lastUsedChecklistId);
-
+		self.checklists = data;
 		$rootScope.$broadcast('checklistsUpdated');
 	};
 	$rootScope.$on('checklistsLoaded', self.checklistsHandler);
@@ -364,26 +365,26 @@ app.service('inspections', ['$http', '$rootScope', 'api', 'settings', function($
 		{
 			if (items == false)
 			{
-				//console.log('Changed '+type+' = '+value, name);
+				console.log('Changed '+type+' = '+value, name);
 				self.saveObject[type] = value;
 			}
 			else
 			{
 				if (self.STD_VALUES[type] != value)
 				{
-					//console.log('Added '+type+' ('+id+') = '+value, name);
+					console.log('Added '+type+' ('+id+') = '+value, name);
 					self.saveObject.items[id] = value;
 				}
 				else if (typeof self.saveObject.items[id] != 'undefined')
 				{
-					//console.log('Removed '+type+' ('+id+') = '+self.saveObject.items[id], name);
+					console.log('Removed '+type+' ('+id+') = '+self.saveObject.items[id], name);
 					delete self.saveObject.items[id];
 				}
 			}
 		}
 		else
 		{
-			//console.log('NOT createInspectionObject', type, id, value, name);
+			console.log('NOT createInspectionObject', type, id, value, name);
 		}
 	}
 

@@ -812,7 +812,9 @@ app.service('inspections', ['$http', '$rootScope', 'api', 'settings', function (
     'score_quality': 0,
     'smileys_3': -1,
     'slider': 0,
-    'grade': 0
+    'grade': 0,
+    'file': null,
+    'image': null
   };
 
   this.newSaveObject = function (data) {
@@ -920,6 +922,8 @@ app.service('inspections', ['$http', '$rootScope', 'api', 'settings', function (
       case 'list':
       case 'select':
       case 'select_country':
+      case 'file':
+      case 'image':
         return true;
     }
 
@@ -927,6 +931,8 @@ app.service('inspections', ['$http', '$rootScope', 'api', 'settings', function (
   };
 
   this.parseTypeValueForChecklistInput = function (type, value) {
+    console.log(type, value);
+
     switch (type) {
       case 'list_item':
       case 'boolean':
@@ -962,7 +968,12 @@ app.service('inspections', ['$http', '$rootScope', 'api', 'settings', function (
 
   this.loadChecklist = function (id) {
     var suffix = '';
-    if (typeof id != 'undefined' && id != null) suffix = 'id=' + id;
+
+    if (typeof id != 'undefined' && id != null) {
+      suffix = 'id=' + id;
+      api.setLocalStoreValue('open_checklist_id', id);
+    }
+
     api.getApiRequest('checklist', 'inspections/lists', suffix);
   };
 
@@ -977,12 +988,7 @@ app.service('inspections', ['$http', '$rootScope', 'api', 'settings', function (
 
   this.loadChecklistTree = function (id) {
     var suffix = '';
-
-    if (typeof id != 'undefined' && id != null) {
-      suffix = '/' + id;
-      api.setLocalStoreValue('open_checklist_id');
-    }
-
+    if (typeof id != 'undefined' && id != null) suffix = '/' + id;
     api.getApiRequest('checklistTree', 'checklists' + suffix);
   };
 
@@ -999,8 +1005,6 @@ app.service('inspections', ['$http', '$rootScope', 'api', 'settings', function (
 
   this.checklistsHandler = function (e, data) {
     self.checklists = data;
-    self.lastUsedChecklistId = api.getLocalStoreValue('open_checklist_id');
-    if (self.lastUsedChecklistId) self.checklist = geChecklistById(self.lastUsedChecklistId);
     $rootScope.$broadcast('checklistsUpdated');
   };
 
@@ -1061,18 +1065,19 @@ app.service('inspections', ['$http', '$rootScope', 'api', 'settings', function (
 
     if (typeof type != 'undefined' && typeof value != 'undefined' && (items == false && typeof self.saveObject[type] != 'undefined' || (self.typeIsNonNumeric(type) || isNaN(value) == false) && typeof self.STD_VALUES[type] != 'undefined')) {
       if (items == false) {
-        //console.log('Changed '+type+' = '+value, name);
+        console.log('Changed ' + type + ' = ' + value, name);
         self.saveObject[type] = value;
       } else {
         if (self.STD_VALUES[type] != value) {
-          //console.log('Added '+type+' ('+id+') = '+value, name);
+          console.log('Added ' + type + ' (' + id + ') = ' + value, name);
           self.saveObject.items[id] = value;
         } else if (typeof self.saveObject.items[id] != 'undefined') {
-          //console.log('Removed '+type+' ('+id+') = '+self.saveObject.items[id], name);
+          console.log('Removed ' + type + ' (' + id + ') = ' + self.saveObject.items[id], name);
           delete self.saveObject.items[id];
         }
       }
-    } else {//console.log('NOT createInspectionObject', type, id, value, name);
+    } else {
+      console.log('NOT createInspectionObject', type, id, value, name);
     }
   }; // Inspections
 
@@ -2653,11 +2658,12 @@ app.controller('InspectionCreateCtrl', function ($scope, $rootScope, $window, $l
 
   $scope.updateLists = function () {
     var force = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : false;
-    var id = $scope.checklist ? $scope.checklist.id : null;
+    var lastUsedChecklistId = api.getLocalStoreValue('open_checklist_id');
+    var currentChecklistId = $scope.checklist ? $scope.checklist.id : lastUsedChecklistId;
 
     if (inspections.checklist == null || force) {
       $scope.setDateLanguage();
-      $scope.selectChecklist(id, force); //console.log('selected checklist id NULL', id, force);
+      $scope.selectChecklist(currentChecklistId, force); //console.log('selected checklist id NULL', id, force);
     } else {
       //console.log('selected checklist id NOT NULL', id, force);
       $scope.checklistUpdated(null, null);

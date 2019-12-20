@@ -8,8 +8,13 @@
 	<div class="box">
 	    {{console.log(supportUrl);}}
 	    <div class="box-body">
-			<iframe ng-if="locale != 'nl'" src="https://beepsupport.freshdesk.com/en/support/solutions" style="width: 100%; height: 800px; overflow: none; border: none; scroll-behavior: none;"></iframe>
+			<iframe ng-if="locale == 'en'" src="https://beepsupport.freshdesk.com/en/support/solutions" style="width: 100%; height: 800px; overflow: none; border: none; scroll-behavior: none;"></iframe>
 			<iframe ng-if="locale == 'nl'" src="https://beepsupport.freshdesk.com/nl/support/solutions" style="width: 100%; height: 800px; overflow: none; border: none; scroll-behavior: none;"></iframe>
+			<iframe ng-if="locale == 'fr'" src="https://beepsupport.freshdesk.com/fr/support/solutions" style="width: 100%; height: 800px; overflow: none; border: none; scroll-behavior: none;"></iframe>
+			<iframe ng-if="locale == 'es'" src="https://beepsupport.freshdesk.com/es/support/solutions" style="width: 100%; height: 800px; overflow: none; border: none; scroll-behavior: none;"></iframe>
+			<iframe ng-if="locale == 'pt'" src="https://beepsupport.freshdesk.com/pt-PT/support/solutions" style="width: 100%; height: 800px; overflow: none; border: none; scroll-behavior: none;"></iframe>
+			<iframe ng-if="locale == 'ro'" src="https://beepsupport.freshdesk.com/ro/support/solutions" style="width: 100%; height: 800px; overflow: none; border: none; scroll-behavior: none;"></iframe>
+			<iframe ng-if="locale == 'de'" src="https://beepsupport.freshdesk.com/de/support/solutions" style="width: 100%; height: 800px; overflow: none; border: none; scroll-behavior: none;"></iframe>
 		</div>
 		
 	    <div class="overlay" ng-if="loading">

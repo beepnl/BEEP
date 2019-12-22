@@ -69,18 +69,31 @@ function Converter(decoded, port) {
     // weight is not converted
 
     // temperature
-    if (decoded.amount_of_temperature_sensors == 1)
+    if (decoded.ds18b20_present)
     {
-      if (decoded.t_i > 0)
-        converted.t_i =  decoded.t_i / 100;
-      
-    }
-    else if (decoded.amount_of_temperature_sensors > 1)
-    {
-      for (var i = 0; i < decoded.amount_of_temperature_sensors; i++) 
+      if (decoded.ds18b20_sensor_amount == 1)
       {
-        converted['t_i_'+i] = decoded['t_i_'+i] / 100;
+        if (decoded.t_i > 0)
+          converted.t_i =  decoded.t_i / 100;
+        
       }
+      else if (decoded.ds18b20_sensor_amount > 1)
+      {
+        for (var i = 0; i < decoded.ds18b20_sensor_amount; i++) 
+        {
+          converted['t_i_'+i] = decoded['t_i_'+i] / 100;
+        }
+      }
+    }
+
+    // sound fft not converted
+
+    // bme280
+    if (decoded.bme280_present)
+    {
+      converted.t = decoded.bme280_t / 100;
+      converted.h = decoded.bme280_h / 100;
+      converted.p = decoded.bme280_p; // hPa
     }
   }
 

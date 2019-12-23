@@ -10,6 +10,11 @@
     <body>
     	<h1>TTN payload decoder</h1>
     	<p>Set FFT to big mic (IN2LP), +20dB, 10 bins, 98-586 Hz: 8B0228000A0946</p>
+    	<p>(Re)set LoRaWAN aan, DutyCycle limitatie aan, ADR aan: 940D</p>
+    	<p>Set LoRaWAN uit, DutyCycle limitatie uit, ADR uit: 9400</p>
+    	<p>Set Measurement interval to 1 min, 1 min send: 9D000001 (BUG: 01 is elke 20 sec versturen)</p>
+    	<p>Set Measurement interval to 1 min, 3 min send: 9D030001 (BUG: 01 is elke 20 sec versturen)</p>
+    	<p>Set Measurement interval to 10 min, 10 min send: 9D01000A</p>
         <script src="ttn-payload-decoder.js"></script>
 
     </body>

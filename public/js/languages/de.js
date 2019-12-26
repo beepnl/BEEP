@@ -359,7 +359,7 @@ LANG['de'] =
     server_down             : 'Die App ist aufgrund von Wartungsarbeiten nicht verfügbar. Bitte versuche es später erneut',
     add_to_calendar         : 'Zum Kalender hinzufügen',
     sort_on                 : 'Sortieren nach',
-    Whats_new               : 'Neu in v2.1!',
+    Whats_new               : 'Neu!',
     Manual                  : 'Anleitung',
 
     Site_title 				: 'BEEP | Bienenmonitor',

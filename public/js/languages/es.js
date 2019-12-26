@@ -362,7 +362,7 @@
     server_down : 'La aplicación no está disponible debido a trabajos de mantenimiento, por favor inténtelo de nuevo más tarde',
     add_to_calendar : 'Agregar al calendario',
     sort_on : 'Ordenar en',
-    Whats_new : 'Nuevo en v2.1!',
+    Whats_new : 'Nuevo en v2.2!',
     Manual : 'Manual',
 
     Site_title : 'BEEP ? Monitor de abejas',

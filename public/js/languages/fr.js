@@ -368,7 +368,7 @@
     server_down                : 'L\'application n\'est pas disponible en raison de maintenance. Veuillez réessayer plus tard',
     add_to_calendar            : 'Ajouter au calendrier',
     sort_on                    : 'Trier sur',
-    Whats_new                  : 'Nouveau dans v2.1!',
+    Whats_new                  : 'Nouveau dans v2.2!',
     Manual                     : 'Manuel (EN)',
         
         

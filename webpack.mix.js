@@ -30,7 +30,6 @@ mix.styles([
 
 mix.copy([
 	'node_modules/admin-lte/bootstrap/css/bootstrap.min.css.map',
-    // 'node_modules/components-font-awesome/css/font-awesome.css.map',
     'node_modules/components-font-awesome/css/fontawesome.min.css',
 	], 'public/css');
 

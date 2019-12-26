@@ -361,7 +361,7 @@
     server_down             : 'Aplicația nu este disponibilă din cauza lucrărilor de întreținere, vă rugăm încercați din nou mai târziu.',
     add_to_calendar         : 'Adăugați în calendar',
     sort_on                 : 'Sortează pe',
-    Whats_new               : 'Nou în v2.2!',
+    Whats_new               : 'Nou!',
     Manual                  : 'Manual',
 
     Site_title              : 'BEEP | Bee monitor',

@@ -214,7 +214,7 @@
     Country                 : 'Country',
     City                    : 'City',
     Address                 : 'Address',
-    Lattitude               : 'Lattitude',
+    Lattitude               : 'Latitude',
     Longitude               : 'Longitude',
     Street                  : 'Street',
     Number                  : 'No.',

@@ -214,7 +214,7 @@
     Country                 : 'Country',
     City                    : 'City',
     Address                 : 'Address',
-    Lattitude               : 'Lattitude',
+    Lattitude               : 'Latitude',
     Longitude               : 'Longitude',
     Street                  : 'Street',
     Number                  : 'No.',
@@ -346,7 +346,7 @@
     server_down             : 'The app is unavailable due to maintenance work, please try again later',
     add_to_calendar         : 'Add to calendar',
     sort_on                 : 'Sort on',
-    Whats_new               : 'New!',
+    Whats_new               : 'New in v2.1!',
     Manual                  : 'Manual (EN)',
 
     
@@ -367,7 +367,7 @@
     server_down             : 'The app is unavailable due to maintenance work, please try again later',
     add_to_calendar         : 'Add to calendar',
     sort_on                 : 'Sort on',
-    Whats_new               : 'New!',
+    Whats_new               : 'New in v2.1!',
     Manual                  : 'Manual',
     
     

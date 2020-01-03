@@ -364,7 +364,7 @@
     server_down             : 'De app is tijdelijk niet beschikbaar door onderhoud, probeer het later opnieuw',
     add_to_calendar         : 'Zet in agenda',
     sort_on                 : 'Sorteer op',
-    Whats_new               : 'Nieuw!',
+    Whats_new               : 'Nieuw in v2.1!',
     Manual                  : 'Handleiding',
 
     Site_title              : 'BEEP | Bijenmonitor',

@@ -346,7 +346,7 @@
     server_down             : 'The app is unavailable due to maintenance work, please try again later',
     add_to_calendar         : 'Add to calendar',
     sort_on                 : 'Sort on',
-    Whats_new               : 'New!',
+    Whats_new               : 'New in v2.1!',
     Manual                  : 'Manual',
     
     /* weight calibration settings */
@@ -361,6 +361,14 @@
     on_the_scale            : 'on the scale',
     calibration_started     : 'Calibration started... Wait for the next measurement to take effect.',
     calibration_ended       : 'Calibration succeeded!',
+
+    /* General items */
+    server_down             : 'The app is unavailable due to maintenance work, please try again later',
+    add_to_calendar         : 'Add to calendar',
+    sort_on                 : 'Sort on',
+    Whats_new               : 'New in v2.1!',
+    Manual                  : 'Manual',
+
     
     Site_title              : 'BEEP | Bee monitor',
 

@@ -51,7 +51,34 @@
             <checklist-fieldset ng-if="item.children.length > 0 && (item.input == 'boolean' || item.input == 'boolean_yes_red' || item.input == 'list_item')" ng-show="item.value == 1" cat="item" cols="12"></checklist-fieldset>
         
         <input ng-if="item.input == 'file'" ng-model="item.value" readonly="false" type="file" item-name="item.name">
-        <input ng-if="item.input == 'image'" ng-model="item.value" readonly="false" type="file" item-name="item.name" accept="image/png, image/jpeg" capture="camera">
+        <!-- <input ng-if="item.input == 'image'" ng-model="item.value" readonly="false" type="file" item-name="item.name" accept="image/png, image/jpeg" capture="camera"> -->
+
+        <div ng-if="item.input == 'image'">
+            <div ng-if="!item.value.$error && item.value">
+                <div style="font:smaller">{{f.name}} {{errFile.name}} {{errFile.$error}} {{errFile.$errorParam}}
+                    <span class="progress" ng-show="f.progress >= 0">
+                        <div style="width:{{f.progress}}%" ng-bind="f.progress + '%'"></div>
+                    </span>
+                </div>     
+                {{errorMsg}}
+
+                <div class="preview">
+                    <img ngf-src="!item.value.$error && item.value">
+                    <audio controls="" ngf-src="!item.value.$error && item.value"></audio>
+                    <video controls="" ngf-src="!item.value.$error && item.value"></video>
+                </div>
+            </div>
+            <div ng-if="item.value.$error || !item.value">
+                <div ngf-select ngf-drop ng-model="item.value" class="drop-box"
+                    ngf-drag-over-class="'dragover'" 
+                    ngf-validate="{size: {max: '1MB', min: '10B'}, height: {max: 12000}, width: {max: 12000}, duration: {max: '5m'}}"
+                    ngf-pattern="'image/png, image/jpeg'"
+                    ngf-capture="camera"
+                    ngf-drop-available="dropAvailable">
+                    <br><br><br>Select<span ng-show="dropAvailable">/drop</span> image here
+                </div>
+            </div>
+        </div>
 
         <div ng-if="item.input == 'colony_size_tpa'">
 

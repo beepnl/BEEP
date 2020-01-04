@@ -361,7 +361,7 @@
     server_down             : 'A app está indisponível devido a trabalhos de manutenção. Tente novamente mais tarde',
     add_to_calendar         : 'Adicionar ao calendário',
     sort_on                 : 'Classificar em',
-    Whats_new               : 'Novo na v2.1!',
+    Whats_new               : 'Novo!',
     Manual                  : 'Manual',
 
     Site_title              : 'BEEP | Monitorização de abelhas',

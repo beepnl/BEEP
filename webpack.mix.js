@@ -49,6 +49,7 @@ mix.styles([
 	'node_modules/angularjs-slider/dist/rzslider.min.css',
 	'node_modules/datetimepicker/dist/DateTimePicker.min.css',
 	'resources/assets/css/measurements.css',
+    'resources/assets/css/file-upload.css',
 	], 'public/app/css/skin.css').version();
 
 mix.styles([
@@ -108,6 +109,8 @@ mix.babel([
     'node_modules/ng-iScroll/src/ng-iscroll.js',
     'node_modules/angularjs-gauge/src/angularjs-gauge.js', 
     'node_modules/datetimepicker/src/DateTimePicker.js', 
+    'node_modules/ng-file-upload/dist/ng-file-upload-shim.min.js', 
+    'node_modules/ng-file-upload/dist/ng-file-upload.min.js', 
 	], 'public/app/js/angular-modules.js').version();
 
 mix.babel([

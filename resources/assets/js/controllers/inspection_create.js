@@ -4,7 +4,7 @@
  *
  * Dashboard controller
  */
-app.controller('InspectionCreateCtrl', function($scope, $rootScope, $window, $location, $filter, $routeParams, $timeout, settings, api, moment, hives, groups, inspections) 
+app.controller('InspectionCreateCtrl', function($scope, $rootScope, $window, $location, $filter, $routeParams, $timeout, settings, api, moment, hives, groups, inspections, Upload) 
 {
 
 	$rootScope.title    	= $rootScope.lang.Inspections;
@@ -26,6 +26,42 @@ app.controller('InspectionCreateCtrl', function($scope, $rootScope, $window, $lo
 
 	$scope.langScript	    = $rootScope.lang.pick_a_date_lang_file;
 
+	// upload on file select or drop
+	$scope.files 			= [];
+    $scope.uploadFile = function (file, category_id=null) {
+        console.log('upload', file, category_id);
+        Upload.upload({
+            url: 'upload/url',
+            data: {file: file, 'user_id': $rootScope.user.id, 'category_id': category_id}
+        }).then(function (resp) {
+            console.log('Success ' + resp.config.data.file.name + 'uploaded. Response: ' + resp.data);
+        }, function (resp) {
+            console.log('Error status: ' + resp.status);
+        }, function (evt) {
+            var progressPercentage = parseInt(100.0 * evt.loaded / evt.total);
+            console.log('progress: ' + progressPercentage + '% ' + evt.config.data.file.name);
+        });
+    };
+    // for multiple files:
+    $scope.uploadFiles = function (files, category_id=null) {
+      console.log('uploadFiles', file, category_id);
+      if (files && files.length) {
+        // for (var i = 0; i < files.length; i++) {
+        //   Upload.upload({url: 'upload/url', data: {file: files[i], 'user_id': $rootScope.user.id, 'category_id': category_id} });
+        // }
+        // or send them all together for HTML5 browsers:
+        Upload.upload({url: 'upload/url', data: {file: files, 'user_id': $rootScope.user.id, 'category_id': category_id} });
+      }
+    }
+
+    // upload later on form submit or something similar
+    $scope.submit = function() {
+      if ($scope.form.file.$valid && $scope.file) {
+        $scope.upload($scope.file);
+      }
+    };
+
+
 	$scope.init = function()
 	{
 		if(api.getApiToken() == null)
@@ -41,6 +77,9 @@ app.controller('InspectionCreateCtrl', function($scope, $rootScope, $window, $lo
 			$rootScope.hivetypes  = settings.hivetypes;
 			$rootScope.hives  	  = hives.hives;
 			$rootScope.locations  = hives.locations;
+			$rootScope.uploadFile = $scope.uploadFile;
+			$rootScope.uploadFiles= $scope.uploadFiles;
+			$rootScope.files 	  = $scope.files;
 			
 			$scope.showMore   	  = hives.hives.length > 1 ? true : false;
 			$scope.hive 	  	  = hives.getHiveById($routeParams.hiveId);
@@ -57,6 +96,8 @@ app.controller('InspectionCreateCtrl', function($scope, $rootScope, $window, $lo
 		}
 	};
 
+
+    // Datepicker
 	$scope.setDateLanguage = function()
 	{
 		$("#dtBox").DateTimePicker(

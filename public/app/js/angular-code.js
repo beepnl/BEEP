@@ -2,7 +2,7 @@ function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArra
 
 function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance"); }
 
-function _iterableToArrayLimit(arr, i) { if (!(Symbol.iterator in Object(arr) || Object.prototype.toString.call(arr) === "[object Arguments]")) { return; } var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"] != null) _i["return"](); } finally { if (_d) throw _e; } } return _arr; }
+function _iterableToArrayLimit(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"] != null) _i["return"](); } finally { if (_d) throw _e; } } return _arr; }
 
 function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
 
@@ -2526,7 +2526,7 @@ app.controller('PasswordCtrl', function ($scope, $rootScope, $window, $location,
  * Dashboard controller
  */
 
-app.controller('InspectionCreateCtrl', function ($scope, $rootScope, $window, $location, $filter, $routeParams, $timeout, settings, api, moment, hives, groups, inspections) {
+app.controller('InspectionCreateCtrl', function ($scope, $rootScope, $window, $location, $filter, $routeParams, $timeout, settings, api, moment, hives, groups, inspections, Upload) {
   $rootScope.title = $rootScope.lang.Inspections;
   $scope.showMore = false; // multiple inspections
 
@@ -2540,7 +2540,57 @@ app.controller('InspectionCreateCtrl', function ($scope, $rootScope, $window, $l
   $scope.locations = null;
   $scope.beeraces = null;
   $scope.hivetypes = null;
-  $scope.langScript = $rootScope.lang.pick_a_date_lang_file;
+  $scope.langScript = $rootScope.lang.pick_a_date_lang_file; // upload on file select or drop
+
+  $scope.files = [];
+
+  $scope.uploadFile = function (file) {
+    var category_id = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
+    console.log('upload', file, category_id);
+    Upload.upload({
+      url: 'upload/url',
+      data: {
+        file: file,
+        'user_id': $rootScope.user.id,
+        'category_id': category_id
+      }
+    }).then(function (resp) {
+      console.log('Success ' + resp.config.data.file.name + 'uploaded. Response: ' + resp.data);
+    }, function (resp) {
+      console.log('Error status: ' + resp.status);
+    }, function (evt) {
+      var progressPercentage = parseInt(100.0 * evt.loaded / evt.total);
+      console.log('progress: ' + progressPercentage + '% ' + evt.config.data.file.name);
+    });
+  }; // for multiple files:
+
+
+  $scope.uploadFiles = function (files) {
+    var category_id = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
+    console.log('uploadFiles', file, category_id);
+
+    if (files && files.length) {
+      // for (var i = 0; i < files.length; i++) {
+      //   Upload.upload({url: 'upload/url', data: {file: files[i], 'user_id': $rootScope.user.id, 'category_id': category_id} });
+      // }
+      // or send them all together for HTML5 browsers:
+      Upload.upload({
+        url: 'upload/url',
+        data: {
+          file: files,
+          'user_id': $rootScope.user.id,
+          'category_id': category_id
+        }
+      });
+    }
+  }; // upload later on form submit or something similar
+
+
+  $scope.submit = function () {
+    if ($scope.form.file.$valid && $scope.file) {
+      $scope.upload($scope.file);
+    }
+  };
 
   $scope.init = function () {
     if (api.getApiToken() == null) {
@@ -2553,6 +2603,9 @@ app.controller('InspectionCreateCtrl', function ($scope, $rootScope, $window, $l
       $rootScope.hivetypes = settings.hivetypes;
       $rootScope.hives = hives.hives;
       $rootScope.locations = hives.locations;
+      $rootScope.uploadFile = $scope.uploadFile;
+      $rootScope.uploadFiles = $scope.uploadFiles;
+      $rootScope.files = $scope.files;
       $scope.showMore = hives.hives.length > 1 ? true : false;
       $scope.hive = hives.getHiveById($routeParams.hiveId);
       if ($scope.hive == null) $scope.hive = groups.getHiveById($routeParams.hiveId);
@@ -2561,7 +2614,8 @@ app.controller('InspectionCreateCtrl', function ($scope, $rootScope, $window, $l
 
       inspections.getChecklists(); //console.log('init-inspection', $scope.inspection);
     }
-  };
+  }; // Datepicker
+
 
   $scope.setDateLanguage = function () {
     $("#dtBox").DateTimePicker({
@@ -3089,8 +3143,9 @@ app.controller('ChecklistCtrl', function ($scope, $rootScope, $window, $location
   $scope.treeEventsObj = {
     'ready': readyCB,
     'select_node': selectNodeCB,
-    'deselect_node': deselectNodeCB
-  }; // sorting categories
+    'deselect_node': deselectNodeCB // sorting categories
+
+  };
 
   $scope.init = function () {
     if (api.getApiToken() == null) {
@@ -3411,12 +3466,12 @@ app.controller('MeasurementsCtrl', function ($scope, $rootScope, $timeout, $inte
           var unit = data.datasets[tooltipItem.datasetIndex].unit;
           return name + ': ' + $rootScope.lang['on'];
         }
-      }
-    } // tooltips: 
-    // {
-    //     enabled: false,
-    // }
+      } // tooltips: 
+      // {
+      //     enabled: false,
+      // }
 
+    }
   };
   $scope.chart.optionsSound = angular.copy($scope.chart.optionsSensors);
   $scope.chart.optionsDebug = angular.copy($scope.chart.optionsSensors);

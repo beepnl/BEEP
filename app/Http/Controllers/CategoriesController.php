@@ -1,7 +1,7 @@
 <?php
 namespace App\Http\Controllers;
 
-use Image;
+use InterventionImage;
 use Storage;
 use App\Category;
 use App\CategoryFactory;
@@ -141,7 +141,7 @@ class CategoriesController extends Controller {
             if ($ext != 'svg')
             {
             	$file = str_random(40).'.'.$ext;
-            	Image::make($icon)->resize(100, 100)->save(public_path('/storage/icons/'.$file));
+            	InterventionInterventionImage::make($icon)->resize(100, 100)->save(public_path('/storage/icons/'.$file));
             	$cat_input['icon'] = $file;
             }
             else

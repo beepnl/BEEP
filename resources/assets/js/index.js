@@ -4,7 +4,7 @@
  *
  */
 
-var app = angular.module('app', ['ngRoute', 'angularMoment', 'chart.js', 'ngDialog', 'iconFilters', 'textFilters', 'uiSwitch', 'revolunet.stepper', 'ngMap', 'mp.colorPicker', 'rzModule', 'ngJsTree', 'angular-atc', 'angular-gestures', 'angularjs-gauge']);
+var app = angular.module('app', ['ngRoute', 'angularMoment', 'chart.js', 'ngDialog', 'iconFilters', 'textFilters', 'uiSwitch', 'revolunet.stepper', 'ngMap', 'mp.colorPicker', 'rzModule', 'ngJsTree', 'angular-atc', 'angular-gestures', 'angularjs-gauge', 'ngFileUpload']);
 
 app.config(function (hammerDefaultOptsProvider) {
 

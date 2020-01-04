@@ -319,3 +319,74 @@
 			display: inline-block;	
 		}
 	}
+.drop-box {
+    background: #F8F8F8;
+    background-image: url("/img/icons/plus.svg");
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: 40px;
+    border: 5px dashed #DDD;
+    border-radius: 10px;
+    width: 170px;
+    text-align: center;
+    padding: 20px 10px;
+}
+
+.drop-box.dragover {
+    border: 5px dashed #F8BA31;
+}
+
+.drop-box.dragover-err {
+    border: 5px dashed red;
+}
+
+/* for IE*/
+.js-fileapi-wrapper {
+    display: inline-block;
+    vertical-align: middle;
+}
+
+.thumb {
+    float: left;
+    width: 18px;
+    height: 18px;
+    padding-right: 10px;
+}
+
+form .thumb {
+    width: 24px;
+    height: 24px;
+    float: none;
+    position: relative;
+    top: 7px;
+}
+
+form .progress {
+    line-height: 15px;
+}
+
+:not(output):-moz-ui-invalid {
+    box-shadow: none;
+}
+
+.progress {
+    display: inline-block;
+    width: 170px;
+    border: 1px solid #333;
+}
+
+.progress div {
+    font-size: smaller;
+    text-align: center;
+    background: #F8BA31;
+    width: 0;
+}
+
+.preview {
+    clear: both;
+}
+
+.preview img, .preview audio, .preview video {
+    max-width: 300px;
+    max-height: 150px;
+}

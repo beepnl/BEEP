@@ -363,15 +363,7 @@
     on_the_scale               : 'sur la balance',
     calibration_started        : 'L\'étalonnage a commencé... Attendez que la prochaine mesure prenne effet',
     calibration_ended          : 'L\'étalonnage a réussi !',
-    
-    /* General items */ 
-    server_down                : 'L\'application n\'est pas disponible en raison de maintenance. Veuillez réessayer plus tard',
-    add_to_calendar            : 'Ajouter au calendrier',
-    sort_on                    : 'Trier sur',
-    Whats_new                  : 'Nouveau dans v2.2!',
-    Manual                     : 'Manuel (EN)',
-        
-        
+                
     Site_title                 : 'BEEP | Moniteur abeille',
     
     could_not_create_user      : 'L\'utilisateur ne peut pas être créé pour le moment. Désolé pour la gêne occasionnée, veuillez réessayer plus tard',

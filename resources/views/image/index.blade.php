@@ -50,7 +50,12 @@
             @foreach($image as $item)
                 <tr>
                     <td>{{ $loop->iteration or $item->id }}</td>
-                    <td>{{ $item->file }}</td><td>{{ $item->description }}</td><td>{{ $item->type }}</td><td>{{ $item->height }}</td><td>{{ $item->width }}</td><td>{{ $item->size_kb }}</td><td>{{ $item->date }}</td><td>{{ $item->user_id }}</td>
+                    <td>
+                        {{ $item->file }}
+                        <br>
+                        <img src="{{ $item->imageThumbPath() }}">
+                    </td>
+                    <td>{{ $item->description }}</td><td>{{ $item->type }}</td><td>{{ $item->height }}</td><td>{{ $item->width }}</td><td>{{ $item->size_kb }}</td><td>{{ $item->date }}</td><td>{{ $item->user_id }}</td>
                     <td col-sm-1>
                         <a href="{{ route('image.show', $item->id) }}" title="{{ __('crud.show') }}"><button class="btn btn-default"><i class="fa fa-eye" aria-hidden="true"></i></button></a>
 

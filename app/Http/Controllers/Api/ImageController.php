@@ -32,13 +32,10 @@ class ImageController extends Controller
     public function store(Request $request)
     {
         
-        if($request->hasFile('file')){
-            $avatar = $request->file('file');
-            InterventionImage::make($avatar)->resize(300, 300)->save( public_path('uploads/avatars/' . $filename ) );
-            $user->avatar = $filename;
+        if($request->hasFile('file'))
+        {
+            $image = Image::store($request->all());
         }
-
-        $image = Image::create($request->all());
 
         return response()->json($image, 201);
     }

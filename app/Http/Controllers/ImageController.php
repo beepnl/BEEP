@@ -28,9 +28,6 @@ class ImageController extends Controller
                 ->orWhere('width', 'LIKE', "%$keyword%")
                 ->orWhere('size_kb', 'LIKE', "%$keyword%")
                 ->orWhere('date', 'LIKE', "%$keyword%")
-                ->orWhere('user_id', 'LIKE', "%$keyword%")
-                ->orWhere('category_id', 'LIKE', "%$keyword%")
-                ->orWhere('checklist_id', 'LIKE', "%$keyword%")
                 ->paginate($perPage);
         } else {
             $image = Image::paginate($perPage);
@@ -61,7 +58,7 @@ class ImageController extends Controller
         
         $requestData = $request->all();
         
-        Image::create($requestData);
+        Image::store($requestData);
 
         return redirect('image')->with('flash_message', 'Image added!');
     }
@@ -122,8 +119,7 @@ class ImageController extends Controller
      */
     public function destroy($id)
     {
-        Image::destroy($id);
-
+        Image::findOrFail($id)->delete();
         return redirect('image')->with('flash_message', 'Image deleted!');
     }
 }

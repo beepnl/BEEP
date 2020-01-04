@@ -141,7 +141,7 @@ class CategoriesController extends Controller {
             if ($ext != 'svg')
             {
             	$file = str_random(40).'.'.$ext;
-            	InterventionInterventionImage::make($icon)->resize(100, 100)->save(public_path('/storage/icons/'.$file));
+            	InterventionImage::make($icon)->resize(100, 100)->save(public_path('/storage/icons/'.$file));
             	$cat_input['icon'] = $file;
             }
             else

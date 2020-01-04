@@ -25,7 +25,7 @@
             <form method="POST" action="{{ route('image.store') }}" accept-charset="UTF-8" class="form-horizontal" enctype="multipart/form-data">
                 {{ csrf_field() }}
 
-                @include ('image.form', ['image'=>new App\Image(), 'submitButtonText' => 'Create'])
+                @include ('image.form', ['image'=>new App\Image(), 'submitButtonText'=>'Create'])
 
             </form>
 

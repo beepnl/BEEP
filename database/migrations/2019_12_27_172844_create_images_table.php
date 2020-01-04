@@ -23,10 +23,14 @@ class CreateImagesTable extends Migration
             $table->integer('size_kb')->nullable();
             $table->timestamp('date')->nullable();
             $table->integer('user_id')->unsigned()->nullable();
+            $table->integer('hive_id')->unsigned()->nullable();
             $table->integer('category_id')->unsigned()->nullable();
             $table->integer('checklist_id')->unsigned()->nullable();
 
             $table->foreign('user_id')->references('id')->on('users')
+                    ->onUpdate('cascade')->onDelete('cascade');
+
+            $table->foreign('hive_id')->references('id')->on('hives')
                     ->onUpdate('cascade')->onDelete('cascade');
 
             $table->foreign('category_id')->references('id')->on('categories')
@@ -50,6 +54,7 @@ class CreateImagesTable extends Migration
             {
                 $table->dropForeign(['checklist_id']);
                 $table->dropForeign(['category_id']);
+                $table->dropForeign(['hive_id']);
                 $table->dropForeign(['user_id']);
                 $table->drop();
             });

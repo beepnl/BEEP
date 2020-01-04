@@ -76,9 +76,9 @@ return [
             'bucket' => env('AWS_BUCKET'),
             'url' => env('AWS_URL'),
             'cache' => [
-                'store' => 'memcached',
+                'store' => 'redis',
                 'expire' => 600,
-                'prefix' => 'cache-prefix',
+                'prefix' => 'cache-',
             ],
         ],
 

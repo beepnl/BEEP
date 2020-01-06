@@ -210,7 +210,7 @@ LANG['de'] =
 
 	/* settings */ 
 	General : 'Generell', 
-	Location : 'Standort', 
+	Place : 'Standort', 
 	Country : 'Land', 
 	City : 'Stadt', 
 	Address : 'Addresse', 

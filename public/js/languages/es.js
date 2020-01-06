@@ -212,7 +212,7 @@
 
         /* settings */
         General                 : 'General',
-        Location                : 'Ubicación',
+        Place                   : 'Ubicación',
         Country                 : 'País',
         City                    : 'Ciudad',
         Address                 : 'Dirección',

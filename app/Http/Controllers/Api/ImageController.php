@@ -32,12 +32,12 @@ class ImageController extends Controller
     public function store(Request $request)
     {
         
-        if($request->hasFile('file'))
+        if($request->has('file') && $request->hasFile('file'))
         {
             $image = Image::store($request->all());
+            return response()->json($image, 201);
         }
-
-        return response()->json($image, 201);
+        return response()->json(null, 200);
     }
 
     /**
@@ -65,7 +65,7 @@ class ImageController extends Controller
     public function update(Request $request, $id)
     {
         
-        $image = Image::findOrFail($id);
+        $image = Auth::user()->images()->findOrFail($id);
         $image->update($request->all());
 
         return response()->json($image, 200);
@@ -78,10 +78,14 @@ class ImageController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id)
+    public function destroy($image_url)
     {
-        Image::destroy($id);
-
-        return response()->json(null, 204);
+        $image = Auth::user()->images->where('image_url', $image_url)->first();
+        if ($image)
+        {
+            $image->delete();
+            return response()->json(null, 204);
+        }
+        return response()->json(null, 404);
     }
 }

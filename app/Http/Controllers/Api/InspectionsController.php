@@ -77,7 +77,8 @@ class InspectionsController extends Controller
             $hive         = $user->allHives(true)->find($request->input('hive_id'));
             $location     = $user->allLocations(true)->find($request->input('location_id'));
 
-            $data['created_at'] = $date;
+            $data['created_at']   = $date;
+            $data['checklist_id'] = $request->filled('checklist_id') ? $request->input('checklist_id') : null;
 
             if ($request->filled('reminder_date'))
             {
@@ -85,6 +86,7 @@ class InspectionsController extends Controller
                 $data['reminder_date'] = $reminder_moment->format('Y-m-d H:i:s');
             }
 
+            // select inspection if exists
             $inspection = null;
             if ($hive)
                 $inspection = $hive->inspections()->orderBy('created_at','desc')->where('created_at', $date)->first();
@@ -94,8 +96,8 @@ class InspectionsController extends Controller
                 $inspection = $user->inspections()->orderBy('created_at','desc')->where('created_at', $date)->first();
 
             // filter -1 values for impression and attention
-            $data['impression'] = $request->filled('impression') && $request->input('impression') > -1 ? $request->input('impression') : null;
-            $data['attention']  = $request->filled('attention')  && $request->input('attention')  > -1 ? $request->input('attention')  : null;
+            $data['impression']   = $request->filled('impression') && $request->input('impression') > -1 ? $request->input('impression') : null;
+            $data['attention']    = $request->filled('attention')  && $request->input('attention')  > -1 ? $request->input('attention')  : null;
 
             //die(print_r(['data'=>$data,'inspection'=>$inspection,'user'=>$user->inspections()->get()->toArray()]));
 

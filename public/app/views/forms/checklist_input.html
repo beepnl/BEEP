@@ -63,9 +63,10 @@
                 {{errorMsg}}
 
                 <div class="preview">
-                    <img ngf-src="!item.value.$error && item.value">
-                    <audio controls="" ngf-src="!item.value.$error && item.value"></audio>
-                    <video controls="" ngf-src="!item.value.$error && item.value"></video>
+                    <a class="clear" ng-if="!item.value.$error && item.value" ng-click="item.value=null">Delete</a>
+                    <img ng-if="item.value.indexOf('.png') > -1 || item.value.indexOf('.jpg') > -1 || item.value.indexOf('.jpeg') > -1" ngf-src="!item.value.$error && item.value">
+                    <audio controls="" ng-if="item.value.indexOf('.mp3') > -1 || item.value.indexOf('.wav') > -1" ngf-src="!item.value.$error && item.value"></audio>
+                    <video controls="" ng-if="item.value.indexOf('.mp4') > -1" ngf-src="!item.value.$error && item.value"></video>
                 </div>
             </div>
             <div ng-if="item.value.$error || !item.value">

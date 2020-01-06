@@ -15,7 +15,9 @@ class CreateImagesTable extends Migration
         Schema::create('images', function (Blueprint $table) {
             $table->increments('id');
             $table->timestamps();
-            $table->string('file');
+            $table->string('filename')->nullable();
+            $table->string('image_url');
+            $table->string('thumb_url');
             $table->text('description')->nullable();
             $table->string('type')->nullable();
             $table->integer('height')->nullable();
@@ -25,7 +27,7 @@ class CreateImagesTable extends Migration
             $table->integer('user_id')->unsigned()->nullable();
             $table->integer('hive_id')->unsigned()->nullable();
             $table->integer('category_id')->unsigned()->nullable();
-            $table->integer('checklist_id')->unsigned()->nullable();
+            $table->integer('inspection_id')->unsigned()->nullable();
 
             $table->foreign('user_id')->references('id')->on('users')
                     ->onUpdate('cascade')->onDelete('cascade');
@@ -36,7 +38,7 @@ class CreateImagesTable extends Migration
             $table->foreign('category_id')->references('id')->on('categories')
                     ->onUpdate('cascade');
 
-            $table->foreign('checklist_id')->references('id')->on('checklists')
+            $table->foreign('inspection_id')->references('id')->on('inspections')
                     ->onUpdate('cascade');
         });
     }
@@ -52,7 +54,7 @@ class CreateImagesTable extends Migration
         {
             Schema::table('images', function (Blueprint $table) 
             {
-                $table->dropForeign(['checklist_id']);
+                $table->dropForeign(['inspection_id']);
                 $table->dropForeign(['category_id']);
                 $table->dropForeign(['hive_id']);
                 $table->dropForeign(['user_id']);

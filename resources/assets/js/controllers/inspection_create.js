@@ -26,42 +26,6 @@ app.controller('InspectionCreateCtrl', function($scope, $rootScope, $window, $lo
 
 	$scope.langScript	    = $rootScope.lang.pick_a_date_lang_file;
 
-	// upload on file select or drop
-	$scope.files 			= [];
-    $scope.uploadFile = function (file, category_id=null) {
-        console.log('upload', file, category_id);
-        Upload.upload({
-            url: 'upload/url',
-            data: {file: file, 'user_id': $rootScope.user.id, 'category_id': category_id}
-        }).then(function (resp) {
-            console.log('Success ' + resp.config.data.file.name + 'uploaded. Response: ' + resp.data);
-        }, function (resp) {
-            console.log('Error status: ' + resp.status);
-        }, function (evt) {
-            var progressPercentage = parseInt(100.0 * evt.loaded / evt.total);
-            console.log('progress: ' + progressPercentage + '% ' + evt.config.data.file.name);
-        });
-    };
-    // for multiple files:
-    $scope.uploadFiles = function (files, category_id=null) {
-      console.log('uploadFiles', file, category_id);
-      if (files && files.length) {
-        // for (var i = 0; i < files.length; i++) {
-        //   Upload.upload({url: 'upload/url', data: {file: files[i], 'user_id': $rootScope.user.id, 'category_id': category_id} });
-        // }
-        // or send them all together for HTML5 browsers:
-        Upload.upload({url: 'upload/url', data: {file: files, 'user_id': $rootScope.user.id, 'category_id': category_id} });
-      }
-    }
-
-    // upload later on form submit or something similar
-    $scope.submit = function() {
-      if ($scope.form.file.$valid && $scope.file) {
-        $scope.upload($scope.file);
-      }
-    };
-
-
 	$scope.init = function()
 	{
 		if(api.getApiToken() == null)
@@ -142,12 +106,13 @@ app.controller('InspectionCreateCtrl', function($scope, $rootScope, $window, $lo
 	{
 		var data  	 = inspections.validateChecklist();
 		// set general items
-		data.date 			=  $scope.inspection.date;
-		data.impression 	=  $scope.inspection.impression;
-		data.attention	 	=  $scope.inspection.attention;
-		data.notes 			=  $scope.inspection.notes;
-		data.reminder_date 	=  $scope.inspection.reminder_date;
-		data.reminder 		=  $scope.inspection.reminder;
+		data.date 			= $scope.inspection.date;
+		data.impression 	= $scope.inspection.impression;
+		data.attention	 	= $scope.inspection.attention;
+		data.notes 			= $scope.inspection.notes;
+		data.reminder_date 	= $scope.inspection.reminder_date;
+		data.reminder 		= $scope.inspection.reminder;
+		data.checklist_id   = $scope.checklist_id;
 
 		data.hive_id = $routeParams.hiveId;
 		console.log("saveInspection", data);
@@ -231,9 +196,9 @@ app.controller('InspectionCreateCtrl', function($scope, $rootScope, $window, $lo
 		
 		if (id != null)
 		{
-			$scope.checklist_id = id;
-			$scope.checklists = null;
-			$scope.checklists = inspections.checklists;
+			$scope.checklist_id 	= id;
+			$scope.checklists 		= null;
+			$scope.checklists 		= inspections.checklists;
 			//console.log('checklistUpdated id', id, $scope.checklists);
 		}
 
@@ -266,13 +231,14 @@ app.controller('InspectionCreateCtrl', function($scope, $rootScope, $window, $lo
 			return;
 		}
 		
-		$scope.checklist_id = id;
+		$scope.checklist_id 	= id;
 		inspections.loadChecklist(id);
 	}
 
 	$scope.inspectionUpdate = function(e, data)
 	{
 		$scope.inspection = inspections.newSaveObject(data);
+		$rootScope.inspection = $scope.inspection; // for beep-checklist-input.js directive
 	};
 	$scope.inspectionHandler = $rootScope.$on('inspectionUpdated', $scope.inspectionUpdate);
 

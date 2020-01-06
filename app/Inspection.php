@@ -33,7 +33,7 @@ class Inspection extends Model
      *
      * @var array
      */
-    protected $fillable = ['notes', 'created_at', 'impression', 'attention', 'reminder', 'reminder_date'];
+    protected $fillable = ['notes', 'created_at', 'impression', 'attention', 'reminder', 'reminder_date', 'checklist_id'];
 
     protected $hidden   = ['pivot','deleted_at'];
 
@@ -69,6 +69,11 @@ class Inspection extends Model
     public function items()
     {
         return $this->hasMany(InspectionItem::class);
+    }
+
+    public function checklist()
+    {
+        return $this->hasOne(Checklist::class);
     }
     
     public static function item_names($inspections) // get a locale ordered list of InspectionItem names

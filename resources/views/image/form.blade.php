@@ -6,7 +6,11 @@
 	        {!! $errors->first('file', '<p class="help-block">:message</p>') !!}
 	    </div>
 	</div>
-</div><div class="col-xs-12">
+	@if(isset($image->thumb_url))
+		<img src="{{ $item->thumb_url }}">
+	@endif
+</div>
+<div class="col-xs-12">
 	<div class="form-group {{ $errors->has('description') ? 'has-error' : ''}}">
 	    <label for="description" control-label>{{ 'Description' }}</label>
 	    <div>
@@ -54,39 +58,44 @@
 	        {!! $errors->first('date', '<p class="help-block">:message</p>') !!}
 	    </div>
 	</div>
-</div><div class="col-xs-12">
+</div>
+<div class="col-xs-12">
 	<div class="form-group {{ $errors->has('user_id') ? 'has-error' : ''}}">
-	    <label for="user_id" control-label>{{ 'User Id' }}</label>
+	    <label for="user_id" control-label>{{ 'User' }}</label>
 	    <div>
-	        <input class="form-control" name="user_id" type="number" id="user_id" value="{{ $image->user_id }}" >
+	        {!! Form::select('user_id', App\User::all()->sortBy('name')->pluck('name','id'), isset($image->user_id) ? $image->user_id : Auth::user()->id, array('id'=>'user_id', 'class' => 'form-control select2', 'placeholder'=>'Select user...')) !!}
 	        {!! $errors->first('user_id', '<p class="help-block">:message</p>') !!}
 	    </div>
 	</div>
-</div><div class="col-xs-12">
+</div>
+<div class="col-xs-12">
 	<div class="form-group {{ $errors->has('hive_id') ? 'has-error' : ''}}">
-	    <label for="hive_id" control-label>{{ 'Hive Id' }}</label>
+	    <label for="hive_id" control-label>{{ 'Hive' }}</label>
 	    <div>
-	        <input class="form-control" name="hive_id" type="number" id="hive_id" value="{{ $image->hive_id }}" >
+	        {!! Form::select('hive_id', Auth::user()->allHives()->orderBy('name')->pluck('name','id'), isset($image->hive_id) ? $image->hive_id : null, array('id'=>'hive_id', 'class' => 'form-control select2', 'placeholder'=>'Select hive...')) !!}
 	        {!! $errors->first('hive_id', '<p class="help-block">:message</p>') !!}
 	    </div>
 	</div>
-</div><div class="col-xs-12">
+</div>
+<div class="col-xs-12">
 	<div class="form-group {{ $errors->has('category_id') ? 'has-error' : ''}}">
-	    <label for="category_id" control-label>{{ 'Category Id' }}</label>
+	    <label for="category_id" control-label>{{ 'Category (image, file)' }}</label>
 	    <div>
-	        <input class="form-control" name="category_id" type="number" id="category_id" value="{{ $image->category_id }}" >
+	        {!! Form::select('category_id', App\Category::all()->whereIn('input', ['image','file'])->pluck('trans','id'), isset($image->category_id) ? $image->category_id : null, array('id'=>'category_id', 'class' => 'form-control select2', 'placeholder'=>'Select category...')) !!}
 	        {!! $errors->first('category_id', '<p class="help-block">:message</p>') !!}
 	    </div>
 	</div>
-</div><div class="col-xs-12">
-	<div class="form-group {{ $errors->has('checklist_id') ? 'has-error' : ''}}">
-	    <label for="checklist_id" control-label>{{ 'Checklist Id' }}</label>
+</div>
+<div class="col-xs-12">
+	<div class="form-group {{ $errors->has('inspection_id') ? 'has-error' : ''}}">
+	    <label for="inspection_id" control-label>{{ 'Inspection' }}</label>
 	    <div>
-	        <input class="form-control" name="checklist_id" type="number" id="checklist_id" value="{{ $image->checklist_id }}" >
-	        {!! $errors->first('checklist_id', '<p class="help-block">:message</p>') !!}
+	        {!! Form::select('inspection_id', Auth::user()->inspections->sortByDesc('created_at')->pluck('created_at','id'), isset($image->inspection_id) ? $image->inspection_id : null, array('id'=>'inspection_id', 'class' => 'form-control select2', 'placeholder'=>'Select inspection...')) !!}
+	        {!! $errors->first('inspection_id', '<p class="help-block">:message</p>') !!}
 	    </div>
 	</div>
 </div>
+
 
 
 <div class="col-xs-12" style="margin-top: 20px;">

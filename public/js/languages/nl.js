@@ -212,7 +212,7 @@
 
     /* settings */
     General                 : 'Algemeen',
-    Location                : 'Locatie',
+    Place                   : 'Locatie',
     Country                 : 'Land',
     City                    : 'Stad',
     Address                 : 'Adres',

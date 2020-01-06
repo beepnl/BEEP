@@ -29,6 +29,11 @@ class User extends Authenticatable
 
 
     // links
+    public function images()
+    {
+        return $this->hasMany(Image::class);
+    }
+
     public function hives()
     {
         return $this->hasMany(Hive::class);

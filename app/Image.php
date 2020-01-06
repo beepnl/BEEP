@@ -14,8 +14,8 @@ class Image extends Model
     public static $maxPizelSize = 2000;
     public static $thumbPixels  = 200;
     public static $thumbQuality = 70;
-    public static $imageDir     = 'images/';
-    public static $thumbDir     = 'thumbs/';
+    public static $imageDir     = 'images';
+    public static $thumbDir     = 'thumbs';
 
     /**
      * The database table used by the model.
@@ -36,58 +36,42 @@ class Image extends Model
      *
      * @var array
      */
-    protected $fillable = ['file', 'description', 'type', 'height', 'width', 'size_kb', 'date', 'user_id', 'hive_id', 'category_id', 'checklist_id'];
-
-    protected $appends = ['thumb'];
-
-
-    public function getThumbAttribute()
-    {
-        return $this->getImageThumb();
-    }
-
+    protected $fillable = ['filename', 'image_url', 'thumb_url', 'description', 'type', 'height', 'width', 'size_kb', 'date', 'user_id', 'hive_id', 'category_id', 'inspection_id'];
 
     public function category()
     {
-        return $this->hasOne('Category::class');
+        return $this->belongsTo(Category::class);
     }
     public function user()
     {
-        return $this->hasOne('User::class');
+        return $this->belongsTo(User::class);
     }
     public function hive()
     {
-        return $this->hasOne('Hive::class');
+        return $this->belongsTo(Hive::class);
     }
-    public function checklist()
+    public function inspection()
     {
-        return $this->hasOne('Checklist::class');
+        return $this->belongsTo(Inspection::class);
     }
 
-    public function getImage()
+
+    // Static functions
+    public static function imageUrl($filename, $type)
     {
-        return Storage::disk(Image::$storage)->get(Image::getImagePath($this->file, $this->type));
+        return Storage::disk(Image::$storage)->url(Image::getImagePath($filename, $type));
     }
 
-    public function getImageThumb()
+    public static function imageThumbUrl($filename, $type)
     {
-        return Storage::disk(Image::$storage)->get(Image::getImagePath($this->file, $this->type, true));
+        return Storage::disk(Image::$storage)->url(Image::getImagePath($filename, $type, true));
     }
 
-    public function imagePath()
-    {
-        return Storage::disk(Image::$storage)->url(Image::getImagePath($this->file, $this->type));
-    }
-
-    public function imageThumbPath()
-    {
-        return Storage::disk(Image::$storage)->url(Image::getImagePath($this->file, $this->type, true));
-    }
-
-    public static function getImagePath($file, $type='inspection', $thumb=false)
+    public static function getImagePath($fileName, $type='inspection', $thumb=false)
     {
         $dir = $thumb ? Image::$thumbDir : Image::$imageDir;
-        return $dir.$type.'/'.$file;
+        $uid = Auth::user()->id;
+        return 'users/'.$uid.'/'.$dir.'/'.$type.'/'.$fileName;
     }
 
     public static function store($requestData, $type='inspection')
@@ -124,7 +108,9 @@ class Image extends Model
             if ($imageStored)
             {
                 $saveArr = [
-                    'file'        => $fileName,
+                    'filename'    => $fileName,
+                    'image_url'   => Image::imageUrl($fileName, $type),
+                    'thumb_url'   => Image::imageThumbUrl($fileName, $type),
                     'description' => isset($requestData['description']) ? $requestData['description'] : null,
                     'type'        => $type,
                     'height'      => $imageHeight,
@@ -134,7 +120,7 @@ class Image extends Model
                     'user_id'     => Auth::user()->id,
                     'hive_id'     => isset($requestData['hive_id']) ? $requestData['hive_id'] : null,
                     'category_id' => isset($requestData['category_id']) ? $requestData['category_id'] : null,
-                    'checklist_id'=> isset($requestData['checklist_id']) ? $requestData['checklist_id'] : null,
+                    'inspection_id'=> isset($requestData['inspection_id']) ? $requestData['inspection_id'] : null,
                     
                 ];            
                 return Image::create($saveArr);
@@ -146,11 +132,11 @@ class Image extends Model
     public function delete()
     {
         // delete all related photos 
-        $pathImage = Image::getImagePath($this->file, $this->type);
+        $pathImage = Image::getImagePath($this->filename, $this->type);
         if (Storage::disk(Image::$storage)->exists($pathImage));
             Storage::disk(Image::$storage)->delete($pathImage);
 
-        $pathThumb = Image::getImagePath($this->file, $this->type, true);
+        $pathThumb = Image::getImagePath($this->filename, $this->type, true);
         if (Storage::disk(Image::$storage)->exists($pathThumb));
             Storage::disk(Image::$storage)->delete($pathThumb);
 

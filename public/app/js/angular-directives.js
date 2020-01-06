@@ -411,41 +411,59 @@ app.directive('checklistInput', ['$rootScope', '$timeout', 'Upload', 'api', func
       scope.locations = $rootScope.hives;
       scope.beeraces = $rootScope.beeraces;
       scope.hivetypes = $rootScope.hivetypes;
-      scope.$watch('item.value', function (oldValue, newValue) {
-        if (scope.item.input == 'image' && oldValue) {
-          var file = oldValue;
-          console.log('image', file);
+      scope.inspection = $rootScope.inspection;
+      scope.$watch('item.value', function (newValue, oldValue) {
+        if (scope.item.input == 'image') {
+          console.log('image newValue: ', newValue, 'oldValue :', oldValue);
 
-          if (!file.$error) {
-            Upload.upload({
-              headers: {
-                'Authorization': 'Bearer ' + api.getApiToken() + ''
-              },
-              url: API_URL + 'image',
-              data: {
-                user_id: scope.user.id,
-                category_id: scope.item.id,
-                file: file
-              }
-            }).then(function (resp) {
-              $timeout(function () {
-                scope.log = 'file: ' + resp.config.data.file.name + ', Response: ' + JSON.stringify(resp.data) + '\n' + scope.log;
-                $rootScope.changeChecklistItem(scope.item.input, scope.item.id, resp.config.data.file.name, true);
-              });
-            }, function (resp) {
-              console.error('Upload error: ' + resp.status, resp.data);
-            }, function (evt) {
-              var progressPercentage = parseInt(100.0 * evt.loaded / evt.total);
-              scope.log = 'progress: ' + progressPercentage + '% ' + evt.config.data.file.name + '\n' + scope.log;
-            });
-          }
+          if (_typeof(newValue) == 'object' && newValue !== null) // new image
+            {
+              // value is filled
+              var file = newValue; //console.log('image', file);
+
+              if (!file.$error) {
+                Upload.upload({
+                  headers: {
+                    'Authorization': 'Bearer ' + api.getApiToken() + ''
+                  },
+                  url: API_URL + 'image',
+                  data: {
+                    user_id: scope.user.id,
+                    hive_id: typeof scope.hive != 'undefined' ? scope.hive.id : '',
+                    category_id: scope.item.id,
+                    inspection: typeof scope.inspection != 'undefined' ? scope.inspection.id : '',
+                    file: file
+                  }
+                }).then(function (resp) {
+                  $timeout(function () {
+                    //console.log('image resp', resp);
+                    if (typeof resp.data != 'undefined' && _typeof(resp.data.image_url)) $rootScope.changeChecklistItem(scope.item.input, scope.item.id, resp.data.image_url, true);
+                  });
+                }, function (resp) {
+                  console.error('Image upload error: ' + resp.status, resp.data);
+                }, function (evt) {
+                  var progressPercentage = parseInt(100.0 * evt.loaded / evt.total);
+                  scope.log = 'progress: ' + progressPercentage + '% ' + evt.config.data.file.name + '\n' + scope.log;
+                });
+              } else if (newValue == null) // newValue == null, 
+                {
+                  // image is removed
+                  api.deleteApiRequest('imageRemove', 'image', oldValue).then(function (resp) {
+                    $timeout(function () {
+                      if (typeof resp.status != 'undefined' && resp.status == 204) $rootScope.changeChecklistItem(scope.item.input, scope.item.id, null, true);
+                    });
+                  }, function (resp) {
+                    console.error('Image delete error: ' + resp.status, resp.data);
+                  });
+                }
+            }
         } else {
-          if (newValue != oldValue) {
-            //console.log(scope.item.input, scope.item.id, oldValue);
-            if (scope.item.input == 'list' && (oldValue === true || oldValue === false)) // boolean list
+          if (oldValue != newValue) {
+            //console.log(scope.item.input, scope.item.id, newValue);
+            if (scope.item.input == 'list' && (newValue === true || newValue === false)) // boolean list
               {// only carry out addRemoveFromList (from item html)
               } else {
-              $rootScope.changeChecklistItem(scope.item.input, scope.item.id, oldValue, true);
+              $rootScope.changeChecklistItem(scope.item.input, scope.item.id, newValue, true);
             }
           }
         }

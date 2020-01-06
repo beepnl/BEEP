@@ -210,7 +210,7 @@
 
     /* settings */
     General                 : 'Geral',
-    Location                : 'Localização',
+    Place                   : 'Localização',
     Country                 : 'País',
     City                    : 'Cidade',
     Address                 : 'Morada',

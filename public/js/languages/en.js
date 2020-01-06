@@ -210,7 +210,7 @@
 
     /* settings */
     General                 : 'General',
-    Location                : 'Location',
+    Place                   : 'Location',
     Country                 : 'Country',
     City                    : 'City',
     Address                 : 'Address',

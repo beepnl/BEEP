@@ -210,7 +210,7 @@
 
     /* settings */
     General                 : 'General',
-    Location                : 'Locație',
+    Place                   : 'Locație',
     Country                 : 'Țară',
     City                    : 'Oraș',
     Address                 : 'Adresă',

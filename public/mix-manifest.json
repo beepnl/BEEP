@@ -1,11 +1,11 @@
 {
-    "/css/skin-base.css": "/css/skin-base.css?id=7302a8cf8071425b99be",
+    "/css/skin-base.css": "/css/skin-base.css?id=559b3df41344dd9113e8",
     "/css/bootstrap.min.css.map": "/css/bootstrap.min.css.map?id=35b79ebe0b7805c1c845",
     "/css/fontawesome.min.css": "/css/fontawesome.min.css?id=69ab1ff3d3f05a13c5fc",
     "/js/hammer.min.js.map": "/js/hammer.min.js.map?id=c917f2c743974d32b16d",
     "/js/languages/da.js": "/js/languages/da.js?id=033cf9196afb0912567c",
     "/js/languages/de.js": "/js/languages/de.js?id=19b451640944643b3277",
-    "/js/languages/en.js": "/js/languages/en.js?id=2d2777b6489de657a859",
+    "/js/languages/en.js": "/js/languages/en.js?id=c338be47569157a42431",
     "/js/languages/es.js": "/js/languages/es.js?id=106e5dbf8e1383671e19",
     "/js/languages/fi.js": "/js/languages/fi.js?id=5b9e369d645774cb48ca",
     "/js/languages/fr.js": "/js/languages/fr.js?id=c91b60fcd7d63b2547fa",
@@ -26,7 +26,7 @@
     "/app/js/angular.js": "/app/js/angular.js?id=613274fe74404112d987",
     "/app/js/angular-modules.js": "/app/js/angular-modules.js?id=32f1b047abe565669a70",
     "/app/js/angular-helpers.js": "/app/js/angular-helpers.js?id=2098021eeae06581d4b9",
-    "/app/js/angular-index.js": "/app/js/angular-index.js?id=e4b9b571780e2fe9bbd6",
-    "/app/js/angular-directives.js": "/app/js/angular-directives.js?id=77a9badb982e0d3e07f9",
+    "/app/js/angular-index.js": "/app/js/angular-index.js?id=97117dfc95f42213be3b",
+    "/app/js/angular-directives.js": "/app/js/angular-directives.js?id=e1e781207dfa2c443db2",
     "/app/js/angular-code.js": "/app/js/angular-code.js?id=7e6d930c424478dbd0cf"
 }

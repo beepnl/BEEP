@@ -46,7 +46,7 @@ app.directive('checklistInput', ['$rootScope', '$timeout', 'Upload', 'api', func
                   }).then(
                   function (resp) {
                       $timeout(function() {
-                          //console.log('image resp', resp);
+                          console.log('image resp', resp.data);
                           if (typeof resp.data != 'undefined' && typeof resp.data.image_url)
                             $rootScope.changeChecklistItem(scope.item.input, scope.item.id, resp.data.image_url, true);
                       });
@@ -55,30 +55,17 @@ app.directive('checklistInput', ['$rootScope', '$timeout', 'Upload', 'api', func
                     console.error('Image upload error: ' + resp.status, resp.data);
                   }
                   ,function (evt) {
-                      var progressPercentage = parseInt(100.0 *
-                          evt.loaded / evt.total);
-                      scope.log = 'progress: ' + progressPercentage + 
-                        '% ' + evt.config.data.file.name + '\n' + 
-                        scope.log;
+                      var progressPercentage = parseInt(100.0 * evt.loaded / evt.total);
+                      scope.log = 'progress: ' + progressPercentage + '% ' + evt.config.data.file.name + '\n' + scope.log;
                   });
                 }
-                else if (newValue == null)// newValue == null, 
-                {
-                  // image is removed
-                  api.deleteApiRequest('imageRemove', 'image', oldValue)
-                  .then(
-                    function (resp) {
-                        $timeout(function() {
-                            if (typeof resp.status != 'undefined' && resp.status == 204)
-                              $rootScope.changeChecklistItem(scope.item.input, scope.item.id, null, true);
-                        });
-                    }, 
-                    function (resp) {
-                      console.error('Image delete error: ' + resp.status, resp.data);
-                    }
-                  );
-                }
-              } 
+              }
+              else if (newValue == null && typeof oldValue == 'object' && oldValue !== null)// newValue == null, 
+              {
+                // image is removed
+                api.deleteApiRequest('imageRemove', 'image', scope.item.value);
+                $rootScope.changeChecklistItem(scope.item.input, scope.item.id, null, true);
+              }
             }
             else
             {

@@ -86,8 +86,14 @@
 									<dd>
 										<strong ng-class="{'text-danger':r.consent==null, 'text-danger':r.consent==0, 'text-success':r.consent==1}">{{ r.consent ? lang.consent_yes : lang.consent_no }}</strong>
 									</dd>
+									<br>
+									<dt>
+										{{ lang.edit }} {{ lang.consent.toLowerCase() }}
+									</dt>
+									<dd>
+										<button ng-click="consentToggle(r.id, r.consent ? 0 : 1)" class="btn btn-primary">{{ r.consent==1 ? lang.consent_no : lang.consent_yes }}</button>
+									</dd>
 								</dl>
-								<button ng-click="consentToggle(r.id, r.consent ? 0 : 1)" class="btn btn-block btn-primary">{{ r.consent==1 ? lang.consent_no : lang.consent_yes }}</button>
 							</div>
 						</div>
 					</div>

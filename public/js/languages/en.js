@@ -177,7 +177,7 @@
     Bee_race                : 'Bee race',
     Birth_date              : 'Birth date',
     Color                   : 'Color',
-    Queen_colored           : 'Queen colored',
+    Queen_colored           : 'Queen marked',
     Queen_clipped           : 'Queen clipped',
     Queen_fertilized        : 'Queen fertilized',
     Age                     : 'Age',
@@ -424,6 +424,10 @@
     consent_yes             : 'I consent to share my data',
     consent_no              : 'I do NOT consent to share my data',
     my_beep_data            : 'My own BEEP data',
+    details                 : 'details',
+    configuration           : 'configuration',
+    adjustments             : 'adjustments',
+    changes_queen_color     : 'editing changes the color',
 
 };
 

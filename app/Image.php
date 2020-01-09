@@ -10,7 +10,7 @@ use Auth;
 class Image extends Model
 {
     
-    public static $storage      = 's3';
+    public static $storage      = 'public';
     public static $maxPizelSize = 2000;
     public static $thumbPixels  = 200;
     public static $thumbQuality = 70;

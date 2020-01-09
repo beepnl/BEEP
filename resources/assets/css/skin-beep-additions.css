@@ -22,6 +22,10 @@ a {
 	text-shadow: 0 0 0 #555;
 }
 
+fieldset .form-item{
+	min-height: 70px;
+}
+
 .header-spacer{
 	display: block;
 	width: 100%;

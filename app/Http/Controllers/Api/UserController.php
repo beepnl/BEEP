@@ -14,9 +14,20 @@ use Auth;
 use Password;
 use Login;
 
+/**
+ * @group User controller
+ *
+ * APIs for managing users
+ */
 class UserController extends Controller
 {
 
+    /**
+    POST authenticate
+    @bodyParam username string required Username of the user. Example: test@test.nl
+    @bodyParam password string required Password of the user. Example: testtest
+    @return token string Token for Header Authentication (Bearer [token])
+    */
     public function authenticate(Request $request) 
     {
         if ($request->user())

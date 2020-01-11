@@ -7,6 +7,9 @@ use App\Http\Controllers\Controller;
 
 use App\Research;
 
+/**
+ * @group Api\ResearchController
+ */
 class ResearchController extends Controller
 {
     /**

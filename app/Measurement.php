@@ -98,4 +98,20 @@ class Measurement extends Model
     {
         return $this->toArray();
     }
+
+    public static function selectList()
+    {
+        $list = [];
+        $list[''] = '-';
+
+        foreach(Measurement::orderBy('abbreviation')->get() as $q)
+        {
+            $id = $q->id;
+            $label = $q->abbreviation.' ('.$q->pq_name_unit.')';
+
+            $list[$id] = $label;
+
+        }
+        return $list;
+    }
 }

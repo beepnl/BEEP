@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers\Auth;
 
-class VerificationController extends Controller
+class VerificationController
 {
     /*
     |--------------------------------------------------------------------------

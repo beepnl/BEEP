@@ -14,6 +14,9 @@ use Moment\Moment;
 use Auth;
 use LaravelLocalization;
 
+/**
+ * @group Api\TaxonomyController
+ */
 class TaxonomyController extends Controller
 {
     

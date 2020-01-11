@@ -9,6 +9,9 @@ use App\Setting;
 use App\Hive;
 use App\Category;
 
+/**
+ * @group Api\SettingController
+ */
 class SettingController extends Controller
 {
     public function store(Request $request)

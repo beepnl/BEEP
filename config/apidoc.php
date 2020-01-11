@@ -64,7 +64,7 @@ return [
                  * Match only routes whose paths match this pattern (use * as a wildcard to match any characters).
                  */
                 'prefixes' => [
-                    '*',
+                    'api/*',
                     // 'users/*',
                 ],
 
@@ -103,7 +103,7 @@ return [
                  * Specify headers to be added to the example requests
                  */
                 'headers' => [
-                    // 'Authorization' => 'Bearer {token}',
+                    //'Authorization' => 'Bearer 1snu2aRRiwQNl2Tul567hLF0XpKuZO8hqkgXU4GvjzZ3f3pOCiDPFbBDea7W',
                     // 'Api-Version' => 'v2',
                 ],
 

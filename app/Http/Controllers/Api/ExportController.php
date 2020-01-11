@@ -18,6 +18,10 @@ use App\Mail\DataExport;
 use App\Exports\HiveExport;
 use Moment\Moment;
 
+/**
+ * @group Api\ExportController
+ * Export all data to an Excel file by email (GDPR)
+ */
 class ExportController extends Controller
 {
     public function all(Request $request)

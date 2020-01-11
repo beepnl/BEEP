@@ -110,6 +110,7 @@ Route::group(
 				Route::resource('measurement', 		'MeasurementController');
 				Route::resource('research', 		'ResearchController');
 				Route::resource('image', 			'ImageController');
+				Route::resource('device-measurement','DeviceMeasurementController');
 
 				Route::resource('categories', 		'CategoriesController');
 				Route::delete('categories/{id}/pop',['as'=>'categories.pop','uses'=>'CategoriesController@pop','middleware' => ['permission:taxonomy-delete']]);

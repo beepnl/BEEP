@@ -7,6 +7,9 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Moment\Moment;
 
+/**
+ * @group Api\ChecklistController
+ */
 class ChecklistController extends Controller
 {
     /**

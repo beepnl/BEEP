@@ -13,6 +13,10 @@ use Illuminate\Support\Facades\Cache;
 
 use Validator;
 
+/**
+ * @group Api\LocationController
+ * Manage Apiaries
+ */
 class LocationController extends Controller
 {
 

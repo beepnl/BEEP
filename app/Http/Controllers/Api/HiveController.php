@@ -11,6 +11,9 @@ use Illuminate\Http\Request;
 use App\Http\Requests\PostHiveRequest;
 use App\Http\Controllers\Controller;
 
+/**
+ * @group Api\HiveController
+ */
 class HiveController extends Controller
 {
     /**
@@ -44,10 +47,58 @@ class HiveController extends Controller
     }
 
     /**
-     * Display a listing of the resource.
-     *
+     * api/hives GET
+     * Display a listing of user hives.
      * @return \Illuminate\Http\Response
-     */
+     * @authenticated
+     * @response{
+    "hives": [
+        {
+            "id": 1,
+            "location_id": 1,
+            "hive_type_id": 43,
+            "color": "#35f200",
+            "name": "Kast 1",
+            "created_at": "2017-07-13 23:34:49",
+            "type": "spaarkast",
+            "location": "",
+            "attention": null,
+            "impression": null,
+            "reminder": null,
+            "reminder_date": null,
+            "inspection_count": 0,
+            "sensors": [
+                3,
+                19
+            ],
+            "owner": true,
+            "layers": [
+                {
+                    "id": 1,
+                    "order": 0,
+                    "color": "#35f200",
+                    "type": "brood",
+                    "framecount": 10
+                },
+                {
+                    "id": 2,
+                    "order": 1,
+                    "color": "#35f200",
+                    "type": "brood",
+                    "framecount": 10
+                },
+                {
+                    "id": 3,
+                    "order": 2,
+                    "color": "#35f200",
+                    "type": "honey",
+                    "framecount": 10
+                }
+            ],
+            "queen": null
+        }
+    ]}
+    */
     public function index(Request $request)
     {
         if ($request->user()->hives()->count() > 0)
@@ -58,8 +109,9 @@ class HiveController extends Controller
 
   
     /**
-     * Store a newly created resource in storage.
-     *
+     * api/hives POST
+     * Store a newly created Hive in storage for the authenticated user.
+     * @authenticated
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
@@ -82,8 +134,9 @@ class HiveController extends Controller
     }
 
     /**
+     * api/hives/{id} GET
      * Display the specified resource.
-     *
+     * @authenticated
      * @param  \App\Hive  $hive
      * @return \Illuminate\Http\Response
      */
@@ -94,8 +147,9 @@ class HiveController extends Controller
 
 
     /**
-     * Update the specified resource in storage.
-     *
+     * api/hives/{id} PATCH
+     * Update the specified user Hive in storage.
+     * @authenticated
      * @param  \Illuminate\Http\Request  $request
      * @param  \App\Hive  $hive
      * @return \Illuminate\Http\Response
@@ -118,8 +172,9 @@ class HiveController extends Controller
     }
 
     /**
-     * Remove the specified resource from storage.
-     *
+     * api/hives/{id} DELETE
+     * Remove the specified user Hive from storage.
+     * @authenticated
      * @param  \App\Hive  $hive
      * @return \Illuminate\Http\Response
      */

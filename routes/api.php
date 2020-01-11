@@ -21,11 +21,11 @@ Route::group(['middleware' => \Barryvdh\Cors\HandleCors::class], function()
 	});
 
 	// save sensor data of multiple sensors
-	Route::post('sensors', 		'Api\SensorController@storeMeasurementData');
-	Route::post('lora_sensors', 'Api\SensorController@lora_sensors');
+	Route::post('sensors', 		'Api\MeasurementController@storeMeasurementData');
+	Route::post('lora_sensors', 'Api\MeasurementController@lora_sensors');
 
 	// save sensor data of multiple sensors (unsecure)
-	Route::post('unsecure_sensors', 'Api\SensorController@storeMeasurementData');
+	Route::post('unsecure_sensors', 'Api\MeasurementController@storeMeasurementData');
 	
 	// User functions
 	Route::post('register', 	'Api\UserController@register');
@@ -46,18 +46,18 @@ Route::group(['middleware' => \Barryvdh\Cors\HandleCors::class], function()
 		// Authenticate and provide the token
 		Route::post('authenticate', 		'Api\UserController@authenticate');
 
-		// get list of sensors
+		// get list of sensors (Devices)
 		Route::get('sensors', 				'Api\SensorController@index');
 		Route::post('sensor', 				'Api\SensorController@update');
 		Route::post('sensors/store', 		'Api\SensorController@store');
 		// Route::post('lora_sensors', 		'Api\SensorController@lora_sensors'); // store TTN lora sensors with Bearer header
 
-		// get more data of 1 sensors
-		Route::get('sensors/measurements', 	'Api\SensorController@data');
-		Route::get('sensors/lastvalues', 	'Api\SensorController@lastvalues');
-		Route::get('sensors/lastweight', 	'Api\SensorController@lastweight');
-		Route::post('sensors/calibrateweight','Api\SensorController@calibrateweight');
-		Route::post('sensors/offsetweight' ,'Api\SensorController@offsetweight');
+		// get more data of 1 sensor (Device)
+		Route::get('sensors/measurements', 	'Api\MeasurementController@data');
+		Route::get('sensors/lastvalues', 	'Api\MeasurementController@lastvalues');
+		Route::get('sensors/lastweight', 	'Api\MeasurementController@lastweight');
+		Route::post('sensors/calibrateweight','Api\MeasurementController@calibrateweight');
+		Route::post('sensors/offsetweight' ,'Api\MeasurementController@offsetweight');
 
 		// save setting 
 		Route::post('settings', 			'Api\SettingController@store');
@@ -88,13 +88,14 @@ Route::group(['middleware' => \Barryvdh\Cors\HandleCors::class], function()
 
 		// Control resources 
 		Route::resource('checklists', 		'Api\ChecklistController',		 		['except'=>['create','edit']]);
-		Route::resource('categories', 		'Api\CategoryController',		 		['except'=>['create','edit']]);
+		Route::resource('categories', 		'Api\CategoryController',		 		['except'=>['create','edit','store','update','destroy']]);
 		Route::resource('groups', 			'Api\GroupController', 			 		['except'=>['create','edit']]);
 		Route::resource('hives', 			'Api\HiveController', 			 		['except'=>['create','edit']]);
 		Route::resource('locations', 		'Api\LocationController', 	 			['except'=>['create','edit']]);
 		Route::resource('productions',		'Api\ProductionController',				['except'=>['create','edit']]);
 		Route::resource('queens', 			'Api\QueenController',		 			['except'=>['create','edit']]);
 		Route::resource('image', 			'Api\ImageController', 					['except'=>['create','edit']]);
+		Route::resource('device-measurement','Api\DeviceMeasurementController', 	['except'=>['create','edit']]);
 
 		Route::delete('groups/detach/{id}', 'Api\GroupController@detach');
 

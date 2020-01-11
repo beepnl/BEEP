@@ -6,6 +6,10 @@ use App\Production;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 
+/**
+ * @group Api\ProductionController
+ * Not used 
+ */
 class ProductionController extends Controller
 {
     /**

@@ -6,6 +6,10 @@ use App\Queen;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 
+/**
+ * @group Api\QueenController
+ * Not used
+ */
 class QueenController extends Controller
 {
     /**

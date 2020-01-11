@@ -13,6 +13,9 @@ use Moment\Moment;
 use Auth;
 use LaravelLocalization;
 
+/**
+ * @group Api\InspectionsController
+ */
 class InspectionsController extends Controller
 {
     

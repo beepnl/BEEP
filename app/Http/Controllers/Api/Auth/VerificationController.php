@@ -8,6 +8,10 @@ use Illuminate\Http\Request;
 use Illuminate\Auth\Events\Verified;
 use App\User;
 
+/**
+ * @group Api\VerificationController
+ * User verification functions
+ */
 class VerificationController extends Controller
 {
     /*

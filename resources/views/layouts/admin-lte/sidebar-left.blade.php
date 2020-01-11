@@ -42,6 +42,7 @@
         <li class="{{ Route::currentRouteNamed('users.index') ? 'active' : '' }}"><a href="{{ route('users.index') }}"><i class="fa fa-user-circle-o"></i><span>{{ __('general.Users') }}</span></a></li>
         <li class="{{ Route::currentRouteNamed('sensors.index') ? 'active' : '' }}"><a href="{{ route('sensors.index') }}"><i class="fa fa-wifi"></i><span>{{ __('general.Sensors') }}</span></a></li>
         <li class="{{ Route::currentRouteNamed('measurement.index') ? 'active' : '' }}"><a href="{{ route('measurement.index') }}"><i class="fa fa-circle"></i><span>{{ __('general.Measurements') }}</span></a></li>
+        <li class="{{ Route::currentRouteNamed('device-measurement.index') ? 'active' : '' }}"><a href="{{ route('device-measurement.index') }}"><i class="fa fa-cog"></i><span>{{ __('general.DeviceMeasurements') }}</span></a></li>
         <li class="{{ Route::currentRouteNamed('categories.index') ? 'active' : '' }}"><a href="{{ route('categories.index') }}"><i class="fa fa-list"></i><span>{{ __('general.Taxonomy') }}</span></a></li>
         <li class="{{ Route::currentRouteNamed('physicalquantity.index') ? 'active' : '' }}"><a href="{{ route('physicalquantity.index') }}"><i class="fa fa-balance-scale"></i><span>{{ __('beep.PhysicalQuantity') }}</span></a></li>
         <li class="{{ Route::currentRouteNamed('categoryinputs.index') ? 'active' : '' }}"><a href="{{ route('categoryinputs.index') }}"><i class="fa fa-list-ul"></i><span>{{ __('beep.CategoryInputs') }}</span></a></li>

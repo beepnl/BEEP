@@ -15,7 +15,7 @@ use Password;
 use Login;
 
 /**
- * @group User controller
+ * @group Api\UserController
  *
  * APIs for managing users
  */
@@ -23,10 +23,22 @@ class UserController extends Controller
 {
 
     /**
-    POST authenticate
-    @bodyParam username string required Username of the user. Example: test@test.nl
-    @bodyParam password string required Password of the user. Example: testtest
-    @return token string Token for Header Authentication (Bearer [token])
+    api/authenticate 
+    Authorize a user and login with an api_token. Used for persistent login in webapp.
+    Header parameter with Bearer [api_token] from the user object. Example: Bearer 1snu2aRRiwQNl2Tul567hLF0XpKuZO8hqkgXU4GvjzZ3f3pOCiDPFbBDea7W
+    @authenticated
+    @response {
+        "id": 1317,
+        "name": "test@test.com",
+        "email": "test@test.com",
+        "avatar": "default.jpg",
+        "api_token": "1snu2aRRiwQNl2Tul567hLF0XpKuZO8hqkgXU4GvjzZ3f3pOCiDPFbBDea7W",
+        "created_at": "2018-12-30 23:57:35",
+        "updated_at": "2020-01-09 16:31:32",
+        "last_login": "2020-01-09 16:31:32",
+        "policy_accepted": "beep_terms_2018_05_25_avg_v1",
+        "email_verified_at": "2018-05-25 00:00:00"
+    }
     */
     public function authenticate(Request $request) 
     {
@@ -38,6 +50,24 @@ class UserController extends Controller
         return $this->notAuthenticated($request);
     }
 
+    /**
+    api/login
+    Login via login form
+    @bodyParam email string required Email address of the user. Example: test@test.com
+    @bodyParam password string required Password of the user. Example: testtest
+    @response {
+        "id": 1317,
+        "name": "test@test.com",
+        "email": "test@test.com",
+        "avatar": "default.jpg",
+        "api_token": "1snu2aRRiwQNl2Tul567hLF0XpKuZO8hqkgXU4GvjzZ3f3pOCiDPFbBDea7W",
+        "created_at": "2018-12-30 23:57:35",
+        "updated_at": "2020-01-09 16:31:32",
+        "last_login": "2020-01-09 16:31:32",
+        "policy_accepted": "beep_terms_2018_05_25_avg_v1",
+        "email_verified_at": "2018-05-25 00:00:00"
+    }
+    */
     public function login(Request $request) 
     {
         $credentials = array
@@ -78,7 +108,13 @@ class UserController extends Controller
         return Response::json($request->user());
     }
 
-
+    /**
+    api/register
+    Registers a new user and sends an e-mail verification request on succesful save
+    @bodyParam email string required Email address of the user. Example: test@test.com
+    @bodyParam password string required Password of the user. Example: testtest
+    @bodyParam policy_accepted string required Name of the privacy policy that has been accepted by the user by ticking the accept terms box. Example: beep_terms_2018_05_25_avg_v1
+    */
     public function register(Request $request)
     {
 
@@ -139,8 +175,15 @@ class UserController extends Controller
     }
 
 
-    /* Send reset link */
-    // responses: INVALID_USER, RESET_LINK_SENT, INVALID_PASSWORD, INVALID_TOKEN, PASSWORD_RESET
+    /**
+    api/user/reminder
+    Send password reset link
+    responses: invalid_user, reminder_sent, invalid_password, invalid_token, password_reset
+    @bodyParam email string required Email address of the user. Example: test@test.com
+    @response{
+        "message": "reminder_sent"
+    }
+    */
     public function reminder(Request $request)
     {
 
@@ -164,7 +207,15 @@ class UserController extends Controller
     }
 
 
-    /* RESET PASSWORD */
+    /**
+    api/user/reset
+    Reset the user passowrd with a reset link
+    responses: INVALID_USER, RESET_LINK_SENT, INVALID_PASSWORD, INVALID_TOKEN, PASSWORD_RESET
+    @bodyParam email string required Email address of the user. Example: test@test.com
+    @bodyParam password string required Password of the user. Example: testtest
+    @bodyParam password_confirm string required Password confirmation of the user. Example: testtest
+    @bodyParam token string required Token sent in the reminder e-mail to the email address of the user. Example: z8iQafmgP1
+    */
     public function reset(Request $request)
     {
         // get the input
@@ -223,7 +274,11 @@ class UserController extends Controller
         return Response::json($response, $code);
     }
 
-
+    /**
+    api/user DELETE
+    Destroy the logged in user and all its data in the database
+    @authenticated
+    */
     public function destroy(Request $request)
     {
         $del = $request->user()->delete();
@@ -234,6 +289,15 @@ class UserController extends Controller
         return Response::json(['message' => 'user_not_deleted'], 400);
     }
 
+    /**
+    api/user PATCH
+    Edit the user details
+    @authenticated
+    @bodyParam email string required Email address of the user. Example: test@test.com
+    @bodyParam password string required Password of the user. Example: testtest
+    @bodyParam password_confirm string required Password confirmation of the user. Example: testtest
+    @bodyParam policy_accepted string Name of the privacy policy that has been accepted by the user by ticking the accept terms box. Example: beep_terms_2018_05_25_avg_v1
+    */
     public function edit(Request $request)
     {
         $user = $request->user();

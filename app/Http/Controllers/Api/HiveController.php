@@ -28,12 +28,15 @@ class HiveController extends Controller
 
     private function saveQueen(Request $request, $hive)
     {
-        if ($request->filled('queen.race_id') || $request->filled('queen.name') || $request->filled('queen.created_at') || $request->filled('queen.color') || $request->filled('queen.clipped') || $request->filled('queen.fertilized'))
+        if ($request->filled('queen.race_id') || $request->filled('queen.name') || $request->filled('queen.created_at') || $request->filled('queen.color') || $request->filled('queen.clipped') || $request->filled('queen.fertilized') || $request->filled('queen.description') || $request->filled('queen.line') || $request->filled('queen.tree'))
         {
             $race_id = Category::findCategoryIdByParentAndName('subspecies', 'other');
             $date  = $request->filled('queen.created_at') ? $request->input('queen.created_at') : date("Y-m-d");
             $queen = [
                     'name'          =>$request->input('queen.name'),
+                    'description'   =>$request->input('queen.description'),
+                    'line'          =>$request->input('queen.line'),
+                    'tree'          =>$request->input('queen.tree'),
                     'race_id'       =>$request->input('queen.race_id', $race_id),
                     'created_at'    =>$date.' 00:00:00',
                     'color'         =>$request->input('queen.color'),
@@ -121,13 +124,19 @@ class HiveController extends Controller
         $user_id          = $request->user()->id;
         $location         = $request->user()->locations()->findOrFail($request->input('location_id'));
         $name             = $request->input('name'); 
+        $order            = $request->input('order', 0); 
+        $bb_width_cm      = $request->input('bb_width_cm', 0); 
+        $bb_depth_cm      = $request->input('bb_depth_cm', 0); 
+        $bb_height_cm     = $request->input('bb_height_cm', 0); 
+        $fr_width_cm      = $request->input('fr_width_cm', 0); 
+        $fr_height_cm     = $request->input('fr_height_cm', 0); 
         $hive_type_id     = $request->input('hive_type_id', 63); 
         $color            = $request->input('color', '#FABB13'); // yellow
         $broodLayerAmount = $request->input('brood_layers', 1);
         $honeyLayerAmount = $request->input('honey_layers', 1);
         $frameAmount      = $request->input('frames', 10);
 
-        $hive = $this->hiveFactory->createHive($user_id, $location, $name, $hive_type_id, $color, $broodLayerAmount, $honeyLayerAmount, $frameAmount);
+        $hive = $this->hiveFactory->createHive($user_id, $location, $name, $hive_type_id, $color, $broodLayerAmount, $honeyLayerAmount, $frameAmount, $bb_width_cm, $bb_depth_cm, $bb_height_cm, $fr_width_cm, $fr_height_cm, $order);
         $hive = $this->saveQueen($request, $hive);
 
         return $this->show($request, $hive);
@@ -158,14 +167,20 @@ class HiveController extends Controller
     {
         $hive             = $request->user()->allhives(true)->findOrFail($hive->id);
         $location         = $request->user()->allLocations(true)->findOrFail($request->input('location_id'));
-        $name             = $request->input('name'); 
+        $name             = $request->input('name');
+        $order            = $request->input('order', 0); 
+        $bb_width_cm      = $request->input('bb_width_cm', 0); 
+        $bb_depth_cm      = $request->input('bb_depth_cm', 0); 
+        $bb_height_cm     = $request->input('bb_height_cm', 0); 
+        $fr_width_cm      = $request->input('fr_width_cm', 0); 
+        $fr_height_cm     = $request->input('fr_height_cm', 0); 
         $hive_type_id     = $request->input('hive_type_id'); 
         $color            = $request->input('color', '#FABB13'); // yellow
         $broodLayerAmount = $request->input('brood_layers', 1);
         $honeyLayerAmount = $request->input('honey_layers', 1);
         $frameAmount      = $request->input('frames', 10);
 
-        $hive = $this->hiveFactory->updateHive($hive, $location, $name, $hive_type_id, $color, $broodLayerAmount, $honeyLayerAmount, $frameAmount);
+        $hive = $this->hiveFactory->updateHive($hive, $location, $name, $hive_type_id, $color, $broodLayerAmount, $honeyLayerAmount, $frameAmount, $bb_width_cm, $bb_depth_cm, $bb_height_cm, $fr_width_cm, $fr_height_cm, $order);
         $hive = $this->saveQueen($request, $hive);
 
         return $this->show($request, $hive);

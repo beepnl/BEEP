@@ -5,38 +5,38 @@ namespace App\Http\Controllers\Api;
 use App\Http\Requests;
 use App\Http\Controllers\Controller;
 
-use App\DeviceMeasurement;
+use App\SensorDefinition;
 use Illuminate\Http\Request;
 
 /**
- * @group Api\DeviceMeasurementController
+ * @group Api\SensorDefinitionController
  */
-class DeviceMeasurementController extends Controller
+class SensorDefinitionController extends Controller
 {
     /**
-     * api/device-measurement GET
+     * api/sensordefinition GET
      * Display a listing of the resource.
      *
      * @return \Illuminate\Http\Response
      */
     public function index(Request $request)
     {
-        $devicemeasurement = DeviceMeasurement::paginate(25);
+        $sensordefinition = SensorDefinition::paginate(25);
 
-        return $devicemeasurement;
+        return $sensordefinition;
     }
 
     /**
-     * api/device-measurement POST
+     * api/sensordefinition POST
      * Store a newly created resource in storage.
      *
      * @authenticated
      * @bodyParam name string Name of the sensorinstance (e.g. temperature frame 1)
      * @bodyParam inside boolean True is measured inside, false if measured outside
-     * @bodyParam zero_value float Measurement value that defines 0
-     * @bodyParam unit_per_value float Amount of units (calibration figure) per delta Measurement value to multiply withy (value - zero_value)
-     * @bodyParam measurement_id Measurement id that the Measurment value belongs to
-     * @bodyParam physical_quantity_id PhysicalQuantity that the Measurment value belongs to
+     * @bodyParam offset float Measurement value that defines 0
+     * @bodyParam multiplier float Amount of units (calibration figure) per delta Measurement value to multiply withy (value - offset)
+     * @bodyParam input_measurement_id Measurement that represents the input Measurement value (e.g. w_v, or t_i)
+     * @bodyParam output_measurement_id Measurement that represents the output Measurement value (e.g. weight_kg, or t_i)
      * @bodyParam sensor_id integer required Sensor that the Measurement value belongs to
      * @param \Illuminate\Http\Request $request
      *
@@ -45,13 +45,13 @@ class DeviceMeasurementController extends Controller
     public function store(Request $request)
     {
         
-        $devicemeasurement = DeviceMeasurement::create($request->all());
+        $sensordefinition = SensorDefinition::create($request->all());
 
-        return response()->json($devicemeasurement, 201);
+        return response()->json($sensordefinition, 201);
     }
 
     /**
-     * api/device-measurement/{id} GET
+     * api/sensordefinition/{id} GET
      * Display the specified resource.
      *
      * @param  int  $id
@@ -60,13 +60,13 @@ class DeviceMeasurementController extends Controller
      */
     public function show($id)
     {
-        $devicemeasurement = DeviceMeasurement::findOrFail($id);
+        $sensordefinition = SensorDefinition::findOrFail($id);
 
-        return $devicemeasurement;
+        return $sensordefinition;
     }
 
     /**
-     * api/device-measurement PATCH
+     * api/sensordefinition PATCH
      * Update the specified resource in storage.
      *
      * @param \Illuminate\Http\Request $request
@@ -77,14 +77,14 @@ class DeviceMeasurementController extends Controller
     public function update(Request $request, $id)
     {
         
-        $devicemeasurement = DeviceMeasurement::findOrFail($id);
-        $devicemeasurement->update($request->all());
+        $sensordefinition = SensorDefinition::findOrFail($id);
+        $sensordefinition->update($request->all());
 
-        return response()->json($devicemeasurement, 200);
+        return response()->json($sensordefinition, 200);
     }
 
     /**
-     * api/device-measurement DELETE
+     * api/sensordefinition DELETE
      * Remove the specified resource from storage.
      *
      * @param  int  $id
@@ -93,7 +93,7 @@ class DeviceMeasurementController extends Controller
      */
     public function destroy($id)
     {
-        DeviceMeasurement::destroy($id);
+        SensorDefinition::destroy($id);
 
         return response()->json(null, 204);
     }

@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('page-title') {{ __('crud.edit').' '.__('beep.DeviceMeasurement').': '.(isset($devicemeasurement->name) ? $devicemeasurement->name : '') }}
+@section('page-title') {{ __('crud.edit').' '.__('beep.SensorDefinition').': '.(isset($sensordefinition->name) ? $sensordefinition->name : '') }}
 @endsection
 
 @section('content')
@@ -23,12 +23,12 @@
                 </ul>
             @endif
 
-            <form method="POST" action="{{ route('device-measurement.update',$devicemeasurement->id) }}" accept-charset="UTF-8" class="form-horizontal" enctype="multipart/form-data">
+            <form method="POST" action="{{ route('sensordefinition.update',$sensordefinition->id) }}" accept-charset="UTF-8" class="form-horizontal" enctype="multipart/form-data">
                 
                 {{ method_field('PATCH') }}
                 {{ csrf_field() }}
 
-                @include ('device-measurement.form', ['submitButtonText' => 'Update'])
+                @include ('sensordefinition.form', ['submitButtonText' => 'Update'])
 
             </form>
 

@@ -73,6 +73,7 @@ class LocationController extends Controller
         $location         = new Location([
                 'name'          =>$name, 
                 'roofed'        =>$request->input('roofed'),
+                'order'         =>$request->input('order', null),
                 'continent_id'  =>$continent->id, 
                 'category_id'   =>$category->id,
                 'coordinate_lat'=>$request->filled('lat') ? round($request->input('lat'),3) : null,

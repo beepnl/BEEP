@@ -151,6 +151,15 @@ app.directive('background', function ($q) {
         element.css({
           "background-image": "url('" + attrs.url + "')"
         });
+        element.css({
+          "background-position": "center"
+        });
+        element.css({
+          "background-size": "cover"
+        });
+        element.css({
+          "background-repeat": "no-repeat"
+        });
         element.addClass('animated fadeIn');
         element.removeClass('loading');
         setTimeout(function () {

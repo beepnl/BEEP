@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Requests;
 use App\Http\Controllers\Controller;
 
+use Auth;
 use App\Image;
 use Illuminate\Http\Request;
 
@@ -21,9 +22,12 @@ class ImageController extends Controller
      */
     public function index(Request $request)
     {
-        $image = Image::paginate(25);
+        $images = Auth::user()->images()->get();
 
-        return $image;
+        if ($images)
+            return response()->json($images, 200);
+
+        return response()->json(null, 404);
     }
 
     /**
@@ -53,7 +57,7 @@ class ImageController extends Controller
      */
     public function show($id)
     {
-        $image = Image::findOrFail($id);
+        $image = Auth::user()->images()->findOrFail($id);
 
         return $image;
     }
@@ -84,7 +88,7 @@ class ImageController extends Controller
      */
     public function destroy($image_url)
     {
-        $image = Auth::user()->images->where('image_url', $image_url)->first();
+        $image = Auth::user()->images()->where('image_url', $image_url)->orWhere('thumb_url', $image_url)->first();
         if ($image)
         {
             $image->delete();

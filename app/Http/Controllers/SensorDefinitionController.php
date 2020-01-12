@@ -5,10 +5,10 @@ namespace App\Http\Controllers;
 use App\Http\Requests;
 use App\Http\Controllers\Controller;
 
-use App\DeviceMeasurement;
+use App\SensorDefinition;
 use Illuminate\Http\Request;
 
-class DeviceMeasurementController extends Controller
+class SensorDefinitionController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -21,17 +21,15 @@ class DeviceMeasurementController extends Controller
         $perPage = 25;
 
         if (!empty($keyword)) {
-            $devicemeasurement = DeviceMeasurement::where('zero_value', 'LIKE', "%$keyword%")
-                ->orWhere('unit_per_value', 'LIKE', "%$keyword%")
-                ->orWhere('measurement_id', 'LIKE', "%$keyword%")
-                ->orWhere('physical_quantity_id', 'LIKE', "%$keyword%")
+            $sensordefinition = SensorDefinition::where('offset', 'LIKE', "%$keyword%")
+                ->orWhere('multiplier', 'LIKE', "%$keyword%")
                 ->orWhere('sensor_id', 'LIKE', "%$keyword%")
                 ->paginate($perPage);
         } else {
-            $devicemeasurement = DeviceMeasurement::paginate($perPage);
+            $sensordefinition = SensorDefinition::paginate($perPage);
         }
 
-        return view('device-measurement.index', compact('devicemeasurement'));
+        return view('sensordefinition.index', compact('sensordefinition'));
     }
 
     /**
@@ -41,7 +39,7 @@ class DeviceMeasurementController extends Controller
      */
     public function create()
     {
-        return view('device-measurement.create');
+        return view('sensordefinition.create');
     }
 
     /**
@@ -56,9 +54,9 @@ class DeviceMeasurementController extends Controller
         
         $requestData = $request->all();
         
-        DeviceMeasurement::create($requestData);
+        SensorDefinition::create($requestData);
 
-        return redirect('device-measurement')->with('flash_message', 'DeviceMeasurement added!');
+        return redirect('sensordefinition')->with('flash_message', 'SensorDefinition added!');
     }
 
     /**
@@ -70,9 +68,9 @@ class DeviceMeasurementController extends Controller
      */
     public function show($id)
     {
-        $devicemeasurement = DeviceMeasurement::findOrFail($id);
+        $sensordefinition = SensorDefinition::findOrFail($id);
 
-        return view('device-measurement.show', compact('devicemeasurement'));
+        return view('sensordefinition.show', compact('sensordefinition'));
     }
 
     /**
@@ -84,9 +82,9 @@ class DeviceMeasurementController extends Controller
      */
     public function edit($id)
     {
-        $devicemeasurement = DeviceMeasurement::findOrFail($id);
+        $sensordefinition = SensorDefinition::findOrFail($id);
 
-        return view('device-measurement.edit', compact('devicemeasurement'));
+        return view('sensordefinition.edit', compact('sensordefinition'));
     }
 
     /**
@@ -102,10 +100,10 @@ class DeviceMeasurementController extends Controller
         
         $requestData = $request->all();
         
-        $devicemeasurement = DeviceMeasurement::findOrFail($id);
-        $devicemeasurement->update($requestData);
+        $sensordefinition = SensorDefinition::findOrFail($id);
+        $sensordefinition->update($requestData);
 
-        return redirect('device-measurement')->with('flash_message', 'DeviceMeasurement updated!');
+        return redirect('sensordefinition')->with('flash_message', 'SensorDefinition updated!');
     }
 
     /**
@@ -117,8 +115,8 @@ class DeviceMeasurementController extends Controller
      */
     public function destroy($id)
     {
-        DeviceMeasurement::destroy($id);
+        SensorDefinition::destroy($id);
 
-        return redirect('device-measurement')->with('flash_message', 'DeviceMeasurement deleted!');
+        return redirect('sensordefinition')->with('flash_message', 'SensorDefinition deleted!');
     }
 }

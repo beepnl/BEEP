@@ -94,8 +94,8 @@ Route::group(['middleware' => \Barryvdh\Cors\HandleCors::class], function()
 		Route::resource('locations', 		'Api\LocationController', 	 			['except'=>['create','edit']]);
 		Route::resource('productions',		'Api\ProductionController',				['except'=>['create','edit']]);
 		Route::resource('queens', 			'Api\QueenController',		 			['except'=>['create','edit']]);
-		Route::resource('image', 			'Api\ImageController', 					['except'=>['create','edit']]);
-		Route::resource('device-measurement','Api\DeviceMeasurementController', 	['except'=>['create','edit']]);
+		Route::resource('images', 			'Api\ImageController', 					['except'=>['create','edit']]);
+		Route::resource('sensordefinition', 'Api\SensorDefinitionController', 		['except'=>['create','edit']]);
 
 		Route::delete('groups/detach/{id}', 'Api\GroupController@detach');
 

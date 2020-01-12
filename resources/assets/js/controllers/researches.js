@@ -2,7 +2,7 @@
  * BEEP app
  * Author: Iconize <pim@iconize.nl>
  *
- * Settings controller
+ * Researxches controller
  */
 app.controller('ResearchesCtrl', function($scope, $rootScope, $window, $timeout, $location, $filter, $interval, api, $routeParams, ngDialog, hives, measurements) 
 {
@@ -26,7 +26,7 @@ app.controller('ResearchesCtrl', function($scope, $rootScope, $window, $timeout,
 
     $scope.loadResearches = function()
     {
-        $scope.researches = api.getApiRequest('research', 'research', $scope.sensors);
+        $scope.researches = api.getApiRequest('research', 'research');
     }
 
     $scope.updateResearches = function(e, data)

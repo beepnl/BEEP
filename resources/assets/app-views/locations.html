@@ -31,7 +31,7 @@
 	 </div>
 
 
-	<div class="box" ng-repeat="(key, loc) in locations | orderBy:'name':false:natSort" ng-class="{'collapsed-box':!loc.open}">
+	<div class="box" ng-repeat="(key, loc) in locations | orderBy:['order','name']:false:natSort" ng-class="{'collapsed-box':!loc.open}">
 	    <div class="box-header with-border">
 	      <div class="box-tools">
 	        <button type="button" class="btn btn-box-tool" ng-click="toggleLoc(loc)"> <i class="fa" ng-class="{'fa-plus':!loc.open, 'fa-minus':loc.open}"></i>
@@ -47,7 +47,7 @@
 	    <div class="box-body" ng-class="{'no-padding':mobile}">
 	      	
 	      	<div ng-if="!mobile" class="hives-container">
-	      		<div ng-repeat="(key, hive) in loc.hives | orderBy:'name':false:natSort" class="hive-container" >
+	      		<div ng-repeat="(key, hive) in loc.hives | orderBy:['order','name']:false:natSort" class="hive-container" >
 	            	<beep-hive hive="hive"></beep-hive>
 	            </div>
             	<!-- New hive -->

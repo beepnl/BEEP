@@ -1,10 +1,10 @@
 Laravel CRUD generator
 https://github.com/appzcoder/crud-generator/blob/master/doc/configuration.md
 
-# DeviceMeasurement
-php artisan crud:generate DeviceMeasurement -—fields='zero_value#float#nullable; unit_per_value#float#nullable; measurement_id#integer#unsigned#nullable; physical_quantity_id#integer#unsigned#nullable; sensor_id#integer#unsigned' --relationships='measurement#belongsTo#Measurement::class; physical_quantity#belongsTo#PhysicalQuantity::class; sensor#belongsTo#Sensor::class' --form-helper=html
+# SensorDefinition
+php artisan crud:generate SensorDefinition -—fields='zero_value#float#nullable; unit_per_value#float#nullable; input_measurement_id#integer#unsigned#nullable; output_measurement_id#integer#unsigned#nullable; sensor_id#integer#unsigned' --relationships='input_measurement_id#belongsTo#Measurement::class; output_measurement_id#belongsTo#Measurement::class; sensor#belongsTo#Sensor::class' --form-helper=html
 
-php artisan crud:api DeviceMeasurement —-fields='zero_value#float#nullable; unit_per_value#float#nullable; measurement_id#integer#unsigned#nullable; physical_quantity_id#integer#unsigned#nullable; sensor_id#integer#unsigned' --relationships='measurement#belongsTo#Measurement::class; physical_quantity#belongsTo#PhysicalQuantity::class; sensor#belongsTo#Sensor::class' --controller-namespace=Api
+php artisan crud:api SensorDefinition -—fields='zero_value#float#nullable; unit_per_value#float#nullable; input_measurement_id#integer#unsigned#nullable; output_measurement_id#integer#unsigned#nullable; sensor_id#integer#unsigned' --relationships='input_measurement_id#belongsTo#Measurement::class; output_measurement_id#belongsTo#Measurement::class; sensor#belongsTo#Sensor::class' --controller-namespace=Api
 
 # Image
 php artisan crud:generate Image -—fields='filename#string#required; image_url#string#required; thumb_url#string; description#string; type#string; height#number; width#number; size_kb#number; date#timestamp; user_id#integer#unsigned; hive_id#integer#unsigned; category_id#integer#unsigned; checklist_id#integer#unsigned' --relationships=‘user#belongsTo#User::class; hive#belongsTo#Hive::class; category#belongsTo#Category::class; checklist#belongsTo#Checklist::class' --form-helper=html

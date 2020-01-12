@@ -414,6 +414,41 @@
     group_explanation_2     : '2. Invite other Beep users on their Beep e-mail address',
     group_explanation_3     : '3. Share specific hives to be viewed by others, of to cooperate on',
     Filter_and_sort_on      : 'Filter and sort on:',
+    
+    /* New translations v2.2.0 */
+    roofed                  : 'Does the apiary have a roof?',
+    info                    : 'Info',
+    
+    research                : 'Research',
+    research_explanation    : 'This screen contains the available researched for which you can opt-in to share your data with. Before opting in, please read the research description thourougly to make sure that you consent to the specific part of your data being shared with the research for the indicated period. Remeber that you can opt-out again, any time you want.',
+    research_info           : 'By sharing your data with researchers, you help them to being able to analyse more data and come to better conclusions for their research.',
+    start_date              : 'Start date',
+    end_date                : 'End date',
+    purpose                 : 'Research purpose',
+    institution             : 'Research institution',
+    type_of_data_used       : 'Data usage',
+    link                    : 'Link',
+    consent                 : 'Current consent',
+    consent_yes             : 'I consent to share my data',
+    consent_no              : 'I do NOT consent to share my data',
+    my_beep_data            : 'My own BEEP data',
+    
+    dimensions              : 'dimensions',
+    details                 : 'details',
+    configuration           : 'configuration',
+    adjustments             : 'adjustments',
+    changes_queen_color     : 'editing changes the color',
+
+    Brood_box_and_frame     : 'Brood box and frame',
+    Hive_order              : 'Hive order at apiary',
+    bb_width_cm             : 'Brood box width (cm)',
+    bb_height_cm            : 'Brood box height (cm)',
+    bb_depth_cm             : 'Brood box depth (cm)',
+    fr_width_cm             : 'Frame width (cm)',
+    fr_height_cm            : 'Frame height (cm)',
+    queen_line              : 'line',
+    queen_tree              : 'tree',
+    queen_description       : 'description',
  };
 
 

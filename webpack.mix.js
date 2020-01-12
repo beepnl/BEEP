@@ -188,6 +188,7 @@ mix.babel([
     'resources/assets/js/controllers/sensors.js',
     'resources/assets/js/controllers/groups.js',
     'resources/assets/js/controllers/researches.js',
+    'resources/assets/js/controllers/images.js',
 	], 'public/app/js/angular-code.js').version();
 
 

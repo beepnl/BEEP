@@ -40,7 +40,7 @@
 			    		<div class="col-xs-12 col-sm-4 form-item">
 				    		<label>{{lang.Location}}*</label>
 				    		<div>
-				    			<select ng-if="hive.id == undefined || hive.owner" ng-model="hive_loc" ng-options="item as item.name for item in locations  | orderBy:'name' track by item.id" type="select" class="form-control" ng-change="selectLocation(hive_loc)" required="required">
+				    			<select ng-if="hive.id == undefined || hive.owner" ng-model="hive_loc" ng-options="item as item.name for item in locations | orderBy:'name' track by item.id" type="select" class="form-control" ng-change="selectLocation(hive_loc)" required="required">
 				    				<option value=''>{{lang.Select}} {{lang.location}}...</option>
 				    			</select>
 				    			<input ng-if="hive.id != undefined && !hive.owner" ng-value="hive.location" ng-disabled="true" type="text" class="form-control">
@@ -57,10 +57,12 @@
 				            </div>
 				        </div>
 		    		</fieldset>
-		    	
+		    	</div>
+	    		<div class="col-xs-12 col-sm-8">
 		    		<fieldset>
 	    				<legend>{{lang.Hive}} {{lang.configuration}}</legend>
-				    	<div class="col-xs-12 col-sm-4">
+				    	<div class="col-xs-12 col-md-4">
+				    		
 				    		<div class="form-item">
 				    			<label>{{lang.Hive_honey_layers}}</label>
 					            <div rn-stepper ng-model="hive.honey_layers" ng-disabled="hive.honey_layers < 0" min="0" max="5" step="1"></div>
@@ -70,63 +72,68 @@
 				    			<label>{{lang.Hive_brood_layers}}</label>
 					            <div rn-stepper ng-model="hive.brood_layers" ng-disabled="hive.brood_layers < 0" min="0" max="5" step="1"></div>
 				    		</div>
-			    		
-			    		</div>
-
-			    		<div class="col-xs-12 col-sm-4">
-				    		<div class="form-item">
-				    			<label>Brood box width (cm)</label>
-					            <div rn-stepper ng-model="hive.brood_box_width" ng-disabled="hive.brood_layers < 0" min="0" max="100" step="1"></div>
-				    		</div>
-				    	
-				    		<div class="form-item">
-				    			<label>Brood box depth (cm)</label>
-					            <div rn-stepper ng-model="hive.brood_box_depth" ng-disabled="hive.brood_layers < 0" min="0" max="100" step="1"></div>
-				    		</div>
-			    		
-				    		<div class="form-item">
-			    				<label>Brood box height (cm)</label>
-				    			<div rn-stepper ng-model="hive.brood_box_height" ng-disabled="hive.brood_layers < 0" min="0" max="50" step="1"></div>
-				    		</div>
-			    		</div>
-
-			    		<div class="col-xs-12 col-sm-4">
 				    		<div class="form-item">
 			    				<label>{{lang.Hive_frames}}</label>
 				    			<div rn-stepper ng-model="hive.frames" ng-disabled="hive.frames < 1" min="1" max="20" step="1"></div>
 				    		</div>
-				    		<div class="form-item">
-				    			<label>Frame width (cm)</label>
-					            <div rn-stepper ng-model="hive.frame_width" ng-disabled="hive.frames > 0" min="0" max="100" step="1"></div>
-				    		</div>
-				    	
-				    		<div class="form-item">
-				    			<label>Frame height (cm)</label>
-				    			<div rn-stepper ng-model="hive.frame_height" ng-disabled="hive.frames > 0" min="0" max="50" step="1"></div>
-				    		</div>
+			    			
+			    			<div ng-if="hive.layers.length > 0">
+					    		<label>{{lang.Hive}}</label>
+					    		<div>
+					    			<div class="hive left">
+						    			<p class="lid" style="width: {{hive.width*(mobile?4:1)}}px;"></p>
+						            	<p ng-repeat="(key, layer) in hive.layers | orderBy : '-type' " class="layer" ng-class="layer.type" style="background-color: {{hive.color}}; width: {{hive.width*(mobile?4:1)}}px;">
+						            		<span ng-repeat="(key, frame) in layer.frames track by $index" class="frame" ng-class="layer.type"></span>
+						            	</p>
+						            	<p class="bottom" style="width: {{hive.width*(mobile?4:1)}}px;"></p>
+					            	</div>
+					            </div>
+					        </div>
 			    		</div>
+			    		<div class="col-xs-12 col-md-4">
+				    		<div class="form-item">
+				    			<label>{{lang.Hive_order}}</label>
+					            <div rn-stepper ng-model="hive.order" ng-disabled="false" step="1"></div>
+				    		</div>
 
-				    	<div class="col-xs-12 col-sm-4" ng-if="hive.layers.length > 0">
-				    
-				    		<label>{{lang.Hive}}</label>
-				    		<div>
-				    			<div class="hive left">
-					    			<p class="lid" style="width: {{hive.width*(mobile?4:1)}}px;"></p>
-					            	<p ng-repeat="(key, layer) in hive.layers | orderBy : '-type' " class="layer" ng-class="layer.type" style="background-color: {{hive.color}}; width: {{hive.width*(mobile?4:1)}}px;">
-					            		<span ng-repeat="(key, frame) in layer.frames track by $index" class="frame" ng-class="layer.type"></span>
-					            	</p>
-					            	<p class="bottom" style="width: {{hive.width*(mobile?4:1)}}px;"></p>
-				            	</div>
-				            </div>
-				        </div>
-				
-						<div class="col-xs-12 col-sm-4">
 				    		<label>{{lang.Hive_color}}</label>
 				    		<div>
 								<color-picker ng-model="hive.color"></color-picker>
 				    		</div>
 				    	</div>
+			    	</fieldset>
+			    </div>
+			    <div class="col-xs-12 col-sm-4">
+		    		<fieldset>
+	    				<legend>{{lang.Brood_box_and_frame}} {{lang.dimensions}}</legend>
+
+			    		<div class="form-item">
+			    			<label>{{ lang.bb_width_cm }}</label>
+				            <div rn-stepper ng-model="hive.bb_width_cm" ng-disabled="hive.brood_layers < 0" min="0" max="100" step="0.1"></div>
+			    		</div>
+			    	
+			    		<div class="form-item">
+			    			<label>{{ lang.bb_height_cm }}</label>
+				            <div rn-stepper ng-model="hive.bb_depth_cm" ng-disabled="hive.brood_layers < 0" min="0" max="100" step="0.1"></div>
+			    		</div>
+		    		
+			    		<div class="form-item">
+		    				<label>{{ lang.bb_depth_cm }}</label>
+			    			<div rn-stepper ng-model="hive.bb_height_cm" ng-disabled="hive.brood_layers < 0" min="0" max="50" step="0.1"></div>
+			    		</div>
+
+			    		<div class="form-item">
+			    			<label>{{ lang.fr_width_cm }}</label>
+				            <div rn-stepper ng-model="hive.fr_width_cm" ng-disabled="hive.frames < 0" min="0" max="100" step="0.1"></div>
+			    		</div>
+			    	
+			    		<div class="form-item">
+			    			<label>{{ lang.fr_height_cm }}</label>
+			    			<div rn-stepper ng-model="hive.fr_height_cm" ng-disabled="hive.frames < 0" min="0" max="50" step="0.1"></div>
+			    		</div>
+						
 				    </fieldset>
+				</div>
 			    </div>
 			</div>
 	    </div>
@@ -162,13 +169,30 @@
 					    			<label>{{lang.Queen}} {{lang.name}}</label>
 					    			<input ng-model="hive.queen.name" type="text" placeholder="{{lang.Queen}} {{lang.name}}" class="form-control">
 					    		</div>
-					    	
+
 					    		<div class="form-item">
 					    			<label>{{lang.Bee_race}}</label>
 				    				<select ng-model="bee_race" ng-options="item as item.trans[locale] for item in beeraces | orderBy:transSort track by item.id" type="select" ng-change="selectBeeRace(bee_race)" class="form-control">
 				    					<option value=''>{{lang.Select}} {{lang.Bee_race}}...</option>
 				    				</select>
 					            </div>
+					    		<div class="form-item">
+					    			<label>{{lang.Queen}} {{lang.queen_line}}</label>
+					    			<input ng-model="hive.queen.line" type="text" placeholder="F0, F1, etc" class="form-control">
+					    		</div>
+
+					    		<div class="form-item">
+					    			<label>{{lang.Queen}} {{lang.queen_tree}}</label>
+					    			<input ng-model="hive.queen.tree" type="text" placeholder="{{lang.Queen}} {{lang.queen_tree}}" class="form-control">
+					    		</div>
+					    	
+					    	</div>
+					    	
+					    	<div class="col-xs-12 col-sm-4">
+					    		<div class="form-item">
+					    			<label>{{lang.Queen}} {{lang.queen_description}}</label>
+					    			<input ng-model="hive.queen.description" type="text" class="form-control">
+					    		</div>
 					    		<div class="form-item">
 					    			<label style="display:block;">{{lang.Queen_clipped}}</label>
 					    			<switch ng-model="hive.queen.clipped" class="wide" on="{{lang.yes}}" off="{{lang.no}}"></switch>
@@ -178,9 +202,7 @@
 					    			<label style="display:block;">{{lang.Queen_fertilized}}</label>
 					    			<switch ng-model="hive.queen.fertilized" class="wide" on="{{lang.yes}}" off="{{lang.no}}"></switch>
 					    		</div>
-					    	</div>
-					    	
-					    	<div class="col-xs-12 col-sm-4">
+
 					    		<div class="form-item">
 					    			<label>{{lang.Birth_date}} <span ng-if="queen_colored">({{ lang.changes_queen_color}})</span></label>
 									<div class="input-group date">

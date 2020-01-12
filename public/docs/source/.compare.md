@@ -1720,221 +1720,6 @@ fetch(url, {
 
 <!-- END_4e47488f23358012f46746d57d9c46b0 -->
 
-#Api\DeviceMeasurementController
-
-
-<!-- START_682f3b19972548a53c3c938306165f39 -->
-## api/device-measurement GET
-Display a listing of the resource.
-
-> Example request:
-
-```bash
-curl -X GET -G "https://test.beep.nl/api/device-measurement" 
-```
-
-```javascript
-const url = new URL("https://test.beep.nl/api/device-measurement");
-
-let headers = {
-    "Accept": "application/json",
-    "Content-Type": "application/json",
-}
-
-fetch(url, {
-    method: "GET",
-    headers: headers,
-})
-    .then(response => response.json())
-    .then(json => console.log(json));
-```
-
-
-> Example response (401):
-
-```json
-{
-    "message": "Unauthenticated."
-}
-```
-
-### HTTP Request
-`GET api/device-measurement`
-
-
-<!-- END_682f3b19972548a53c3c938306165f39 -->
-
-<!-- START_93ac72ec047744a1839ad6193657076b -->
-## api/device-measurement POST
-Store a newly created resource in storage.
-
-<br><small style="padding: 1px 9px 2px;font-weight: bold;white-space: nowrap;color: #ffffff;-webkit-border-radius: 9px;-moz-border-radius: 9px;border-radius: 9px;background-color: #3a87ad;">Requires authentication</small>
-> Example request:
-
-```bash
-curl -X POST "https://test.beep.nl/api/device-measurement" \
-    -H "Content-Type: application/json" \
-    -d '{"name":"ut","inside":true,"zero_value":114779.597847,"unit_per_value":4.612559704,"measurement_id":"consequatur","physical_quantity_id":"voluptas","sensor_id":14}'
-
-```
-
-```javascript
-const url = new URL("https://test.beep.nl/api/device-measurement");
-
-let headers = {
-    "Content-Type": "application/json",
-    "Accept": "application/json",
-}
-
-let body = {
-    "name": "ut",
-    "inside": true,
-    "zero_value": 114779.597847,
-    "unit_per_value": 4.612559704,
-    "measurement_id": "consequatur",
-    "physical_quantity_id": "voluptas",
-    "sensor_id": 14
-}
-
-fetch(url, {
-    method: "POST",
-    headers: headers,
-    body: body
-})
-    .then(response => response.json())
-    .then(json => console.log(json));
-```
-
-
-
-### HTTP Request
-`POST api/device-measurement`
-
-#### Body Parameters
-
-Parameter | Type | Status | Description
---------- | ------- | ------- | ------- | -----------
-    name | string |  optional  | Name of the sensorinstance (e.g. temperature frame 1)
-    inside | boolean |  optional  | True is measured inside, false if measured outside
-    zero_value | float |  optional  | Measurement value that defines 0
-    unit_per_value | float |  optional  | Amount of units (calibration figure) per delta Measurement value to multiply withy (value - zero_value)
-    measurement_id | Measurement |  optional  | id that the Measurment value belongs to
-    physical_quantity_id | PhysicalQuantity |  optional  | that the Measurment value belongs to
-    sensor_id | integer |  required  | Sensor that the Measurement value belongs to
-
-<!-- END_93ac72ec047744a1839ad6193657076b -->
-
-<!-- START_12b8cb8baa8fc5c2aaf96c39d61d0ad6 -->
-## api/device-measurement/{id} GET
-Display the specified resource.
-
-> Example request:
-
-```bash
-curl -X GET -G "https://test.beep.nl/api/device-measurement/1" 
-```
-
-```javascript
-const url = new URL("https://test.beep.nl/api/device-measurement/1");
-
-let headers = {
-    "Accept": "application/json",
-    "Content-Type": "application/json",
-}
-
-fetch(url, {
-    method: "GET",
-    headers: headers,
-})
-    .then(response => response.json())
-    .then(json => console.log(json));
-```
-
-
-> Example response (401):
-
-```json
-{
-    "message": "Unauthenticated."
-}
-```
-
-### HTTP Request
-`GET api/device-measurement/{device_measurement}`
-
-
-<!-- END_12b8cb8baa8fc5c2aaf96c39d61d0ad6 -->
-
-<!-- START_a156caf13188ec5fee4e8ab5a94bf07e -->
-## api/device-measurement PATCH
-Update the specified resource in storage.
-
-> Example request:
-
-```bash
-curl -X PUT "https://test.beep.nl/api/device-measurement/1" 
-```
-
-```javascript
-const url = new URL("https://test.beep.nl/api/device-measurement/1");
-
-let headers = {
-    "Accept": "application/json",
-    "Content-Type": "application/json",
-}
-
-fetch(url, {
-    method: "PUT",
-    headers: headers,
-})
-    .then(response => response.json())
-    .then(json => console.log(json));
-```
-
-
-
-### HTTP Request
-`PUT api/device-measurement/{device_measurement}`
-
-`PATCH api/device-measurement/{device_measurement}`
-
-
-<!-- END_a156caf13188ec5fee4e8ab5a94bf07e -->
-
-<!-- START_b0fb0d76a9b55bc0a163f69a5551c64e -->
-## api/device-measurement DELETE
-Remove the specified resource from storage.
-
-> Example request:
-
-```bash
-curl -X DELETE "https://test.beep.nl/api/device-measurement/1" 
-```
-
-```javascript
-const url = new URL("https://test.beep.nl/api/device-measurement/1");
-
-let headers = {
-    "Accept": "application/json",
-    "Content-Type": "application/json",
-}
-
-fetch(url, {
-    method: "DELETE",
-    headers: headers,
-})
-    .then(response => response.json())
-    .then(json => console.log(json));
-```
-
-
-
-### HTTP Request
-`DELETE api/device-measurement/{device_measurement}`
-
-
-<!-- END_b0fb0d76a9b55bc0a163f69a5551c64e -->
-
 #Api\ExportController
 
 Export all data to an Excel file by email (GDPR)
@@ -3032,7 +2817,7 @@ Store sensor measurement data (see BEEP sensor data API definition) from API, or
 ```bash
 curl -X POST "https://test.beep.nl/api/sensors" \
     -H "Content-Type: application/json" \
-    -d '{"key":"ut","data":[],"payload_fields":[]}'
+    -d '{"key":"quis","data":[],"payload_fields":[]}'
 
 ```
 
@@ -3045,7 +2830,7 @@ let headers = {
 }
 
 let body = {
-    "key": "ut",
+    "key": "quis",
     "data": [],
     "payload_fields": []
 }
@@ -3085,7 +2870,7 @@ When TTN payload is supplied, the TTN HTTP integration decoder/converter is assu
 ```bash
 curl -X POST "https://test.beep.nl/api/lora_sensors" \
     -H "Content-Type: application/json" \
-    -d '{"key":"alias","payload_fields":[],"DevEUI_uplink":[]}'
+    -d '{"key":"sed","payload_fields":[],"DevEUI_uplink":[]}'
 
 ```
 
@@ -3098,7 +2883,7 @@ let headers = {
 }
 
 let body = {
-    "key": "alias",
+    "key": "sed",
     "payload_fields": [],
     "DevEUI_uplink": []
 }
@@ -3136,7 +2921,7 @@ Store sensor measurement data (see BEEP sensor data API definition) from API, or
 ```bash
 curl -X POST "https://test.beep.nl/api/unsecure_sensors" \
     -H "Content-Type: application/json" \
-    -d '{"key":"ipsum","data":[],"payload_fields":[]}'
+    -d '{"key":"fuga","data":[],"payload_fields":[]}'
 
 ```
 
@@ -3149,7 +2934,7 @@ let headers = {
 }
 
 let body = {
-    "key": "ipsum",
+    "key": "fuga",
     "data": [],
     "payload_fields": []
 }
@@ -3188,7 +2973,7 @@ Request all sensor measurements from a certain interval (hour, day, week, month,
 ```bash
 curl -X GET -G "https://test.beep.nl/api/sensors/measurements" \
     -H "Content-Type: application/json" \
-    -d '{"key":"eveniet","id":7,"hive_id":2,"names":"et","interval":"et","index":10}'
+    -d '{"key":"voluptas","id":4,"hive_id":14,"names":"in","interval":"molestiae","index":12}'
 
 ```
 
@@ -3201,12 +2986,12 @@ let headers = {
 }
 
 let body = {
-    "key": "eveniet",
-    "id": 7,
-    "hive_id": 2,
-    "names": "et",
-    "interval": "et",
-    "index": 10
+    "key": "voluptas",
+    "id": 4,
+    "hive_id": 14,
+    "names": "in",
+    "interval": "molestiae",
+    "index": 12
 }
 
 fetch(url, {
@@ -3253,7 +3038,7 @@ Request last measurement values of all sensor measurements from a sensor (Device
 ```bash
 curl -X GET -G "https://test.beep.nl/api/sensors/lastvalues" \
     -H "Content-Type: application/json" \
-    -d '{"key":"fugit","id":2,"hive_id":18}'
+    -d '{"key":"deleniti","id":12,"hive_id":2}'
 
 ```
 
@@ -3266,9 +3051,9 @@ let headers = {
 }
 
 let body = {
-    "key": "fugit",
-    "id": 2,
-    "hive_id": 18
+    "key": "deleniti",
+    "id": 12,
+    "hive_id": 2
 }
 
 fetch(url, {
@@ -3312,7 +3097,7 @@ Request last weight related measurement values from a sensor (Device), used by l
 ```bash
 curl -X GET -G "https://test.beep.nl/api/sensors/lastweight" \
     -H "Content-Type: application/json" \
-    -d '{"key":"quibusdam","id":8,"hive_id":6}'
+    -d '{"key":"ut","id":20,"hive_id":5}'
 
 ```
 
@@ -3325,9 +3110,9 @@ let headers = {
 }
 
 let body = {
-    "key": "quibusdam",
-    "id": 8,
-    "hive_id": 6
+    "key": "ut",
+    "id": 20,
+    "hive_id": 5
 }
 
 fetch(url, {
@@ -3915,7 +3700,7 @@ fetch(url, {
 
 #Api\SensorController
 
-Store and retreive sensor data (both LoRa and direct API POSTs)
+Store and retreive Devices that produce measurements
 <!-- START_298ee2ac22dee323822a5adff6d67b0a -->
 ## api/sensors
 List all user sensors
@@ -3996,7 +3781,7 @@ fetch(url, {
 
 <!-- START_8bf250dc088f0e2ec0e14604a09ce22c -->
 ## api/sensor POST
-Edit a sensor
+Update a sensor
 
 <br><small style="padding: 1px 9px 2px;font-weight: bold;white-space: nowrap;color: #ffffff;-webkit-border-radius: 9px;-moz-border-radius: 9px;border-radius: 9px;background-color: #3a87ad;">Requires authentication</small>
 > Example request:
@@ -4004,7 +3789,7 @@ Edit a sensor
 ```bash
 curl -X POST "https://test.beep.nl/api/sensor" \
     -H "Content-Type: application/json" \
-    -d '{"id":2,"name":"doloremque","hive_id":3,"type":"deserunt","key":"id","delete":true}'
+    -d '{"id":12,"key":"nam","name":"saepe","hive_id":7,"type":"dolorum","delete":false,"last_message_received":"sit","hardware_id":"aliquid","firmware_version":"et","hardware_version":"quasi","boot_count":3,"measurement_interval_min":2099187.1820028364,"measurement_transmission_ratio":73472184.76,"ble_pin":"qui"}'
 
 ```
 
@@ -4017,12 +3802,20 @@ let headers = {
 }
 
 let body = {
-    "id": 2,
-    "name": "doloremque",
-    "hive_id": 3,
-    "type": "deserunt",
-    "key": "id",
-    "delete": true
+    "id": 12,
+    "key": "nam",
+    "name": "saepe",
+    "hive_id": 7,
+    "type": "dolorum",
+    "delete": false,
+    "last_message_received": "sit",
+    "hardware_id": "aliquid",
+    "firmware_version": "et",
+    "hardware_version": "quasi",
+    "boot_count": 3,
+    "measurement_interval_min": 2099187.1820028364,
+    "measurement_transmission_ratio": 73472184.76,
+    "ble_pin": "qui"
 }
 
 fetch(url, {
@@ -4043,12 +3836,20 @@ fetch(url, {
 
 Parameter | Type | Status | Description
 --------- | ------- | ------- | ------- | -----------
-    id | integer |  optional  | 
-    name | string |  required  | 
-    hive_id | integer |  required  | 
-    type | string |  required  | Category name of the hive type from the Categories table
+    id | integer |  required  | Sensor to update
     key | string |  required  | DEV EUI of the sensor to enable storing sensor data incoming on the api/sensors or api/lora_sensors endpoint
+    name | string |  optional  | Name of the sensor
+    hive_id | integer |  optional  | Hive that the sensor is measuring. Default: null
+    type | string |  optional  | Category name of the hive type from the Categories table. Default: beep
     delete | boolean |  optional  | If true delete the sensor and all it's data in the Influx database
+    last_message_received | timestamp |  optional  | Will be converted with date('Y-m-d H:i:s', $last_message_received); before storing
+    hardware_id | string |  optional  | Unchangeable Sensor Device id
+    firmware_version | string |  optional  | Firmware version of the Sensor Device
+    hardware_version | string |  optional  | Hardware version of the Sensor Device
+    boot_count | integer |  optional  | Amount of boots of the Sensor Device
+    measurement_interval_min | float |  optional  | Measurement interval in minutes
+    measurement_transmission_ratio | float |  optional  | Measurements ratio of non-transmitted vs transmitted messages. If 0 or 1, every measurement gets transmitted.
+    ble_pin | string |  optional  | Bleutooth PIN of Sensor Device: 6 numbers between 0-9
 
 <!-- END_8bf250dc088f0e2ec0e14604a09ce22c -->
 
@@ -4062,7 +3863,7 @@ Store a new sensor
 ```bash
 curl -X POST "https://test.beep.nl/api/sensors/store" \
     -H "Content-Type: application/json" \
-    -d '{"id":10,"name":"molestiae","hive_id":7,"type":"illum","key":"sunt","delete":false}'
+    -d '{"key":"praesentium","name":"ad","hive_id":12,"type":"esse","last_message_received":"mollitia","hardware_id":"ad","firmware_version":"et","hardware_version":"consequuntur","boot_count":4,"measurement_interval_min":75753.653839379,"measurement_transmission_ratio":543288.413,"ble_pin":"excepturi"}'
 
 ```
 
@@ -4075,12 +3876,18 @@ let headers = {
 }
 
 let body = {
-    "id": 10,
-    "name": "molestiae",
-    "hive_id": 7,
-    "type": "illum",
-    "key": "sunt",
-    "delete": false
+    "key": "praesentium",
+    "name": "ad",
+    "hive_id": 12,
+    "type": "esse",
+    "last_message_received": "mollitia",
+    "hardware_id": "ad",
+    "firmware_version": "et",
+    "hardware_version": "consequuntur",
+    "boot_count": 4,
+    "measurement_interval_min": 75753.653839379,
+    "measurement_transmission_ratio": 543288.413,
+    "ble_pin": "excepturi"
 }
 
 fetch(url, {
@@ -4101,14 +3908,235 @@ fetch(url, {
 
 Parameter | Type | Status | Description
 --------- | ------- | ------- | ------- | -----------
-    id | integer |  optional  | 
-    name | string |  required  | 
-    hive_id | integer |  required  | 
-    type | string |  required  | Category name of the hive type from the Categories table
     key | string |  required  | DEV EUI of the sensor to enable storing sensor data incoming on the api/sensors or api/lora_sensors endpoint
-    delete | boolean |  optional  | If true delete the sensor and all it's data in the Influx database
+    name | string |  optional  | Sensor name
+    hive_id | integer |  optional  | Hive that the sensor is measuring. Default: null
+    type | string |  optional  | Category name of the hive type from the Categories table. Default: beep
+    last_message_received | timestamp |  optional  | Will be converted with date('Y-m-d H:i:s', $last_message_received); before storing
+    hardware_id | string |  optional  | Unchangeable Sensor Device id
+    firmware_version | string |  optional  | Firmware version of the Sensor Device
+    hardware_version | string |  optional  | Hardware version of the Sensor Device
+    boot_count | integer |  optional  | Amount of boots of the Sensor Device
+    measurement_interval_min | float |  optional  | Measurement interval in minutes
+    measurement_transmission_ratio | float |  optional  | Measurements ratio of non-transmitted vs transmitted messages. If 0 or 1, every measurement gets transmitted.
+    ble_pin | string |  optional  | Bleutooth PIN of Sensor Device: 6 numbers between 0-9
 
 <!-- END_a8632736dc0934be75ed89727073a6aa -->
+
+#Api\SensorDefinitionController
+
+
+<!-- START_3b98cb44d6fe4407585509ca2f891fda -->
+## api/sensordefinition GET
+Display a listing of the resource.
+
+> Example request:
+
+```bash
+curl -X GET -G "https://test.beep.nl/api/sensordefinition" 
+```
+
+```javascript
+const url = new URL("https://test.beep.nl/api/sensordefinition");
+
+let headers = {
+    "Accept": "application/json",
+    "Content-Type": "application/json",
+}
+
+fetch(url, {
+    method: "GET",
+    headers: headers,
+})
+    .then(response => response.json())
+    .then(json => console.log(json));
+```
+
+
+> Example response (401):
+
+```json
+{
+    "message": "Unauthenticated."
+}
+```
+
+### HTTP Request
+`GET api/sensordefinition`
+
+
+<!-- END_3b98cb44d6fe4407585509ca2f891fda -->
+
+<!-- START_f6f20cfc18b5c347368408d17f1981d8 -->
+## api/sensordefinition POST
+Store a newly created resource in storage.
+
+<br><small style="padding: 1px 9px 2px;font-weight: bold;white-space: nowrap;color: #ffffff;-webkit-border-radius: 9px;-moz-border-radius: 9px;border-radius: 9px;background-color: #3a87ad;">Requires authentication</small>
+> Example request:
+
+```bash
+curl -X POST "https://test.beep.nl/api/sensordefinition" \
+    -H "Content-Type: application/json" \
+    -d '{"name":"quisquam","inside":true,"offset":3,"multiplier":22416124.70559,"input_measurement_id":"et","output_measurement_id":"aperiam","sensor_id":10}'
+
+```
+
+```javascript
+const url = new URL("https://test.beep.nl/api/sensordefinition");
+
+let headers = {
+    "Content-Type": "application/json",
+    "Accept": "application/json",
+}
+
+let body = {
+    "name": "quisquam",
+    "inside": true,
+    "offset": 3,
+    "multiplier": 22416124.70559,
+    "input_measurement_id": "et",
+    "output_measurement_id": "aperiam",
+    "sensor_id": 10
+}
+
+fetch(url, {
+    method: "POST",
+    headers: headers,
+    body: body
+})
+    .then(response => response.json())
+    .then(json => console.log(json));
+```
+
+
+
+### HTTP Request
+`POST api/sensordefinition`
+
+#### Body Parameters
+
+Parameter | Type | Status | Description
+--------- | ------- | ------- | ------- | -----------
+    name | string |  optional  | Name of the sensorinstance (e.g. temperature frame 1)
+    inside | boolean |  optional  | True is measured inside, false if measured outside
+    offset | float |  optional  | Measurement value that defines 0
+    multiplier | float |  optional  | Amount of units (calibration figure) per delta Measurement value to multiply withy (value - offset)
+    input_measurement_id | Measurement |  optional  | that represents the input Measurement value (e.g. w_v, or t_i)
+    output_measurement_id | Measurement |  optional  | that represents the output Measurement value (e.g. weight_kg, or t_i)
+    sensor_id | integer |  required  | Sensor that the Measurement value belongs to
+
+<!-- END_f6f20cfc18b5c347368408d17f1981d8 -->
+
+<!-- START_ff9674949ad011c894c60a5928baa7be -->
+## api/sensordefinition/{id} GET
+Display the specified resource.
+
+> Example request:
+
+```bash
+curl -X GET -G "https://test.beep.nl/api/sensordefinition/1" 
+```
+
+```javascript
+const url = new URL("https://test.beep.nl/api/sensordefinition/1");
+
+let headers = {
+    "Accept": "application/json",
+    "Content-Type": "application/json",
+}
+
+fetch(url, {
+    method: "GET",
+    headers: headers,
+})
+    .then(response => response.json())
+    .then(json => console.log(json));
+```
+
+
+> Example response (401):
+
+```json
+{
+    "message": "Unauthenticated."
+}
+```
+
+### HTTP Request
+`GET api/sensordefinition/{sensordefinition}`
+
+
+<!-- END_ff9674949ad011c894c60a5928baa7be -->
+
+<!-- START_4a67b5f3dbe74a8ad47cfe8979c6207b -->
+## api/sensordefinition PATCH
+Update the specified resource in storage.
+
+> Example request:
+
+```bash
+curl -X PUT "https://test.beep.nl/api/sensordefinition/1" 
+```
+
+```javascript
+const url = new URL("https://test.beep.nl/api/sensordefinition/1");
+
+let headers = {
+    "Accept": "application/json",
+    "Content-Type": "application/json",
+}
+
+fetch(url, {
+    method: "PUT",
+    headers: headers,
+})
+    .then(response => response.json())
+    .then(json => console.log(json));
+```
+
+
+
+### HTTP Request
+`PUT api/sensordefinition/{sensordefinition}`
+
+`PATCH api/sensordefinition/{sensordefinition}`
+
+
+<!-- END_4a67b5f3dbe74a8ad47cfe8979c6207b -->
+
+<!-- START_088c023a2cbee7a7aa87c3abaece68ea -->
+## api/sensordefinition DELETE
+Remove the specified resource from storage.
+
+> Example request:
+
+```bash
+curl -X DELETE "https://test.beep.nl/api/sensordefinition/1" 
+```
+
+```javascript
+const url = new URL("https://test.beep.nl/api/sensordefinition/1");
+
+let headers = {
+    "Accept": "application/json",
+    "Content-Type": "application/json",
+}
+
+fetch(url, {
+    method: "DELETE",
+    headers: headers,
+})
+    .then(response => response.json())
+    .then(json => console.log(json));
+```
+
+
+
+### HTTP Request
+`DELETE api/sensordefinition/{sensordefinition}`
+
+
+<!-- END_088c023a2cbee7a7aa87c3abaece68ea -->
 
 #Api\SettingController
 

@@ -3,7 +3,7 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 
-class CreateDeviceMeasurementsTable extends Migration
+class CreateSensorDefinitionsTable extends Migration
 {
     /**
      * Run the migrations.
@@ -12,22 +12,22 @@ class CreateDeviceMeasurementsTable extends Migration
      */
     public function up()
     {
-        Schema::create('device_measurements', function (Blueprint $table) {
+        Schema::create('sensor_definitions', function (Blueprint $table) {
             $table->increments('id');
             $table->timestamps();
             $table->string('name')->nullable();
             $table->boolean('inside')->nullable();
-            $table->float('zero_value')->nullable();
-            $table->float('unit_per_value')->nullable();
-            $table->integer('measurement_id')->unsigned()->nullable();
-            $table->integer('physical_quantity_id')->unsigned()->nullable();
+            $table->float('offset')->nullable();
+            $table->float('multiplier')->nullable();
+            $table->integer('input_measurement_id')->unsigned()->nullable();
+            $table->integer('output_measurement_id')->unsigned()->nullable();
             $table->integer('sensor_id')->unsigned();
             
-            $table->foreign('measurement_id')->references('id')->on('measurements')
+            $table->foreign('input_measurement_id')->references('id')->on('measurements')
                     ->onUpdate('cascade')->onDelete('cascade');
 
-            $table->foreign('physical_quantity_id')->references('id')->on('physical_quantities')
-                    ->onUpdate('cascade');
+            $table->foreign('output_measurement_id')->references('id')->on('measurements')
+                    ->onUpdate('cascade')->onDelete('cascade');
 
             $table->foreign('sensor_id')->references('id')->on('sensors')
                     ->onUpdate('cascade');
@@ -41,13 +41,13 @@ class CreateDeviceMeasurementsTable extends Migration
      */
     public function down()
     {
-        if (Schema::hasTable('device_measurements')) 
+        if (Schema::hasTable('sensor_definitions')) 
         {
-            Schema::table('device_measurements', function (Blueprint $table) 
+            Schema::table('sensor_definitions', function (Blueprint $table) 
             {
                 $table->dropForeign(['sensor_id']);
-                $table->dropForeign(['physical_quantity_id']);
-                $table->dropForeign(['measurement_id']);
+                $table->dropForeign(['output_measurement_id']);
+                $table->dropForeign(['input_measurement_id']);
                 $table->drop();
             });
         }

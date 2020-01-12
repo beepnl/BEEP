@@ -49,11 +49,9 @@
             <tbody>
             @foreach($image as $item)
                 <tr>
-                    <td>{{ $loop->iteration or $item->id }}</td>
+                    <td>{{ $item->id }}</td>
                     <td>
-                        {{ $item->file }}
-                        <br>
-                        <img src="{{ $item->thumb_url }}">
+                        <img src="{{ $item->thumb_url }}" style="width: 50px; height: auto;" title="{{ $item->file }}">
                     </td>
                     <td>{{ $item->description }}</td><td>{{ $item->type }}</td><td>{{ $item->height }}</td><td>{{ $item->width }}</td><td>{{ $item->size_kb }}</td><td>{{ $item->date }}</td><td>{{ $item->user_id }}</td>
                     <td col-sm-1>

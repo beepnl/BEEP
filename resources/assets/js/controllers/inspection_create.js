@@ -4,7 +4,7 @@
  *
  * Dashboard controller
  */
-app.controller('InspectionCreateCtrl', function($scope, $rootScope, $window, $location, $filter, $routeParams, $timeout, settings, api, moment, hives, groups, inspections, Upload) 
+app.controller('InspectionCreateCtrl', function($scope, $rootScope, $window, $location, $filter, $routeParams, $timeout, settings, api, moment, hives, groups, inspections) 
 {
 
 	$rootScope.title    	= $rootScope.lang.Inspections;

@@ -70,8 +70,8 @@
             <div ng-if="item.value.$error || !item.value">
                 <div ngf-select ngf-drop ng-model="item.value" class="drop-box"
                     ngf-drag-over-class="'dragover'" 
-                    ngf-validate="{size: {max: '1MB', min: '10B'}, height: {max: 12000}, width: {max: 12000}, duration: {max: '5m'}}"
-                    ngf-pattern="'image/png, image/jpeg'"
+                    ngf-validate="{size: {max: '5MB', min: '10B'}, height: {max: 12000}, width: {max: 12000}, duration: {max: '1m'}}"
+                    ngf-pattern="'image/*'"
                     ngf-capture="camera"
                     ngf-drop-available="dropAvailable">
                     <br><br><br>Select<span ng-show="dropAvailable">/drop</span> image here

@@ -35,7 +35,7 @@ app.directive('checklistInput', ['$rootScope', '$timeout', 'Upload', 'api', func
                       {
                           'Authorization'  : 'Bearer '+api.getApiToken()+'',
                       },
-                      url: API_URL + 'image',
+                      url: API_URL + 'images',
                       data: {
                         user_id:     scope.user.id,
                         hive_id:     scope.hive != null ? scope.hive.id : '',
@@ -63,7 +63,7 @@ app.directive('checklistInput', ['$rootScope', '$timeout', 'Upload', 'api', func
               else if (newValue == null && typeof oldValue == 'object' && oldValue !== null)// newValue == null, 
               {
                 // image is removed
-                api.deleteApiRequest('imageRemove', 'image', scope.item.value);
+                api.deleteApiRequest('imageRemove', 'images', scope.item.value);
                 $rootScope.changeChecklistItem(scope.item.input, scope.item.id, null, true);
               }
             }

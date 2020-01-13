@@ -13,19 +13,19 @@
 	    	<div class="nav-tabs-custom">
 	            <ul class="nav nav-tabs">
 	              <li ng-class="getTabClass(0)" ng-click="setActiveTab(0)">
-	              	<a data-toggle="tab">{{lang.New}} {{lang.location}}</a>
+	              	<a data-toggle="tab"><i class="fa fa-star"></i> <span ng-if="mobile==false">{{lang.New}} {{lang.location}}</span></a>
 	              </li>
 	              <li ng-class="getTabClass(1)" ng-click="setActiveTab(1)">
-	              	<a data-toggle="tab">1. {{ lang.settings }}</a>
+	              	<a data-toggle="tab"><i class="fa fa-cog"></i> 1. <span ng-if="mobile==false">{{ lang.settings }}</span></a>
 	              </li>
 	              <li ng-class="getTabClass(2)" ng-click="setActiveTab(2)">
-	              	<a data-toggle="tab">2. {{ lang.Place }}</a>
+	              	<a data-toggle="tab"><i class="fa fa-map-marker"></i> 2. <span ng-if="mobile==false">{{ lang.Place }}</span></a>
 	              </li>
 	              <li ng-class="getTabClass(3)" ng-click="setActiveTab(3)">
-	              	<a data-toggle="tab">3. {{ lang.Hive }} {{ lang.configuration }}</a>
+	              	<a data-toggle="tab"><i class="fa fa-archive"></i> 3. <span ng-if="mobile==false">{{ lang.Hive }} {{ lang.configuration }}</span></a>
 	              </li>
 	              <li ng-class="getTabClass(4)" ng-click="setActiveTab(4)">
-	              	<a data-toggle="tab">4. {{ lang.Hive_amount }}</a>
+	              	<a data-toggle="tab"><i class="fa fa-cubes"></i> 4. <span ng-if="mobile==false">{{ lang.Hive_amount }}</span></a>
 	              </li>
 	            </ul>
 
@@ -33,16 +33,16 @@
 	              <div ng-class="getTabPaneClass(0)" id="tab_0">
 	                <div class="row">
 					    <div class="col-xs-12">
-			                <h4>{{lang.create_new}} {{lang.location}}</h4>
+			                <h4>{{lang.new_apiary_explanation}}</h4>
 			                <div style="text-align: center;">
-				                <p>{{ lang.new_apiary_explanation }}</p>
-				                <img src="/img/apiary-illustration.png" ng-click="setActiveTab(1)">
-				                
+				                <img src="/img/apiary-illustration.png" ng-click="setActiveTab(1)" style="max-height: 70vh; max-width: 70vw">
 				            </div>
 				        </div>
 				    </div>
-		            <a class="btn btn-default disabled"><i class="fa fa-2x fa-chevron-left"></i></a>
-		            <a ng-click="setActiveTab(1)" class="btn btn-primary pull-right"><i class="fa fa-2x fa-chevron-right"></i></a>
+				    <div style="margin-top:20px; height: 40px; width: 100%; display: block; text-align: right; line-height: 40px;">
+			            <span>Click here to start <i class="fa fa-2x fa-long-arrow-right animated shake delay-5s slow" style="vertical-align: middle; margin-right: 20px; margin-left: 5px;"></i></span>
+			            <a ng-click="setActiveTab(1)" class="btn btn-primary pull-right"><i class="fa fa-2x fa-chevron-right"></i></a>
+			        </div>
 	              </div>
 
 	              <div ng-class="getTabPaneClass(1)" id="tab_1">
@@ -175,14 +175,14 @@
 								            <label>{{ lang.Hive }}</label>
 							            	<div>
 								    			<div class="hive left">
-									    			<p class="lid" style="width: {{hive.frames*13*(mobile?4:1)}}px;"></p>
-									            	<p ng-repeat="layer in range(1,hive.honey_layers)" class="layer honey" style="background-color: {{hive.color}}; width: {{hive.frames*13*(mobile?4:1)}}px;">
+									    			<p class="lid" style="width: {{hive.frames*13}}px;"></p>
+									            	<p ng-repeat="layer in range(1,hive.honey_layers)" class="layer honey" style="background-color: {{hive.color}}; width: {{hive.frames*13}}px;">
 									            		<span ng-repeat="lf in range(1,hive.frames)" class="frame wax"></span>
 									            	</p>
-									            	<p ng-repeat="layer in range(1,hive.brood_layers)" class="layer brood" style="background-color: {{hive.color}}; width: {{hive.frames*13*(mobile?4:1)}}px;">
+									            	<p ng-repeat="layer in range(1,hive.brood_layers)" class="layer brood" style="background-color: {{hive.color}}; width: {{hive.frames*13}}px;">
 									            		<span ng-repeat="f in range(1,hive.frames)" class="frame wax"></span>
 									            	</p>
-									            	<p class="bottom" style="width: {{hive.frames*13*(mobile?4:1)}}px;"></p>
+									            	<p class="bottom" style="width: {{hive.frames*13}}px;"></p>
 								            	</div>
 								            </div>
 						            	</div>
@@ -265,11 +265,11 @@
 					            <div class="form-item">
 						            <label>{{ lang.Location }} {{ lang.preview }}</label>
 					            	<div style="border-bottom: 3px solid black;">
-						    			<div class="hive small" style="display: inline-block; margin-bottom: -33px; margin-top: 30px;" ng-repeat="(i, h) in range(1,hive.hive_amount) track by $index">
-							    			<p class="lid" style="width: {{hive.frames*4*(mobile?4:1)}}px;"></p>
-							            	<p ng-repeat="layer in range(1,hive.honey_layers)" class="layer honey" style="background-color: {{hive.color}}; width: {{hive.frames*4*(mobile?4:1)}}px;"></p>
-							            	<p ng-repeat="layer in range(1,hive.brood_layers)" class="layer brood" style="background-color: {{hive.color}}; width: {{hive.frames*4*(mobile?4:1)}}px;"></p>
-							            	<p class="bottom" style="width: {{hive.frames*4*(mobile?4:1)}}px;"></p>
+						    			<div class="hive small" style="display: inline-block; margin-bottom: -33px; margin-top: 30px; margin-right: 3px;" ng-repeat="(i, h) in range(1,hive.hive_amount) track by $index">
+							    			<p class="lid" style="width: {{hive.frames*4}}px;"></p>
+							            	<p ng-repeat="layer in range(1,hive.honey_layers)" class="layer honey" style="background-color: {{hive.color}}; width: {{hive.frames*4}}px;"></p>
+							            	<p ng-repeat="layer in range(1,hive.brood_layers)" class="layer brood" style="background-color: {{hive.color}}; width: {{hive.frames*4}}px;"></p>
+							            	<p class="bottom" style="width: {{hive.frames*4}}px;"></p>
 							            	<p style="height: 16px;em; overflow: hidden;">{{ hive.prefix }} {{ i+(1*hive.offset) }}</p>
 						            	</div>
 						            </div>

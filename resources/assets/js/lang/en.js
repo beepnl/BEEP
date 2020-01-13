@@ -427,7 +427,7 @@
     consent_no              : 'I do NOT consent to share my data',
     my_beep_data            : 'My own BEEP data',
     
-    new_apiary_explanation  : 'Create a new apiary in 3 steps',
+    new_apiary_explanation  : 'Create a new apiary in 4 steps',
     optional                : 'optional',
     dimensions              : 'dimensions',
     details                 : 'details',

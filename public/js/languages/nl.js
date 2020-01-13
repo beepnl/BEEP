@@ -428,7 +428,7 @@
     consent_no              : 'Ik sta NIET toe mijn data te gebruiken',
     my_beep_data            : 'Mijn eigen BEEP gegevens',
     
-    new_apiary_explanation  : 'Create a new apiary in 3 steps',
+    new_apiary_explanation  : 'Maak een nieuwe bijenstand in 4 stappen',
     dimensions              : 'afmetingen',
     details                 : 'details',
     configuration           : 'configuratie',

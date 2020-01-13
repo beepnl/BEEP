@@ -173,7 +173,7 @@
     edit                    : 'Edit',
     Hive_brood_layers       : 'Brood layers',
     Hive_honey_layers       : 'Honey layers',
-    Hive_layer_amount       : 'Amount of layers',
+    Hive_layer_amount       : 'Number of layers',
     Bee_race                : 'Bee race',
     Birth_date              : 'Birth date',
     Color                   : 'Color',
@@ -221,7 +221,7 @@
     Postal_code             : 'Postal code',
     Description             : 'Description',
     Hive_settings           : 'Hive settings',
-    Hive_amount             : 'Hive amount at this location',
+    Hive_amount             : 'Number of hives at this location',
     Hive_prefix             : 'Hive name prefix (before numer)',
     Hive_number_offset      : 'Start number hives',
     Hive_type               : 'Hive type',
@@ -427,6 +427,8 @@
     consent_no              : 'I do NOT consent to share my data',
     my_beep_data            : 'My own BEEP data',
     
+    new_apiary_explanation  : 'Create a new apiary in 3 steps',
+    optional                : 'optional',
     dimensions              : 'dimensions',
     details                 : 'details',
     configuration           : 'configuration',
@@ -443,9 +445,11 @@
     queen_line              : 'line',
     queen_tree              : 'tree',
     queen_description       : 'notes',
+    Hive_short              : 'Hive',
 
     Images                  : 'Images',
     Size                    : 'Size',
+    preview                 : 'preview',
 
 };
 

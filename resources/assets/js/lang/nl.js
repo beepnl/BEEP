@@ -428,6 +428,7 @@
     consent_no              : 'Ik sta NIET toe mijn data te gebruiken',
     my_beep_data            : 'Mijn eigen BEEP gegevens',
     
+    new_apiary_explanation  : 'Create a new apiary in 3 steps',
     dimensions              : 'afmetingen',
     details                 : 'details',
     configuration           : 'configuratie',
@@ -444,6 +445,12 @@
     queen_line              : 'lijn',
     queen_tree              : 'stamboom',
     queen_description       : 'notitie',
+    Hive_short              : 'Kast',
+
+    Images                  : 'Afbeeldingen',
+    Size                    : 'Grootte',
+    preview                 : 'voorbeeld',
+
  };
 
 

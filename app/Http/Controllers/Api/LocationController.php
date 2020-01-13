@@ -96,8 +96,13 @@ class LocationController extends Controller
         $broodLayerAmount = $request->input('brood_layers', 1);
         $honeyLayerAmount = $request->input('honey_layers', 1);
         $frameAmount      = $request->input('frames', 10);
+        $bb_width_cm      = $request->input('bb_width_cm', null); 
+        $bb_depth_cm      = $request->input('bb_depth_cm', null); 
+        $bb_height_cm     = $request->input('bb_height_cm', null); 
+        $fr_width_cm      = $request->input('fr_width_cm', null); 
+        $fr_height_cm     = $request->input('fr_height_cm', null);
 
-        $hives = $this->hiveFactory->createMultipleHives($user_id, $amount, $location, $prefix, $hive_type_id, $color, $broodLayerAmount, $honeyLayerAmount, $frameAmount, $count_start);
+        $hives = $this->hiveFactory->createMultipleHives($user_id, $amount, $location, $prefix, $hive_type_id, $color, $broodLayerAmount, $honeyLayerAmount, $frameAmount, $count_start, $bb_width_cm, $bb_depth_cm, $bb_height_cm, $fr_width_cm, $fr_height_cm);
         
         // print_r($location);
         // die();

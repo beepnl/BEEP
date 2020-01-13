@@ -1782,14 +1782,19 @@ app.controller('LocationsCtrl', function ($scope, $rootScope, $window, $location
     "honey_layers": "1",
     "frames": "10",
     "offset": "1",
-    "prefix": "Kast",
+    "prefix": $rootScope.lang.Hive_short,
     "country_code": "nl",
     "city": "",
     "postal_code": "",
     "street": "",
     "street_no": "",
     "lat": 52,
-    "lon": 5
+    "lon": 5,
+    "bb_width_cm": 45,
+    "bb_depth_cm": 38,
+    "bb_height_cm": 28,
+    "fr_width_cm": 38,
+    "fr_height_cm": 18
   };
   $scope.types = "['address']";
   $scope.mybounds = {
@@ -1798,6 +1803,36 @@ app.controller('LocationsCtrl', function ($scope, $rootScope, $window, $location
       lng: $scope.hive.lon
     },
     radius: 200000
+  }; // tabclasses for location create wizard
+
+  $scope.tabClasses = ["active", "", "", "", ""];
+
+  function initTabs() {
+    $scope.tabClasses = ["", "", "", "", ""];
+  }
+
+  $scope.getTabClass = function (tabNum) {
+    return $scope.tabClasses[tabNum];
+  };
+
+  $scope.getTabPaneClass = function (tabNum) {
+    return "tab-pane " + $scope.tabClasses[tabNum];
+  };
+
+  $scope.setActiveTab = function (tabNum) {
+    initTabs();
+    $scope.tabClasses[tabNum] = "active";
+  };
+
+  $scope.range = function (min, max, step) {
+    step = step || 1;
+    var input = [];
+
+    for (var i = min; i <= max; i += step) {
+      input.push(i);
+    }
+
+    return input;
   };
 
   $scope.init = function () {
@@ -1819,6 +1854,11 @@ app.controller('LocationsCtrl', function ($scope, $rootScope, $window, $location
 
         if ($routeParams.locationId != undefined) {
           $scope.locationsUpdate();
+        }
+
+        if ($location.path() == 'locations/create') {
+          initTabs();
+          $scope.setActiveTab(0);
         }
       } else {
         hives.loadRemoteLocations();

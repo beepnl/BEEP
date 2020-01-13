@@ -64,6 +64,11 @@ Contains one or more Includes:
 Include "/opt/bitnami/apps/apache/portal-vhost.conf"
 ```
 
+Bitnami restart apache server:
+```
+sudo /opt/bitnami/ctlscript.sh restart apache
+```
+
 
 API (replace 'beep.nl' with your own server/test domain)
 ```

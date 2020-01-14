@@ -51,6 +51,11 @@ class Device extends Model
         return false;
     }
     
+    public function sensorDefinitions()
+    {
+        return $this->hasMany(SensorDefinition::class);
+    }
+
 	public function hive()
     {
         return $this->belongsTo(Hive::class);

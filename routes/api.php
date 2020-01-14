@@ -46,12 +46,6 @@ Route::group(['middleware' => \Barryvdh\Cors\HandleCors::class], function()
 		// Authenticate and provide the token
 		Route::post('authenticate', 		'Api\UserController@authenticate');
 
-		// get list of sensors (Devices)
-		Route::get('sensors', 				'Api\SensorController@index');
-		Route::post('sensor', 				'Api\SensorController@update');
-		Route::post('sensors/store', 		'Api\SensorController@store');
-		// Route::post('lora_sensors', 		'Api\SensorController@lora_sensors'); // store TTN lora sensors with Bearer header
-
 		// get more data of 1 sensor (Device)
 		Route::get('sensors/measurements', 	'Api\MeasurementController@data');
 		Route::get('sensors/lastvalues', 	'Api\MeasurementController@lastvalues');
@@ -59,16 +53,8 @@ Route::group(['middleware' => \Barryvdh\Cors\HandleCors::class], function()
 		Route::post('sensors/calibrateweight','Api\MeasurementController@calibrateweight');
 		Route::post('sensors/offsetweight' ,'Api\MeasurementController@offsetweight');
 
-		// save setting 
 		Route::post('settings', 			'Api\SettingController@store');
-		// get settings
 		Route::get('settings', 				'Api\SettingController@index');
-		
-
-		// Get Inspections and categories (actions, conditions, beeraces, hivetypes)
-		// Route::get('inspections/lists', 	'Api\InspectionController@lists');
-		// Route::get('inspections/{hive_id}', 'Api\InspectionController@index');
-		// Route::delete('inspections/{hive_id}/{date}', 'Api\InspectionController@destroy');
 
 		Route::get('taxonomy/lists', 		'Api\TaxonomyController@lists');
 		Route::get('taxonomy/taxonomy', 	'Api\TaxonomyController@taxonomy');
@@ -87,6 +73,7 @@ Route::group(['middleware' => \Barryvdh\Cors\HandleCors::class], function()
 		Route::patch('user', 				'Api\UserController@edit');
 
 		// Control resources 
+		Route::resource('devices', 			'Api\DeviceController',		 			['except'=>['create','edit']]);
 		Route::resource('checklists', 		'Api\ChecklistController',		 		['except'=>['create','edit']]);
 		Route::resource('categories', 		'Api\CategoryController',		 		['except'=>['create','edit','store','update','destroy']]);
 		Route::resource('groups', 			'Api\GroupController', 			 		['except'=>['create','edit']]);

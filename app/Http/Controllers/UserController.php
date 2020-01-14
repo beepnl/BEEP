@@ -6,7 +6,7 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\User;
 use App\Role;
-use App\Sensor;
+use App\Device;
 use DB;
 use Hash;
 use Image;
@@ -39,7 +39,7 @@ class UserController extends Controller
     public function create()
     {
         $roles = $this->getMyPermittedRoles(Auth::user());
-        $sensors = Sensor::all()->pluck('name','id');
+        $sensors = Device::all()->pluck('name','id');
         return view('users.create',compact('roles','sensors'));
     }
 

@@ -1720,6 +1720,233 @@ fetch(url, {
 
 <!-- END_4e47488f23358012f46746d57d9c46b0 -->
 
+#Api\DeviceController
+
+Store and retreive Devices that produce measurements
+<!-- START_8f41217bf023ddef5d8995d7c7c7e2e2 -->
+## api/sensors
+List all user sensors
+
+<br><small style="padding: 1px 9px 2px;font-weight: bold;white-space: nowrap;color: #ffffff;-webkit-border-radius: 9px;-moz-border-radius: 9px;border-radius: 9px;background-color: #3a87ad;">Requires authentication</small>
+> Example request:
+
+```bash
+curl -X GET -G "https://test.beep.nl/api/devices" 
+```
+
+```javascript
+const url = new URL("https://test.beep.nl/api/devices");
+
+let headers = {
+    "Accept": "application/json",
+    "Content-Type": "application/json",
+}
+
+fetch(url, {
+    method: "GET",
+    headers: headers,
+})
+    .then(response => response.json())
+    .then(json => console.log(json));
+```
+
+
+> Example response (200):
+
+```json
+[
+    {
+        "id": 51,
+        "hive_id": 278,
+        "name": "Device 7",
+        "key": "6lwyeTGtrEx0Z2Xr",
+        "created_at": "2019-06-14 12:59:20",
+        "type": "beep",
+        "hive_name": "Hive 2",
+        "location_name": "BEEP",
+        "owner": true,
+        "hive": {
+            "id": 278,
+            "location_id": 72,
+            "hive_type_id": 44,
+            "color": "#3352af",
+            "name": "Hive 2",
+            "created_at": "2017-08-10 18:16:05",
+            "type": "segeberger",
+            "location": "BEEP",
+            "attention": null,
+            "impression": null,
+            "reminder": null,
+            "reminder_date": null,
+            "inspection_count": 7,
+            "sensors": [
+                51
+            ],
+            "owner": true
+        }
+    }
+]
+```
+> Example response (401):
+
+```json
+{
+    "message": "Unauthenticated."
+}
+```
+
+### HTTP Request
+`GET api/devices`
+
+
+<!-- END_8f41217bf023ddef5d8995d7c7c7e2e2 -->
+
+<!-- START_dbb21adf8d2a4b13a3c3113b57e8d329 -->
+## api/sensors/store POST
+Store a new sensor
+
+<br><small style="padding: 1px 9px 2px;font-weight: bold;white-space: nowrap;color: #ffffff;-webkit-border-radius: 9px;-moz-border-radius: 9px;border-radius: 9px;background-color: #3a87ad;">Requires authentication</small>
+> Example request:
+
+```bash
+curl -X POST "https://test.beep.nl/api/devices" \
+    -H "Content-Type: application/json" \
+    -d '{"key":"molestias","name":"ab","hive_id":1,"type":"maxime","last_message_received":"assumenda","hardware_id":"non","firmware_version":"illum","hardware_version":"animi","boot_count":4,"measurement_interval_min":34814.4873691,"measurement_transmission_ratio":22579363.91166368,"ble_pin":"dolor"}'
+
+```
+
+```javascript
+const url = new URL("https://test.beep.nl/api/devices");
+
+let headers = {
+    "Content-Type": "application/json",
+    "Accept": "application/json",
+}
+
+let body = {
+    "key": "molestias",
+    "name": "ab",
+    "hive_id": 1,
+    "type": "maxime",
+    "last_message_received": "assumenda",
+    "hardware_id": "non",
+    "firmware_version": "illum",
+    "hardware_version": "animi",
+    "boot_count": 4,
+    "measurement_interval_min": 34814.4873691,
+    "measurement_transmission_ratio": 22579363.91166368,
+    "ble_pin": "dolor"
+}
+
+fetch(url, {
+    method: "POST",
+    headers: headers,
+    body: body
+})
+    .then(response => response.json())
+    .then(json => console.log(json));
+```
+
+
+
+### HTTP Request
+`POST api/devices`
+
+#### Body Parameters
+
+Parameter | Type | Status | Description
+--------- | ------- | ------- | ------- | -----------
+    key | string |  required  | DEV EUI of the sensor to enable storing sensor data incoming on the api/sensors or api/lora_sensors endpoint
+    name | string |  optional  | Device name
+    hive_id | integer |  optional  | Hive that the sensor is measuring. Default: null
+    type | string |  optional  | Category name of the hive type from the Categories table. Default: beep
+    last_message_received | timestamp |  optional  | Will be converted with date('Y-m-d H:i:s', $last_message_received); before storing
+    hardware_id | string |  optional  | Unchangeable Device id
+    firmware_version | string |  optional  | Firmware version of the Device
+    hardware_version | string |  optional  | Hardware version of the Device
+    boot_count | integer |  optional  | Amount of boots of the Device
+    measurement_interval_min | float |  optional  | Measurement interval in minutes
+    measurement_transmission_ratio | float |  optional  | Measurements ratio of non-transmitted vs transmitted messages. If 0 or 1, every measurement gets transmitted.
+    ble_pin | string |  optional  | Bleutooth PIN of Device: 6 numbers between 0-9
+
+<!-- END_dbb21adf8d2a4b13a3c3113b57e8d329 -->
+
+<!-- START_52b9480c37d5f861392515f99f114a2c -->
+## api/sensor POST
+Update a sensor
+
+<br><small style="padding: 1px 9px 2px;font-weight: bold;white-space: nowrap;color: #ffffff;-webkit-border-radius: 9px;-moz-border-radius: 9px;border-radius: 9px;background-color: #3a87ad;">Requires authentication</small>
+> Example request:
+
+```bash
+curl -X PUT "https://test.beep.nl/api/devices/1" \
+    -H "Content-Type: application/json" \
+    -d '{"id":8,"key":"eum","name":"quibusdam","hive_id":19,"type":"dolores","delete":true,"last_message_received":"rerum","hardware_id":"reprehenderit","firmware_version":"aut","hardware_version":"iste","boot_count":1,"measurement_interval_min":502.55250739,"measurement_transmission_ratio":2.90450129,"ble_pin":"sunt"}'
+
+```
+
+```javascript
+const url = new URL("https://test.beep.nl/api/devices/1");
+
+let headers = {
+    "Content-Type": "application/json",
+    "Accept": "application/json",
+}
+
+let body = {
+    "id": 8,
+    "key": "eum",
+    "name": "quibusdam",
+    "hive_id": 19,
+    "type": "dolores",
+    "delete": true,
+    "last_message_received": "rerum",
+    "hardware_id": "reprehenderit",
+    "firmware_version": "aut",
+    "hardware_version": "iste",
+    "boot_count": 1,
+    "measurement_interval_min": 502.55250739,
+    "measurement_transmission_ratio": 2.90450129,
+    "ble_pin": "sunt"
+}
+
+fetch(url, {
+    method: "PUT",
+    headers: headers,
+    body: body
+})
+    .then(response => response.json())
+    .then(json => console.log(json));
+```
+
+
+
+### HTTP Request
+`PUT api/devices/{device}`
+
+`PATCH api/devices/{device}`
+
+#### Body Parameters
+
+Parameter | Type | Status | Description
+--------- | ------- | ------- | ------- | -----------
+    id | integer |  required  | Device to update
+    key | string |  required  | DEV EUI of the sensor to enable storing sensor data incoming on the api/sensors or api/lora_sensors endpoint
+    name | string |  optional  | Name of the sensor
+    hive_id | integer |  optional  | Hive that the sensor is measuring. Default: null
+    type | string |  optional  | Category name of the hive type from the Categories table. Default: beep
+    delete | boolean |  optional  | If true delete the sensor and all it's data in the Influx database
+    last_message_received | timestamp |  optional  | Will be converted with date('Y-m-d H:i:s', $last_message_received); before storing
+    hardware_id | string |  optional  | Unchangeable Device id
+    firmware_version | string |  optional  | Firmware version of the Device
+    hardware_version | string |  optional  | Hardware version of the Device
+    boot_count | integer |  optional  | Amount of boots of the Device
+    measurement_interval_min | float |  optional  | Measurement interval in minutes
+    measurement_transmission_ratio | float |  optional  | Measurements ratio of non-transmitted vs transmitted messages. If 0 or 1, every measurement gets transmitted.
+    ble_pin | string |  optional  | Bleutooth PIN of Device: 6 numbers between 0-9
+
+<!-- END_52b9480c37d5f861392515f99f114a2c -->
+
 #Api\ExportController
 
 Export all data to an Excel file by email (GDPR)
@@ -2254,17 +2481,17 @@ fetch(url, {
 #Api\ImageController
 
 Store and retreive image metadata (image_url, thumb_url, width, category_id, etc.)
-<!-- START_7da2de512b3c91a068625a0b4051dcb4 -->
+<!-- START_8e05289fc079261819c2c145f89215f1 -->
 ## Display a listing of the resource.
 
 > Example request:
 
 ```bash
-curl -X GET -G "https://test.beep.nl/api/image" 
+curl -X GET -G "https://test.beep.nl/api/images" 
 ```
 
 ```javascript
-const url = new URL("https://test.beep.nl/api/image");
+const url = new URL("https://test.beep.nl/api/images");
 
 let headers = {
     "Accept": "application/json",
@@ -2289,22 +2516,22 @@ fetch(url, {
 ```
 
 ### HTTP Request
-`GET api/image`
+`GET api/images`
 
 
-<!-- END_7da2de512b3c91a068625a0b4051dcb4 -->
+<!-- END_8e05289fc079261819c2c145f89215f1 -->
 
-<!-- START_a51e13cba15befceb6f6a8dc792e8ef8 -->
+<!-- START_204613676cab89a55dfdc7d81f16a281 -->
 ## Store a newly created resource in storage.
 
 > Example request:
 
 ```bash
-curl -X POST "https://test.beep.nl/api/image" 
+curl -X POST "https://test.beep.nl/api/images" 
 ```
 
 ```javascript
-const url = new URL("https://test.beep.nl/api/image");
+const url = new URL("https://test.beep.nl/api/images");
 
 let headers = {
     "Accept": "application/json",
@@ -2322,22 +2549,22 @@ fetch(url, {
 
 
 ### HTTP Request
-`POST api/image`
+`POST api/images`
 
 
-<!-- END_a51e13cba15befceb6f6a8dc792e8ef8 -->
+<!-- END_204613676cab89a55dfdc7d81f16a281 -->
 
-<!-- START_c36ccd11fb582da54dce5672fb33994f -->
+<!-- START_b72ae09f5d6ffe769e7e25847bfb4713 -->
 ## Display the specified resource.
 
 > Example request:
 
 ```bash
-curl -X GET -G "https://test.beep.nl/api/image/1" 
+curl -X GET -G "https://test.beep.nl/api/images/1" 
 ```
 
 ```javascript
-const url = new URL("https://test.beep.nl/api/image/1");
+const url = new URL("https://test.beep.nl/api/images/1");
 
 let headers = {
     "Accept": "application/json",
@@ -2362,22 +2589,22 @@ fetch(url, {
 ```
 
 ### HTTP Request
-`GET api/image/{image}`
+`GET api/images/{image}`
 
 
-<!-- END_c36ccd11fb582da54dce5672fb33994f -->
+<!-- END_b72ae09f5d6ffe769e7e25847bfb4713 -->
 
-<!-- START_5e5576858af042b111a5f14165ab2763 -->
+<!-- START_663d256882d5392cfe487383a4e8703e -->
 ## Update the specified resource in storage.
 
 > Example request:
 
 ```bash
-curl -X PUT "https://test.beep.nl/api/image/1" 
+curl -X PUT "https://test.beep.nl/api/images/1" 
 ```
 
 ```javascript
-const url = new URL("https://test.beep.nl/api/image/1");
+const url = new URL("https://test.beep.nl/api/images/1");
 
 let headers = {
     "Accept": "application/json",
@@ -2395,24 +2622,24 @@ fetch(url, {
 
 
 ### HTTP Request
-`PUT api/image/{image}`
+`PUT api/images/{image}`
 
-`PATCH api/image/{image}`
+`PATCH api/images/{image}`
 
 
-<!-- END_5e5576858af042b111a5f14165ab2763 -->
+<!-- END_663d256882d5392cfe487383a4e8703e -->
 
-<!-- START_1d3f55ff5f032d1a8b5a916b68e7d2c0 -->
+<!-- START_f39af5b4ed09dfc1cd00fcaa2c6ecce2 -->
 ## Remove the specified resource from storage.
 
 > Example request:
 
 ```bash
-curl -X DELETE "https://test.beep.nl/api/image/1" 
+curl -X DELETE "https://test.beep.nl/api/images/1" 
 ```
 
 ```javascript
-const url = new URL("https://test.beep.nl/api/image/1");
+const url = new URL("https://test.beep.nl/api/images/1");
 
 let headers = {
     "Accept": "application/json",
@@ -2430,10 +2657,10 @@ fetch(url, {
 
 
 ### HTTP Request
-`DELETE api/image/{image}`
+`DELETE api/images/{image}`
 
 
-<!-- END_1d3f55ff5f032d1a8b5a916b68e7d2c0 -->
+<!-- END_f39af5b4ed09dfc1cd00fcaa2c6ecce2 -->
 
 #Api\InspectionsController
 
@@ -2817,7 +3044,7 @@ Store sensor measurement data (see BEEP sensor data API definition) from API, or
 ```bash
 curl -X POST "https://test.beep.nl/api/sensors" \
     -H "Content-Type: application/json" \
-    -d '{"key":"quis","data":[],"payload_fields":[]}'
+    -d '{"key":"at","data":[],"payload_fields":[]}'
 
 ```
 
@@ -2830,7 +3057,7 @@ let headers = {
 }
 
 let body = {
-    "key": "quis",
+    "key": "at",
     "data": [],
     "payload_fields": []
 }
@@ -2870,7 +3097,7 @@ When TTN payload is supplied, the TTN HTTP integration decoder/converter is assu
 ```bash
 curl -X POST "https://test.beep.nl/api/lora_sensors" \
     -H "Content-Type: application/json" \
-    -d '{"key":"sed","payload_fields":[],"DevEUI_uplink":[]}'
+    -d '{"key":"optio","payload_fields":[],"DevEUI_uplink":[]}'
 
 ```
 
@@ -2883,7 +3110,7 @@ let headers = {
 }
 
 let body = {
-    "key": "sed",
+    "key": "optio",
     "payload_fields": [],
     "DevEUI_uplink": []
 }
@@ -2921,7 +3148,7 @@ Store sensor measurement data (see BEEP sensor data API definition) from API, or
 ```bash
 curl -X POST "https://test.beep.nl/api/unsecure_sensors" \
     -H "Content-Type: application/json" \
-    -d '{"key":"fuga","data":[],"payload_fields":[]}'
+    -d '{"key":"autem","data":[],"payload_fields":[]}'
 
 ```
 
@@ -2934,7 +3161,7 @@ let headers = {
 }
 
 let body = {
-    "key": "fuga",
+    "key": "autem",
     "data": [],
     "payload_fields": []
 }
@@ -2973,7 +3200,7 @@ Request all sensor measurements from a certain interval (hour, day, week, month,
 ```bash
 curl -X GET -G "https://test.beep.nl/api/sensors/measurements" \
     -H "Content-Type: application/json" \
-    -d '{"key":"voluptas","id":4,"hive_id":14,"names":"in","interval":"molestiae","index":12}'
+    -d '{"key":"ut","id":1,"hive_id":10,"names":"iure","interval":"assumenda","index":14}'
 
 ```
 
@@ -2986,12 +3213,12 @@ let headers = {
 }
 
 let body = {
-    "key": "voluptas",
-    "id": 4,
-    "hive_id": 14,
-    "names": "in",
-    "interval": "molestiae",
-    "index": 12
+    "key": "ut",
+    "id": 1,
+    "hive_id": 10,
+    "names": "iure",
+    "interval": "assumenda",
+    "index": 14
 }
 
 fetch(url, {
@@ -3038,7 +3265,7 @@ Request last measurement values of all sensor measurements from a sensor (Device
 ```bash
 curl -X GET -G "https://test.beep.nl/api/sensors/lastvalues" \
     -H "Content-Type: application/json" \
-    -d '{"key":"deleniti","id":12,"hive_id":2}'
+    -d '{"key":"amet","id":18,"hive_id":19}'
 
 ```
 
@@ -3051,9 +3278,9 @@ let headers = {
 }
 
 let body = {
-    "key": "deleniti",
-    "id": 12,
-    "hive_id": 2
+    "key": "amet",
+    "id": 18,
+    "hive_id": 19
 }
 
 fetch(url, {
@@ -3097,7 +3324,7 @@ Request last weight related measurement values from a sensor (Device), used by l
 ```bash
 curl -X GET -G "https://test.beep.nl/api/sensors/lastweight" \
     -H "Content-Type: application/json" \
-    -d '{"key":"ut","id":20,"hive_id":5}'
+    -d '{"key":"voluptas","id":13,"hive_id":3}'
 
 ```
 
@@ -3110,9 +3337,9 @@ let headers = {
 }
 
 let body = {
-    "key": "ut",
-    "id": 20,
-    "hive_id": 5
+    "key": "voluptas",
+    "id": 13,
+    "hive_id": 3
 }
 
 fetch(url, {
@@ -3698,231 +3925,6 @@ fetch(url, {
 
 <!-- END_e41043cf612829839943f89dda227c03 -->
 
-#Api\SensorController
-
-Store and retreive Devices that produce measurements
-<!-- START_298ee2ac22dee323822a5adff6d67b0a -->
-## api/sensors
-List all user sensors
-
-<br><small style="padding: 1px 9px 2px;font-weight: bold;white-space: nowrap;color: #ffffff;-webkit-border-radius: 9px;-moz-border-radius: 9px;border-radius: 9px;background-color: #3a87ad;">Requires authentication</small>
-> Example request:
-
-```bash
-curl -X GET -G "https://test.beep.nl/api/sensors" 
-```
-
-```javascript
-const url = new URL("https://test.beep.nl/api/sensors");
-
-let headers = {
-    "Accept": "application/json",
-    "Content-Type": "application/json",
-}
-
-fetch(url, {
-    method: "GET",
-    headers: headers,
-})
-    .then(response => response.json())
-    .then(json => console.log(json));
-```
-
-
-> Example response (200):
-
-```json
-[
-    {
-        "id": 51,
-        "hive_id": 278,
-        "name": "Sensor 7",
-        "key": "6lwyeTGtrEx0Z2Xr",
-        "created_at": "2019-06-14 12:59:20",
-        "type": "beep",
-        "hive_name": "Hive 2",
-        "location_name": "BEEP",
-        "owner": true,
-        "hive": {
-            "id": 278,
-            "location_id": 72,
-            "hive_type_id": 44,
-            "color": "#3352af",
-            "name": "Hive 2",
-            "created_at": "2017-08-10 18:16:05",
-            "type": "segeberger",
-            "location": "BEEP",
-            "attention": null,
-            "impression": null,
-            "reminder": null,
-            "reminder_date": null,
-            "inspection_count": 7,
-            "sensors": [
-                51
-            ],
-            "owner": true
-        }
-    }
-]
-```
-> Example response (401):
-
-```json
-{
-    "message": "Unauthenticated."
-}
-```
-
-### HTTP Request
-`GET api/sensors`
-
-
-<!-- END_298ee2ac22dee323822a5adff6d67b0a -->
-
-<!-- START_8bf250dc088f0e2ec0e14604a09ce22c -->
-## api/sensor POST
-Update a sensor
-
-<br><small style="padding: 1px 9px 2px;font-weight: bold;white-space: nowrap;color: #ffffff;-webkit-border-radius: 9px;-moz-border-radius: 9px;border-radius: 9px;background-color: #3a87ad;">Requires authentication</small>
-> Example request:
-
-```bash
-curl -X POST "https://test.beep.nl/api/sensor" \
-    -H "Content-Type: application/json" \
-    -d '{"id":12,"key":"nam","name":"saepe","hive_id":7,"type":"dolorum","delete":false,"last_message_received":"sit","hardware_id":"aliquid","firmware_version":"et","hardware_version":"quasi","boot_count":3,"measurement_interval_min":2099187.1820028364,"measurement_transmission_ratio":73472184.76,"ble_pin":"qui"}'
-
-```
-
-```javascript
-const url = new URL("https://test.beep.nl/api/sensor");
-
-let headers = {
-    "Content-Type": "application/json",
-    "Accept": "application/json",
-}
-
-let body = {
-    "id": 12,
-    "key": "nam",
-    "name": "saepe",
-    "hive_id": 7,
-    "type": "dolorum",
-    "delete": false,
-    "last_message_received": "sit",
-    "hardware_id": "aliquid",
-    "firmware_version": "et",
-    "hardware_version": "quasi",
-    "boot_count": 3,
-    "measurement_interval_min": 2099187.1820028364,
-    "measurement_transmission_ratio": 73472184.76,
-    "ble_pin": "qui"
-}
-
-fetch(url, {
-    method: "POST",
-    headers: headers,
-    body: body
-})
-    .then(response => response.json())
-    .then(json => console.log(json));
-```
-
-
-
-### HTTP Request
-`POST api/sensor`
-
-#### Body Parameters
-
-Parameter | Type | Status | Description
---------- | ------- | ------- | ------- | -----------
-    id | integer |  required  | Sensor to update
-    key | string |  required  | DEV EUI of the sensor to enable storing sensor data incoming on the api/sensors or api/lora_sensors endpoint
-    name | string |  optional  | Name of the sensor
-    hive_id | integer |  optional  | Hive that the sensor is measuring. Default: null
-    type | string |  optional  | Category name of the hive type from the Categories table. Default: beep
-    delete | boolean |  optional  | If true delete the sensor and all it's data in the Influx database
-    last_message_received | timestamp |  optional  | Will be converted with date('Y-m-d H:i:s', $last_message_received); before storing
-    hardware_id | string |  optional  | Unchangeable Sensor Device id
-    firmware_version | string |  optional  | Firmware version of the Sensor Device
-    hardware_version | string |  optional  | Hardware version of the Sensor Device
-    boot_count | integer |  optional  | Amount of boots of the Sensor Device
-    measurement_interval_min | float |  optional  | Measurement interval in minutes
-    measurement_transmission_ratio | float |  optional  | Measurements ratio of non-transmitted vs transmitted messages. If 0 or 1, every measurement gets transmitted.
-    ble_pin | string |  optional  | Bleutooth PIN of Sensor Device: 6 numbers between 0-9
-
-<!-- END_8bf250dc088f0e2ec0e14604a09ce22c -->
-
-<!-- START_a8632736dc0934be75ed89727073a6aa -->
-## api/sensors/store POST
-Store a new sensor
-
-<br><small style="padding: 1px 9px 2px;font-weight: bold;white-space: nowrap;color: #ffffff;-webkit-border-radius: 9px;-moz-border-radius: 9px;border-radius: 9px;background-color: #3a87ad;">Requires authentication</small>
-> Example request:
-
-```bash
-curl -X POST "https://test.beep.nl/api/sensors/store" \
-    -H "Content-Type: application/json" \
-    -d '{"key":"praesentium","name":"ad","hive_id":12,"type":"esse","last_message_received":"mollitia","hardware_id":"ad","firmware_version":"et","hardware_version":"consequuntur","boot_count":4,"measurement_interval_min":75753.653839379,"measurement_transmission_ratio":543288.413,"ble_pin":"excepturi"}'
-
-```
-
-```javascript
-const url = new URL("https://test.beep.nl/api/sensors/store");
-
-let headers = {
-    "Content-Type": "application/json",
-    "Accept": "application/json",
-}
-
-let body = {
-    "key": "praesentium",
-    "name": "ad",
-    "hive_id": 12,
-    "type": "esse",
-    "last_message_received": "mollitia",
-    "hardware_id": "ad",
-    "firmware_version": "et",
-    "hardware_version": "consequuntur",
-    "boot_count": 4,
-    "measurement_interval_min": 75753.653839379,
-    "measurement_transmission_ratio": 543288.413,
-    "ble_pin": "excepturi"
-}
-
-fetch(url, {
-    method: "POST",
-    headers: headers,
-    body: body
-})
-    .then(response => response.json())
-    .then(json => console.log(json));
-```
-
-
-
-### HTTP Request
-`POST api/sensors/store`
-
-#### Body Parameters
-
-Parameter | Type | Status | Description
---------- | ------- | ------- | ------- | -----------
-    key | string |  required  | DEV EUI of the sensor to enable storing sensor data incoming on the api/sensors or api/lora_sensors endpoint
-    name | string |  optional  | Sensor name
-    hive_id | integer |  optional  | Hive that the sensor is measuring. Default: null
-    type | string |  optional  | Category name of the hive type from the Categories table. Default: beep
-    last_message_received | timestamp |  optional  | Will be converted with date('Y-m-d H:i:s', $last_message_received); before storing
-    hardware_id | string |  optional  | Unchangeable Sensor Device id
-    firmware_version | string |  optional  | Firmware version of the Sensor Device
-    hardware_version | string |  optional  | Hardware version of the Sensor Device
-    boot_count | integer |  optional  | Amount of boots of the Sensor Device
-    measurement_interval_min | float |  optional  | Measurement interval in minutes
-    measurement_transmission_ratio | float |  optional  | Measurements ratio of non-transmitted vs transmitted messages. If 0 or 1, every measurement gets transmitted.
-    ble_pin | string |  optional  | Bleutooth PIN of Sensor Device: 6 numbers between 0-9
-
-<!-- END_a8632736dc0934be75ed89727073a6aa -->
-
 #Api\SensorDefinitionController
 
 
@@ -3977,7 +3979,7 @@ Store a newly created resource in storage.
 ```bash
 curl -X POST "https://test.beep.nl/api/sensordefinition" \
     -H "Content-Type: application/json" \
-    -d '{"name":"quisquam","inside":true,"offset":3,"multiplier":22416124.70559,"input_measurement_id":"et","output_measurement_id":"aperiam","sensor_id":10}'
+    -d '{"name":"quis","inside":false,"offset":1885072.11,"multiplier":538718.1,"input_measurement_id":"5","input_measurement_name":"w_v","output_measurement_id":"6","output_measurement_name":"t_i","device_id":10,"device_hardware_id":"quis"}'
 
 ```
 
@@ -3990,13 +3992,16 @@ let headers = {
 }
 
 let body = {
-    "name": "quisquam",
-    "inside": true,
-    "offset": 3,
-    "multiplier": 22416124.70559,
-    "input_measurement_id": "et",
-    "output_measurement_id": "aperiam",
-    "sensor_id": 10
+    "name": "quis",
+    "inside": false,
+    "offset": 1885072.11,
+    "multiplier": 538718.1,
+    "input_measurement_id": "5",
+    "input_measurement_name": "w_v",
+    "output_measurement_id": "6",
+    "output_measurement_name": "t_i",
+    "device_id": 10,
+    "device_hardware_id": "quis"
 }
 
 fetch(url, {
@@ -4021,9 +4026,12 @@ Parameter | Type | Status | Description
     inside | boolean |  optional  | True is measured inside, false if measured outside
     offset | float |  optional  | Measurement value that defines 0
     multiplier | float |  optional  | Amount of units (calibration figure) per delta Measurement value to multiply withy (value - offset)
-    input_measurement_id | Measurement |  optional  | that represents the input Measurement value (e.g. w_v, or t_i)
-    output_measurement_id | Measurement |  optional  | that represents the output Measurement value (e.g. weight_kg, or t_i)
-    sensor_id | integer |  required  | Sensor that the Measurement value belongs to
+    input_measurement_id | Measurement |  optional  | that represents the input Measurement value (e.g. 5, 3).
+    input_measurement_name | Measurement |  optional  | that represents the input Measurement value (e.g. w_v, or t_i).
+    output_measurement_id | Measurement |  optional  | that represents the output Measurement value (e.g. 6, 3).
+    output_measurement_name | Measurement |  optional  | that represents the output Measurement value (e.g. weight_kg, or t_i),
+    device_id | integer |  optional  | Device that the Measurement value belongs to
+    device_hardware_id | required |  optional  | Device that the Sensor and Measurement values belong to
 
 <!-- END_f6f20cfc18b5c347368408d17f1981d8 -->
 

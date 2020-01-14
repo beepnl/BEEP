@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('page-title') {{ __('crud.create',['item'=>__('general.sensor')]) }}
+@section('page-title') {{ __('crud.edit').' '.__('general.device') }}
 @endsection
 
 @section('content')
@@ -15,30 +15,36 @@
 			</ul>
 		</div>
 	@endif
-	{!! Form::open(array('route' => 'sensors.store','method'=>'POST')) !!}
+	{!! Form::model($item, ['method' => 'PATCH','route' => ['devices.update', $item->id]]) !!}
 	<div class="row">
 		<div class="col-xs-12 col-sm-12 col-md-12">
             <div class="form-group">
                 <label>{{ __('crud.name') }}:</label>
-                {!! Form::text('name', null, ['placeholder' => __('crud.name'),'class' => 'form-control']) !!}
+                {!! Form::text('name', null, array('placeholder' => __('crud.name'),'class' => 'form-control')) !!}
             </div>
         </div>
         <div class="col-xs-12 col-sm-12 col-md-12">
             <div class="form-group">
                 <label>{{ __('crud.type') }}:</label>
-                {!! Form::select('category_id', $types, null, ['placeholder'=>__('crud.select', ['item'=>__('general.sensor').' '.__('general.type')]),'class' => 'form-control']) !!}
+                {!! Form::select('category_id', $types, $item->category_id, array('placeholder'=>__('crud.select', ['item'=>__('general.device').' '.__('general.type')]),'class' => 'form-control')) !!}
             </div>
         </div>
         <div class="col-xs-12 col-sm-12 col-md-12">
             <div class="form-group">
-                <label>{{ __('crud.key') }}:</label>
-                {!! Form::text('key', null, ['placeholder' => __('crud.key'),'class' => 'form-control']) !!}
+                <label>LoRa DEV EUI:</label>
+                {!! Form::text('key', null, array('placeholder' => __('crud.key'),'class' => 'form-control')) !!}
             </div>
         </div>
         <div class="col-xs-12 col-sm-12 col-md-12">
             <div class="form-group">
                 <label>{{ __('general.User') }}:</label>
-                {!! Form::select('user_id', $users, null, array('placeholder'=>__('crud.select', ['item'=>__('general.user')]),'class' => 'form-control')) !!}
+                {!! Form::select('user_id', $users, $item->user_id, array('placeholder'=>__('crud.select', ['item'=>__('general.user')]),'class' => 'form-control')) !!}
+            </div>
+        </div>
+        <div class="col-xs-12 col-sm-12 col-md-12">
+            <div class="form-group">
+                <label>{{ __('beep.Hive') }}:</label>
+                {!! Form::select('hive_id', $hives, $item->hive_id, array('placeholder'=>__('crud.select', ['item'=>__('beep.Hive')]),'class' => 'form-control')) !!}
             </div>
         </div>
         <div class="col-xs-12 col-sm-12 col-md-12 text-center">

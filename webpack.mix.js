@@ -174,6 +174,7 @@ mix.babel([
     'resources/assets/js/models/measurements.js',
     'resources/assets/js/models/inspections.js',
     'resources/assets/js/models/groups.js',
+    'resources/assets/js/models/images.js',
     'resources/assets/js/controllers/load.js',
     'resources/assets/js/controllers/user.js',
     'resources/assets/js/controllers/settings.js',

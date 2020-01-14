@@ -75,13 +75,13 @@ Route::group(
 				Route::patch('groups/{id}',			['as'=>'groups.update','uses'=>'GroupController@update','middleware' => ['permission:group-edit']]);
 				Route::delete('groups/{id}',		['as'=>'groups.destroy','uses'=>'GroupController@destroy','middleware' => ['permission:group-delete']]);
 
-				Route::get('sensors',				['as'=>'sensors.index','uses'=>'SensorController@index','middleware' => ['permission:sensor-list|sensor-create|sensor-edit|sensor-delete']]);
-				Route::get('sensors/create',		['as'=>'sensors.create','uses'=>'SensorController@create','middleware' => ['permission:sensor-create']]);
-				Route::post('sensors/create',		['as'=>'sensors.store','uses'=>'SensorController@store','middleware' => ['permission:sensor-create']]);
-				Route::get('sensors/{id}',			['as'=>'sensors.show','uses'=>'SensorController@show']);
-				Route::get('sensors/{id}/edit',		['as'=>'sensors.edit','uses'=>'SensorController@edit','middleware' => ['permission:sensor-edit']]);
-				Route::patch('sensors/{id}',		['as'=>'sensors.update','uses'=>'SensorController@update','middleware' => ['permission:sensor-edit']]);
-				Route::delete('sensors/{id}',		['as'=>'sensors.destroy','uses'=>'SensorController@destroy','middleware' => ['permission:sensor-delete']]);
+				Route::get('devices',				['as'=>'devices.index','uses'=>'DeviceController@index','middleware' => ['permission:sensor-list|sensor-create|sensor-edit|sensor-delete']]);
+				Route::get('devices/create',		['as'=>'devices.create','uses'=>'DeviceController@create','middleware' => ['permission:sensor-create']]);
+				Route::post('devices/create',		['as'=>'devices.store','uses'=>'DeviceController@store','middleware' => ['permission:sensor-create']]);
+				Route::get('devices/{id}',			['as'=>'devices.show','uses'=>'DeviceController@show']);
+				Route::get('devices/{id}/edit',		['as'=>'devices.edit','uses'=>'DeviceController@edit','middleware' => ['permission:sensor-edit']]);
+				Route::patch('devices/{id}',		['as'=>'devices.update','uses'=>'DeviceController@update','middleware' => ['permission:sensor-edit']]);
+				Route::delete('devices/{id}',		['as'=>'devices.destroy','uses'=>'DeviceController@destroy','middleware' => ['permission:sensor-delete']]);
 				
 		});
 

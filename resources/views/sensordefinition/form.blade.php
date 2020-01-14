@@ -56,11 +56,11 @@
 </div>
 
 <div class="col-xs-12">
-	<div class="form-group {{ $errors->has('sensor_id') ? 'has-error' : ''}}">
-	    <label for="sensor_id" control-label>{{ 'Sensor' }}*</label>
+	<div class="form-group {{ $errors->has('device_id') ? 'has-error' : ''}}">
+	    <label for="device_id" control-label>{{ 'Device' }}*</label>
 	    <div>
-	        {!! Form::select('sensor_id', Auth::user()->sensors->sortBy('name')->pluck('name','id'), isset($sensordefinition->sensor_id) ? $sensordefinition->sensor_id : null, array('id'=>'sensor_id', 'class' => 'form-control select2', 'placeholder'=>'Select sensor...')) !!}
-	        {!! $errors->first('sensor_id', '<p class="help-block">:message</p>') !!}
+	        {!! Form::select('device_id', Auth::user()->devices->sortBy('name')->pluck('name','id'), isset($sensordefinition->device_id) ? $sensordefinition->device_id : null, array('id'=>'device_id', 'class' => 'form-control select2', 'placeholder'=>'Select sensor...')) !!}
+	        {!! $errors->first('device_id', '<p class="help-block">:message</p>') !!}
 	    </div>
 	</div>
 </div>

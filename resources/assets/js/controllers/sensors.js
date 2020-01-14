@@ -17,6 +17,7 @@ app.controller('SensorsCtrl', function($scope, $rootScope, $timeout, $interval, 
     $scope.success_msg  = null;
     $scope.error_msg    = null;
     $scope.sensorTimer  = null;
+    $scope.editMode     = false;
 
     // handle loading of all the settings
     $scope.init = function()
@@ -81,11 +82,11 @@ app.controller('SensorsCtrl', function($scope, $rootScope, $timeout, $interval, 
             s.delete = s.delete ? false : true;
     }
 
-    $scope.saveSensors = function()
+    $scope.saveDevices = function()
     {
         $scope.success_msg  = null;
         $scope.error_msg    = null;
-        api.postApiRequest('saveSensors', 'sensors/store', $scope.sensors);
+        api.postApiRequest('saveDevices', 'devices', $scope.sensors);
     }
     $scope.showSuccess = function(type, data)
     {
@@ -124,8 +125,8 @@ app.controller('SensorsCtrl', function($scope, $rootScope, $timeout, $interval, 
         else
             $scope.error_msg = error.message;
     }
-    $scope.saveSensorsSuccessHandler = $rootScope.$on('saveSensorsLoaded', $scope.showSuccess);
-    $scope.saveSensorsErrorHandler   = $rootScope.$on('saveSensorsError', $scope.showError);
+    $scope.saveDevicesSuccessHandler = $rootScope.$on('saveDevicesLoaded', $scope.showSuccess);
+    $scope.saveDevicesErrorHandler   = $rootScope.$on('saveDevicesError', $scope.showError);
 
     $scope.updateSensors = function()
     {
@@ -136,7 +137,7 @@ app.controller('SensorsCtrl', function($scope, $rootScope, $timeout, $interval, 
         {
             $scope.sensorTimer = $timeout( function()
                 {
-                    measurements.loadRemoteSensors();
+                    measurements.loadRemoteDevices();
                 }
             , 500);
             return;
@@ -158,7 +159,7 @@ app.controller('SensorsCtrl', function($scope, $rootScope, $timeout, $interval, 
         $scope.selectedSensorId  = measurements.sensorId;
         $scope.selectedSensor    = measurements.getSensorById($scope.selectedSensorId);
     }
-    $scope.sensorHandler = $rootScope.$on('sensorsUpdated', $scope.updateSensors);
+    $scope.devicesHandler = $rootScope.$on('devicesUpdated', $scope.updateSensors);
     $scope.hivesHandler  = $rootScope.$on('hivesUpdated', $scope.updateSensors);
 
     $scope.nativeBackbutton = function(e)
@@ -177,9 +178,9 @@ app.controller('SensorsCtrl', function($scope, $rootScope, $timeout, $interval, 
    	// remove references to the controller
     $scope.removeListeners = function()
     {
-        $scope.saveSensorsSuccessHandler();
-        $scope.saveSensorsErrorHandler();
-        $scope.sensorHandler();
+        $scope.saveDevicesSuccessHandler();
+        $scope.saveDevicesErrorHandler();
+        $scope.devicesHandler();
         $scope.hivesHandler();
         $scope.backListener();
     };

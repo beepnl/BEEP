@@ -3,8 +3,7 @@
     {{lang.sensors_title}}
     <div class="pull-right">
 	    <div>
-  			<a ng-if="editMode==true" ng-click="addSensor()" class="btn btn-primary"><i class="fa fa-plus"></i> <span ng-if="mobile==false">{{lang.create_new}} {{lang.sensor}}</a>
-	        <a ng-click="editMode=!editMode" style="color: #999;"><i class="fa fa-cog"></i></a>
+  			<a ng-click="addSensor()" class="btn btn-primary pull-right"><i class="fa fa-plus"></i> {{mobile ? lang.New : lang.create_new}} {{lang.sensor}}</a>
   		</div>
   	</div>
   </h1>
@@ -28,9 +27,11 @@
 	    <div class="box-header with-border">
 	      <h3 class="box-title">{{lang.sensors}}</h3>
 
-	      <!-- <div class="box-tools pull-right">
-	        <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>
-	      </div> -->
+	      <div class="box-tools pull-right">
+	        <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
+	        </button>
+	        <!--button type="button" class="btn btn-box-tool" data-widget="remove"><i class="fa fa-times"></i></button-->
+	      </div>
 	    </div>
 	    <!-- /.box-header -->
 	    <div ng-if="sensors.length == 0" class="box-body">
@@ -47,16 +48,15 @@
 		    			<tr class="trh">
 			    			<th class="col-xs-1">#</th>
 			    			<th class="col-xs-2">{{lang.Name}}</th>
-			    			<th ng-if="editMode" class="col-xs-2">{{lang.sensor_key}}</th>
-			    			<th class="col-xs-1">{{lang.Type}}</th>
+			    			<th class="col-xs-2">{{lang.sensor_key}}</th>
+			    			<th class="col-xs-2">{{lang.Type}}</th>
 			    			<th class="col-xs-2">{{lang.Hive}}</th>
-			    			<th ng-if="editMode" class="col-xs-2">{{lang.Select}} {{lang.hive}}</th>
-			    			<th ng-if="editMode" class="col-xs-1">{{lang.Actions}}</th>
-			    			<th ng-if="!editMode" class="col-xs-2">{{lang.connection_state}}</th>
+			    			<th class="col-xs-2">{{lang.Select}} {{lang.hive}}</th>
+			    			<th class="col-xs-1">{{lang.Actions}}</th>
 			    		</tr>
 		    		</thead>
 		    		<tbody>
-						<tr edit="editMode" sensor="sensor" index="i" hives="hives" ng-class="{'delete':sensor.delete}" sensortypes="sensortypes" change="selectSensorHive" changetype="selectSensorType" delete="deleteSensor" show="showMeasurements" ng-repeat="(i, sensor) in sensors track by i" beep-sensor></tr>
+						<tr sensor="sensor" index="i" hives="hives" ng-class="{'delete':sensor.delete}" sensortypes="sensortypes" change="selectSensorHive" changetype="selectSensorType" delete="deleteSensor" show="showMeasurements" ng-repeat="(i, sensor) in sensors track by i" beep-sensor></tr>
 					</tbody>
 				</table>
 			</div>
@@ -66,7 +66,7 @@
           <i class="fa fa-refresh fa-spin"></i>
         </div>
 	    
-	    <div ng-if="sensors.length > 0 && editMode" class="box-footer">
+	    <div ng-if="sensors.length > 0" class="box-footer">
 	        <button ng-if="sensors.length > 0" ng-click="saveDevices()" class="btn btn-primary btn-block">{{lang.save}}</button>
 	    </div>
 

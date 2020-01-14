@@ -57,7 +57,7 @@
                     <td>{{ $item->name }}</td>
                     <td>{{ $item->inside }}</td>
                     <td>{{ $item->offset }}</td>
-                    <td>{{ $item->multiplier }}</td><td>{{ $item->measurement_id }}</td><td>{{ $item->physical_quantity_id }}</td><td>{{ $item->sensor_id }}</td>
+                    <td>{{ $item->multiplier }}</td><td>{{ $item->measurement_id }}</td><td>{{ $item->physical_quantity_id }}</td><td>{{ $item->device_id }}</td>
                     <td col-sm-1>
                         <a href="{{ route('sensordefinition.show', $item->id) }}" title="{{ __('crud.show') }}"><button class="btn btn-default"><i class="fa fa-eye" aria-hidden="true"></i></button></a>
 

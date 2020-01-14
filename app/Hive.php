@@ -74,7 +74,7 @@ class Hive extends Model
 
     public function getSensorsAttribute()
     {
-        return $this->sensors()->pluck('id')->toArray();
+        return $this->devices()->pluck('id')->toArray();
     }
 
     public function getNameAndLocationAttribute()
@@ -155,9 +155,9 @@ class Hive extends Model
         return $this->hasManyThrough(HiveLayerFrame::class, HiveLayer::class, 'hive_id', 'layer_id');
     }
     
-    public function sensors()
+    public function devices()
     {
-        return $this->hasMany(Sensor::class);
+        return $this->hasMany(Device::class);
     }
 
     // manually inserted items

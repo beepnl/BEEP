@@ -671,11 +671,11 @@ app.service('measurements', ['$http', '$rootScope', '$interval', 'api', 'setting
     if (self.timeIndex > 0) self.stopLoadingMeasurements(); // no need to refresh, because no new values
   };
 
-  this.loadRemoteSensors = function () {
-    api.getApiRequest('sensors', 'sensors');
+  this.loadRemoteDevices = function () {
+    api.getApiRequest('devices', 'devices');
   };
 
-  this.handleSensors = function (e, result) {
+  this.handleDevices = function (e, result) {
     if (result.length > 0) {
       self.sensors = result;
       self.sensors_owned = [];
@@ -686,7 +686,7 @@ app.service('measurements', ['$http', '$rootScope', '$interval', 'api', 'setting
       }
 
       $rootScope.hasSensors = true;
-      $rootScope.$broadcast('sensorsUpdated');
+      $rootScope.$broadcast('devicesUpdated');
     } //console.log(self.sensors);
 
   };
@@ -721,7 +721,7 @@ app.service('measurements', ['$http', '$rootScope', '$interval', 'api', 'setting
     api.postApiRequest('weightOffset', 'sensors/offsetweight', data);
   };
 
-  this.sensorsError = function (e, error) {
+  this.devicesError = function (e, error) {
     console.log('measurements sensorsError ' + error.message + ' status: ' + error.status);
 
     if (error.status == 404) {
@@ -730,9 +730,9 @@ app.service('measurements', ['$http', '$rootScope', '$interval', 'api', 'setting
     }
   };
 
-  $rootScope.$on('sensorsLoaded', self.handleSensors);
-  $rootScope.$on('saveSensorsLoaded', self.handleSensors);
-  $rootScope.$on('sensorsError', self.sensorsError);
+  $rootScope.$on('devicesLoaded', self.handleDevices);
+  $rootScope.$on('saveDevicesLoaded', self.handleDevices);
+  $rootScope.$on('devicesError', self.devicesError);
   this.measurementLoadTimer = null;
 
   this.startLoadingMeasurements = function () {
@@ -752,7 +752,7 @@ app.service('measurements', ['$http', '$rootScope', '$interval', 'api', 'setting
   }; // Check if measurements are available
 
 
-  self.loadRemoteSensors();
+  self.loadRemoteDevices();
 }]);
 /*
  * BEEP app
@@ -1280,6 +1280,78 @@ app.service('groups', ['$http', '$rootScope', 'api', 'hives', function ($http, $
  * BEEP app
  * Author: Iconize <pim@iconize.nl>
  *
+ * Meaurements model
+ */
+
+app.service('images', ['$http', '$rootScope', 'api', 'hives', function ($http, $rootScope, api, hives) {
+  var self = this;
+
+  this.reset = function () {
+    this.refreshCount = 0;
+    this.selectedImage = {};
+    this.images = [];
+  };
+
+  this.getImageByThumbUrl = function (thumbUrl) {
+    for (var i = 0; i < self.images.length; i++) {
+      var image = self.images[i];
+      if (image.thumb == thumbUrl) return image;
+    }
+
+    return null;
+  };
+
+  this.getHiveByImageId = function (id) {
+    for (var i = 0; i < self.images.length; i++) {
+      var image = self.images[i];
+
+      if (image.id == id) {
+        var hive = hive.getHiveById(image.hive_id);
+        return hive;
+      }
+    }
+
+    return null;
+  }; // Load images
+
+
+  this.loadRemoteImages = function () {
+    api.getApiRequest('images', 'images');
+  };
+
+  this.imagesHandler = function (e, data) {
+    // get the result
+    var result = data;
+    if (typeof result != 'undefined' && result != null && result.length > 0) self.images = result; // for (var i = 0; i < self.images.length; i++) 
+    // {
+    // 	var image = self.images[i];
+    // }
+
+    self.refresh();
+  };
+
+  this.imagesError = function (e, error) {
+    console.log('images error ' + error.message + ' status: ' + error.status);
+  };
+
+  $rootScope.$on('imagesLoaded', self.imagesHandler);
+  $rootScope.$on('imagesError', self.imagesError);
+
+  this.refresh = function () {
+    //update refresh count
+    self.refreshCount++; // announce the update
+
+    $rootScope.$broadcast('imagesUpdated');
+  };
+
+  self.reset();
+  $rootScope.$on('reset', self.reset);
+  self.loadRemoteImages();
+}]);
+/*
+ * BEEP app
+ * Author: Iconize <pim@iconize.nl>
+ *
  * Load controller
  */
 
@@ -1618,11 +1690,11 @@ app.controller('SettingsCtrl', function ($scope, $rootScope, $window, $timeout, 
     return a.value != 0 && a.name != 'id';
   };
 
-  $scope.updateSensors = function () {
+  $scope.updateDevices = function () {
     $scope.sensors = measurements.sensors;
   };
 
-  $scope.sensorsUpdatedHandler = $rootScope.$on('sensorsUpdated', $scope.updateSensors);
+  $scope.devicesUpdatedHandler = $rootScope.$on('devicesUpdated', $scope.updateDevices);
 
   $scope.updateWeightSensors = function () {
     $scope.weightSensors = convertOjectToNameArray(measurements.weightSensors);
@@ -1748,7 +1820,7 @@ app.controller('SettingsCtrl', function ($scope, $rootScope, $window, $timeout, 
   $scope.removeListeners = function () {
     $scope.settingsSavedHandler();
     $scope.settingsErrorHandler();
-    $scope.sensorsUpdatedHandler();
+    $scope.devicesUpdatedHandler();
     $scope.lastSensorValuesUpdatedHandler();
     $scope.calibrateWeightHandler();
     $scope.weightSensorsUpdatedHandler();
@@ -3562,7 +3634,7 @@ app.controller('MeasurementsCtrl', function ($scope, $rootScope, $timeout, $inte
     }
   };
 
-  $scope.sensorHandler = $rootScope.$on('sensorsUpdated', $scope.updateSensors);
+  $scope.sensorHandler = $rootScope.$on('devicesUpdated', $scope.updateSensors);
 
   $scope.loadData = function (id) {
     //console.log('sensors:', $scope.sensors);
@@ -3770,7 +3842,8 @@ app.controller('SensorsCtrl', function ($scope, $rootScope, $timeout, $interval,
   $scope.measurementData = null;
   $scope.success_msg = null;
   $scope.error_msg = null;
-  $scope.sensorTimer = null; // handle loading of all the settings
+  $scope.sensorTimer = null;
+  $scope.editMode = false; // handle loading of all the settings
 
   $scope.init = function () {
     if ($rootScope.pageSlug == 'sensors') {
@@ -3825,10 +3898,10 @@ app.controller('SensorsCtrl', function ($scope, $rootScope, $timeout, $interval,
     if (typeof s["delete"] == 'undefined') s["delete"] = true;else s["delete"] = s["delete"] ? false : true;
   };
 
-  $scope.saveSensors = function () {
+  $scope.saveDevices = function () {
     $scope.success_msg = null;
     $scope.error_msg = null;
-    api.postApiRequest('saveSensors', 'sensors/store', $scope.sensors);
+    api.postApiRequest('saveDevices', 'devices', $scope.sensors);
   };
 
   $scope.showSuccess = function (type, data) {
@@ -3869,8 +3942,8 @@ app.controller('SensorsCtrl', function ($scope, $rootScope, $timeout, $interval,
     if (msg.length > 0) $scope.error_msg = msg.join(' ');else $scope.error_msg = error.message;
   };
 
-  $scope.saveSensorsSuccessHandler = $rootScope.$on('saveSensorsLoaded', $scope.showSuccess);
-  $scope.saveSensorsErrorHandler = $rootScope.$on('saveSensorsError', $scope.showError);
+  $scope.saveDevicesSuccessHandler = $rootScope.$on('saveDevicesLoaded', $scope.showSuccess);
+  $scope.saveDevicesErrorHandler = $rootScope.$on('saveDevicesError', $scope.showError);
 
   $scope.updateSensors = function () {
     $scope.sensortypes = settings.sensortypes;
@@ -3878,7 +3951,7 @@ app.controller('SensorsCtrl', function ($scope, $rootScope, $timeout, $interval,
 
     if ($scope.sensors.length == 0 && $scope.sensorTimer == null) {
       $scope.sensorTimer = $timeout(function () {
-        measurements.loadRemoteSensors();
+        measurements.loadRemoteDevices();
       }, 500);
       return;
     }
@@ -3905,7 +3978,7 @@ app.controller('SensorsCtrl', function ($scope, $rootScope, $timeout, $interval,
     $scope.selectedSensor = measurements.getSensorById($scope.selectedSensorId);
   };
 
-  $scope.sensorHandler = $rootScope.$on('sensorsUpdated', $scope.updateSensors);
+  $scope.devicesHandler = $rootScope.$on('devicesUpdated', $scope.updateSensors);
   $scope.hivesHandler = $rootScope.$on('hivesUpdated', $scope.updateSensors);
 
   $scope.nativeBackbutton = function (e) {
@@ -3919,9 +3992,9 @@ app.controller('SensorsCtrl', function ($scope, $rootScope, $timeout, $interval,
   $scope.init(); // remove references to the controller
 
   $scope.removeListeners = function () {
-    $scope.saveSensorsSuccessHandler();
-    $scope.saveSensorsErrorHandler();
-    $scope.sensorHandler();
+    $scope.saveDevicesSuccessHandler();
+    $scope.saveDevicesErrorHandler();
+    $scope.devicesHandler();
     $scope.hivesHandler();
     $scope.backListener();
   };
@@ -4313,11 +4386,10 @@ app.controller('ResearchesCtrl', function ($scope, $rootScope, $window, $timeout
  * Images controller
  */
 
-app.controller('ImagesCtrl', function ($scope, $rootScope, $window, $timeout, $location, $filter, $interval, api, $routeParams, ngDialog, hives) {
+app.controller('ImagesCtrl', function ($scope, $rootScope, $window, $timeout, $location, $filter, $interval, api, $routeParams, ngDialog, images) {
   // settings
   $scope.images = [];
-  $scope.hives = [];
-  $scope.apiaries = [];
+  $scope.activeImage = null;
   $scope.orderName = 'date';
   $scope.orderDirection = 'false';
   $scope.size = 100;
@@ -4337,20 +4409,15 @@ app.controller('ImagesCtrl', function ($scope, $rootScope, $window, $timeout, $l
   $scope.isLoading = false;
 
   $scope.init = function () {
-    $scope.hives = hives.hives;
-    $scope.apiaries = hives.locations_owned;
-    $scope.loadImages();
-  };
-
-  $scope.loadImages = function () {
-    $scope.images = api.getApiRequest('images', 'images');
+    images.loadRemoteImages();
   };
 
   $scope.updateImages = function (e, data) {
-    $scope.images = data;
+    $scope.images = images.images;
+    $scope.activeImage = null;
   };
 
-  $scope.imageLoadedHandler = $rootScope.$on('imagesLoaded', $scope.updateImages);
+  $scope.imageLoadedHandler = $rootScope.$on('imagesUpdated', $scope.updateImages);
 
   $scope.setOrder = function (name) {
     if ($scope.orderName == name) {
@@ -4376,6 +4443,11 @@ app.controller('ImagesCtrl', function ($scope, $rootScope, $window, $timeout, $l
       'width': '100%',
       'text-align': 'center'
     };
+  };
+
+  $scope.setActiveImage = function (thumbUrl) {
+    var image = images.getImageByThumbUrl(thumbUrl);
+    $scope.activeImage = image;
   };
 
   $scope.natSort = function (a, b) {

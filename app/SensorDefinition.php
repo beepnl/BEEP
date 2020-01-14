@@ -25,7 +25,7 @@ class SensorDefinition extends Model
      *
      * @var array
      */
-    protected $fillable = ['name', 'inside', 'offset', 'multiplier', 'input_measurement_id', 'output_measurement_id', 'sensor_id'];
+    protected $fillable = ['name', 'inside', 'offset', 'multiplier', 'input_measurement_id', 'output_measurement_id', 'device_id'];
 
     public function input_measurement()
     {
@@ -35,9 +35,9 @@ class SensorDefinition extends Model
     {
         return $this->belongsTo('Measurement::class');
     }
-    public function sensor()
+    public function device()
     {
-        return $this->belongsTo('Sensor::class');
+        return $this->belongsTo('Device::class');
     }
 
     public function calibrated_measurement_value($inputValue)

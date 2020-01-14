@@ -5,12 +5,12 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Category;
-use App\Sensor;
+use App\Device;
 use App\User;
 use App\Hive;
 use App\Location;
 
-class SensorController extends Controller
+class DeviceController extends Controller
 {
     
     /**
@@ -20,8 +20,8 @@ class SensorController extends Controller
      */
     public function index(Request $request)
     {
-        $sensors = Sensor::all(); //->paginate(10);
-        return view('sensors.index',compact('sensors'));
+        $sensors = Device::all(); //->paginate(10);
+        return view('devices.index',compact('sensors'));
             // ->with('i', ($request->input('page', 1) - 1) * 10);
     }
 
@@ -35,7 +35,7 @@ class SensorController extends Controller
         $types = Category::descendentsByRootParentAndName('hive', 'app', 'sensor')->pluck('name','id');
         $users = User::all()->sortBy('name')->pluck('name', 'id');
 
-        return view('sensors.create',compact('types','users'));
+        return view('devices.create',compact('types','users'));
     }
 
     /**
@@ -60,12 +60,12 @@ class SensorController extends Controller
         if (isset($firstUserHive))
             $data['hive_id'] = $firstUserHive->id;
         else
-            return redirect()->route('sensors.index')->with('error','Sensor not created; because user has no hive to add it to');
+            return redirect()->route('devices.index')->with('error','Device not created; because user has no hive to add it to');
 
-        Sensor::create($data);
+        Device::create($data);
 
-        return redirect()->route('sensors.index')
-                        ->with('success','Sensor created successfully');
+        return redirect()->route('devices.index')
+                        ->with('success','Device created successfully');
     }
 
     /**
@@ -76,8 +76,8 @@ class SensorController extends Controller
      */
     public function show($id)
     {
-        $item = Sensor::find($id);
-        return view('sensors.show',compact('item'));
+        $item = Device::find($id);
+        return view('devices.show',compact('item'));
     }
 
     /**
@@ -88,7 +88,7 @@ class SensorController extends Controller
      */
     public function edit($id)
     {
-        $item = Sensor::find($id);
+        $item = Device::find($id);
         $types = Category::descendentsByRootParentAndName('hive', 'app', 'sensor')->pluck('name','id');
         $users = User::all()->sortBy('name')->pluck('name', 'id');
         $all_hives = Hive::where('user_id',$item->user_id)->where('name','!=','')->orderBy('name')->get();
@@ -101,7 +101,7 @@ class SensorController extends Controller
         asort($hives, SORT_NATURAL);
         //die(print_r($types));
 
-        return view('sensors.edit',compact('item','types','users','hives'));
+        return view('devices.edit',compact('item','types','users','hives'));
     }
 
     /**
@@ -122,7 +122,7 @@ class SensorController extends Controller
         ]);
 
         $data   = $request->all();
-        $sensor = Sensor::findOrFail($id);
+        $sensor = Device::findOrFail($id);
 
         if ($sensor->user_id != $request->input('user_id'))
         {
@@ -130,13 +130,13 @@ class SensorController extends Controller
             if (isset($firstUserHive))
                 $data['hive_id'] = $firstUserHive->id;
             else
-                return redirect()->route('sensors.index')->with('error','Sensor not edited; because new user has no hive to add it to');
+                return redirect()->route('devices.index')->with('error','Device not edited; because new user has no hive to add it to');
         }
 
         $sensor->update($data);
 
-        return redirect()->route('sensors.index')
-                        ->with('success','Sensor updated successfully');
+        return redirect()->route('devices.index')
+                        ->with('success','Device updated successfully');
     }
 
     /**
@@ -147,8 +147,8 @@ class SensorController extends Controller
      */
     public function destroy($id)
     {
-        Sensor::find($id)->delete();
-        return redirect()->route('sensors.index')
-                        ->with('success','Sensor deleted successfully');
+        Device::find($id)->delete();
+        return redirect()->route('devices.index')
+                        ->with('success','Device deleted successfully');
     }
 }

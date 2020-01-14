@@ -327,7 +327,7 @@ app.controller('MeasurementsCtrl', function($scope, $rootScope, $timeout, $inter
         }
 
     }
-    $scope.sensorHandler = $rootScope.$on('sensorsUpdated', $scope.updateSensors);
+    $scope.sensorHandler = $rootScope.$on('devicesUpdated', $scope.updateSensors);
 
     $scope.loadData = function(id)
     {

@@ -4,7 +4,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Auth;
 use App\User;
-use App\Sensor;
+use App\Device;
 use App\Category;
 use App\Measurement;
 // use App\Transformer\SensorTransformer;
@@ -47,27 +47,27 @@ class MeasurementController extends Controller
             'hive_id'   => 'nullable|integer|exists:hives,id',
         ]);
         
-        $sensors = $request->user()->allSensors($mine); // inlude user Group hive sensors ($mine == editable)
-        if ($sensors->count() > 0)
+        $devices = $request->user()->allDevices($mine); // inlude user Group hive sensors ($mine == editable)
+        if ($devices->count() > 0)
         {
             if ($request->filled('id') && $request->input('id') != 'null')
             {
                 $id = $request->input('id');
-                $check_sensor = $sensors->findOrFail($id);
+                $check_sensor = $devices->findOrFail($id);
             }
             else if ($request->filled('key') && $request->input('key') != 'null')
             {
                 $key = $request->input('key');
-                $check_sensor = $sensors->where('key', $key)->first();
+                $check_sensor = $devices->where('key', $key)->first();
             }
             else if ($request->filled('hive_id') && $request->input('hive_id') != 'null')
             {
                 $hive_id = $request->input('hive_id');
-                $check_sensor = $sensors->where('hive_id', $hive_id)->first();
+                $check_sensor = $devices->where('hive_id', $hive_id)->first();
             }
             else
             {
-                $check_sensor = $sensors->first();
+                $check_sensor = $devices->first();
             }
             
             if(isset($check_sensor))
@@ -312,7 +312,7 @@ class MeasurementController extends Controller
 
 
     // requires at least ['name'=>value] to be set
-    private function storeInfluxData($data_array, $sensor_key, $unix_timestamp)
+    private function storeInfluxData($data_array, $dev_eui, $unix_timestamp)
     {
         // store posted data
         $client    = new \Influx;
@@ -331,7 +331,7 @@ class MeasurementController extends Controller
                     new InfluxDB\Point(
                         'sensors',                  // name of the measurement
                         null,                       // the measurement value
-                        ['key' => $sensor_key],     // optional tags
+                        ['key' => $dev_eui],     // optional tags
                         ["$key" => $sensor->value], // key value pairs
                         $unix_time                  // Time precision has to be set to InfluxDB\Database::PRECISION_SECONDS!
                     )
@@ -364,8 +364,8 @@ class MeasurementController extends Controller
         }
 
         // Check if key is valid
-        $sensor_key = $data_array['key']; // save sensor data under sensor key
-        $sensor     = Sensor::where('key', $sensor_key)->first();
+        $dev_eui = $data_array['key']; // save sensor data under sensor key
+        $sensor     = Device::where('key', $dev_eui)->first();
         if(!$sensor)
         {
             Storage::disk('local')->put('sensors/sensor_invalid_key.log', json_encode($data_array));
@@ -389,12 +389,12 @@ class MeasurementController extends Controller
             $data_array = $this->add_weight_kg_corrected_with_temperature($sensor, $data_array);
         }
         
-        //die(print_r($sensor_key));
+        //die(print_r($dev_eui));
         $time = time();
         if (isset($data_array['time']))
             $time = intVal($data_array['time']);
 
-        $stored = $this->storeInfluxData($data_array, $sensor_key, $time);
+        $stored = $this->storeInfluxData($data_array, $dev_eui, $time);
         if($stored) 
         {
             return Response::json("saved", 201);
@@ -664,15 +664,15 @@ class MeasurementController extends Controller
         $data_array = [];
         //die(print_r($request_data));
         if (isset($request_data['LrnDevEui'])) // KPN Simpoint msg
-            if (Sensor::all()->where('key', $request_data['LrnDevEui'])->count() > 0)
+            if (Device::all()->where('key', $request_data['LrnDevEui'])->count() > 0)
                 $data_array['key'] = $request_data['LrnDevEui'];
 
         if (isset($request_data['DevEUI_uplink']['DevEUI'])) // KPN Simpoint msg
-            if (Sensor::where('key', $request_data['DevEUI_uplink']['DevEUI'])->count() > 0)
+            if (Device::where('key', $request_data['DevEUI_uplink']['DevEUI'])->count() > 0)
                 $data_array['key'] = $request_data['DevEUI_uplink']['DevEUI'];
 
         if (isset($request_data['DevEUI_location']['DevEUI'])) // KPN Simpoint msg
-            if (Sensor::where('key', $request_data['DevEUI_location']['DevEUI'])->count() > 0)
+            if (Device::where('key', $request_data['DevEUI_location']['DevEUI'])->count() > 0)
                 $data_array['key'] = $request_data['DevEUI_location']['DevEUI'];
 
 

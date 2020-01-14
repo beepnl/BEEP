@@ -212,7 +212,7 @@ class Taxonomy extends Model
         $h = HiveLayer::where('category_id', $this->id)->get()->count();
         $f = HiveLayerFrame::where('category_id', $this->id)->get()->count();
         $l = Location::where('category_id', $this->id)->get()->count();
-        $s = Sensor::where('category_id', $this->id)->get()->count();
+        $s = Device::where('category_id', $this->id)->get()->count();
         $p = Production::where('category_id', $this->id)->get()->count();
 
         $total_usage = $i+$h+$f+$l+$s+$p;

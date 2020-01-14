@@ -65,9 +65,9 @@ class Location extends Model
         return $this->belongsTo(Category::class);
     }
 
-    public function sensors()
+    public function devices()
     {
-        return $this->hasManyThrough(Sensor::class, Hive::class);
+        return $this->hasManyThrough(Device::class, Hive::class);
     }
 
     public function continent()

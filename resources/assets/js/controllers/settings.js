@@ -49,11 +49,11 @@ app.controller('SettingsCtrl', function($scope, $rootScope, $window, $timeout, $
         return (a.value != 0 && a.name != 'id');
     }
 
-    $scope.updateSensors = function()
+    $scope.updateDevices = function()
     {
         $scope.sensors = measurements.sensors;
     }
-    $scope.sensorsUpdatedHandler = $rootScope.$on('sensorsUpdated', $scope.updateSensors);
+    $scope.devicesUpdatedHandler = $rootScope.$on('devicesUpdated', $scope.updateDevices);
 
     $scope.updateWeightSensors = function()
     {
@@ -228,7 +228,7 @@ app.controller('SettingsCtrl', function($scope, $rootScope, $window, $timeout, $
     {
         $scope.settingsSavedHandler();
         $scope.settingsErrorHandler();
-        $scope.sensorsUpdatedHandler();
+        $scope.devicesUpdatedHandler();
         $scope.lastSensorValuesUpdatedHandler();
         $scope.calibrateWeightHandler();
         $scope.weightSensorsUpdatedHandler();

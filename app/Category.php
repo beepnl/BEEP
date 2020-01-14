@@ -244,7 +244,7 @@ class Category extends Model
         $h = HiveLayer::where('category_id', $this->id)->count();
         $f = HiveLayerFrame::where('category_id', $this->id)->count();
         $l = Location::where('category_id', $this->id)->count();
-        $s = Sensor::where('category_id', $this->id)->count();
+        $s = Device::where('category_id', $this->id)->count();
         $p = Production::where('category_id', $this->id)->count();
         $o = isset($this->old_id) ? 1 : 0;
 

@@ -105,12 +105,12 @@ app.service('measurements', ['$http', '$rootScope', '$interval', 'api', 'setting
 			self.stopLoadingMeasurements(); // no need to refresh, because no new values
 	}
 
-	this.loadRemoteSensors = function()
+	this.loadRemoteDevices = function()
 	{
-		api.getApiRequest('sensors', 'sensors');
+		api.getApiRequest('devices', 'devices');
 	};
 
-	this.handleSensors = function(e, result)
+	this.handleDevices = function(e, result)
 	{
 		if (result.length > 0)
 		{
@@ -125,7 +125,7 @@ app.service('measurements', ['$http', '$rootScope', '$interval', 'api', 'setting
 			}
 
 			$rootScope.hasSensors = true;
-			$rootScope.$broadcast('sensorsUpdated');
+			$rootScope.$broadcast('devicesUpdated');
 		}
 		//console.log(self.sensors);
 	};
@@ -163,7 +163,7 @@ app.service('measurements', ['$http', '$rootScope', '$interval', 'api', 'setting
 		api.postApiRequest('weightOffset', 'sensors/offsetweight', data);
 	};
 
-	this.sensorsError = function(e, error)
+	this.devicesError = function(e, error)
 	{
 		console.log('measurements sensorsError '+error.message+' status: '+error.status);
 		if (error.status == 404)
@@ -173,9 +173,9 @@ app.service('measurements', ['$http', '$rootScope', '$interval', 'api', 'setting
 		}
 	};
 
-	$rootScope.$on('sensorsLoaded', self.handleSensors);
-	$rootScope.$on('saveSensorsLoaded', self.handleSensors);
-	$rootScope.$on('sensorsError', self.sensorsError);
+	$rootScope.$on('devicesLoaded', self.handleDevices);
+	$rootScope.$on('saveDevicesLoaded', self.handleDevices);
+	$rootScope.$on('devicesError', self.devicesError);
 
 
 
@@ -206,6 +206,6 @@ app.service('measurements', ['$http', '$rootScope', '$interval', 'api', 'setting
     };
 
     // Check if measurements are available
-	self.loadRemoteSensors();
+	self.loadRemoteDevices();
 
 }]);

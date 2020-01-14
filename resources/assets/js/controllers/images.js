@@ -4,13 +4,12 @@
  *
  * Images controller
  */
-app.controller('ImagesCtrl', function($scope, $rootScope, $window, $timeout, $location, $filter, $interval, api, $routeParams, ngDialog, hives) 
+app.controller('ImagesCtrl', function($scope, $rootScope, $window, $timeout, $location, $filter, $interval, api, $routeParams, ngDialog, images) 
 {
 
     // settings
     $scope.images                = [];
-    $scope.hives                 = [];
-    $scope.apiaries              = [];
+    $scope.activeImage           = null;
     $scope.orderName             = 'date';
     $scope.orderDirection        = 'false';
     $scope.size                  = 100;
@@ -22,21 +21,15 @@ app.controller('ImagesCtrl', function($scope, $rootScope, $window, $timeout, $lo
  
     $scope.init = function()
     {
-        $scope.hives             = hives.hives;
-        $scope.apiaries          = hives.locations_owned;
-        $scope.loadImages();
+        images.loadRemoteImages();
     };
-
-    $scope.loadImages = function()
-    {
-        $scope.images = api.getApiRequest('images', 'images');
-    }
 
     $scope.updateImages = function(e, data)
     {
-        $scope.images = data;
+        $scope.images      = images.images;
+        $scope.activeImage = null;
     }
-    $scope.imageLoadedHandler = $rootScope.$on('imagesLoaded', $scope.updateImages);
+    $scope.imageLoadedHandler = $rootScope.$on('imagesUpdated', $scope.updateImages);
 
     $scope.setOrder = function(name)
     {
@@ -46,7 +39,7 @@ app.controller('ImagesCtrl', function($scope, $rootScope, $window, $timeout, $lo
         }
         else 
         {
-            $scope.orderDirection = false;    
+            $scope.orderDirection = false;
         }
         $scope.orderName = name;
     }
@@ -56,6 +49,12 @@ app.controller('ImagesCtrl', function($scope, $rootScope, $window, $timeout, $lo
         $scope.size       = size;
         $scope.thumbStyle = {'width':size+'px', 'height':size+'px', 'display':'inline-block', 'border':'1px solid #999', 'margin':'5px'};
         $scope.labelStyle = {'font-size':(5+2*Math.round(size/50))+'px', 'width':'100%', 'text-align':'center'};
+    }
+
+    $scope.setActiveImage = function(thumbUrl)
+    {
+        var image = images.getImageByThumbUrl(thumbUrl);
+        $scope.activeImage = image;
     }
 
     $scope.natSort = function(a, b) 

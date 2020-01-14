@@ -83,17 +83,27 @@ class DeviceController extends Controller
     public function store(Request $request)
     {
         //die(print_r($request->input()));
-        foreach ($request->input() as $device) 
+        if (gettype($request->input()) == 'array')
         {
-            $result = $this->updateOrCreateDevice($device);
+            foreach ($request->input() as $device) 
+            {
+                $result = $this->updateOrCreateDevice($device);
+                if ($result == null || gettype($result) == 'array')
+                    return Response::json($result, 500);
+            }
+        }
+        else if (gettype($request->input()) == 'object')
+        {
+            $result = $this->updateOrCreateDevice($request->input());
             if ($result == null || gettype($result) == 'array')
                 return Response::json($result, 500);
         }
+
         return $this->index($request);
     }
 
     /**
-    api/device POST
+    api/devices PATCH
     Update a sensor
     @authenticated
     @bodyParam id integer required Device to update
@@ -111,7 +121,7 @@ class DeviceController extends Controller
     @bodyParam measurement_transmission_ratio float Measurements ratio of non-transmitted vs transmitted messages. If 0 or 1, every measurement gets transmitted.
     @bodyParam ble_pin string Bleutooth PIN of Device: 6 numbers between 0-9
     */
-    public function update(Request $request)
+    public function update(Request $request, $id)
     {
         $result = $this->updateOrCreateDevice($request->input());
 

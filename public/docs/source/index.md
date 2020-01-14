@@ -1811,7 +1811,7 @@ Store a new sensor
 ```bash
 curl -X POST "https://test.beep.nl/api/devices" \
     -H "Content-Type: application/json" \
-    -d '{"key":"occaecati","name":"accusantium","hive_id":20,"type":"excepturi","last_message_received":"distinctio","hardware_id":"et","firmware_version":"ullam","hardware_version":"exercitationem","boot_count":16,"measurement_interval_min":8549210.981,"measurement_transmission_ratio":6960.78,"ble_pin":"vel"}'
+    -d '{"key":"autem","name":"modi","hive_id":2,"type":"tempore","last_message_received":"minus","hardware_id":"incidunt","firmware_version":"magnam","hardware_version":"vitae","boot_count":9,"measurement_interval_min":569348.1006,"measurement_transmission_ratio":17.846,"ble_pin":"voluptates"}'
 
 ```
 
@@ -1824,18 +1824,18 @@ let headers = {
 }
 
 let body = {
-    "key": "occaecati",
-    "name": "accusantium",
-    "hive_id": 20,
-    "type": "excepturi",
-    "last_message_received": "distinctio",
-    "hardware_id": "et",
-    "firmware_version": "ullam",
-    "hardware_version": "exercitationem",
-    "boot_count": 16,
-    "measurement_interval_min": 8549210.981,
-    "measurement_transmission_ratio": 6960.78,
-    "ble_pin": "vel"
+    "key": "autem",
+    "name": "modi",
+    "hive_id": 2,
+    "type": "tempore",
+    "last_message_received": "minus",
+    "hardware_id": "incidunt",
+    "firmware_version": "magnam",
+    "hardware_version": "vitae",
+    "boot_count": 9,
+    "measurement_interval_min": 569348.1006,
+    "measurement_transmission_ratio": 17.846,
+    "ble_pin": "voluptates"
 }
 
 fetch(url, {
@@ -1872,7 +1872,7 @@ Parameter | Type | Status | Description
 <!-- END_dbb21adf8d2a4b13a3c3113b57e8d329 -->
 
 <!-- START_52b9480c37d5f861392515f99f114a2c -->
-## api/device POST
+## api/devices PATCH
 Update a sensor
 
 <br><small style="padding: 1px 9px 2px;font-weight: bold;white-space: nowrap;color: #ffffff;-webkit-border-radius: 9px;-moz-border-radius: 9px;border-radius: 9px;background-color: #3a87ad;">Requires authentication</small>
@@ -1881,7 +1881,7 @@ Update a sensor
 ```bash
 curl -X PUT "https://test.beep.nl/api/devices/1" \
     -H "Content-Type: application/json" \
-    -d '{"id":9,"key":"praesentium","name":"maiores","hive_id":7,"type":"vitae","delete":false,"last_message_received":"numquam","hardware_id":"nisi","firmware_version":"natus","hardware_version":"perferendis","boot_count":5,"measurement_interval_min":4.620662748,"measurement_transmission_ratio":874.5679,"ble_pin":"totam"}'
+    -d '{"id":14,"key":"doloremque","name":"nobis","hive_id":10,"type":"totam","delete":false,"last_message_received":"provident","hardware_id":"vitae","firmware_version":"quas","hardware_version":"esse","boot_count":19,"measurement_interval_min":1.6,"measurement_transmission_ratio":3,"ble_pin":"quibusdam"}'
 
 ```
 
@@ -1894,20 +1894,20 @@ let headers = {
 }
 
 let body = {
-    "id": 9,
-    "key": "praesentium",
-    "name": "maiores",
-    "hive_id": 7,
-    "type": "vitae",
+    "id": 14,
+    "key": "doloremque",
+    "name": "nobis",
+    "hive_id": 10,
+    "type": "totam",
     "delete": false,
-    "last_message_received": "numquam",
-    "hardware_id": "nisi",
-    "firmware_version": "natus",
-    "hardware_version": "perferendis",
-    "boot_count": 5,
-    "measurement_interval_min": 4.620662748,
-    "measurement_transmission_ratio": 874.5679,
-    "ble_pin": "totam"
+    "last_message_received": "provident",
+    "hardware_id": "vitae",
+    "firmware_version": "quas",
+    "hardware_version": "esse",
+    "boot_count": 19,
+    "measurement_interval_min": 1.6,
+    "measurement_transmission_ratio": 3,
+    "ble_pin": "quibusdam"
 }
 
 fetch(url, {
@@ -3044,7 +3044,7 @@ Store sensor measurement data (see BEEP sensor data API definition) from API, or
 ```bash
 curl -X POST "https://test.beep.nl/api/sensors" \
     -H "Content-Type: application/json" \
-    -d '{"key":"non","data":[],"payload_fields":[]}'
+    -d '{"key":"maxime","data":[],"payload_fields":[]}'
 
 ```
 
@@ -3057,7 +3057,7 @@ let headers = {
 }
 
 let body = {
-    "key": "non",
+    "key": "maxime",
     "data": [],
     "payload_fields": []
 }
@@ -3097,7 +3097,7 @@ When TTN payload is supplied, the TTN HTTP integration decoder/converter is assu
 ```bash
 curl -X POST "https://test.beep.nl/api/lora_sensors" \
     -H "Content-Type: application/json" \
-    -d '{"key":"minus","payload_fields":[],"DevEUI_uplink":[]}'
+    -d '{"key":"dolor","payload_fields":[],"DevEUI_uplink":[]}'
 
 ```
 
@@ -3110,7 +3110,7 @@ let headers = {
 }
 
 let body = {
-    "key": "minus",
+    "key": "dolor",
     "payload_fields": [],
     "DevEUI_uplink": []
 }
@@ -3148,7 +3148,7 @@ Store sensor measurement data (see BEEP sensor data API definition) from API, or
 ```bash
 curl -X POST "https://test.beep.nl/api/unsecure_sensors" \
     -H "Content-Type: application/json" \
-    -d '{"key":"perspiciatis","data":[],"payload_fields":[]}'
+    -d '{"key":"nihil","data":[],"payload_fields":[]}'
 
 ```
 
@@ -3161,7 +3161,7 @@ let headers = {
 }
 
 let body = {
-    "key": "perspiciatis",
+    "key": "nihil",
     "data": [],
     "payload_fields": []
 }
@@ -3200,7 +3200,7 @@ Request all sensor measurements from a certain interval (hour, day, week, month,
 ```bash
 curl -X GET -G "https://test.beep.nl/api/sensors/measurements" \
     -H "Content-Type: application/json" \
-    -d '{"key":"rerum","id":14,"hive_id":16,"names":"earum","interval":"vero","index":15}'
+    -d '{"key":"occaecati","id":20,"hive_id":17,"names":"aliquid","interval":"consequatur","index":8}'
 
 ```
 
@@ -3213,12 +3213,12 @@ let headers = {
 }
 
 let body = {
-    "key": "rerum",
-    "id": 14,
-    "hive_id": 16,
-    "names": "earum",
-    "interval": "vero",
-    "index": 15
+    "key": "occaecati",
+    "id": 20,
+    "hive_id": 17,
+    "names": "aliquid",
+    "interval": "consequatur",
+    "index": 8
 }
 
 fetch(url, {
@@ -3265,7 +3265,7 @@ Request last measurement values of all sensor measurements from a sensor (Device
 ```bash
 curl -X GET -G "https://test.beep.nl/api/sensors/lastvalues" \
     -H "Content-Type: application/json" \
-    -d '{"key":"reiciendis","id":9,"hive_id":13}'
+    -d '{"key":"in","id":17,"hive_id":10}'
 
 ```
 
@@ -3278,9 +3278,9 @@ let headers = {
 }
 
 let body = {
-    "key": "reiciendis",
-    "id": 9,
-    "hive_id": 13
+    "key": "in",
+    "id": 17,
+    "hive_id": 10
 }
 
 fetch(url, {
@@ -3324,7 +3324,7 @@ Request last weight related measurement values from a sensor (Device), used by l
 ```bash
 curl -X GET -G "https://test.beep.nl/api/sensors/lastweight" \
     -H "Content-Type: application/json" \
-    -d '{"key":"non","id":10,"hive_id":1}'
+    -d '{"key":"assumenda","id":6,"hive_id":3}'
 
 ```
 
@@ -3337,9 +3337,9 @@ let headers = {
 }
 
 let body = {
-    "key": "non",
-    "id": 10,
-    "hive_id": 1
+    "key": "assumenda",
+    "id": 6,
+    "hive_id": 3
 }
 
 fetch(url, {
@@ -3979,7 +3979,7 @@ Store a newly created resource in storage.
 ```bash
 curl -X POST "https://test.beep.nl/api/sensordefinition" \
     -H "Content-Type: application/json" \
-    -d '{"name":"consequatur","inside":true,"offset":126.6598161,"multiplier":1148411.39972,"input_measurement_id":5,"input_measurement_abbreviation":"w_v","output_measurement_id":6,"output_measurement_abbreviation":"t_i","device_id":15,"device_hardware_id":"in"}'
+    -d '{"name":"error","inside":true,"offset":4.258015537,"multiplier":62.286623,"input_measurement_id":5,"input_measurement_abbreviation":"w_v","output_measurement_id":6,"output_measurement_abbreviation":"t_i","device_id":1,"device_hardware_id":"praesentium"}'
 
 ```
 
@@ -3992,16 +3992,16 @@ let headers = {
 }
 
 let body = {
-    "name": "consequatur",
+    "name": "error",
     "inside": true,
-    "offset": 126.6598161,
-    "multiplier": 1148411.39972,
+    "offset": 4.258015537,
+    "multiplier": 62.286623,
     "input_measurement_id": 5,
     "input_measurement_abbreviation": "w_v",
     "output_measurement_id": 6,
     "output_measurement_abbreviation": "t_i",
-    "device_id": 15,
-    "device_hardware_id": "in"
+    "device_id": 1,
+    "device_hardware_id": "praesentium"
 }
 
 fetch(url, {

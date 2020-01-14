@@ -85,7 +85,7 @@ class SensorDefinitionController extends Controller
      * @bodyParam output_measurement_id integer Measurement that represents the output Measurement value (e.g. 6, 3). Example: 6
      * @bodyParam output_measurement_abbreviation string Abbreviation of the Measurement that represents the output (calculated with (raw_value - offset) * multiplier) value (e.g. weight_kg, or t_i), Example: t_i
      * @bodyParam device_id integer Device that the Measurement value belongs to
-     * @bodyParam device_hardware_id integer required Device that the Sensor and Measurement values belong to
+     * @bodyParam device_hardware_id string required Device that the Measurement values belong to
      * @param \Illuminate\Http\Request $request
      *
      * @return \Illuminate\Http\Response

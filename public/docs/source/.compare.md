@@ -1811,7 +1811,7 @@ Store a new sensor
 ```bash
 curl -X POST "https://test.beep.nl/api/devices" \
     -H "Content-Type: application/json" \
-    -d '{"key":"quod","name":"deleniti","hive_id":1,"type":"minima","last_message_received":"praesentium","hardware_id":"nihil","firmware_version":"voluptatem","hardware_version":"officia","boot_count":13,"measurement_interval_min":1771484.783,"measurement_transmission_ratio":2981676.89072877,"ble_pin":"consequatur"}'
+    -d '{"key":"quis","name":"voluptas","hive_id":14,"type":"illo","last_message_received":"quas","hardware_id":"rerum","firmware_version":"vel","hardware_version":"et","boot_count":11,"measurement_interval_min":46.66240266,"measurement_transmission_ratio":23.5701438,"ble_pin":"ullam"}'
 
 ```
 
@@ -1824,18 +1824,18 @@ let headers = {
 }
 
 let body = {
-    "key": "quod",
-    "name": "deleniti",
-    "hive_id": 1,
-    "type": "minima",
-    "last_message_received": "praesentium",
-    "hardware_id": "nihil",
-    "firmware_version": "voluptatem",
-    "hardware_version": "officia",
-    "boot_count": 13,
-    "measurement_interval_min": 1771484.783,
-    "measurement_transmission_ratio": 2981676.89072877,
-    "ble_pin": "consequatur"
+    "key": "quis",
+    "name": "voluptas",
+    "hive_id": 14,
+    "type": "illo",
+    "last_message_received": "quas",
+    "hardware_id": "rerum",
+    "firmware_version": "vel",
+    "hardware_version": "et",
+    "boot_count": 11,
+    "measurement_interval_min": 46.66240266,
+    "measurement_transmission_ratio": 23.5701438,
+    "ble_pin": "ullam"
 }
 
 fetch(url, {
@@ -1881,7 +1881,7 @@ Update a sensor
 ```bash
 curl -X PUT "https://test.beep.nl/api/devices/1" \
     -H "Content-Type: application/json" \
-    -d '{"id":16,"key":"occaecati","name":"id","hive_id":3,"type":"voluptates","delete":false,"last_message_received":"enim","hardware_id":"vel","firmware_version":"animi","hardware_version":"nihil","boot_count":12,"measurement_interval_min":1261580.192,"measurement_transmission_ratio":505402.3984542,"ble_pin":"et"}'
+    -d '{"id":11,"key":"vero","name":"et","hive_id":6,"type":"incidunt","delete":true,"last_message_received":"nostrum","hardware_id":"recusandae","firmware_version":"facilis","hardware_version":"iusto","boot_count":9,"measurement_interval_min":7.76230011,"measurement_transmission_ratio":6592.8087316,"ble_pin":"velit"}'
 
 ```
 
@@ -1894,20 +1894,20 @@ let headers = {
 }
 
 let body = {
-    "id": 16,
-    "key": "occaecati",
-    "name": "id",
-    "hive_id": 3,
-    "type": "voluptates",
-    "delete": false,
-    "last_message_received": "enim",
-    "hardware_id": "vel",
-    "firmware_version": "animi",
-    "hardware_version": "nihil",
-    "boot_count": 12,
-    "measurement_interval_min": 1261580.192,
-    "measurement_transmission_ratio": 505402.3984542,
-    "ble_pin": "et"
+    "id": 11,
+    "key": "vero",
+    "name": "et",
+    "hive_id": 6,
+    "type": "incidunt",
+    "delete": true,
+    "last_message_received": "nostrum",
+    "hardware_id": "recusandae",
+    "firmware_version": "facilis",
+    "hardware_version": "iusto",
+    "boot_count": 9,
+    "measurement_interval_min": 7.76230011,
+    "measurement_transmission_ratio": 6592.8087316,
+    "ble_pin": "velit"
 }
 
 fetch(url, {
@@ -3044,7 +3044,7 @@ Store sensor measurement data (see BEEP sensor data API definition) from API, or
 ```bash
 curl -X POST "https://test.beep.nl/api/sensors" \
     -H "Content-Type: application/json" \
-    -d '{"key":"iste","data":[],"payload_fields":[]}'
+    -d '{"key":"culpa","data":[],"payload_fields":[]}'
 
 ```
 
@@ -3057,7 +3057,7 @@ let headers = {
 }
 
 let body = {
-    "key": "iste",
+    "key": "culpa",
     "data": [],
     "payload_fields": []
 }
@@ -3148,7 +3148,7 @@ Store sensor measurement data (see BEEP sensor data API definition) from API, or
 ```bash
 curl -X POST "https://test.beep.nl/api/unsecure_sensors" \
     -H "Content-Type: application/json" \
-    -d '{"key":"voluptates","data":[],"payload_fields":[]}'
+    -d '{"key":"inventore","data":[],"payload_fields":[]}'
 
 ```
 
@@ -3161,7 +3161,7 @@ let headers = {
 }
 
 let body = {
-    "key": "voluptates",
+    "key": "inventore",
     "data": [],
     "payload_fields": []
 }
@@ -3200,7 +3200,7 @@ Request all sensor measurements from a certain interval (hour, day, week, month,
 ```bash
 curl -X GET -G "https://test.beep.nl/api/sensors/measurements" \
     -H "Content-Type: application/json" \
-    -d '{"key":"maxime","id":9,"hive_id":20,"names":"fugiat","interval":"esse","index":18}'
+    -d '{"key":"modi","id":18,"hive_id":9,"names":"eligendi","interval":"sint","index":20}'
 
 ```
 
@@ -3213,12 +3213,12 @@ let headers = {
 }
 
 let body = {
-    "key": "maxime",
-    "id": 9,
-    "hive_id": 20,
-    "names": "fugiat",
-    "interval": "esse",
-    "index": 18
+    "key": "modi",
+    "id": 18,
+    "hive_id": 9,
+    "names": "eligendi",
+    "interval": "sint",
+    "index": 20
 }
 
 fetch(url, {
@@ -3265,7 +3265,7 @@ Request last measurement values of all sensor measurements from a sensor (Device
 ```bash
 curl -X GET -G "https://test.beep.nl/api/sensors/lastvalues" \
     -H "Content-Type: application/json" \
-    -d '{"key":"omnis","id":16,"hive_id":19}'
+    -d '{"key":"non","id":8,"hive_id":9}'
 
 ```
 
@@ -3278,9 +3278,9 @@ let headers = {
 }
 
 let body = {
-    "key": "omnis",
-    "id": 16,
-    "hive_id": 19
+    "key": "non",
+    "id": 8,
+    "hive_id": 9
 }
 
 fetch(url, {
@@ -3324,7 +3324,7 @@ Request last weight related measurement values from a sensor (Device), used by l
 ```bash
 curl -X GET -G "https://test.beep.nl/api/sensors/lastweight" \
     -H "Content-Type: application/json" \
-    -d '{"key":"commodi","id":9,"hive_id":20}'
+    -d '{"key":"ea","id":3,"hive_id":4}'
 
 ```
 
@@ -3337,9 +3337,9 @@ let headers = {
 }
 
 let body = {
-    "key": "commodi",
-    "id": 9,
-    "hive_id": 20
+    "key": "ea",
+    "id": 3,
+    "hive_id": 4
 }
 
 fetch(url, {
@@ -3979,7 +3979,7 @@ Store a newly created resource in storage.
 ```bash
 curl -X POST "https://test.beep.nl/api/sensordefinition" \
     -H "Content-Type: application/json" \
-    -d '{"name":"et","inside":true,"offset":41188807.006795,"multiplier":364364.6,"input_measurement_id":"5","input_measurement_abbreviation":"w_v","output_measurement_id":"6","output_measurement_abbreviation":"t_i","device_id":2,"device_hardware_id":"quasi"}'
+    -d '{"name":"ea","inside":true,"offset":37042.6,"multiplier":1794.15267253,"input_measurement_id":5,"input_measurement_abbreviation":"w_v","output_measurement_id":6,"output_measurement_abbreviation":"t_i","device_id":5,"device_hardware_id":1}'
 
 ```
 
@@ -3992,16 +3992,16 @@ let headers = {
 }
 
 let body = {
-    "name": "et",
+    "name": "ea",
     "inside": true,
-    "offset": 41188807.006795,
-    "multiplier": 364364.6,
-    "input_measurement_id": "5",
+    "offset": 37042.6,
+    "multiplier": 1794.15267253,
+    "input_measurement_id": 5,
     "input_measurement_abbreviation": "w_v",
-    "output_measurement_id": "6",
+    "output_measurement_id": 6,
     "output_measurement_abbreviation": "t_i",
-    "device_id": 2,
-    "device_hardware_id": "quasi"
+    "device_id": 5,
+    "device_hardware_id": 1
 }
 
 fetch(url, {
@@ -4026,12 +4026,12 @@ Parameter | Type | Status | Description
     inside | boolean |  optional  | True is measured inside, false if measured outside
     offset | float |  optional  | Measurement value that defines 0
     multiplier | float |  optional  | Amount of units (calibration figure) per delta Measurement value to multiply withy (value - offset)
-    input_measurement_id | Measurement |  optional  | that represents the input Measurement value (e.g. 5, 3).
-    input_measurement_abbreviation | Abbreviation |  optional  | of the Measurement that represents the input value (e.g. w_v, or t_i).
-    output_measurement_id | Measurement |  optional  | that represents the output Measurement value (e.g. 6, 3).
-    output_measurement_abbreviation | Abbreviation |  optional  | of the Measurement that represents the output (calculated with (raw_value - offset) * multiplier) value (e.g. weight_kg, or t_i),
+    input_measurement_id | integer |  optional  | Measurement that represents the input Measurement value (e.g. 5, 3).
+    input_measurement_abbreviation | string |  optional  | Abbreviation of the Measurement that represents the input value (e.g. w_v, or t_i).
+    output_measurement_id | integer |  optional  | Measurement that represents the output Measurement value (e.g. 6, 3).
+    output_measurement_abbreviation | string |  optional  | Abbreviation of the Measurement that represents the output (calculated with (raw_value - offset) * multiplier) value (e.g. weight_kg, or t_i),
     device_id | integer |  optional  | Device that the Measurement value belongs to
-    device_hardware_id | required |  optional  | Device that the Sensor and Measurement values belong to
+    device_hardware_id | integer |  required  | Device that the Sensor and Measurement values belong to
 
 <!-- END_f6f20cfc18b5c347368408d17f1981d8 -->
 

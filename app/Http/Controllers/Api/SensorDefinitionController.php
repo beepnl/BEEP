@@ -80,12 +80,12 @@ class SensorDefinitionController extends Controller
      * @bodyParam inside boolean True is measured inside, false if measured outside
      * @bodyParam offset float Measurement value that defines 0
      * @bodyParam multiplier float Amount of units (calibration figure) per delta Measurement value to multiply withy (value - offset)
-     * @bodyParam input_measurement_id Measurement that represents the input Measurement value (e.g. 5, 3). Example: 5
-     * @bodyParam input_measurement_abbreviation Abbreviation of the Measurement that represents the input value (e.g. w_v, or t_i). Example: w_v
-     * @bodyParam output_measurement_id Measurement that represents the output Measurement value (e.g. 6, 3). Example: 6
-     * @bodyParam output_measurement_abbreviation Abbreviation of the Measurement that represents the output (calculated with (raw_value - offset) * multiplier) value (e.g. weight_kg, or t_i), Example: t_i
+     * @bodyParam input_measurement_id integer Measurement that represents the input Measurement value (e.g. 5, 3). Example: 5
+     * @bodyParam input_measurement_abbreviation string Abbreviation of the Measurement that represents the input value (e.g. w_v, or t_i). Example: w_v
+     * @bodyParam output_measurement_id integer Measurement that represents the output Measurement value (e.g. 6, 3). Example: 6
+     * @bodyParam output_measurement_abbreviation string Abbreviation of the Measurement that represents the output (calculated with (raw_value - offset) * multiplier) value (e.g. weight_kg, or t_i), Example: t_i
      * @bodyParam device_id integer Device that the Measurement value belongs to
-     * @bodyParam device_hardware_id required Device that the Sensor and Measurement values belong to
+     * @bodyParam device_hardware_id integer required Device that the Sensor and Measurement values belong to
      * @param \Illuminate\Http\Request $request
      *
      * @return \Illuminate\Http\Response

@@ -17,7 +17,7 @@ class DeviceController extends Controller
 {
    
     /**
-    api/sensors
+    api/devices GET
     List all user sensors
     @authenticated
     @response [
@@ -64,7 +64,7 @@ class DeviceController extends Controller
     }
 
     /**
-    api/sensors/store POST
+    api/devices POST
     Store a new sensor
     @authenticated
     @bodyParam key string required DEV EUI of the sensor to enable storing sensor data incoming on the api/sensors or api/lora_sensors endpoint
@@ -93,7 +93,7 @@ class DeviceController extends Controller
     }
 
     /**
-    api/sensor POST
+    api/device POST
     Update a sensor
     @authenticated
     @bodyParam id integer required Device to update

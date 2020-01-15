@@ -51,7 +51,7 @@ class Research extends Model
     public function getImageAttribute()
     {
         if (isset($this->image_id))
-            return $this->image()->thumb_url;
+            return $this->image->thumb_url;
 
         return null;
     }

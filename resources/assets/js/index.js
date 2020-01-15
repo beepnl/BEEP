@@ -14,7 +14,7 @@ app.config(function (hammerDefaultOptsProvider) {
 });
 
 /* Run some basic functions */
-app.run(function($rootScope, $location, $window, $route, $routeParams, amMoment, ngDialog, settings, api) 
+app.run(function($rootScope, $location, $window, $route, $routeParams, amMoment, ngDialog, settings, api, images) 
 {
 
     // set fastclick
@@ -92,6 +92,8 @@ app.run(function($rootScope, $location, $window, $route, $routeParams, amMoment,
     $rootScope.pageSlug              = '';
     $rootScope.templateClass         = '';
     $rootScope.showAdminTemplate     = false;
+    $rootScope.activeImage           = null;
+    $rootScope.activeImageZoom       = 1;
 
 
     $rootScope.user                  = {name:'', img: API_URL+'../uploads/avatars/default.jpg'};
@@ -528,7 +530,10 @@ app.run(function($rootScope, $location, $window, $route, $routeParams, amMoment,
     };
 
 
-
+    $rootScope.setActiveImage = function(thumbUrl)
+    {
+        images.setActiveImageByThumb(thumbUrl);
+    };
 
 
     /***************/

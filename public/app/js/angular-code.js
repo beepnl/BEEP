@@ -1283,35 +1283,32 @@ app.service('groups', ['$http', '$rootScope', 'api', 'hives', function ($http, $
  * Meaurements model
  */
 
-app.service('images', ['$http', '$rootScope', 'api', 'hives', function ($http, $rootScope, api, hives) {
+app.service('images', ['$http', '$rootScope', 'api', function ($http, $rootScope, api) {
   var self = this;
 
   this.reset = function () {
     this.refreshCount = 0;
-    this.selectedImage = {};
+    this.activeImage = null;
     this.images = [];
   };
 
   this.getImageByThumbUrl = function (thumbUrl) {
     for (var i = 0; i < self.images.length; i++) {
       var image = self.images[i];
-      if (image.thumb == thumbUrl) return image;
+      if (image.thumb_url == thumbUrl) return image;
     }
 
     return null;
   };
 
-  this.getHiveByImageId = function (id) {
-    for (var i = 0; i < self.images.length; i++) {
-      var image = self.images[i];
+  this.setActiveImage = function (image) {
+    self.activeImage = image;
+    $rootScope.activeImage = image;
+  };
 
-      if (image.id == id) {
-        var hive = hive.getHiveById(image.hive_id);
-        return hive;
-      }
-    }
-
-    return null;
+  this.setActiveImageByThumb = function (thumbUrl) {
+    var image = self.getImageByThumbUrl(thumbUrl);
+    self.setActiveImage(image);
   }; // Load images
 
 
@@ -1338,7 +1335,9 @@ app.service('images', ['$http', '$rootScope', 'api', 'hives', function ($http, $
   $rootScope.$on('imagesError', self.imagesError);
 
   this.refresh = function () {
-    //update refresh count
+    // 
+    self.setActiveImage(null); //update refresh count
+
     self.refreshCount++; // announce the update
 
     $rootScope.$broadcast('imagesUpdated');
@@ -3901,7 +3900,7 @@ app.controller('SensorsCtrl', function ($scope, $rootScope, $timeout, $interval,
   $scope.saveDevices = function () {
     $scope.success_msg = null;
     $scope.error_msg = null;
-    api.postApiRequest('saveDevices', 'devices', $scope.sensors);
+    api.postApiRequest('saveDevices', 'devices/multiple', $scope.sensors);
   };
 
   $scope.showSuccess = function (type, data) {
@@ -4389,7 +4388,6 @@ app.controller('ResearchesCtrl', function ($scope, $rootScope, $window, $timeout
 app.controller('ImagesCtrl', function ($scope, $rootScope, $window, $timeout, $location, $filter, $interval, api, $routeParams, ngDialog, images) {
   // settings
   $scope.images = [];
-  $scope.activeImage = null;
   $scope.orderName = 'date';
   $scope.orderDirection = 'false';
   $scope.size = 100;
@@ -4414,7 +4412,6 @@ app.controller('ImagesCtrl', function ($scope, $rootScope, $window, $timeout, $l
 
   $scope.updateImages = function (e, data) {
     $scope.images = images.images;
-    $scope.activeImage = null;
   };
 
   $scope.imageLoadedHandler = $rootScope.$on('imagesUpdated', $scope.updateImages);
@@ -4443,11 +4440,6 @@ app.controller('ImagesCtrl', function ($scope, $rootScope, $window, $timeout, $l
       'width': '100%',
       'text-align': 'center'
     };
-  };
-
-  $scope.setActiveImage = function (thumbUrl) {
-    var image = images.getImageByThumbUrl(thumbUrl);
-    $scope.activeImage = image;
   };
 
   $scope.natSort = function (a, b) {

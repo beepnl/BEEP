@@ -71,7 +71,7 @@
           </div>
           
           <!-- Main Footer -->
-          <div ng-include="'/app/views/template/template-block-footer.html'" ng-show="showAdminTemplate"></div>
+          <div ng-include="'/app/views/template/template-block-footer.html?v=2'" ng-show="showAdminTemplate"></div>
           
         </div>
 

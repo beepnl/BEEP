@@ -44,7 +44,6 @@ app.controller('InspectionCreateCtrl', function($scope, $rootScope, $window, $lo
 			$rootScope.uploadFile = $scope.uploadFile;
 			$rootScope.uploadFiles= $scope.uploadFiles;
 			$rootScope.files 	  = $scope.files;
-			
 			$scope.showMore   	  = hives.hives.length > 1 ? true : false;
 			$scope.hive 	  	  = hives.getHiveById($routeParams.hiveId);
 			if ($scope.hive == null)

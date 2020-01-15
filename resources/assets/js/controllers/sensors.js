@@ -86,7 +86,7 @@ app.controller('SensorsCtrl', function($scope, $rootScope, $timeout, $interval, 
     {
         $scope.success_msg  = null;
         $scope.error_msg    = null;
-        api.postApiRequest('saveDevices', 'devices', $scope.sensors);
+        api.postApiRequest('saveDevices', 'devices/multiple', $scope.sensors);
     }
     $scope.showSuccess = function(type, data)
     {

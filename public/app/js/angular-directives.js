@@ -159,12 +159,12 @@ app.directive('background', function ($q) {
         });
         element.css({
           "background-repeat": "no-repeat"
-        });
-        element.addClass('animated fadeIn');
-        element.removeClass('loading');
-        setTimeout(function () {
-          element.removeClass('animated fadeIn');
-        }, 1000);
+        }); // element.addClass('animated fadeIn');
+
+        element.removeClass('loading'); // setTimeout(function()
+        // {
+        //   element.removeClass('animated fadeIn');
+        // }, 1000);
       };
 
       scope.preload(attrs.url).then(function () {
@@ -404,7 +404,7 @@ app.directive('checklistFieldset', ['$rootScope', function ($rootScope) {
     templateUrl: '/app/views/forms/checklist_fieldset.html'
   };
 }]);
-app.directive('checklistInput', ['$rootScope', '$timeout', 'Upload', 'api', function ($rootScope, $timeout, Upload, api) {
+app.directive('checklistInput', ['$rootScope', '$timeout', 'Upload', 'api', 'images', function ($rootScope, $timeout, Upload, api) {
   return {
     restrict: 'EA',
     scope: {
@@ -421,10 +421,13 @@ app.directive('checklistInput', ['$rootScope', '$timeout', 'Upload', 'api', func
       scope.beeraces = $rootScope.beeraces;
       scope.hivetypes = $rootScope.hivetypes;
       scope.inspection = $rootScope.inspection;
+
+      scope.setActiveImage = function (thumbUrl) {
+        $rootScope.setActiveImage(thumbUrl);
+      };
+
       scope.$watch('item.value', function (newValue, oldValue) {
         if (scope.item.input == 'image') {
-          console.log('image newValue: ', newValue, 'oldValue :', oldValue);
-
           if (_typeof(newValue) == 'object' && newValue !== null) // new image
             {
               // value is filled
@@ -445,8 +448,7 @@ app.directive('checklistInput', ['$rootScope', '$timeout', 'Upload', 'api', func
                   }
                 }).then(function (resp) {
                   $timeout(function () {
-                    console.log('image resp', resp.data);
-                    if (typeof resp.data != 'undefined' && _typeof(resp.data.image_url)) $rootScope.changeChecklistItem(scope.item.input, scope.item.id, resp.data.image_url, true);
+                    if (typeof resp.data != 'undefined' && _typeof(resp.data.thumb_url)) $rootScope.changeChecklistItem(scope.item.input, scope.item.id, resp.data.thumb_url, true);
                   });
                 }, function (resp) {
                   console.error('Image upload error: ' + resp.status, resp.data);

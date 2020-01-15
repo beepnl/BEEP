@@ -4,7 +4,7 @@
  *
  * Meaurements model
  */
-app.service('images', ['$http', '$rootScope', 'api', 'hives', function($http, $rootScope, api, hives)
+app.service('images', ['$http', '$rootScope', 'api', function($http, $rootScope, api)
 {
 
 	var self = this;
@@ -12,7 +12,7 @@ app.service('images', ['$http', '$rootScope', 'api', 'hives', function($http, $r
 	this.reset = function()
 	{
 		this.refreshCount 	  = 0;
-		this.selectedImage	  = {};
+		this.activeImage	  = null;
 		this.images		  	  = [];
 	}
 
@@ -21,27 +21,25 @@ app.service('images', ['$http', '$rootScope', 'api', 'hives', function($http, $r
 		for (var i = 0; i < self.images.length; i++) 
 		{
 			var image = self.images[i];
-			if (image.thumb == thumbUrl)
+			if (image.thumb_url == thumbUrl)
 				return image;
 		}
 		return null;
 	}
 
-	this.getHiveByImageId = function(id)
+	this.setActiveImage = function(image)
 	{
-		for (var i = 0; i < self.images.length; i++) 
-		{
-			var image = self.images[i];
-			if (image.id == id)
-			{
-				var hive = hive.getHiveById(image.hive_id);
-				return hive;
-			}
-		}
-		return null;
+		self.activeImage 	   = image;
+		$rootScope.activeImage = image;
 	}
 
-	
+	this.setActiveImageByThumb = function(thumbUrl)
+	{
+		var image = self.getImageByThumbUrl(thumbUrl);
+		self.setActiveImage(image);
+	}
+
+
 	// Load images
 	this.loadRemoteImages = function()
 	{
@@ -78,6 +76,9 @@ app.service('images', ['$http', '$rootScope', 'api', 'hives', function($http, $r
 
 	this.refresh = function()
 	{
+		// 
+		self.setActiveImage(null);
+
 		//update refresh count
 		self.refreshCount++;
 

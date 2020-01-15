@@ -9,7 +9,6 @@ app.controller('ImagesCtrl', function($scope, $rootScope, $window, $timeout, $lo
 
     // settings
     $scope.images                = [];
-    $scope.activeImage           = null;
     $scope.orderName             = 'date';
     $scope.orderDirection        = 'false';
     $scope.size                  = 100;
@@ -26,8 +25,7 @@ app.controller('ImagesCtrl', function($scope, $rootScope, $window, $timeout, $lo
 
     $scope.updateImages = function(e, data)
     {
-        $scope.images      = images.images;
-        $scope.activeImage = null;
+        $scope.images = images.images;
     }
     $scope.imageLoadedHandler = $rootScope.$on('imagesUpdated', $scope.updateImages);
 
@@ -49,12 +47,6 @@ app.controller('ImagesCtrl', function($scope, $rootScope, $window, $timeout, $lo
         $scope.size       = size;
         $scope.thumbStyle = {'width':size+'px', 'height':size+'px', 'display':'inline-block', 'border':'1px solid #999', 'margin':'5px'};
         $scope.labelStyle = {'font-size':(5+2*Math.round(size/50))+'px', 'width':'100%', 'text-align':'center'};
-    }
-
-    $scope.setActiveImage = function(thumbUrl)
-    {
-        var image = images.getImageByThumbUrl(thumbUrl);
-        $scope.activeImage = image;
     }
 
     $scope.natSort = function(a, b) 

@@ -46,7 +46,7 @@
 				    	<div>
 					    	<div style="display: inline-block; vertical-align: top; margin-top: 10px;">
 					    		<a ng-href="{{ r.url != null ? r.url : '#' }}" target="_blank">
-					    			<img class="image-icon" src="{{r.image}}">
+					    			<img ng-if="r.thumb_url" class="image-icon" src="{{r.thumb_url}}">
 					    		</a>
 					    	</div>
 					    	<div style="display: inline-block;">

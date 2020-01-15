@@ -1,4 +1,4 @@
-app.directive('checklistInput', ['$rootScope', '$timeout', 'Upload', 'api', function($rootScope, $timeout, Upload, api) {
+app.directive('checklistInput', ['$rootScope', '$timeout', 'Upload', 'api', 'images', function($rootScope, $timeout, Upload, api) {
     return {
         restrict: 'EA',
         scope: {
@@ -18,12 +18,15 @@ app.directive('checklistInput', ['$rootScope', '$timeout', 'Upload', 'api', func
           scope.hivetypes = $rootScope.hivetypes;
           scope.inspection= $rootScope.inspection;
 
+          scope.setActiveImage = function(thumbUrl)
+          {
+            $rootScope.setActiveImage(thumbUrl);
+          }
+
           scope.$watch('item.value', function(newValue, oldValue) 
           {
             if (scope.item.input == 'image')
             {
-              console.log('image newValue: ', newValue, 'oldValue :', oldValue);
-
               if (typeof newValue == 'object' && newValue !== null) // new image
               {
                 // value is filled
@@ -46,9 +49,8 @@ app.directive('checklistInput', ['$rootScope', '$timeout', 'Upload', 'api', func
                   }).then(
                   function (resp) {
                       $timeout(function() {
-                          console.log('image resp', resp.data);
-                          if (typeof resp.data != 'undefined' && typeof resp.data.image_url)
-                            $rootScope.changeChecklistItem(scope.item.input, scope.item.id, resp.data.image_url, true);
+                          if (typeof resp.data != 'undefined' && typeof resp.data.thumb_url)
+                            $rootScope.changeChecklistItem(scope.item.input, scope.item.id, resp.data.thumb_url, true);
                       });
                   }, 
                   function (resp) {

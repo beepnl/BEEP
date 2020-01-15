@@ -29,7 +29,7 @@ class Research extends Model
      */
     protected $fillable = ['description', 'name', 'url', 'image_id', 'type', 'institution', 'type_of_data_used', 'start_date', 'end_date'];
     protected $hidden   = ['users', 'deleted_at'];
-    protected $appends  = ['consent', 'checklist_names'];
+    protected $appends  = ['consent', 'checklist_names', 'image'];
 
     public static $pictureType = 'research';
 
@@ -48,6 +48,14 @@ class Research extends Model
         return $this->checklists()->pluck('name');
     }
 
+    public function getImageAttribute()
+    {
+        if (isset($this->image_id))
+            return $this->image->thumb_url;
+
+        return null;
+    }
+    
     public function users()
     {
         return $this->belongsToMany(User::class, 'research_user');

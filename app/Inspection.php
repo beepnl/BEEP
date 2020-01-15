@@ -37,7 +37,7 @@ class Inspection extends Model
 
     protected $hidden   = ['pivot','deleted_at'];
 
-    protected $appends  = ['owner'];
+    protected $appends  = ['owner', 'image'];
 
     public $timestamps = false;
 
@@ -49,6 +49,14 @@ class Inspection extends Model
             return true;
         
         return false;
+    }
+
+    public function getImageAttribute()
+    {
+        if (isset($this->image_id))
+            return $this->image->thumb_url;
+
+        return null;
     }
 
     public function users()

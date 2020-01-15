@@ -29,7 +29,7 @@ class Research extends Model
      */
     protected $fillable = ['description', 'name', 'url', 'image_id', 'type', 'institution', 'type_of_data_used', 'start_date', 'end_date'];
     protected $hidden   = ['users', 'deleted_at'];
-    protected $appends  = ['consent', 'checklist_names', 'image'];
+    protected $appends  = ['consent', 'checklist_names', 'thumb_url'];
 
     public static $pictureType = 'research';
 
@@ -48,7 +48,7 @@ class Research extends Model
         return $this->checklists()->pluck('name');
     }
 
-    public function getImageAttribute()
+    public function getThumbUrlAttribute()
     {
         if (isset($this->image_id))
             return $this->image->thumb_url;
@@ -68,7 +68,7 @@ class Research extends Model
 
     public function image()
     {
-        return $this->hasOne(Image::class);
+        return $this->belongsTo(Image::class);
     }
     
     public function delete()

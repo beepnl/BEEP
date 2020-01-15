@@ -47,6 +47,7 @@ Route::group(['middleware' => \Barryvdh\Cors\HandleCors::class], function()
 		Route::post('authenticate', 		'Api\UserController@authenticate');
 
 		// get more data of 1 sensor (Device)
+		Route::post('devices/multiple',		'Api\DeviceController@storeMultiple');
 		Route::get('sensors/measurements', 	'Api\MeasurementController@data');
 		Route::get('sensors/lastvalues', 	'Api\MeasurementController@lastvalues');
 		Route::get('sensors/lastweight', 	'Api\MeasurementController@lastweight');

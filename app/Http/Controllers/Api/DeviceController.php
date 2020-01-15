@@ -18,7 +18,7 @@ class DeviceController extends Controller
    
     /**
     api/devices GET
-    List all user sensors
+    List all user Devices
     @authenticated
     @response [
         {
@@ -65,7 +65,7 @@ class DeviceController extends Controller
 
     /**
     api/devices POST
-    Store a new sensor
+    Create or Update a Device
     @authenticated
     @bodyParam key string required DEV EUI of the sensor to enable storing sensor data incoming on the api/sensors or api/lora_sensors endpoint
     @bodyParam name string Device name
@@ -82,29 +82,44 @@ class DeviceController extends Controller
     */
     public function store(Request $request)
     {
+        $result = $this->updateOrCreateDevice($request->input());
+
+        return Response::json($result, $result == null || gettype($result) == 'array' ? 500 : 201);
+    }
+
+    /**
+    api/devices/multiple POST
+    Store/update multiple Devices in an array of Device objects
+    @authenticated
+    @bodyParam key string required DEV EUI of the sensor to enable storing sensor data incoming on the api/sensors or api/lora_sensors endpoint
+    @bodyParam name string Device name
+    @bodyParam hive_id integer Hive that the sensor is measuring. Default: null
+    @bodyParam type string Category name of the hive type from the Categories table. Default: beep
+    @bodyParam last_message_received timestamp Will be converted with date('Y-m-d H:i:s', $last_message_received); before storing
+    @bodyParam hardware_id string Unchangeable Device id
+    @bodyParam firmware_version string Firmware version of the Device
+    @bodyParam hardware_version string Hardware version of the Device
+    @bodyParam boot_count integer Amount of boots of the Device
+    @bodyParam measurement_interval_min float Measurement interval in minutes
+    @bodyParam measurement_transmission_ratio float Measurements ratio of non-transmitted vs transmitted messages. If 0 or 1, every measurement gets transmitted.
+    @bodyParam ble_pin string Bleutooth PIN of Device: 6 numbers between 0-9
+    */
+    public function storeMultiple(Request $request)
+    {
         //die(print_r($request->input()));
-        if (gettype($request->input()) == 'array')
+        foreach ($request->input() as $device) 
         {
-            foreach ($request->input() as $device) 
-            {
-                $result = $this->updateOrCreateDevice($device);
-                if ($result == null || gettype($result) == 'array')
-                    return Response::json($result, 500);
-            }
-        }
-        else if (gettype($request->input()) == 'object')
-        {
-            $result = $this->updateOrCreateDevice($request->input());
+            $result = $this->updateOrCreateDevice($device);
             if ($result == null || gettype($result) == 'array')
                 return Response::json($result, 500);
         }
-
+       
         return $this->index($request);
     }
 
     /**
-    api/devices PATCH
-    Update a sensor
+    api/devices PUT/PATCH
+    Update an existing Device
     @authenticated
     @bodyParam id integer required Device to update
     @bodyParam key string required DEV EUI of the sensor to enable storing sensor data incoming on the api/sensors or api/lora_sensors endpoint
@@ -123,9 +138,14 @@ class DeviceController extends Controller
     */
     public function update(Request $request, $id)
     {
-        $result = $this->updateOrCreateDevice($request->input());
+        $result = null;
 
-        return Response::json($result, $result == null || gettype($result) == 'array' ? 500 : 200);
+        if ($id)
+        {
+            $result = $this->updateOrCreateDevice($request->input());
+        }
+
+        return Response::json($result, $result == null || gettype($result) == 'array' ? 404 : 200);
     }
 
     public function updateOrCreateDevice($device)

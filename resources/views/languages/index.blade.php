@@ -49,7 +49,7 @@
             <tbody>
             @foreach($languages as $item)
                 <tr>
-                    <td>{{ $loop->iteration or $item->id }}</td>
+                    <td>{{ $item->id }}</td>
                     <td>{{ $item->name }}</td><td>{{ $item->name_english }}</td>
                     <td><img src="/img/{{ $item->icon }}" style="width: 30px;"> {{ $item->icon }}</td>
                     <td>{{ $item->abbreviation }}</td>

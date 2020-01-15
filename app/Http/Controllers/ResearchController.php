@@ -45,7 +45,8 @@ class ResearchController extends Controller
      */
     public function create()
     {
-        return view('research.create');
+        $research = new Research();
+        return view('research.create', compact('research'));
     }
 
     /**

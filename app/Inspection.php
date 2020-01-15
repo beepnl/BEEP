@@ -33,7 +33,7 @@ class Inspection extends Model
      *
      * @var array
      */
-    protected $fillable = ['notes', 'created_at', 'impression', 'attention', 'reminder', 'reminder_date', 'checklist_id'];
+    protected $fillable = ['notes', 'created_at', 'impression', 'attention', 'reminder', 'reminder_date', 'checklist_id', 'image_id'];
 
     protected $hidden   = ['pivot','deleted_at'];
 
@@ -75,7 +75,24 @@ class Inspection extends Model
     {
         return $this->hasOne(Checklist::class);
     }
+
+    public function image()
+    {
+        return $this->belongsTo(Image::class);
+    }
     
+    public function delete()
+    {
+        // delete image 
+        if(isset($this->image_id))
+            $this->image()->delete();
+
+        // delete the research
+        return parent::delete();
+    }
+
+
+
     public static function item_names($inspections) // get a locale ordered list of InspectionItem names
     {
         $locale          = LaravelLocalization::getCurrentLocale();

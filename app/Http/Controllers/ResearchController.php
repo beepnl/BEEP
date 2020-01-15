@@ -71,11 +71,19 @@ class ResearchController extends Controller
         $requestData = $request->all();
 
         if (isset($requestData['image']))
-            $requestData['image']= Research::storeImage($requestData);
+        {
+            $image = Research::storeImage($requestData);
+            if ($image)
+            {
+                $requestData['image_id'] = $image->id;
+                unset($requestData['image']);
+            }
+        }
 
         $research = Research::create($requestData);
 
-        $research->checklists()->sync($requestData['checklist_ids']);
+        if (isset($requestData['checklist_ids']))
+            $research->checklists()->sync($requestData['checklist_ids']);
 
         return redirect('research')->with('flash_message', 'Research added!');
     }
@@ -130,12 +138,20 @@ class ResearchController extends Controller
         $requestData = $request->all();
         
         if (isset($requestData['image']))
-            $requestData['image'] = Research::storeImage($requestData);
+        {
+            $image = Research::storeImage($requestData);
+            if ($image)
+            {
+                $requestData['image_id'] = $image->id;
+                unset($requestData['image']);
+            }
+        }
 
         $research = Research::findOrFail($id);
-
         $research->update($requestData);
-        $research->checklists()->sync($requestData['checklist_ids']);
+
+        if (isset($requestData['checklist_ids']))
+            $research->checklists()->sync($requestData['checklist_ids']);
 
         return redirect('research')->with('flash_message', 'Research updated!');
     }

@@ -11,8 +11,8 @@ class Image extends Model
 {
     
     public static $storage      = 'public';
-    public static $maxPizelSize = 2000;
-    public static $thumbPixels  = 200;
+    public static $maxPizelSize = 2000; // pixel hight/width to fit images in
+    public static $thumbPixels  = 200; // pixel hight/width to fit images in
     public static $thumbQuality = 70;
     public static $imageDir     = 'images';
     public static $thumbDir     = 'thumbs';
@@ -36,7 +36,9 @@ class Image extends Model
      *
      * @var array
      */
-    protected $fillable = ['filename', 'image_url', 'thumb_url', 'description', 'type', 'height', 'width', 'size_kb', 'date', 'user_id', 'hive_id', 'category_id', 'inspection_id'];
+    protected $fillable = ['storage', 'filename', 'image_url', 'thumb_url', 'description', 'type', 'height', 'width', 'size_kb', 'date', 'user_id', 'hive_id', 'category_id', 'inspection_id'];
+
+    protected $hidden   = ['storage', 'user_id'];
 
     public function category()
     {
@@ -59,23 +61,43 @@ class Image extends Model
     // Static functions
     public static function imageUrl($filename, $type)
     {
-        return Storage::disk(Image::$storage)->url(Image::getImagePath($filename, $type));
+        $storage      = env('IMAGE_STORAGE', Image::$storage);
+        return Storage::disk($storage)->url(Image::getImagePath($filename, $type));
     }
 
     public static function imageThumbUrl($filename, $type)
     {
-        return Storage::disk(Image::$storage)->url(Image::getImagePath($filename, $type, true));
+        $storage      = env('IMAGE_STORAGE', Image::$storage);
+        return Storage::disk($storage)->url(Image::getImagePath($filename, $type, true));
     }
 
     public static function getImagePath($fileName, $type='inspection', $thumb=false)
     {
-        $dir = $thumb ? Image::$thumbDir : Image::$imageDir;
+        $imageDir     = env('IMAGE_FULL_DIRECTORY', Image::$imageDir);
+        $thumbDir     = env('IMAGE_THUMB_DIRECTORY', Image::$thumbDir);
+
+        $dir = $thumb ? $thumbDir : $imageDir;
         $uid = Auth::user()->id;
         return 'users/'.$uid.'/'.$dir.'/'.$type.'/'.$fileName;
     }
 
     public static function store($requestData, $type='inspection')
     {
+        // check if image needs to be updated, or newly created
+        $image  = null;
+        
+        if(isset($requestData['id']))
+        {
+            $image = Auth::user()->images()->findOrFail($requestData['id']);
+        }
+
+        $storage      = env('IMAGE_STORAGE', Image::$storage);
+        $maxPizelSize = env('IMAGE_RESIZE_PIXELS', Image::$maxPizelSize);
+        $thumbPixels  = env('IMAGE_THUMB_PIXELS', Image::$thumbPixels);
+        $thumbQuality = env('IMAGE_THUMB_QUALITY', Image::$thumbQuality);
+        $imageDir     = env('IMAGE_FULL_DIRECTORY', Image::$imageDir);
+        $thumbDir     = env('IMAGE_THUMB_DIRECTORY', Image::$thumbDir);
+
         $anu = function($constraint)
         { 
             $constraint->aspectRatio(); 
@@ -83,47 +105,59 @@ class Image extends Model
         };
 
         //get file extension
-        $imageFile = $requestData['file'];
-        if ($imageFile->isValid())
+        if(isset($requestData['file']) || isset($requestData['image']))
         {
-            //filename to store
-            $extension = $imageFile->getClientOriginalExtension();
-            $fileName  = str_random(60).'.'.$extension;
-            $imagePath = Image::getImagePath($fileName, $type);
-            $thumbPath = Image::getImagePath($fileName, $type, true);
+            $imageFile = isset($requestData['image']) && $requestData['image']->isValid() ? $requestData['image'] : $requestData['file'];
 
-            // save big image
-            $image       = InterventionImage::make($imageFile)->resize(Image::$maxPizelSize, Image::$maxPizelSize, $anu);
-            $imageHeight = $image->getHeight();
-            $imageWidth  = $image->getWidth();
-            $imageStored = Storage::disk(Image::$storage)->put($imagePath, $image->stream());
-            $fileSize    = Storage::disk(Image::$storage)->size($imagePath);
-            $fileTime    = Storage::disk(Image::$storage)->lastModified($imagePath);
-            $fileTimeStamp = date('Y-m-d H:i:s', $fileTime);
-            
-            // save thumbnail
-            $thumb       = InterventionImage::make($image)->resize(Image::$thumbPixels, Image::$thumbPixels, $anu);
-            $thumbStored = Storage::disk(Image::$storage)->put($thumbPath, $thumb->stream());
-            
-            if ($imageStored)
+            if ($imageFile->isValid())
             {
-                $saveArr = [
-                    'filename'    => $fileName,
-                    'image_url'   => Image::imageUrl($fileName, $type),
-                    'thumb_url'   => Image::imageThumbUrl($fileName, $type),
-                    'description' => isset($requestData['description']) ? $requestData['description'] : null,
-                    'type'        => $type,
-                    'height'      => $imageHeight,
-                    'width'       => $imageWidth,
-                    'size_kb'     => round($fileSize/1024),
-                    'date'        => $fileTimeStamp,
-                    'user_id'     => Auth::user()->id,
-                    'hive_id'     => isset($requestData['hive_id']) ? $requestData['hive_id'] : null,
-                    'category_id' => isset($requestData['category_id']) ? $requestData['category_id'] : null,
-                    'inspection_id'=> isset($requestData['inspection_id']) ? $requestData['inspection_id'] : null,
+                //filename to store
+                $extension = $imageFile->getClientOriginalExtension();
+                $fileName  = str_random(60).'.'.$extension;
+                $imagePath = Image::getImagePath($fileName, $type);
+                $thumbPath = Image::getImagePath($fileName, $type, true);
+
+                // save big image
+                $imageResized= InterventionImage::make($imageFile)->resize($maxPizelSize, $maxPizelSize, $anu);
+                $imageHeight = $imageResized->getHeight();
+                $imageWidth  = $imageResized->getWidth();
+                $imageStored = Storage::disk($storage)->put($imagePath, $imageResized->stream());
+                $fileSize    = Storage::disk($storage)->size($imagePath);
+                $fileTime    = Storage::disk($storage)->lastModified($imagePath);
+                $fileTimeStamp = date('Y-m-d H:i:s', $fileTime);
+                
+                // save thumbnail
+                $thumb       = InterventionImage::make($imageResized)->resize($thumbPixels, $thumbPixels, $anu);
+                $thumbStored = Storage::disk($storage)->put($thumbPath, $thumb->stream());
+                
+                if ($imageStored)
+                {
+                    $saveArr = [
+                        'storage'     => $storage,
+                        'filename'    => $fileName,
+                        'image_url'   => Image::imageUrl($fileName, $type),
+                        'thumb_url'   => Image::imageThumbUrl($fileName, $type),
+                        'description' => isset($requestData['description']) ? $requestData['description'] : null,
+                        'type'        => $type,
+                        'height'      => $imageHeight,
+                        'width'       => $imageWidth,
+                        'size_kb'     => round($fileSize/1024),
+                        'date'        => $fileTimeStamp,
+                        'user_id'     => Auth::user()->id,
+                        'hive_id'     => isset($requestData['hive_id']) ? $requestData['hive_id'] : null,
+                        'category_id' => isset($requestData['category_id']) ? $requestData['category_id'] : null,
+                        'inspection_id'=> isset($requestData['inspection_id']) ? $requestData['inspection_id'] : null,
+                        
+                    ];           
+
                     
-                ];            
-                return Image::create($saveArr);
+                    if($image)
+                    {
+                        return $image->update($saveArr);
+                    }
+
+                    return Image::create($saveArr);
+                }
             }
         }
         return null;
@@ -132,13 +166,15 @@ class Image extends Model
     public function delete()
     {
         // delete all related photos 
+        $storage = isset($this->$storage) ? $this->$storage : env('IMAGE_STORAGE', Image::$storage);
+
         $pathImage = Image::getImagePath($this->filename, $this->type);
-        if (Storage::disk(Image::$storage)->exists($pathImage));
-            Storage::disk(Image::$storage)->delete($pathImage);
+        if (Storage::disk($storage)->exists($pathImage));
+            Storage::disk($storage)->delete($pathImage);
 
         $pathThumb = Image::getImagePath($this->filename, $this->type, true);
-        if (Storage::disk(Image::$storage)->exists($pathThumb));
-            Storage::disk(Image::$storage)->delete($pathThumb);
+        if (Storage::disk($storage)->exists($pathThumb));
+            Storage::disk($storage)->delete($pathThumb);
 
         // delete the photo
         return parent::delete();

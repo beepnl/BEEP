@@ -60,7 +60,7 @@
             @foreach($research as $item)
                 <tr>
                     {{-- <td>{{ $loop->iteration or $item->id }}</td> --}}
-                    <td><a href="{{$item->url}}" target="_blank">@if(isset($item->image))<img src="{{$item->image}}" style="width:40px; height: 40px; border-radius: 20%; border: 1px solid #333; display: inline-block;">@endif</a></td>
+                    <td><a href="{{$item->url}}" target="_blank">@if(isset($item->image_id))<img src="{{$item->image->thumb_url}}" style="width:40px; height: 40px; border-radius: 20%; border: 1px solid #333; display: inline-block;">@endif</a></td>
                     <td><a href="{{$item->url}}" target="_blank">{{ $item->name }}</a></td>
                     <td>{{ $item->description }}</td>
                     <td>{{ $item->type }}</td>

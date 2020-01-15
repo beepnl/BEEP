@@ -3,7 +3,7 @@
 namespace App;
 
 use Illuminate\Database\Eloquent\Model;
-use App\Picture;
+use App\Image;
 use Auth;
 
 class Research extends Model
@@ -27,7 +27,7 @@ class Research extends Model
      *
      * @var array
      */
-    protected $fillable = ['description', 'name', 'url', 'image', 'type', 'institution', 'type_of_data_used', 'start_date', 'end_date'];
+    protected $fillable = ['description', 'name', 'url', 'image_id', 'type', 'institution', 'type_of_data_used', 'start_date', 'end_date'];
     protected $hidden   = ['users', 'deleted_at'];
     protected $appends  = ['consent', 'checklist_names'];
 
@@ -35,7 +35,7 @@ class Research extends Model
 
     public static function storeImage($requestData)
     {
-        return Picture::store($requestData, Research::$pictureType);
+        return Image::store($requestData, Research::$pictureType);
     }
 
     public function getConsentAttribute()
@@ -57,13 +57,19 @@ class Research extends Model
     {
         return $this->belongsToMany(Checklist::class, 'checklist_research');
     }
+
+    public function image()
+    {
+        return $this->belongsTo(Image::class);
+    }
     
     public function delete()
     {
-        // delete all related photos 
-        Picture::remove(Research::$pictureType.'/'.$this->image);
+        // delete image 
+        if(isset($this->image_id))
+            $this->image()->delete();
 
-        // delete the photo
+        // delete the research
         return parent::delete();
     }
 

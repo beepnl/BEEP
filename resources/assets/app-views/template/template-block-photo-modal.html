@@ -8,10 +8,11 @@
       </div>
       
       <div class="modal-body">
-        <div class="modal-image-holder" style="text-align: center; border: 1px solid #333;" >
+        <div class="modal-image-holder" style="text-align: center; border: 1px solid #333; cursor: zoom-in" >
             <img ng-if="activeImage" ng-src="{{ activeImage.image_url }}" width="{{100*activeImageZoom}}%" ng-click="activeImageZoom == 1 ? activeImageZoom=2 : activeImageZoom=1"> 
         </div>
         <p>{{ activeImage.date | amUtc | amLocal | amDateFormat:'dd D MMM HH:mm' }}</p>
+        <p ng-if="activeImage.hive">{{ lang.Hive }}: {{ activeImage.hive.name }}</p>
       </div>
 
     </div>

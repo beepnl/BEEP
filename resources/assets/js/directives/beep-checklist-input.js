@@ -62,15 +62,15 @@ app.directive('checklistInput', ['$rootScope', '$timeout', 'Upload', 'api', 'ima
                   });
                 }
               }
-              else if (newValue == null && typeof oldValue == 'object' && oldValue !== null)// newValue == null, 
+              else if (newValue == null && typeof oldValue == 'object' && oldValue !== null)// newValue == null, image removed
               {
                 // image is removed
-                $rootScope.changeChecklistItem(scope.item.input, scope.item.id, null, true);
+                $rootScope.changeChecklistItem(scope.item.input, scope.item.id, null, true); // also delete temporary image from there
               }
             }
             else
             {
-              if (oldValue != newValue) 
+              if (oldValue != newValue) // update this item
               {
                 //console.log(scope.item.input, scope.item.id, newValue);
                 if (scope.item.input == 'list' && (newValue === true || newValue === false)) // boolean list

@@ -16,6 +16,7 @@ app.controller('ImagesCtrl', function($scope, $rootScope, $window, $timeout, $lo
     $scope.labelStyle            = {'font-size':'10px', 'width':'100%', 'text-align':'center'};
  
      // handlers
+    $scope.editMode              = false;
     $scope.isLoading             = false;
  
     $scope.init = function()
@@ -40,6 +41,11 @@ app.controller('ImagesCtrl', function($scope, $rootScope, $window, $timeout, $lo
             $scope.orderDirection = false;
         }
         $scope.orderName = name;
+    }
+
+    $scope.toggleEditMode = function()
+    {
+        $scope.editMode = !$scope.editMode;
     }
 
     $scope.setSize = function(size)

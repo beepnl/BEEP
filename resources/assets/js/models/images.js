@@ -68,10 +68,16 @@ app.service('images', ['$http', '$rootScope', 'api', function($http, $rootScope,
 		self.setActiveImage(image);
 	}
 
-	this.setActiveImageByThumb = function(thumbUrl)
+
+	this.deleteImageByUrl = function(image) // can be thumb. image, or blob
 	{
-		var image = self.getImageByThumbUrl(thumbUrl);
-		self.setActiveImage(image);
+		var imageUrl = image;
+
+		if (typeof imageUrl == 'object') // load local image
+		{
+			imageUrl = imageUrl.$ngfBlobUrl;
+		}
+		api.deleteApiRequest('imageDelete', 'images', {'image_url':imageUrl});
 	}
 
 
@@ -105,6 +111,7 @@ app.service('images', ['$http', '$rootScope', 'api', function($http, $rootScope,
 		console.log('images error '+error.message+' status: '+error.status);
 	};
 
+	$rootScope.$on('imageDeleteLoaded', self.loadRemoteImages);
 	$rootScope.$on('imagesLoaded', self.imagesHandler);
 	$rootScope.$on('imagesError', self.imagesError);
 

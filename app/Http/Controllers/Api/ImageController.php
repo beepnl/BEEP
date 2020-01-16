@@ -86,13 +86,17 @@ class ImageController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function destroy($image_url)
+    public function destroyByUrl(Request $request)
     {
-        $image = Auth::user()->images()->where('image_url', $image_url)->orWhere('thumb_url', $image_url)->first();
-        if ($image)
+        if ($request->filled('image_url'))
         {
-            $image->delete();
-            return response()->json(null, 204);
+            $image_url = $request->input('image_url');
+            $image     = Auth::user()->images()->where('image_url', $image_url)->orWhere('thumb_url', $image_url)->first();
+            if ($image)
+            {
+                $image->delete();
+                return response()->json(null, 204);
+            }
         }
         return response()->json(null, 404);
     }

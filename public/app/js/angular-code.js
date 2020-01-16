@@ -1073,6 +1073,9 @@ app.service('inspections', ['$http', '$rootScope', 'api', 'settings', function (
           self.saveObject.items[id] = value;
         } else if (typeof self.saveObject.items[id] != 'undefined') {
           console.log('Removed ' + type + ' (' + id + ') = ' + self.saveObject.items[id], name);
+          if (type == 'image') api.deleteApiRequest('imageDeleteInspection', 'images', {
+            'image_url': self.saveObject.items[id]
+          });
           delete self.saveObject.items[id];
         }
       }
@@ -1337,9 +1340,18 @@ app.service('images', ['$http', '$rootScope', 'api', function ($http, $rootScope
     self.setActiveImage(image);
   };
 
-  this.setActiveImageByThumb = function (thumbUrl) {
-    var image = self.getImageByThumbUrl(thumbUrl);
-    self.setActiveImage(image);
+  this.deleteImageByUrl = function (image) // can be thumb. image, or blob
+  {
+    var imageUrl = image;
+
+    if (_typeof(imageUrl) == 'object') // load local image
+      {
+        imageUrl = imageUrl.$ngfBlobUrl;
+      }
+
+    api.deleteApiRequest('imageDelete', 'images', {
+      'image_url': imageUrl
+    });
   }; // Load images
 
 
@@ -1362,6 +1374,7 @@ app.service('images', ['$http', '$rootScope', 'api', function ($http, $rootScope
     console.log('images error ' + error.message + ' status: ' + error.status);
   };
 
+  $rootScope.$on('imageDeleteLoaded', self.loadRemoteImages);
   $rootScope.$on('imagesLoaded', self.imagesHandler);
   $rootScope.$on('imagesError', self.imagesError);
 
@@ -4435,6 +4448,7 @@ app.controller('ImagesCtrl', function ($scope, $rootScope, $window, $timeout, $l
     'text-align': 'center'
   }; // handlers
 
+  $scope.editMode = false;
   $scope.isLoading = false;
 
   $scope.init = function () {
@@ -4455,6 +4469,10 @@ app.controller('ImagesCtrl', function ($scope, $rootScope, $window, $timeout, $l
     }
 
     $scope.orderName = name;
+  };
+
+  $scope.toggleEditMode = function () {
+    $scope.editMode = !$scope.editMode;
   };
 
   $scope.setSize = function (size) {

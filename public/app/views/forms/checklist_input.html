@@ -65,7 +65,7 @@
                 {{errorMsg}}
 
                 <div class="preview">
-                    <a class="delete" ng-if="!item.value.$error && item.value" ng-click="deleteImage(item.value); item.value=null"><i class="fa fa-times-circle fa-2x face"></i></a>
+                    <a class="delete-photo-btn" ng-if="!item.value.$error && item.value" ng-click="deleteImage(item.value); item.value=null"><i class="fa fa-times-circle fa-2x face"></i></a>
                     <img ngf-src="!item.value.$error && item.value" ng-click="setActiveImage(item.value)" data-toggle="modal" data-target="#photo-modal">
                 </div>
             </div>

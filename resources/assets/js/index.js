@@ -535,6 +535,11 @@ app.run(function($rootScope, $location, $window, $route, $routeParams, amMoment,
         images.setActiveImageByUrl(imageUrl);
     };
 
+    $rootScope.deleteImage = function(imageUrl)
+    {
+        images.deleteImageByUrl(imageUrl);
+    };
+
 
     /***************/
     /*   LOADING   */

@@ -378,6 +378,10 @@ app.service('inspections', ['$http', '$rootScope', 'api', 'settings', function($
 				else if (typeof self.saveObject.items[id] != 'undefined')
 				{
 					console.log('Removed '+type+' ('+id+') = '+self.saveObject.items[id], name);
+
+					if (type == 'image')
+						api.deleteApiRequest('imageDeleteInspection', 'images', {'image_url':self.saveObject.items[id]});
+
 					delete self.saveObject.items[id];
 				}
 			}

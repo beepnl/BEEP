@@ -112,6 +112,36 @@
 							<div ng-model="inspection.attention" readonly="false" class="yes_red" yes="lang.yes" no="lang.no" yes-no-rating></div>
 						</div>
 					</div>
+					<!-- <div class="col-xs-12 col-sm-4 col-md-4">
+			        	<div class="form-group">
+							<label>{{ lang.photo }}</label>
+							<div>
+					            <div ng-if="!inspection.image.$error && inspection.image">
+					                <div style="font:smaller">{{f.name}} {{errFile.name}} {{errFile.$error}} {{errFile.$errorParam}}
+					                    <span class="progress" ng-show="f.progress >= 0">
+					                        <div style="width:{{f.progress}}%" ng-bind="f.progress + '%'"></div>
+					                    </span>
+					                </div>     
+					                {{errorMsg}}
+
+					                <div class="preview">
+					                    <a class="delete" ng-if="!imspection.image.$error && imspection.image" ng-click="deleteImage(imspection.image); imspection.image=null"><i class="fa fa-times-circle fa-2x face"></i></a>
+					                    <img ngf-src="!imspection.image.$error && imspection.image" ng-click="setActiveImage(imspection.image)" data-toggle="modal" data-target="#photo-modal">
+					                </div>
+					            </div>
+					            <div ng-if="imspection.image.$error || !imspection.image">
+					                <div ngf-select ngf-drop ng-model="imspection.image" class="drop-box"
+					                    ngf-drag-over-class="'dragover'" 
+					                    ngf-validate="{size: {max: '5MB', min: '10B'}, height: {max: 12000}, width: {max: 12000}, duration: {max: '1m'}}"
+					                    ngf-pattern="'image/*'"
+					                    ngf-capture="camera"
+					                    ngf-drop-available="dropAvailable">
+					                    Select<span ng-show="dropAvailable">/drop</span> image
+					                </div>
+					            </div>
+					        </div>
+						</div>
+					</div> -->
 					<div class="col-xs-12">
 			        	<div class="form-group">
 							<label>{{ lang.notes }}</label>

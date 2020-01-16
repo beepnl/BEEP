@@ -183,7 +183,7 @@ class Image extends Model
     public function delete()
     {
         // delete all related photos 
-        $storage = isset($this->$storage) ? $this->$storage : env('IMAGE_STORAGE', Image::$storage);
+        $storage = isset($this->storage) ? $this->storage : env('IMAGE_STORAGE', Image::$storage);
 
         $pathImage = Image::getImagePath($this->filename, $this->type);
         if (Storage::disk($storage)->exists($pathImage));

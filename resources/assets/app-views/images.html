@@ -1,12 +1,10 @@
 <section class="content-header">
   <h1>
     {{lang.Images}}
+	  <div class="pull-right">
+		<a ng-click="toggleEditMode()" style="color: #333;"><i class="fa fa-cog"></i></a>
+	  </div>
   </h1>
-  <div class="pull-right">
-	    <div>
-  			<a ng-click="editMode=!editMode" style="color: #999;"><i class="fa fa-cog"></i></a>
-  		</div>
-  	</div>
 </section>
 
 <section class="content" >
@@ -68,8 +66,9 @@
 	    <!-- /.box-header -->
 	    <div class="box-body" ng-class="{'no-padding':mobile}">
 	      
-	        <div style="display: inline-block;" ng-repeat="img in images | filter:{[orderName]:''} | orderBy:orderName:orderDirection:natSort" ng-click="setActiveImage(img.thumb_url)" data-toggle="modal" data-target="#photo-modal">
-	        	<background url="{{img.thumb_url}}" ng-style="thumbStyle"></background>
+	        <div style="display: inline-block; position: relative;" ng-repeat="img in images | filter:{[orderName]:''} | orderBy:orderName:orderDirection:natSort">
+	        	<background url="{{img.thumb_url}}" class="image-thumb" ng-style="thumbStyle" ng-click="setActiveImage(img.thumb_url)" data-toggle="modal" data-target="#photo-modal"></background>
+	        	<a ng-if="editMode" class="delete-photo-btn" ng-click="deleteImage(img.thumb_url);"><i class="fa fa-times-circle fa-2x face"></i></a>
 	        	<p ng-style="labelStyle">{{ img.date | amUtc | amLocal | amDateFormat:'dd D MMM HH:mm' }}</p>
 	        </div>
 

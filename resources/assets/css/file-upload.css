@@ -65,6 +65,7 @@ form .progress {
 
 .preview {
     clear: both;
+    position: relative;
 }
 
 .preview img, .preview audio, .preview video {
@@ -75,4 +76,23 @@ form .progress {
 .preview img{
     border-radius: 8px;
     border: 1px solid black;
+}
+
+.image-thumb{
+    border-radius: 8px;
+    border: 1px solid #333;
+    cursor: zoom-in;
+}
+
+a.delete-photo-btn{
+    position: absolute; 
+    right: -10px; 
+    top: -10px; 
+    color: #D00220; 
+    background-color: white; 
+    border-radius: 50%; 
+    padding: 0px; 
+    width: 26px; 
+    height: 26px;
+    cursor: pointer;
 }

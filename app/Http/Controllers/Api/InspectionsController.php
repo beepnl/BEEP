@@ -7,6 +7,7 @@ use App\Hive;
 use App\BeeRace;
 use App\Inspection;
 use App\InspectionItem;
+use App\Image;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Moment\Moment;
@@ -137,6 +138,17 @@ class InspectionsController extends Controller
                         'value'         => $value,
                     ];
                     InspectionItem::create($itemData);
+
+                    // add inspection link to Image
+                    if ($category->inputTypeType() == 'image')
+                    {
+                        $image = Image::where('thumb_url', $value)->first();
+                        if ($image)
+                        {
+                            $image->inspection_id = $inspection->id;
+                            $image->save();
+                        }
+                    }
                 }
             }
         }

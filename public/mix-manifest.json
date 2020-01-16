@@ -14,8 +14,8 @@
     "/js/languages/pt.js": "/js/languages/pt.js?id=8c9fa8679862ed1188fa",
     "/js/languages/ro.js": "/js/languages/ro.js?id=88640d7617cf0961ccac",
     "/js/languages/sv.js": "/js/languages/sv.js?id=037ab2d6bac61a6c5c59",
-    "/app/css/skin.css": "/app/css/skin.css?id=9d7b42047687e8b2a440",
-    "/css/skin-additions.css": "/css/skin-additions.css?id=13b5f3fdad7e5b530608",
+    "/app/css/skin.css": "/app/css/skin.css?id=41843e81b5845aaa20af",
+    "/css/skin-additions.css": "/css/skin-additions.css?id=1b6f3bfe567864876a87",
     "/css/32px.png": "/css/32px.png?id=2c5e54868b551d6d1ac6",
     "/css/40px.png": "/css/40px.png?id=2842a9b1f1e2f5a0f948",
     "/css/throbber.gif": "/css/throbber.gif?id=c669c278876d666d6290",
@@ -26,7 +26,7 @@
     "/app/js/angular.js": "/app/js/angular.js?id=613274fe74404112d987",
     "/app/js/angular-modules.js": "/app/js/angular-modules.js?id=32f1b047abe565669a70",
     "/app/js/angular-helpers.js": "/app/js/angular-helpers.js?id=2098021eeae06581d4b9",
-    "/app/js/angular-index.js": "/app/js/angular-index.js?id=6104a7f5f33ce8ead6bf",
-    "/app/js/angular-directives.js": "/app/js/angular-directives.js?id=43ad9bb3bc553a469cbc",
-    "/app/js/angular-code.js": "/app/js/angular-code.js?id=e22c9409c2d550986aa2"
+    "/app/js/angular-index.js": "/app/js/angular-index.js?id=f7e018072e39d8bf444e",
+    "/app/js/angular-directives.js": "/app/js/angular-directives.js?id=e6c6b81021d15d107715",
+    "/app/js/angular-code.js": "/app/js/angular-code.js?id=4f5391f65ff67c14a06f"
 }

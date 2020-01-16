@@ -1,4 +1,4 @@
-<div class="inspection-item {{item.input == 'text' || cols == 12 ? 'col-xs-12' : 'col-xs-12 col-sm-6 col-md-4' }}">
+<div class="inspection-item {{item.input == 'text' || cols == 12 ? 'col-xs-12' : 'col-xs-12 col-sm-6 col-md-4 col-lg-3 col-xl-2' }}">
     <div class="form-group">
         
         <label title="{{ item.description != null ? item.description : '' }} {{ item.required == 1 ? lang.required : '' }}" ng-class="{required:item.required}">
@@ -18,7 +18,7 @@
         <div ng-if="item.input == 'number_1_decimals'" step="0.1" ng-disabled="false" ng-model="item.value" rn-stepper></div>
         <div ng-if="item.input == 'number_2_decimals'" step="0.01" ng-disabled="false" ng-model="item.value" rn-stepper></div>
         <div ng-if="item.input == 'number_3_decimals'" step="0.001" ng-disabled="false" ng-model="item.value" rn-stepper></div>
-        
+
         <div ng-if="item.input == 'square_25cm2'" step="0.1" ng-disabled="false" ng-model="item.value" rn-stepper></div>
 
         <div ng-if="item.input == 'grade'">
@@ -76,34 +76,11 @@
                     ngf-pattern="'image/*'"
                     ngf-capture="camera"
                     ngf-drop-available="dropAvailable">
-                    <br><br><br>Select<span ng-show="dropAvailable">/drop</span> image here
+                    Select<span ng-show="dropAvailable">/drop</span> image
                 </div>
             </div>
         </div>
 
-        <div ng-if="item.input == 'colony_size_tpa'">
-
-        </div>
-
-        <div ng-if="item.input == 'colony_size_liebefeld'">
-            <div class="hive left">
-                <p class="lid" style="width: {{hive.width*(mobile?4:1)}}px;"></p>
-                <p ng-repeat="(key, layer) in hive.layers | orderBy : '-type' " class="layer" ng-class="layer.type" style="background-color: {{hive.color}}; width: {{hive.width*(mobile?4:1)}}px;">
-                    <span ng-repeat="(key, frame) in layer.frames track by $index" class="frame" ng-class="layer.type"></span>
-                </p>
-                <p class="bottom" style="width: {{hive.width*(mobile?4:1)}}px;"></p>
-            </div>
-            <p ng-repeat="(l, layer) in hive.layers" ng-if="layer.type == 'brood'">
-                {{lang.brood}} {{lang.layer}} {{ l+1 }}
-                <ol ng-repeat="(f, frame) in layer.frames track by $index">
-                    <li ng-repeat="side in ['A','B']">
-                        <label for="{{ liebefeld_photos[l + '_' + f + '_' + side] }} ">BK {{ l+1 }} F {{ f+1 }}</label>
-                        <input readonly="false" type="file" item-name="liebefeld_photos[l + '_' + f + '_' + side]" accept="image/png, image/jpeg" capture="camera">
-                    </li>
-                </ol>
-            </p>
-        </div>
-        
         <input ng-if="item.input == 'barcode'" ng-model="item.value" readonly="false" type="file" item-name="item.name" accept="image/*" capture="camera"></input>
         
         

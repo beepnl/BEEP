@@ -18,9 +18,9 @@ app.directive('checklistInput', ['$rootScope', '$timeout', 'Upload', 'api', 'ima
           scope.hivetypes = $rootScope.hivetypes;
           scope.inspection= $rootScope.inspection;
 
-          scope.setActiveImage = function(thumbUrl)
+          scope.setActiveImage = function(imageUrl)
           {
-            $rootScope.setActiveImage(thumbUrl);
+            $rootScope.setActiveImage(imageUrl);
           }
 
           scope.$watch('item.value', function(newValue, oldValue) 
@@ -257,7 +257,7 @@ app.directive('checklistInput', ['$rootScope', '$timeout', 'Upload', 'api', 'ima
             },
           };
         },
-        templateUrl: '/app/views/forms/checklist_input.html?v=2'
+        templateUrl: '/app/views/forms/checklist_input.html?v=3'
     };
 }]);
 

@@ -1,14 +1,16 @@
 .drop-box {
     background: #F8F8F8;
-    background-image: url("/img/icons/plus.svg");
-    background-position: center;
+    background-image: url("/img/icons/photo.svg");
+    background-position: 10px center;
     background-repeat: no-repeat;
-    background-size: 40px;
-    border: 5px dashed #DDD;
-    border-radius: 10px;
-    width: 170px;
-    text-align: center;
-    padding: 20px 10px;
+    background-size: 30px;
+    border: 2px dashed #DDD;
+    border-radius: 6px;
+    width: 130px;
+    text-align: left;
+    padding: 5px;
+    padding-left: 50px;
+    line-height: 1em;
 }
 
 .drop-box.dragover {
@@ -66,6 +68,11 @@ form .progress {
 }
 
 .preview img, .preview audio, .preview video {
-    max-width: 300px;
-    max-height: 150px;
+    max-width: 200px;
+    max-height: 100px;
+}
+
+.preview img{
+    border-radius: 8px;
+    border: 1px solid black;
 }

@@ -72,6 +72,9 @@
           
           <!-- Main Footer -->
           <div ng-include="'/app/views/template/template-block-footer.html?v=2'" ng-show="showAdminTemplate"></div>
+
+          <!-- Photo modal -->
+          <div ng-include="'/app/views/template/template-block-photo-modal.html?v=1'" ng-show="showAdminTemplate"></div>
           
         </div>
 

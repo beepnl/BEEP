@@ -1,4 +1,4 @@
-<fieldset ng-if="cat.children.length > 0 && (cat.input == 'label' || (cat.input != 'list' && cat.input != 'select' && cat.input != 'options'))" class="col-xs-12">
+<fieldset ng-if="cat.children.length > 0 && (cat.input == 'label' || (cat.input != 'list' && cat.input != 'select' && cat.input != 'options'))" class="col-xs-12 {{ cat.name }}">
 	
 	<legend>{{ cat.trans[locale] || cat.name}}</legend>
 

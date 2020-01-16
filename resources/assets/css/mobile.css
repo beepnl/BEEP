@@ -34,12 +34,6 @@ header.view-header > h1 {
 }
 
 
-
-
-
-
-
-
 .footer-mobile {
 	padding: 3px 3px 1px 0px;
 	width: 100%;
@@ -357,10 +351,12 @@ figure.main-loading {
 	left:0px;
 }
 
+.inspection-item{
+	min-height: 62px;
+}
 
 
-/*		settings 		*/
-
+/*	settings*/
 .main-container.settings form {
 	padding-top: 0px;
 	position: relative;

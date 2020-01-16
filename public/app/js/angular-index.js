@@ -427,8 +427,8 @@ app.run(function ($rootScope, $location, $window, $route, $routeParams, amMoment
     return true;
   };
 
-  $rootScope.setActiveImage = function (thumbUrl) {
-    images.setActiveImageByThumb(thumbUrl);
+  $rootScope.setActiveImage = function (imageUrl) {
+    images.setActiveImageByUrl(imageUrl);
   };
   /***************/
 

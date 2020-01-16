@@ -27,10 +27,45 @@ app.service('images', ['$http', '$rootScope', 'api', function($http, $rootScope,
 		return null;
 	}
 
+	this.getImageByImageUrl = function(imageUrl)
+	{
+		for (var i = 0; i < self.images.length; i++) 
+		{
+			var image = self.images[i];
+			if (image.image_url == imageUrl)
+				return image;
+		}
+		return null;
+	}
+
 	this.setActiveImage = function(image)
 	{
 		self.activeImage 	   = image;
 		$rootScope.activeImage = image;
+	}
+
+	this.setActiveImageByUrl = function(imageUrl) // can be thumb. image, or blob
+	{
+		console.log(typeof imageUrl, imageUrl);
+
+		var image = {'image_url':null, 'thumb_url':null};
+
+		if (typeof imageUrl == 'object') // load local image
+		{
+			image.image_url = imageUrl.$ngfBlobUrl;
+			var d = imageUrl.lastModifiedDate;
+			image.date      = d.getFullYear()+'-'+d.getMonth()+'-'+d.getDate()+' '+d.getHours()+':'+d.getMinutes()+':'+d.getSeconds();
+		}
+		else if (typeof imageUrl == 'string' && imageUrl.indexOf('/images/') > -1)
+		{
+			image = self.getImageByImageUrl(imageUrl);
+		}
+		else
+		{
+			image = self.getImageByThumbUrl(imageUrl);
+		}
+
+		self.setActiveImage(image);
 	}
 
 	this.setActiveImageByThumb = function(thumbUrl)

@@ -999,7 +999,7 @@ dl.hive-select{
 		width: 100%;
 	}
 
-/* Media queries */
+/* Mobile */
 @media (max-width: 400px) {
 	.header-title {
 	    padding-left: 14%;
@@ -1020,6 +1020,19 @@ dl.hive-select{
 		width: 12px;
 		height: 12px;
 	}
+	.inspection-item{
+		min-height: 66px;
+	}
+}
+
+/* Large screens */
+@media (min-width: 1400px){
+.col-xl-2 {
+    width: 16.666%;
+}
+@media (min-width: 1600px){
+.col-xl-1 {
+    width: 8.333%;
 }
 
 

@@ -530,9 +530,9 @@ app.run(function($rootScope, $location, $window, $route, $routeParams, amMoment,
     };
 
 
-    $rootScope.setActiveImage = function(thumbUrl)
+    $rootScope.setActiveImage = function(imageUrl)
     {
-        images.setActiveImageByThumb(thumbUrl);
+        images.setActiveImageByUrl(imageUrl);
     };
 
 

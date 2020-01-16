@@ -119,12 +119,13 @@ class Image extends Model
 
                 // save big image
                 $imageResized= InterventionImage::make($imageFile)->resize($maxPizelSize, $maxPizelSize, $anu);
+                $fileDate    = $imageResized->exif('DateTimeOriginal');
                 $imageHeight = $imageResized->getHeight();
                 $imageWidth  = $imageResized->getWidth();
                 $imageStored = Storage::disk($storage)->put($imagePath, $imageResized->stream());
                 $fileSize    = Storage::disk($storage)->size($imagePath);
-                $fileTime    = Storage::disk($storage)->lastModified($imagePath);
-                $fileTimeStamp = date('Y-m-d H:i:s', $fileTime);
+                // $fileTime    = Storage::disk($storage)->lastModified($thumbPath);
+                $fileTimeStamp = date('Y-m-d H:i:s', $fileDate);
                 
                 // save thumbnail
                 $thumb       = InterventionImage::make($imageResized)->resize($thumbPixels, $thumbPixels, $anu);

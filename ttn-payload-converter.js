@@ -81,7 +81,7 @@ function Converter(decoded, port) {
       {
         for (var i = 0; i < decoded.ds18b20_sensor_amount; i++) 
         {
-          converted['t_i_'+i] = decoded['t_i_'+i] / 100;
+          converted['t_'+i] = decoded['t_'+i] / 100;
         }
       }
     }

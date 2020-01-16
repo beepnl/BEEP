@@ -3,6 +3,7 @@
 namespace App;
 
 use Illuminate\Database\Eloquent\Model;
+use Moment\Moment;
 use InterventionImage;
 use Storage;
 use Auth;
@@ -81,6 +82,21 @@ class Image extends Model
         return 'users/'.$uid.'/'.$dir.'/'.$type.'/'.$fileName;
     }
 
+    public static function formatExifDate($exifDateString) // from 2020:01:04 11:20:18 -> Y-m-d H:i:s, format is already in UTC
+    {
+        $dateTimeArray = explode(' ', $exifDateString);    // 2020:01:04
+        $dateArray     = explode(':', $dateTimeArray[0]);  // 2020 01 04
+
+        if (count($dateArray) == 3 && checkdate($dateArray[1], $dateArray[2], $dateArray[0]))
+        {
+            $dateString = implode('-', $dateArray);        // 2020-01-04
+            $dateTime   = $dateString.'T'.$dateTimeArray[1];
+            $m = new Moment($dateTime, 'Europe/Amsterdam');
+            return $m->setTimezone('UTC')->format('Y-m-d H:i:s');
+        }
+        return null;
+    }
+
     public static function store($requestData, $type='inspection')
     {
         // check if image needs to be updated, or newly created
@@ -119,13 +135,13 @@ class Image extends Model
 
                 // save big image
                 $imageResized= InterventionImage::make($imageFile)->resize($maxPizelSize, $maxPizelSize, $anu);
-                $fileDate    = $imageResized->exif('DateTimeOriginal');
+                $fileDate    = Image::formatExifDate($imageResized->exif('DateTimeOriginal')); // formed as 2020:01:04 11:20:18
                 $imageHeight = $imageResized->getHeight();
                 $imageWidth  = $imageResized->getWidth();
                 $imageStored = Storage::disk($storage)->put($imagePath, $imageResized->stream());
                 $fileSize    = Storage::disk($storage)->size($imagePath);
                 // $fileTime    = Storage::disk($storage)->lastModified($thumbPath);
-                $fileTimeStamp = date('Y-m-d H:i:s', $fileDate);
+                $fileDate    = $fileDate ? $fileDate : date('Y-m-d H:i:s');
                 
                 // save thumbnail
                 $thumb       = InterventionImage::make($imageResized)->resize($thumbPixels, $thumbPixels, $anu);
@@ -143,7 +159,7 @@ class Image extends Model
                         'height'      => $imageHeight,
                         'width'       => $imageWidth,
                         'size_kb'     => round($fileSize/1024),
-                        'date'        => $fileTimeStamp,
+                        'date'        => $fileDate,
                         'user_id'     => Auth::user()->id,
                         'hive_id'     => isset($requestData['hive_id']) ? $requestData['hive_id'] : null,
                         'category_id' => isset($requestData['category_id']) ? $requestData['category_id'] : null,

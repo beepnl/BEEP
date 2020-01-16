@@ -65,7 +65,6 @@ app.directive('checklistInput', ['$rootScope', '$timeout', 'Upload', 'api', 'ima
               else if (newValue == null && typeof oldValue == 'object' && oldValue !== null)// newValue == null, 
               {
                 // image is removed
-                api.deleteApiRequest('imageRemove', 'images', scope.item.value);
                 $rootScope.changeChecklistItem(scope.item.input, scope.item.id, null, true);
               }
             }

@@ -806,24 +806,24 @@ class MeasurementController extends Controller
         if (count($first) == 0)
             Response::json('sensor-none-error', 500);
         
-        //$firstSensorMoment = new Moment(substr($first[0]['time'],0,10));
-        
         $all_names = array_keys($this->valid_sensors);
         $names     = $request->input('names', $all_names);
+
+        if (count($names) == 0)
+            Response::json('sensor-none-error', 500);
+
         $interval  = $request->input('interval','day');
         $index     = $request->input('index',0);
         $timeGroup = $request->input('timeGroup','day');
-       
-        if (count($names) == 0)
-            Response::json('sensor-none-error', 500);
+        $timeZone  = $request->input('timezone','Europe/Amsterdam');
         
         $durationInterval = $interval.'s';
         $requestInterval  = $interval;
         $resolution       = null;
         $staTimestamp = new Moment();
-        $staTimestamp->setTimezone('Europe/Amsterdam');
+        $staTimestamp->setTimezone($timeZone);
         $endTimestamp = new Moment();
-        $endTimestamp->setTimezone('Europe/Amsterdam');
+        $endTimestamp->setTimezone($timeZone);
         // if (timeGroup != null)
         // {
             switch($interval)

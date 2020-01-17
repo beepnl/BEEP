@@ -451,6 +451,7 @@
     Size                    : 'Grootte',
     preview                 : 'voorbeeld',
 
+
  };
 
 

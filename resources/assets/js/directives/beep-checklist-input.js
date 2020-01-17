@@ -90,7 +90,7 @@ app.directive('checklistInput', ['$rootScope', '$timeout', 'Upload', 'api', 'ima
             var id = listItem.id;
             var add= typeof listItem.value == 'undefined' ? true : listItem.value;
 
-            console.log('ar', scope.item.id, id, add, scope.item.value);
+            //console.log('ar', scope.item.id, id, add, scope.item.value);
 
             var selected_array = typeof scope.item.value != 'undefined' ? scope.item.value.split(',') : [];
             var i = selected_array.indexOf(id+'');

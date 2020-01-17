@@ -1079,6 +1079,8 @@ app.service('inspections', ['$http', '$rootScope', 'api', 'settings', function (
           delete self.saveObject.items[id];
         }
       }
+
+      $rootScope.$broadcast('inspectionItemUpdated');
     } else {
       console.log('NOT createInspectionObject', type, id, value, name);
     }

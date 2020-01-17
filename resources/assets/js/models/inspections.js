@@ -385,6 +385,7 @@ app.service('inspections', ['$http', '$rootScope', 'api', 'settings', function($
 					delete self.saveObject.items[id];
 				}
 			}
+			$rootScope.$broadcast('inspectionItemUpdated');
 		}
 		else
 		{

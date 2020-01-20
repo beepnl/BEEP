@@ -403,6 +403,10 @@ app.directive('checklistFieldset', ['$rootScope', function ($rootScope) {
       scope.hive = $rootScope.hive;
       scope.colony_size = 0;
 
+      scope.rangeStep = function (min, max, step) {
+        return rangeStep(min, max, step);
+      };
+
       if (scope.cat.name == 'top_photo_analysis') {
         //console.log('top_photo_analysis function defined');
         scope.calculateTpaColonySize = function () {
@@ -421,7 +425,9 @@ app.directive('checklistFieldset', ['$rootScope', function ($rootScope) {
           if (pixelsTotal == 0 || typeof hive == 'undefined' || hive == null || isNaN(pixelsBees) || isNaN(pixelsTotal)) {
             colony_size = 0;
           } else {
-            colony_size = Math.round(pixelsBees / pixelsTotal * parseFloat(hive.fr_width_cm) * parseFloat(hive.fr_height_cm) * hive.frames * hive.brood_layers * bees_per_cm2);
+            // colony_size = ratio occupied * fully occupied frames * 2 * brood layers * bees per cm2
+            var ratio = pixelsTotal > pixelsBees ? pixelsBees / pixelsTotal : 1;
+            colony_size = Math.round(ratio * (parseFloat(hive.fr_width_cm) * parseFloat(hive.fr_height_cm) * hive.frames * 2 * hive.brood_layers * bees_per_cm2));
           } //console.log(hive, colony_size, pixelsTotal, pixelsBees, parseFloat(hive.fr_width_cm), parseFloat(hive.fr_height_cm), hive.frames);
           // put value into input element 'colony_size'
 
@@ -432,6 +438,7 @@ app.directive('checklistFieldset', ['$rootScope', function ($rootScope) {
           }
 
           scope.colony_size = colony_size;
+          console.log('tpa_colony_size', colony_size);
         };
 
         $rootScope.$on('inspectionItemUpdated', scope.calculateTpaColonySize);
@@ -471,7 +478,8 @@ app.directive('checklistFieldset', ['$rootScope', function ($rootScope) {
             if (child.name == 'colony_size') child.value = colony_size;
           }
 
-          scope.colony_size = colony_size; //console.log(hive, scope.colony_size, pixelsTotal, pixelsBees, parseFloat(hive.fr_width_cm), parseFloat(hive.fr_height_cm), hive.frames);
+          scope.colony_size = colony_size;
+          console.log('lieberfeld_colony_size', colony_size); //console.log(hive, scope.colony_size, pixelsTotal, pixelsBees, parseFloat(hive.fr_width_cm), parseFloat(hive.fr_height_cm), hive.frames);
         };
 
         $rootScope.$on('inspectionItemUpdated', scope.calculateLieberfeldColonySize);

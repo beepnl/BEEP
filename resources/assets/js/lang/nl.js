@@ -429,6 +429,7 @@
     my_beep_data            : 'Mijn eigen BEEP gegevens',
     
     new_apiary_explanation  : 'Maak een nieuwe bijenstand in 4 stappen',
+    optional                : 'optioneel',
     dimensions              : 'afmetingen',
     details                 : 'details',
     configuration           : 'configuratie',

@@ -1022,6 +1022,9 @@ dl.hive-select{
 	.inspection-item{
 		min-height: 66px;
 	}
+	ul,ol {
+		padding-inline-start: 20px;
+	}
 }
 
 /* Large screens */

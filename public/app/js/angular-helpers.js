@@ -1106,6 +1106,17 @@ var range = function range(n) {
   return new Array(n);
 };
 
+var rangeStep = function rangeStep(min, max, step) {
+  step = step || 1;
+  var input = [];
+
+  for (var i = min; i <= max; i += step) {
+    input.push(i);
+  }
+
+  return input;
+};
+
 var convertOjectToArray = function convertOjectToArray(obj) {
   var array = [];
 

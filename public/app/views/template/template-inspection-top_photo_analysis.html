@@ -4,7 +4,7 @@
 	<li>After a minute, remove the lid and take first a high-resolution photo from the label of the hive and then of the topside. For the accuracy of the photo analysis, take care to include the entire top frame in the photo, and use a standard angle (35mm) (Figure 1).</li>
 </ol>
 <img style="width:100%;" src="/img/inspection-top-photo-analysis-explnation.jpg">
-<p style="font-style: italic;">Figure 1. Correct position of hive top in photograph and potential mistakes to avoid.</p>
+<p style="font-style: italic; text-align: center;">Figure 1. Correct position of hive top in photograph and potential mistakes to avoid.</p>
 <hr>
 <div class="row">
 	<div class="col-xs-12 col-sm-6 col-md-4 col-lg-3">
@@ -12,11 +12,14 @@
             <label>{{ hive.name }}</label>
         	<div>
     			<div class="hive left">
-	    			<p class="lid" style="width: {{hive.width*(mobile?4:1)}}px;"></p>
-	            	<p ng-repeat="(key, layer) in hive.layers | orderBy : '-type' " class="layer" ng-class="layer.type" style="background-color: {{hive.color}}; width: {{hive.width*(mobile?4:1)}}px;">
-	            		<span ng-repeat="(key, frame) in layer.frames track by $index" class="frame" ng-class="layer.type"></span>
+	    			<p class="lid" style="width: {{hive.frames*13}}px;"></p>
+	            	<p ng-repeat="(key, layer) in hive.layers | orderBy : '-type' " ng-if="layer.type != 'brood'" class="layer" ng-class="layer.type" style="background-color: {{hive.color}}; width: {{hive.frames*13}}px;">
+	            		<span ng-repeat="f in rangeStep(1,hive.frames)" class="frame wax" ng-class="layer.type"></span>
 	            	</p>
-	            	<p class="bottom" style="width: {{hive.width*(mobile?4:1)}}px;"></p>
+	            	<p ng-repeat="layer in rangeStep(1,hive.brood_layers)" class="layer brood" style="background-color: {{hive.color}}; width: {{hive.frames*13}}px;">
+	            		<span ng-repeat="f in rangeStep(1,hive.frames)" class="frame wax"></span>
+	            	</p>
+	            	<p class="bottom" style="width: {{hive.frames*13}}px;"></p>
             	</div>
             </div>
     	</div>
@@ -26,11 +29,11 @@
 			<div class="col-xs-6">
 				<div>
 					<label>{{ lang.Hive_brood_layers }}</label>
-					<div step="1" ng-disabled="false" min="0" ng-model="hive.brood_layers" rn-stepper></div>
+					<div step="1" ng-disabled="false" min="0" ng-model="hive.brood_layers" ng-change="calculateTpaColonySize()" rn-stepper></div>
 				</div>
 				<div>
 					<label>{{ lang.Hive_frames }}</label>
-					<div step="1" ng-disabled="false" min="0" ng-model="hive.frames" rn-stepper></div>
+					<div step="1" ng-disabled="false" min="0" ng-model="hive.frames" ng-change="calculateTpaColonySize()" rn-stepper></div>
 				</div>
 			</div>
 			

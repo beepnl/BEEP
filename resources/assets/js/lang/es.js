@@ -424,6 +424,8 @@
     consent_no              : 'I do NOT consent to share my data',
     my_beep_data            : 'My own BEEP data',
     
+    new_apiary_explanation  : 'Create a new apiary in 4 steps',
+    optional                : 'optional',
     dimensions              : 'dimensions',
     details                 : 'details',
     configuration           : 'configuration',
@@ -439,7 +441,13 @@
     fr_height_cm            : 'Frame height (cm)',
     queen_line              : 'line',
     queen_tree              : 'tree',
-    queen_description       : 'description',
+    queen_description       : 'notes',
+    Hive_short              : 'Hive',
+
+    Images                  : 'Images',
+    Size                    : 'Size',
+    preview                 : 'preview',
+    
 };
 
 

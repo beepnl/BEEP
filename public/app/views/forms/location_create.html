@@ -176,11 +176,11 @@
 							            	<div>
 								    			<div class="hive left">
 									    			<p class="lid" style="width: {{hive.frames*13}}px;"></p>
-									            	<p ng-repeat="layer in range(1,hive.honey_layers)" class="layer honey" style="background-color: {{hive.color}}; width: {{hive.frames*13}}px;">
-									            		<span ng-repeat="lf in range(1,hive.frames)" class="frame wax"></span>
+									            	<p ng-repeat="layer in rangeStep(1,hive.honey_layers)" class="layer honey" style="background-color: {{hive.color}}; width: {{hive.frames*13}}px;">
+									            		<span ng-repeat="lf in rangeStep(1,hive.frames)" class="frame wax"></span>
 									            	</p>
-									            	<p ng-repeat="layer in range(1,hive.brood_layers)" class="layer brood" style="background-color: {{hive.color}}; width: {{hive.frames*13}}px;">
-									            		<span ng-repeat="f in range(1,hive.frames)" class="frame wax"></span>
+									            	<p ng-repeat="layer in rangeStep(1,hive.brood_layers)" class="layer brood" style="background-color: {{hive.color}}; width: {{hive.frames*13}}px;">
+									            		<span ng-repeat="f in rangeStep(1,hive.frames)" class="frame wax"></span>
 									            	</p>
 									            	<p class="bottom" style="width: {{hive.frames*13}}px;"></p>
 								            	</div>
@@ -265,10 +265,10 @@
 					            <div class="form-item">
 						            <label>{{ lang.Location }} {{ lang.preview }}</label>
 					            	<div style="border-bottom: 3px solid black;">
-						    			<div class="hive small" style="display: inline-block; margin-bottom: -33px; margin-top: 30px; margin-right: 3px;" ng-repeat="(i, h) in range(1,hive.hive_amount) track by $index">
+						    			<div class="hive small" style="display: inline-block; margin-bottom: -33px; margin-top: 30px; margin-right: 3px;" ng-repeat="(i, h) in rangeStep(1,hive.hive_amount) track by $index">
 							    			<p class="lid" style="width: {{hive.frames*4}}px;"></p>
-							            	<p ng-repeat="layer in range(1,hive.honey_layers)" class="layer honey" style="background-color: {{hive.color}}; width: {{hive.frames*4}}px;"></p>
-							            	<p ng-repeat="layer in range(1,hive.brood_layers)" class="layer brood" style="background-color: {{hive.color}}; width: {{hive.frames*4}}px;"></p>
+							            	<p ng-repeat="layer in rangeStep(1,hive.honey_layers)" class="layer honey" style="background-color: {{hive.color}}; width: {{hive.frames*4}}px;"></p>
+							            	<p ng-repeat="layer in rangeStep(1,hive.brood_layers)" class="layer brood" style="background-color: {{hive.color}}; width: {{hive.frames*4}}px;"></p>
 							            	<p class="bottom" style="width: {{hive.frames*4}}px;"></p>
 							            	<p style="height: 16px;em; overflow: hidden;">{{ hive.prefix }} {{ i+(1*hive.offset) }}</p>
 						            	</div>

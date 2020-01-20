@@ -65,13 +65,8 @@ app.controller('LocationsCtrl', function($scope, $rootScope, $window, $location,
 		$scope.tabClasses[tabNum] = "active";
 	};
 
-	$scope.range = function(min, max, step) {
-	    step = step || 1;
-	    var input = [];
-	    for (var i = min; i <= max; i += step) {
-	        input.push(i);
-	    }
-	    return input;
+	$scope.rangeStep = function(min, max, step) {
+	    return rangeStep(min, max, step);
 	};
 	
 	$scope.init = function()

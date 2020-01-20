@@ -368,7 +368,7 @@ class MeasurementController extends Controller
         $device  = Device::where('key', $dev_eui)->first();
         if($device)
         {
-            $this->storeDeviceMeta($dev_eui)
+            $this->storeDeviceMeta($dev_eui);
         }
         else
         {

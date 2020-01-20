@@ -365,28 +365,35 @@ class MeasurementController extends Controller
 
         // Check if key is valid
         $dev_eui = $data_array['key']; // save sensor data under sensor key
-        $sensor     = Device::where('key', $dev_eui)->first();
-        if(!$sensor)
+        $device  = Device::where('key', $dev_eui)->first();
+        if($device)
+        {
+            // store metadata from sensor
+            $device->last_message_received = date('Y-m-d H:i:s');
+            $device->save();
+        }
+        else
         {
             Storage::disk('local')->put('sensors/sensor_invalid_key.log', json_encode($data_array));
             return Response::json('No valid key provided', 401);
         }
+
 
         unset($data_array['key']);
 
         if (isset($data_array['w_v']) || isset($data_array['w_fl']) || isset($data_array['w_fr']) || isset($data_array['w_bl']) || isset($data_array['w_br'])) 
         {
             // check if calibration is required
-            $calibrate = $this->last_sensor_measurement_time_value($sensor, 'calibrating_weight');
+            $calibrate = $this->last_sensor_measurement_time_value($device, 'calibrating_weight');
             if (floatval($calibrate) > 0)
-                $cal = $this->calibrate_weight_sensors($sensor, $calibrate, false, $data_array);
+                $cal = $this->calibrate_weight_sensors($device, $calibrate, false, $data_array);
 
             // take into account offset and multi
-            $weight_kg = $this->calculateWeightKg($sensor, $data_array);
+            $weight_kg = $this->calculateWeightKg($device, $data_array);
             $data_array['weight_kg'] = $weight_kg;
 
             // check if we need to compensate weight for temp
-            $data_array = $this->add_weight_kg_corrected_with_temperature($sensor, $data_array);
+            $data_array = $this->add_weight_kg_corrected_with_temperature($device, $data_array);
         }
         
         //die(print_r($dev_eui));

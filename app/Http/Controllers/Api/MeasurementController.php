@@ -368,9 +368,7 @@ class MeasurementController extends Controller
         $device  = Device::where('key', $dev_eui)->first();
         if($device)
         {
-            // store metadata from sensor
-            $device->last_message_received = date('Y-m-d H:i:s');
-            $device->save();
+            $this->storeDeviceMeta($dev_eui)
         }
         else
         {
@@ -713,6 +711,30 @@ class MeasurementController extends Controller
         return $data_array;
     }
     
+    private function storeDeviceMeta($key, $field=null, $value=null)
+    {
+        $device = Device::where('key', $key)->first();
+
+        if($device)
+        {
+            if ($field != null && $value != null)
+            {
+                switch($field)
+                {
+                    case 'hardware_id':
+                        if (isset($device->hardware_id)) 
+                            return;
+                        else
+                            $device->hardware_id = $value;
+                        break;
+                }
+            }
+            // store metadata from sensor
+            $device->last_message_received = date('Y-m-d H:i:s');
+            $device->save();
+        }
+    }
+
     private function parse_ttn_payload($request_data)
     {
         $data_array = $request_data['payload_fields'];
@@ -723,6 +745,11 @@ class MeasurementController extends Controller
             $data_array['rssi'] = $request_data['metadata']['gateways'][0]['rssi'];
         if (isset($request_data['metadata']['gateways'][0]['snr']))
             $data_array['snr']  = $request_data['metadata']['gateways'][0]['snr'];
+
+        if (isset($request_data['dev_id']) && isset($data_array['key'])) // store hardware 
+        {
+            $this->storeDeviceMeta($data_array['key'], 'hardware_id', $request_data['dev_id']);
+        }
 
         return $data_array;
     }

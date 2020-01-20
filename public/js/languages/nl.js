@@ -364,7 +364,7 @@
     server_down             : 'De app is tijdelijk niet beschikbaar door onderhoud, probeer het later opnieuw',
     add_to_calendar         : 'Zet in agenda',
     sort_on                 : 'Sorteer op',
-    Whats_new               : 'Nieuw in v2.1!',
+    Whats_new               : 'Nieuw!',
     Manual                  : 'Handleiding',
 
     Site_title              : 'BEEP | Bijenmonitor',
@@ -429,6 +429,7 @@
     my_beep_data            : 'Mijn eigen BEEP gegevens',
     
     new_apiary_explanation  : 'Maak een nieuwe bijenstand in 4 stappen',
+    optional                : 'optioneel',
     dimensions              : 'afmetingen',
     details                 : 'details',
     configuration           : 'configuratie',

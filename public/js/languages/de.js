@@ -359,7 +359,7 @@ LANG['de'] =
     server_down             : 'Die App ist aufgrund von Wartungsarbeiten nicht verfügbar. Bitte versuche es später erneut',
     add_to_calendar         : 'Zum Kalender hinzufügen',
     sort_on                 : 'Sortieren nach',
-    Whats_new               : 'Neu in v2.1!',
+    Whats_new               : 'Neu!',
     Manual                  : 'Anleitung',
 
     Site_title 				: 'BEEP | Bienenmonitor',
@@ -424,6 +424,8 @@ LANG['de'] =
     consent_no              : 'I do NOT consent to share my data',
     my_beep_data            : 'My own BEEP data',
     
+    new_apiary_explanation  : 'Create a new apiary in 4 steps',
+    optional                : 'optional',
     dimensions              : 'dimensions',
     details                 : 'details',
     configuration           : 'configuration',
@@ -439,5 +441,11 @@ LANG['de'] =
     fr_height_cm            : 'Frame height (cm)',
     queen_line              : 'line',
     queen_tree              : 'tree',
-    queen_description       : 'description',
+    queen_description       : 'notes',
+    Hive_short              : 'Hive',
+
+    Images                  : 'Images',
+    Size                    : 'Size',
+    preview                 : 'preview',
+    
 };

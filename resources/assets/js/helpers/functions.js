@@ -60,7 +60,8 @@ var range = function(n)
   return new Array(n);
 };
 
-var rangeStep = function(min, max, step) {
+var rangeStep = function(min, max, step) 
+{
     step = step || 1;
     var input = [];
     for (var i = min; i <= max; i += step) {

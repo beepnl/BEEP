@@ -19,10 +19,6 @@ app.controller('InspectionCreateCtrl', function($scope, $rootScope, $window, $lo
 	$scope.hive 			= null;
 	$scope.hives 			= null;
 	$scope.location 		= null;
-	$scope.locations 		= null;
-
-	$scope.beeraces 		= null;
-	$scope.hivetypes 		= null;
 
 	$scope.langScript	    = $rootScope.lang.pick_a_date_lang_file;
 
@@ -34,16 +30,13 @@ app.controller('InspectionCreateCtrl', function($scope, $rootScope, $window, $lo
 		}
 		else
 		{
-			// console.log('checklist', inspections.checklist);
-			// console.log('checklists', inspections.checklists);
 			$scope.setDateLanguage();
+
 			$rootScope.beeraces   = settings.beeraces;
 			$rootScope.hivetypes  = settings.hivetypes;
 			$rootScope.hives  	  = hives.hives;
 			$rootScope.locations  = hives.locations;
-			$rootScope.uploadFile = $scope.uploadFile;
-			$rootScope.uploadFiles= $scope.uploadFiles;
-			$rootScope.files 	  = $scope.files;
+
 			$scope.showMore   	  = hives.hives.length > 1 ? true : false;
 			$scope.hive 	  	  = hives.getHiveById($routeParams.hiveId);
 			if ($scope.hive == null)

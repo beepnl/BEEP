@@ -262,6 +262,7 @@ app.service('settings', ['$http', '$rootScope', 'api', function ($http, $rootSco
     this.hives = {};
     this.beeraces = [];
     this.hivetypes = [];
+    this.hivedimensions = {};
     this.sensortypes = [];
     this.taxonomy = [];
     this.settings_array = [];
@@ -283,6 +284,7 @@ app.service('settings', ['$http', '$rootScope', 'api', function ($http, $rootSco
     if (typeof data.beeraces != 'undefined') self.beeraces = data.beeraces;
     if (typeof data.sensortypes != 'undefined') self.sensortypes = data.sensortypes;
     if (typeof data.hivetypes != 'undefined') self.hivetypes = data.hivetypes;
+    if (typeof data.hivedimensions != 'undefined') self.hivedimensions = data.hivedimensions;
     if (typeof data.hivetypes != 'undefined' || typeof data.beeraces != 'undefined') $rootScope.$broadcast('taxonomyListsUpdated');
   };
 
@@ -1907,11 +1909,11 @@ app.controller('LocationsCtrl', function ($scope, $rootScope, $window, $location
     "street_no": "",
     "lat": 52,
     "lon": 5,
-    "bb_width_cm": 45,
-    "bb_depth_cm": 38,
-    "bb_height_cm": 28,
-    "fr_width_cm": 38,
-    "fr_height_cm": 18
+    "bb_width_cm": null,
+    "bb_depth_cm": null,
+    "bb_height_cm": null,
+    "fr_width_cm": null,
+    "fr_height_cm": null
   };
   $scope.types = "['address']";
   $scope.mybounds = {
@@ -1987,9 +1989,16 @@ app.controller('LocationsCtrl', function ($scope, $rootScope, $window, $location
     hives.toggle_open_loc(loc.id);
   };
 
-  $scope.setHiveType = function (id) {
-    console.log(id);
-    $scope.hive.hive_type_id = id;
+  $scope.selectHiveType = function (item) {
+    $scope.hive.hive_type_id = item.id;
+
+    if (settings.hivedimensions && typeof settings.hivedimensions[item.name] != 'undefined') {
+      $scope.hive.bb_width_cm = settings.hivedimensions[item.name].bb_width_cm;
+      $scope.hive.bb_depth_cm = settings.hivedimensions[item.name].bb_depth_cm;
+      $scope.hive.bb_height_cm = settings.hivedimensions[item.name].bb_height_cm;
+      $scope.hive.fr_width_cm = settings.hivedimensions[item.name].fr_width_cm;
+      $scope.hive.fr_height_cm = settings.hivedimensions[item.name].fr_height_cm;
+    }
   };
 
   $scope.updateTaxonomy = function () {
@@ -2325,6 +2334,14 @@ app.controller('HivesCtrl', function ($scope, $rootScope, $window, $location, $f
 
   $scope.selectHiveType = function (item) {
     $scope.hive.hive_type_id = item.id;
+
+    if (settings.hivedimensions && typeof settings.hivedimensions[item.name] != 'undefined') {
+      $scope.hive.bb_width_cm = settings.hivedimensions[item.name].bb_width_cm;
+      $scope.hive.bb_depth_cm = settings.hivedimensions[item.name].bb_depth_cm;
+      $scope.hive.bb_height_cm = settings.hivedimensions[item.name].bb_height_cm;
+      $scope.hive.fr_width_cm = settings.hivedimensions[item.name].fr_width_cm;
+      $scope.hive.fr_height_cm = settings.hivedimensions[item.name].fr_height_cm;
+    }
   };
 
   $scope.selectBeeRace = function (item) {
@@ -2694,25 +2711,17 @@ app.controller('InspectionCreateCtrl', function ($scope, $rootScope, $window, $l
   $scope.hive = null;
   $scope.hives = null;
   $scope.location = null;
-  $scope.locations = null;
-  $scope.beeraces = null;
-  $scope.hivetypes = null;
   $scope.langScript = $rootScope.lang.pick_a_date_lang_file;
 
   $scope.init = function () {
     if (api.getApiToken() == null) {
       $location.path('/login');
     } else {
-      // console.log('checklist', inspections.checklist);
-      // console.log('checklists', inspections.checklists);
       $scope.setDateLanguage();
       $rootScope.beeraces = settings.beeraces;
       $rootScope.hivetypes = settings.hivetypes;
       $rootScope.hives = hives.hives;
       $rootScope.locations = hives.locations;
-      $rootScope.uploadFile = $scope.uploadFile;
-      $rootScope.uploadFiles = $scope.uploadFiles;
-      $rootScope.files = $scope.files;
       $scope.showMore = hives.hives.length > 1 ? true : false;
       $scope.hive = hives.getHiveById($routeParams.hiveId);
       if ($scope.hive == null) $scope.hive = groups.getHiveById($routeParams.hiveId);

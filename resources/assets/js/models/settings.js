@@ -21,6 +21,7 @@ app.service('settings', ['$http', '$rootScope', 'api', function($http, $rootScop
 
 		this.beeraces  	  		= [];
 		this.hivetypes 	  		= [];
+		this.hivedimensions 	= {};
 		this.sensortypes 	  	= [];
 		this.taxonomy			= [];
 		this.settings_array		= [];
@@ -52,6 +53,9 @@ app.service('settings', ['$http', '$rootScope', 'api', function($http, $rootScop
 
 		if (typeof data.hivetypes != 'undefined')
 			self.hivetypes = data.hivetypes;
+
+		if (typeof data.hivedimensions != 'undefined')
+			self.hivedimensions = data.hivedimensions;
 
 		if (typeof data.hivetypes != 'undefined' || typeof data.beeraces != 'undefined')
 			$rootScope.$broadcast('taxonomyListsUpdated');

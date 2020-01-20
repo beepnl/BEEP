@@ -29,6 +29,20 @@ class Taxonomy extends Model
         'system' => 'System (required for interface)',
     ]; 
 
+    public static $hive_type_sizes = 
+    [
+        'bs_improved_national' => ['fr_width_cm'=>35.6, 'fr_height_cm'=>21.5, 'bb_width_cm'=>46, 'bb_depth_cm'=>46, 'bb_height_cm'=>22.5],
+        'dadant' => ['fr_width_cm'=>42, 'fr_height_cm'=>26, 'bb_width_cm'=>47, 'bb_depth_cm'=>47, 'bb_height_cm'=>30],
+        'deutsch_normalmass_1_5' => ['fr_width_cm'=>35, 'fr_height_cm'=>31.5, 'bb_width_cm'=>0, 'bb_depth_cm'=>0, 'bb_height_cm'=>0],
+        'deutsch_normalmass' => ['fr_width_cm'=>35, 'fr_height_cm'=>20, 'bb_width_cm'=>42.6, 'bb_depth_cm'=>50.9, 'bb_height_cm'=>23.2],
+        'einraumbeute' => ['fr_width_cm'=>26.1, 'fr_height_cm'=>44, 'bb_width_cm'=>0, 'bb_depth_cm'=>0, 'bb_height_cm'=>0],
+        'golzbeute' => ['fr_width_cm'=>23, 'fr_height_cm'=>31, 'bb_width_cm'=>62, 'bb_depth_cm'=>59.4, 'bb_height_cm'=>37],
+        'langstroth' => ['fr_width_cm'=>42.8, 'fr_height_cm'=>20.3, 'bb_width_cm'=>65, 'bb_depth_cm'=>50.5, 'bb_height_cm'=>24.5],
+        'segeberger' => ['fr_width_cm'=>37, 'fr_height_cm'=>22.3, 'bb_width_cm'=>50, 'bb_depth_cm'=>50, 'bb_height_cm'=>25],
+        'spaarkast' => ['fr_width_cm'=>34, 'fr_height_cm'=>19.8, 'bb_width_cm'=>47.3, 'bb_depth_cm'=>42.1, 'bb_height_cm'=>22.8],
+        'zander' => ['fr_width_cm'=>40, 'fr_height_cm'=>19.1, 'bb_width_cm'=>0, 'bb_depth_cm'=>0, 'bb_height_cm'=>0],
+    ]; 
+
     // Relations
     public function getIconAttribute()
     {

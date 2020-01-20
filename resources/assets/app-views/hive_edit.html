@@ -51,7 +51,7 @@
 				    	<div class="col-xs-12 col-sm-4 form-item">
 				    		<label>{{lang.Type}}*</label>
 				    		<div>
-				                <select ng-model="hive_type" ng-options="item as item.trans[locale] group by item.group[locale] for item in hivetypes | orderBy:transSort track by item.id" type="select" class="form-control" ng-change="selectHiveType(hive_type)"  required="required">
+				                <select ng-model="hive_type" ng-options="item as item.trans[locale] group by item.group[locale] for item in hivetypes | orderBy:transSort track by item.id" type="select" class="form-control" ng-change="selectHiveType(hive_type)">
 				                	<option value=''>{{lang.Select}} {{lang.Hive_type}}...</option>
 				                </select>
 				            </div>

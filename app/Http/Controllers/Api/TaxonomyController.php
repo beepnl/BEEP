@@ -36,8 +36,9 @@ class TaxonomyController extends Controller
             }
         }
 
-        $out['beeraces']    = Category::descendentsByRootParentAndName('bee_colony', 'characteristics', 'subspecies');
-        $out['sensortypes'] = Category::descendentsByRootParentAndName('hive', 'app', 'sensor');
+        $out['beeraces']       = Category::descendentsByRootParentAndName('bee_colony', 'characteristics', 'subspecies');
+        $out['sensortypes']    = Category::descendentsByRootParentAndName('hive', 'app', 'sensor');
+        $out['hivedimensions'] = Taxonomy::$hive_type_sizes;
 
         return response()->json($out);
     }

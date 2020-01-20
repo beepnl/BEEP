@@ -55,12 +55,6 @@
 					                <input ng-model="hive.name" name="name" type="text" placeholder="{{ lang.name }}" class="form-control" required="required" >
 					            </div>
 					            <div class="form-item">
-					               <label>{{ lang.Hive_type }}</label>
-					                <select ng-model="hive_type" ng-change="setHiveType(hive_type.id)" ng-options="item as item.trans[locale] group by item.group[locale] for item in hivetypes | orderBy:transSort track by item.id" type="select" class="form-control">
-					                	<option value=''>{{lang.Select}} {{lang.Hive_type}}...</option>
-					                </select>
-					            </div>
-					            <div class="form-item">
 					                <label>{{ lang.roofed }}</label>
 					                <div ng-model="hive.roofed" readonly="false" yes="lang.yes" no="lang.no" item-name="item.roofed" yes-no-rating></div>
 					            </div>
@@ -171,6 +165,12 @@
 							    		</div>
 						    		</div>
 							    	 <div class="col-xs-12 col-sm-3 col-md-3">
+										 <div class="form-item">
+							               <label>{{ lang.Hive_type }}</label>
+							                <select ng-model="hive_type" ng-change="selectHiveType(hive_type)" ng-options="item as item.trans[locale] group by item.group[locale] for item in hivetypes | orderBy:transSort track by item.id" type="select" class="form-control">
+							                	<option value=''>{{lang.Select}} {{lang.Hive_type}}...</option>
+							                </select>
+							            </div>
 										<div class="form-item">
 								            <label>{{ lang.Hive }}</label>
 							            	<div>

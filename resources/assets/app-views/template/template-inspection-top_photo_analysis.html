@@ -26,11 +26,11 @@
 			<div class="col-xs-6">
 				<div>
 					<label>{{ lang.Hive_brood_layers }}</label>
-					<p>{{ hive.brood_layers }}</p>
+					<div step="1" ng-disabled="false" min="0" ng-model="hive.brood_layers" rn-stepper></div>
 				</div>
 				<div>
 					<label>{{ lang.Hive_frames }}</label>
-					<p>{{ hive.frames }}</p>
+					<div step="1" ng-disabled="false" min="0" ng-model="hive.frames" rn-stepper></div>
 				</div>
 			</div>
 			

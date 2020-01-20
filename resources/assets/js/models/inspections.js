@@ -44,6 +44,7 @@ app.service('inspections', ['$http', '$rootScope', 'api', 'settings', function($
 		'number_1_decimals': null,
 		'number_2_decimals': null,
 		'number_3_decimals': null,
+		'square_25cm2': null,
 		'text': "",
 		'select': "",
 		'options': "",
@@ -229,6 +230,7 @@ app.service('inspections', ['$http', '$rootScope', 'api', 'settings', function($
 			case 'number_1_decimals':
 			case 'number_2_decimals':
 			case 'number_3_decimals':	
+			case 'square_25cm2':	
 				return parseFloat(value);	
 		}
 		return value;

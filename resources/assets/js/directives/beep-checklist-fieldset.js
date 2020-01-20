@@ -69,17 +69,18 @@ app.directive('checklistFieldset', ['$rootScope', function($rootScope) {
 
                     if (typeof child != 'undefined' && child != null && typeof child.name != 'undefined' && child.name.indexOf('frame') > -1) // frame_1_side_a
                     {
-                        console.log(child.name);
                         for (var j = child.children.length - 1; j >= 0; j--) 
                         {
                             var child2 = child.children[j];
-                            if (typeof child2 != 'undefined' && child2 != null && typeof child2.name != 'undefined' && child2.name == 'bees_squares_25cm2')
+                            if (typeof child2 != 'undefined' && child2 != null && typeof child2.name != 'undefined' && child2.name == 'bees_squares_25cm2' && parseFloat(child2.value) > 0)
+                            {
                                 bees_squares_25cm2 += parseFloat(child2.value);
+                            }
                         }        
 
                     }
                 }
-
+                
                 var hive = scope.hive;
                 if (typeof hive == 'undefined' || hive == null || isNaN(bees_squares_25cm2) )
                 {
@@ -87,7 +88,7 @@ app.directive('checklistFieldset', ['$rootScope', function($rootScope) {
                 }
                 else
                 {
-                    colony_size = Math.round( bees_squares_25cm2 * 25 * parseFloat(hive.fr_width_cm) * parseFloat(hive.fr_height_cm) * bees_per_cm2);
+                    colony_size = Math.round( bees_squares_25cm2 * 25 * bees_per_cm2);
                 }
 
                 // put value into input element 'colony_size'

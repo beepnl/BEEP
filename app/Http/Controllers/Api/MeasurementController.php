@@ -786,9 +786,14 @@ class MeasurementController extends Controller
         if (isset($request_data['metadata']['gateways'][0]['snr']))
             $data_array['snr']  = $request_data['metadata']['gateways'][0]['snr'];
 
-        if (isset($request_data['dev_id']) && isset($data_array['key'])) // store hardware 
+        if (isset($request_data['beep_base']) && $request_data['beep_base'] === true && isset($data_array['key']) && isset($request_data['hardware_id'])) // store hardware id
         {
-            $this->storeDeviceMeta($data_array['key'], 'hardware_id', $request_data['dev_id']);
+            $this->storeDeviceMeta($data_array['key'], 'hardware_id', $request_data['hardware_id']);
+            $this->storeDeviceMeta($data_array['key'], 'measurement_transmission_ratio', $request_data['measurement_transmission_ratio']);
+            $this->storeDeviceMeta($data_array['key'], 'measurement_interval_min', $request_data['measurement_interval_min']);
+            $this->storeDeviceMeta($data_array['key'], 'hardware_version', $request_data['hardware_version']);
+            $this->storeDeviceMeta($data_array['key'], 'firmware_version', $request_data['firmware_version']);
+            $this->storeDeviceMeta($data_array['key'], 'bootcount', $request_data['bootcount']);
         }
 
         return $data_array;

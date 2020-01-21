@@ -84,24 +84,26 @@
         <h4 class="modal-title" id="sensorModalLabel">{{ lang.Sensor_definitions }} - {{ selectedDevice.name }} </h4>
       </div>
       
-      <div class="modal-body" style="min-height: 40vh;">
-        <table class="table table-striped no-margin" style="width: 100%">
-    		<thead>
-    			<tr class="trh">
-	    			<th >{{lang.Name}}</th>
-	    			<th >{{lang.Inside}}</th>
-	    			<th >{{lang.Offset}}</th>
-	    			<th >{{lang.Multiplier}}</th>
-	    			<th >{{lang.Input}}</th>
-	    			<th >{{lang.Output}}</th>
-	    			<th style="min-width: 120px;">{{lang.Actions}}</th>
-	    		</tr>
-    		</thead>
-    		<tbody>
-				<tr def="def" index="i" meas="sensormeasurements" ng-class="{'delete':def.delete}" changein="selectInputSensorMeasurement" changeout="selectOutputSensorMeasurement" save="saveSensorDefinition" delete="deleteSensorDefinition" ng-repeat="(i, def) in defs track by i" beep-sensor-definition></tr>
-				<tr ng-if="defs.length == 0"><td colspan="7">{{ lang.no_data }}</td></tr>
-			</tbody>
-		</table>
+      <div class="modal-body no-padding" style="min-height: 40vh;">
+        <div class="table-responsive">
+	        <table class="table table-striped no-margin" style="min-width: 700px">
+	    		<thead>
+	    			<tr class="trh">
+		    			<th >{{lang.Name}}</th>
+		    			<th >{{lang.Inside}}</th>
+		    			<th >{{lang.Offset}}</th>
+		    			<th >{{lang.Multiplier}}</th>
+		    			<th >{{lang.Input}}</th>
+		    			<th >{{lang.Output}}</th>
+		    			<th style="min-width: 120px;">{{lang.Actions}}</th>
+		    		</tr>
+	    		</thead>
+	    		<tbody>
+					<tr def="def" index="i" meas="sensormeasurements" ng-class="{'delete':def.delete}" changein="selectInputSensorMeasurement" changeout="selectOutputSensorMeasurement" save="saveSensorDefinition" delete="deleteSensorDefinition" ng-repeat="(i, def) in defs track by i" beep-sensor-definition></tr>
+					<tr ng-if="defs.length == 0"><td colspan="7">{{ lang.no_data }}</td></tr>
+				</tbody>
+			</table>
+		</div>
       </div>
 
     </div>

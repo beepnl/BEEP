@@ -7,7 +7,7 @@ function Converter(decoded, port) {
   // mutate decoded fields.
   var converted = {};
 
-  if (port === 1 && decoded.long === false)
+  if (port === 1 && decoded.long === false && decoded.beep_base === false)
   {
     if (decoded.t > 0)
       converted.t     =  decoded.t / 100;
@@ -24,7 +24,7 @@ function Converter(decoded, port) {
     if (decoded.s_tot > 0)
       converted.s_tot =  decoded.s_tot;
   }
-  else if (port === 1 && decoded.long === true)
+  else if (port === 1 && decoded.long === true && decoded.beep_base === false)
   {
     // leave sounds and w_v as is
     if (decoded.t > 0)
@@ -58,7 +58,7 @@ function Converter(decoded, port) {
     if (decoded.w_br > 0)
       converted.w_br    =  decoded.w_br / 300;
   }
-  else if (port == 3)
+  else if (decoded.beep_base === true)
   {
     converted = decoded;
     

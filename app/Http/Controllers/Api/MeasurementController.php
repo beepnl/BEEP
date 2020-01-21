@@ -105,6 +105,8 @@ class MeasurementController extends Controller
         {
             if (($use_separate && in_array($name, $separate_names)) || (!$use_separate && $name == 'w_v')) // 4 names w_fl, w_fr, w_bl, w_br || 1 combined name w_v
             {
+                // TODO: Make dependent of SensorDefinition
+
                 $name_offset = $this->last_sensor_measurement_time_value($sensor, $name.'_offset');
                 $name_factor = $this->last_sensor_measurement_time_value($sensor, $name.'_kg_per_val');
                 
@@ -379,20 +381,58 @@ class MeasurementController extends Controller
 
         unset($data_array['key']);
 
-        if (isset($data_array['w_v']) || isset($data_array['w_fl']) || isset($data_array['w_fr']) || isset($data_array['w_bl']) || isset($data_array['w_br'])) 
+        // New sensor data calculations
+        foreach ($data_array as $abbr => $val) 
         {
-            // check if calibration is required
-            $calibrate = $this->last_sensor_measurement_time_value($device, 'calibrating_weight');
-            if (floatval($calibrate) > 0)
-                $cal = $this->calibrate_weight_sensors($device, $calibrate, false, $data_array);
+            $measurement = Measurement::where('abbreviation',$abbr)->first();
+            if ($measurement)
+            {
+                $sensor_defs = $device->sensorDefinitions()->where('input_measurement_id', $measurement->id)->get();
+                if ($sensor_defs)
+                {
+                    foreach ($sensor_defs as $def) 
+                    {
+                        $abbr_o = $def->output_abbr;
+                        $data_array[$abbr_o] = $def->calibrated_measurement_value($val);
+                    }
+                }
+                else // make new calibration values based on stored ones
+                {
+                    if ($abbr == 'w_v' || $abbr == 'w_fl' || $abbr == 'w_fr' || $abbr == 'w_bl' || $abbr == 'w_br')
+                    {
+                        $influx_offset = floatval($this->last_sensor_measurement_time_value($device, $abbr.'_offset'));
+                        $influx_multi  = floatval($this->last_sensor_measurement_time_value($device, $abbr.'_kg_per_val'));
 
-            // take into account offset and multi
-            $weight_kg = $this->calculateWeightKg($device, $data_array);
-            $data_array['weight_kg'] = $weight_kg;
-
-            // check if we need to compensate weight for temp
-            $data_array = $this->add_weight_kg_corrected_with_temperature($device, $data_array);
+                        if ($influx_offset != 0 || $influx_multi != 0)
+                        {
+                            $measurement_out = Measurement::where('abbreviation','weight_kg')->first();
+                            if ($measurement_out)
+                            {
+                                $device->sensorDefinitions()->create(['input_measurement_id'=>$measurement->id, 'output_measurement_id'=>$measurement_out->id, 'offset'=>$influx_offset, 'multiplier'=>$influx_multi]);
+                            }
+                        }
+                    }
+                }
+            }
+            
         }
+        //die(print_r($data_array));
+        
+        // Old offset
+        // if (isset($data_array['w_v']) || isset($data_array['w_fl']) || isset($data_array['w_fr']) || isset($data_array['w_bl']) || isset($data_array['w_br'])) 
+        // {
+        //     // check if calibration is required
+        //     $calibrate = $this->last_sensor_measurement_time_value($device, 'calibrating_weight');
+        //     if (floatval($calibrate) > 0)
+        //         $cal = $this->calibrate_weight_sensors($device, $calibrate, false, $data_array);
+
+        //     // take into account offset and multi
+        //     $weight_kg = $this->calculateWeightKg($device, $data_array);
+        //     $data_array['weight_kg'] = $weight_kg;
+
+        //     // check if we need to compensate weight for temp
+        //     $data_array = $this->add_weight_kg_corrected_with_temperature($device, $data_array);
+        // }
         
         //die(print_r($dev_eui));
         $time = time();

@@ -29,6 +29,22 @@ class SensorDefinition extends Model
 
     protected $hidden   = ['created_at', 'updated_at'];
 
+    public function getInputAbbrAttribute()
+    {
+        if ($this->input_measurement_id != null)
+            return $this->input_measurement->abbreviation;
+
+        return null;
+    }
+
+    public function getOutputAbbrAttribute()
+    {
+        if ($this->output_measurement_id != null)
+            return $this->output_measurement->abbreviation;
+
+        return null;
+    }
+
     public function input_measurement()
     {
         return $this->belongsTo(Measurement::class);

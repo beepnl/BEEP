@@ -100,7 +100,7 @@ class Hive extends Model
 
     public function getOwnerAttribute()
     {
-        if ($this->user_id == Auth::user()->id)
+        if (Auth::check() && $this->user_id == Auth::user()->id)
             return true;
         
         return false;

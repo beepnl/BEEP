@@ -17,12 +17,12 @@ app.directive('beepSensorDefinition', ['$rootScope', function($rootScope) {
               '<input class="form-control" type="number" ng-model="def.multiplier" ng-disabled="def.delete">'+
             '</td>'+
             '<td>'+
-              '<select ng-change="changein(index, def.input_measurement_id)" ng-model="def.input_measurement_id" ng-options="item.id as item.pq_name_unit for item in meas | orderBy:\'pq_name_unit\' track by item.id" class="form-control" ng-disabled="def.delete">'+
+              '<select ng-change="changein(index, def.input_measurement)" ng-model="def.input_measurement" ng-options="item.id as item.abbreviation for item in meas | orderBy:\'abbreviation\' track by item.id" class="form-control" ng-disabled="def.delete">'+
               '<option value="">{{lang.Select}} {{lang.measurement}}...</option>'+
               '</select>'+
             '</td>'+
             '<td>'+
-              '<select ng-change="changeout(index, def.output_measurement_id)" ng-model="def.output_measurement_id" ng-options="item.id as item.pq_name_unit for item in meas | orderBy:\'pq_name_unit\' track by item.id" class="form-control" ng-disabled="def.delete">'+
+              '<select ng-change="changeout(index, def.output_measurement)" ng-model="def.output_measurement" ng-options="item.id as item.abbreviation for item in meas | orderBy:\'abbreviation\' track by item.id" class="form-control" ng-disabled="def.delete">'+
               '<option value="">{{lang.Select}} {{lang.measurement}}...</option>'+
               '</select>'+
             '</td>'+

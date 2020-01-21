@@ -68,6 +68,18 @@ app.service('settings', ['$http', '$rootScope', 'api', function($http, $rootScop
 	$rootScope.$on('taxonomyListsLoaded', self.taxonomyHandler);
 	$rootScope.$on('taxonomyItemsLoaded', self.taxonomyHandler);
 
+	this.getSensormeasurementById = function(id)
+	{
+		for(var i in this.sensormeasurements)
+		{
+			var sm = this.sensormeasurements[i];
+			if (sm.id == id)
+				return sm;
+		}
+		return null;
+	
+	}
+
 	this.saveSettings = function(settings)
 	{
 		if (typeof settings != 'undefined')

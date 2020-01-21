@@ -452,6 +452,13 @@
     Size                    : 'Grootte',
     preview                 : 'voorbeeld',
 
+    Sensor_definitions      : 'Sensor definitie',
+    Inside                  : 'Meet binnen',
+    Offset                  : 'Offset',
+    Multiplier              : 'Multiplier',
+    Input                   : 'Input',
+    Output                  : 'Output',
+
 
  };
 

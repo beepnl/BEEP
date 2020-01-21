@@ -447,6 +447,14 @@
     Images                  : 'Images',
     Size                    : 'Size',
     preview                 : 'preview',
+
+    Sensor_definitions      : 'Sensor definitions',
+    Inside                  : 'Measures inside',
+    Offset                  : 'Offset',
+    Multiplier              : 'Multiplier',
+    Input                   : 'Input',
+    Output                  : 'Output',
+    
  };
 
 

@@ -27,17 +27,19 @@ class SensorDefinition extends Model
      */
     protected $fillable = ['name', 'inside', 'offset', 'multiplier', 'input_measurement_id', 'output_measurement_id', 'device_id'];
 
+    protected $hidden   = ['created_at', 'updated_at'];
+
     public function input_measurement()
     {
-        return $this->belongsTo('Measurement::class');
+        return $this->belongsTo(Measurement::class);
     }
     public function output_measurement()
     {
-        return $this->belongsTo('Measurement::class');
+        return $this->belongsTo(Measurement::class);
     }
     public function device()
     {
-        return $this->belongsTo('Device::class');
+        return $this->belongsTo(Device::class);
     }
 
     public function calibrated_measurement_value($inputValue)

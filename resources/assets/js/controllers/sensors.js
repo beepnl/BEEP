@@ -11,6 +11,7 @@ app.controller('SensorsCtrl', function($scope, $rootScope, $timeout, $interval, 
     $scope.sensors      = [];
     $scope.hives        = [];
     $scope.sensortypes  = null;
+    $scope.selectedDevice = null;
     $scope.selectedSensor = null;
     $scope.selectedSensorId = null;
     $scope.measurementData = null;
@@ -18,15 +19,39 @@ app.controller('SensorsCtrl', function($scope, $rootScope, $timeout, $interval, 
     $scope.error_msg    = null;
     $scope.sensorTimer  = null;
     $scope.editMode     = false;
+    $scope.sensormeasurements = [];
+    $scope.defs         = [];
 
     // handle loading of all the settings
     $scope.init = function()
     {
         if ($rootScope.pageSlug == 'sensors')
         {
-            $scope.updateSensors();
+            $scope.updateDevices();
+            $scope.updateSensormeasurements();
         }
     };
+
+    $scope.updateSensormeasurements = function()
+    {
+        $scope.sensormeasurements = settings.sensormeasurements;
+    }
+    $scope.updateSensormeasurementsHandler = $rootScope.$on('taxonomyListsUpdated', $scope.updateSensormeasurements);
+    
+
+    $scope.selectDevice = function(deviceIndex)
+    {
+        $scope.selectedDevice = measurements.getSensorOwnedByIndex(deviceIndex);
+        if ($scope.selectedDevice.sensor_definition.length > 0)
+            $scope.defs = $scope.selectedDevice.sensor_definition;
+    }
+
+    $scope.selectDeviceId = function(deviceId)
+    {
+        $scope.selectedDevice = measurements.getSensorOwnedById(deviceId);
+        if ($scope.selectedDevice.sensor_definition.length > 0)
+            $scope.defs = $scope.selectedDevice.sensor_definition;
+    }
 
     $scope.selectSensorHive = function(sensorIndex, hiveId)
     {
@@ -128,7 +153,7 @@ app.controller('SensorsCtrl', function($scope, $rootScope, $timeout, $interval, 
     $scope.saveDevicesSuccessHandler = $rootScope.$on('saveDevicesLoaded', $scope.showSuccess);
     $scope.saveDevicesErrorHandler   = $rootScope.$on('saveDevicesError', $scope.showError);
 
-    $scope.updateSensors = function()
+    $scope.updateDevices = function()
     {
         $scope.sensortypes  = settings.sensortypes;
         $scope.sensors      = measurements.sensors_owned;
@@ -158,9 +183,64 @@ app.controller('SensorsCtrl', function($scope, $rootScope, $timeout, $interval, 
         }
         $scope.selectedSensorId  = measurements.sensorId;
         $scope.selectedSensor    = measurements.getSensorById($scope.selectedSensorId);
+
+        if ($scope.selectedDevice)
+            $scope.selectDeviceId($scope.selectedDevice.id);
+
     }
-    $scope.devicesHandler = $rootScope.$on('devicesUpdated', $scope.updateSensors);
-    $scope.hivesHandler  = $rootScope.$on('hivesUpdated', $scope.updateSensors);
+    $scope.devicesHandler = $rootScope.$on('devicesUpdated', $scope.updateDevices);
+    $scope.hivesHandler  = $rootScope.$on('hivesUpdated', $scope.updateDevices);
+
+
+    // Sensor Definition editing
+    
+    $scope.addSensorDefinition = function()
+    {
+        $scope.defs.push({'device_id':$scope.selectedDevice.id, 'name':'Sensor '+($scope.defs.length+1), 'inside':null, 'offset':0, 'multiplier':1, 'input_measurement_id':null, 'output_measurement_id':null});
+    }
+
+    $scope.removeSensorDefinitionByIndex = function(i)
+    {
+        return typeof $scope.defs[i] != 'undefined' ? $scope.defs.splice(i,1) : null;
+    }
+
+    $scope.deleteSensorDefinition = function(i)
+    {
+        var s = typeof $scope.defs[i] != 'undefined' ? $scope.defs[i] : null;
+
+        if (typeof s.id == 'undefined')
+            return $scope.removeSensorDefinitionByIndex(i);
+
+        if (typeof s.delete == 'undefined')
+            s.delete = true;
+        else
+            s.delete = s.delete ? false : true;
+    }
+
+    $scope.selectInputSensorMeasurement = function(i, sensormeasurement_id)
+    {
+        $scope.defs[i].input_measurement_id = sensormeasurement_id;
+    }
+
+    $scope.selectOutputSensorMeasurement = function(i, sensormeasurement_id)
+    {
+        $scope.defs[i].output_measurement_id = sensormeasurement_id;
+    }
+
+    $scope.saveSensorDefinition = function(i)
+    {
+        var sensorDef   = $scope.defs[i];
+        var sensorDefId = typeof sensorDef.id != 'undefined' ? '/'+sensorDef.id : '';
+        
+        if (sensorDef.delete == 1)
+            api.deleteApiRequest('sensorDefinition', 'sensordefinition'+sensorDefId, sensorDef);
+        else if (sensorDefId != '')
+            api.putApiRequest('sensorDefinition', 'sensordefinition'+sensorDefId, sensorDef);
+        else
+            api.postApiRequest('sensorDefinition', 'sensordefinition', sensorDef);
+    }
+    $scope.saveSensorDefinitionHandler = $rootScope.$on('sensorDefinitionLoaded', measurements.loadRemoteDevices);
+
 
     $scope.nativeBackbutton = function(e)
     {
@@ -178,6 +258,8 @@ app.controller('SensorsCtrl', function($scope, $rootScope, $timeout, $interval, 
    	// remove references to the controller
     $scope.removeListeners = function()
     {
+        $scope.updateSensormeasurementsHandler();
+        $scope.saveSensorDefinitionHandler();
         $scope.saveDevicesSuccessHandler();
         $scope.saveDevicesErrorHandler();
         $scope.devicesHandler();

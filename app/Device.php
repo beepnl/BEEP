@@ -53,7 +53,7 @@ class Device extends Model
 
     public function getSensorDefinitionAttribute()
     {
-        return $this->sensorDefinitions();
+        return $this->sensorDefinitions;
     }
 
 

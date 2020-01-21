@@ -35,7 +35,7 @@ class SensorDefinitionController extends Controller
 
         if ($request->filled($request_id))
         {
-            return Measurement::findOrFail($request->input($request_key_1));
+            return Measurement::findOrFail($request->input($request_id));
         }
         else if ($request->filled($request_key))
         {
@@ -51,8 +51,8 @@ class SensorDefinitionController extends Controller
 
         $request_data = $request->only('name', 'inside', 'offset', 'multiplier', 'input_measurement_id', 'output_measurement_id', 'device_id');
 
-        $request_data['input_measurement_id']  = $measurement_in->id;
-        $request_data['output_measurement_id'] = $measurement_out->id;
+        $request_data['input_measurement_id']  = isset($measurement_in) ? $measurement_in->id : null;
+        $request_data['output_measurement_id'] = isset($measurement_out) ? $measurement_out->id : null;
 
         return $request_data;
     }
@@ -96,7 +96,7 @@ class SensorDefinitionController extends Controller
 
         if ($device)
         {
-            $request_data     = $this->makeRequestDataArray($request);
+            $request_data     = new SensorDefinition($this->makeRequestDataArray($request));
             $sensordefinition = $device->sensorDefinitions()->save($request_data);
             return response()->json($sensordefinition, 201);
         }

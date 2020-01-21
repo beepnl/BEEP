@@ -28,6 +28,8 @@ class Measurement extends Model
      */
     protected $fillable = ['abbreviation', 'physical_quantity_id', 'show_in_charts', 'chart_group', 'min_value', 'max_value', 'hex_color'];
 
+    protected $hidden  = ['created_at', 'updated_at']; //'parent'
+
     protected $appends  = ['pq','unit','pq_name_unit', 'low_value', 'high_value']; //'parent'
 
 

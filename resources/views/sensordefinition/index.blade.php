@@ -47,7 +47,11 @@
                     <th>Name</th>
                     <th>Inside</th>
                     <th>Zero Value</th>
-                    <th>Unit Per Value</th><th>Measurement Id</th><th>Physical Quantity Id</th><th>Sensor Id</th><th>Actions</th>
+                    <th>Unit Per Value</th>
+                    <th>Measurement in</th>
+                    <th>Measurement out</th>
+                    <th>Sensor</th>
+                    <th>Actions</th>
                 </tr>
             </thead>
             <tbody>
@@ -57,7 +61,10 @@
                     <td>{{ $item->name }}</td>
                     <td>{{ $item->inside }}</td>
                     <td>{{ $item->offset }}</td>
-                    <td>{{ $item->multiplier }}</td><td>{{ $item->measurement_id }}</td><td>{{ $item->physical_quantity_id }}</td><td>{{ $item->device_id }}</td>
+                    <td>{{ $item->multiplier }}</td>
+                    <td>{{ isset($item->input_measurement) ? $item->input_measurement->abbreviation : '-' }}</td>
+                    <td>{{ isset($item->output_measurement) ? $item->output_measurement->abbreviation : '-'  }}</td>
+                    <td>{{ isset($item->device) ? $item->device->name : '-'  }}</td>
                     <td col-sm-1>
                         <a href="{{ route('sensordefinition.show', $item->id) }}" title="{{ __('crud.show') }}"><button class="btn btn-default"><i class="fa fa-eye" aria-hidden="true"></i></button></a>
 

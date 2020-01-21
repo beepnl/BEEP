@@ -5,7 +5,7 @@ app.directive('beepSensor', ['$rootScope', function($rootScope) {
          
           // Table row
             '<td>'+
-              '<span ng-bind="index+1" style="margin-right: 5px;"></span>'+
+              '<span ng-bind="index+1" style="margin-right: 10px;"></span>'+
               '<a ng-if="!edit" ng-click="show(index)" class="btn btn-default"><i class="fa fa-line-chart"></i></a>'+
             '</td>'+
             '<td>'+
@@ -13,7 +13,7 @@ app.directive('beepSensor', ['$rootScope', function($rootScope) {
               '<p ng-if="!edit && sensor.selected_type.name == \'beep\'" title="DEV EUI: {{ sensor.key }}, HW ID: {{ sensor.hardware_id }}, HW v{{sensor.hardware_version}}, FW v{{sensor.firmware_version}}, Booted {{ sensor.boot_count != null ? sensor.boot_count : \'?\' }}x, BLE PIN: {{ sensor.ble_pin }}" >{{sensor.name}}</p>'+
             '</td>'+
             '<td ng-if="edit">'+
-              '<input ng-if="edit" class="form-control" ng-model="sensor.key" ng-disabled="sensor.delete">'+
+              '<input class="form-control" ng-model="sensor.key" ng-disabled="sensor.delete">'+
             '</td>'+
             '<td>'+
               '<select ng-if="edit" ng-change="changetype(index, sensor.selected_type.name)" ng-model="sensor.selected_type" ng-options="item as item.trans[locale] for item in sensortypes | orderBy:transSort track by item.name" class="form-control" ng-disabled="sensor.delete">'+
@@ -31,11 +31,12 @@ app.directive('beepSensor', ['$rootScope', function($rootScope) {
               '</select>'+
             '</td>'+
             '<td ng-if="edit">'+
-              '<a ng-if="edit" ng-click="delete(index)" class="btn" ng-class="{\'btn-danger\':sensor.delete, \'btn-warning\':!sensor.delete}" title="{{sensor.delete ? lang.Undelete : lang.Delete}}"><i class="fa fa-trash"></i></a>'+
+              '<a ng-click="settings(index)" data-toggle="modal" data-target="#sensor-modal" class="btn btn-primary" title="{{lang.Sensor}} {{lang.settings}}"><i class="fa fa-cog"></i></a>'+
+              '<a ng-click="delete(index)" class="btn pull-right" ng-class="{\'btn-warning\':sensor.delete, \'btn-danger\':!sensor.delete}" title="{{sensor.delete ? lang.Undelete : lang.Delete}}"><i class="fa fa-trash"></i></a>'+
             '</td>'+
             '<td ng-if="!edit">'+
-              '<p><i class="fa fa-wifi"></i>{{ sensor.last_message_received != null ? sensor.last_message_received : " ?"}}</p>'+
-              '<p><i class="fa fa-refresh"></i>{{ sensor.measurement_transmission_ratio != null ? sensor.measurement_transmission_ratio < 2 ? sensor.measurement_interval_min+" min" : Math.round(sensor.measurement_interval_min/sensor.measurement_transmission_ratio)+" (= "+sensor.measurement_interval_min + " / " + sensor.measurement_transmission_ratio+") min" : " ?"}}</p>'+
+              '<div style="display: inline-block; margin-right:10px;"><i class="fa fa-wifi"></i> {{ sensor.last_message_received != null ? sensor.last_message_received : " ?"}}</div>'+
+              '<div style="display: inline-block;"><i class="fa fa-refresh"></i> {{ sensor.measurement_transmission_ratio != null ? sensor.measurement_transmission_ratio < 2 ? sensor.measurement_interval_min+" min" : Math.round(sensor.measurement_interval_min/sensor.measurement_transmission_ratio)+" (= "+sensor.measurement_interval_min + " / " + sensor.measurement_transmission_ratio+") min" : " ?"}}</div>'+
             '</td>',
 
       scope: {
@@ -44,6 +45,7 @@ app.directive('beepSensor', ['$rootScope', function($rootScope) {
         sensor: '=?',
         change: '=?',
         changetype: '=?',
+        settings: '=?',
         delete: '=?',
         show: '=?',
         index: '=?',

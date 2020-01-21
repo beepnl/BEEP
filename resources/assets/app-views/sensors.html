@@ -49,14 +49,14 @@
 			    			<th class="col-xs-2">{{lang.Name}}</th>
 			    			<th ng-if="editMode" class="col-xs-2">{{lang.sensor_key}}</th>
 			    			<th class="col-xs-1">{{lang.Type}}</th>
-			    			<th class="col-xs-2">{{lang.Hive}}</th>
+			    			<th class="col-xs-1">{{lang.Hive}}</th>
 			    			<th ng-if="editMode" class="col-xs-2">{{lang.Select}} {{lang.hive}}</th>
-			    			<th ng-if="editMode" class="col-xs-1">{{lang.Actions}}</th>
+			    			<th ng-if="editMode" class="col-xs-2">{{lang.Actions}}</th>
 			    			<th ng-if="!editMode" class="col-xs-2">{{lang.connection_state}}</th>
 			    		</tr>
 		    		</thead>
 		    		<tbody>
-						<tr edit="editMode" sensor="sensor" index="i" hives="hives" ng-class="{'delete':sensor.delete}" sensortypes="sensortypes" change="selectSensorHive" changetype="selectSensorType" delete="deleteSensor" show="showMeasurements" ng-repeat="(i, sensor) in sensors track by i" beep-sensor></tr>
+						<tr edit="editMode" sensor="sensor" index="i" hives="hives" ng-class="{'delete':sensor.delete}" sensortypes="sensortypes" change="selectSensorHive" changetype="selectSensorType" delete="deleteSensor" settings="selectDevice" show="showMeasurements" ng-repeat="(i, sensor) in sensors track by i" beep-sensor></tr>
 					</tbody>
 				</table>
 			</div>
@@ -73,3 +73,37 @@
 	</div>
 
 </section>
+
+<div id="sensor-modal" class="modal" tabindex="-1" role="dialog" aria-labelledby="sensorModalLabel">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+      
+      <div class="modal-header">
+        <a class="close" style="display: inline-block;" data-dismiss="modal" aria-label="Close"><span aria-hidden="true"><i class="fa fa-times"></i></span></a>
+        <a ng-click="addSensorDefinition()" style="display: inline-block; margin-right: 50px;" class="btn btn-primary pull-right"><i class="fa fa-plus"></i> <span ng-if="mobile==false">{{lang.create_new}} {{lang.Sensor_definitions}}</a>
+        <h4 class="modal-title" id="sensorModalLabel">{{ lang.Sensor_definitions }} - {{ selectedDevice.name }} </h4>
+      </div>
+      
+      <div class="modal-body" style="min-height: 40vh;">
+        <table class="table table-striped no-margin" style="width: 100%">
+    		<thead>
+    			<tr class="trh">
+	    			<th class="col-xs-2">{{lang.Name}}</th>
+	    			<th class="col-xs-2">{{lang.Inside}}</th>
+	    			<th class="col-xs-1">{{lang.Offset}}</th>
+	    			<th class="col-xs-1">{{lang.Multiplier}}</th>
+	    			<th class="col-xs-2">{{lang.Input}}</th>
+	    			<th class="col-xs-2">{{lang.Output}}</th>
+	    			<th class="col-xs-2">{{lang.Actions}}</th>
+	    		</tr>
+    		</thead>
+    		<tbody>
+				<tr def="def" index="i" meas="sensormeasurements" ng-class="{'delete':def.delete}" changein="selectInputSensorMeasurement" changeout="selectOutputSensorMeasurement" save="saveSensorDefinition" delete="deleteSensorDefinition" ng-repeat="(i, def) in defs track by i" beep-sensor-definition></tr>
+				<tr ng-if="defs.length == 0"><td colspan="7">{{ lang.no_data }}</td></tr>
+			</tbody>
+		</table>
+      </div>
+
+    </div>
+  </div>
+</div>

@@ -755,6 +755,13 @@ class MeasurementController extends Controller
     {
         $device = Device::where('key', $key)->first();
 
+        if ($device == null && $field == 'hardware_id' && $value !== null && env('ALLOW_DEVICE_CREATION') == 'true') // no device with this key available
+        {
+            $category_id = Category::findCategoryIdByParentAndName('sensor', 'beep');
+            $device_name = 'BEEPBASE-'.strtoupper(substr($key, -4, 4));
+            $device      = Device::create(['name'=> $device_name, 'key'=>$key, 'hardware_id'=>$value, 'user_id'=>1, 'category_id'=>$category_id]);
+        }
+
         if($device)
         {
             if ($field != null && $value != null)
@@ -767,6 +774,10 @@ class MeasurementController extends Controller
                         else
                             $device->hardware_id = $value;
                         break;
+                    default:
+                        $device->{$field} = $value;
+                        break;
+
                 }
             }
             // store metadata from sensor
@@ -779,6 +790,7 @@ class MeasurementController extends Controller
     {
         $data_array = $request_data['payload_fields'];
 
+
         if (isset($request_data['hardware_serial']) && !isset($data_array['key']))
             $data_array['key'] = $request_data['hardware_serial']; // LoRa WAN = Device EUI
         if (isset($request_data['metadata']['gateways'][0]['rssi']))
@@ -786,14 +798,19 @@ class MeasurementController extends Controller
         if (isset($request_data['metadata']['gateways'][0]['snr']))
             $data_array['snr']  = $request_data['metadata']['gateways'][0]['snr'];
 
-        if (isset($request_data['beep_base']) && $request_data['beep_base'] === true && isset($data_array['key']) && isset($request_data['hardware_id'])) // store hardware id
+        if (isset($data_array['beep_base']) && boolval($data_array['beep_base']) && isset($data_array['key']) && isset($data_array['hardware_id'])) // store hardware id
         {
-            $this->storeDeviceMeta($data_array['key'], 'hardware_id', $request_data['hardware_id']);
-            $this->storeDeviceMeta($data_array['key'], 'measurement_transmission_ratio', $request_data['measurement_transmission_ratio']);
-            $this->storeDeviceMeta($data_array['key'], 'measurement_interval_min', $request_data['measurement_interval_min']);
-            $this->storeDeviceMeta($data_array['key'], 'hardware_version', $request_data['hardware_version']);
-            $this->storeDeviceMeta($data_array['key'], 'firmware_version', $request_data['firmware_version']);
-            $this->storeDeviceMeta($data_array['key'], 'bootcount', $request_data['bootcount']);
+            $this->storeDeviceMeta($data_array['key'], 'hardware_id', $data_array['hardware_id']);
+            if (isset($data_array['measurement_transmission_ratio']))
+                $this->storeDeviceMeta($data_array['key'], 'measurement_transmission_ratio', $data_array['measurement_transmission_ratio']);
+            if (isset($data_array['measurement_interval_min']))
+                $this->storeDeviceMeta($data_array['key'], 'measurement_interval_min', $data_array['measurement_interval_min']);
+            if (isset($data_array['hardware_version']))
+                $this->storeDeviceMeta($data_array['key'], 'hardware_version', $data_array['hardware_version']);
+            if (isset($data_array['firmware_version']))
+                $this->storeDeviceMeta($data_array['key'], 'firmware_version', $data_array['firmware_version']);
+            if (isset($data_array['bootcount']))
+                $this->storeDeviceMeta($data_array['key'], 'bootcount', $data_array['bootcount']);
         }
 
         return $data_array;

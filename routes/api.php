@@ -66,6 +66,8 @@ Route::group(['middleware' => \Barryvdh\Cors\HandleCors::class], function()
 		Route::post('inspections/store', 	'Api\InspectionsController@store');
 		Route::delete('inspections/{id}', 	'Api\InspectionsController@destroy');
 
+		Route::get('weather', 				'Api\WeatherController@index');
+
 		Route::get('research', 				'Api\ResearchController@index');
 		Route::post('research/{id}/add_consent',   'Api\ResearchController@add_consent');
 		Route::post('research/{id}/remove_consent','Api\ResearchController@remove_consent');

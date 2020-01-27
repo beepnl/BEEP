@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "5f04b256aa568cb9c54d619699b1f39f",
+    "content-hash": "81129a98f7964758f3e90ebc9b9d2ed6",
     "packages": [
         {
             "name": "asm89/stack-cors",
@@ -1865,6 +1865,69 @@
             "description": "HTML and Form Builders for the Laravel Framework",
             "homepage": "https://laravelcollective.com",
             "time": "2019-09-05T12:32:25+00:00"
+        },
+        {
+            "name": "lawnstarter/laravel-darksky",
+            "version": "v2.1.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/lawnstarter/laravel-darksky.git",
+                "reference": "0516afdb13092fcf7c89bacfac8f5c52e5b32c69"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/lawnstarter/laravel-darksky/zipball/0516afdb13092fcf7c89bacfac8f5c52e5b32c69",
+                "reference": "0516afdb13092fcf7c89bacfac8f5c52e5b32c69",
+                "shasum": ""
+            },
+            "require": {
+                "guzzlehttp/guzzle": "~5.3|>=6.0",
+                "illuminate/support": "~5.3|>=6.0",
+                "php": ">=5.4.0"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "4.*"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "1.0-dev"
+                },
+                "laravel": {
+                    "providers": [
+                        "Lawnstarter\\LaravelDarkSky\\LaravelDarkSkyServiceProvider"
+                    ],
+                    "aliases": {
+                        "DarkSky": "Lawnstarter\\LaravelDarkSky\\Facades\\DarkSky"
+                    }
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Lawnstarter\\LaravelDarkSky\\": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Jonas Weigert",
+                    "email": "jonas@lawnstarter.com",
+                    "homepage": "https://www.lawnstarter.com",
+                    "role": "Developer"
+                }
+            ],
+            "description": "Provides a Wrapper for the DarkSky API",
+            "homepage": "https://github.com/lawnstarter/laravel-darksky",
+            "keywords": [
+                "darksky",
+                "laravel",
+                "laravel-darksky",
+                "lawnstarter"
+            ],
+            "time": "2020-01-27T12:43:22+00:00"
         },
         {
             "name": "league/flysystem",

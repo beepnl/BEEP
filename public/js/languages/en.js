@@ -173,11 +173,11 @@
     edit                    : 'Edit',
     Hive_brood_layers       : 'Brood layers',
     Hive_honey_layers       : 'Honey layers',
-    Hive_layer_amount       : 'Amount of layers',
+    Hive_layer_amount       : 'Number of layers',
     Bee_race                : 'Bee race',
     Birth_date              : 'Birth date',
     Color                   : 'Color',
-    Queen_colored           : 'Queen colored',
+    Queen_colored           : 'Queen marked',
     Queen_clipped           : 'Queen clipped',
     Queen_fertilized        : 'Queen fertilized',
     Age                     : 'Age',
@@ -210,7 +210,7 @@
 
     /* settings */
     General                 : 'General',
-    Location                : 'Location',
+    Place                   : 'Location',
     Country                 : 'Country',
     City                    : 'City',
     Address                 : 'Address',
@@ -221,7 +221,7 @@
     Postal_code             : 'Postal code',
     Description             : 'Description',
     Hive_settings           : 'Hive settings',
-    Hive_amount             : 'Hive amount at this location',
+    Hive_amount             : 'Number of hives at this location',
     Hive_prefix             : 'Hive name prefix (before numer)',
     Hive_number_offset      : 'Start number hives',
     Hive_type               : 'Hive type',
@@ -362,7 +362,7 @@
     server_down             : 'The app is unavailable due to maintenance work, please try again later',
     add_to_calendar         : 'Add to calendar',
     sort_on                 : 'Sort on',
-    Whats_new               : 'New in v2.1!',
+    Whats_new               : 'New!',
     Manual                  : 'Manual',
 
     Site_title              : 'BEEP | Bee monitor',
@@ -409,8 +409,10 @@
     group_explanation_3     : '3. Share specific hives to be viewed by others, of to cooperate on',
     Filter_and_sort_on      : 'Filter and sort on:',
 
+    /* New translations v2.2.0 */
     roofed                  : 'Does the apiary have a roof?',
     info                    : 'Info',
+    
     research                : 'Research',
     research_explanation    : 'This screen contains the available researched for which you can opt-in to share your data with. Before opting in, please read the research description thourougly to make sure that you consent to the specific part of your data being shared with the research for the indicated period. Remeber that you can opt-out again, any time you want.',
     research_info           : 'By sharing your data with researchers, you help them to being able to analyse more data and come to better conclusions for their research.',
@@ -424,6 +426,40 @@
     consent_yes             : 'I consent to share my data',
     consent_no              : 'I do NOT consent to share my data',
     my_beep_data            : 'My own BEEP data',
- };
+    
+    new_apiary_explanation  : 'Create a new apiary in 4 steps',
+    optional                : 'optional',
+    dimensions              : 'dimensions',
+    details                 : 'details',
+    configuration           : 'configuration',
+    adjustments             : 'adjustments',
+    changes_queen_color     : 'editing changes the color',
+
+    Brood_box_and_frame     : 'Brood box and frame',
+    Hive_order              : 'Hive order at apiary',
+    bb_width_cm             : 'Brood box width (cm)',
+    bb_height_cm            : 'Brood box height (cm)',
+    bb_depth_cm             : 'Brood box depth (cm)',
+    fr_width_cm             : 'Frame width (cm)',
+    fr_height_cm            : 'Frame height (cm)',
+    queen_line              : 'line',
+    queen_tree              : 'tree',
+    queen_description       : 'notes',
+    Hive_short              : 'Hive',
+
+    Images                  : 'Images',
+    Size                    : 'Size',
+    preview                 : 'preview',
+
+    Sensor_definitions      : 'Sensor definitions',
+    Inside                  : 'Measures inside',
+    Offset                  : 'Offset',
+    Multiplier              : 'Multiplier',
+    Input                   : 'Input',
+    Output                  : 'Output',
+
+
+
+};
 
 

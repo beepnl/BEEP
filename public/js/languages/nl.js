@@ -212,12 +212,12 @@
 
     /* settings */
     General                 : 'Algemeen',
-    Location                : 'Locatie',
+    Place                   : 'Locatie',
     Country                 : 'Land',
     City                    : 'Stad',
     Address                 : 'Adres',
-    Lattitude               : 'Lengtegraad',
-    Longitude               : 'Breedtegraad',
+    Lattitude               : 'Breedtegraad',
+    Longitude               : 'Lengtegraad',
     Street                  : 'Straat',
     Number                  : 'Nr.',
     Postal_code             : 'Postcode',
@@ -364,7 +364,7 @@
     server_down             : 'De app is tijdelijk niet beschikbaar door onderhoud, probeer het later opnieuw',
     add_to_calendar         : 'Zet in agenda',
     sort_on                 : 'Sorteer op',
-    Whats_new               : 'Nieuw in v2.1!',
+    Whats_new               : 'Nieuw!',
     Manual                  : 'Handleiding',
 
     Site_title              : 'BEEP | Bijenmonitor',
@@ -411,6 +411,7 @@
     group_explanation_3     : '3. Deel specifieke kasten om te bekijken, of om samen aan te werken',
     Filter_and_sort_on      : 'Filter en sorteer op:',
 
+    /* New translations v2.2.0 */
     info                    : 'Info',
     research                : 'Onderzoek',
     roofed                  : 'Heeft de bijenstand een dak?',
@@ -426,6 +427,38 @@
     consent_yes             : 'Ik sta toe mijn data te gebruiken',
     consent_no              : 'Ik sta NIET toe mijn data te gebruiken',
     my_beep_data            : 'Mijn eigen BEEP gegevens',
+    
+    new_apiary_explanation  : 'Maak een nieuwe bijenstand in 4 stappen',
+    optional                : 'optioneel',
+    dimensions              : 'afmetingen',
+    details                 : 'details',
+    configuration           : 'configuratie',
+    adjustments             : 'aanpassingen',
+    changes_queen_color     : 'wijzigen past de kleur aan',
+
+    Brood_box_and_frame     : 'Broedkamer- en raam',
+    Hive_order              : 'Kastvolgorde op bijenstand',
+    bb_width_cm             : 'Broedkamerbreedte (cm)',
+    bb_height_cm            : 'Broedkamerhoogte (cm)',
+    bb_depth_cm             : 'Broedkamerdiepte (cm)',
+    fr_width_cm             : 'Raambreedte (cm)',
+    fr_height_cm            : 'Raamhoogte (cm)',
+    queen_line              : 'lijn',
+    queen_tree              : 'stamboom',
+    queen_description       : 'notitie',
+    Hive_short              : 'Kast',
+
+    Images                  : 'Afbeeldingen',
+    Size                    : 'Grootte',
+    preview                 : 'voorbeeld',
+
+    Sensor_definitions      : 'Sensor definitie',
+    Inside                  : 'Meet binnen',
+    Offset                  : 'Offset',
+    Multiplier              : 'Multiplier',
+    Input                   : 'Input',
+    Output                  : 'Output',
+
 
  };
 

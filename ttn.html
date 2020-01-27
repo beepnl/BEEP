@@ -9,6 +9,20 @@
         <script src="ttn-payload-decoder.js"></script>
         <script src="ttn-payload-converter.js"></script>
         <style type="text/css">
+            body{
+                font-family: Arial, sans-serif;
+            }
+            table{
+                border: 1px solid #ddd;
+            }
+            table th{
+                text-align: left;
+                padding: 5px;
+            }
+            table td{
+                border-top: 1px solid #ddd;
+                padding: 5px;
+            }
             textarea{
                 font-family: courier;
             }
@@ -25,9 +39,44 @@
     	<p>Set Measurement interval to 1 min, 3 min send: 9D030001</p>
         <p>Set Measurement interval to 5 min, 15 min send: 9D030005</p>
     	<p>Set Measurement interval to 10 min, 10 min send: 9D01000A</p>
+        <p>Set Measurement interval to 15 min, 15 min send: 9D01000F</p>
 
-        <h1>Payload tester</h1>
+        <h1>BEEP base fw 1.2.0+ Payload tester</h1>
         <p>uses ttn-payload-decoder.js and ttn-payload-converter.js</p>
+        <p>
+            Payloads to test
+            <table>
+                <thead>
+                    <tr>
+                        <th>Type</th>
+                        <th>Port</th>
+                        <th>Payload</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Start-up >= fw 1.3.2</td>
+                        <td>1</td>
+                        <td><a href="#" onclick="setPayloadAndPort('02250100010003000002000100000002e70e0e01233d2308ec8e91ee1f0000000b03091d0000010a', 1);">02250100010003000002000100000002e70e0e01233d2308ec8e91ee1f0000000b03091d0000010a</a></td>
+                    </tr>
+                    <tr>
+                        <td>Start-up < fw 1.3.2</td>
+                        <td>2</td>
+                        <td><a href="#" onclick="setPayloadAndPort('0100010003000102935685E6FFFF94540E01237A26A67D24D8EE', 2);">0100010003000102935685E6FFFF94540E01237A26A67D24D8EE</a></td>
+                    </tr>
+                    <tr>
+                        <td>Message</td>
+                        <td>3</td>
+                        <td><a href="#" onclick="setPayloadAndPort('1B0C100C03640A01FFF55A04020AE90AF00C0A00FF004D00100010000D000C000B0009000A0007000707000000000000', 3);">1B0C100C03640A01FFF55A04020AE90AF00C0A00FF004D00100010000D000C000B0009000A0007000707000000000000</a></td>
+                    </tr>
+                    <tr>
+                        <td>Alarm</td>
+                        <td>4</td>
+                        <td><a href="#" onclick="setPayloadAndPort('051B0A0009F1560A01018BD1040208CA08910C0A00FF000900030002000200020002000200020001000107000000000000', 4);">051B0A0009F1560A01018BD1040208CA08910C0A00FF000900030002000200020002000200020001000107000000000000</a></td>
+                    </tr>
+                </tbody>
+            </table>
+        </p>
         <input id="payload-input" type="text" name="payload" max="100" style="width: 70%;" value="1B0C100C03640A01FFF55A04020AE90AF00C0A00FF004D00100010000D000C000B0009000A0007000707000000000000" onchange="test()">
         <input id="payload-port" type="number" name="port" min="0" max="9" value="3" onchange="test()">
         <button onclick="test()">TEST</button>
@@ -42,6 +91,13 @@
         <textarea id="converter-result" cols="100" rows="10"></textarea>
 
         <script>
+            function setPayloadAndPort(payload, port)
+            {
+                document.getElementById("payload-port").value = port;
+                document.getElementById("payload-input").value = payload;
+                test();
+            }
+
             function test()
             {
                 var port      = document.getElementById("payload-port").value;

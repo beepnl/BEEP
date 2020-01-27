@@ -57,7 +57,7 @@
             <tbody>
             @foreach($sensordefinition as $item)
                 <tr>
-                    <td>{{ $loop->iteration or $item->id }}</td>
+                    <td>{{ $item->id }}</td>
                     <td>{{ $item->name }}</td>
                     <td>{{ $item->inside }}</td>
                     <td>{{ $item->offset }}</td>

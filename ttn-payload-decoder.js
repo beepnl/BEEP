@@ -49,7 +49,7 @@ function Decoder(bytes, port) {
       decoded.w_br   = (bytes[17] << 8) + bytes[18];
       decoded.long   = true;
     }
-    else if (bytes[0] == 0x02 && bytes.length == 40)
+    else if (bytes[0] == 0x02 && bytes.length == 40) // BEEP base fw 1.2.0+ start-up message
     {
       //02250100010003000002000100000002e70e0e01233d2308ec8e91ee1f0000000b03091d0000010a
       //02 25  01 00 01 00 03 00 00  02 00 01 00 00 00 02 e7 0e  0e 01 23 3d 23 08 ec 8e 91 ee  1f 00 00 00 0b  03 09  1d 00 00 01 0a 
@@ -58,7 +58,7 @@ function Decoder(bytes, port) {
       decoded.beep_base        = true;
       decoded.firmware_version = ((bytes[3] << 8) + bytes[4]) + "." + ((bytes[5] << 8) + bytes[6]) + "." + ((bytes[7] << 8) + bytes[8]);
       decoded.hardware_version = ((bytes[10] << 8) + bytes[11]) + "." + ((bytes[12] << 8) + bytes[13]) + " ID:" + ((bytes[14] << 32) + (bytes[15] << 16) + (bytes[16] << 8) + bytes[17]);
-      decoded.hardware_id      = bytes[19].toString(16) + '' + bytes[20].toString(16) + '' + bytes[21].toString(16) + '' + bytes[22].toString(16) + '' + bytes[23].toString(16) + '' + bytes[24].toString(16) + '' + bytes[25].toString(16) + '' + bytes[26].toString(16) + '' + bytes[27].toString(16);
+      decoded.hardware_id      = bytes[18].toString(16) + '' + bytes[19].toString(16) + '' + bytes[20].toString(16) + '' + bytes[21].toString(16) + '' + bytes[22].toString(16) + '' + bytes[23].toString(16) + '' + bytes[24].toString(16) + '' + bytes[25].toString(16) + '' + bytes[26].toString(16) + '' + bytes[27].toString(16);
       decoded.bootcount        = ((bytes[29] << 32) + (bytes[30] << 16) + (bytes[31] << 8) + bytes[32]);
       decoded.ds18b20_sensor_amount          = (bytes[34]);
       decoded.measurement_transmission_ratio = (bytes[36]);
@@ -66,7 +66,17 @@ function Decoder(bytes, port) {
     }
 
   }
-  else if (port == 3 && bytes.length >= 15 && bytes[0] == 0x1B)  // BEEP base fw 1.2.0, 1+ weight, 1+temp
+  else if (port == 2 && bytes[0] == 0x01 && bytes.length == 26) // BEEP base fw 1.2.0+ start-up message
+  {
+    // 01 00 01 00 03 00 01 02 93 56 85 E6 FF FF 94 54 0E 01 23 7A 26 A6 7D 24 D8 EE 
+    // 0  1  2  3  4  5  6  7  8  9  10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 
+    //       pl  fw version hw version                 ATTEC ID (14)
+    decoded.beep_base        = true;
+    decoded.firmware_version = ((bytes[1] << 8) + bytes[2]) + "." + ((bytes[3] << 8) + bytes[4]) + "." + ((bytes[5] << 8) + bytes[6]);
+    decoded.hardware_version = ((bytes[8] << 8) + bytes[9]) + "." + ((bytes[10] << 8) + bytes[11]) + " ID:" + ((bytes[12] << 32) + (bytes[13] << 16) + (bytes[14] << 8) + bytes[15]);
+    decoded.hardware_id      = bytes[16].toString(16) + '' + bytes[17].toString(16) + '' + bytes[18].toString(16) + '' + bytes[19].toString(16) + '' + bytes[20].toString(16) + '' + bytes[21].toString(16) + '' + bytes[22].toString(16) + '' + bytes[23].toString(16) + '' + bytes[24].toString(16) + '' + bytes[25].toString(16);
+  }
+  else if (bytes.length >= 15 && ( (port == 3 && bytes[0] == 0x1B) || (port == 4 && bytes[1] == 0x1B) ) )  // BEEP base fw 1.2.0+ measurement message
   {
     //              1B 0C 1B 0C 0E 64  0A 01 FF F6 98  04 02 0A D7 0A DD  0C 0A 00 FF 00 58 00 12 00 10 00 0C 00 0D 00 0A 00 0A 00 09 00 08 00 07  07 00 00 00 00 00 00
     // pl incl fft: 1B 0D 15 0D 0A 64  0A 01 00 00 93  04 00              0C 0A 00 FF 00 20 00 05 00 0C 00 03 00 05 00 09 00 04 00 11 00 06 00 02  07 00 00 00 00 00 00
@@ -77,14 +87,61 @@ function Decoder(bytes, port) {
     //         6  batt       5  1 weight  5 1-5 temp (1 to 5)
     
     decoded.beep_base = true;
+    decoded.alarm     = null; 
+
+    var bv_start_byte = 3;
+
+    if (port == 4)
+    {
+      bv_start_byte = 4;
+      switch(bytes[0])
+      {
+        case 0:
+          decoded.alarm = 'ds18b20';
+          break;
+        case 1:
+          decoded.alarm = 'bme280';
+          break;
+        case 2:
+          decoded.alarm = 'hx711';
+          break;
+        case 3:
+          decoded.alarm = 'audio_adc';
+          break;
+        case 4:
+          decoded.alarm = 'nrf_adc';
+          break;
+        case 5:
+          decoded.alarm = 'sq_min';
+          break;
+        case 6:
+          decoded.alarm = 'attec';
+          break;
+        case 7:
+          decoded.alarm = 'buzzer';
+          break;
+        case 8:
+          decoded.alarm = 'lorawan';
+          break;
+        case 9:
+          decoded.alarm = 'mx_flash';
+          break;
+        case 10:
+          decoded.alarm = 'nrf_flash';
+          break;
+        case 11:
+          decoded.alarm = 'application';
+          break;
+      }
+    }
 
     // Battery: 0x1B
-    decoded.bv = (bytes[3] << 8) + bytes[4]; // 1B (0 batt) 0C4B (1-2 vcc) 0C44 (3-4 vbat) 64 (5 %bat)
-    decoded.bat_perc = bytes[5];
+    decoded.bv = (bytes[bv_start_byte] << 8) + bytes[bv_start_byte+1]; // 1B (0 batt) 0C4B (1-2 vcc) 0C44 (3-4 vbat) 64 (5 %bat)
+    decoded.bat_perc = bytes[bv_start_byte+2];
 
     // Weight (1 or 2): 0x0A
     var weight_byte_length           = 3;
-    var weight_start_byte            = 6;
+    var weight_start_byte            = bv_start_byte + 3;
     decoded.weight_sensor_amount     = bytes[weight_start_byte + 1];
     var weight_values_start_byte     = weight_start_byte + 2;
     if (bytes[weight_start_byte] == 0x0A && decoded.weight_sensor_amount > 0)

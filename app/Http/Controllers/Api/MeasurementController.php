@@ -165,7 +165,6 @@ class MeasurementController extends Controller
     {
         // store posted data
         $client    = new \Influx;
-        $sensors   = [];
         $points    = [];
         $unix_time = isset($unix_timestamp) ? $unix_timestamp : time();
 
@@ -173,15 +172,12 @@ class MeasurementController extends Controller
         {
             if (in_array($key, array_keys($this->valid_sensors)) )
             {
-                $sensor = new \stdClass();
-                $sensor->name   = $key;
-                $sensor->value  = floatval($value);  
                 array_push($points, 
                     new InfluxDB\Point(
                         'sensors',                  // name of the measurement
                         null,                       // the measurement value
                         ['key' => $dev_eui],     // optional tags
-                        ["$key" => $sensor->value], // key value pairs
+                        ["$key" => floatval($value)], // key value pairs
                         $unix_time                  // Time precision has to be set to InfluxDB\Database::PRECISION_SECONDS!
                     )
                 );

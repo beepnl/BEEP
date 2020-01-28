@@ -13,6 +13,26 @@ use GuzzleHttp\Exception\GuzzleException;
 
 class Weather extends Model
 {
+    /*
+    SI units are as follows:
+
+    summary: Any summaries containing temperature or snow accumulation units will have their values in degrees Celsius or in centimeters (respectively).
+    nearestStormDistance: Kilometers.
+    precipIntensity: Millimeters per hour.
+    precipIntensityMax: Millimeters per hour.
+    precipAccumulation: Centimeters.
+    temperature: Degrees Celsius.
+    temperatureMin: Degrees Celsius.
+    temperatureMax: Degrees Celsius.
+    apparentTemperature: Degrees Celsius.
+    dewPoint: Degrees Celsius.
+    windSpeed: Meters per second.
+    windGust: Meters per second.
+    pressure: Hectopascals.
+    visibility: Kilometers.
+    
+    */
+
     public static function callApi($location=null, $lat=null, $lon=null)
     {
     	$result = null;
@@ -45,7 +65,7 @@ class Weather extends Model
             {
                 if ($location)
                 {
-                    $location->last_weather_time = $lst_sec.format('Y-m-d H:i:s');
+                    $location->last_weather_time = date('Y-m-d H:i:s', $lst_sec);
                     $location->save();
                 }
                 return Storage::disk($disk)->get($filename);
@@ -68,12 +88,12 @@ class Weather extends Model
             Storage::disk($disk)->put($filename, $out);
 
             // save data to Influx by lat/lon
-            if (isset($out['currently']))
+            if (isset($result->currently))
             {
-                $time = $out['currently']['time'];
-                unset($out['currently']['time']);
-                unset($out['currently']['summary']);
-                Weather::storeDataToInflux($out['currently'], $lat, $lon, $time);
+                $time = $result->currently->time;
+                unset($result->currently->time);
+                unset($result->currently->summary);
+                Weather::storeDataToInflux($result->currently, $lat, $lon, $time);
             }
 
             if ($location)
@@ -91,7 +111,7 @@ class Weather extends Model
     {
         $locations = Location::where('coordinate_lat', '!=', null)->where('coordinate_lon', '!=', null)->get();
 
-        $saved = 0;
+        $count = 0;
 
         foreach ($locations as $loc) 
         {

@@ -26,12 +26,13 @@ var COLORS =
 	darkergrey:{r:50,  g:50,  b:50},
 }
 
+var WEATHER = ['icon','precipIntensity','precipProbability','precipType','temperature','apparentTemperature','dewPoint','humidity','pressure','windSpeed','windGust','windBearing','cloudCover','uvIndex','visibility','ozone']; // weather indicators
 var SENSORS = ['t','h','p','l','bc_i','bc_o','weight_kg_corrected','weight_kg','t_i']; // not actuators
-var SOUND   = ['s_fan_4','s_fan_6','s_fan_9','s_fly_a','s_tot','s_bin098_146Hz','s_bin146_195Hz','s_bin195_244Hz','s_bin244_293Hz','s_bin293_342Hz','s_bin342_391Hz','s_bin391_439Hz','s_bin439_488Hz','s_bin488_537Hz','s_bin537_586Hz']; // all sound releated sensors
+var SOUND   = ['s_fan_4','s_fan_6','s_fan_9','s_fly_a','s_tot','s_bin']; // all sound releated sensors
 var DEBUG   = ['bv','rssi','snr']; // all debugging info sensors
 
 var SENSOR_COLOR = {
-	t      	:COLORS.darkgreen,   // Measured Temperature (degrees Celsius) (displayed in main screen at temp icon)
+	t      	:COLORS.pink,   // Measured Temperature (degrees Celsius) (displayed in main screen at temp icon)
 	h      	:COLORS.darkblue,  // Measured Humidity (RH% 0_100) (displayed in main screen at humi icon)
 	l      	:COLORS.yellow,   // Measured Light measurement value (lux) (displayed in main screen at sun icon)
 	p 		:COLORS.darkgreen,
@@ -60,6 +61,22 @@ var SENSOR_COLOR = {
 	's_bin439_488Hz': COLORS.orange,
 	's_bin488_537Hz': COLORS.yellow,
 	's_bin537_586Hz': COLORS.lightgrey2,
+	'icon': COLORS.pink,
+	'precipIntensity': COLORS.darkblue,
+	'precipProbability': COLORS.darkblue,
+	'precipType': COLORS.darkblue,
+	'temperature': COLORS.red,
+	'apparentTemperature': COLORS.pink,
+	'dewPoint': COLORS.lightblue,
+	'humidity': COLORS.lightblue,
+	'pressure': COLORS.lightgreen,
+	'windSpeed': COLORS.lightblue,
+	'windGust': COLORS.lightblue,
+	'windBearing': COLORS.lightblue,
+	'cloudCover': COLORS.lightgrey1,
+	'uvIndex': COLORS.pink,
+	'visibility': COLORS.lightgrey2,
+	'ozone': COLORS.lightgrey,
 }
 
 var SENSOR_NAMES =
@@ -93,6 +110,22 @@ var SENSOR_NAMES =
 	's_bin439_488Hz': '439_488Hz',
 	's_bin488_537Hz': '488_537Hz',
 	's_bin537_586Hz': '537_586Hz',
+	'icon': 'icon',
+	'precipIntensity': 'precipIntensity',
+	'precipProbability': 'precipProbability',
+	'precipType': 'precipType',
+	'temperature': 'temperature',
+	'apparentTemperature': 'apparentTemperature',
+	'dewPoint': 'dewPoint',
+	'humidity': 'humidity',
+	'pressure': 'pressure',
+	'windSpeed': 'windSpeed',
+	'windGust': 'windGust',
+	'windBearing': 'windBearing',
+	'cloudCover': 'cloudCover',
+	'uvIndex': 'uvIndex',
+	'visibility': 'visibility',
+	'ozone': 'ozone'
 };
 
 var SENSOR_MIN =
@@ -218,4 +251,20 @@ var SENSOR_UNITS =
 	's_bin439_488Hz': '',
 	's_bin488_537Hz': '',
 	's_bin537_586Hz': '',
+	'icon':'',
+	'precipIntensity':'mm/h',
+	'precipProbability':'mm/h',
+	'precipType':'',
+	'temperature':'°C',
+	'apparentTemperature':'°C',
+	'dewPoint':'°C',
+	'humidity':'%RH',
+	'pressure':'hPa',
+	'windSpeed':'m/s',
+	'windGust':'m/s',
+	'windBearing':'°',
+	'cloudCover':'%',
+	'uvIndex':'',
+	'visibility':'km',
+	'ozone':'Dobson',
 }

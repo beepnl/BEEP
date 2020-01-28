@@ -4,8 +4,8 @@
  *
  */
 var LANG 					= [];
-//var API_URL           	= (document.URL.indexOf('beep.test') === -1) ? 'https://test.beep.nl/api/' : 'https://beep.test/api/';
-var API_URL 				= 'https://api.beep.nl/api/';
+var API_URL           	    = (document.URL.indexOf('beep.test') > -1) ? 'https://beep.test/api/' : (document.URL.indexOf('test.beep.nl') > -1) ? 'https://test.beep.nl/api/' : 'https://api.beep.nl/api/';
+//var API_URL 				= 'https://api.beep.nl/api/';
 var CONNECTION_FREQ_REMOTE  = ((60)*1000);
 
 var COLORS = 
@@ -26,8 +26,9 @@ var COLORS =
 	darkergrey:{r:50,  g:50,  b:50},
 }
 
+var WEATHER = ['icon','precipIntensity','precipProbability','precipType','temperature','apparentTemperature','dewPoint','humidity','pressure','windSpeed','windGust','windBearing','cloudCover','uvIndex','visibility','ozone']; // weather indicators
 var SENSORS = ['t','h','p','l','bc_i','bc_o','weight_kg_corrected','weight_kg','t_i']; // not actuators
-var SOUND   = ['s_fan_4','s_fan_6','s_fan_9','s_fly_a','s_tot','s_bin098_146Hz','s_bin146_195Hz','s_bin195_244Hz','s_bin244_293Hz','s_bin293_342Hz','s_bin342_391Hz','s_bin391_439Hz','s_bin439_488Hz','s_bin488_537Hz','s_bin537_586Hz']; // all sound releated sensors
+var SOUND   = ['s_fan_4','s_fan_6','s_fan_9','s_fly_a','s_tot','s_bin']; // all sound releated sensors
 var DEBUG   = ['bv','rssi','snr']; // all debugging info sensors
 
 var SENSOR_COLOR = {
@@ -60,7 +61,72 @@ var SENSOR_COLOR = {
 	's_bin439_488Hz': COLORS.orange,
 	's_bin488_537Hz': COLORS.yellow,
 	's_bin537_586Hz': COLORS.lightgrey2,
+	'icon': COLORS.pink,
+	'precipIntensity': COLORS.pink,
+	'precipProbability': COLORS.pink,
+	'precipType': COLORS.pink,
+	'temperature': COLORS.pink,
+	'apparentTemperature': COLORS.pink,
+	'dewPoint': COLORS.pink,
+	'humidity': COLORS.lightblue,
+	'pressure': COLORS.lightgreen,
+	'windSpeed': COLORS.pink,
+	'windGust': COLORS.pink,
+	'windBearing': COLORS.pink,
+	'cloudCover': COLORS.pink,
+	'uvIndex': COLORS.pink,
+	'visibility': COLORS.pink,
+	'ozone': COLORS.lightgrey,
 }
+
+var SENSOR_NAMES =
+{
+	t      	: 't',   
+	h      	: 'h', 
+	l      	: 'l',  
+	p 		: 'p',
+	bv 		: 'bv',
+	s_fan_4 : 's_fan_4',
+	s_fan_6 : 's_fan_6',
+	s_fan_9 : 's_fan_9',
+	s_fly_a : 's_fly_a',
+	s_tot 	: 's_tot',
+	bc_i	: 'bc_i',
+	bc_o	: 'bc_o',
+	weight_kg			: 'weight_kg',
+	weight_kg_corrected	: 'weight_kg_corrected',
+	t_i		: 't_i',
+	rssi	: 'rssi',
+	snr 	: 'snr', 
+	lat 	: 'lat', 
+	lon 	: 'lon', 
+	's_bin098_146Hz': '098_146Hz',
+	's_bin146_195Hz': '146_195Hz',
+	's_bin195_244Hz': '195_244Hz',
+	's_bin244_293Hz': '244_293Hz',
+	's_bin293_342Hz': '293_342Hz',
+	's_bin342_391Hz': '342_391Hz',
+	's_bin391_439Hz': '391_439Hz',
+	's_bin439_488Hz': '439_488Hz',
+	's_bin488_537Hz': '488_537Hz',
+	's_bin537_586Hz': '537_586Hz',
+	'icon': 'icon',
+	'precipIntensity': 'precipIntensity',
+	'precipProbability': 'precipProbability',
+	'precipType': 'precipType',
+	'temperature': 'temperature',
+	'apparentTemperature': 'apparentTemperature',
+	'dewPoint': 'dewPoint',
+	'humidity': 'humidity',
+	'pressure': 'pressure',
+	'windSpeed': 'windSpeed',
+	'windGust': 'windGust',
+	'windBearing': 'windBearing',
+	'cloudCover': 'cloudCover',
+	'uvIndex': 'uvIndex',
+	'visibility': 'visibility',
+	'ozone': 'ozone',
+};
 
 var SENSOR_MIN =
 {
@@ -80,7 +146,7 @@ var SENSOR_MIN =
 	weight_kg_corrected	: 0,
 	t_i		: 0,
 	rssi	: -120,
-	snr 	: -10, 
+	snr 	: -20, 
 	lat 	: 0, 
 	lon 	: 0, 
 };
@@ -103,7 +169,7 @@ var SENSOR_LOW =
 	weight_kg_corrected	: 1,
 	t_i		: 34,
 	rssi	: -90,
-	snr 	: 0, 
+	snr 	: -10, 
 	lat 	: 0, 
 	lon 	: 0, 
 };
@@ -125,7 +191,7 @@ var SENSOR_HIGH =
 	weight_kg			: 100,
 	weight_kg_corrected	: 100,
 	t_i		: 37,
-	rssi	: -70,
+	rssi	: 0,
 	snr 	: 15, 
 	lat 	: 180, 
 	lon 	: 180, 
@@ -185,4 +251,20 @@ var SENSOR_UNITS =
 	's_bin439_488Hz': '',
 	's_bin488_537Hz': '',
 	's_bin537_586Hz': '',
+	'icon':'',
+	'precipIntensity':'',
+	'precipProbability':'',
+	'precipType':'',
+	'temperature':'°C',
+	'apparentTemperature':'°C',
+	'dewPoint':'',
+	'humidity':'%RH',
+	'pressure':'mbar',
+	'windSpeed':'m/s',
+	'windGust':'',
+	'windBearing':'°',
+	'cloudCover':'%',
+	'uvIndex':'',
+	'visibility':'%',
+	'ozone':'',
 }

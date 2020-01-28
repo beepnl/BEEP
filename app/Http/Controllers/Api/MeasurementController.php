@@ -519,10 +519,11 @@ class MeasurementController extends Controller
     public function data(Request $request)
     {
         //Get the sensor
-        $sensor  = $this->get_user_sensor($request);
+        $device  = $this->get_user_sensor($request);
+        $location= $device->location();
         
         $client = new \Influx;
-        $first  = $client::query('SELECT * FROM "sensors" WHERE "key" = \''.$sensor->key.'\' ORDER BY time ASC LIMIT 1')->getPoints(); // get first sensor date
+        $first  = $client::query('SELECT * FROM "sensors" WHERE "key" = \''.$device->key.'\' ORDER BY time ASC LIMIT 1')->getPoints(); // get first sensor date
         
         if (count($first) == 0)
             Response::json('sensor-none-error', 500);
@@ -580,6 +581,7 @@ class MeasurementController extends Controller
         $staTimestampString = $staTimestamp->startOf($requestInterval)->setTimezone('UTC')->format($this->timeFormat);
         $endTimestampString = $endTimestamp->endOf($requestInterval)->setTimezone('UTC')->format($this->timeFormat);    
         $groupBySelect      = null;
+        $groupBySelectWeather = null;
         $groupByResolution  = '';
         $limit              = 'LIMIT '.$this->maxDataPoints;
         $options            = ['precision'=> $this->precision];
@@ -587,66 +589,98 @@ class MeasurementController extends Controller
         if($resolution != null)
         {
             $groupByResolution = 'GROUP BY time('.$resolution.') fill(null)';
-            $queryList = [];
+            $queryList         = [];
+            $queryListWeather  = [];
             for ($i = 0; $i < count($names); $i++) 
             {
                 $name = $names[$i];
                 if (in_array($name, $this->output_sensors))
                 {
-                    $query = 'SELECT COUNT("'.$name.'") AS "count" FROM "sensors" WHERE "key" = \''.$sensor->key.'\' AND time >= \''.$staTimestampString.'\' AND time <= \''.$endTimestampString.'\' '.$limit;
+                    $query = 'SELECT COUNT("'.$name.'") AS "count" FROM "sensors" WHERE "key" = \''.$device->key.'\' AND time >= \''.$staTimestampString.'\' AND time <= \''.$endTimestampString.'\' '.$limit;
                     $result  = $client::query($query, $options);
                     $sensors = $result->getPoints();
                     if (count($sensors) > 0 && $sensors[0]['count'] > 0)
                         $queryList[] = 'MEAN("'.$name.'") AS "'.$name.'"';
+
+                    if ($location && isset($location->coordinate_lat) && isset($location->coordinate_lon))
+                    {
+                        $query = 'SELECT COUNT("'.$name.'") AS "count" FROM "weather" WHERE "lat" = \''.$location->coordinate_lat.'\' AND "lon" = \''.$location->coordinate_lon.'\' AND time >= \''.$staTimestampString.'\' AND time <= \''.$endTimestampString.'\' '.$limit;
+                        $result  = $client::query($query, $options);
+                        $sensors = $result->getPoints();
+                        if (count($sensors) > 0 && $sensors[0]['count'] > 0)
+                            $queryListWeather[] = 'MEAN("'.$name.'") AS "'.$name.'"';
+                    }
                 }
             }
             $groupBySelect = implode(', ', $queryList);
+            $groupBySelectWeather = implode(', ', $queryListWeather);
         }
         
         // try
         // {
         $sensors_out = [];
+        $weather_out = [];
         $old_values  = false;
         
         if ($groupBySelect != null) 
         {
-            $sensorQuery = 'SELECT '.$groupBySelect.' FROM "sensors" WHERE "key" = \''.$sensor->key.'\' AND time >= \''.$staTimestampString.'\' AND time <= \''.$endTimestampString.'\' '.$groupByResolution.' '.$limit;
+            $sensorQuery = 'SELECT '.$groupBySelect.' FROM "sensors" WHERE "key" = \''.$device->key.'\' AND time >= \''.$staTimestampString.'\' AND time <= \''.$endTimestampString.'\' '.$groupByResolution.' '.$limit;
             $result      = $client::query($sensorQuery, $options);
             $sensors_out = $result->getPoints();
-        }
-        else
-        {
-            // check if values are stored in the new (column), or the old (name) way.
-            $old_vals = $client::query('SELECT COUNT("value") FROM "sensors" WHERE "key" = \''.$sensor->key.'\' AND time >= \''.$staTimestampString.'\' AND time <= \''.$endTimestampString.'\' LIMIT 1')->getPoints();
-            if (count($old_vals) > 0)
+
+            //die(print_r($location->toArray()));
+            if ($location && isset($location->coordinate_lat) && isset($location->coordinate_lon))
             {
-                $old_values = true;
-                for ($i = 0; $i < count($names); $i++) 
+                $weatherQuery = 'SELECT '.$groupBySelectWeather.' FROM "weather" WHERE "lat" = \''.$location->coordinate_lat.'\' AND "lon" = \''.$location->coordinate_lon.'\' AND time >= \''.$staTimestampString.'\' AND time <= \''.$endTimestampString.'\' '.$groupByResolution.' '.$limit;
+                $result       = $client::query($weatherQuery, $options);
+                $weather_out  = $result->getPoints();
+
+                if (count($weather_out) == count($sensors_out))
                 {
-                    $name = $names[$i];
-                    if (in_array($name, $this->output_sensors))
+                    foreach ($sensors_out as $key => $value) 
                     {
-                        $sensor_vals = $client::query('SELECT MEAN("value") AS "'.$name.'" FROM "sensors" WHERE "name" = \''.$name.'\' AND "key" = \''.$sensor->key.'\' AND time >= \''.$staTimestampString.'\' AND time <= \''.$endTimestampString.'\' '.$groupByResolution.' '.$limit)->getPoints();
-                        if (count($sensor_vals) > 0)
+                        foreach ($weather_out[$key] as $weather_name => $weather_value) 
                         {
-                            if (count($sensors_out) == 0)
-                            {
-                                $sensors_out = $sensor_vals;
-                            }
-                            else
-                            {
-                                foreach ($sensors_out as $ind => $value) 
-                                {
-                                    if ($value['time'] == $sensor_vals[$ind]['time'])
-                                        $sensors_out[$ind][$name] = $sensor_vals[$ind][$name];
-                                }   
-                            }
+                            if ($weather_name != 'time')
+                                $sensors_out[$key][$weather_name] =  $weather_value;
                         }
                     }
                 }
             }
         }
-        return Response::json( ['id'=>$sensor->id, 'interval'=>$interval, 'index'=>$index, 'timeGroup'=>$timeGroup, 'resolution'=>$resolution, 'measurements'=>$sensors_out, 'old_values'=>$old_values] );
+        // else
+        // {
+        //     // check if values are stored in the new (column), or the old (name) way.
+        //     $old_vals = $client::query('SELECT COUNT("value") FROM "sensors" WHERE "key" = \''.$device->key.'\' AND time >= \''.$staTimestampString.'\' AND time <= \''.$endTimestampString.'\' LIMIT 1')->getPoints();
+        //     if (count($old_vals) > 0)
+        //     {
+        //         $old_values = true;
+        //         for ($i = 0; $i < count($names); $i++) 
+        //         {
+        //             $name = $names[$i];
+        //             if (in_array($name, $this->output_sensors))
+        //             {
+        //                 $sensor_vals = $client::query('SELECT MEAN("value") AS "'.$name.'" FROM "sensors" WHERE "name" = \''.$name.'\' AND "key" = \''.$device->key.'\' AND time >= \''.$staTimestampString.'\' AND time <= \''.$endTimestampString.'\' '.$groupByResolution.' '.$limit)->getPoints();
+        //                 if (count($sensor_vals) > 0)
+        //                 {
+        //                     if (count($sensors_out) == 0)
+        //                     {
+        //                         $sensors_out = $sensor_vals;
+        //                     }
+        //                     else
+        //                     {
+        //                         foreach ($sensors_out as $ind => $value) 
+        //                         {
+        //                             if ($value['time'] == $sensor_vals[$ind]['time'])
+        //                                 $sensors_out[$ind][$name] = $sensor_vals[$ind][$name];
+        //                         }   
+        //                     }
+        //                 }
+        //             }
+        //         }
+        //     }
+        // }
+        return Response::json( ['id'=>$device->id, 'interval'=>$interval, 'index'=>$index, 'timeGroup'=>$timeGroup, 'resolution'=>$resolution, 'measurements'=>$sensors_out, 'old_values'=>$old_values] );
         // }
         // catch(\Exception $e)
         // {

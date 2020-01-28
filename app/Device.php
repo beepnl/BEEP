@@ -68,6 +68,14 @@ class Device extends Model
         return $this->belongsTo(Hive::class);
     }
 
+    public function location()
+    {
+        if (isset($this->hive_id))
+            return Auth::user()->locations()->find($this->hive->location_id);
+
+        return null;
+    }
+
 	public function user()
     {
         return $this->belongsTo(User::class);

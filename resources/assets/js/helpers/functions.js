@@ -145,11 +145,12 @@ var convertInfluxMeasurementsArrayToChartObject = function(obj_arr, lang, labelS
   var yAxisR  = {display: false, position: 'right', id:'y2', scaleLabel:{display:false, labelArray:[], labelString:'', fontSize: labelSize}, ticks: { fontSize: labelSize } };
   var noAxis  = {display: false, offsetGridLines: true};
   
+  var weather  = {datasets:[], series:[], data:[], colors:[], yAxes:[angular.copy(yAxisL), angular.copy(yAxisR)]};
   var sensors  = {datasets:[], series:[], data:[], colors:[], yAxes:[angular.copy(yAxisL), angular.copy(yAxisR)]};
   var debug    = {datasets:[], series:[], data:[], colors:[], yAxes:[angular.copy(yAxisL), angular.copy(yAxisR)]};
   var sound    = {datasets:[], series:[], data:[], colors:[], yAxes:[angular.copy(yAxisL), angular.copy(yAxisR)]};
   var actuators= {datasets:[], series:[], data:[], colors:[], yAxes:[noAxis], labels:[]};
-  var obj_out  = {sensors:sensors, actuators:actuators, sound:sound, debug:debug};
+  var obj_out  = {sensors:sensors, actuators:actuators, sound:sound, debug:debug, weather:weather};
   
   var unitLenMx= 10; // max length of unit in y-scale
 
@@ -164,12 +165,13 @@ var convertInfluxMeasurementsArrayToChartObject = function(obj_arr, lang, labelS
       
       if (quantity != null)
       {
+        var isWeather    = WEATHER.indexOf(name) > -1 ? true : false; 
         var isSensor     = SENSORS.indexOf(name) > -1 ? true : false; 
         var isSound      = SOUND.indexOf(name) > -1 ? true : false; 
         var isDebug      = DEBUG.indexOf(name) > -1 ? true : false; 
-        var isActuator   = isSensor || isSound || isDebug ? false : true; 
+        var isActuator   = isSensor || isSound || isDebug || isWeather ? false : true; 
         
-        var chart         = isSensor ? obj_out.sensors : isSound ? obj_out.sound : isDebug? obj_out.debug : obj_out.actuators; // sensor or other output
+        var chart         = isSensor ? obj_out.sensors : isSound ? obj_out.sound : isDebug? obj_out.debug : isWeather? obj_out.weather : obj_out.actuators; // sensor or other output
         var new_dataset   = angular.copy(dataset); 
         
         var quantityUnit  = (SENSOR_UNITS[name] !== 'undefined') ? SENSOR_UNITS[name] : null;
@@ -246,12 +248,13 @@ var convertInfluxMeasurementsArrayToChartObject = function(obj_arr, lang, labelS
       {
         var val          = obj[name];
         var unit         = (SENSOR_UNITS[name] !== 'undefined') ? SENSOR_UNITS[name] : null;
+        var isWeather    = WEATHER.indexOf(name) > -1 ? true : false; 
         var isSensor     = SENSORS.indexOf(name) > -1 ? true : false; 
         var isSound      = SOUND.indexOf(name) > -1 ? true : false; 
         var isDebug      = DEBUG.indexOf(name) > -1 ? true : false; 
-        var isActuator   = isSensor || isSound || isDebug ? false : true; 
+        var isActuator   = isSensor || isSound || isDebug || isWeather ? false : true; 
 
-        var chart        = isSensor ? obj_out.sensors : isSound ? obj_out.sound : isDebug? obj_out.debug : obj_out.actuators; // sensor or other output
+        var chart        = isSensor ? obj_out.sensors : isSound ? obj_out.sound : isDebug? obj_out.debug : isWeather? obj_out.weather : obj_out.actuators; // sensor or other output
         var dataSetIndex = chart.series.indexOf(name);
         
         if (dataSetIndex > -1)

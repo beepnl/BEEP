@@ -57,7 +57,7 @@ app.controller('MeasurementsCtrl', function($scope, $rootScope, $timeout, $inter
             labels: {
                 usePointStyle: true,
                 fontSize: $rootScope.mobile ? $scope.fontSizeMob : $scope.fontSize,
-                boxWidth: $rootScope.mobile ? $scope.fontSizeMob : $scope.fontSize+2,
+                boxWidth: $rootScope.mobile ? $scope.fontSizeMob-2 : $scope.fontSize+2,
                 padding: $rootScope.mobile ? 6 : 10,
                 fullWidth: $rootScope.mobile ? false : true,
                 // generateLabels: function(chart) 
@@ -213,8 +213,9 @@ app.controller('MeasurementsCtrl', function($scope, $rootScope, $timeout, $inter
         // }
     };
 
-    $scope.chart.optionsSound = angular.copy($scope.chart.optionsSensors);
-    $scope.chart.optionsDebug = angular.copy($scope.chart.optionsSensors);
+    $scope.chart.optionsWeather = angular.copy($scope.chart.optionsSensors);
+    $scope.chart.optionsSound   = angular.copy($scope.chart.optionsSensors);
+    $scope.chart.optionsDebug   = angular.copy($scope.chart.optionsSensors);
     $scope.chart.optionsActuators.legend.position = 'bottom';
 
     $scope.getSensorName = function(item){ return $rootScope.lang[item.name]; }
@@ -433,20 +434,24 @@ app.controller('MeasurementsCtrl', function($scope, $rootScope, $timeout, $inter
             {
                 //console.log($scope.measurementData);
                 // Set axes
+                $scope.chart.optionsWeather.scales.yAxes    = typeof $scope.measurementData.weather.yAxes != 'undefined' ? $scope.measurementData.weather.yAxes : [];
                 $scope.chart.optionsSensors.scales.yAxes    = typeof $scope.measurementData.sensors.yAxes != 'undefined' ? $scope.measurementData.sensors.yAxes : [];
                 $scope.chart.optionsSound.scales.yAxes      = typeof $scope.measurementData.sound.yAxes != 'undefined' ? $scope.measurementData.sound.yAxes : [];
                 $scope.chart.optionsDebug.scales.yAxes      = typeof $scope.measurementData.debug.yAxes != 'undefined' ? $scope.measurementData.debug.yAxes : [];
                 $scope.chart.optionsActuators.scales.yAxes  = typeof $scope.measurementData.actuators.yAxes != 'undefined' ? $scope.measurementData.actuators.yAxes : [];
                 
+                $scope.chart.optionsWeather.scales.xAxes[0].time.tooltipFormat   = tooltipTimeFormat;
                 $scope.chart.optionsSensors.scales.xAxes[0].time.tooltipFormat   = tooltipTimeFormat;
                 $scope.chart.optionsSound.scales.xAxes[0].time.tooltipFormat     = tooltipTimeFormat;
                 $scope.chart.optionsDebug.scales.xAxes[0].time.tooltipFormat     = tooltipTimeFormat;
                 $scope.chart.optionsActuators.scales.xAxes[0].time.tooltipFormat = tooltipTimeFormat;
 
                 //$scope.chart.optionsSensors.scales.xAxes[0].time.unit   = $scope.activeUnit;
+                $scope.chart.optionsWeather.scales.xAxes[0].ticks.min  = $scope.startTime;
                 $scope.chart.optionsSensors.scales.xAxes[0].ticks.min  = $scope.startTime;
                 $scope.chart.optionsSound.scales.xAxes[0].ticks.min    = $scope.startTime;
                 $scope.chart.optionsDebug.scales.xAxes[0].ticks.min    = $scope.startTime;
+                $scope.chart.optionsWeather.scales.xAxes[0].ticks.max  = $scope.endTime;
                 $scope.chart.optionsSensors.scales.xAxes[0].ticks.max  = $scope.endTime;
                 $scope.chart.optionsSound.scales.xAxes[0].ticks.max    = $scope.endTime;
                 $scope.chart.optionsDebug.scales.xAxes[0].ticks.max    = $scope.endTime;

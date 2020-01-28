@@ -25,8 +25,8 @@
 <section class="content">
 
 	<div ng-if="sensors.length > 0">
+
 		<div class="box" ng-if="lastSensorDate" >
-		    
 		    <div class="box-header with-border">
 		      <div class="box-tools">
 		        <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
@@ -37,7 +37,6 @@
 		    </div>
 		    
 		    <div class="box-body" ng-class="{'no-padding':mobile}">
-		    
 		    	<div class="gauge" ng-repeat="sensor in lastSensorValues | orderBy:getSensorName" ng-if="sensor.value > sensorMin[sensor.name]">
 				    <div class="gauge-icon {{mobile ? 'mobile' : ''}}">
 				    	<i class="icn {{sensor.name}}"></i>
@@ -58,8 +57,7 @@
 				    </ng-gauge>
 				</div>
 			</div>
-	       
-		</div>
+	    </div>
 
 		<div class="box">
 		    
@@ -107,6 +105,16 @@
 					    	<div class="measurement-info-wrapper">
 
 					    		<div ng-if="showChart">
+					    			<div ng-if="measurementData.weather.data.length > 0">
+										<h3 ng-if="!mobile">{{lang.weather}} @ {{ lang.location }} {{selectedSensor.location_name}}</h3>
+										<!-- <div class="chart-holder chart-narrow" ng-repeat="(key, data) in measurementData.weather.data">
+											<canvas id="line1" class="chart chart-line" chart-data="data" chart-dataset-override="measurementData.weather.datasets[key]" chart-series="measurementData.weather.series[key]" chart-colors="measurementData.weather.colors" chart-options="chart.optionsSensors" ></canvas> 
+										</div> -->
+										<div class="chart-holder chart-narrow">
+											<canvas id="line1" class="chart chart-line" chart-data="measurementData.weather.data" chart-dataset-override="measurementData.weather.datasets" chart-series="measurementData.weather.series" chart-colors="measurementData.weather.colors" chart-options="chart.optionsWeather" ></canvas> 
+										</div>
+									</div>
+
 					    			<div ng-if="measurementData.sensors.data.length > 0">
 										<h3 ng-if="!mobile">{{lang.sensors}}</h3>
 										<div class="chart-holder chart-narrow" ng-repeat="(key, data) in measurementData.sensors.data">

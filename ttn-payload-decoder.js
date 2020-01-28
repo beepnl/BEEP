@@ -62,7 +62,30 @@ function Decoder(bytes, port) {
   }
   else if (port == 2) // BEEP base fw 1.2.0+ start-up message
   {
-    if (bytes[0] == 0x02 && bytes.length == 40) // BEEP base fw 1.3.3+ start-up message
+    if (bytes[0] == 0x01 && bytes.length == 30) // BEEP base fw 1.3.3+ start-up message
+    {
+      // 0100010003000402935685E6FFFF94540E01237A26A67D24D8EE1D000001
+      // 01 00 01 00 03 00 04 02 93 56 85 E6 FF FF 94 54 0E 01 23 7A 26 A6 7D 24 D8 EE 1D 00 00 01 
+      // 0  1  2  3  4  5  6  7  8  9  10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 
+      //    pl  fw version    hw version                 ATTEC ID (14)                 app config
+      decoded.beep_base        = true;
+      decoded.firmware_version = ((bytes[1] << 8) + bytes[2]) + "." + ((bytes[3] << 8) + bytes[4]) + "." + ((bytes[5] << 8) + bytes[6]);
+      decoded.hardware_version = ((bytes[8] << 8) + bytes[9]) + "." + ((bytes[10] << 8) + bytes[11]) + " ID:" + ((bytes[12] << 32) + (bytes[13] << 16) + (bytes[14] << 8) + bytes[15]);
+      decoded.hardware_id      = toHexString(bytes[16], 2) + toHexString(bytes[17], 2) + toHexString(bytes[18], 2) + toHexString(bytes[19], 2) + toHexString(bytes[20], 2) + toHexString(bytes[21], 2) + toHexString(bytes[22], 2) + toHexString(bytes[23], 2) + toHexString(bytes[24], 2) + toHexString(bytes[25], 2);
+      decoded.measurement_transmission_ratio = (bytes[27]);
+      decoded.measurement_interval_min       = ((bytes[28] << 8) + bytes[29]);
+    }
+    else if (bytes[0] == 0x01 && bytes.length == 26) // Beep base fw < 1.3.2 start-up message
+    {
+      // 01 00 01 00 03 00 01 02 93 56 85 E6 FF FF 94 54 0E 01 23 7A 26 A6 7D 24 D8 EE 
+      // 0  1  2  3  4  5  6  7  8  9  10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 
+      //    pl  fw version    hw version                 ATTEC ID (14)
+      decoded.beep_base        = true;
+      decoded.firmware_version = ((bytes[1] << 8) + bytes[2]) + "." + ((bytes[3] << 8) + bytes[4]) + "." + ((bytes[5] << 8) + bytes[6]);
+      decoded.hardware_version = ((bytes[8] << 8) + bytes[9]) + "." + ((bytes[10] << 8) + bytes[11]) + " ID:" + ((bytes[12] << 32) + (bytes[13] << 16) + (bytes[14] << 8) + bytes[15]);
+      decoded.hardware_id      = toHexString(bytes[16], 2) + toHexString(bytes[17], 2) + toHexString(bytes[18], 2) + toHexString(bytes[19], 2) + toHexString(bytes[20], 2) + toHexString(bytes[21], 2) + toHexString(bytes[22], 2) + toHexString(bytes[23], 2) + toHexString(bytes[24], 2) + toHexString(bytes[25], 2);
+    }
+    else if (bytes[0] == 0x02 && bytes.length == 40) // BEEP base fw 1.3.3+ start-up message
     {
       // 02250100010003000002000100000002e70e0e01233d2308ec8e91ee1f0000000b03091d0000010a
       // 02 25  01 00 01 00 03 00 00  02 00 01 00 00 00 02 e7 0e  0e 01 23 3d 23 08 ec 8e 91 ee  1f 00 00 00 0b  03 09  1d 00 00 01 0a 
@@ -76,16 +99,6 @@ function Decoder(bytes, port) {
       decoded.ds18b20_sensor_amount          = (bytes[34]);
       decoded.measurement_transmission_ratio = (bytes[36]);
       decoded.measurement_interval_min       = ((bytes[37] << 8) + bytes[38]);
-    }
-    else if (bytes[0] == 0x01 && bytes.length == 26) // Beep base fw < 1.3.2 start-up message
-    {
-      // 01 00 01 00 03 00 01 02 93 56 85 E6 FF FF 94 54 0E 01 23 7A 26 A6 7D 24 D8 EE 
-      // 0  1  2  3  4  5  6  7  8  9  10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 
-      //       pl  fw version hw version                 ATTEC ID (14)
-      decoded.beep_base        = true;
-      decoded.firmware_version = ((bytes[1] << 8) + bytes[2]) + "." + ((bytes[3] << 8) + bytes[4]) + "." + ((bytes[5] << 8) + bytes[6]);
-      decoded.hardware_version = ((bytes[8] << 8) + bytes[9]) + "." + ((bytes[10] << 8) + bytes[11]) + " ID:" + ((bytes[12] << 32) + (bytes[13] << 16) + (bytes[14] << 8) + bytes[15]);
-      decoded.hardware_id      = toHexString(bytes[16], 2) + toHexString(bytes[17], 2) + toHexString(bytes[18], 2) + toHexString(bytes[19], 2) + toHexString(bytes[20], 2) + toHexString(bytes[21], 2) + toHexString(bytes[22], 2) + toHexString(bytes[23], 2) + toHexString(bytes[24], 2) + toHexString(bytes[25], 2);
     }
   }
   else if (bytes.length >= 15 && ( (port == 3 && bytes[0] == 0x1B) || (port == 4 && bytes[1] == 0x1B) ) )  // BEEP base fw 1.2.0+ measurement message

@@ -76,7 +76,7 @@
 						<th>Sticker</th>
 						<th>{{ __('crud.name') }}</th>
 						<th>{{ __('crud.type') }}</th>
-						<th>{{ __('crud.key') }}</th>
+						<th>{{ __('crud.key') }} (DEV EUI)</th>
 						<th>Last seen</th>
 						<th>Hardware ID</th>
 						<th>Hardware version</th>
@@ -88,27 +88,27 @@
 					</tr>
 				</thead>
 				<tbody>
-					@foreach ($sensors as $key => $sensor)
+					@foreach ($sensors as $key => $device)
 					<tr>
-						<td>{{ $sensor->id }}</td>
-						<td><button onclick="copyTextToClipboard('{{ $sensor->name }}\r\n{{ $sensor->hardware_id }}');">Copy</button></td>
-						<td>{{ $sensor->name }}</td>
-						<td><label class="label label-default">{{ $sensor->type }}</label></td>
-						<td>{{ $sensor->key }}</td>
-						<td>{{ $sensor->last_message_received }}</td>
-						<td>{{ $sensor->hardware_id }}</td>
-						<td>{{ $sensor->hardware_version }}</td>
-						<td>{{ $sensor->firmware_version }}</td>
-						<td>{{ $sensor->transmission_interval_min }} / {{$sensor->measurement_transmission_ratio}}</td>
-						<td>{{ $sensor->user->name }}</td>
-						<td>{{ isset($sensor->hive) ? $sensor->hive->name : '' }}</td>
+						<td>{{ $device->id }}</td>
+						<td><button onclick="copyTextToClipboard('{{ $device->name }}\r\n{{ $device->hardware_id }}');">Copy</button></td>
+						<td>{{ $device->name }}</td>
+						<td><label class="label label-default">{{ $device->type }}</label></td>
+						<td>{{ $device->key }}</td>
+						<td>{{ $device->last_message_received }}</td>
+						<td>{{ $device->hardware_id }}</td>
+						<td>{{ $device->hardware_version }}</td>
+						<td>{{ $device->firmware_version }}</td>
+						<td>{{ $device->measurement_interval_min }} / {{ $device->measurement_transmission_ratio }} @if(isset($device->measurement_interval_min)) (=send 1x/{{ $device->measurement_interval_min * max(1,$device->measurement_transmission_ratio) }}min) @endif</td>
+						<td>{{ $device->user->name }}</td>
+						<td>{{ isset($device->hive) ? $device->hive->name : '' }}</td>
 						<td>
-							<a class="btn btn-default" href="{{ route('devices.show',$sensor->id) }}" title="{{ __('crud.show') }}"><i class="fa fa-eye"></i></a>
+							<a class="btn btn-default" href="{{ route('devices.show',$device->id) }}" title="{{ __('crud.show') }}"><i class="fa fa-eye"></i></a>
 							@permission('sensor-edit')
-							<a class="btn btn-primary" href="{{ route('devices.edit',$sensor->id) }}" title="{{ __('crud.edit') }}"><i class="fa fa-pencil"></i></a>
+							<a class="btn btn-primary" href="{{ route('devices.edit',$device->id) }}" title="{{ __('crud.edit') }}"><i class="fa fa-pencil"></i></a>
 							@endpermission
 							@permission('sensor-delete')
-							{!! Form::open(['method' => 'DELETE','route' => ['devices.destroy', $sensor->id], 'style'=>'display:inline', 'onsubmit'=>'return confirm("'.__('crud.sure',['item'=>__('general.sensor'),'name'=>'\''.$sensor->name.'\'']).'")']) !!}
+							{!! Form::open(['method' => 'DELETE','route' => ['devices.destroy', $device->id], 'style'=>'display:inline', 'onsubmit'=>'return confirm("'.__('crud.sure',['item'=>__('general.sensor'),'name'=>'\''.$device->name.'\'']).'")']) !!}
 				            {!! Form::button('<i class="fa fa-trash-o"></i>', ['type'=>'submit', 'class' => 'btn btn-danger pull-right']) !!}
 				        	{!! Form::close() !!}
 				        	@endpermission

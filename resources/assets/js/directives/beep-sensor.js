@@ -36,7 +36,7 @@ app.directive('beepSensor', ['$rootScope', function($rootScope) {
             '</td>'+
             '<td ng-if="!edit">'+
               '<div style="display: inline-block; margin-right:10px;"><i class="fa fa-wifi"></i> {{ sensor.last_message_received != null ? sensor.last_message_received : " ?"}}</div>'+
-              '<div style="display: inline-block;"><i class="fa fa-refresh"></i> {{ sensor.measurement_transmission_ratio != null ? sensor.measurement_transmission_ratio < 2 ? sensor.measurement_interval_min+" min" : Math.round(sensor.measurement_interval_min * sensor.measurement_transmission_ratio)+" (= "+sensor.measurement_interval_min + " * " + sensor.measurement_transmission_ratio+") min" : " ?"}}</div>'+
+              '<div style="display: inline-block;"><i class="fa fa-refresh"></i> {{ sensor.measurement_transmission_ratio != null ? sensor.measurement_transmission_ratio < 2 ? sensor.measurement_interval_min+" min" : ""+Math.round(sensor.measurement_interval_min * sensor.measurement_transmission_ratio)+" (= "+sensor.measurement_interval_min + "*" + sensor.measurement_transmission_ratio+") min" : " ?"}}</div>'+
             '</td>',
 
       scope: {

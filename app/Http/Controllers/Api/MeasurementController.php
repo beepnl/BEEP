@@ -629,7 +629,7 @@ class MeasurementController extends Controller
             $sensors_out = $result->getPoints();
 
             //die(print_r($location->toArray()));
-            if ($location && isset($location->coordinate_lat) && isset($location->coordinate_lon))
+            if ($groupBySelectWeather && $location && isset($location->coordinate_lat) && isset($location->coordinate_lon))
             {
                 $weatherQuery = 'SELECT '.$groupBySelectWeather.' FROM "weather" WHERE "lat" = \''.$location->coordinate_lat.'\' AND "lon" = \''.$location->coordinate_lon.'\' AND time >= \''.$staTimestampString.'\' AND time <= \''.$endTimestampString.'\' '.$groupByResolution.' '.$limit;
                 $result       = $client::query($weatherQuery, $options);

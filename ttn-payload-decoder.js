@@ -4,6 +4,16 @@ function Decoder(bytes, port) {
   // (array) of bytes to an object of fields.
   var decoded = {};
 
+  function toHexString( number, width )
+  {
+    width -= number.toString(16).length;
+    if ( width > 0 )
+    {
+      return new Array( width + (/\./.test( number.toString(16) ) ? 2 : 1) ).join( '0' ) + number.toString(16);
+    }
+    return number.toString(16) + ""; // always return a string
+  }
+
   if (port == 1)
   {
     decoded.length = bytes.length;
@@ -49,32 +59,34 @@ function Decoder(bytes, port) {
       decoded.w_br   = (bytes[17] << 8) + bytes[18];
       decoded.long   = true;
     }
-    else if (bytes[0] == 0x02 && bytes.length == 40) // BEEP base fw 1.2.0+ start-up message
+  }
+  else if (port == 2) // BEEP base fw 1.2.0+ start-up message
+  {
+    if (bytes[0] == 0x02 && bytes.length == 40) // BEEP base fw 1.3.3+ start-up message
     {
-      //02250100010003000002000100000002e70e0e01233d2308ec8e91ee1f0000000b03091d0000010a
-      //02 25  01 00 01 00 03 00 00  02 00 01 00 00 00 02 e7 0e  0e 01 23 3d 23 08 ec 8e 91 ee  1f 00 00 00 0b  03 09  1d 00 00 01 0a 
-      //0  1   2  3  4  5  6  7  8   9  10 11 12 13 14 15 16 17  18 19 20 21 22 23 24 25 26 27  28 29 30 31 32  33 34  35 36 37 38 39 
-      //   pl  fw version            hw version                  ATTEC ID (14)                     Boot count      ds#    app config
+      // 02250100010003000002000100000002e70e0e01233d2308ec8e91ee1f0000000b03091d0000010a
+      // 02 25  01 00 01 00 03 00 00  02 00 01 00 00 00 02 e7 0e  0e 01 23 3d 23 08 ec 8e 91 ee  1f 00 00 00 0b  03 09  1d 00 00 01 0a 
+      // 0  1   2  3  4  5  6  7  8   9  10 11 12 13 14 15 16 17  18 19 20 21 22 23 24 25 26 27  28 29 30 31 32  33 34  35 36 37 38 39 
+      //    pl  fw version            hw version                  ATTEC ID (14)                     Boot count      ds#    app config
       decoded.beep_base        = true;
       decoded.firmware_version = ((bytes[3] << 8) + bytes[4]) + "." + ((bytes[5] << 8) + bytes[6]) + "." + ((bytes[7] << 8) + bytes[8]);
       decoded.hardware_version = ((bytes[10] << 8) + bytes[11]) + "." + ((bytes[12] << 8) + bytes[13]) + " ID:" + ((bytes[14] << 32) + (bytes[15] << 16) + (bytes[16] << 8) + bytes[17]);
-      decoded.hardware_id      = bytes[18].toString(16) + '' + bytes[19].toString(16) + '' + bytes[20].toString(16) + '' + bytes[21].toString(16) + '' + bytes[22].toString(16) + '' + bytes[23].toString(16) + '' + bytes[24].toString(16) + '' + bytes[25].toString(16) + '' + bytes[26].toString(16) + '' + bytes[27].toString(16);
+      decoded.hardware_id      = toHexString(bytes[18], 2) + toHexString(bytes[19], 2) + toHexString(bytes[20], 2) + toHexString(bytes[21], 2) + toHexString(bytes[22], 2) + toHexString(bytes[23], 2) + toHexString(bytes[24], 2) + toHexString(bytes[25], 2) + toHexString(bytes[26], 2) + toHexString(bytes[27], 2);
       decoded.bootcount        = ((bytes[29] << 32) + (bytes[30] << 16) + (bytes[31] << 8) + bytes[32]);
       decoded.ds18b20_sensor_amount          = (bytes[34]);
       decoded.measurement_transmission_ratio = (bytes[36]);
       decoded.measurement_interval_min       = ((bytes[37] << 8) + bytes[38]);
     }
-
-  }
-  else if (port == 2 && bytes[0] == 0x01 && bytes.length == 26) // BEEP base fw 1.2.0+ start-up message
-  {
-    // 01 00 01 00 03 00 01 02 93 56 85 E6 FF FF 94 54 0E 01 23 7A 26 A6 7D 24 D8 EE 
-    // 0  1  2  3  4  5  6  7  8  9  10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 
-    //       pl  fw version hw version                 ATTEC ID (14)
-    decoded.beep_base        = true;
-    decoded.firmware_version = ((bytes[1] << 8) + bytes[2]) + "." + ((bytes[3] << 8) + bytes[4]) + "." + ((bytes[5] << 8) + bytes[6]);
-    decoded.hardware_version = ((bytes[8] << 8) + bytes[9]) + "." + ((bytes[10] << 8) + bytes[11]) + " ID:" + ((bytes[12] << 32) + (bytes[13] << 16) + (bytes[14] << 8) + bytes[15]);
-    decoded.hardware_id      = bytes[16].toString(16) + '' + bytes[17].toString(16) + '' + bytes[18].toString(16) + '' + bytes[19].toString(16) + '' + bytes[20].toString(16) + '' + bytes[21].toString(16) + '' + bytes[22].toString(16) + '' + bytes[23].toString(16) + '' + bytes[24].toString(16) + '' + bytes[25].toString(16);
+    else if (bytes[0] == 0x01 && bytes.length == 26) // Beep base fw < 1.3.2 start-up message
+    {
+      // 01 00 01 00 03 00 01 02 93 56 85 E6 FF FF 94 54 0E 01 23 7A 26 A6 7D 24 D8 EE 
+      // 0  1  2  3  4  5  6  7  8  9  10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 
+      //       pl  fw version hw version                 ATTEC ID (14)
+      decoded.beep_base        = true;
+      decoded.firmware_version = ((bytes[1] << 8) + bytes[2]) + "." + ((bytes[3] << 8) + bytes[4]) + "." + ((bytes[5] << 8) + bytes[6]);
+      decoded.hardware_version = ((bytes[8] << 8) + bytes[9]) + "." + ((bytes[10] << 8) + bytes[11]) + " ID:" + ((bytes[12] << 32) + (bytes[13] << 16) + (bytes[14] << 8) + bytes[15]);
+      decoded.hardware_id      = toHexString(bytes[16], 2) + toHexString(bytes[17], 2) + toHexString(bytes[18], 2) + toHexString(bytes[19], 2) + toHexString(bytes[20], 2) + toHexString(bytes[21], 2) + toHexString(bytes[22], 2) + toHexString(bytes[23], 2) + toHexString(bytes[24], 2) + toHexString(bytes[25], 2);
+    }
   }
   else if (bytes.length >= 15 && ( (port == 3 && bytes[0] == 0x1B) || (port == 4 && bytes[1] == 0x1B) ) )  // BEEP base fw 1.2.0+ measurement message
   {

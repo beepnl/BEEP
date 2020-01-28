@@ -76,7 +76,7 @@ app.controller('SensorsCtrl', function($scope, $rootScope, $timeout, $interval, 
 
     $scope.showMeasurements = function(sensorIndex)
     {
-        var s = measurements.getSensorByIndex(sensorIndex);
+        var s = measurements.getSensorOwnedByIndex(sensorIndex);
         return $location.path('/measurements/'+s.id);
     }
 

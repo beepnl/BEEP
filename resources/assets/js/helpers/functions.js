@@ -272,6 +272,7 @@ var convertInfluxMeasurementsArrayToChartObject = function(obj_arr, lang, labelS
               {
                 chart.yAxes[1].display = true;
                 chart.datasets[dataSetIndex].yAxisID = 'y2';
+
                 var label = '';
                 
                 if (unit != null && unit != '' && chart.yAxes[1].scaleLabel.labelArray.indexOf(unit) == -1)

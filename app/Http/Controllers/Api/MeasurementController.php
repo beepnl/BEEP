@@ -524,15 +524,17 @@ class MeasurementController extends Controller
         
         $client = new \Influx;
         $first  = $client::query('SELECT * FROM "sensors" WHERE "key" = \''.$device->key.'\' ORDER BY time ASC LIMIT 1')->getPoints(); // get first sensor date
+        $first_w= $client::query('SELECT * FROM "weather" WHERE "lat" = \''.$location->coordinate_lat.'\' AND "lon" = \''.$location->coordinate_lon.'\' ORDER BY time ASC LIMIT 1')->getPoints(); // get first sensor date
         
-        if (count($first) == 0)
+        
+        if (count($first) == 0 && count($first_w) == 0)
             Response::json('sensor-none-error', 500);
         
         $all_names = array_keys($this->valid_sensors);
         $names     = $request->input('names', $all_names);
 
         if (count($names) == 0)
-            Response::json('sensor-none-error', 500);
+            Response::json('sensor-none-defined', 500);
 
         $interval  = $request->input('interval','day');
         $index     = $request->input('index',0);

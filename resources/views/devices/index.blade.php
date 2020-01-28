@@ -37,12 +37,43 @@
                     ],
                 });
             });
+
+            function fallbackCopyTextToClipboard(text) {
+			  var textArea = document.createElement("textarea");
+			  textArea.value = text;
+			  textArea.style.position="fixed";  //avoid scrolling to bottom
+			  document.body.appendChild(textArea);
+			  textArea.focus();
+			  textArea.select();
+
+			  try {
+			    var successful = document.execCommand('copy');
+			    var msg = successful ? 'successful' : 'unsuccessful';
+			    console.log('Fallback: Copying text command was ' + msg);
+			  } catch (err) {
+			    console.error('Fallback: Oops, unable to copy', err);
+			  }
+
+			  document.body.removeChild(textArea);
+			}
+			function copyTextToClipboard(text) {
+			  if (!navigator.clipboard) {
+			    fallbackCopyTextToClipboard(text);
+			    return;
+			  }
+			  navigator.clipboard.writeText(text).then(function() {
+			    console.log('Async: Copying to clipboard was successful!');
+			  }, function(err) {
+			    console.error('Async: Could not copy text: ', err);
+			  });
+			}
         </script>
 
 			<table id="table-sensors" class="table table-striped">
 				<thead>
 					<tr>
 						<th>{{ __('crud.id') }}</th>
+						<th>Sticker</th>
 						<th>{{ __('crud.name') }}</th>
 						<th>{{ __('crud.type') }}</th>
 						<th>{{ __('crud.key') }}</th>
@@ -60,6 +91,7 @@
 					@foreach ($sensors as $key => $sensor)
 					<tr>
 						<td>{{ $sensor->id }}</td>
+						<td><button onclick="copyTextToClipboard('{{ $sensor->name }}\r\n{{ $sensor->hardware_id }}');">Copy</button></td>
 						<td>{{ $sensor->name }}</td>
 						<td><label class="label label-default">{{ $sensor->type }}</label></td>
 						<td>{{ $sensor->key }}</td>

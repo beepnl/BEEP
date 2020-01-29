@@ -474,7 +474,7 @@
     Multiplier              : 'Multiplier',
     Input                   : 'Input',
     Output                  : 'Output',
-
+    Last                    : 'Laatste',
 
  };
 

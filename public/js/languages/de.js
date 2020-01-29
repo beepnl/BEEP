@@ -308,6 +308,22 @@ LANG['de'] =
     's_bin439_488Hz'        : '439-488Hz',
     's_bin488_537Hz'        : '488-537Hz',
     's_bin537_586Hz'        : '537-586Hz', 
+    'icon'                  : 'Icon',
+    'precipIntensity'       : 'Rainfall',
+    'precipProbability'     : 'Rain probability',
+    'precipType'            : 'Rain type',
+    'temperature'           : 'Outside temperature',
+    'apparentTemperature'   : 'Apparent temperature',
+    'dewPoint'              : 'Dew point',
+    'humidity'              : 'Humidity',
+    'pressure'              : 'Air pressure',
+    'windSpeed'             : 'Wind speed',
+    'windGust'              : 'Wind gust',
+    'windBearing'           : 'Wind bearing',
+    'cloudCover'            : 'Cloud cover',
+    'uvIndex'               : 'UV index',
+    'visibility'            : 'Visibility',
+    'ozone'                 : 'Ozone',
 
 	/* Measurements */ 
 	hour : 'Stunde', 
@@ -454,5 +470,6 @@ LANG['de'] =
     Multiplier              : 'Multiplier',
     Input                   : 'Input',
     Output                  : 'Output',
+    Last                    : 'Last',
     
 };

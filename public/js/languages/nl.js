@@ -476,6 +476,12 @@
     Output                  : 'Output',
     Last                    : 'Laatste',
 
+    Export_sensor_data      : 'Exporteer alle sensordata in de hoogst beschikbare resolutie per meetapparaat in een .csv bestand dat je in Excel of SPSS kunt openen. Let op dat de datum/tijdaanduiding in de \'time\' kolom altijd in GMT tijd is, opgemaakt volgens de RFC 3339 standaard.',
+    CSV_export_separator    : 'CSV data kolomscheidingsteken',
+    Selected_date           : 'Geselecteerde tijdspanne',
+    Sensor_measurements     : 'Sensormetingen',
+    too_much_data           : 'Te veel data om te exporteren. Selecteer minder Sensormetingen en/of beperk de tijdspanne tussen start en einddatum.',
+
  };
 
 

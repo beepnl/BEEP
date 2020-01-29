@@ -37,13 +37,14 @@ class MeasurementController extends Controller
         // make sure to add to the measurements DB table w_v_kg_per_val, w_fl_kg_per_val, etc. and w_v_offset, w_fl_offset to let the calibration functions function correctly
         $this->valid_sensors  = Measurement::all()->pluck('pq', 'abbreviation')->toArray();
         $this->output_sensors = Measurement::where('show_in_charts', '=', 1)->pluck('abbreviation')->toArray();
+        $this->client         = new \Influx;
         //die(print_r($this->valid_sensors));
     }
    
 
     // Sensor measurement functions
 
-    protected function get_user_sensor(Request $request, $mine = false)
+    protected function get_user_device(Request $request, $mine = false)
     {
         $this->validate($request, [
             'id'        => 'nullable|integer|exists:sensors,id',
@@ -51,45 +52,51 @@ class MeasurementController extends Controller
             'hive_id'   => 'nullable|integer|exists:hives,id',
         ]);
         
-        $devices = $request->user()->allDevices($mine); // inlude user Group hive sensors ($mine == editable)
+        $devices = $request->user()->allDevices($mine); // inlude user Group hive sensors ($mine == false)
+
         if ($devices->count() > 0)
         {
             if ($request->filled('id') && $request->input('id') != 'null')
             {
                 $id = $request->input('id');
-                $check_sensor = $devices->findOrFail($id);
+                $check_device = $devices->findOrFail($id);
+            }
+            else if ($request->filled('device_id') && $request->input('device_id') != 'null')
+            {
+                $id = $request->input('device_id');
+                $check_device = $devices->findOrFail($id);
             }
             else if ($request->filled('key') && $request->input('key') != 'null')
             {
                 $key = $request->input('key');
-                $check_sensor = $devices->where('key', $key)->first();
+                $check_device = $devices->where('key', $key)->first();
             }
             else if ($request->filled('hive_id') && $request->input('hive_id') != 'null')
             {
                 $hive_id = $request->input('hive_id');
-                $check_sensor = $devices->where('hive_id', $hive_id)->first();
+                $check_device = $devices->where('hive_id', $hive_id)->first();
             }
             else
             {
-                $check_sensor = $devices->first();
+                $check_device = $devices->first();
             }
             
-            if(isset($check_sensor))
-                return $check_sensor;
+            if(isset($check_device))
+                return $check_device;
         }
         return Response::json('No key found for user', 404);
     }
 
     
-    private function last_sensor_values_array($sensor, $fields='*', $limit=1)
+    private function last_sensor_values_array($device, $fields='*', $limit=1)
     {
         $fields = $fields != '*' ? '"'.$fields.'"' : '*';
         $groupby= $fields == '*' || strpos(',' ,$fields) ? 'GROUP BY "name,time"' : '';
         $output = null;
         try
         {
-            $client = new \Influx;
-            $query  = 'SELECT '.$fields.' from "sensors" WHERE "key" = \''.$sensor->key.'\' AND time > now() - 365d '.$groupby.' ORDER BY time DESC LIMIT '.$limit;
+            $client = $this->client;
+            $query  = 'SELECT '.$fields.' from "sensors" WHERE "key" = \''.$device->key.'\' AND time > now() - 365d '.$groupby.' ORDER BY time DESC LIMIT '.$limit;
             //die(print_r($query));
             $result = $client::query($query);
             $values = $result->getPoints();
@@ -103,9 +110,9 @@ class MeasurementController extends Controller
         return $output;
     }
 
-    private function last_sensor_measurement_time_value($sensor, $name)
+    private function last_sensor_measurement_time_value($device, $name)
     {
-        $arr = $this->last_sensor_values_array($sensor, $name);
+        $arr = $this->last_sensor_values_array($device, $name);
 
         if ($arr && count($arr) > 0 && in_array($name, array_keys($arr)))
             return $arr[$name];
@@ -113,7 +120,7 @@ class MeasurementController extends Controller
         return null;
     }
 
-    private function last_sensor_increment_values($sensor, $data_array=null)
+    private function last_sensor_increment_values($device, $data_array=null)
     {
         $output = [];
         $limit  = 2;
@@ -121,11 +128,11 @@ class MeasurementController extends Controller
         if ($data_array != null)
         {
             $output[0] = $data_array;
-            $output[1] = $this->last_sensor_values_array($sensor, implode('","',array_keys($data_array)), 1);
+            $output[1] = $this->last_sensor_values_array($device, implode('","',array_keys($data_array)), 1);
         }
         else
         {
-            $output = $this->last_sensor_values_array($sensor, implode('","',$this->output_sensors), $limit);
+            $output = $this->last_sensor_values_array($device, implode('","',$this->output_sensors), $limit);
         }
         $out_arr= [];
 
@@ -164,7 +171,7 @@ class MeasurementController extends Controller
     private function storeInfluxData($data_array, $dev_eui, $unix_timestamp)
     {
         // store posted data
-        $client    = new \Influx;
+        $client    = $this->client;
         $points    = [];
         $unix_time = isset($unix_timestamp) ? $unix_timestamp : time();
 
@@ -307,6 +314,78 @@ class MeasurementController extends Controller
         }
     }
 
+    private function getAvailableSensorNamesFromData($names, $table, $where, $limit='', $output_sensors_only=true, $output_group_by=false)
+    {
+        $out           = [];
+        $valid_sensors = $output_sensors_only ? $this->output_sensors : array_keys($this->valid_sensors);
+        $options       = ['precision'=> $this->precision];
+        
+        //die(print_r([$names, $valid_sensors]));
+
+        for ($i = 0; $i < count($names); $i++) 
+        {
+            $name = $names[$i];
+            if (in_array($name, $valid_sensors))
+            {
+                $sensors = [];
+                $query = 'SELECT COUNT("'.$name.'") AS "count" FROM "'.$table.'" WHERE '.$where.' '.$limit;
+                try{
+                    $result  = $this->client::query($query, $options);
+                    $sensors = $result->getPoints();
+                } catch (InfluxDB\Exception $e) {
+                    // return Response::json('influx-group-by-query-error', 500);
+                }
+                if (count($sensors) > 0 && $sensors[0]['count'] > 0)
+                    $out[] = $name;
+            }
+        }
+
+        if ($output_group_by)
+        {
+            foreach ($out as $i => $name) 
+                $out[$i] = 'MEAN("'.$name.'") AS "'.$name.'"';
+                
+            $out = implode(', ', $queryList);
+        }
+
+        return $out;
+    }
+
+
+    public function sensor_measurement_types_available(Request $request)
+    {
+        $device_id           = $request->input('device_id');
+        $device              = $this->get_user_device($request);
+
+        if ($device)
+        {
+            $start       = $request->input('start');
+            $end         = $request->input('end');
+            
+            $tz          = $request->input('timezone', 'Europe/Amsterdam');
+            $startMoment = new Moment($start, 'UTC');
+            $startString = $startMoment->setTimezone($tz)->format($this->timeFormat); 
+            $endMoment   = new Moment($end, 'UTC');
+            $endString   = $endMoment->setTimezone($tz)->format($this->timeFormat);
+            
+            $sensors             = $request->input('sensors', $this->output_sensors);
+            $where               = '"key" = \''.$device->key.'\' AND time >= \''.$startString.'\' AND time <= \''.$endString.'\'';
+
+            $sensor_measurements = $this->getAvailableSensorNamesFromData($sensors, 'sensors', $where, '', false);
+            //die(print_r([$device->name, $device->key]));
+            if ($sensor_measurements)
+            {
+                $measurement_types   = Measurement::all()->sortBy('pq')->whereIn('abbreviation', $sensor_measurements)->pluck('abbr_named_object','abbreviation')->toArray();
+                return Response::json($measurement_types, 200);
+            }
+            else
+            {
+                return Response::json('influx-query-empty', 500);
+            }
+        }
+        return Response::json('invalid-user-device', 500);
+    }
+
     /**
     api/sensors/lastvalues GET
     Request last measurement values of all sensor measurements from a sensor (Device)
@@ -317,7 +396,7 @@ class MeasurementController extends Controller
     */
     public function lastvalues(Request $request)
     {
-        $sensor = $this->get_user_sensor($request);
+        $sensor = $this->get_user_device($request);
         $output = $this->last_sensor_values_array($sensor, implode('","',$this->output_sensors));
 
         if ($output === false)
@@ -519,10 +598,10 @@ class MeasurementController extends Controller
     public function data(Request $request)
     {
         //Get the sensor
-        $device  = $this->get_user_sensor($request);
+        $device  = $this->get_user_device($request);
         $location= $device->location();
         
-        $client = new \Influx;
+        $client = $this->client;
         $first  = $client::query('SELECT * FROM "sensors" WHERE "key" = \''.$device->key.'\' ORDER BY time ASC LIMIT 1')->getPoints(); // get first sensor date
         $first_w= [];
         if ($location && isset($location->coordinate_lat) && isset($location->coordinate_lon))
@@ -583,7 +662,7 @@ class MeasurementController extends Controller
         //}
         $staTimestampString = $staTimestamp->startOf($requestInterval)->setTimezone('UTC')->format($this->timeFormat);
         $endTimestampString = $endTimestamp->endOf($requestInterval)->setTimezone('UTC')->format($this->timeFormat);    
-        $groupBySelect      = null;
+        $groupBySelect        = null;
         $groupBySelectWeather = null;
         $groupByResolution  = '';
         $limit              = 'LIMIT '.$this->maxDataPoints;
@@ -591,32 +670,26 @@ class MeasurementController extends Controller
         
         if($resolution != null)
         {
-            $groupByResolution = 'GROUP BY time('.$resolution.') fill(null)';
-            $queryList         = [];
-            $queryListWeather  = [];
-            for ($i = 0; $i < count($names); $i++) 
+            if ($device)
             {
-                $name = $names[$i];
-                if (in_array($name, $this->output_sensors))
-                {
-                    $query = 'SELECT COUNT("'.$name.'") AS "count" FROM "sensors" WHERE "key" = \''.$device->key.'\' AND time >= \''.$staTimestampString.'\' AND time <= \''.$endTimestampString.'\' '.$limit;
-                    $result  = $client::query($query, $options);
-                    $sensors = $result->getPoints();
-                    if (count($sensors) > 0 && $sensors[0]['count'] > 0)
-                        $queryList[] = 'MEAN("'.$name.'") AS "'.$name.'"';
+                $groupByResolution = 'GROUP BY time('.$resolution.') fill(null)';
+                $queryList         = $this->getAvailableSensorNamesFromData($names, 'sensors', '"key" = \''.$device->key.'\' AND time >= \''.$staTimestampString.'\' AND time <= \''.$endTimestampString.'\'', $limit, true);
 
-                    if ($location && isset($location->coordinate_lat) && isset($location->coordinate_lon))
-                    {
-                        $query = 'SELECT COUNT("'.$name.'") AS "count" FROM "weather" WHERE "lat" = \''.$location->coordinate_lat.'\' AND "lon" = \''.$location->coordinate_lon.'\' AND time >= \''.$staTimestampString.'\' AND time <= \''.$endTimestampString.'\' '.$limit;
-                        $result  = $client::query($query, $options);
-                        $sensors = $result->getPoints();
-                        if (count($sensors) > 0 && $sensors[0]['count'] > 0)
-                            $queryListWeather[] = 'MEAN("'.$name.'") AS "'.$name.'"';
-                    }
-                }
+                foreach ($queryList as $i => $name) 
+                    $queryList[$i] = 'MEAN("'.$name.'") AS "'.$name.'"';
+                
+                $groupBySelect = implode(', ', $queryList);
             }
-            $groupBySelect = implode(', ', $queryList);
-            $groupBySelectWeather = implode(', ', $queryListWeather);
+            
+            if ($location && isset($location->coordinate_lat) && isset($location->coordinate_lon))
+            {
+                $queryListWeather     = $this->getAvailableSensorNamesFromData($names, 'weather', '"lat" = \''.$location->coordinate_lat.'\' AND "lon" = \''.$location->coordinate_lon.'\' AND time >= \''.$staTimestampString.'\' AND time <= \''.$endTimestampString.'\'', $limit, true);
+                
+                foreach ($queryListWeather as $i => $name) 
+                    $queryListWeather[$i] = 'MEAN("'.$name.'") AS "'.$name.'"';
+
+                $groupBySelectWeather = implode(', ', $queryListWeather);
+            }
         }
         
         $sensors_out = [];

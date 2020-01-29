@@ -520,22 +520,23 @@ function randomString(length=16) {
     return 0;
 }
 
-// $(document).ready(function() {
-
-//   $("[data-widget='collapse']").click(function() {
-//       //Find the box parent........
-//       var box = $(this).parents(".box").first();
-//       //Find the body and the footer
-//       var bf = box.find(".box-body, .box-footer");
-
-//       if (!$(this).children().find(".box-tools").children().hasClass("fa-plus")) {
-//           $(this).children().find(".box-tools").children(".fa-minus").removeClass("fa-minus").addClass("fa-plus");
-//           bf.slideUp();
-//       } else {
-//           //Convert plus into minus
-//           $(this).children().find(".box-tools").children(".fa-plus").removeClass("fa-plus").addClass("fa-minus");
-//           bf.slideDown();
-//       }
-//   });
-
-// });
+// CSV export to downloadable file
+function exportToCsv(filename, csvData) {
+    
+    var blob = new Blob([csvData], { type: 'text/csv;charset=utf-8;' });
+    if (navigator.msSaveBlob) { // IE 10+
+        navigator.msSaveBlob(blob, filename);
+    } else {
+        var link = document.createElement("a");
+        if (link.download !== undefined) { // feature detection
+            // Browsers that support HTML5 download attribute
+            var url = URL.createObjectURL(blob);
+            link.setAttribute("href", url);
+            link.setAttribute("download", filename);
+            link.style.visibility = 'hidden';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+    }
+}

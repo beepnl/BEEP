@@ -15,7 +15,7 @@
         <p>{{ error_msg }}</p>
     </div>
 	
-	<!-- Settings -->
+	<!-- Data export -->
 	<div class="box">
 	    <div class="box-header with-border">
 	      <h3 class="box-title">{{lang.Data_export}}</h3>
@@ -34,7 +34,71 @@
         </div>
 	</div>
 
+	<!-- Measurement Data export -->
+	<div class="box">
+	    <div class="box-header with-border">
+	      <h3 class="box-title">{{ lang.sensor }} {{ lang.Data_export.toLowerCase() }}</h3>
+	    </div>
 
+	    <div class="box-body">
+			<p>{{ lang.Export_sensor_data }}</p>
+
+			<div ng-if="devices.length > 0" >
+				<div class="row">
+					<div class="col-md-6 col-xs-12">
+						<label>{{lang.sensor}}</label>
+						<select ng-model="selectedDevice" ng-options="device as device.name+' - '+device.hive_name+' ('+device.location_name+')' for device in devices track by device.id" ng-change="loadDeviceData(selectedDevice.id)" class="form-control">
+							<option value="">{{ lang.Select_sensor }}...</option>
+						</select>
+					</div>
+					<div class="col-md-3 col-xs-12">
+						<div class="form-group">
+							<label for="start" control-label>{{lang.start_date}}</label>
+							<input class="form-control" type="date" ng-model="startDate" ng-blur="loadDeviceData(selectedDevice.id)">
+						</div>
+					</div>
+					<div class="col-md-3 col-xs-12">
+						<div class="form-group">
+							<label for="start" control-label>{{lang.end_date}}</label>
+							<input class="form-control" type="date" ng-model="endDate" ng-blur="loadDeviceData(selectedDevice.id)">
+						</div>
+					</div>
+					
+					<div ng-if="dataAvailable">
+						<div class="col-md-6 col-xs-12">
+							<label>{{lang.Sensor_measurements}}</label>
+							<select ng-model="selectedMeasurementTypes" ng-options="mt as mt.pq_name_unit for mt in measurementTypes track by mt.id" ng-change="selectMeasurementTypes(selectedMeasurementTypes)" class="form-control" multiple>
+							</select>
+						</div>
+					
+						<div class="col-md-4 col-xs-12">
+							<div class="form-group">
+								<label for="start" control-label>{{lang.CSV_export_separator}}</label>
+								<select class="form-control" ng-model="separator" ng-change="setSeparator(separator)">
+									<option value=";">; (semicollon)</option>
+									<option value=",">, (comma)</option>
+									<option value="|">| (pipe)</option>
+								</select>
+							</div>
+						</div>
+				</div>
+			</div>
+
+			<div ng-if="devices.length == 0" class="row">
+				<div class="col-xs-12">{{ lang.no_chart_data }}</div>
+			</div>
+
+		</div>
+	</div>
+
+	<div class="box-footer">
+		<button ng-disabled="!dataAvailable" ng-click="exportData()" class="btn btn-primary btn-block">Download {{ lang.Sensor_measurements }}</button>
+	</div>
+		
+    <div class="overlay" ng-if="loading">
+      <i class="fa fa-refresh fa-spin"></i>
+    </div>
+</div>
 
 
 </section>

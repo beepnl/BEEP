@@ -76,6 +76,10 @@ class Measurement extends Model
             $abbr = ' - '.($aind ? substr($mabb, 0, $aind) : $mabb);
             $name .= $abbr;
         }
+        else if ($name == '-' && isset($this->abbreviation))
+        {
+            $name = str_replace('_', ' ', $this->abbreviation);
+        }
         return $name;
     }
 

@@ -211,13 +211,6 @@ app.service('api', ['$http', '$rootScope', function($http, $rootScope)
 			url  : url,
 		};
 
-		// if (method == 'PUT' || 'PATCH')
-		// {
-		// 	req.headers['X-HTTP-Method-Override'] = method;
-		// 	req.method = 'POST';
-		// }
-
-
 		// check if it has to be authorized
 		if(type != 'authenticate' && type != 'register' && self.getApiToken() != null)
 		{
@@ -232,6 +225,18 @@ app.service('api', ['$http', '$rootScope', function($http, $rootScope)
 
 	this.getApiRequest = function(type, request, params)
 	{
+		if (typeof params === 'object')
+		{
+			var paramArray = [];
+			for (p in params) 
+			{
+				var name  = p;
+				var value = params[p]; 
+				paramArray.push(name+'='+value);
+			}
+			params = paramArray.join('&');
+		}
+
 		var params = typeof params !== 'undefined' ? params+'&' : '';
 		// var count  = (typeof count !== 'undefined') ? count : 0;
 		// var offset = (typeof offset !== 'undefined') ? offset : 0;

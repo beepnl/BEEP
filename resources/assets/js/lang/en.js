@@ -475,7 +475,11 @@
     Output                  : 'Output',
     Last                    : 'Last',
 
-
+    Export_sensor_data      : 'Export all data per device in the highest possible resolution as a .csv file that you can open in Excel, or SPSS. NB: The date time data in the \'time\' column is in GMT time, formatted by the RFC 3339 date-time standard.',
+    CSV_export_separator    : 'CSV data column separator',
+    Selected_date           : 'Selected time span',
+    Sensor_measurements     : 'Sensor measurements',
+    too_much_data           : 'Too much data to process, please select fewer Sensor measurements, or reduce the timespan between start and end date.',
 
 };
 

@@ -14,6 +14,7 @@ use App\User;
 use App\Category;
 use App\Inspection;
 use App\InspectionItem;
+use App\Measurement;
 use App\Mail\DataExport;
 use App\Exports\HiveExport;
 use Moment\Moment;
@@ -44,8 +45,8 @@ class ExportController extends Controller
             $excel->setTitle($fileName);
 
             // Chain the setters
-            $excel->setCreator('BEEP')
-                  ->setCompany('BEEP');
+            $excel->setCreator(env('APP_NAME'))
+                  ->setCompany(env('APP_NAME'));
 
             // Call them separately
             $excel->setDescription($fileName);
@@ -237,6 +238,67 @@ class ExportController extends Controller
         $table->prepend(array_merge($ins_cols, $context));
 
         return $table;
+    }
+
+    public function generate_csv(Request $request)
+    {
+        $device_id    = $request->input('device_id');
+        $start        = $request->input('start');
+        $end          = $request->input('end');
+        $separator    = $request->input('separator', ';');
+        $measurements = $request->input('measurements', '*');
+        $device       = $request->user()->devices()->find($device_id);
+
+        if ($device == null)
+            return Response::json('invalid-user-device', 500);
+
+        $sensor_key = $device->key;
+
+        $options= ['precision'=>'rfc3339', 'format'=>'csv'];
+        
+        if ($measurements == null || $measurements == '' || $measurements === '*')
+            $sensor_measurements = '*';
+        else
+            $sensor_measurements = '"'.implode('","',$measurements).'"';
+
+        $query = 'SELECT '.$sensor_measurements.' FROM "sensors" WHERE "key" = \''.$sensor_key.'\' AND time >= \''.$start.'\' AND time < \''.$end.'\'';
+        //die(print_r($query));
+        
+        try{
+            $client = new \Influx; 
+            $data   = $client::query($query, $options)->getPoints(); // get first sensor date
+        } catch (InfluxDB\Exception $e) {
+            return Response::json('influx-query-error', 500);
+        }
+
+        if (count($data) == 0)
+            return Response::json('influx-query-empty', 500);
+
+        // format CSV header row: time, sensor1 (unit2), sensor2 (unit2), etc. Excluse the 'sensor' and 'key' columns
+        $csv_file = "";
+
+        $csv_sens = array_diff(array_keys($data[0]),["sensor","key"]);
+        $csv_head = [];
+        foreach ($csv_sens as $sensor_name) 
+        {
+            $meas       = Measurement::where('abbreviation', $sensor_name)->first();
+            $csv_head[] = $meas ? $meas->pq_name_unit() : $sensor_name;
+        }
+        $csv_head = '"'.implode('"'.$separator.'"', $csv_head).'"'."\r\n";
+
+        // format CSV file body
+        $csv_body = [];
+        foreach ($data as $sensor_values) 
+        {
+            $csv_body[] = implode($separator, array_diff_key($sensor_values,["sensor"=>0,"key"=>0]));
+        }
+        $csv_file = $csv_head.implode("\r\n", $csv_body);
+
+        // return the CSV file content in a file on disk
+        // $fileName = $device->name.'_'.$start.'_'.$end.'.csv';
+        // Storage::disk('public')->put('/exports/'.$fileName, $csv_file);
+
+        return response($csv_file)->header('Content-Type', 'text/html; charset=UTF-8');
     }
 
 }

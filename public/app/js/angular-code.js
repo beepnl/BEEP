@@ -3955,7 +3955,7 @@ app.controller('ExportCtrl', function ($scope, $rootScope, $window, $location, $
     $scope.separator = separator;
   };
 
-  $scope.exportData = function () {
+  $scope.exportSensorData = function () {
     $scope.error_msg = null;
     var options = {
       'device_id': $scope.selectedDeviceId,

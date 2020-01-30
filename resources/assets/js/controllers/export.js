@@ -118,7 +118,7 @@ app.controller('ExportCtrl', function($scope, $rootScope, $window, $location, $r
     	$scope.separator = separator;
     }
 
-	$scope.exportData = function()
+	$scope.exportSensorData = function()
 	{
 		$scope.error_msg = null;
 		var options = {'device_id': $scope.selectedDeviceId, 'start': moment($scope.startDate).format('YYYY-MM-DD'), 'end':moment($scope.endDate).format('YYYY-MM-DD'), 'separator':$scope.separator, 'measurements':$scope.selectedMeasurementNames};

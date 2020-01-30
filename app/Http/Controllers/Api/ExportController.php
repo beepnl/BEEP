@@ -14,10 +14,15 @@ use App\User;
 use App\Category;
 use App\Inspection;
 use App\InspectionItem;
+use App\Measurement;
 use App\Mail\DataExport;
 use App\Exports\HiveExport;
 use Moment\Moment;
 
+/**
+ * @group Api\ExportController
+ * Export all data to an Excel file by email (GDPR)
+ */
 class ExportController extends Controller
 {
     public function all(Request $request)
@@ -40,8 +45,8 @@ class ExportController extends Controller
             $excel->setTitle($fileName);
 
             // Chain the setters
-            $excel->setCreator('BEEP')
-                  ->setCompany('BEEP');
+            $excel->setCreator(env('APP_NAME'))
+                  ->setCompany(env('APP_NAME'));
 
             // Call them separately
             $excel->setDescription($fileName);
@@ -64,7 +69,7 @@ class ExportController extends Controller
             });
             $excel->sheet(__('export.inspections'), function($sheet) use ($inspExport) 
             {
-                $sheet->setFreeze('D4');
+                $sheet->setFreeze('D3');
                 $sheet->setColumnFormat(array('I:Z' => '@'));
                 $sheet->fromModel($inspExport);
             });
@@ -154,7 +159,7 @@ class ExportController extends Controller
         // array of inspection items and data
         $inspection_data = array_fill_keys(array_map(function($name_arr)
         {
-            return $name_arr['name'];
+            return $name_arr['anc'].$name_arr['name'];
 
         }, $item_names),'');
         
@@ -168,10 +173,10 @@ class ExportController extends Controller
             {
                 foreach ($inspection->items as $inspectionItem)
                 {
-                    $inspection_data[$inspectionItem->name] = $inspectionItem->humanReadableValue();
+                    $array_key                   = $inspectionItem->anc.$inspectionItem->name;
+                    $inspection_data[$array_key] = $inspectionItem->humanReadableValue();
                 }
             }
-
             $locationName = $inspection->locations()->count() > 0 ? $inspection->locations()->first()->name : $inspection->hives()->count() > 0 ? $inspection->hives()->first()->location()->first()->name : '';
             
             $reminder_date= '';
@@ -201,20 +206,20 @@ class ExportController extends Controller
         });
 
         // Add extra title rows
-        $context = $inspection_data;
+        // $context = $inspection_data;
         $legends = $inspection_data;
-        $types   = $inspection_data;
+        // $types   = $inspection_data;
 
         foreach ($item_names as $item) 
         {
-            if(in_array($item['name'], array_keys($context)))
-                $context[$item['name']] = $item['anc'];
+            // if(in_array($item['name'], array_keys($context)))
+            //     $context[$item['name']] = $item['anc'];
 
             if(in_array($item['name'], array_keys($legends)))
                 $legends[$item['name']] = $item['range'];
 
-            if(in_array($item['name'], array_keys($types)))
-                $types[$item['name']] = $item['type'];
+            // if(in_array($item['name'], array_keys($types)))
+            //     $types[$item['name']] = $item['type'];
         }
 
         $ins_cols = [
@@ -230,7 +235,7 @@ class ExportController extends Controller
 
         $table->prepend(array_merge($ins_cols, $legends));
         //$table->prepend(array_merge($ins_cols,$types));
-        $table->prepend(array_merge($ins_cols, $context));
+        // $table->prepend(array_merge($ins_cols, $context));
 
         return $table;
     }

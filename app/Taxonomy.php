@@ -48,9 +48,12 @@ class Taxonomy extends Model
     {
         if ($this->category_input_id != null)
         {
-            $icon = CategoryInput::where('id', $this->category_input_id)->first()->glyphIcon();
-            if ($icon)
+            $catInput = CategoryInput::where('id', $this->category_input_id)->first();
+            if ($catInput)
+            {
+                $icon = $catInput->glyphIcon();
                 return "glyphicon glyphicon-$icon";
+            }
         }
         return null;
     }

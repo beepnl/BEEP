@@ -23,7 +23,7 @@ class SensorDefinitionController extends Controller
         }
         else if ($request->filled('device_hardware_id'))
         {
-            return $request->user()->devices()->where('device_hardware_id', strtolower($request->input('device_hardware_id')))->first());
+            return $request->user()->devices()->where('device_hardware_id', strtolower($request->input('device_hardware_id')))->first();
         }
         return null;
     }

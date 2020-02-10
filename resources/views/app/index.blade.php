@@ -55,7 +55,7 @@
         
     </head>
 
-    <body id="app" class="hold-transition skin-beep" ng-class="templateClass" maps-autocomplete-mobile>
+    <body id="app" class="hold-transition skin-beep @if(env('BETA', false) == true) beta @endif" ng-class="templateClass" maps-autocomplete-mobile>
 
         <div ng-class="{'wrapper':showAdminTemplate}">
 

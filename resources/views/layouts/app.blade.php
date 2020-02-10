@@ -42,7 +42,7 @@
     @yield('head')
 
 </head>
-<body class="hold-transition skin-beep fixed @yield('body-class')">
+<body class="hold-transition skin-beep fixed @if(env('BETA', false) == true) beta @endif @yield('body-class')">
     <div id="app">
         
         @if (Auth::guest())

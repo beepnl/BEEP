@@ -8,7 +8,7 @@
 /* BETA */
 body.beta nav.navbar-static-top, body.beta a.logo, body.beta.login-page,
 body.beta.register-page{
-	background-image: url('/webapp/img/icons/BETA.png');
+	background-image: url('/img/icons/BETA.png');
 	background-size: 40px;
 }
 /* BETA END */

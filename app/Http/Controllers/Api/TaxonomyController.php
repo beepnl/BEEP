@@ -39,7 +39,7 @@ class TaxonomyController extends Controller
         $out['beeraces']       = Category::descendentsByRootParentAndName('bee_colony', 'characteristics', 'subspecies');
         $out['sensortypes']    = Category::descendentsByRootParentAndName('hive', 'app', 'sensor');
         $out['hivedimensions'] = Taxonomy::$hive_type_sizes;
-        $out['sensormeasurements'] = Measurement::where('show_in_charts', true)->get();
+        $out['sensormeasurements'] = Measurement::all();
 
         return response()->json($out);
     }

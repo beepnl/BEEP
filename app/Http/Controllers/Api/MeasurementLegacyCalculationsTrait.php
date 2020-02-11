@@ -36,7 +36,7 @@ trait MeasurementLegacyCalculationsTrait
         return $out;
     }
 
-    protected function calculateWeightKg($sensor, $data_array)
+    protected function calculateWeightKg($device, $data_array)
     {
         $totalWeight    = 0;
         $use_separate   = false;
@@ -54,8 +54,8 @@ trait MeasurementLegacyCalculationsTrait
             {
                 // TODO: Make dependent of SensorDefinition
 
-                $name_offset = $this->last_sensor_measurement_time_value($sensor, $name.'_offset');
-                $name_factor = $this->last_sensor_measurement_time_value($sensor, $name.'_kg_per_val');
+                $name_offset = $this->last_sensor_measurement_time_value($device, $name.'_offset');
+                $name_factor = $this->last_sensor_measurement_time_value($device, $name.'_kg_per_val');
                 
                 if ($name_factor === 0)
                 {
@@ -292,7 +292,7 @@ trait MeasurementLegacyCalculationsTrait
     }
 
 
-    private function add_weight_kg_corrected_with_temperature($sensor, $data_array)
+    private function add_weight_kg_corrected_with_temperature($device, $data_array)
     {
         if (isset($data_array['t']))
         {
@@ -309,7 +309,7 @@ trait MeasurementLegacyCalculationsTrait
             if (count($temp_weight_arr) == 0) // no value available, so do not add
                 return $data_array; 
 
-            $diff_arr = $this->last_sensor_increment_values($sensor, $data_array);
+            $diff_arr = $this->last_sensor_increment_values($device, $data_array);
 
             if (!isset($diff_arr['t']) || $data_array['weight_kg'] == 0)
                 return $data_array;
@@ -330,7 +330,7 @@ trait MeasurementLegacyCalculationsTrait
             //     }
             // }
             // // calculate corrected total weight
-            // $temp_corr_weight = $this->calculateWeightKg($sensor, $temp_weight_arr);;
+            // $temp_corr_weight = $this->calculateWeightKg($device, $temp_weight_arr);;
             //die(print_r(['tw'=>$temp_weight_arr, 'diff'=>$diff_arr, 'corr'=>$temp_corr_weight,'uncorr'=>$data_array['weight_kg']]));
 
             $sign             = (($diff_temp >= 0 && $diff_arr['weight_kg'] >= 0) || ($diff_temp < 0 && $diff_arr['weight_kg'] < 0)) ? -1 : 0; 
@@ -357,7 +357,7 @@ trait MeasurementLegacyCalculationsTrait
     * 3.   Get the last measured weight values for this sensor key, 
     *      Divide the given weight (in kg) with the amount of sensor values > 1.0 (assuming the weight is evenly distributed)
     *      Calculate the multiplier per sensor by dividing the multiplier = weight_part / (value - offset)
-    *      Save the multiplier as $sensor_name.'_kg_per_val' in Influx
+    *      Save the multiplier as $device_name.'_kg_per_val' in Influx
     */
     public function calibrateweight(Request $request)
     {
@@ -369,10 +369,10 @@ trait MeasurementLegacyCalculationsTrait
         if ($validator->fails())
             return Response::json('validation-error', 500);
 
-        $sensor           = $this->get_user_sensor($request, true); // requires id, key, hive_id, or nothing (if only one sensor) to be set
+        $device           = $this->get_user_device($request, true); // requires id, key, hive_id, or nothing (if only one sensor) to be set
         $next_measurement = $request->filled('next_measurement') ? $request->input('next_measurement') : true;
-        $weight_kg        = floatval($request->filled('weight_kg') ? $request->input('weight_kg') : $this->last_sensor_measurement_time_value($sensor, 'calibrating_weight'));
-        $calibrated       = $this->calibrate_weight_sensors($sensor, $weight_kg, $next_measurement);
+        $weight_kg        = floatval($request->filled('weight_kg') ? $request->input('weight_kg') : $this->last_sensor_measurement_time_value($device, 'calibrating_weight'));
+        $calibrated       = $this->calibrate_weight_sensors($device, $weight_kg, $next_measurement);
 
         if($calibrated === true)
         {
@@ -387,8 +387,8 @@ trait MeasurementLegacyCalculationsTrait
 
     public function offsetweight(Request $request)
     {
-        $sensor = $this->get_user_sensor($request, true); // requires id, key, hive_id, or nothing (if only one sensor) to be set
-        $offset = $this->offset_weight_sensors($sensor);
+        $device = $this->get_user_device($request, true); // requires id, key, hive_id, or nothing (if only one sensor) to be set
+        $offset = $this->offset_weight_sensors($device);
 
         if($offset === true)
             return Response::json("offset_weight", 201);
@@ -407,8 +407,8 @@ trait MeasurementLegacyCalculationsTrait
     public function lastweight(Request $request)
     {
         $weight = ['w_fl', 'w_fr', 'w_bl', 'w_br', 'w_v', 'weight_kg', 'weight_kg_corrected', 'calibrating_weight', 'w_v_offset', 'w_v_kg_per_val', 'w_fl_offset', 'w_fr_offset', 'w_bl_offset', 'w_br_offset'];
-        $sensor = $this->get_user_sensor($request);
-        $output = $this->last_sensor_values_array($sensor, implode('","',$weight));
+        $device = $this->get_user_device($request);
+        $output = $this->last_sensor_values_array($device, implode('","',$weight));
 
         if ($output === false)
             return Response::json('sensor-get-error', 500);

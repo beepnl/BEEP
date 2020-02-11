@@ -109,7 +109,7 @@ class SensorDefinitionController extends Controller
             return response()->json($sensordefinition, 201);
         }
 
-        Storage::disk('local')->put('sensordefinitions/def_no_dev.log', json_encode($request->input()));
+        Storage::disk('local')->put('sensordefinitions/def_no_dev.log', json_encode($request->all()));
         return response()->json('no_device_found', 404);
     }
 

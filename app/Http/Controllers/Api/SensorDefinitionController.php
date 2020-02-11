@@ -62,13 +62,20 @@ class SensorDefinitionController extends Controller
      * api/sensordefinition GET
      * Display a listing of the resource.
      *
+     * @authenticated
+     * @bodyParam device_id integer Device that the definition value belongs to
+     * @bodyParam device_hardware_id string required Device that the definition values belong to
+     *
      * @return \Illuminate\Http\Response
      */
     public function index(Request $request)
     {
-        $sensordefinitions = $this->getDeviceFromRequest($request)->sensorDefinitions()->all();
+        $sensordefinitions = $this->getDeviceFromRequest($request)->sensorDefinitions;
 
-        return $sensordefinitions;
+        if ($sensordefinitions)
+            return response()->json($sensordefinitions->all());
+
+        return response()->json('no_definitions_found', 404);
     }
 
     /**

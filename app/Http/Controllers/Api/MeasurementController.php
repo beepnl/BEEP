@@ -260,14 +260,12 @@ class MeasurementController extends Controller
             $measurement = Measurement::where('abbreviation',$abbr)->first();
             if ($measurement)
             {
-                $sensor_defs = $device->sensorDefinitions()->where('input_measurement_id', $measurement->id)->get();
-                if ($sensor_defs)
+                $sensor_def = $device->sensorDefinitions->where('input_measurement_id', $measurement->id)->last();
+
+                if ($sensor_def)
                 {
-                    foreach ($sensor_defs as $def) 
-                    {
-                        $abbr_o = $def->output_abbr;
-                        $data_array[$abbr_o] = $def->calibrated_measurement_value($val);
-                    }
+                    $abbr_o = $sensor_def->output_abbr;
+                    $data_array[$abbr_o] = $sensor_def->calibrated_measurement_value($val);
                 }
                 else if ($abbr == 'w_v') // make new calibration values based on stored ones
                 {
@@ -275,14 +273,14 @@ class MeasurementController extends Controller
                     $influx_multi  = floatval($this->last_sensor_measurement_time_value($device, $abbr.'_kg_per_val'));
 
                     if ($influx_offset != 0 || $influx_multi != 0)
-                        $this->createOrUpdateDefinition($device, $abbr, 'weight_kg', $influx_offset, $influx_multi);
+                        $this->createOrUpdateDefinition($device, 'w_v', 'weight_kg', $influx_offset, $influx_multi);
                 }
             }
             
         }
 
         // Legacy weight calculation from 2-4 load cells
-        if (isset($data_array['w_fl']) || isset($data_array['w_fr']) || isset($data_array['w_bl']) || isset($data_array['w_br']) || isset($data_array['w_v'])) 
+        if (isset($data_array['weight_kg']) == false && ( isset($data_array['w_fl']) || isset($data_array['w_fr']) || isset($data_array['w_bl']) || isset($data_array['w_br']) || isset($data_array['w_v'])) ) 
         {
             // check if calibration is required
             $calibrate = $this->last_sensor_measurement_time_value($device, 'calibrating_weight');
@@ -296,7 +294,6 @@ class MeasurementController extends Controller
             // check if we need to compensate weight for temp
             $data_array = $this->add_weight_kg_corrected_with_temperature($device, $data_array);
         }
-        
         
         $time = time();
         if (isset($data_array['time']))

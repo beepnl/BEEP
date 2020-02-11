@@ -210,9 +210,10 @@ class MeasurementController extends Controller
     {
         $measurement_in  = Measurement::where('abbreviation',$abbr_in)->first();
         $measurement_out = Measurement::where('abbreviation',$abbr_out)->first();
+
         if ($measurement_in && $measurement_out)
         {
-            $def = $device->sensorDefinitions()->where('input_measurement_id', $measurement_in->id)->where('output_measurement_id', $measurement_out->id)->first();
+            $def = $device->sensorDefinitions->where('input_measurement_id', $measurement_in->id)->where('output_measurement_id', $measurement_out->id)->last();
             if ($def && (isset($offset) || isset($multiplier)) ) 
             {
                 if (isset($offset))
@@ -280,19 +281,22 @@ class MeasurementController extends Controller
         }
 
         // Legacy weight calculation from 2-4 load cells
-        if (isset($data_array['weight_kg']) == false && ( isset($data_array['w_fl']) || isset($data_array['w_fr']) || isset($data_array['w_bl']) || isset($data_array['w_br']) || isset($data_array['w_v'])) ) 
+        if (isset($data_array['w_fl']) || isset($data_array['w_fr']) || isset($data_array['w_bl']) || isset($data_array['w_br']) || isset($data_array['w_v'])) 
         {
             // check if calibration is required
             $calibrate = $this->last_sensor_measurement_time_value($device, 'calibrating_weight');
             if (floatval($calibrate) > 0)
                 $this->calibrate_weight_sensors($device, $calibrate, false, $data_array);
 
-            // take into account offset and multi
-            $weight_kg = $this->calculateWeightKg($device, $data_array);
-            $data_array['weight_kg'] = $weight_kg;
+            if (isset($data_array['weight_kg']) == false)
+            {
+                // take into account offset and multi
+                $weight_kg = $this->calculateWeightKg($device, $data_array);
+                $data_array['weight_kg'] = $weight_kg;
 
-            // check if we need to compensate weight for temp
-            $data_array = $this->add_weight_kg_corrected_with_temperature($device, $data_array);
+                // check if we need to compensate weight for temp (legacy)
+                //$data_array = $this->add_weight_kg_corrected_with_temperature($device, $data_array);
+            }
         }
         
         $time = time();

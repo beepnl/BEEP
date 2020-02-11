@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Requests;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Storage;
 
 use App\SensorDefinition;
 use App\Measurement;
@@ -108,6 +109,7 @@ class SensorDefinitionController extends Controller
             return response()->json($sensordefinition, 201);
         }
 
+        Storage::disk('local')->put('sensordefinitions/def_no_dev.log', json_encode($data_array));
         return response()->json('no_device_found', 404);
     }
 

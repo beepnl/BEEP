@@ -24,10 +24,11 @@ class PostCategoryRequest extends Request {
 	public function rules()
 	{
 		return [
-			'name' 					=> 'required|string',
-            'parent_id' 			=> 'required|exists:categories,id',
+			'name' 					=> 'nullable|required_without:names|string',
+			'names' 				=> 'nullable|required_without:name|string',
             'category_input_id' 	=> 'required|exists:category_inputs,id',
             'physical_quantity_id' 	=> 'present|required_with:physical_quantities,id',
+            'parent_id' 			=> 'nullable|exists:categories,id',
 			'type' 					=> 'string',
             'icon' 					=> 'image',
 		];

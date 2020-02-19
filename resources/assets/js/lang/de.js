@@ -238,7 +238,7 @@ LANG['de'] =
 	sensors_title : 'Sensoreinstellungen', 
 	sensors_description : 'Sensor Status und Registrierung', 
 	sensors : 'Sensoren', 
-	sensor : 'Sensor', 
+	sensor : 'Device', 
 
 	Select : 'Wähle', 
 	Not_selected : 'Nicht gewählt', 
@@ -437,7 +437,7 @@ LANG['de'] =
     info                    : 'Info',
     
     research                : 'Research',
-    research_explanation    : 'This screen contains the available researched for which you can opt-in to share your data with. Before opting in, please read the research description thourougly to make sure that you consent to the specific part of your data being shared with the research for the indicated period. Remeber that you can opt-out again, any time you want.',
+    research_explanation    : 'This screen contains the available researches for which you can opt-in to share your data with. By giving consent to sharing the data you manage on your BEEP account, you can contribute to research to support honeybee health. Before consenting in, please review the research description provided through the link below and request for additional details if needed. You can withdraw your consent at any time, no new data will be shared from that moment. In case of questions, please direct these to the contact person provided.',
     research_info           : 'By sharing your data with researchers, you help them to being able to analyse more data and come to better conclusions for their research.',
     start_date              : 'Start date',
     end_date                : 'End date',

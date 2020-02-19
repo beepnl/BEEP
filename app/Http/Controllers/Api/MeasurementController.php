@@ -1,5 +1,6 @@
 <?php
 namespace App\Http\Controllers\Api;
+
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Auth;
@@ -14,8 +15,9 @@ use Response;
 use Moment\Moment;
 use League\Fractal;
 use App\Http\Requests\PostSensorRequest;
-
 use App\Http\Controllers\Api\MeasurementLegacyCalculationsTrait;
+use GuzzleHttp\Client;
+use GuzzleHttp\Exception\ClientException;
 
 /**
  * @group Api\MeasurementController
@@ -41,6 +43,20 @@ class MeasurementController extends Controller
         //die(print_r($this->valid_sensors));
     }
    
+    private function doPostHttpRequest($url, $data)
+    {
+        $guzzle   = new Client();
+        try
+        {
+            $response = $guzzle->post($url, [\GuzzleHttp\RequestOptions::JSON => $data]);
+        }
+        catch(ClientException $e)
+        {
+            return $e;
+        }
+
+        return $response;
+    }
 
     // Sensor measurement functions
 
@@ -244,7 +260,8 @@ class MeasurementController extends Controller
         $device  = Device::where('key', $dev_eui)->first();
         if($device)
         {
-            $this->storeDeviceMeta($dev_eui);
+            $battery_voltage = isset($data_array['bv']) ? floatval($data_array['bv']) : null;
+            $this->storeDeviceMeta($dev_eui, 'battery_voltage', $battery_voltage);
         }
         else
         {
@@ -460,7 +477,7 @@ class MeasurementController extends Controller
     {
         $device = Device::where('key', $key)->first();
 
-        if ($device == null && $field == 'hardware_id' && $value !== null && env('ALLOW_DEVICE_CREATION') == 'true') // no device with this key available
+        if ($device == null && $field == 'hardware_id' && $value !== null && env('ALLOW_DEVICE_CREATION') == 'true' && Auth::user()->hasRole('sensor-data')) // no device with this key available
         {
             $category_id = Category::findCategoryIdByParentAndName('sensor', 'beep');
             $device_name = 'BEEPBASE-'.strtoupper(substr($key, -4, 4));
@@ -491,10 +508,50 @@ class MeasurementController extends Controller
         }
     }
 
+    private function sendDeviceDownlink($key, $url)
+    {
+        $device = Device::where('key', $key)->first();
+
+        if($device && isset($url) && isset($device->next_downlink_message)) // && Auth::user()->hasRole('sensor-data')
+        {
+            $msg = $device->next_downlink_message;
+            $downlink_array = [
+                'dev_id' => $key,
+                'port' => 5,
+                'confirmed' => true,
+                'payload_raw' => base64_encode($msg),
+            ];
+            $result = $this->doPostHttpRequest($url, $downlink_array);
+
+            // store waiting message for sensor
+            if ($result instanceof ClientException)
+            {
+                $device->last_downlink_result  = 'Error (no result): last downlink ('.$msg.') tried to sent @ '.date('Y-m-d H:i:s').'. Error message: '.substr($result->getMessage(), 0, 150);
+                $device->save();
+            }
+            else if ($result)
+            {
+                if ($result->getStatusCode() == 200)
+                {
+                    $device->next_downlink_message = null;
+                    $device->last_downlink_result  = 'Last downlink ('.$msg.') sent @ '.date('Y-m-d H:i:s').', waiting for result...';
+                    $device->save();
+                }
+                else
+                {
+                    $device->last_downlink_result  = 'Error (status '.$result->getStatusCode().'): last downlink ('.$msg.') tried to @ '.date('Y-m-d H:i:s');
+                    $device->save();
+                }
+            }
+        }
+    }
+
     private function parse_ttn_payload($request_data)
     {
-        $data_array = $request_data['payload_fields'];
+        $data_array = [];
 
+        if (isset($request_data['payload_fields']))
+            $data_array = $request_data['payload_fields'];
 
         if (isset($request_data['hardware_serial']) && !isset($data_array['key']))
             $data_array['key'] = $request_data['hardware_serial']; // LoRa WAN = Device EUI
@@ -502,7 +559,12 @@ class MeasurementController extends Controller
             $data_array['rssi'] = $request_data['metadata']['gateways'][0]['rssi'];
         if (isset($request_data['metadata']['gateways'][0]['snr']))
             $data_array['snr']  = $request_data['metadata']['gateways'][0]['snr'];
+        if (isset($request_data['metadata']['gateways'][0]['channel']))
+            $data_array['lora_channel']  = $request_data['metadata']['gateways'][0]['channel'];
+        if (isset($request_data['metadata']['data_rate']))
+            $data_array['data_rate']  = $request_data['metadata']['data_rate'];
 
+        // store device metadata
         if (isset($data_array['beep_base']) && boolval($data_array['beep_base']) && isset($data_array['key']) && isset($data_array['hardware_id'])) // store hardware id
         {
             $this->storeDeviceMeta($data_array['key'], 'hardware_id', $data_array['hardware_id']);
@@ -516,6 +578,20 @@ class MeasurementController extends Controller
                 $this->storeDeviceMeta($data_array['key'], 'firmware_version', $data_array['firmware_version']);
             if (isset($data_array['bootcount']))
                 $this->storeDeviceMeta($data_array['key'], 'bootcount', $data_array['bootcount']);
+        }
+
+        // process downlink
+        if (isset($data_array['key']) && isset($request_data['downlink_url']))
+            $this->sendDeviceDownlink($data_array['key'], $request_data['downlink_url']);
+
+        if (isset($data_array['key']) && isset($data_array['beep_base']) && boolval($data_array['beep_base']) && isset($request_data['port']) && $request_data['port'] == 6) // downlink response
+        {
+            $device = Device::where('key', $data_array['key'])->first();
+            if($device) // && Auth::user()->hasRole('sensor-data')
+            {
+                $device->last_downlink_result = json_encode($data_array);
+                $device->save();
+            }
         }
 
         return $data_array;

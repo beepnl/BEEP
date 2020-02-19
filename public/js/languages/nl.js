@@ -237,10 +237,10 @@
     settings_description    : 'Overzicht van de account instellingen',
     settings                : 'Instellingen',
 
-    sensors_title           : 'Sensorinstellingen',
-    sensors_description     : 'Sensoren status en registratie',
-    sensors                 : 'Sensoren',
-    sensor                  : 'Sensor',
+    sensors_title           : 'Meetsysteem instellingen',
+    sensors_description     : 'Meetsysteem status en registratie',
+    sensors                 : 'Meetsystemen',
+    sensor                  : 'Meetsysteem',
 
     Select                  : 'Selecteer',
     Not_selected            : 'Niet geselecteerd',
@@ -409,7 +409,7 @@
     is_required             : 'in',
 
     No_groups               : 'Geen groepen beschikbaar',
-    not_available_yet       : 'nog niet beschikbaar. Maak de eerste aan.',
+    not_available_yet       : 'nog niet beschikbaar. Maak de eerste aan door op de knop in de rechte bovenhoek te drukken.',
     Users                   : 'Gebruikers',
     Member                  : 'Groepslid',
     Members                 : 'Groepsleden',
@@ -441,7 +441,7 @@
     info                    : 'Info',
     research                : 'Onderzoek',
     roofed                  : 'Heeft de bijenstand een dak?',
-    research_explanation    : 'Dit scherm bevat de beschikbare onderzoeken waarvoor u zich kunt aanmelden om uw gegevens mee te delen. Lees voordat je je aanmeldt de onderzoeksbeschrijving aandachtig door om er zeker van te zijn dat je ermee instemt dat het specifieke deel van je gegevens gedurende de aangegeven periode met het onderzoek wordt gedeeld. Onthoud dat je je weer kunt afmelden wanneer je maar wilt.',
+    research_explanation    : 'Dit scherm bevat de beschikbare onderzoeken waarvoor u toestemming kunt geven om de gegevens die u in de BEEP app bijhoudt mee te delen. Door toestemming te geven voor het delen van de gegevens die u beheert op uw BEEP-account, kunt u bijdragen aan onderzoek ter ondersteuning van de gezondheid van honingbijen. Lees voordat u toestemming geeft de onderzoeksbeschrijving via de onderstaande link en vraag indien nodig om aanvullende informatie. U kunt uw toestemming te allen tijde intrekken, vanaf dat moment worden er geen nieuwe gegevens gedeeld. Neem bij vragen contact op met de daarvoor bestemde contactpersoon.',
     research_info           : 'Door uw gegevens met onderzoekers te delen, helpt u hen om meer gegevens te kunnen analyseren en tot betere conclusies te komen voor hun onderzoek.',
     start_date              : 'Startdatum',
     end_date                : 'Einddatum',
@@ -449,7 +449,9 @@
     institution             : 'Onderzoeksinstituut',
     type_of_data_used       : 'Gebruik data',
     link                    : 'Link',
-    consent                 : 'Huidige toestemming',
+    Consent                 : 'Toestemming',
+    history                 : 'geschiedenis',
+    Current_consent         : 'Huidige toestemming',
     consent_yes             : 'Ik sta toe mijn data te gebruiken',
     consent_no              : 'Ik sta NIET toe mijn data te gebruiken',
     my_beep_data            : 'Mijn eigen BEEP gegevens',
@@ -491,6 +493,8 @@
     Selected_date           : 'Geselecteerde tijdspanne',
     Sensor_measurements     : 'Sensormetingen',
     too_much_data           : 'Te veel data om te exporteren. Selecteer minder Sensormetingen en/of beperk de tijdspanne tussen start en einddatum.',
+
+    beep_base_explanation   : 'Als je een BEEP-base hebt (zoals getoond in het bovenstaande afbeelding), gebruik dan de native app (iOS en Android) om de communicatie met deze app in te stellen. Als je nog geen BEEP-base hebt, klik dan op het menu item \'BEEP website\' voor updates over hoe je aan een BEEP-base kunt komen. Als je je eigen meetapparaat hebt en de gegevens graag in de BEEP-app wilt zien, stuur ons dan een bericht met het verzoek om lid te worden van onze Slack-community en je krijgt toegang tot de API-beschrijving.',
 
  };
 

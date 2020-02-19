@@ -175,7 +175,7 @@
 				    					<option value=''>{{lang.Select}} {{lang.Bee_race}}...</option>
 				    				</select>
 					            </div>
-					    		<div class="form-item">
+					    		<!-- <div class="form-item">
 					    			<label>{{lang.Queen}} {{lang.queen_line}}</label>
 					    			<input ng-model="hive.queen.line" type="text" placeholder="F0, F1, etc" class="form-control">
 					    		</div>
@@ -183,8 +183,22 @@
 					    		<div class="form-item">
 					    			<label>{{lang.Queen}} {{lang.queen_tree}}</label>
 					    			<input ng-model="hive.queen.tree" type="text" placeholder="{{lang.Queen}} {{lang.queen_tree}}" class="form-control">
-					    		</div>
+					    		</div> -->
 					    	
+					    		<div class="form-item">
+					    			<label>{{lang.Birth_date}} <span ng-if="queen_colored">({{ lang.changes_queen_color}})</span></label>
+									<div class="input-group date">
+									  <div class="input-group-addon">
+									    <i class="fa fa-calendar"></i>
+									  </div>
+									  <input class="form-control pull-right" data-field="date" type="text" readonly="true" ng-model="hive.queen.created_at">
+									</div>
+					    		</div>
+					   
+					   			<div class="form-item">
+						    		<label style="display:block;">{{lang.Age}}</label>
+						    		<div>{{hive.queen.age}} {{ lang.year }}</div>
+						    	</div>
 					    	</div>
 					    	
 					    	<div class="col-xs-12 col-sm-4">
@@ -203,26 +217,12 @@
 					    		</div>
 
 					    		<div class="form-item">
-					    			<label>{{lang.Birth_date}} <span ng-if="queen_colored">({{ lang.changes_queen_color}})</span></label>
-									<div class="input-group date">
-									  <div class="input-group-addon">
-									    <i class="fa fa-calendar"></i>
-									  </div>
-									  <input class="form-control pull-right" data-field="date" type="text" readonly="true" ng-model="hive.queen.created_at">
-									</div>
-					    		</div>
-					   
-					   			<div class="form-item">
-						    		<label style="display:block;">{{lang.Age}}</label>
-						    		<div>{{hive.queen.age}} {{ lang.year }}</div>
-						    	</div>
-					    	</div>
-
-					    	<div class="col-xs-12 col-sm-4">
-					    		<div class="form-item">
 						    		<label style="display:block;">{{lang.Queen_colored}}</label>
 					    			<switch ng-model="queen_colored" class="wide" on="{{lang.yes}}" off="{{lang.no}}" ng-change="queen_colored_change()"></switch>
 					    		</div>
+					    	</div>
+
+					    	<div class="col-xs-12 col-sm-4">
 
 								<div ng-if="queen_colored">
 						    		<label>{{lang.Color}}</label>

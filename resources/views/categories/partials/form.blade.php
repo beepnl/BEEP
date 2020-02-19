@@ -5,6 +5,12 @@
 </div>
 
 <div class="form-group">
+    {!! Form::label('names', 'OR multiple textual rows with categories (EN, lowercase, no spaces). Use a space indent as a new child category:') !!}
+    {!! Form::textarea('names', null, [ 'class' => 'form-control' ]) !!}
+    {!! $errors->first('names') !!}
+</div>
+
+<div class="form-group">
     {!! Form::label('parent_id', 'Parent:') !!}
     {!! Form::select('parent_id', $categories, null, [ 'class' => 'form-control' ]) !!}
     {!! $errors->first('parent_id') !!}
@@ -14,7 +20,7 @@
 	<dt>{{ __('crud.description') }}:</dt>
     <dd>{!! Form::text('description', null, array('placeholder' => 'Description in English', 'class' => 'form-control')) !!}</dd>
     <dt>{{ __('crud.type') }}:</dt>
-    <dd>{!! Form::select('category_input_id', App\CategoryInput::selectList(), null, array('class' => 'form-control')) !!}</dd>
+    <dd>{!! Form::select('category_input_id', App\CategoryInput::selectList(), isset($category->category_input_id) ? $category->category_input_id : 32, array('class' => 'form-control')) !!}</dd>
     <dt>{{ __('general.Physical_quantity') }} ({{ __('general.unit') }}):</dt>
     <dd>{!! Form::select('physical_quantity_id', App\PhysicalQuantity::selectList(), null, array('class' => 'form-control')) !!}</dd>
     <dt>{{ __('beep.required_in_inspection') }}:</dt>

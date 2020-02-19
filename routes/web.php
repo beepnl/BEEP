@@ -115,6 +115,7 @@ Route::group(
 				Route::resource('categories', 		'CategoriesController');
 				Route::delete('categories/{id}/pop',['as'=>'categories.pop','uses'=>'CategoriesController@pop','middleware' => ['permission:taxonomy-delete']]);
 				Route::get('categories/{id}/fix',	['as'=>'categories.fix','uses'=>'CategoriesController@fix']);
+				Route::get('categories/{id}/duplicate',	['as'=>'categories.duplicate','uses'=>'CategoriesController@duplicate']);
 				Route::get('taxonomy/display',	['as'=>'taxonomy.display','uses'=>'TaxonomyController@display']);
 
 				Route::delete('checklists/destroy/copies',	['as'=>'checklists.copies','uses'=>'ChecklistController@destroyCopies']);

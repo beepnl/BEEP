@@ -25,9 +25,11 @@
 			<h4>v2.2.0 (20-12-2019) - Current version</h4>
 			<p>
 				<ul>
-					<li>Photos: ability to add images to inspections <a ng-click="switchMenu($event, true, '/images')">and view all images</a></li>
 					<li>Research: <a ng-click="switchMenu($event, true, '/research')">ability to consent to sharing your data with research</a></li>
+					<li>Photos: ability to add images to inspections<!-- <a ng-click="switchMenu($event, true, '/images')">and view all images</a> --></li>
 					<li>Helpdesk: <a ng-click="switchMenu($event, true, '/support')">search the knowledge base for help, or file a support ticket directly from the app</a></li>
+					<li>Weather: <a ng-click="switchMenu($event, true, '/measurements')">See apiary weather info (if lat/lon coordinates have been filled and you have installed a BEEP base)</a></li>
+					<li>Export: <a ng-click="switchMenu($event, true, '/export')">export and download sensor measurements to a CSV file if you have installed a BEEP base</a></li>
 					<li>{{lang.Whats_new}}: this in-app overview of new features with links to the features themselves</li>
 					<li>Bugfixes: small fixes for issues received as feedback</li>
 				</ul>

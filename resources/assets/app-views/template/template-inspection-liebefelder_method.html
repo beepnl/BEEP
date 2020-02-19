@@ -1,7 +1,7 @@
-<h4>Lieberfelder method explanation (EN)</h4>
+<h4>Lieberfeld method explanation (EN)</h4>
 <div style="max-width: 40vw;" class="pull-right">
 	<img src="/img/inspection-lieberfelder-frame-overlay.png" style="width:100%;">
-	<p style="font-style: italic; text-align: center;">Figure 1. Scheme of grid for Liebefelder method. Squares should be 5x5 cm2.</p>
+	<p style="font-style: italic; text-align: center;">Figure 1. Scheme of grid for Liebefeld method. Squares should be 5x5 cm2.</p>
 </div>
 <ul>
 	<li>Colony traits that need to be measured are: colony size (bees), capped brood (pupae), open brood (larvae), eggs, drone brood, pollen stores, and honey (sealed only). If not present score them as 0.</li>
@@ -22,11 +22,14 @@
             <label>{{ hive.name }}</label>
         	<div>
     			<div class="hive left">
-	    			<p class="lid" style="width: {{hive.width*(mobile?4:1)}}px;"></p>
-	            	<p ng-repeat="(key, layer) in hive.layers | orderBy : '-type' " class="layer" ng-class="layer.type" style="background-color: {{hive.color}}; width: {{hive.width*(mobile?4:1)}}px;">
-	            		<span ng-repeat="(key, frame) in layer.frames track by $index" class="frame" ng-class="layer.type"></span>
+	    			<p class="lid" style="width: {{hive.frames*13}}px;"></p>
+	            	<p ng-repeat="(key, layer) in hive.layers | orderBy : '-type' " ng-if="layer.type != 'brood'" class="layer" ng-class="layer.type" style="background-color: {{hive.color}}; width: {{hive.frames*13}}px;">
+	            		<span ng-repeat="f in rangeStep(1,hive.frames)" class="frame wax" ng-class="layer.type"></span>
 	            	</p>
-	            	<p class="bottom" style="width: {{hive.width*(mobile?4:1)}}px;"></p>
+	            	<p ng-repeat="layer in rangeStep(1,hive.brood_layers)" class="layer brood" style="background-color: {{hive.color}}; width: {{hive.frames*13}}px;">
+	            		<span ng-repeat="f in rangeStep(1,hive.frames)" class="frame wax"></span>
+	            	</p>
+	            	<p class="bottom" style="width: {{hive.frames*13}}px;"></p>
             	</div>
             </div>
     	</div>

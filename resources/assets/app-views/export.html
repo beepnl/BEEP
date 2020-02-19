@@ -35,7 +35,7 @@
 	</div>
 
 	<!-- Measurement Data export -->
-	<div class="box">
+	<div class="box" ng-if="devices.length > 0">
 	    <div class="box-header with-border">
 	      <h3 class="box-title">{{ lang.sensor }} {{ lang.Data_export.toLowerCase() }}</h3>
 	    </div>
@@ -43,7 +43,7 @@
 	    <div class="box-body">
 			<p>{{ lang.Export_sensor_data }}</p>
 
-			<div ng-if="devices.length > 0" >
+			<div>
 				<div class="row">
 					<div class="col-md-6 col-xs-12">
 						<label>{{lang.sensor}}</label>

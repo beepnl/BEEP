@@ -49,14 +49,18 @@ app.controller('ExportCtrl', function($scope, $rootScope, $window, $location, $r
 
 	$scope.updateDevices = function()
     {
-        $scope.devices           = measurements.sensors;
-        $scope.selectedDeviceId  = measurements.sensorId;
-        
-        // set selected device, load first if not set 
-        if ($scope.selectedDeviceId == null && $scope.devices.length > 0)
-            $scope.selectedDeviceId = $scope.devices[0].id;
+        $scope.devices = measurements.sensors;
 
-        $scope.loadDeviceData($scope.selectedDeviceId);
+        if ($scope.devices.length > 0)
+        {
+            $scope.selectedDeviceId  = measurements.sensorId;
+            
+            // set selected device, load first if not set 
+            if ($scope.selectedDeviceId == null && $scope.devices.length > 0)
+                $scope.selectedDeviceId = $scope.devices[0].id;
+
+            $scope.loadDeviceData($scope.selectedDeviceId);
+        }
     }
     $scope.deviceHandler = $rootScope.$on('devicesUpdated', $scope.updateDevices);
 

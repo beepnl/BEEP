@@ -12,6 +12,7 @@
         "ellipsesynergie/api-response": "0.12.*",
         "fideloper/proxy": "^4.0",
         "fightbulc/moment": "*",
+        "guzzlehttp/guzzle": "^6.5",
         "iatstuti/laravel-cascade-soft-deletes": "^1.4",
         "influxdb/influxdb-php": "^1.14",
         "intervention/image": "^2.4.2",

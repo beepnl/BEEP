@@ -5,6 +5,7 @@ namespace App;
 use Illuminate\Database\Eloquent\Model;
 use App\Image;
 use Auth;
+use DB;
 
 class Research extends Model
 {
@@ -29,7 +30,7 @@ class Research extends Model
      */
     protected $fillable = ['description', 'name', 'url', 'image_id', 'type', 'institution', 'type_of_data_used', 'start_date', 'end_date'];
     protected $hidden   = ['users', 'deleted_at'];
-    protected $appends  = ['consent', 'checklist_names', 'thumb_url'];
+    protected $appends  = ['consent', 'consent_history', 'checklist_names', 'thumb_url'];
 
     public static $pictureType = 'research';
 
@@ -40,7 +41,17 @@ class Research extends Model
 
     public function getConsentAttribute()
     {
-        return $this->users->contains(Auth::user()) ? true : false;
+        $consent = DB::table('research_user')->where('research_id', $this->id)->where('user_id', Auth::user()->id)->orderBy('updated_at','desc')->limit(1)->value('consent');
+
+        if ($consent === 1)
+            return true;
+
+        return false;
+    }
+
+    public function getConsentHistoryAttribute()
+    {
+        return DB::table('research_user')->where('research_id', $this->id)->where('user_id', Auth::user()->id)->orderBy('updated_at','desc')->get();
     }
 
     public function getChecklistNamesAttribute()

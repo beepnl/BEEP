@@ -3,7 +3,7 @@
     {{lang.sensors_title}}
     <div class="pull-right">
 	    <div>
-  			<a ng-if="editMode==true" ng-click="addSensor()" class="btn btn-primary"><i class="fa fa-plus"></i> <span ng-if="mobile==false">{{lang.create_new}} {{lang.sensor}}</a>
+  			<a ng-if="editMode==true" ng-click="addSensor()" class="btn btn-primary"><i class="fa fa-plus"></i> <span ng-if="mobile==false">{{lang.create_new}} {{lang.sensor.toLowerCase() }}</a>
 	        <a ng-click="editMode=!editMode" style="color: #333;"><i class="fa fa-cog"></i></a>
   		</div>
   	</div>
@@ -36,6 +36,10 @@
 	    <div ng-if="sensors.length == 0" class="box-body">
 	      
 	      <p>{{lang.sensors}} {{lang.not_available_yet}}</p>
+	      <div style="text-align: center;">
+		      <img src="/img/beep-base-small.jpg" style="max-width: 500px; width: 100%;">
+		  </div>
+	      <div class="well">{{ lang.beep_base_explanation }}</div>
 
 	    </div>
 

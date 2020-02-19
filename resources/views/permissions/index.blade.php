@@ -49,7 +49,7 @@
             <tbody>
             @foreach($permissions as $item)
                 <tr>
-                    <td>{{ $loop->iteration or $item->id }}</td>
+                    <td>{{ $item->id }}</td>
                     <td>{{ $item->name }}</td><td>{{ $item->display_name }}</td><td>{{ $item->description }}</td>
                     <td col-sm-1>
                         <a href="{{ route('permissions.show', $item->id) }}" title="{{ __('crud.show') }}"><button class="btn btn-default"><i class="fa fa-eye" aria-hidden="true"></i></button></a>

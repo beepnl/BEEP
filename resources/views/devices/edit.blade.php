@@ -55,6 +55,14 @@
         </div>
         <div class="col-xs-12 col-sm-6 col-md-4">
             <div class="form-group">
+                <label>Battery voltage</label>
+                <p>{{ $item->battery_voltage }}</p>
+                {!! Form::hidden('battery_voltage', $item->battery_voltage) !!}
+            </div>
+        </div>
+
+        <div class="col-xs-12 col-sm-6 col-md-4">
+            <div class="form-group">
                 <label>Firmware version</label>
                 <p>{{ $item->firmware_version }}</p>
                 {!! Form::hidden('firmware_version', $item->firmware_version) !!}
@@ -100,6 +108,19 @@
                 <label>BLE PIN</label>
                 <p>{{ $item->ble_pin }}</p>
                 {!! Form::hidden('ble_pin', $item->ble_pin) !!}
+            </div>
+        </div>
+        <div class="col-xs-12 col-sm-6 col-md-4">
+            <div class="form-group">
+                <label>Next downlink mesaage (Not yet working)</label>
+                {!! Form::text('next_downlink_message', null, array('placeholder' => 'HEX downlink message','class' => 'form-control')) !!}
+            </div>
+        </div>
+        <div class="col-xs-12 col-sm-6 col-md-4">
+            <div class="form-group">
+                <label>Last downlink result</label>
+                <p>{{ $item->last_downlink_result }}</p>
+                {!! Form::hidden('last_downlink_result', $item->last_downlink_result) !!}
             </div>
         </div>
         <div class="col-xs-12 col-sm-12 col-md-12 text-center">

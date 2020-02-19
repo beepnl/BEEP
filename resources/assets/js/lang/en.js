@@ -27,7 +27,7 @@
     lighting                : 'Lighting',
     camera                  : 'Camera',
     weather                 : 'Weather',
-    sensors                 : 'Sensors',
+    sensors                 : 'Devices',
     sensors_na              : 'BEEP sensors to remotely monitor your hive are soon to be available...',
 
     no_valid_authentication : 'No valid authentication data received',
@@ -235,10 +235,10 @@
     settings_description    : 'Settings of the sensors',
     settings                : 'Settings',
 
-    sensors_title           : 'Sensor settings',
-    sensors_description     : 'Sensors status and registration',
-    sensors                 : 'Sensors',
-    sensor                  : 'Sensor',
+    sensors_title           : 'Device settings',
+    sensors_description     : 'Devices status and registration',
+    sensors                 : 'Devices',
+    sensor                  : 'Device',
 
     Select                  : 'Select',
     Not_selected            : 'Not selected',
@@ -407,7 +407,7 @@
     is_required             : 'is required',
 
     No_groups               : 'No groups available',
-    not_available_yet       : 'not yet available. Please create the first one here.',
+    not_available_yet       : 'not yet available. Click on the button in the upper right corner to add one.',
     Users                   : 'Users',
     Member                  : 'Group member',
     Members                 : 'Group members',
@@ -440,7 +440,7 @@
     info                    : 'Info',
     
     research                : 'Research',
-    research_explanation    : 'This screen contains the available researched for which you can opt-in to share your data with. Before opting in, please read the research description thourougly to make sure that you consent to the specific part of your data being shared with the research for the indicated period. Remeber that you can opt-out again, any time you want.',
+    research_explanation    : 'This screen contains the available researches for which you can opt-in to share your data with. By giving consent to sharing the data you manage on your BEEP account, you can contribute to research to support honeybee health. Before consenting in, please review the research description provided through the link below and request for additional details if needed. You can withdraw your consent at any time, no new data will be shared from that moment. In case of questions, please direct these to the contact person provided.',
     research_info           : 'By sharing your data with researchers, you help them to being able to analyse more data and come to better conclusions for their research.',
     start_date              : 'Start date',
     end_date                : 'End date',
@@ -448,7 +448,9 @@
     institution             : 'Research institution',
     type_of_data_used       : 'Data usage',
     link                    : 'Link',
-    consent                 : 'Current consent',
+    Consent                 : 'Consent',
+    history                 : 'history',
+    Current_consent         : 'Current consent',
     consent_yes             : 'I consent to share my data',
     consent_no              : 'I do NOT consent to share my data',
     my_beep_data            : 'My own BEEP data',
@@ -490,6 +492,8 @@
     Selected_date           : 'Selected time span',
     Sensor_measurements     : 'Sensor measurements',
     too_much_data           : 'Too much data to process, please select fewer Sensor measurements, or reduce the timespan between start and end date.',
+
+    beep_base_explanation   : 'If you have a BEEP base (shown in the picture above), please use the native app (iOS and Android) to set-up the communication with this app. If you don\'t have a BEEP base yet, please click on the menu item \'BEEP website\' for updates on how to get a BEEP base. I you have your own measurement device and would like to see the data in the BEEP app, please send us a message to ask for joining our Slack community and you can get access to the API description.', 
 
 };
 

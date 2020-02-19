@@ -22,8 +22,8 @@
 	    </div>
 
 	    <div class="box-body">
-			<p>{{ lang.research_info }}</p>
 			<p>{{ lang.research_explanation }}</p>
+			<p>{{ lang.research_info }}</p>
 			<p><strong>{{ lang.my_beep_data }}:</strong></p>
 			<div class="row" style="margin-bottom: 20px;">
 				<div class="col-xs-4">
@@ -59,7 +59,7 @@
 					    	</div>
 					    </div>
 				    	<div class="row">
-					    	<div class="col-xs-12">
+					    	<div class="col-xs-12 col-md-6">
 					    		<dl class="dl-horizontal">
 					    			
 					    			<dt ng-if="r.url != null">{{lang.link}}</dt>
@@ -81,19 +81,32 @@
 					    			<dd>{{r.end_date}}</dd>
 					    			<br>
 					    			<dt>
-										{{ lang.consent }}
+										{{ lang.Current_consent }}
 									</dt>
 									<dd>
 										<strong ng-class="{'text-danger':r.consent==null, 'text-danger':r.consent==0, 'text-success':r.consent==1}">{{ r.consent ? lang.consent_yes : lang.consent_no }}</strong>
 									</dd>
 									<br>
 									<dt>
-										{{ lang.edit }} {{ lang.consent.toLowerCase() }}
+										{{ lang.edit }} {{ lang.Consent.toLowerCase() }}
 									</dt>
 									<dd>
 										<button ng-click="consentToggle(r.id, r.consent ? 0 : 1)" class="btn btn-primary">{{ r.consent==1 ? lang.consent_no : lang.consent_yes }}</button>
 									</dd>
 								</dl>
+							</div>
+							<div class="col-xs-12 col-md-6" ng-if="r.consent_history.length > 0">
+								<label>
+									{{ lang.Consent }} {{ lang.history }}
+								</label>
+									
+								<dl class="dl-horizontal">
+									<div ng-repeat="ch in r.consent_history">
+										<dt style="text-align: left;">{{ ch.updated_at }}</dt>
+										<dd><strong ng-class="{'text-danger':ch.consent==null, 'text-danger':ch.consent==0, 'text-success':ch.consent==1}">{{ ch.consent ? lang.consent_yes : lang.consent_no }}</strong></dd>
+									</div>
+								</dl>
+									
 							</div>
 						</div>
 					</div>

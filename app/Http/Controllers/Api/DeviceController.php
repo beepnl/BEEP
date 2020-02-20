@@ -75,7 +75,7 @@ class DeviceController extends Controller
 
     /**
     api/devices/{id} GET
-    List one Device
+    List one Device by id
     @authenticated
     */
     public function show(Request $request, $id)

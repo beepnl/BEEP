@@ -248,7 +248,7 @@ var SENSOR_MIN = {
   t_7: 0,
   t_8: 0,
   t_9: 0,
-  rssi: -140,
+  rssi: -200,
   snr: -20,
   lat: 0,
   lon: 0
@@ -341,7 +341,7 @@ var SENSOR_MAX = {
   t_7: 50,
   t_8: 50,
   t_9: 50,
-  rssi: 0,
+  rssi: -20,
   snr: 20,
   lat: 180,
   lon: 180

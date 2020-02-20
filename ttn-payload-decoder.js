@@ -101,12 +101,12 @@ function Decoder(bytes, port) {
       decoded.measurement_interval_min       = ((bytes[37] << 8) + bytes[38]);
     }
   }
-  else if (bytes.length >= 15 && ( (port == 3 && bytes[0] == 0x1B) || (port == 4 && bytes[1] == 0x1B) ) )  // BEEP base fw 1.2.0+ measurement message
+  else if (bytes.length >= 15 && ( (port == 3 && bytes[0] == 0x1B) || (port == 4 && bytes[1] == 0x1B) ) )  // BEEP base fw 1.2.0+ measurement message, and alarm message
   {
     //              1B 0C 1B 0C 0E 64  0A 01 FF F6 98  04 02 0A D7 0A DD  0C 0A 00 FF 00 58 00 12 00 10 00 0C 00 0D 00 0A 00 0A 00 09 00 08 00 07  07 00 00 00 00 00 00
     // pl incl fft: 1B 0D 15 0D 0A 64  0A 01 00 00 93  04 00              0C 0A 00 FF 00 20 00 05 00 0C 00 03 00 05 00 09 00 04 00 11 00 06 00 02  07 00 00 00 00 00 00
     //              0  1  2  3  4  5   6  7  8  9  10  11 12              13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36  37 38 39 40 41 42 43
-    
+    //                 Batt            Weight          Temp               FFT                                                                      BME280
     // raw pl  1B0C4B0C44640A01012D2D040107D6
     // Payload 1B 0C4B0C4464 0A 01 012D2D 04 01 07D6
     //         6  batt       5  1 weight  5 1-5 temp (1 to 5)

@@ -74,10 +74,19 @@ class SensorDefinitionController extends Controller
      */
     public function index(Request $request)
     {
-        $sensordefinitions = $this->getDeviceFromRequest($request)->sensorDefinitions;
+        $device = $this->getDeviceFromRequest($request);
 
-        if ($sensordefinitions)
-            return response()->json($sensordefinitions->all());
+        if ($device)
+        {
+            $sensordefinitions = $device->sensorDefinitions;
+
+            if ($sensordefinitions)
+                return response()->json($sensordefinitions);
+        }
+        else
+        {
+            return response()->json('no_device_found', 404);
+        }
 
         return response()->json('no_definitions_found', 404);
     }

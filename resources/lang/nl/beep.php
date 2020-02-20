@@ -36,4 +36,5 @@ return [
     'measurement'       => 'sensormeting',
     'Research'          => 'Onderzoek',
     'Researches'        => 'Onderzoeken',
+    'calibration'       => 'calibratie',
 ];

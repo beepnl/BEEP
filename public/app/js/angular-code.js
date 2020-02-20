@@ -4186,8 +4186,8 @@ app.controller('SensorsCtrl', function ($scope, $rootScope, $timeout, $interval,
   $scope.setSelectedDefs = function () {
     $scope.defs = [];
 
-    if ($scope.selectedDevice.sensor_definition.length > 0) {
-      $scope.defs = $scope.selectedDevice.sensor_definition;
+    if ($scope.selectedDevice.sensor_definitions.length > 0) {
+      $scope.defs = $scope.selectedDevice.sensor_definitions;
 
       for (var i = $scope.defs.length - 1; i >= 0; i--) {
         var d = $scope.defs[i];

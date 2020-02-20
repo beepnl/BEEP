@@ -7,6 +7,7 @@ use App\User;
 use App\Device;
 use App\Category;
 use Validator;
+use Illuminate\Validation\Rule;
 use Response;
 
 /**
@@ -22,40 +23,44 @@ class DeviceController extends Controller
     @authenticated
     @response [
         {
-            "id": 51,
-            "hive_id": 278,
-            "name": "Device 7",
-            "key": "6lwyeTGtrEx0Z2Xr",
-            "created_at": "2019-06-14 12:59:20",
+            "id": 13,
+            "hive_id": 2,
+            "name": "BEEPBASE-0000",
+            "key": "000000000000000",
+            "created_at": "2020-01-22 09:43:03",
+            "last_message_received": null,
+            "hardware_id": null,
+            "firmware_version": null,
+            "hardware_version": null,
+            "boot_count": null,
+            "measurement_interval_min": null,
+            "measurement_transmission_ratio": null,
+            "ble_pin": null,
+            "battery_voltage": null,
+            "next_downlink_message": null,
+            "last_downlink_result": null,
             "type": "beep",
             "hive_name": "Hive 2",
-            "location_name": "BEEP",
+            "location_name": "Test stand 1",
             "owner": true,
-            "hive": {
-                "id": 278,
-                "location_id": 72,
-                "hive_type_id": 44,
-                "color": "#3352af",
-                "name": "Hive 2",
-                "created_at": "2017-08-10 18:16:05",
-                "type": "segeberger",
-                "location": "BEEP",
-                "attention": null,
-                "impression": null,
-                "reminder": null,
-                "reminder_date": null,
-                "inspection_count": 7,
-                "sensors": [
-                    51
-                ],
-                "owner": true
-            }
+            "sensor_definitions": [
+                {
+                    "id": 7,
+                    "name": null,
+                    "inside": null,
+                    "offset": 8131,
+                    "multiplier": null,
+                    "input_measurement_id": 7,
+                    "output_measurement_id": 20,
+                    "device_id": 13
+                }
+            ]
         }
     ]
     */
     public function index(Request $request)
     {
-        $devices = $request->user()->allDevices();
+        $devices = $request->user()->allDevices()->with('sensorDefinitions');
         
         if ($devices->count() == 0)
             return Response::json('No sensors found', 404);
@@ -142,19 +147,25 @@ class DeviceController extends Controller
 
         if ($id)
         {
-            $result = $this->updateOrCreateDevice($request->input());
+            $device = $request->input();
+            $device['id'] = $id;
+            $result = $this->updateOrCreateDevice($device);
         }
 
         return Response::json($result, $result == null || gettype($result) == 'array' ? 404 : 200);
     }
 
+
     public function updateOrCreateDevice($device)
     {
-        $sid = isset($device['id']) ? ','.$device['id'] : '';
+        $sid = isset($device['id']) ? $device['id'] : null;
+        $key = isset($device['key']) ? $device['key'] : null;
+
         $validator = Validator::make($device, [
-            'key'               => 'required|string|min:4|unique:sensors,key'.$sid,
+            'key'               => ['required_without:id','string','min:4',Rule::unique('sensors')->ignore($sid)],
             'name'              => 'nullable|string',
-            'id'                => 'nullable|integer|unique:sensors,id'.$sid,
+            'id'                => ['nullable','integer',Rule::unique('sensors')->ignore($sid)],
+            'hardware_id'       => ['nullable','string',Rule::unique('sensors')->ignore($sid)],
             'hive_id'           => 'nullable|integer|exists:hives,id',
             'type'              => 'nullable|string|exists:categories,name',
             'delete'            => 'nullable|boolean'
@@ -167,14 +178,16 @@ class DeviceController extends Controller
         else
         {
             $valid_data = $validator->validated();
-            $device_obj = isset($valid_data['id']) ? Auth::user()->devices->find($valid_data['id']) : null;
+            $device_new = [];
+            $device_obj = null;
             $device_id  = null;
-            if ($device_obj == null)
-            {
-                //create
-                $device = [];
-            }
-            else
+
+            if (isset($sid))
+                $device_obj = Auth::user()->devices->find($sid);
+            else if (isset($key))
+                $device_obj = Auth::user()->devices->where('key', $key)->first();
+
+            if ($device_obj != null)
             {
                 // delete
                 if (isset($valid_data['delete']) && boolval($valid_data['delete']) === true)
@@ -192,27 +205,60 @@ class DeviceController extends Controller
                     $device_obj->delete();
                     return 'sensor_deleted';
                 }
+
                 // edit
-                $device    = $device_obj->toArray();
-                $device_id = $device_obj->id; 
+                $device_new = $device_obj->toArray();
+                $device_id  = $device_obj->id;
             }
 
-            $typename = isset($valid_data['type']) ? $valid_data['type'] : 'beep'; 
+            $typename                  = isset($device['type']) ? $device['type'] : 'beep'; 
+            $device_new['category_id'] = Category::findCategoryIdByParentAndName('sensor', $typename);
 
-            $device['key']                            = $valid_data['key']; 
-            $device['name']                           = isset($valid_data['name']) ? $valid_data['name'] : null; 
-            $device['category_id']                    = Category::findCategoryIdByParentAndName('sensor', $typename); 
-            $device['hive_id']                        = isset($valid_data['hive_id']) ? $valid_data['hive_id'] : null;
-            $device['last_message_received']          = isset($valid_data['last_message_received']) ? $valid_data['last_message_received'] : null;
-            $device['hardware_id']                    = isset($valid_data['hardware_id']) ? $valid_data['hardware_id'] : null;
-            $device['firmware_version']               = isset($valid_data['firmware_version']) ? $valid_data['firmware_version'] : null;
-            $device['hardware_version']               = isset($valid_data['hardware_version']) ? $valid_data['hardware_version'] : null;
-            $device['boot_count']                     = isset($valid_data['boot_count']) ? $valid_data['boot_count'] : null;
-            $device['measurement_interval_min']       = isset($valid_data['measurement_interval_min']) ? $valid_data['measurement_interval_min'] : null;
-            $device['measurement_transmission_ratio'] = isset($valid_data['measurement_transmission_ratio']) ? $valid_data['measurement_transmission_ratio'] : null;
-            $device['ble_pin']                        = isset($valid_data['ble_pin']) ? $valid_data['ble_pin'] : null;
+            // $device_new['id'] = $device_id; 
+
+            if (isset($key))
+                $device_new['key'] = $key; 
             
-            return Auth::user()->devices()->updateOrCreate(['id'=>$device_id], $device);
+            if (isset($device['name']))
+                $device_new['name'] = $device['name']; 
+            
+            if (isset($device['hive_id']))
+                $device_new['hive_id'] = $device['hive_id'];
+            
+            if (isset($device['last_message_received']))
+                $device_new['last_message_received'] = $device['last_message_received'];
+            
+            if (isset($device['hardware_id']))
+                $device_new['hardware_id'] = $device['hardware_id'];
+            
+            if (isset($device['firmware_version']))
+                $device_new['firmware_version'] = $device['firmware_version'];
+            
+            if (isset($device['hardware_version']))
+                $device_new['hardware_version'] = $device['hardware_version'];
+            
+            if (isset($device['boot_count']))
+                $device_new['boot_count'] = $device['boot_count'];
+            
+            if (isset($device['measurement_interval_min']))
+                $device_new['measurement_interval_min'] = $device['measurement_interval_min'];
+            
+            if (isset($device['measurement_transmission_ratio']))
+                $device_new['measurement_transmission_ratio'] = $device['measurement_transmission_ratio'];
+            
+            if (isset($device['ble_pin']))
+                $device_new['ble_pin'] = $device['ble_pin'];
+            
+            if (isset($device['battery_voltage']))
+                $device_new['battery_voltage'] = $device['battery_voltage'];
+            
+            if (isset($device['next_downlink_message']))
+                $device_new['next_downlink_message'] = $device['next_downlink_message'];
+            
+            if (isset($device['last_downlink_result']))
+                $device_new['last_downlink_result'] = $device['last_downlink_result'];
+            
+            return Auth::user()->devices()->updateOrCreate(['id'=>$device_id], $device_new);
         }
 
         return null;

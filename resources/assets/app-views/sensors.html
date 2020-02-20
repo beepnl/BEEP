@@ -51,12 +51,12 @@
 		    			<tr class="trh">
 			    			<th class="col-xs-1">#</th>
 			    			<th class="col-xs-2">{{lang.Name}}</th>
-			    			<th ng-if="editMode" class="col-xs-2">{{lang.sensor_key}}</th>
+			    			<th ng-if="editMode" class="col-xs-3">{{lang.sensor_key}} (DEV EUI)</th>
 			    			<th class="col-xs-1">{{lang.Type}}</th>
+			    			<th ng-if="!editMode" class="col-xs-2">{{lang.connection_state}}</th>
 			    			<th class="col-xs-1">{{lang.Hive}}</th>
 			    			<th ng-if="editMode" class="col-xs-2">{{lang.Select}} {{lang.hive}}</th>
 			    			<th ng-if="editMode" class="col-xs-2">{{lang.Actions}}</th>
-			    			<th ng-if="!editMode" class="col-xs-2">{{lang.connection_state}}</th>
 			    		</tr>
 		    		</thead>
 		    		<tbody>

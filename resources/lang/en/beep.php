@@ -36,4 +36,5 @@ return [
     'measurement'       => 'sensor measurement',
     'Research'          => 'Research',
     'Researches'        => 'Researches',
+    'calibration'       => 'calibration',
 ];

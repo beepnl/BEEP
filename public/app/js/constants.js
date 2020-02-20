@@ -310,7 +310,7 @@ var SENSOR_HIGH = {
   weight_kg: 100,
   weight_kg_corrected: 100,
   t_i: 37,
-  rssi: -40,
+  rssi: -50,
   snr: 15,
   lat: 180,
   lon: 180
@@ -341,7 +341,7 @@ var SENSOR_MAX = {
   t_7: 50,
   t_8: 50,
   t_9: 50,
-  rssi: -20,
+  rssi: -40,
   snr: 20,
   lat: 180,
   lon: 180

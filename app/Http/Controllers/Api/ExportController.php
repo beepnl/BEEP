@@ -177,7 +177,7 @@ class ExportController extends Controller
                     $inspection_data[$array_key] = $inspectionItem->humanReadableValue();
                 }
             }
-            $locationName = $inspection->locations()->count() > 0 ? $inspection->locations()->first()->name : $inspection->hives()->count() > 0 ? $inspection->hives()->first()->location()->first()->name : '';
+            $locationName = ($inspection->locations()->count() > 0 ? $inspection->locations()->first()->name : ($inspection->hives()->count() > 0 ? $inspection->hives()->first()->location()->first()->name : ''));
             
             $reminder_date= '';
             if (isset($inspection->reminder_date) && $inspection->reminder_date != null)

@@ -21,6 +21,7 @@ class DeviceController extends Controller
     api/devices GET
     List all user Devices
     @authenticated
+    @bodyParam hardware_id string Provide to filter on hardware_id
     @response [
         {
             "id": 13,
@@ -60,12 +61,31 @@ class DeviceController extends Controller
     */
     public function index(Request $request)
     {
-        $devices = $request->user()->allDevices()->with('sensorDefinitions');
         
+        if ($request->filled('hardware_id'))
+            $devices = $request->user()->allDevices()->where('hardware_id', $request->input('hardware_id'))->with('sensorDefinitions');
+        else
+            $devices = $request->user()->allDevices()->with('sensorDefinitions');
+
         if ($devices->count() == 0)
             return Response::json('No sensors found', 404);
 
         return Response::json($devices->get());
+    }
+
+    /**
+    api/devices/{id} GET
+    List one Device
+    @authenticated
+    */
+    public function show(Request $request, $id)
+    {
+        $device = $request->user()->allDevices()->with('sensorDefinitions')->findOrFail($id);
+        
+        if ($device)
+            return Response::json($device);
+
+        return Response::json('No sensor found', 404);
     }
 
     /**

@@ -1733,7 +1733,7 @@ Store/update multiple Devices in an array of Device objects
 ```bash
 curl -X POST "https://test.beep.nl/api/devices/multiple" \
     -H "Content-Type: application/json" \
-    -d '{"key":"optio","name":"fugit","hive_id":16,"type":"aut","last_message_received":"et","hardware_id":"blanditiis","firmware_version":"eos","hardware_version":"quo","boot_count":20,"measurement_interval_min":7568832.669619,"measurement_transmission_ratio":685982.449343,"ble_pin":"quis"}'
+    -d '{"key":"quia","name":"velit","hive_id":20,"type":"explicabo","last_message_received":"voluptas","hardware_id":"ut","firmware_version":"tenetur","hardware_version":"totam","boot_count":7,"measurement_interval_min":37815180.505,"measurement_transmission_ratio":419244.466781,"ble_pin":"et","battery_voltage":425435897.4,"next_downlink_message":"dolore","last_downlink_result":"recusandae"}'
 
 ```
 
@@ -1746,18 +1746,21 @@ let headers = {
 }
 
 let body = {
-    "key": "optio",
-    "name": "fugit",
-    "hive_id": 16,
-    "type": "aut",
-    "last_message_received": "et",
-    "hardware_id": "blanditiis",
-    "firmware_version": "eos",
-    "hardware_version": "quo",
-    "boot_count": 20,
-    "measurement_interval_min": 7568832.669619,
-    "measurement_transmission_ratio": 685982.449343,
-    "ble_pin": "quis"
+    "key": "quia",
+    "name": "velit",
+    "hive_id": 20,
+    "type": "explicabo",
+    "last_message_received": "voluptas",
+    "hardware_id": "ut",
+    "firmware_version": "tenetur",
+    "hardware_version": "totam",
+    "boot_count": 7,
+    "measurement_interval_min": 37815180.505,
+    "measurement_transmission_ratio": 419244.466781,
+    "ble_pin": "et",
+    "battery_voltage": 425435897.4,
+    "next_downlink_message": "dolore",
+    "last_downlink_result": "recusandae"
 }
 
 fetch(url, {
@@ -1790,6 +1793,9 @@ Parameter | Type | Status | Description
     measurement_interval_min | float |  optional  | Measurement interval in minutes
     measurement_transmission_ratio | float |  optional  | Measurements ratio of non-transmitted vs transmitted messages. If 0 or 1, every measurement gets transmitted.
     ble_pin | string |  optional  | Bleutooth PIN of Device: 6 numbers between 0-9
+    battery_voltage | float |  optional  | Last measured battery voltage
+    next_downlink_message | string |  optional  | Hex string to send via downlink at next connection (LoRaWAN port 6)
+    last_downlink_result | string |  optional  | Result received from BEEP base after downlink message (LoRaWAN port 5)
 
 <!-- END_1221b770dd464496433a0d3d92f88d37 -->
 
@@ -1803,7 +1809,7 @@ List all user Devices
 ```bash
 curl -X GET -G "https://test.beep.nl/api/devices" \
     -H "Content-Type: application/json" \
-    -d '{"hardware_id":"iure"}'
+    -d '{"hardware_id":"dicta"}'
 
 ```
 
@@ -1816,7 +1822,7 @@ let headers = {
 }
 
 let body = {
-    "hardware_id": "iure"
+    "hardware_id": "dicta"
 }
 
 fetch(url, {
@@ -1898,7 +1904,7 @@ Create or Update a Device
 ```bash
 curl -X POST "https://test.beep.nl/api/devices" \
     -H "Content-Type: application/json" \
-    -d '{"key":"nemo","name":"quo","hive_id":5,"type":"itaque","last_message_received":"accusantium","hardware_id":"aspernatur","firmware_version":"dignissimos","hardware_version":"voluptatem","boot_count":20,"measurement_interval_min":356.03,"measurement_transmission_ratio":50.0630868,"ble_pin":"omnis"}'
+    -d '{"key":"qui","name":"molestiae","hive_id":3,"type":"eligendi","last_message_received":"quaerat","hardware_id":"voluptatem","firmware_version":"et","hardware_version":"deserunt","boot_count":19,"measurement_interval_min":4137.534114,"measurement_transmission_ratio":1.27409139,"ble_pin":"corporis","battery_voltage":132617.89779641,"next_downlink_message":"sit","last_downlink_result":"exercitationem"}'
 
 ```
 
@@ -1911,18 +1917,21 @@ let headers = {
 }
 
 let body = {
-    "key": "nemo",
-    "name": "quo",
-    "hive_id": 5,
-    "type": "itaque",
-    "last_message_received": "accusantium",
-    "hardware_id": "aspernatur",
-    "firmware_version": "dignissimos",
-    "hardware_version": "voluptatem",
-    "boot_count": 20,
-    "measurement_interval_min": 356.03,
-    "measurement_transmission_ratio": 50.0630868,
-    "ble_pin": "omnis"
+    "key": "qui",
+    "name": "molestiae",
+    "hive_id": 3,
+    "type": "eligendi",
+    "last_message_received": "quaerat",
+    "hardware_id": "voluptatem",
+    "firmware_version": "et",
+    "hardware_version": "deserunt",
+    "boot_count": 19,
+    "measurement_interval_min": 4137.534114,
+    "measurement_transmission_ratio": 1.27409139,
+    "ble_pin": "corporis",
+    "battery_voltage": 132617.89779641,
+    "next_downlink_message": "sit",
+    "last_downlink_result": "exercitationem"
 }
 
 fetch(url, {
@@ -1955,6 +1964,9 @@ Parameter | Type | Status | Description
     measurement_interval_min | float |  optional  | Measurement interval in minutes
     measurement_transmission_ratio | float |  optional  | Measurements ratio of non-transmitted vs transmitted messages. If 0 or 1, every measurement gets transmitted.
     ble_pin | string |  optional  | Bleutooth PIN of Device: 6 numbers between 0-9
+    battery_voltage | float |  optional  | Last measured battery voltage
+    next_downlink_message | string |  optional  | Hex string to send via downlink at next connection (LoRaWAN port 6)
+    last_downlink_result | string |  optional  | Result received from BEEP base after downlink message (LoRaWAN port 5)
 
 <!-- END_dbb21adf8d2a4b13a3c3113b57e8d329 -->
 
@@ -2010,7 +2022,7 @@ Update an existing Device
 ```bash
 curl -X PUT "https://test.beep.nl/api/devices/1" \
     -H "Content-Type: application/json" \
-    -d '{"id":7,"key":"nesciunt","name":"veniam","hive_id":17,"type":"dolores","delete":true,"last_message_received":"in","hardware_id":"qui","firmware_version":"quas","hardware_version":"et","boot_count":18,"measurement_interval_min":1065.36,"measurement_transmission_ratio":1.547,"ble_pin":"aspernatur"}'
+    -d '{"id":14,"key":"consectetur","name":"voluptatem","hive_id":2,"type":"inventore","delete":true,"last_message_received":"sed","hardware_id":"voluptatibus","firmware_version":"asperiores","hardware_version":"voluptatem","boot_count":6,"measurement_interval_min":50208593.373626426,"measurement_transmission_ratio":4535,"ble_pin":"corporis","battery_voltage":16.44,"next_downlink_message":"assumenda","last_downlink_result":"accusantium"}'
 
 ```
 
@@ -2023,20 +2035,23 @@ let headers = {
 }
 
 let body = {
-    "id": 7,
-    "key": "nesciunt",
-    "name": "veniam",
-    "hive_id": 17,
-    "type": "dolores",
+    "id": 14,
+    "key": "consectetur",
+    "name": "voluptatem",
+    "hive_id": 2,
+    "type": "inventore",
     "delete": true,
-    "last_message_received": "in",
-    "hardware_id": "qui",
-    "firmware_version": "quas",
-    "hardware_version": "et",
-    "boot_count": 18,
-    "measurement_interval_min": 1065.36,
-    "measurement_transmission_ratio": 1.547,
-    "ble_pin": "aspernatur"
+    "last_message_received": "sed",
+    "hardware_id": "voluptatibus",
+    "firmware_version": "asperiores",
+    "hardware_version": "voluptatem",
+    "boot_count": 6,
+    "measurement_interval_min": 50208593.373626426,
+    "measurement_transmission_ratio": 4535,
+    "ble_pin": "corporis",
+    "battery_voltage": 16.44,
+    "next_downlink_message": "assumenda",
+    "last_downlink_result": "accusantium"
 }
 
 fetch(url, {
@@ -2073,6 +2088,9 @@ Parameter | Type | Status | Description
     measurement_interval_min | float |  optional  | Measurement interval in minutes
     measurement_transmission_ratio | float |  optional  | Measurements ratio of non-transmitted vs transmitted messages. If 0 or 1, every measurement gets transmitted.
     ble_pin | string |  optional  | Bleutooth PIN of Device: 6 numbers between 0-9
+    battery_voltage | float |  optional  | Last measured battery voltage
+    next_downlink_message | string |  optional  | Hex string to send via downlink at next connection (LoRaWAN port 6)
+    last_downlink_result | string |  optional  | Result received from BEEP base after downlink message (LoRaWAN port 5)
 
 <!-- END_52b9480c37d5f861392515f99f114a2c -->
 
@@ -3205,7 +3223,7 @@ Store sensor measurement data (see BEEP sensor data API definition) from API, or
 ```bash
 curl -X POST "https://test.beep.nl/api/sensors" \
     -H "Content-Type: application/json" \
-    -d '{"key":"sed","data":[],"payload_fields":[]}'
+    -d '{"key":"veniam","data":[],"payload_fields":[]}'
 
 ```
 
@@ -3218,7 +3236,7 @@ let headers = {
 }
 
 let body = {
-    "key": "sed",
+    "key": "veniam",
     "data": [],
     "payload_fields": []
 }
@@ -3258,7 +3276,7 @@ When TTN payload is supplied, the TTN HTTP integration decoder/converter is assu
 ```bash
 curl -X POST "https://test.beep.nl/api/lora_sensors" \
     -H "Content-Type: application/json" \
-    -d '{"key":"est","payload_fields":[],"DevEUI_uplink":[]}'
+    -d '{"key":"facilis","payload_fields":[],"DevEUI_uplink":[]}'
 
 ```
 
@@ -3271,7 +3289,7 @@ let headers = {
 }
 
 let body = {
-    "key": "est",
+    "key": "facilis",
     "payload_fields": [],
     "DevEUI_uplink": []
 }
@@ -3309,7 +3327,7 @@ Store sensor measurement data (see BEEP sensor data API definition) from API, or
 ```bash
 curl -X POST "https://test.beep.nl/api/unsecure_sensors" \
     -H "Content-Type: application/json" \
-    -d '{"key":"deleniti","data":[],"payload_fields":[]}'
+    -d '{"key":"et","data":[],"payload_fields":[]}'
 
 ```
 
@@ -3322,7 +3340,7 @@ let headers = {
 }
 
 let body = {
-    "key": "deleniti",
+    "key": "et",
     "data": [],
     "payload_fields": []
 }
@@ -3361,7 +3379,7 @@ Request all sensor measurements from a certain interval (hour, day, week, month,
 ```bash
 curl -X GET -G "https://test.beep.nl/api/sensors/measurements" \
     -H "Content-Type: application/json" \
-    -d '{"key":"rem","id":14,"hive_id":18,"names":"voluptatibus","interval":"molestiae","index":17}'
+    -d '{"key":"libero","id":12,"hive_id":12,"names":"eos","interval":"ut","index":19}'
 
 ```
 
@@ -3374,12 +3392,12 @@ let headers = {
 }
 
 let body = {
-    "key": "rem",
-    "id": 14,
-    "hive_id": 18,
-    "names": "voluptatibus",
-    "interval": "molestiae",
-    "index": 17
+    "key": "libero",
+    "id": 12,
+    "hive_id": 12,
+    "names": "eos",
+    "interval": "ut",
+    "index": 19
 }
 
 fetch(url, {
@@ -3426,7 +3444,7 @@ Request last measurement values of all sensor measurements from a sensor (Device
 ```bash
 curl -X GET -G "https://test.beep.nl/api/sensors/lastvalues" \
     -H "Content-Type: application/json" \
-    -d '{"key":"quis","id":2,"hive_id":20}'
+    -d '{"key":"saepe","id":12,"hive_id":6}'
 
 ```
 
@@ -3439,9 +3457,9 @@ let headers = {
 }
 
 let body = {
-    "key": "quis",
-    "id": 2,
-    "hive_id": 20
+    "key": "saepe",
+    "id": 12,
+    "hive_id": 6
 }
 
 fetch(url, {
@@ -3485,7 +3503,7 @@ Request last weight related measurement values from a sensor (Device), used by l
 ```bash
 curl -X GET -G "https://test.beep.nl/api/sensors/lastweight" \
     -H "Content-Type: application/json" \
-    -d '{"key":"magnam","id":7,"hive_id":18}'
+    -d '{"key":"molestias","id":12,"hive_id":1}'
 
 ```
 
@@ -3498,9 +3516,9 @@ let headers = {
 }
 
 let body = {
-    "key": "magnam",
-    "id": 7,
-    "hive_id": 18
+    "key": "molestias",
+    "id": 12,
+    "hive_id": 1
 }
 
 fetch(url, {
@@ -4138,7 +4156,7 @@ Display a listing of the resource.
 ```bash
 curl -X GET -G "https://test.beep.nl/api/sensordefinition" \
     -H "Content-Type: application/json" \
-    -d '{"device_id":6,"device_hardware_id":"ipsum"}'
+    -d '{"device_id":10,"device_hardware_id":"id"}'
 
 ```
 
@@ -4151,8 +4169,8 @@ let headers = {
 }
 
 let body = {
-    "device_id": 6,
-    "device_hardware_id": "ipsum"
+    "device_id": 10,
+    "device_hardware_id": "id"
 }
 
 fetch(url, {
@@ -4195,7 +4213,7 @@ Store a newly created resource in storage.
 ```bash
 curl -X POST "https://test.beep.nl/api/sensordefinition" \
     -H "Content-Type: application/json" \
-    -d '{"name":"consequatur","inside":false,"offset":5.0935085,"multiplier":40.4741754,"input_measurement_id":5,"input_measurement_abbreviation":"w_v","output_measurement_id":6,"output_measurement_abbreviation":"t_i","device_id":2,"device_hardware_id":"magni"}'
+    -d '{"name":"fuga","inside":false,"offset":2.8,"multiplier":48.08,"input_measurement_id":5,"input_measurement_abbreviation":"w_v","output_measurement_id":6,"output_measurement_abbreviation":"t_i","device_id":15,"device_hardware_id":"hic"}'
 
 ```
 
@@ -4208,16 +4226,16 @@ let headers = {
 }
 
 let body = {
-    "name": "consequatur",
+    "name": "fuga",
     "inside": false,
-    "offset": 5.0935085,
-    "multiplier": 40.4741754,
+    "offset": 2.8,
+    "multiplier": 48.08,
     "input_measurement_id": 5,
     "input_measurement_abbreviation": "w_v",
     "output_measurement_id": 6,
     "output_measurement_abbreviation": "t_i",
-    "device_id": 2,
-    "device_hardware_id": "magni"
+    "device_id": 15,
+    "device_hardware_id": "hic"
 }
 
 fetch(url, {

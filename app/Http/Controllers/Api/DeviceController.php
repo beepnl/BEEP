@@ -104,6 +104,9 @@ class DeviceController extends Controller
     @bodyParam measurement_interval_min float Measurement interval in minutes
     @bodyParam measurement_transmission_ratio float Measurements ratio of non-transmitted vs transmitted messages. If 0 or 1, every measurement gets transmitted.
     @bodyParam ble_pin string Bleutooth PIN of Device: 6 numbers between 0-9
+    @bodyParam battery_voltage float Last measured battery voltage
+    @bodyParam next_downlink_message string Hex string to send via downlink at next connection (LoRaWAN port 6)
+    @bodyParam last_downlink_result string Result received from BEEP base after downlink message (LoRaWAN port 5)
     */
     public function store(Request $request)
     {
@@ -128,6 +131,9 @@ class DeviceController extends Controller
     @bodyParam measurement_interval_min float Measurement interval in minutes
     @bodyParam measurement_transmission_ratio float Measurements ratio of non-transmitted vs transmitted messages. If 0 or 1, every measurement gets transmitted.
     @bodyParam ble_pin string Bleutooth PIN of Device: 6 numbers between 0-9
+    @bodyParam battery_voltage float Last measured battery voltage
+    @bodyParam next_downlink_message string Hex string to send via downlink at next connection (LoRaWAN port 6)
+    @bodyParam last_downlink_result string Result received from BEEP base after downlink message (LoRaWAN port 5)
     */
     public function storeMultiple(Request $request)
     {
@@ -160,6 +166,9 @@ class DeviceController extends Controller
     @bodyParam measurement_interval_min float Measurement interval in minutes
     @bodyParam measurement_transmission_ratio float Measurements ratio of non-transmitted vs transmitted messages. If 0 or 1, every measurement gets transmitted.
     @bodyParam ble_pin string Bleutooth PIN of Device: 6 numbers between 0-9
+    @bodyParam battery_voltage float Last measured battery voltage
+    @bodyParam next_downlink_message string Hex string to send via downlink at next connection (LoRaWAN port 6)
+    @bodyParam last_downlink_result string Result received from BEEP base after downlink message (LoRaWAN port 5)
     */
     public function update(Request $request, $id)
     {

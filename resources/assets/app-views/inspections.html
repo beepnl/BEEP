@@ -147,7 +147,7 @@
 						        <span ng-if="item.type == 'score_quality'" style="color: {{ qualityColor(item.value) }};">{{ scoreQualityOptions[item.value] }}</span>
 								<span ng-if="item.type == 'score_amount'" style="color: {{ amountColor(item.value) }}; font-weight: bold;">{{ scoreAmountOptions[item.value] }}</span>
 
-								<span ng-if="item.type == 'square_25cm2'">{{Math.round(item.val * 25 * 10)/10}} cm2 ({{item.val}} sq)</span>
+								<span ng-if="item.type == 'square_25cm2'">{{ item.val*25 | number : 1 }} cm2 ({{item.val}} sq)</span>
 								<span ng-if="item.type == 'select_apiary'">{{item.val}}</span>
 								<span ng-if="item.type == 'select_hive'">{{item.val}}</span>
 								<span ng-if="item.type == 'select_country'">{{item.val.toUpperCase()}}</span>

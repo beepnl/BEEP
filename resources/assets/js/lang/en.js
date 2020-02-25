@@ -221,7 +221,7 @@
     Postal_code             : 'Postal code',
     Description             : 'Description',
     Hive_settings           : 'Hive settings',
-    Hive_amount             : 'Number of hives at this location',
+    Hive_amount             : 'Number of hives',
     Hive_prefix             : 'Hive name prefix (before numer)',
     Hive_number_offset      : 'Start number hives',
     Hive_type               : 'Hive type',
@@ -440,7 +440,7 @@
     info                    : 'Info',
     
     research                : 'Research',
-    research_explanation    : 'This screen contains the available researches for which you can opt-in to share your data with. By giving consent to sharing the data you manage on your BEEP account, you can contribute to research to support honeybee health. Before consenting in, please review the research description provided through the link below and request for additional details if needed. You can withdraw your consent at any time, no new data will be shared from that moment. In case of questions, please direct these to the contact person provided.',
+    research_explanation    : 'This screen contains the available researches for which you can opt-in to share your data with. When you consent to share your BEEP account data, you contribute to research to support honeybee health. Before you consent, please review the research description provided through the link below and request for additional details if needed. You can withdraw your consent at any time, no new data will be shared from that moment. The data that your shared in the period that you did consent to will remain available for research. In case of questions, please direct these to the contact person provided.',
     research_info           : 'By sharing your data with researchers, you help them to being able to analyse more data and come to better conclusions for their research.',
     start_date              : 'Start date',
     end_date                : 'End date',
@@ -456,6 +456,7 @@
     my_beep_data            : 'My own BEEP data',
     
     new_apiary_explanation  : 'Create a new apiary in 4 steps',
+    start_here              : 'Click here to start',
     optional                : 'optional',
     dimensions              : 'dimensions',
     details                 : 'details',

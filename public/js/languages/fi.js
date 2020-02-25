@@ -439,7 +439,7 @@
     info                    : 'Info',
     
     research                : 'Research',
-    research_explanation    : 'This screen contains the available researches for which you can opt-in to share your data with. By giving consent to sharing the data you manage on your BEEP account, you can contribute to research to support honeybee health. Before consenting in, please review the research description provided through the link below and request for additional details if needed. You can withdraw your consent at any time, no new data will be shared from that moment. In case of questions, please direct these to the contact person provided.',
+    research_explanation    : 'This screen contains the available researches for which you can opt-in to share your data with. When you consent to share your BEEP account data, you contribute to research to support honeybee health. Before you consent, please review the research description provided through the link below and request for additional details if needed. You can withdraw your consent at any time, no new data will be shared from that moment. The data that your shared in the period that you did consent to will remain available for research. In case of questions, please direct these to the contact person provided.',
     research_info           : 'By sharing your data with researchers, you help them to being able to analyse more data and come to better conclusions for their research.',
     start_date              : 'Start date',
     end_date                : 'End date',
@@ -447,12 +447,15 @@
     institution             : 'Research institution',
     type_of_data_used       : 'Data usage',
     link                    : 'Link',
-    consent                 : 'Current consent',
+    Consent                 : 'Consent',
+    history                 : 'history',
+    Current_consent         : 'Current consent',
     consent_yes             : 'I consent to share my data',
     consent_no              : 'I do NOT consent to share my data',
     my_beep_data            : 'My own BEEP data',
     
     new_apiary_explanation  : 'Create a new apiary in 4 steps',
+    start_here              : 'Click here to start',
     optional                : 'optional',
     dimensions              : 'dimensions',
     details                 : 'details',
@@ -475,7 +478,7 @@
     Images                  : 'Images',
     Size                    : 'Size',
     preview                 : 'preview',
-    
+
     Sensor_definitions      : 'Sensor definitions',
     Inside                  : 'Measures inside',
     Offset                  : 'Offset',
@@ -483,6 +486,15 @@
     Input                   : 'Input',
     Output                  : 'Output',
     Last                    : 'Last',
+
+    Export_sensor_data      : 'Export all data per device in the highest possible resolution as a .csv file that you can open in Excel, or SPSS. NB: The date time data in the \'time\' column is in GMT time, formatted by the RFC 3339 date-time standard.',
+    CSV_export_separator    : 'CSV data column separator',
+    Selected_date           : 'Selected time span',
+    Sensor_measurements     : 'Sensor measurements',
+    too_much_data           : 'Too much data to process, please select fewer Sensor measurements, or reduce the timespan between start and end date.',
+
+    beep_base_explanation   : 'If you have a BEEP base (shown in the picture above), please use the native app (iOS and Android) to set-up the communication with this app. If you don\'t have a BEEP base yet, please click on the menu item \'BEEP website\' for updates on how to get a BEEP base. I you have your own measurement device and would like to see the data in the BEEP app, please send us a message to ask for joining our Slack community and you can get access to the API description.', 
+
     
     
  };

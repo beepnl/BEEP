@@ -316,17 +316,24 @@ class CategoriesController extends Controller {
             $category->update($cat_input);
 
             // Handle language
+            $createTranslationsForEmptyLanguages = false;
             if ($input->has('language'))
             {
                 foreach($input->input('language') as $abbr => $text) 
                 {
-                    Translation::saveText($abbr, $input->input('name'), 'category', $text);
+                    if ($text == '')
+                        $createTranslationsForEmptyLanguages = true;
+                    else
+                        Translation::saveText($abbr, $input->input('name'), 'category', $text);
                 }
             }
             else
             {
-              Translation::createTranslations($name, 'category');
+                $createTranslationsForEmptyLanguages = true;
             }
+
+            if ($createTranslationsForEmptyLanguages)
+                Translation::createTranslations($name, 'category');
 
             return redirect()->route('categories.show', [ $id ])->with('success', 'Category successfully updated!');
         }

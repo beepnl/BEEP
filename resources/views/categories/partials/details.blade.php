@@ -43,8 +43,7 @@
                         </div>
                     </div>
                 </dd>
-                <dd>
-                </dd>
+                
                 <dt>{{ __('general.Translations') }}</dt>
                 <dd>
                     @include('categories.partials.translations', [ 'translations' => $category->translations() ])

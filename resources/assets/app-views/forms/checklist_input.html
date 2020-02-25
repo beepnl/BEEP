@@ -1,4 +1,4 @@
-<div class="inspection-item {{item.input == 'text' || cols == 12 ? 'col-xs-12' : 'col-xs-12 col-sm-6 col-md-4' }}">
+<div class="inspection-item {{item.input == 'text' || cols == 12 ? 'col-xs-12' : 'col-xs-12 col-sm-6 col-md-4 col-lg-3' }}">
     <div class="form-group">
         
         <label title="{{ item.description != null ? item.description : '' }} {{ item.required == 1 ? lang.required : '' }}" ng-class="{required:item.required}">
@@ -18,6 +18,8 @@
         <div ng-if="item.input == 'number_1_decimals'" step="0.1" ng-disabled="false" ng-model="item.value" rn-stepper></div>
         <div ng-if="item.input == 'number_2_decimals'" step="0.01" ng-disabled="false" ng-model="item.value" rn-stepper></div>
         <div ng-if="item.input == 'number_3_decimals'" step="0.001" ng-disabled="false" ng-model="item.value" rn-stepper></div>
+
+        <div ng-if="item.input == 'square_25cm2'" step="0.1" ng-disabled="false" ng-model="item.value" rn-stepper></div>
 
         <div ng-if="item.input == 'grade'">
             <rzslider rz-slider-model="item.value" rz-slider-options="gradeOptions"></rzslider>
@@ -51,9 +53,35 @@
             <checklist-fieldset ng-if="item.children.length > 0 && (item.input == 'boolean' || item.input == 'boolean_yes_red' || item.input == 'list_item')" ng-show="item.value == 1" cat="item" cols="12"></checklist-fieldset>
         
         <input ng-if="item.input == 'file'" ng-model="item.value" readonly="false" type="file" item-name="item.name">
-        <input ng-if="item.input == 'image'" ng-model="item.value" readonly="false" type="file" item-name="item.name">
-        
-        <div ng-if="item.input == 'barcode'" ng-model="item.value" readonly="false" type="file" item-name="item.name">Barcode not supported in webapp, please wait for the native Beep app</div>
+        <!-- <input ng-if="item.input == 'image'" ng-model="item.value" readonly="false" type="file" item-name="item.name" accept="image/png, image/jpeg" capture="camera"> -->
+
+        <div ng-if="item.input == 'image'">
+            <div ng-if="!item.value.$error && item.value">
+                <div style="font:smaller">{{f.name}} {{errFile.name}} {{errFile.$error}} {{errFile.$errorParam}}
+                    <span class="progress" ng-show="f.progress >= 0">
+                        <div style="width:{{f.progress}}%" ng-bind="f.progress + '%'"></div>
+                    </span>
+                </div>     
+                {{errorMsg}}
+
+                <div class="preview">
+                    <a class="delete-photo-btn" ng-if="!item.value.$error && item.value" ng-click="deleteImage(item.value); item.value=null"><i class="fa fa-times-circle fa-2x face"></i></a>
+                    <img ngf-src="!item.value.$error && item.value" ng-click="setActiveImage(item.value)" data-toggle="modal" data-target="#photo-modal">
+                </div>
+            </div>
+            <div ng-if="item.value.$error || !item.value">
+                <div ngf-select ngf-drop ng-model="item.value" class="drop-box"
+                    ngf-drag-over-class="'dragover'" 
+                    ngf-validate="{size: {max: '5MB', min: '10B'}, height: {max: 12000}, width: {max: 12000}, duration: {max: '1m'}}"
+                    ngf-pattern="'image/*'"
+                    ngf-capture="camera"
+                    ngf-drop-available="dropAvailable">
+                    Select<span ng-show="dropAvailable">/drop</span> image
+                </div>
+            </div>
+        </div>
+
+        <input ng-if="item.input == 'barcode'" ng-model="item.value" readonly="false" type="file" item-name="item.name" accept="image/*" capture="camera"></input>
         
         
         <select ng-if="item.input == 'select'" ng-model="item.value" class="form-control">
@@ -94,11 +122,11 @@
     		</div>
     	</div>
 
-        <select ng-if="item.input == 'select_apiary'" ng-model="item.value" ng-options="item.id as item.name for item in locations  | orderBy:'name' track by item.id" type="select" class="form-control">
+        <select ng-if="item.input == 'select_apiary'" ng-model="item.value" ng-options="item.id as item.name for item in locations | orderBy:'name' track by item.id" type="select" class="form-control">
             <option value=''>{{lang.Select}} {{lang.location}}...</option>
         </select>
 
-        <select ng-if="item.input == 'select_hive'" ng-model="item.value" ng-options="item.id as item.name group by item.location for item in hives  | orderBy:'name' track by item.id" type="select" class="form-control">
+        <select ng-if="item.input == 'select_hive'" ng-model="item.value" ng-options="item.id as item.name group by item.location for item in hives | orderBy:'name' track by item.id" type="select" class="form-control">
             <option value=''>{{lang.Select}} {{lang.hive}}...</option>
         </select>
 

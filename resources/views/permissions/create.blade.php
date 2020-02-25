@@ -25,7 +25,7 @@
             <form method="POST" action="{{ route('permissions.store') }}" accept-charset="UTF-8" class="form-horizontal" enctype="multipart/form-data">
                 {{ csrf_field() }}
 
-                @include ('permissions.form')
+                @include ('permissions.form', ['permission'=>new App\Permission, 'submitButtonText'=>'Create'])
 
             </form>
 

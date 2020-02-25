@@ -40,13 +40,16 @@ app.directive('background', function($q)
         scope.fadeImage = function()
         {
             element.css({"background-image": "url('" + attrs.url + "')"});
-            element.addClass('animated fadeIn');
+            element.css({"background-position":"center"});
+            element.css({"background-size":"cover"});
+            element.css({"background-repeat":"no-repeat"});
+            // element.addClass('animated fadeIn');
             element.removeClass('loading');
 
-            setTimeout(function()
-            {
-              element.removeClass('animated fadeIn');
-            }, 1000);
+            // setTimeout(function()
+            // {
+            //   element.removeClass('animated fadeIn');
+            // }, 1000);
         };
 
 

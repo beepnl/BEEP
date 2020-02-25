@@ -26,7 +26,7 @@ app.controller('LocationsCtrl', function($scope, $rootScope, $window, $location,
 		"honey_layers":"1",
 		"frames":"10",
 		"offset":"1",
-		"prefix":"Kast",
+		"prefix":$rootScope.lang.Hive_short,
 		"country_code":"nl",
 		"city":"",
 		"postal_code":"",
@@ -34,11 +34,40 @@ app.controller('LocationsCtrl', function($scope, $rootScope, $window, $location,
 		"street_no":"",
 		"lat":52,
 		"lon":5,
+		"bb_width_cm":null,
+		"bb_depth_cm":null,
+		"bb_height_cm":null,
+		"fr_width_cm":null,
+		"fr_height_cm":null,
+
 	};
 
 	$scope.types = "['address']";
 	$scope.mybounds = {center: {lat: $scope.hive.lat, lng: $scope.hive.lon}, radius: 200000};
 	
+	// tabclasses for location create wizard
+	$scope.tabClasses = ["active","","","",""];
+	
+	function initTabs() {
+		$scope.tabClasses = ["","","","",""];
+	}
+
+	$scope.getTabClass = function (tabNum) {
+		return $scope.tabClasses[tabNum];
+	};
+
+	$scope.getTabPaneClass = function (tabNum) {
+		return "tab-pane " + $scope.tabClasses[tabNum];
+	}
+
+	$scope.setActiveTab = function (tabNum) {
+		initTabs();
+		$scope.tabClasses[tabNum] = "active";
+	};
+
+	$scope.rangeStep = function(min, max, step) {
+	    return rangeStep(min, max, step);
+	};
 	
 	$scope.init = function()
 	{
@@ -69,6 +98,12 @@ app.controller('LocationsCtrl', function($scope, $rootScope, $window, $location,
 				{
 					$scope.locationsUpdate();
 				}
+
+				if ($location.path() == 'locations/create')
+				{
+					initTabs();
+					$scope.setActiveTab(0);
+				}
 			}
 			else
 			{
@@ -77,15 +112,25 @@ app.controller('LocationsCtrl', function($scope, $rootScope, $window, $location,
 		}
 	};
 
+	
+
 	$scope.toggleLoc = function(loc)
 	{
 		hives.toggle_open_loc(loc.id);
 	}
 
-	$scope.setHiveType = function(id)
+	$scope.selectHiveType = function(item)
 	{
-		console.log(id);
-		$scope.hive.hive_type_id = id;
+		$scope.hive.hive_type_id = item.id;
+
+		if (settings.hivedimensions && typeof settings.hivedimensions[item.name] != 'undefined')
+		{
+			$scope.hive.bb_width_cm  = settings.hivedimensions[item.name].bb_width_cm;
+			$scope.hive.bb_depth_cm  = settings.hivedimensions[item.name].bb_depth_cm;
+			$scope.hive.bb_height_cm = settings.hivedimensions[item.name].bb_height_cm;
+			$scope.hive.fr_width_cm  = settings.hivedimensions[item.name].fr_width_cm;
+			$scope.hive.fr_height_cm = settings.hivedimensions[item.name].fr_height_cm;
+		}
 	}
 
 	$scope.updateTaxonomy = function()

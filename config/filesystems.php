@@ -64,7 +64,7 @@ return [
         'exports' => [
             'driver' => 'local',
             'root' => storage_path('exports'),
-            'url' => env('APP_URL').'storage/exports',
+            'url' => env('APP_URL').'/storage/exports',
             'visibility' => 'private',
         ],
 
@@ -75,6 +75,11 @@ return [
             'region' => env('AWS_DEFAULT_REGION'),
             'bucket' => env('AWS_BUCKET'),
             'url' => env('AWS_URL'),
+            'cache' => [
+                'store' => 'redis',
+                'expire' => 600,
+                'prefix' => 'cache-',
+            ],
         ],
 
     ],

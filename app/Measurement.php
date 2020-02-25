@@ -28,6 +28,8 @@ class Measurement extends Model
      */
     protected $fillable = ['abbreviation', 'physical_quantity_id', 'show_in_charts', 'chart_group', 'min_value', 'max_value', 'hex_color'];
 
+    protected $hidden  = ['created_at', 'updated_at']; //'parent'
+
     protected $appends  = ['pq','unit','pq_name_unit', 'low_value', 'high_value']; //'parent'
 
 
@@ -74,6 +76,10 @@ class Measurement extends Model
             $abbr = ' - '.($aind ? substr($mabb, 0, $aind) : $mabb);
             $name .= $abbr;
         }
+        else if ($name == '-' && isset($this->abbreviation))
+        {
+            $name = str_replace('_', ' ', $this->abbreviation);
+        }
         return $name;
     }
 
@@ -97,5 +103,21 @@ class Measurement extends Model
     public function getAbbrNamedObjectAttribute()
     {
         return $this->toArray();
+    }
+
+    public static function selectList()
+    {
+        $list = [];
+        $list[''] = '-';
+
+        foreach(Measurement::orderBy('abbreviation')->get() as $q)
+        {
+            $id = $q->id;
+            $label = $q->abbreviation.' ('.$q->pq_name_unit.')';
+
+            $list[$id] = $label;
+
+        }
+        return $list;
     }
 }

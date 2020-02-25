@@ -54,8 +54,8 @@ app.controller('UserCtrl', function($scope, $rootScope, $window, $location, $rou
 
 		if ($routeParams.email != undefined && $routeParams.email != '')
 		{
-			$scope.fields.login.email = $routeParams.email;
-			$scope.fields.register.email = $routeParams.email;
+			$scope.fields.login.email = $routeParams.email.replace(' ', '+');
+			$scope.fields.register.email = $routeParams.email.replace(' ', '+');
 		}
 
 	};

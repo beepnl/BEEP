@@ -8,7 +8,7 @@
 /* BETA */
 body.beta nav.navbar-static-top, body.beta a.logo, body.beta.login-page,
 body.beta.register-page{
-	background-image: url('/webapp/img/icons/BETA.png');
+	background-image: url('/img/icons/BETA.png');
 	background-size: 40px;
 }
 /* BETA END */
@@ -22,6 +22,10 @@ a {
 	text-shadow: 0 0 0 #555;
 }
 
+fieldset .form-item, .tab-content .form-item{
+	min-height: 70px;
+}
+
 .header-spacer{
 	display: block;
 	width: 100%;
@@ -29,6 +33,9 @@ a {
 	height: 20px;
 }
 
+.sidebar-menu > li.header {
+	text-transform: uppercase;
+}
 .sidebar-menu a, .content-header h1 a, .inspection-actions a{
     cursor: pointer;
 }
@@ -891,8 +898,29 @@ dl.hive-select{
 	height: auto !important;
 }
 
-/* Table items */
+/* Research related */
+.icon-line{
+	display: block;
+	border: 1px solid #333;
+	border-radius: 10px;
+	padding: 10px;
+	padding-top: 0px;
+	margin-bottom: 10px;
+}
 
+.image-icon {
+	display: inline-block;
+	width: 80px;
+	height: 80px;
+	overflow: hidden;
+	background-color: grey;
+	border: 1px solid #333;
+	border-radius: 10%;
+	vertical-align: top;
+	margin-right: 10px; 
+}
+
+/* Table items */
 .table-responsive{
     border:none;
 }
@@ -970,7 +998,7 @@ dl.hive-select{
 		width: 100%;
 	}
 
-/* Media queries */
+/* Mobile */
 @media (max-width: 400px) {
 	.header-title {
 	    padding-left: 14%;
@@ -991,6 +1019,22 @@ dl.hive-select{
 		width: 12px;
 		height: 12px;
 	}
+	.inspection-item{
+		min-height: 66px;
+	}
+	ul,ol {
+		padding-inline-start: 20px;
+	}
+}
+
+/* Large screens */
+@media (min-width: 1400px){
+.col-xl-2 {
+    width: 16.666%;
+}
+@media (min-width: 1600px){
+.col-xl-1 {
+    width: 8.333%;
 }
 
 

@@ -55,7 +55,7 @@
             <tbody>
             @foreach($physicalquantity as $item)
                 <tr>
-                    <td>{{ $loop->iteration or $item->id }}</td>
+                    <td>{{ $item->id }}</td>
                     <td>{{ $item->name }}</td>
                     <td>{{ $item->unit }}</td>
                     <td>{{ $item->abbreviation }}</td>

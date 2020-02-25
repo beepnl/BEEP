@@ -22,6 +22,7 @@ return [
     'sure'          => 'Are you sure you want to delete :item :name?',
     'create'        => 'Create a new :item',
     'add'           => 'Add a new :item',
+    'add_a'         => 'Add a new :item',
     'none'          => 'None available',
     'overview'      => 'List of existing :item',
     'select'        => 'Select a :item...',

@@ -52,7 +52,7 @@ b. Then run it: ```./run_actions.sh```
 
 a. Make sure your server has 2 different virtual hosts for the API and the APP
 
-NB: On AMAzon AWS (Bitnami LAMP_7.1): 
+NB: On Amazon AWS (Bitnami LAMP_7.1): 
 a. Make sure your Bitnami server includes your apps/apache_vhost.conf in 
 ```
 sudo nano /opt/bitnami/apache2/conf/bitnami/bitnami-apps-vhosts.conf
@@ -62,6 +62,11 @@ Contains one or more Includes:
 ```
 # Bitnami applications installed in a Virtual Host
 Include "/opt/bitnami/apps/apache/portal-vhost.conf"
+```
+
+Bitnami restart apache server:
+```
+sudo /opt/bitnami/ctlscript.sh restart apache
 ```
 
 
@@ -101,7 +106,12 @@ APP (replace 'beep.nl' with your own server)
 
 b. Optionally, install SSL certificates to your endpoints with [Let's Encrypt](https://letsencrypt.org/getting-started/)
 
-With command: ```sudo certbot --authenticator webroot --installer apache```
+On AWS:
+```
+sudo /opt/bitnami/letsencrypt/scripts/generate-certificate.sh -m pim@iconize.nl -d api.beep.nl -d app.beep.nl
+```
+
+On other servers with command: ```sudo certbot --authenticator webroot --installer apache```
 
 ## 5. Add Influx database
 ```
@@ -132,6 +142,7 @@ a. Set up e-mail credentials in the ```.env``` config file
 
 b. For the webapp to reach the API, rename the file 'public/webapp/js/constants.js.example' to 'public/webapp/js/constants.js' and edit it to change the 'api_url' to your own back-end API end-point
 
+c. To enable schedules (e.g. for loading weather data), install a crontab with ```sudo crontab -e``` and add: ```* * * * * cd /home/bitnami/apps/appdir && /opt/bitnami/php/bin/php artisan schedule:run >> /dev/null 2>&1```
 
 ## 3. Register new user
 
@@ -172,24 +183,35 @@ Please request access to https://trello.com/b/Eb3CcKES/beep-hive-check-app if yo
 
 ### In short on our roadmap:
 Upcoming:
-* Hardware weighing scale + audio measurement kit development (2018 Q2-Q4)
-  * See https://www.openhardware.io/view/630
-* Integration sensor data / hive inspections (2018 Q4)
-* User feedback improvements (2019 Q1 + Q2)
-* Bee keeping teacher support - Inspection list sharing (2019 Q2)
-* Hardware measurement system version 3 (2019 Q3)
+
 * Many new features for health checking and sensor (2019 Q3 - 2023 Q3)
 
 History:
-* Release v1 - June 15th 2017
-  * One click creation of apiaries with multiple hives
-  * Manual hive inspections
-  * Display automatic measurements
-* Release v2 - July 10th 2018
+* App v3 - January 2020
+  * Photo addition
+  * Weather data
+  * Research
+  * Helpdesk integration
+* BEEP base v3 (2019 Q3-Q4)
+  * See https://www.openhardware.io/view/739/BEEP-base-v3
+* App v2.1.0 - May 29 2019
+  * Collaborate: Hive, data and inspection list sharing (2019 Q2)
+  * User feedback improvements (2019 Q1 + Q2)
+* App v2.0.2 - April 30 2019
+  * Integration sensor data / hive inspections (2018 Q4)
+* BEEP base v2 - December 2019
+  * Hardware weighing scale + temperature + audio measurement kit v3 development (2018 Q2-Q4)
+    * See https://www.openhardware.io/view/630/BEEP-base-v2
+* App v2.0 - July 10th 2018
   * Apiary and hive overview improved
   * Dynamic inspection list 
   * Create your own inspection list and order
   * Automatic measurement view improvement
+* App v1.0 - June 15th 2017
+  * One click creation of apiaries with multiple hives
+  * Manual hive inspections
+  * Display automatic measurements
+
 
 
 # Documentation

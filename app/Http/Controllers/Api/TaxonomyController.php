@@ -5,7 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Category;
 use App\Taxonomy;
 use App\Hive;
-use App\BeeRace;
+use App\Measurement;
 use App\Inspection;
 use App\InspectionItem;
 use Illuminate\Http\Request;
@@ -14,6 +14,9 @@ use Moment\Moment;
 use Auth;
 use LaravelLocalization;
 
+/**
+ * @group Api\TaxonomyController
+ */
 class TaxonomyController extends Controller
 {
     
@@ -33,8 +36,10 @@ class TaxonomyController extends Controller
             }
         }
 
-        $out['beeraces']    = Category::descendentsByRootParentAndName('bee_colony', 'characteristics', 'subspecies');
-        $out['sensortypes'] = Category::descendentsByRootParentAndName('hive', 'app', 'sensor');
+        $out['beeraces']       = Category::descendentsByRootParentAndName('bee_colony', 'characteristics', 'subspecies');
+        $out['sensortypes']    = Category::descendentsByRootParentAndName('hive', 'app', 'sensor');
+        $out['hivedimensions'] = Taxonomy::$hive_type_sizes;
+        $out['sensormeasurements'] = Measurement::all();
 
         return response()->json($out);
     }

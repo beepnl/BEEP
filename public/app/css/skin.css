@@ -126,7 +126,7 @@
 		float: none;
 	}
 
-.measurement-form .tab-bar-wrapper{
+.tab-bar-wrapper{
 	display: flex;
     display: -webkit-flex;
 	flex-wrap: wrap;
@@ -136,22 +136,21 @@
 	justify-content:space-between;
 	-webkit-justify-content:space-between;
 	align-items:center;
-	margin: 10px;
-	margin-bottom: 10px;
+	margin-top: 10px;
 }
 
-	.measurement-form .tab-bar-wrapper .icn{
+	.tab-bar-wrapper .icn{
 		margin-bottom: 10px;
 	}
 
-	.measurement-form .tab-bar-wrapper menu.tab-bar{
+	.tab-bar-wrapper menu.tab-bar{
 		flex: 1 1 auto;
 		-webkit-flex: 1 1 auto;
 		width: 100%;
 	}
 
 
-	.measurement-form .tab-bar-wrapper menu.tab-bar{
+	.tab-bar-wrapper menu.tab-bar{
 	    -webkit-padding-start: 0px;
 	    overflow: hidden;
 	    margin: 0px;
@@ -164,7 +163,7 @@
 	    height: 50px;
 	}
 
-	.measurement-form .tab-bar-wrapper menu.tab-bar .btn {
+	.tab-bar-wrapper menu.tab-bar .btn {
 	    display: inline-block;
 	    width: 100%;
 	    margin: 0px;
@@ -182,7 +181,7 @@
 	    text-align: center;
 	    cursor: pointer;
 	}
-		.measurement-form .tab-bar-wrapper .date-nav {
+		.tab-bar-wrapper .date-nav {
 			width: 100%;
 			margin-top: 10px; 
 			margin-bottom: 10px;
@@ -197,7 +196,7 @@
 			align-items: center;
 		}
 
-			.measurement-form .tab-bar-wrapper .date-nav .hiddenDateSelector {
+			.tab-bar-wrapper .date-nav .hiddenDateSelector {
 				position: absolute; 
 				z-index: 0; 
 				color: #FFF; 
@@ -207,37 +206,37 @@
 				overflow: hidden;
 			}
 
-				.measurement-form .tab-bar-wrapper.mobile .date-nav .hiddenDateSelector {
+				.tab-bar-wrapper.mobile .date-nav .hiddenDateSelector {
 					width: 100px;
 				}
 
-			.measurement-form .tab-bar-wrapper .date-nav h3{
+			.tab-bar-wrapper .date-nav h3{
 				margin: 0;
 			}
-			.measurement-form .tab-bar-wrapper .date-nav .icn{
+			.tab-bar-wrapper .date-nav .icn{
 				margin-bottom: 0;
 			}
-			.measurement-form .tab-bar-wrapper.mobile{
-				margin: 5px;
+			.tab-bar-wrapper.mobile{
+				margin-bottom: -5px;
 			}
-				.measurement-form .tab-bar-wrapper.mobile menu.tab-bar .btn {
+				.tab-bar-wrapper.mobile menu.tab-bar .btn {
 					min-width: 28px;
 					font-size: 13px;
 				}
-				.measurement-form .tab-bar-wrapper.mobile .date-nav h3{
+				.tab-bar-wrapper.mobile .date-nav h3{
 					font-size: 15px;
 				}
 
-	.measurement-form .tab-bar-wrapper menu.tab-bar .btn:first-child {
+	.tab-bar-wrapper menu.tab-bar .btn:first-child {
 	    border-radius: 10px 0px 0px 10px;
 	}
 
-	.measurement-form .tab-bar-wrapper menu.tab-bar .btn:last-child {
+	.tab-bar-wrapper menu.tab-bar .btn:last-child {
 	    border-radius: 0px 10px 10px 0px;
 	    border-right: 1px solid #666;
 	}
 
-	.measurement-form .tab-bar-wrapper menu.tab-bar a.active{
+	.tab-bar-wrapper menu.tab-bar a.active{
 		background-color: #F8B133;
 		color: #FFF;
 	}
@@ -304,7 +303,7 @@
 		.hide-when-small{
 			display: none;	
 		}
-		.measurement-form .tab-bar-wrapper menu.tab-bar{
+		.tab-bar-wrapper menu.tab-bar{
 			max-width: 100%;
 		}
 		.chart-holder, .chart-holder.small{
@@ -319,3 +318,101 @@
 			display: inline-block;	
 		}
 	}
+.drop-box {
+    background: #F8F8F8;
+    background-image: url("/img/icons/photo.svg");
+    background-position: 10px center;
+    background-repeat: no-repeat;
+    background-size: 30px;
+    border: 2px dashed #DDD;
+    border-radius: 6px;
+    width: 130px;
+    text-align: left;
+    padding: 5px;
+    padding-left: 50px;
+    line-height: 1em;
+}
+
+.drop-box.dragover {
+    border: 5px dashed #F8BA31;
+}
+
+.drop-box.dragover-err {
+    border: 5px dashed red;
+}
+
+/* for IE*/
+.js-fileapi-wrapper {
+    display: inline-block;
+    vertical-align: middle;
+}
+
+.thumb {
+    float: left;
+    width: 18px;
+    height: 18px;
+    padding-right: 10px;
+}
+
+form .thumb {
+    width: 24px;
+    height: 24px;
+    float: none;
+    position: relative;
+    top: 7px;
+}
+
+form .progress {
+    line-height: 15px;
+}
+
+:not(output):-moz-ui-invalid {
+    box-shadow: none;
+}
+
+.progress {
+    display: inline-block;
+    width: 170px;
+    border: 1px solid #333;
+}
+
+.progress div {
+    font-size: smaller;
+    text-align: center;
+    background: #F8BA31;
+    width: 0;
+}
+
+.preview {
+    clear: both;
+    position: relative;
+}
+
+.preview img, .preview audio, .preview video {
+    max-width: 200px;
+    max-height: 100px;
+}
+
+.preview img{
+    border-radius: 8px;
+    border: 1px solid black;
+}
+
+.image-thumb{
+    border-radius: 8px;
+    border: 1px solid #333;
+    cursor: zoom-in;
+}
+
+a.delete-photo-btn{
+    position: absolute; 
+    right: -10px; 
+    top: -10px; 
+    color: #D00220; 
+    background-color: white; 
+    border-radius: 50%; 
+    padding: 0px; 
+    width: 26px; 
+    height: 26px;
+    cursor: pointer;
+}

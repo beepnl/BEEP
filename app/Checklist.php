@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use App\Category;
 use App\Taxonomy;
+use Auth;
 
 use Illuminate\Support\Facades\DB;
 
@@ -34,9 +35,9 @@ class Checklist extends Model
      */
     protected $fillable = ['name', 'type', 'description'];
 
-    protected $hidden   = ['pivot','deleted_at'];
+    protected $hidden   = ['pivot','deleted_at', 'users'];
 
-    protected $appends  = ['category_ids', 'required_ids'];
+    protected $appends  = ['category_ids', 'required_ids', 'owner', 'researches'];
     
     // check for deletion of linked items
     protected static function boot() {
@@ -60,6 +61,18 @@ class Checklist extends Model
         return $this->categories()->where('required', '=', true)->pluck('id')->toArray();
     }
 
+    public function getOwnerAttribute()
+    {
+        return $this->users->contains(Auth::user());   
+    }
+
+    public function getResearchesAttribute()
+    {
+        return $this->researches()->pluck('name');   
+    }
+
+
+
     public function categories()
     {
         return $this->belongsToMany(Category::class, 'checklist_category')->withPivot('order')->orderBy('order');
@@ -78,6 +91,11 @@ class Checklist extends Model
     public function hives()
     {
         return $this->belongsToMany(Hive::class, 'checklist_hive');
+    }
+
+    public function researches()
+    {
+        return $this->belongsToMany(Research::class, 'checklist_research');
     }
     
     public function getOrderedChecklist($selectedCatIds=[], $includeNotSelected=true)
@@ -117,5 +135,10 @@ class Checklist extends Model
             }
         }
         return false;
+    }
+
+    public static function selectList()
+    {
+        return Checklist::orderBy('name')->pluck('name','id');
     }
 }

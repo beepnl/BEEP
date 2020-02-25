@@ -7,6 +7,9 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Moment\Moment;
 
+/**
+ * @group Api\ChecklistController
+ */
 class ChecklistController extends Controller
 {
     /**
@@ -16,7 +19,7 @@ class ChecklistController extends Controller
      */
     public function index(Request $request)
     {
-        $checklists = $request->user()->checklists()->orderBy('name')->get();
+        $checklists = $request->user()->allChecklists()->orderBy('name')->get();
         return response()->json($checklists);
     }
 
@@ -38,7 +41,7 @@ class ChecklistController extends Controller
 
     public function show(Request $request, $id)
     {
-        $checklist = $request->user()->checklists()->find($id);
+        $checklist = $request->user()->allChecklists()->find($id);
         if ($checklist)
         {
             $selected = $checklist->categoryIdArray();

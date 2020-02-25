@@ -29,6 +29,11 @@ class User extends Authenticatable
 
 
     // links
+    public function images()
+    {
+        return $this->hasMany(Image::class);
+    }
+
     public function hives()
     {
         return $this->hasMany(Hive::class);
@@ -43,10 +48,15 @@ class User extends Authenticatable
     {
         return $this->belongsToMany(Inspection::class, 'inspection_user');
     }
-    
-    public function sensors()
+
+    public function researches()
     {
-        return $this->hasMany(Sensor::class);
+        return $this->belongsToMany(Research::class, 'research_user');
+    }
+    
+    public function devices()
+    {
+        return $this->hasMany(Device::class);
     }
 
     public function groups()
@@ -59,6 +69,23 @@ class User extends Authenticatable
         return $this->hasMany(Setting::class);
     }
 
+    public function researchChecklists()
+    {
+        $research_ids = $this->researches->pluck('id')->toArray();
+
+        $checklist_ids = DB::table('checklist_research')->whereIn('research_id',$research_ids)->distinct('checklist_id')->pluck('checklist_id')->toArray();
+        //die(print_r(['group_ids'=>$group_ids,'checklist_ids'=>$checklist_ids]));
+        return Checklist::whereIn('id',$checklist_ids);
+    }
+
+    public function allChecklists()
+    {
+        $own_checklists = $this->checklists()->pluck('id');
+        $research_cl    = $this->researchChecklists()->pluck('id');
+        $checklist_ids  = $own_checklists->merge($research_cl); 
+        
+        return Checklist::whereIn('id', $checklist_ids);
+    }
 
     public function groupHives($mine = false)
     {
@@ -105,13 +132,13 @@ class User extends Authenticatable
     }
 
     
-    public function allSensors($mine = false) // Including Group hive locations
+    public function allDevices($mine = false) // Including Group hive locations
     {
-        $own_ids = $this->sensors()->pluck('id');
+        $own_ids = $this->devices()->pluck('id');
         $hiv_ids = $this->groupHives($mine)->pluck('id');
         $sen_ids = DB::table('sensors')->whereIn('hive_id',$hiv_ids)->distinct('hive_id')->pluck('id')->toArray();
         $all_ids = $own_ids->merge($sen_ids);
-        return Sensor::whereIn('id',$all_ids);
+        return Device::whereIn('id',$all_ids);
     }
 
 

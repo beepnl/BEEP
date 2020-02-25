@@ -7,17 +7,138 @@
         <meta name="description" content="">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <script src="ttn-payload-decoder.js"></script>
+        <script src="ttn-payload-converter.js"></script>
+        <style type="text/css">
+            body{
+                font-family: Arial, sans-serif;
+            }
+            table{
+                border: 1px solid #ddd;
+            }
+            table th{
+                text-align: left;
+                padding: 5px;
+            }
+            table td{
+                border-top: 1px solid #ddd;
+                padding: 5px;
+            }
+            textarea{
+                font-family: courier;
+            }
+        </style>
     </head>
     <body>
-    	<h1>TTN payload decoder</h1>
-    	<p>use javascript: Decoder(bytes, port);</p>
-
-        <h1>BEEP base fw 1.3.1 BLE control point and LoRaWAN test commands</h1>
-    	<p>Set FFT to mic with signal on tip (IN2LP), +20dB, 10 bins, 98-586 Hz: 8B0228000A0946</p>
+        <h1>BEEP base fw 1.3.2 BLE control point and LoRaWAN test commands</h1>
+    	<p>Check LoRaWAN status: 0x14, result: 0x141F = 0001 1111b: LoRaWAN aan, netwerk gejoined, DutyCycle limitatie aan, ADR aan, Correcte sleutels</p>
+        <p>Check LoRaWAN status: 0x14, result: 0x141B = 0001 1011b: LoRaWAN aan, netwerk gejoined, DutyCycle limitatie aan, ADR uit, Correcte sleutels</p>
+        <p>Set FFT to mic with signal on tip (IN2LP), +20dB, 10 bins, 98-586 Hz: 8B0228000A0946</p>
     	<p>(Re)set LoRaWAN on, DutyCycle limitation on, ADR on: 940D</p>
     	<p>Set LoRaWAN off, DutyCycle limitation off, ADR off: 9400</p>
     	<p>Set Measurement interval to 1 min, 1 min send: 9D000001</p>
     	<p>Set Measurement interval to 1 min, 3 min send: 9D030001</p>
+        <p>Set Measurement interval to 5 min, 15 min send: 9D030005</p>
     	<p>Set Measurement interval to 10 min, 10 min send: 9D01000A</p>
+        <p>Set Measurement interval to 15 min, 15 min send: 9D01000F</p>
+
+        <h1>BEEP base fw 1.2.0+ Payload tester</h1>
+        <p>uses ttn-payload-decoder.js and ttn-payload-converter.js</p>
+        <p>
+            Payloads to test
+            <table>
+                <thead>
+                    <tr>
+                        <th>Type</th>
+                        <th>Port</th>
+                        <th>Payload</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Start-up >= fw 1.3.4</td>
+                        <td>2</td>
+                        <td><a href="#" onclick="setPayloadAndPort('0100010003000402935685E6FFFF94540E01237A26A67D24D8EE1D000001', 2);">0100010003000402935685E6FFFF94540E01237A26A67D24D8EE1D000001</a></td>
+                    </tr>
+                    <tr>
+                        <td>Start-up < fw 1.3.2</td>
+                        <td>2</td>
+                        <td><a href="#" onclick="setPayloadAndPort('0100010003000102935685E6FFFF94540E01237A26A67D24D8EE', 2);">0100010003000102935685E6FFFF94540E01237A26A67D24D8EE</a></td>
+                    </tr>
+                    <tr>
+                        <td>Message</td>
+                        <td>3</td>
+                        <td><a href="#" onclick="setPayloadAndPort('1B0C100C03640A01FFF55A04020AE90AF00C0A00FF004D00100010000D000C000B0009000A0007000707000000000000', 3);">1B0C100C03640A01FFF55A04020AE90AF00C0A00FF004D00100010000D000C000B0009000A0007000707000000000000</a></td>
+                    </tr>
+                    <tr>
+                        <td>Alarm</td>
+                        <td>4</td>
+                        <td><a href="#" onclick="setPayloadAndPort('051B0A0009F1560A01018BD1040208CA08910C0A00FF000900030002000200020002000200020001000107000000000000', 4);">051B0A0009F1560A01018BD1040208CA08910C0A00FF000900030002000200020002000200020001000107000000000000</a></td>
+                    </tr>
+                </tbody>
+            </table>
+        </p>
+        <input id="payload-input" type="text" name="payload" max="100" style="width: 70%;" value="1B0C100C03640A01FFF55A04020AE90AF00C0A00FF004D00100010000D000C000B0009000A0007000707000000000000" onchange="test()">
+        <input id="payload-port" type="number" name="port" min="0" max="9" value="3" onchange="test()">
+        <button onclick="test()">TEST</button>
+        <h3>Payload HEX:</h3>
+        <textarea id="payload-spaced" cols="140" rows="2"></textarea>
+
+        <h3>ByteArray HEX:</h3>
+        <textarea id="bytearray" cols="140" rows="2"></textarea>
+        <h3>Decoder test result:</h3>
+        <textarea id="decoder-result" cols="100" rows="10"></textarea>
+        <h3>Converter test result:</h3>
+        <textarea id="converter-result" cols="100" rows="10"></textarea>
+
+        <script>
+            function setPayloadAndPort(payload, port)
+            {
+                document.getElementById("payload-port").value = port;
+                document.getElementById("payload-input").value = payload;
+                test();
+            }
+
+            function test()
+            {
+                var port      = document.getElementById("payload-port").value;
+                var bytes     = document.getElementById("payload-input").value;
+                
+                var payload_spaced  = "";
+                var payload_count   = "";
+                var byteArray       = new Uint8Array(bytes.length/2);
+                var byteMem         = "0x";
+
+                for(i=0 ; i < bytes.length+2 ; i++)
+                {
+                    if (i % 2 == 0 && i != 0)
+                    {
+                        var index = (i/2) - 1;
+                        payload_spaced += " ";
+                        payload_count  += index;
+                        byteArray.fill(byteMem, index, index+1);
+                        byteMem = "0x";
+                    }
+
+                    if (i < bytes.length)
+                    {
+                        payload_spaced += bytes[i];
+                        byteMem += bytes[i];
+                    }
+
+                    if (i > 1 && (i < 22 || i % 2 == 0))
+                        payload_count  += " ";
+                }
+                payload_spaced = payload_spaced + "\n" + payload_count;
+
+                var decoded   = Decoder(byteArray, port);
+                var converted = Converter(decoded, port);
+                console.log('decoded', decoded);
+                console.log('converted', converted);
+                document.getElementById("bytearray").innerHTML = byteArray;
+                document.getElementById("payload-spaced").innerHTML = payload_spaced;
+                document.getElementById("decoder-result").innerHTML = JSON.stringify(decoded);
+                document.getElementById("converter-result").innerHTML = JSON.stringify(converted);
+            }
+        </script>
     </body>
 </html>

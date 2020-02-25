@@ -34,4 +34,7 @@ return [
     'required_in_inspection' => 'Required in inspection',
     'Measurement'       => 'Measurement',
     'measurement'       => 'sensor measurement',
+    'Research'          => 'Research',
+    'Researches'        => 'Researches',
+    'calibration'       => 'calibration',
 ];

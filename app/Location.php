@@ -14,7 +14,7 @@ class Location extends Model
 
     protected $cascadeDeletes = ['hives', 'inspections'];
 
-    protected $fillable = ['user_id', 'continent_id', 'category_id', 'name', 'coordinate_lat', 'coordinate_lon', 'street', 'street_no', 'postal_code', 'country_code', 'city'];
+    protected $fillable = ['user_id', 'continent_id', 'category_id', 'name', 'coordinate_lat', 'coordinate_lon', 'street', 'street_no', 'postal_code', 'country_code', 'city', 'roofed', 'last_weather_time'];
 	protected $guarded 	= ['id'];
     protected $hidden   = ['user_id', 'continent_id', 'category_id'];
     protected $appends  = ['type', 'continent', 'owner'];
@@ -65,9 +65,9 @@ class Location extends Model
         return $this->belongsTo(Category::class);
     }
 
-    public function sensors()
+    public function devices()
     {
-        return $this->hasManyThrough(Sensor::class, Hive::class);
+        return $this->hasManyThrough(Device::class, Hive::class);
     }
 
     public function continent()

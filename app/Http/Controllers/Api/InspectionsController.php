@@ -7,19 +7,23 @@ use App\Hive;
 use App\BeeRace;
 use App\Inspection;
 use App\InspectionItem;
+use App\Image;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Moment\Moment;
 use Auth;
 use LaravelLocalization;
 
+/**
+ * @group Api\InspectionsController
+ */
 class InspectionsController extends Controller
 {
     
     public function lists(Request $request)
     {
         $out               = [];
-        $checklists        = $request->user()->checklists();
+        $checklists        = $request->user()->allChecklists();
         $out['checklists'] = $checklists->orderBy('name')->get();
         
         $checklist    = null;
@@ -27,7 +31,7 @@ class InspectionsController extends Controller
         if ($checklists->where('id',intval($request->input('id')))->count() > 0)
             $checklist = $checklists->where('id',intval($request->input('id')))->first();
         else
-            $checklist = $request->user()->checklists()->orderBy('created_at', 'desc')->first();
+            $checklist = $request->user()->allChecklists()->orderBy('created_at', 'desc')->first();
     
         if ($checklist && $checklist->categories()->count() > 0)
             $checklist->categories = $checklist->categories()->get()->toTree();
@@ -77,7 +81,8 @@ class InspectionsController extends Controller
             $hive         = $user->allHives(true)->find($request->input('hive_id'));
             $location     = $user->allLocations(true)->find($request->input('location_id'));
 
-            $data['created_at'] = $date;
+            $data['created_at']   = $date;
+            $data['checklist_id'] = $request->filled('checklist_id') ? $request->input('checklist_id') : null;
 
             if ($request->filled('reminder_date'))
             {
@@ -85,6 +90,7 @@ class InspectionsController extends Controller
                 $data['reminder_date'] = $reminder_moment->format('Y-m-d H:i:s');
             }
 
+            // select inspection if exists
             $inspection = null;
             if ($hive)
                 $inspection = $hive->inspections()->orderBy('created_at','desc')->where('created_at', $date)->first();
@@ -94,8 +100,8 @@ class InspectionsController extends Controller
                 $inspection = $user->inspections()->orderBy('created_at','desc')->where('created_at', $date)->first();
 
             // filter -1 values for impression and attention
-            $data['impression'] = $request->filled('impression') && $request->input('impression') > -1 ? $request->input('impression') : null;
-            $data['attention']  = $request->filled('attention')  && $request->input('attention')  > -1 ? $request->input('attention')  : null;
+            $data['impression']   = $request->filled('impression') && $request->input('impression') > -1 ? $request->input('impression') : null;
+            $data['attention']    = $request->filled('attention')  && $request->input('attention')  > -1 ? $request->input('attention')  : null;
 
             //die(print_r(['data'=>$data,'inspection'=>$inspection,'user'=>$user->inspections()->get()->toArray()]));
 
@@ -132,6 +138,17 @@ class InspectionsController extends Controller
                         'value'         => $value,
                     ];
                     InspectionItem::create($itemData);
+
+                    // add inspection link to Image
+                    if ($category->inputTypeType() == 'image')
+                    {
+                        $image = Image::where('thumb_url', $value)->first();
+                        if ($image)
+                        {
+                            $image->inspection_id = $inspection->id;
+                            $image->save();
+                        }
+                    }
                 }
             }
         }

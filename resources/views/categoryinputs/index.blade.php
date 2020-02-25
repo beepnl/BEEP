@@ -52,7 +52,7 @@
                     <tbody>
                     @foreach($categoryinputs as $item)
                         <tr>
-                            <td>{{ $loop->iteration or $item->id }}</td>
+                            <td>{{ $item->id }}</td>
                             <td>{{ $item->name }}</td><td>{{ $item->type }}</td><td>{{ $item->min }}</td><td>{{ $item->max }}</td><td>{{ $item->decimals }}</td><td>{{ $item->icon }}</td>
                             <td col-sm-1>
                                 <a href="{{ route('categoryinputs.show', $item->id) }}" title="{{ __('crud.show') }}"><button class="btn btn-default"><i class="fa fa-eye" aria-hidden="true"></i></button></a>

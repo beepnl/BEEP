@@ -1,0 +1,86 @@
+<section class="content-header">
+  <h1>
+    {{lang.Images}}
+	  <div class="pull-right">
+		<a ng-click="toggleEditMode()" style="color: #333;"><i class="fa fa-cog"></i></a>
+	  </div>
+  </h1>
+</section>
+
+<section class="content" >
+	
+	<div class="box" ng-if="images.length == 0">
+		<div class="box-header with-border">
+	      <h3 class="box-title">
+	      	{{lang.Images}}
+	      </h3>
+	    </div>
+
+	    <div class="box-body" ng-class="{'no-padding':mobile}" style="min-height: 300px;">
+	    	{{ lang.no_data }}
+	    </div>
+
+	    <div class="overlay" ng-if="loading">
+          <i class="fa fa-refresh fa-spin"></i>
+        </div>
+
+	</div>
+
+	<div class="box" ng-if="images.length > 0">
+	    <div class="box-header with-border">
+	      <h3 class="box-title">{{lang.Images}}</h3>
+
+
+
+	      <div class="box-tools pull-right">
+		      <span style="margin-right: 30px;">
+		      	<a class="btn btn-xs btn-{{size == 50 ? 'primary' : 'default'}}" style="width:30px;" ng-click="setSize(50)">S</a>
+		      	<a class="btn btn-xs btn-{{size == 100 ? 'primary' : 'default'}}" style="width:30px;" ng-click="setSize(100)">M</a>
+		      	<a class="btn btn-xs btn-{{size == 150 ? 'primary' : 'default'}}" style="width:30px;" ng-click="setSize(150)">L</a>
+		      	<a class="btn btn-xs btn-{{size == 200 ? 'primary' : 'default'}}" style="width:30px;" ng-click="setSize(200)">XL</a>
+		      </span>
+	      	<span ng-if="!mobile">{{lang.Filter_and_sort_on}}</span>
+
+	      	<!-- <a class="btn btn-xs btn-{{orderName == 'name' ? 'primary' : 'default'}}" ng-click="setOrder('name')" title="{{lang.Name}}">
+	      		<i class="fa fa-long-arrow-{{orderName == 'name' ? orderDirection ? 'up' : 'down' : 'down'}}"></i> 
+	      		{{ lang.Name }}
+	      	</a> -->
+
+	      <!-- 	<a class="btn btn-xs btn-{{orderName == 'size_kb' ? 'primary' : 'default'}}" ng-click="setOrder('size_kb')" title="{{lang.Name}}">
+	      		<i class="fa fa-long-arrow-{{orderName == 'size_kb' ? orderDirection ? 'up' : 'down' : 'down'}}"></i> 
+	      		{{ lang.Size }}
+	      	</a> -->
+
+	      	<a class="btn btn-xs btn-{{orderName == 'date' ? 'primary' : 'default'}}" ng-click="setOrder('date')" title="{{lang.reminder}}">
+	      		<i class="fa fa-long-arrow-{{orderName == 'date' ? orderDirection ? 'up' : 'down' : 'down'}}"></i> 
+	      		<i class="fa fa-calendar"></i>
+	      	</a>
+
+	      	<!-- <a class="btn btn-xs btn-{{orderName == 'hive_id' ? 'primary' : 'default'}}" ng-click="setOrder('hive_id')" title="{{lang.Location}} {{lang.name}}">
+	      		<i class="fa fa-long-arrow-{{orderName == 'hive_id' ? orderDirection ? 'up' : 'down' : 'down'}}"></i> 
+	      		<i class="fa fa-map-marker"></i>
+	      	</a> -->
+
+	      </div>
+	    </div>
+	    <!-- /.box-header -->
+	    <div class="box-body" ng-class="{'no-padding':mobile}">
+	      
+	        <div style="display: inline-block; position: relative;" ng-repeat="img in images | filter:{[orderName]:''} | orderBy:orderName:orderDirection:natSort">
+	        	<background url="{{img.thumb_url}}" class="image-thumb" ng-style="thumbStyle" ng-click="setActiveImage(img.thumb_url)" data-toggle="modal" data-target="#photo-modal"></background>
+	        	<a ng-if="editMode" class="delete-photo-btn" ng-click="deleteImage(img.thumb_url);"><i class="fa fa-times-circle fa-2x face"></i></a>
+	        	<p ng-style="labelStyle">{{ img.date | amUtc | amLocal | amDateFormat:'dd D MMM HH:mm' }}</p>
+	        </div>
+
+	    </div>
+	    <!-- /.box-body -->
+	    <!-- <div class="box-footer clearfix">
+	      <a href="javascript:void(0)" class="btn btn-sm btn-primary">{{lang.create_new}} {{lang.hive}}</a>
+	    </div> -->
+	    <!-- /.box-footer -->
+	    <div class="overlay" ng-if="loading">
+          <i class="fa fa-refresh fa-spin"></i>
+        </div>
+	 </div>
+
+</section>

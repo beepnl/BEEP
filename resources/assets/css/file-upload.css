@@ -1,0 +1,98 @@
+.drop-box {
+    background: #F8F8F8;
+    background-image: url("/img/icons/photo.svg");
+    background-position: 10px center;
+    background-repeat: no-repeat;
+    background-size: 30px;
+    border: 2px dashed #DDD;
+    border-radius: 6px;
+    width: 130px;
+    text-align: left;
+    padding: 5px;
+    padding-left: 50px;
+    line-height: 1em;
+}
+
+.drop-box.dragover {
+    border: 5px dashed #F8BA31;
+}
+
+.drop-box.dragover-err {
+    border: 5px dashed red;
+}
+
+/* for IE*/
+.js-fileapi-wrapper {
+    display: inline-block;
+    vertical-align: middle;
+}
+
+.thumb {
+    float: left;
+    width: 18px;
+    height: 18px;
+    padding-right: 10px;
+}
+
+form .thumb {
+    width: 24px;
+    height: 24px;
+    float: none;
+    position: relative;
+    top: 7px;
+}
+
+form .progress {
+    line-height: 15px;
+}
+
+:not(output):-moz-ui-invalid {
+    box-shadow: none;
+}
+
+.progress {
+    display: inline-block;
+    width: 170px;
+    border: 1px solid #333;
+}
+
+.progress div {
+    font-size: smaller;
+    text-align: center;
+    background: #F8BA31;
+    width: 0;
+}
+
+.preview {
+    clear: both;
+    position: relative;
+}
+
+.preview img, .preview audio, .preview video {
+    max-width: 200px;
+    max-height: 100px;
+}
+
+.preview img{
+    border-radius: 8px;
+    border: 1px solid black;
+}
+
+.image-thumb{
+    border-radius: 8px;
+    border: 1px solid #333;
+    cursor: zoom-in;
+}
+
+a.delete-photo-btn{
+    position: absolute; 
+    right: -10px; 
+    top: -10px; 
+    color: #D00220; 
+    background-color: white; 
+    border-radius: 50%; 
+    padding: 0px; 
+    width: 26px; 
+    height: 26px;
+    cursor: pointer;
+}

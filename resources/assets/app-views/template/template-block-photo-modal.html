@@ -1,0 +1,20 @@
+<div id="photo-modal" class="modal" tabindex="-1" role="dialog" aria-labelledby="photoModalLabel">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+      
+      <div class="modal-header" data-dismiss="modal">
+        <a class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true"><i class="fa fa-times"></i></span></a>
+        <h4 class="modal-title" id="photoModalLabel">{{ lang.Photo }}</h4>
+      </div>
+      
+      <div class="modal-body">
+        <div class="modal-image-holder" style="text-align: center; border: 1px solid #333; cursor: zoom-in" >
+            <img ng-if="activeImage" ng-src="{{ activeImage.image_url }}" width="{{100*activeImageZoom}}%" ng-click="activeImageZoom == 1 ? activeImageZoom=2 : activeImageZoom=1"> 
+        </div>
+        <p>{{ activeImage.date | amUtc | amLocal | amDateFormat:'dd D MMM HH:mm' }}</p>
+        <p ng-if="activeImage.hive">{{ lang.Hive }}: {{ activeImage.hive.name }}</p>
+      </div>
+
+    </div>
+  </div>
+</div>

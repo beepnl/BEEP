@@ -13,6 +13,10 @@ use Illuminate\Support\Facades\Cache;
 
 use Validator;
 
+/**
+ * @group Api\LocationController
+ * Manage Apiaries
+ */
 class LocationController extends Controller
 {
 
@@ -68,6 +72,8 @@ class LocationController extends Controller
         $category         = Category::findCategoryByParentAndName('location_type', $request->input('location_type','fixed'))->first();
         $location         = new Location([
                 'name'          =>$name, 
+                'roofed'        =>$request->input('roofed'),
+                'order'         =>$request->input('order', null),
                 'continent_id'  =>$continent->id, 
                 'category_id'   =>$category->id,
                 'coordinate_lat'=>$request->filled('lat') ? round($request->input('lat'),3) : null,
@@ -90,8 +96,13 @@ class LocationController extends Controller
         $broodLayerAmount = $request->input('brood_layers', 1);
         $honeyLayerAmount = $request->input('honey_layers', 1);
         $frameAmount      = $request->input('frames', 10);
+        $bb_width_cm      = $request->input('bb_width_cm', null); 
+        $bb_depth_cm      = $request->input('bb_depth_cm', null); 
+        $bb_height_cm     = $request->input('bb_height_cm', null); 
+        $fr_width_cm      = $request->input('fr_width_cm', null); 
+        $fr_height_cm     = $request->input('fr_height_cm', null);
 
-        $hives = $this->hiveFactory->createMultipleHives($user_id, $amount, $location, $prefix, $hive_type_id, $color, $broodLayerAmount, $honeyLayerAmount, $frameAmount, $count_start);
+        $hives = $this->hiveFactory->createMultipleHives($user_id, $amount, $location, $prefix, $hive_type_id, $color, $broodLayerAmount, $honeyLayerAmount, $frameAmount, $count_start, $bb_width_cm, $bb_depth_cm, $bb_height_cm, $fr_width_cm, $fr_height_cm);
         
         // print_r($location);
         // die();
@@ -124,6 +135,7 @@ class LocationController extends Controller
         $location                = $request->user()->locations()->findOrFail($id);
         // To do: edit continent and type
         $location->name          = $request->input('name'); 
+        $location->roofed        = $request->input('roofed');
         $location->coordinate_lat= $request->filled('lat') ? round($request->input('lat'),3) : null;
         $location->coordinate_lon= $request->filled('lon') ? round($request->input('lon'),3) : null;
         $location->city          = $request->input('city');

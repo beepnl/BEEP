@@ -15,6 +15,9 @@ use App\Mail\GroupAcceptation;
 use DB;
 use Validator;
 
+/**
+ * @group Api\GroupController
+ */
 class GroupController extends Controller
 {
 

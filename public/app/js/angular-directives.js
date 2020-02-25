@@ -151,11 +151,20 @@ app.directive('background', function ($q) {
         element.css({
           "background-image": "url('" + attrs.url + "')"
         });
-        element.addClass('animated fadeIn');
-        element.removeClass('loading');
-        setTimeout(function () {
-          element.removeClass('animated fadeIn');
-        }, 1000);
+        element.css({
+          "background-position": "center"
+        });
+        element.css({
+          "background-size": "cover"
+        });
+        element.css({
+          "background-repeat": "no-repeat"
+        }); // element.addClass('animated fadeIn');
+
+        element.removeClass('loading'); // setTimeout(function()
+        // {
+        //   element.removeClass('animated fadeIn');
+        // }, 1000);
       };
 
       scope.preload(attrs.url).then(function () {
@@ -391,11 +400,95 @@ app.directive('checklistFieldset', ['$rootScope', function ($rootScope) {
     link: function link(scope, iElement, iAttrs) {
       scope.lang = $rootScope.lang;
       scope.locale = $rootScope.locale;
+      scope.hive = $rootScope.hive;
+      scope.colony_size = 0;
+
+      scope.rangeStep = function (min, max, step) {
+        return rangeStep(min, max, step);
+      };
+
+      if (scope.cat.name == 'top_photo_analysis') {
+        //console.log('top_photo_analysis function defined');
+        scope.calculateTpaColonySize = function () {
+          var bees_per_cm2 = 1.25;
+          var colony_size = 0;
+          var pixelsTotal = 0;
+          var pixelsBees = 0;
+
+          for (var i = scope.cat.children.length - 1; i >= 0; i--) {
+            var child = scope.cat.children[i];
+            if (child.name == 'pixels_with_bees') pixelsBees = parseInt(child.value);else if (child.name == 'pixels_total_top') pixelsTotal = parseInt(child.value);
+          }
+
+          var hive = scope.hive;
+
+          if (pixelsTotal == 0 || typeof hive == 'undefined' || hive == null || isNaN(pixelsBees) || isNaN(pixelsTotal)) {
+            colony_size = 0;
+          } else {
+            // colony_size = ratio occupied * fully occupied frames * 2 * brood layers * bees per cm2
+            var ratio = pixelsTotal > pixelsBees ? pixelsBees / pixelsTotal : 1;
+            colony_size = Math.round(ratio * (parseFloat(hive.fr_width_cm) * parseFloat(hive.fr_height_cm) * hive.frames * 2 * hive.brood_layers * bees_per_cm2));
+          } //console.log(hive, colony_size, pixelsTotal, pixelsBees, parseFloat(hive.fr_width_cm), parseFloat(hive.fr_height_cm), hive.frames);
+          // put value into input element 'colony_size'
+
+
+          for (var i = scope.cat.children.length - 1; i >= 0; i--) {
+            var child = scope.cat.children[i];
+            if (child.name == 'colony_size') child.value = colony_size;
+          }
+
+          scope.colony_size = colony_size;
+          console.log('tpa_colony_size', colony_size);
+        };
+
+        $rootScope.$on('inspectionItemUpdated', scope.calculateTpaColonySize);
+      } else if (scope.cat.name == 'liebefelder_method') {
+        //console.log('top_photo_analysis function defined');
+        scope.calculateLieberfeldColonySize = function () {
+          var bees_per_cm2 = 1.25;
+          var colony_size = 0;
+          var bees_squares_25cm2 = 0;
+
+          for (var i = scope.cat.children.length - 1; i >= 0; i--) {
+            var child = scope.cat.children[i];
+
+            if (typeof child != 'undefined' && child != null && typeof child.name != 'undefined' && child.name.indexOf('frame') > -1) // frame_1_side_a
+              {
+                for (var j = child.children.length - 1; j >= 0; j--) {
+                  var child2 = child.children[j];
+
+                  if (typeof child2 != 'undefined' && child2 != null && typeof child2.name != 'undefined' && child2.name == 'bees_squares_25cm2' && parseFloat(child2.value) > 0) {
+                    bees_squares_25cm2 += parseFloat(child2.value);
+                  }
+                }
+              }
+          }
+
+          var hive = scope.hive;
+
+          if (typeof hive == 'undefined' || hive == null || isNaN(bees_squares_25cm2)) {
+            colony_size = 0;
+          } else {
+            colony_size = Math.round(bees_squares_25cm2 * 25 * bees_per_cm2);
+          } // put value into input element 'colony_size'
+
+
+          for (var i = scope.cat.children.length - 1; i >= 0; i--) {
+            var child = scope.cat.children[i];
+            if (child.name == 'colony_size') child.value = colony_size;
+          }
+
+          scope.colony_size = colony_size;
+          console.log('lieberfeld_colony_size', colony_size); //console.log(hive, scope.colony_size, pixelsTotal, pixelsBees, parseFloat(hive.fr_width_cm), parseFloat(hive.fr_height_cm), hive.frames);
+        };
+
+        $rootScope.$on('inspectionItemUpdated', scope.calculateLieberfeldColonySize);
+      }
     },
     templateUrl: '/app/views/forms/checklist_fieldset.html'
   };
 }]);
-app.directive('checklistInput', ['$rootScope', function ($rootScope) {
+app.directive('checklistInput', ['$rootScope', '$timeout', 'Upload', 'api', 'images', function ($rootScope, $timeout, Upload, api) {
   return {
     restrict: 'EA',
     scope: {
@@ -405,25 +498,77 @@ app.directive('checklistInput', ['$rootScope', function ($rootScope) {
     link: function link(scope, iElement, iAttrs) {
       scope.lang = $rootScope.lang;
       scope.locale = $rootScope.locale;
+      scope.hive = $rootScope.hive;
       scope.hives = $rootScope.hives;
+      scope.user = $rootScope.user;
       scope.locations = $rootScope.hives;
       scope.beeraces = $rootScope.beeraces;
       scope.hivetypes = $rootScope.hivetypes;
-      scope.$watch('item.value', function (oldValue, newValue) {
-        if (newValue != oldValue) {
-          //console.log(scope.item.input, scope.item.id, oldValue);
-          if (scope.item.input == 'list' && (oldValue === true || oldValue === false)) // boolean list
-            {// only carry out addRemoveFromList (from item html)
-            } else {
-            $rootScope.changeChecklistItem(scope.item.input, scope.item.id, oldValue, true);
-          }
+      scope.inspection = $rootScope.inspection;
+
+      scope.setActiveImage = function (imageUrl) {
+        $rootScope.setActiveImage(imageUrl);
+      };
+
+      scope.$watch('item.value', function (newValue, oldValue) {
+        if (scope.item.input == 'image') {
+          if (_typeof(newValue) == 'object' && newValue !== null) // new image
+            {
+              // value is filled
+              var file = newValue; //console.log('image', file);
+
+              if (!file.$error) {
+                Upload.upload({
+                  headers: {
+                    'Authorization': 'Bearer ' + api.getApiToken() + ''
+                  },
+                  url: API_URL + 'images',
+                  data: {
+                    user_id: scope.user.id,
+                    hive_id: scope.hive != null ? scope.hive.id : '',
+                    category_id: scope.item.id,
+                    inspection: scope.inspection != null ? scope.inspection.id : '',
+                    file: file
+                  }
+                }).then(function (resp) {
+                  $timeout(function () {
+                    if (typeof resp.data != 'undefined' && _typeof(resp.data.thumb_url)) $rootScope.changeChecklistItem(scope.item.input, scope.item.id, resp.data.thumb_url, true);
+                  });
+                }, function (resp) {
+                  console.error('Image upload error: ' + resp.status, resp.data);
+                }, function (evt) {
+                  var progressPercentage = parseInt(100.0 * evt.loaded / evt.total);
+                  scope.log = 'progress: ' + progressPercentage + '% ' + evt.config.data.file.name + '\n' + scope.log;
+                });
+              }
+            } else if (newValue == null && (_typeof(oldValue) == 'object' || oldValue !== null)) // newValue == null, image removed
+            {
+              // image is removed
+              //console.log('item.value change image', scope.item.input, scope.item.id, newValue);
+              $rootScope.changeChecklistItem(scope.item.input, scope.item.id, null, true); // also delete temporary image from there
+            } //console.log('item.value image', scope.item.input, scope.item.id, newValue);
+
+        } else {
+          if (oldValue != newValue) // update this item
+            {
+              //console.log('item.value change', scope.item.input, scope.item.id, newValue);
+              if (scope.item.input == 'list' && (newValue === true || newValue === false)) // boolean list
+                {// only carry out addRemoveFromList (from item html)
+                } else {
+                $rootScope.changeChecklistItem(scope.item.input, scope.item.id, newValue, true);
+              }
+            } // else
+          // {
+          //   console.log('item.value', scope.item.input, scope.item.id, newValue);
+          // }
+
         }
       });
 
       scope.addRemoveFromList = function (listItem) {
         var id = listItem.id;
-        var add = typeof listItem.value == 'undefined' ? true : listItem.value;
-        console.log('ar', scope.item.id, id, add, scope.item.value);
+        var add = typeof listItem.value == 'undefined' ? true : listItem.value; //console.log('ar', scope.item.id, id, add, scope.item.value);
+
         var selected_array = typeof scope.item.value != 'undefined' ? scope.item.value.split(',') : [];
         var i = selected_array.indexOf(id + '');
 
@@ -582,16 +727,16 @@ app.directive('checklistInput', ['$rootScope', function ($rootScope) {
         }
       };
     },
-    templateUrl: '/app/views/forms/checklist_input.html?v=1'
+    templateUrl: '/app/views/forms/checklist_input.html?v=3'
   };
 }]);
 app.directive('beepHive', ['$rootScope', function ($rootScope) {
   return {
     restrict: 'EA',
     template: // Desktop
-    '<div class="hive" ng-if="mobile == false && new == false">' + '<h4 class="title" ng-class="{\'hiveview\':hiveview}">{{hive.name}}</h4>' + '<p ng-if="hiveview" class="location notes">({{ hive.location }})</p>' + '<p ng-if="hive.reminder != null && hive.reminder != \'\'" class="notes reminder" title="{{ hive.reminder }}">{{hive.reminder}}</p>' + '<p ng-if="hive.reminder_date != null && hive.reminder_date != \'\'" class="notes reminder-date">{{hive.reminder_date | amDateFormat:\'dd D MMMM YYYY HH:mm\'}}</p>' + '<div class="info">' + '<a ng-if="hive.attention == 1" href="#!/hives/{{hive.id}}/inspections" class="attention-icon" title="{{lang.needs_attention}}">!</a>' + '<a ng-if="hive.queen.color != null && hive.queen.color != \'\'" href="#!/hives/{{hive.id}}/edit#queen" class="queen-icon" style="background-color: {{hive.queen.color}};" title="{{hive.queen.name}}"></a>' + '<a ng-if="hive.impression > 0" href="#!/hives/{{hive.id}}/inspections" class="impression-icon" ng-class="{\'frown\':hive.impression==1, \'meh\':hive.impression==2, \'smile\':hive.impression==3}">' + '<i class="fa fa-2x" ng-class="{\'fa-frown-o\':hive.impression==1, \'fa-meh-o\':hive.impression==2, \'fa-smile-o\':hive.impression==3}"></i>' + '</a>' + '<a ng-if="hive.sensors.length > 0" ng-repeat="sensorId in hive.sensors" href="#!/measurements/{{sensorId}}" class="sensor-icon" title="{{lang.sensor}} {{sensorId}}">' + '<i class="fa fa-feed"></i>' + '</a>' + '</div>' + '<a ng-if="hive.id" href="#!/hives/{{hive.id}}/edit" title="{{lang.edit}}">' + '<p class="lid" style="width: {{hive.width}}px;"></p>' + '<p ng-repeat="(key, layer) in hive.layers | orderBy : \'-type\' " class="layer" ng-class="layer.type" style="background-color: {{hive.color}}; width: {{hive.width}}px;">' + '<span ng-repeat="(key, frame) in layer.frames track by $index" class="frame" ng-class="layer.type"></span>' + '</p>' + '<p class="bottom" style="width: {{hive.width}}px;"></p>' + '</a>' + '<div class="btn-group" role="group" style="margin-bottom: 10px;">' + '<a href="#!/hives/{{hive.id}}/inspections" class="btn btn-default" title="{{lang.Inspections}}"><i class="fa fa-search"></i></a>' + '<a href="#!/hives/{{hive.id}}/inspect" class="btn btn-default" title="{{lang.inspect}}"><i class="fa fa-pencil"></i></a>' + '</div>' + '</div>' + //New
+    '<div class="hive" ng-if="mobile == false && new == false">' + '<h4 class="title" ng-class="{\'hiveview\':hiveview}">{{hive.name}}</h4>' + '<p ng-if="hiveview" class="location notes">({{ hive.location }})</p>' + '<p ng-if="hive.reminder != null && hive.reminder != \'\'" class="notes reminder" title="{{ hive.reminder }}">{{hive.reminder}}</p>' + '<p ng-if="hive.reminder_date != null && hive.reminder_date != \'\'" class="notes reminder-date">{{hive.reminder_date | amDateFormat:\'dd D MMMM YYYY HH:mm\'}}</p>' + '<div class="info">' + '<a ng-if="hive.attention == 1" href="#!/hives/{{hive.id}}/inspections" class="attention-icon" title="{{lang.needs_attention}}">!</a>' + '<a ng-if="hive.queen.color != null && hive.queen.color != \'\'" href="#!/hives/{{hive.id}}/edit#queen" class="queen-icon" style="background-color: {{hive.queen.color}};" title="{{hive.queen.name}}"></a>' + '<a ng-if="hive.impression > 0" href="#!/hives/{{hive.id}}/inspections" class="impression-icon" ng-class="{\'frown\':hive.impression==1, \'meh\':hive.impression==2, \'smile\':hive.impression==3}">' + '<i class="fa fa-2x" ng-class="{\'fa-frown-o\':hive.impression==1, \'fa-meh-o\':hive.impression==2, \'fa-smile-o\':hive.impression==3}"></i>' + '</a>' + '<a ng-if="hive.sensors.length > 0" ng-repeat="sensorId in hive.sensors" href="#!/measurements/{{sensorId}}" class="sensor-icon" title="{{lang.sensor}} {{sensorId}}">' + '<i class="fa fa-feed"></i>' + '</a>' + '</div>' + '<a ng-if="hive.id" href="#!/hives/{{hive.id}}/edit" title="{{lang.edit}}">' + '<p class="lid" style="width: {{hive.width}}px;"></p>' + '<p ng-repeat="(key, layer) in hive.layers | orderBy : \'-type\' " class="layer" ng-class="layer.type" style="background-color: {{hive.color}}; width: {{hive.width}}px;">' + '<span ng-repeat="(key, frame) in layer.frames track by $index" class="frame" ng-class="layer.type"></span>' + '</p>' + '<p class="bottom" style="width: {{hive.width}}px;"></p>' + '</a>' + '<div class="btn-group" role="group" style="margin-bottom: 10px;">' + '<a href="#!/hives/{{hive.id}}/inspections" class="btn btn-default" title="{{lang.Inspections}}"><i class="fa fa-search"></i></a>' + '<a href="#!/hives/{{hive.id}}/inspect" class="btn btn-default" title="{{lang.inspect}}"><i class="fa fa-edit"></i></a>' + '</div>' + '</div>' + //New
     '<div class="hive new" ng-if="mobile == false && new == true">' + '<h4 class="title">{{lang.New}} {{lang.hive}}</h4>' + '<a href="#!/hives/create?location_id={{loc.id}}">' + '<p class="lid"></p>' + '<p class="layer honey"></p>' + '<p class="layer brood"></p>' + '<p class="bottom"></p>' + '<a href="#!/hives/create?location_id={{loc.id}}">' + '<span class="icon fa-stack fa-lg">' + '<i class="fa fa-circle fa-stack-2x"></i>' + '<i class="fa fa-plus-circle fa-stack-2x fa-inverse"></i>' + '</span>' + '</a>' + '</a>' + '<div class="btn-group" role="group" style="margin-bottom: 10px;">' + '<a href="#!/hives/create?location_id={{loc.id}}" class="btn btn-default" title="{{lang.create_new}} {{lang.hive}}"><i class="fa fa-plus"></i></a>' + '</div>' + '</div>' + // Mobile
-    '<div ng-if="mobile == true && new == false" class="row">' + '<div class="col-xs-3">' + '<div class="hive-container">' + '<a href="#!/hives/{{hive.id}}/edit" title="{{lang.edit}}">' + '<div class="hive small">' + '<p class="lid" style="width: {{hive.width}}px;"></p>' + '<p ng-repeat="(key, layer) in hive.layers | orderBy : \'-type\' " class="layer" ng-class="layer.type" style="background-color: {{hive.color}}; width: {{hive.width}}px;"></p>' + '<p class="bottom" style="width: {{hive.width}}px;"></p>' + '</div>' + '</a>' + '</div>' + '</div>' + '<div class="col-xs-6 hive mobile">' + '<p class="hive-name-mobile">{{hive.name}}</p>' + '<p ng-if="hiveview" class="location notes">({{ hive.location }})</p>' + '<p ng-if="hive.reminder != null && hive.reminder != \'\'" class="reminder notes" title="{{ hive.reminder }}">{{hive.reminder}}</p>' + '<p ng-if="hive.reminder_date != null && hive.reminder_date != \'\'" class="notes reminder-date">{{hive.reminder_date | amDateFormat:\'dd D MMM YYYY HH:mm\'}}</p>' + '<div class="info mobile">' + '<a ng-if="hive.attention == 1" href="#!/hives/{{hive.id}}/inspections" class="attention-icon">!</a>' + '<a ng-if="hive.queen.color != null && hive.queen.color != \'\'" href="#!/hives/{{hive.id}}/edit#queen" class="queen-icon" style="background-color: {{hive.queen.color}};"></a>' + '<a ng-if="hive.impression > 0" href="#!/hives/{{hive.id}}/inspections" class="impression-icon" ng-class="{\'frown\':hive.impression==1, \'meh\':hive.impression==2, \'smile\':hive.impression==3}">' + '<i class="fa fa-2x" ng-class="{\'fa-frown-o\':hive.impression==1, \'fa-meh-o\':hive.impression==2, \'fa-smile-o\':hive.impression==3}"></i>' + '</a>' + '<a ng-if="hive.sensors.length > 0" ng-repeat="sensorId in hive.sensors" href="#!/measurements/{{sensorId}}" class="sensor-icon">' + '<i class="fa fa-feed"></i>' + '</a>' + '</div>' + '</div>' + '<div class="col-xs-2 text-right">' + '<a href="#!/hives/{{hive.id}}/inspections" class="btn btn-default" title="{{lang.Inspections}}"><i class="fa fa-search"></i></a>' + '<br><a href="#!/hives/{{hive.id}}/inspect" class="btn btn-default" title="{{lang.inspect}}"><i class="fa fa-pencil"></i></a>' + '</div>' + '</div>' + // New
+    '<div ng-if="mobile == true && new == false" class="row">' + '<div class="col-xs-3">' + '<div class="hive-container">' + '<a href="#!/hives/{{hive.id}}/edit" title="{{lang.edit}}">' + '<div class="hive small">' + '<p class="lid" style="width: {{hive.width}}px;"></p>' + '<p ng-repeat="(key, layer) in hive.layers | orderBy : \'-type\' " class="layer" ng-class="layer.type" style="background-color: {{hive.color}}; width: {{hive.width}}px;"></p>' + '<p class="bottom" style="width: {{hive.width}}px;"></p>' + '</div>' + '</a>' + '</div>' + '</div>' + '<div class="col-xs-6 hive mobile">' + '<p class="hive-name-mobile">{{hive.name}}</p>' + '<p ng-if="hiveview" class="location notes">({{ hive.location }})</p>' + '<p ng-if="hive.reminder != null && hive.reminder != \'\'" class="reminder notes" title="{{ hive.reminder }}">{{hive.reminder}}</p>' + '<p ng-if="hive.reminder_date != null && hive.reminder_date != \'\'" class="notes reminder-date">{{hive.reminder_date | amDateFormat:\'dd D MMM YYYY HH:mm\'}}</p>' + '<div class="info mobile">' + '<a ng-if="hive.attention == 1" href="#!/hives/{{hive.id}}/inspections" class="attention-icon">!</a>' + '<a ng-if="hive.queen.color != null && hive.queen.color != \'\'" href="#!/hives/{{hive.id}}/edit#queen" class="queen-icon" style="background-color: {{hive.queen.color}};"></a>' + '<a ng-if="hive.impression > 0" href="#!/hives/{{hive.id}}/inspections" class="impression-icon" ng-class="{\'frown\':hive.impression==1, \'meh\':hive.impression==2, \'smile\':hive.impression==3}">' + '<i class="fa fa-2x" ng-class="{\'fa-frown-o\':hive.impression==1, \'fa-meh-o\':hive.impression==2, \'fa-smile-o\':hive.impression==3}"></i>' + '</a>' + '<a ng-if="hive.sensors.length > 0" ng-repeat="sensorId in hive.sensors" href="#!/measurements/{{sensorId}}" class="sensor-icon">' + '<i class="fa fa-feed"></i>' + '</a>' + '</div>' + '</div>' + '<div class="col-xs-2 text-right">' + '<a href="#!/hives/{{hive.id}}/inspections" class="btn btn-default" title="{{lang.Inspections}}"><i class="fa fa-search"></i></a>' + '<br><a href="#!/hives/{{hive.id}}/inspect" class="btn btn-default" title="{{lang.inspect}}"><i class="fa fa-edit"></i></a>' + '</div>' + '</div>' + // New
     '<div ng-if="mobile == true && new == true" class="row">' + '<div class="col-xs-3"></div>' + '<div class="col-xs-6">' + '<p class="hive-name-mobile">{{lang.New}} {{lang.hive}}</p>' + '</div>' + '<div class="col-xs-2 text-right">' + '<a href="#!/hives/create?location_id={{loc.id}}" class="btn btn-default" title="{{lang.create_new}} {{lang.hive}}"><i class="fa fa-plus"></i></a>' + '</div>' + '</div>',
     scope: {
       hiveview: '=?',
@@ -668,7 +813,7 @@ app.directive('beepSensor', ['$rootScope', function ($rootScope) {
   return {
     restrict: 'EA',
     template: // Table row
-    '<td>' + '<span ng-bind="index+1" style="margin-right: 5px;"></span>' + '<a ng-click="show(index)" class="btn btn-default"><i class="fa fa-line-chart"></i></a>' + '</td>' + '<td>' + '<input class="form-control" ng-model="sensor.name" ng-disabled="sensor.delete">' + '</td>' + '<td>' + '<input class="form-control" ng-model="sensor.key" ng-disabled="sensor.delete">' + '</td>' + '<td>' + '<select ng-change="changetype(index, sensor.selected_type.name)" ng-model="sensor.selected_type" ng-options="item as item.trans[locale] for item in sensortypes | orderBy:transSort track by item.name" class="form-control" ng-disabled="sensor.delete">' + '<option value="">{{lang.Select}} {{lang.type}}...</option>' + '</select>' + '</td>' + '<td>' + '<p class="hive-name-mobile" ng-bind="sensor.hive.name"></p>' + '<p class="location notes" ng-bind="sensor.hive.location"></p>' + '</td>' + '<td>' + '<select ng-change="change(index, sensor.selected_hive_id)" ng-model="sensor.selected_hive_id" ng-options="item.id as item.name group by item.location for item in hives | orderBy:\'name\' track by item.id" class="form-control" ng-disabled="sensor.delete">' + '<option value="">{{lang.Select}} {{lang.hive}}...</option>' + '</select>' + '</td>' + '<td>' + '<a ng-click="delete(index)" class="btn" ng-class="{\'btn-danger\':sensor.delete, \'btn-warning\':!sensor.delete}" title="{{sensor.delete ? lang.Undelete : lang.Delete}}"><i class="fa fa-trash"></i></a>' + '</td>',
+    '<td>' + '<span ng-bind="index+1" style="margin-right: 10px;"></span>' + '<a ng-if="!edit" ng-click="show(index)" class="btn btn-default"><i class="fa fa-line-chart"></i></a>' + '</td>' + '<td>' + '<input ng-if="edit" class="form-control" ng-model="sensor.name" ng-disabled="sensor.delete">' + '<div style="display: block;" ng-if="!edit"><strong>{{sensor.name}}</strong></div>' + '<div style="display: block;" ng-if="!edit && sensor.selected_type.name != \'beep\'">DEV EUI: {{ sensor.key }}</div>' + '<div style="display: block;" ng-if="!edit && sensor.selected_type.name == \'beep\'">HW ID: {{ sensor.hardware_id }}</div>' + '<div style="display: block;" ng-if="!edit && sensor.selected_type.name == \'beep\'">FW v{{sensor.firmware_version}}</div>' + '</td>' + '<td ng-if="edit">' + '<input class="form-control" ng-model="sensor.key" ng-disabled="sensor.delete">' + '</td>' + '<td>' + '<select ng-if="edit" ng-change="changetype(index, sensor.selected_type.name)" ng-model="sensor.selected_type" ng-options="item as item.trans[locale] for item in sensortypes | orderBy:transSort track by item.name" class="form-control" ng-disabled="sensor.delete">' + '<option value="">{{lang.Select}} {{lang.type}}...</option>' + '</select>' + '<p ng-if="!edit && sensor.selected_type.name != \'beep\'">{{sensor.selected_type.name}}</p>' + '<img src="/img/icons/beep-base.png" style="height:60px;" ng-if="!edit && sensor.selected_type.name == \'beep\'" title="BEEP base - DEV EUI: {{ sensor.key }}, HW v{{sensor.hardware_version}}, Booted {{ sensor.boot_count != null ? sensor.boot_count : \'?\' }}x, BLE PIN: {{ sensor.ble_pin }}">' + '</td>' + '<td ng-if="!edit">' + '<div style="display: block; margin-right:10px;"><i class="fa fa-battery"></i> {{ sensor.battery_voltage != null ? sensor.battery_voltage + " V" : " ?"}}</div>' + '<div style="display: block; margin-right:10px;"><i class="fa fa-wifi"></i> {{ sensor.last_message_received != null ? sensor.last_message_received : " ?"}}</div>' + '<div style="display: block;"><i class="fa fa-refresh"></i> {{ sensor.measurement_transmission_ratio != null ? sensor.measurement_transmission_ratio < 2 ? sensor.measurement_interval_min+" min" : sensor.measurement_interval_min + " * " + sensor.measurement_transmission_ratio+" min" : " ?"}}</div>' + '</td>' + '<td>' + '<p class="hive-name-mobile" ng-bind="sensor.hive.name"></p>' + '<p class="location notes" ng-bind="sensor.hive.location"></p>' + '</td>' + '<td ng-if="edit">' + '<select ng-change="change(index, sensor.selected_hive_id)" ng-model="sensor.selected_hive_id" ng-options="item.id as item.name group by item.location for item in hives | orderBy:\'name\' track by item.id" class="form-control" ng-disabled="sensor.delete">' + '<option value="">{{lang.Select}} {{lang.hive}}...</option>' + '</select>' + '</td>' + '<td ng-if="edit">' + '<a ng-click="settings(index)" data-toggle="modal" data-target="#sensor-modal" class="btn btn-primary" title="{{lang.Sensor}} {{lang.settings}}"><i class="fa fa-cog"></i></a>' + '<a ng-click="delete(index)" class="btn pull-right" ng-class="{\'btn-warning\':sensor.delete, \'btn-danger\':!sensor.delete}" title="{{sensor.delete ? lang.Undelete : lang.Delete}}"><i class="fa fa-trash"></i></a>' + '</td>',
     scope: {
       hives: '=?',
       // show location name
@@ -676,8 +821,31 @@ app.directive('beepSensor', ['$rootScope', function ($rootScope) {
       sensor: '=?',
       change: '=?',
       changetype: '=?',
+      settings: '=?',
       "delete": '=?',
       show: '=?',
+      index: '=?',
+      edit: '=?'
+    },
+    link: function link(scope, element, attributes) {
+      scope.locale = $rootScope.locale;
+      scope.lang = $rootScope.lang;
+      scope.mobile = $rootScope.mobile;
+    }
+  };
+}]);
+app.directive('beepSensorDefinition', ['$rootScope', function ($rootScope) {
+  return {
+    restrict: 'EA',
+    template: // Table row
+    '<td>' + '<input class="form-control" ng-model="def.name" ng-disabled="def.delete">' + '</td>' + '<td>' + '<div ng-model="def.inside" readonly="false" yes="lang.yes" no="lang.no" yes-no-rating>' + '</td>' + '<td>' + '<input class="form-control" type="number" ng-model="def.offset" ng-disabled="def.delete">' + '</td>' + '<td>' + '<input class="form-control" type="number" ng-model="def.multiplier" ng-disabled="def.delete">' + '</td>' + '<td>' + '<select ng-change="changein(index, def.input_measurement)" ng-model="def.input_measurement" ng-options="item.id as item.abbreviation for item in meas | orderBy:\'abbreviation\' track by item.id" class="form-control" ng-disabled="def.delete">' + '<option value="">{{lang.Select}} {{lang.measurement}}...</option>' + '</select>' + '</td>' + '<td>' + '<select ng-change="changeout(index, def.output_measurement)" ng-model="def.output_measurement" ng-options="item.id as item.abbreviation for item in meas | orderBy:\'abbreviation\' track by item.id" class="form-control" ng-disabled="def.delete">' + '<option value="">{{lang.Select}} {{lang.measurement}}...</option>' + '</select>' + '</td>' + '<td>' + '<a ng-click="save(index)" class="btn" ng-class="{\'btn-danger\':def.delete, \'btn-primary\':!def.delete}" title="{{ def.delete ? lang.Delete : lang.save }}"><i class="fa fa-save"></i></a>' + '<a ng-click="delete(index)" class="btn pull-right" ng-class="{\'btn-warning\':def.delete, \'btn-danger\':!def.delete}" title="{{ def.delete ? lang.Undelete : lang.Delete }}"><i class="fa fa-trash"></i></a>' + '</td>',
+    scope: {
+      meas: '=?',
+      def: '=?',
+      changein: '=?',
+      changeout: '=?',
+      "delete": '=?',
+      save: '=?',
       index: '=?'
     },
     link: function link(scope, element, attributes) {

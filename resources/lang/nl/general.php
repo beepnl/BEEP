@@ -18,6 +18,10 @@ return [
     'sensors'       => 'sensoren',
     'Sensor'        => 'Sensor',
     'sensor'        => 'sensor',
+    'Devices'       => 'Devices',
+    'devices'       => 'devices',
+    'Device'        => 'Device',
+    'device'        => 'device',
     'Taxonomy'      => 'Data categorisatie',
     'taxonomy'      => 'data categorisatie',
     'Translations'  => 'Vertalingen',
@@ -80,4 +84,6 @@ return [
     'Measurements'  => 'Sensormetingen',
     'Error'         => 'Fout',
 
+    'SensorDefinitions' => 'Sensor definities',
+    'Images'        => 'Foto\'s',
 ];

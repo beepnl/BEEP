@@ -28,7 +28,7 @@
                     <form method="POST" action="{{ route('categoryinputs.store') }}" accept-charset="UTF-8" class="form-horizontal" enctype="multipart/form-data">
                         {{ csrf_field() }}
 
-                        @include ('categoryinputs.form')
+                        @include ('categoryinputs.form', ['submitButtonText' => 'Save'])
 
                     </form>
 

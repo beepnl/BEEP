@@ -1,4 +1,4 @@
-app.directive('checklistInput', ['$rootScope', function($rootScope) {
+app.directive('checklistInput', ['$rootScope', '$timeout', 'Upload', 'api', 'images', function($rootScope, $timeout, Upload, api) {
     return {
         restrict: 'EA',
         scope: {
@@ -10,24 +10,84 @@ app.directive('checklistInput', ['$rootScope', function($rootScope) {
         {
           scope.lang   = $rootScope.lang;
           scope.locale = $rootScope.locale;
+          scope.hive   = $rootScope.hive;
           scope.hives  = $rootScope.hives;
+          scope.user   = $rootScope.user;
           scope.locations = $rootScope.hives;
           scope.beeraces  = $rootScope.beeraces;
           scope.hivetypes = $rootScope.hivetypes;
+          scope.inspection= $rootScope.inspection;
 
-          scope.$watch('item.value', function(oldValue, newValue) 
+          scope.setActiveImage = function(imageUrl)
           {
-            if (newValue != oldValue) 
+            $rootScope.setActiveImage(imageUrl);
+          }
+
+          scope.$watch('item.value', function(newValue, oldValue) 
+          {
+            if (scope.item.input == 'image')
             {
-              //console.log(scope.item.input, scope.item.id, oldValue);
-              if (scope.item.input == 'list' && (oldValue === true || oldValue === false)) // boolean list
+              if (typeof newValue == 'object' && newValue !== null) // new image
               {
-                // only carry out addRemoveFromList (from item html)
+                // value is filled
+                var file = newValue;
+                //console.log('image', file);
+                if (!file.$error) {
+                  Upload.upload({
+                      headers : 
+                      {
+                          'Authorization'  : 'Bearer '+api.getApiToken()+'',
+                      },
+                      url: API_URL + 'images',
+                      data: {
+                        user_id:     scope.user.id,
+                        hive_id:     scope.hive != null ? scope.hive.id : '',
+                        category_id: scope.item.id,
+                        inspection:  scope.inspection != null ? scope.inspection.id : '',
+                        file:        file  
+                      }
+                  }).then(
+                  function (resp) {
+                      $timeout(function() {
+                          if (typeof resp.data != 'undefined' && typeof resp.data.thumb_url)
+                            $rootScope.changeChecklistItem(scope.item.input, scope.item.id, resp.data.thumb_url, true);
+                      });
+                  }, 
+                  function (resp) {
+                    console.error('Image upload error: ' + resp.status, resp.data);
+                  }
+                  ,function (evt) {
+                      var progressPercentage = parseInt(100.0 * evt.loaded / evt.total);
+                      scope.log = 'progress: ' + progressPercentage + '% ' + evt.config.data.file.name + '\n' + scope.log;
+                  });
+                }
               }
-              else
+              else if (newValue == null && (typeof oldValue == 'object' || oldValue !== null))// newValue == null, image removed
               {
-                $rootScope.changeChecklistItem(scope.item.input, scope.item.id, oldValue, true);
+                // image is removed
+                //console.log('item.value change image', scope.item.input, scope.item.id, newValue);
+                $rootScope.changeChecklistItem(scope.item.input, scope.item.id, null, true); // also delete temporary image from there
               }
+              //console.log('item.value image', scope.item.input, scope.item.id, newValue);
+            }
+            else
+            {
+              if (oldValue != newValue) // update this item
+              {
+                //console.log('item.value change', scope.item.input, scope.item.id, newValue);
+                if (scope.item.input == 'list' && (newValue === true || newValue === false)) // boolean list
+                {
+                  // only carry out addRemoveFromList (from item html)
+                }
+                else
+                {
+                  $rootScope.changeChecklistItem(scope.item.input, scope.item.id, newValue, true);
+                }
+              }
+              // else
+              // {
+              //   console.log('item.value', scope.item.input, scope.item.id, newValue);
+              // }
             }
           });
 
@@ -36,7 +96,7 @@ app.directive('checklistInput', ['$rootScope', function($rootScope) {
             var id = listItem.id;
             var add= typeof listItem.value == 'undefined' ? true : listItem.value;
 
-            console.log('ar', scope.item.id, id, add, scope.item.value);
+            //console.log('ar', scope.item.id, id, add, scope.item.value);
 
             var selected_array = typeof scope.item.value != 'undefined' ? scope.item.value.split(',') : [];
             var i = selected_array.indexOf(id+'');
@@ -202,7 +262,7 @@ app.directive('checklistInput', ['$rootScope', function($rootScope) {
             },
           };
         },
-        templateUrl: '/app/views/forms/checklist_input.html?v=1'
+        templateUrl: '/app/views/forms/checklist_input.html?v=3'
     };
 }]);
 

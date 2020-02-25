@@ -8,7 +8,7 @@
 		float: none;
 	}
 
-.measurement-form .tab-bar-wrapper{
+.tab-bar-wrapper{
 	display: flex;
     display: -webkit-flex;
 	flex-wrap: wrap;
@@ -18,22 +18,21 @@
 	justify-content:space-between;
 	-webkit-justify-content:space-between;
 	align-items:center;
-	margin: 10px;
-	margin-bottom: 10px;
+	margin-top: 10px;
 }
 
-	.measurement-form .tab-bar-wrapper .icn{
+	.tab-bar-wrapper .icn{
 		margin-bottom: 10px;
 	}
 
-	.measurement-form .tab-bar-wrapper menu.tab-bar{
+	.tab-bar-wrapper menu.tab-bar{
 		flex: 1 1 auto;
 		-webkit-flex: 1 1 auto;
 		width: 100%;
 	}
 
 
-	.measurement-form .tab-bar-wrapper menu.tab-bar{
+	.tab-bar-wrapper menu.tab-bar{
 	    -webkit-padding-start: 0px;
 	    overflow: hidden;
 	    margin: 0px;
@@ -46,7 +45,7 @@
 	    height: 50px;
 	}
 
-	.measurement-form .tab-bar-wrapper menu.tab-bar .btn {
+	.tab-bar-wrapper menu.tab-bar .btn {
 	    display: inline-block;
 	    width: 100%;
 	    margin: 0px;
@@ -64,7 +63,7 @@
 	    text-align: center;
 	    cursor: pointer;
 	}
-		.measurement-form .tab-bar-wrapper .date-nav {
+		.tab-bar-wrapper .date-nav {
 			width: 100%;
 			margin-top: 10px; 
 			margin-bottom: 10px;
@@ -79,7 +78,7 @@
 			align-items: center;
 		}
 
-			.measurement-form .tab-bar-wrapper .date-nav .hiddenDateSelector {
+			.tab-bar-wrapper .date-nav .hiddenDateSelector {
 				position: absolute; 
 				z-index: 0; 
 				color: #FFF; 
@@ -89,37 +88,37 @@
 				overflow: hidden;
 			}
 
-				.measurement-form .tab-bar-wrapper.mobile .date-nav .hiddenDateSelector {
+				.tab-bar-wrapper.mobile .date-nav .hiddenDateSelector {
 					width: 100px;
 				}
 
-			.measurement-form .tab-bar-wrapper .date-nav h3{
+			.tab-bar-wrapper .date-nav h3{
 				margin: 0;
 			}
-			.measurement-form .tab-bar-wrapper .date-nav .icn{
+			.tab-bar-wrapper .date-nav .icn{
 				margin-bottom: 0;
 			}
-			.measurement-form .tab-bar-wrapper.mobile{
-				margin: 5px;
+			.tab-bar-wrapper.mobile{
+				margin-bottom: -5px;
 			}
-				.measurement-form .tab-bar-wrapper.mobile menu.tab-bar .btn {
+				.tab-bar-wrapper.mobile menu.tab-bar .btn {
 					min-width: 28px;
 					font-size: 13px;
 				}
-				.measurement-form .tab-bar-wrapper.mobile .date-nav h3{
+				.tab-bar-wrapper.mobile .date-nav h3{
 					font-size: 15px;
 				}
 
-	.measurement-form .tab-bar-wrapper menu.tab-bar .btn:first-child {
+	.tab-bar-wrapper menu.tab-bar .btn:first-child {
 	    border-radius: 10px 0px 0px 10px;
 	}
 
-	.measurement-form .tab-bar-wrapper menu.tab-bar .btn:last-child {
+	.tab-bar-wrapper menu.tab-bar .btn:last-child {
 	    border-radius: 0px 10px 10px 0px;
 	    border-right: 1px solid #666;
 	}
 
-	.measurement-form .tab-bar-wrapper menu.tab-bar a.active{
+	.tab-bar-wrapper menu.tab-bar a.active{
 		background-color: #F8B133;
 		color: #FFF;
 	}
@@ -186,7 +185,7 @@
 		.hide-when-small{
 			display: none;	
 		}
-		.measurement-form .tab-bar-wrapper menu.tab-bar{
+		.tab-bar-wrapper menu.tab-bar{
 			max-width: 100%;
 		}
 		.chart-holder, .chart-holder.small{

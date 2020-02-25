@@ -11,33 +11,58 @@
 	<!-- <a href="#" ng-show="showMore" title="{{lang.next}}" ng-click="next($event)" class="btn menu-btn icon next">{{lang.next}}</a> -->
 	<br>
 	<div class="row">
-		<div class="col-xs-9">
+		<div class="col-xs-12 col-md-9">
 			<select ng-if="sensors.length > 0" ng-model="selectedSensor" ng-options="sensor as sensor.hive_name+' - '+sensor.name group by sensor.location_name for sensor in sensors | orderBy:'hive_name'" ng-change="loadData(selectedSensor.id)" class="form-control">
 				<option value="">{{ lang.Select }} {{ lang.hive }}...</option>
 			</select>
 		</div>
-		<div class="col-xs-3">
+		<div class="col-xs-12 col-md-3">
 			<a ng-if="selectedSensorId" class="btn btn-default btn-block" href="#!/settings"><i class="fa fa-cog"></i> <span ng-if="!mobile">{{lang.calibrate_weight}}</span></a>
 		</div>
+		<div class="col-xs-12">
+			<div class="tab-bar-wrapper" ng-class="{'mobile':mobile}">
+
+				<!-- <label>{{ lang.Select_sensor }}</label> -->
+
+				<menu class="tab-bar">
+					<a class="btn" ng-click="setPeriod(period)" ng-repeat="period in periods" ng-class="{active:period==activePeriod}">{{lang[period]}}</a>
+				</menu>
+				
+				<div class="date-nav">
+					<a class="icn prev" ng-click="setPeriodIndex(1)"></a>
+					<div>
+						<div class="hiddenDateSelector">
+							  <input data-field="date" type="text" readonly="true" ng-model="selectedDate" ng-change="selectDate(selectedDate)">
+						</div>
+						<h3>
+							{{chartTitle}}
+						</h3>
+					</div>
+					<a class="icn next" ng-click="setPeriodIndex(-1)" ng-class="{'disabled':periodIndex == 0}" ng-disabled="periodIndex == 0"></a>
+					<!-- <a class="icn next hide-when-small" ng-click="setPeriodIndex(-1)" ng-class="{'disabled':periodIndex == 0}" ng-disabled="periodIndex == 0"></a> -->
+				</div>
+
+			</div>
+		</div>
 	</div>
+
 </section>
 
 <section class="content">
 
 	<div ng-if="sensors.length > 0">
+
 		<div class="box" ng-if="lastSensorDate" >
-		    
 		    <div class="box-header with-border">
 		      <div class="box-tools">
 		        <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
 		        </button>
 		        <!--button type="button" class="btn btn-box-tool" data-widget="remove"><i class="fa fa-times"></i></button-->
 		      </div>
-		      <h3 class="box-title">{{lang.last_measurement}} {{selectedSensor.hive_name}} ({{selectedSensor.location_name}}) - {{selectedSensor.name}} @ {{ lastSensorDate }}</h3>
+		      <h3 class="box-title">{{ mobile ? lang.Last : lang.last_measurement}}: {{ lastSensorDate }}</h3>
 		    </div>
 		    
 		    <div class="box-body" ng-class="{'no-padding':mobile}">
-		    
 		    	<div class="gauge" ng-repeat="sensor in lastSensorValues | orderBy:getSensorName" ng-if="sensor.value > sensorMin[sensor.name]">
 				    <div class="gauge-icon {{mobile ? 'mobile' : ''}}">
 				    	<i class="icn {{sensor.name}}"></i>
@@ -58,8 +83,7 @@
 				    </ng-gauge>
 				</div>
 			</div>
-	       
-		</div>
+	    </div>
 
 		<div class="box">
 		    
@@ -69,44 +93,28 @@
 		        </button>
 		        <!--button type="button" class="btn btn-box-tool" data-widget="remove"><i class="fa fa-times"></i></button-->
 		      </div>
-		      <h3 class="box-title">{{lang.last_measurement}} {{selectedSensor.hive_name}} ({{selectedSensor.location_name}}) - {{selectedSensor.name}}</h3>
+		      <h3 class="box-title">{{ mobile ? lang.measurements : lang.measurements + ' ' + selectedSensor.hive_name + ' - ' + selectedSensor.name }}</h3>
 		    </div>
 		    
 		    <div class="box-body" ng-class="{'no-padding':mobile}">
 		    
 				<div ng-iscroll="measurement-form-wrapper" class="view-content" ng-class="{'loading':loading}">
 					<div id="measurement-form-wrapper" class="iscroll-wrapper" ng-iscroll>
-					    <form id="measurement-form" class="form measurement-form" ng-if="lastSensorDate" >
+					    <form id="measurement-form" class="form measurement-form" ng-if="showChart" >
 						
-					    	
-					    	<div class="tab-bar-wrapper" ng-class="{'mobile':mobile}">
-
-								<!-- <label>{{ lang.Select_sensor }}</label> -->
-
-								<menu class="tab-bar">
-									<a class="btn" ng-click="setPeriod(period)" ng-repeat="period in periods" ng-class="{active:period==activePeriod}">{{lang[period]}}</a>
-								</menu>
-								
-								<div class="date-nav">
-									<a class="icn prev" ng-click="setPeriodIndex(1)"></a>
-									<div>
-										<div class="hiddenDateSelector">
-											  <input data-field="date" type="text" readonly="true" ng-model="selectedDate" ng-change="selectDate(selectedDate)">
-										</div>
-										<h3>
-											{{chartTitle}}
-										</h3>
-									</div>
-									<a class="icn next" ng-click="setPeriodIndex(-1)" ng-class="{'disabled':periodIndex == 0}" ng-disabled="periodIndex == 0"></a>
-									<!-- <a class="icn next hide-when-small" ng-click="setPeriodIndex(-1)" ng-class="{'disabled':periodIndex == 0}" ng-disabled="periodIndex == 0"></a> -->
-								</div>
-
-							</div>
-
-
 					    	<div class="measurement-info-wrapper">
 
 					    		<div ng-if="showChart">
+					    			<div ng-if="measurementData.weather.data.length > 0">
+										<h3 ng-if="!mobile">{{lang.weather}} @ {{ lang.location }} {{selectedSensor.location_name}}</h3>
+										<!-- <div class="chart-holder chart-narrow" ng-repeat="(key, data) in measurementData.weather.data">
+											<canvas id="line1" class="chart chart-line" chart-data="data" chart-dataset-override="measurementData.weather.datasets[key]" chart-series="measurementData.weather.series[key]" chart-colors="measurementData.weather.colors" chart-options="chart.optionsSensors" ></canvas> 
+										</div> -->
+										<div class="chart-holder chart-narrow">
+											<canvas id="line0" class="chart chart-line" chart-data="measurementData.weather.data" chart-dataset-override="measurementData.weather.datasets" chart-series="measurementData.weather.series" chart-colors="measurementData.weather.colors" chart-options="chart.optionsWeather" ></canvas> 
+										</div>
+									</div>
+
 					    			<div ng-if="measurementData.sensors.data.length > 0">
 										<h3 ng-if="!mobile">{{lang.sensors}}</h3>
 										<div class="chart-holder chart-narrow" ng-repeat="(key, data) in measurementData.sensors.data">

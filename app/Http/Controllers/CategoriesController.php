@@ -1,6 +1,7 @@
 <?php
 namespace App\Http\Controllers;
 
+use DB;
 use Image;
 use Storage;
 use App\Category;
@@ -62,13 +63,163 @@ class CategoriesController extends Controller {
      * @return Response
      */
 	public function store(PostCategoryRequest $input)
-	{
-		$category = Category::create($input->all());
+    {
+        $category = null;
 
-        return redirect()
-            ->route('categories.show', [ $category->getKey() ])
-            ->with('success', 'Category successfully created!');
-	}
+        if ($input->filled('name'))
+        {
+            $category = $this->storeOne($input->all());
+            if ($category)
+                return redirect()->route('categories.show', [ $category->getKey() ])->with('success', 'Category successfully created!');
+        }
+        elseif ($input->filled('names')) 
+        {
+            $categories = $this->storeMultiple($input->all());
+            if ($categories)
+                return redirect()->route('categories.index')->with('success', 'Categories successfully created!');
+        }
+
+        return redirect()->route('categories.index')->with('error', 'Category has no name');
+    }
+
+    private function storeOne($new)
+    {
+        if (isset($new['name']) && $new['name'] != null)
+        {
+            $parent      = isset($inputArray['parent_id']) ? Category::find($inputArray['parent_id']) : null;
+            $name        = trim(str_replace(' ', '_', strtolower($new['name'])));
+            $new['name'] = $name;
+            Translation::createTranslations($name, 'category');
+            
+            return Category::create($new, $parent);
+        }
+        return null;
+    }
+
+    static function makeCatArray(&$item, $key)
+    {
+        $item['name'] = $key;
+        if ($item->hasChildren())
+            $item['children'] = $item->children();
+    }
+
+
+    private function storeMultiple($inputArray)
+    {
+        // assume text area with lines that are indented by one or multiple spaces in front
+        $parent               = isset($inputArray['parent_id']) ? Category::find($inputArray['parent_id']) : null;
+        $category_input_id    = isset($inputArray['category_input_id']) ? $inputArray['category_input_id'] : null;
+        $category_input       = isset($inputArray['category_input_id']) ? CategoryInput::find($inputArray['category_input_id']) : null;
+        $physical_quantity_id = isset($inputArray['physical_quantity_id']) ? $inputArray['physical_quantity_id'] : null;
+        $type                 = isset($inputArray['type']) ? $inputArray['type'] : array_keys(Category::$types)[0];
+
+        $child_category_input_id = null;
+
+        if ($category_input)
+        {
+            switch($category_input->type)
+            {
+                case "label":
+                case "boolean":
+                case "boolean_yes_red":
+                    $child_category_input_id = CategoryInput::getTypeId('number_positive');
+                    break;
+                case "list":
+                case "select":
+                    $child_category_input_id = CategoryInput::getTypeId('list_item');
+                    break;
+                default:
+                    $child_category_input_id = CategoryInput::getTypeId('text');
+
+            }
+        }
+        
+        $assoc_array = $this->parseLinesToArray($inputArray['names']);
+
+        if (count($assoc_array) > 0)
+        {
+            foreach ($assoc_array as $name => $children) 
+            {
+                $cat_array = [];
+                $cat_array['name'] = $name;
+                $cat_array['type'] = $type;
+                $cat_array['category_input_id'] = $category_input_id;
+                $cat_array['physical_quantity_id'] = $physical_quantity_id;
+                $temp_parent = Category::create($cat_array, $parent);
+                Translation::createTranslations($name, 'category');
+
+                if(count($children) > 0) // holds children
+                {
+                    foreach ($children as $child_name => $sub_children) 
+                    {
+                        $cat_array = [];
+                        $cat_array['name'] = $child_name;
+                        $cat_array['type'] = $type;
+                        $cat_array['category_input_id'] = $child_category_input_id;
+                        $cat_array['physical_quantity_id'] = $physical_quantity_id;
+                        $sub_temp_parent = Category::create($cat_array, $temp_parent);
+                        Translation::createTranslations($child_name, 'category');
+
+                        if(count($sub_children) > 0) // holds children
+                        {
+                            foreach ($sub_children as $sub_child_name => $sub_sub_children) 
+                            {
+                                $cat_array = [];
+                                $cat_array['name'] = $child_name;
+                                $cat_array['type'] = $type;
+                                $cat_array['category_input_id'] = $child_category_input_id;
+                                $cat_array['physical_quantity_id'] = $physical_quantity_id;
+                                Category::create($cat_array, $sub_temp_parent);
+                                Translation::createTranslations($sub_child_name, 'category');
+                            }
+                        }
+                    }
+                }
+            }
+            return $parent;
+        }
+        return null;
+    }
+
+    private function parseLinesToArray($list, $indentation = ' ') 
+    {
+      $result = array();
+      $path   = array();
+
+      foreach (explode("\r\n", $list) as $line) {
+        // get depth and label
+        $depth = 0;
+        while (substr($line, 0, strlen($indentation)) === $indentation) {
+          $depth += 1;
+          $line = substr($line, strlen($indentation));
+        }
+
+        // truncate path if needed
+        while ($depth < sizeof($path)) {
+          array_pop($path);
+        }
+
+        // keep label (at depth)
+        $name = str_replace(' ', '_', $line);
+        $path[$depth] = $name;
+
+        // traverse path and add label to result
+        $parent =& $result;
+        foreach ($path as $depth => $key) 
+        {
+          if (!isset($parent[$key])) 
+          {
+            $parent[$name] = array();
+            break;
+          }
+
+          $parent =& $parent[$key];
+        }
+      }
+
+      // return
+      return $result;
+    }
 
 	/**
 	 * Display the specified resource.
@@ -112,72 +263,106 @@ class CategoriesController extends Controller {
 	 * @param  int  $id
 	 * @return Response
 	 */
-	public function update(PostCategoryRequest $input, $id)
-	{
-		/** @var Category $category */
-		$category = Category::findOrFail($id);
+    public function update(PostCategoryRequest $input, $id)
+    {
+        $category = Category::findOrFail($id);
 
-		//die(print_r($input->all()));
-
-		$cat_input = 
-		[
-			'name' 		  			=> strtolower(trim($input->input('name'))),
-			'source' 	  			=> $input->input('source'),
-			'type' 					=> $input->input('type'),
-			'description' 			=> $input->input('description'),
-			'parent_id' 			=> $input->input('parent_id'),
-			'category_input_id' 	=> null,
-			'physical_quantity_id' 	=> null,
-            'old_id'                => null,
-			'required' 	            => false,
-		];
-		
-		// Handle the upload of an icon
-        if($input->hasFile('icon'))
+        if ($input->filled('name'))
         {
-            $icon = $input->file('icon');
-            $ext  = $icon->getClientOriginalExtension();
-            $img  = $icon;
-            if ($ext != 'svg')
+            $name = strtolower(trim($input->input('name')));
+            
+            $cat_input = 
+            [
+                'name'                  => $name,
+                'source'                => $input->input('source'),
+                'type'                  => $input->input('type'),
+                'description'           => $input->input('description'),
+                'parent_id'             => $input->input('parent_id', null),
+                'category_input_id'     => null,
+                'physical_quantity_id'  => null,
+                'old_id'                => null,
+                'required'              => false,
+            ];
+            
+            // Handle the upload of an icon
+            if($input->hasFile('icon'))
             {
-            	$file = str_random(40).'.'.$ext;
-            	Image::make($icon)->resize(100, 100)->save(public_path('/storage/icons/'.$file));
-            	$cat_input['icon'] = $file;
+                $icon = $input->file('icon');
+                $ext  = $icon->getClientOriginalExtension();
+                $img  = $icon;
+                if ($ext != 'svg')
+                {
+                    $file = str_random(40).'.'.$ext;
+                    Image::make($icon)->resize(100, 100)->save(public_path('/storage/icons/'.$file));
+                    $cat_input['icon'] = $file;
+                }
+                else
+                {   
+                    $cat_input['icon'] = $img->store('/', 'icons');
+                }
+            }
+            // Handle input_type
+            if ($input->has('category_input_id'))
+                $cat_input['category_input_id'] = $input->input('category_input_id');
+
+            // Handle physical_quantity
+            if ($input->has('physical_quantity_id'))
+                $cat_input['physical_quantity_id'] = $input->input('physical_quantity_id');
+
+            // Handle old_id
+            if ($input->has('old_id'))
+                $cat_input['old_id'] = $input->input('old_id');
+
+            $category->update($cat_input);
+
+            // Handle language
+            if ($input->has('language'))
+            {
+                foreach($input->input('language') as $abbr => $text) 
+                {
+                    Translation::saveText($abbr, $input->input('name'), 'category', $text);
+                }
             }
             else
-            {	
-            	$cat_input['icon'] = $img->store('/', 'icons');
+            {
+              Translation::createTranslations($name, 'category');
             }
+
+            return redirect()->route('categories.show', [ $id ])->with('success', 'Category successfully updated!');
         }
-        // Handle input_type
-        if ($input->has('category_input_id'))
-        	$cat_input['category_input_id'] = $input->input('category_input_id');
 
-        // Handle physical_quantity
-        if ($input->has('physical_quantity_id'))
-        	$cat_input['physical_quantity_id'] = $input->input('physical_quantity_id');
+        return redirect()->route('categories.show', [ $id ])->with('error', 'Category name is required!');
+    }
 
-        // Handle old_id
-        if ($input->has('old_id'))
-            $cat_input['old_id'] = $input->input('old_id');
+    public function duplicate($id)
+    {
+        $category = Category::findOrFail($id);
 
-        if ($input->has('required'))
-            $cat_input['required'] = $input->input('required');
+        $copy = $category->toArray();
+        unset($copy['id']);
+        $copy['parent_id'] = $category->parent_id;
+        $copy['category_input_id'] = $category->category_input_id;
+        $copy['physical_quantity_id'] = $category->physical_quantity_id;
+        $copy_cat = Category::create($copy);
 
-		$category->update($cat_input);
+        if ($category && $category->hasChildren())
+            $category->children()->each(
+                function($c) use ($copy_cat) 
+                {
+                    $copy = $c->toArray();
+                    unset($copy['id']);
+                    $copy['parent_id'] = $copy_cat->id;
+                    $copy['category_input_id'] = $c->category_input_id;
+                    $copy['physical_quantity_id'] = $c->physical_quantity_id;
+                    Category::create($copy);
+                }
+            );
 
-        // Handle language
-        if ($input->has('language'))
-        {
-        	foreach($input->input('language') as $abbr => $text) 
-        	{
-        		Translation::saveText($abbr, $input->input('name'), 'category', $text);
-        	}
-        }
-        //die(print_r($cat_input));
 
-		return redirect()->route('categories.show', [ $id ])->with('success', 'Category successfully updated!');
-	}
+
+        return redirect()->route('categories.index')->with('success', 'Category duplicated');
+    }
+
 
 	public function fix($id)
     {
@@ -324,7 +509,10 @@ class CategoriesController extends Controller {
             if ($category->useAmount() > 0)
                 return redirect()->route('categories.index')->with('error','Category is used '.$category->useAmount().'x, so cannot be deleted');
 
+            DB::statement('SET FOREIGN_KEY_CHECKS=0;');
+            //$category->children()->each(function($c){$c->delete();});
             $category->delete();
+            DB::statement('SET FOREIGN_KEY_CHECKS=1;');
             return redirect()->route('categories.index')->with('success','Category deleted successfully');
         }
 

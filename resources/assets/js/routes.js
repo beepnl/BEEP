@@ -88,14 +88,14 @@ app.config(['$routeProvider', '$locationProvider',  function($routeProvider)
   .when('/locations',
   {
       controller  : 'LocationsCtrl',
-      templateUrl : '/app/views/locations.html',
+      templateUrl : '/app/views/locations.html?v=1',
   })
 
    // hives
   .when('/hives/create',
   {
       controller  : 'HivesCtrl',
-      templateUrl : '/app/views/hive_edit.html?v=3',
+      templateUrl : '/app/views/hive_edit.html?v=6',
   })
   .when('/hives/:hiveId/inspect',
   {
@@ -115,7 +115,7 @@ app.config(['$routeProvider', '$locationProvider',  function($routeProvider)
   .when('/hives/:hiveId/edit',
   {
       controller  : 'HivesCtrl',
-      templateUrl : '/app/views/hive_edit.html?v=3',
+      templateUrl : '/app/views/hive_edit.html?v=6',
   })
   .when('/hives',
   {
@@ -178,11 +178,30 @@ app.config(['$routeProvider', '$locationProvider',  function($routeProvider)
         templateUrl:'/app/views/export.html'
  })
 
+
+  .when('/research', 
+  {
+        controller:'ResearchesCtrl',
+        templateUrl:'/app/views/research.html?v=1'
+  })
+
   .when('/support', 
- {
+  {
         controller:'SettingsCtrl',
         templateUrl:'/app/views/support.html'
- })
+  })
+
+  .when('/new', 
+  {
+        controller:'SettingsCtrl',
+        templateUrl:'/app/views/new.html'
+  })
+
+  .when('/images', 
+  {
+        controller:'ImagesCtrl',
+        templateUrl:'/app/views/images.html?v=1'
+  })
 
   // none...
   .otherwise(

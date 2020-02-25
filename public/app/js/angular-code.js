@@ -169,12 +169,7 @@ app.service('api', ['$http', '$rootScope', function ($http, $rootScope) {
       },
       data: data,
       url: url
-    }; // if (method == 'PUT' || 'PATCH')
-    // {
-    // 	req.headers['X-HTTP-Method-Override'] = method;
-    // 	req.method = 'POST';
-    // }
-    // check if it has to be authorized
+    }; // check if it has to be authorized
 
     if (type != 'authenticate' && type != 'register' && self.getApiToken() != null) {
       req.headers['Authorization'] = 'Bearer ' + self.getApiToken() + '';
@@ -186,6 +181,18 @@ app.service('api', ['$http', '$rootScope', function ($http, $rootScope) {
   };
 
   this.getApiRequest = function (type, request, params) {
+    if (_typeof(params) === 'object') {
+      var paramArray = [];
+
+      for (p in params) {
+        var name = p;
+        var value = params[p];
+        paramArray.push(name + '=' + value);
+      }
+
+      params = paramArray.join('&');
+    }
+
     var params = typeof params !== 'undefined' ? params + '&' : ''; // var count  = (typeof count !== 'undefined') ? count : 0;
     // var offset = (typeof offset !== 'undefined') ? offset : 0;
 
@@ -262,7 +269,9 @@ app.service('settings', ['$http', '$rootScope', 'api', function ($http, $rootSco
     this.hives = {};
     this.beeraces = [];
     this.hivetypes = [];
+    this.hivedimensions = {};
     this.sensortypes = [];
+    this.sensormeasurements = [];
     this.taxonomy = [];
     this.settings_array = [];
   };
@@ -283,11 +292,22 @@ app.service('settings', ['$http', '$rootScope', 'api', function ($http, $rootSco
     if (typeof data.beeraces != 'undefined') self.beeraces = data.beeraces;
     if (typeof data.sensortypes != 'undefined') self.sensortypes = data.sensortypes;
     if (typeof data.hivetypes != 'undefined') self.hivetypes = data.hivetypes;
+    if (typeof data.hivedimensions != 'undefined') self.hivedimensions = data.hivedimensions;
+    if (typeof data.sensormeasurements != 'undefined') self.sensormeasurements = data.sensormeasurements;
     if (typeof data.hivetypes != 'undefined' || typeof data.beeraces != 'undefined') $rootScope.$broadcast('taxonomyListsUpdated');
   };
 
   $rootScope.$on('taxonomyListsLoaded', self.taxonomyHandler);
   $rootScope.$on('taxonomyItemsLoaded', self.taxonomyHandler);
+
+  this.getSensormeasurementById = function (id) {
+    for (var i in this.sensormeasurements) {
+      var sm = this.sensormeasurements[i];
+      if (sm.id == id) return sm;
+    }
+
+    return null;
+  };
 
   this.saveSettings = function (settings) {
     if (typeof settings != 'undefined') {
@@ -671,11 +691,11 @@ app.service('measurements', ['$http', '$rootScope', '$interval', 'api', 'setting
     if (self.timeIndex > 0) self.stopLoadingMeasurements(); // no need to refresh, because no new values
   };
 
-  this.loadRemoteSensors = function () {
-    api.getApiRequest('sensors', 'sensors');
+  this.loadRemoteDevices = function () {
+    api.getApiRequest('devices', 'devices');
   };
 
-  this.handleSensors = function (e, result) {
+  this.handleDevices = function (e, result) {
     if (result.length > 0) {
       self.sensors = result;
       self.sensors_owned = [];
@@ -686,7 +706,7 @@ app.service('measurements', ['$http', '$rootScope', '$interval', 'api', 'setting
       }
 
       $rootScope.hasSensors = true;
-      $rootScope.$broadcast('sensorsUpdated');
+      $rootScope.$broadcast('devicesUpdated');
     } //console.log(self.sensors);
 
   };
@@ -721,7 +741,7 @@ app.service('measurements', ['$http', '$rootScope', '$interval', 'api', 'setting
     api.postApiRequest('weightOffset', 'sensors/offsetweight', data);
   };
 
-  this.sensorsError = function (e, error) {
+  this.devicesError = function (e, error) {
     console.log('measurements sensorsError ' + error.message + ' status: ' + error.status);
 
     if (error.status == 404) {
@@ -730,9 +750,9 @@ app.service('measurements', ['$http', '$rootScope', '$interval', 'api', 'setting
     }
   };
 
-  $rootScope.$on('sensorsLoaded', self.handleSensors);
-  $rootScope.$on('saveSensorsLoaded', self.handleSensors);
-  $rootScope.$on('sensorsError', self.sensorsError);
+  $rootScope.$on('devicesLoaded', self.handleDevices);
+  $rootScope.$on('saveDevicesLoaded', self.handleDevices);
+  $rootScope.$on('devicesError', self.devicesError);
   this.measurementLoadTimer = null;
 
   this.startLoadingMeasurements = function () {
@@ -752,7 +772,7 @@ app.service('measurements', ['$http', '$rootScope', '$interval', 'api', 'setting
   }; // Check if measurements are available
 
 
-  self.loadRemoteSensors();
+  self.loadRemoteDevices();
 }]);
 /*
  * BEEP app
@@ -773,6 +793,8 @@ app.service('inspections', ['$http', '$rootScope', 'api', 'settings', function (
     this.checklist = null; // use for filling
 
     this.checklistNull = null; // clean loaded checklist
+
+    this.lastUsedChecklistId = null; // last loaded checklist id
 
     this.saveObject = {}; // hold inspection items for saving
 
@@ -796,6 +818,7 @@ app.service('inspections', ['$http', '$rootScope', 'api', 'settings', function (
     'number_1_decimals': null,
     'number_2_decimals': null,
     'number_3_decimals': null,
+    'square_25cm2': null,
     'text': "",
     'select': "",
     'options': "",
@@ -810,7 +833,9 @@ app.service('inspections', ['$http', '$rootScope', 'api', 'settings', function (
     'score_quality': 0,
     'smileys_3': -1,
     'slider': 0,
-    'grade': 0
+    'grade': 0,
+    'file': null,
+    'image': null
   };
 
   this.newSaveObject = function (data) {
@@ -901,6 +926,15 @@ app.service('inspections', ['$http', '$rootScope', 'api', 'settings', function (
     return self.saveObject;
   };
 
+  this.geChecklistById = function (id) {
+    for (var i = 0; i < self.checklists.length; i++) {
+      var checklist = self.checklists[i];
+      if (checklist.id == id) return checklist;
+    }
+
+    return null;
+  };
+
   this.typeIsNonNumeric = function (type) {
     switch (type) {
       case 'default':
@@ -909,6 +943,8 @@ app.service('inspections', ['$http', '$rootScope', 'api', 'settings', function (
       case 'list':
       case 'select':
       case 'select_country':
+      case 'file':
+      case 'image':
         return true;
     }
 
@@ -916,6 +952,8 @@ app.service('inspections', ['$http', '$rootScope', 'api', 'settings', function (
   };
 
   this.parseTypeValueForChecklistInput = function (type, value) {
+    console.log(type, value);
+
     switch (type) {
       case 'list_item':
       case 'boolean':
@@ -942,6 +980,7 @@ app.service('inspections', ['$http', '$rootScope', 'api', 'settings', function (
       case 'number_1_decimals':
       case 'number_2_decimals':
       case 'number_3_decimals':
+      case 'square_25cm2':
         return parseFloat(value);
     }
 
@@ -951,7 +990,12 @@ app.service('inspections', ['$http', '$rootScope', 'api', 'settings', function (
 
   this.loadChecklist = function (id) {
     var suffix = '';
-    if (typeof id != 'undefined' && id != null) suffix = 'id=' + id;
+
+    if (typeof id != 'undefined' && id != null) {
+      suffix = 'id=' + id;
+      api.setLocalStoreValue('open_checklist_id', id);
+    }
+
     api.getApiRequest('checklist', 'inspections/lists', suffix);
   };
 
@@ -1043,18 +1087,24 @@ app.service('inspections', ['$http', '$rootScope', 'api', 'settings', function (
 
     if (typeof type != 'undefined' && typeof value != 'undefined' && (items == false && typeof self.saveObject[type] != 'undefined' || (self.typeIsNonNumeric(type) || isNaN(value) == false) && typeof self.STD_VALUES[type] != 'undefined')) {
       if (items == false) {
-        //console.log('Changed '+type+' = '+value, name);
+        console.log('Changed ' + type + ' = ' + value, name);
         self.saveObject[type] = value;
       } else {
         if (self.STD_VALUES[type] != value) {
-          //console.log('Added '+type+' ('+id+') = '+value, name);
+          console.log('Added ' + type + ' (' + id + ') = ' + value, name);
           self.saveObject.items[id] = value;
         } else if (typeof self.saveObject.items[id] != 'undefined') {
-          //console.log('Removed '+type+' ('+id+') = '+self.saveObject.items[id], name);
+          console.log('Removed ' + type + ' (' + id + ') = ' + self.saveObject.items[id], name);
+          if (type == 'image') api.deleteApiRequest('imageDeleteInspection', 'images', {
+            'image_url': self.saveObject.items[id]
+          });
           delete self.saveObject.items[id];
         }
       }
-    } else {//console.log('NOT createInspectionObject', type, id, value, name);
+
+      $rootScope.$broadcast('inspectionItemUpdated');
+    } else {
+      console.log('NOT createInspectionObject', type, id, value, name);
     }
   }; // Inspections
 
@@ -1257,6 +1307,118 @@ app.service('groups', ['$http', '$rootScope', 'api', 'hives', function ($http, $
  * BEEP app
  * Author: Iconize <pim@iconize.nl>
  *
+ * Meaurements model
+ */
+
+app.service('images', ['$http', '$rootScope', 'api', function ($http, $rootScope, api) {
+  var self = this;
+
+  this.reset = function () {
+    this.refreshCount = 0;
+    this.activeImage = null;
+    this.images = [];
+  };
+
+  this.getImageByThumbUrl = function (thumbUrl) {
+    for (var i = 0; i < self.images.length; i++) {
+      var image = self.images[i];
+      if (image.thumb_url == thumbUrl) return image;
+    }
+
+    return null;
+  };
+
+  this.getImageByImageUrl = function (imageUrl) {
+    for (var i = 0; i < self.images.length; i++) {
+      var image = self.images[i];
+      if (image.image_url == imageUrl) return image;
+    }
+
+    return null;
+  };
+
+  this.setActiveImage = function (image) {
+    self.activeImage = image;
+    $rootScope.activeImage = image;
+  };
+
+  this.setActiveImageByUrl = function (imageUrl) // can be thumb. image, or blob
+  {
+    console.log(_typeof(imageUrl), imageUrl);
+    var image = {
+      'image_url': null,
+      'thumb_url': null
+    };
+
+    if (_typeof(imageUrl) == 'object') // load local image
+      {
+        image.image_url = imageUrl.$ngfBlobUrl;
+        var d = imageUrl.lastModifiedDate;
+        image.date = d.getFullYear() + '-' + d.getMonth() + '-' + d.getDate() + ' ' + d.getHours() + ':' + d.getMinutes() + ':' + d.getSeconds();
+      } else if (typeof imageUrl == 'string' && imageUrl.indexOf('/images/') > -1) {
+      image = self.getImageByImageUrl(imageUrl);
+    } else {
+      image = self.getImageByThumbUrl(imageUrl);
+    }
+
+    self.setActiveImage(image);
+  };
+
+  this.deleteImageByUrl = function (image) // can be thumb. image, or blob
+  {
+    var imageUrl = image;
+
+    if (_typeof(imageUrl) == 'object') // load local image
+      {
+        imageUrl = imageUrl.$ngfBlobUrl;
+      }
+
+    api.deleteApiRequest('imageDelete', 'images', {
+      'image_url': imageUrl
+    });
+  }; // Load images
+
+
+  this.loadRemoteImages = function () {
+    api.getApiRequest('images', 'images');
+  };
+
+  this.imagesHandler = function (e, data) {
+    // get the result
+    var result = data;
+    if (typeof result != 'undefined' && result != null && result.length > 0) self.images = result; // for (var i = 0; i < self.images.length; i++) 
+    // {
+    // 	var image = self.images[i];
+    // }
+
+    self.refresh();
+  };
+
+  this.imagesError = function (e, error) {
+    console.log('images error ' + error.message + ' status: ' + error.status);
+  };
+
+  $rootScope.$on('imageDeleteLoaded', self.loadRemoteImages);
+  $rootScope.$on('imagesLoaded', self.imagesHandler);
+  $rootScope.$on('imagesError', self.imagesError);
+
+  this.refresh = function () {
+    // 
+    self.setActiveImage(null); //update refresh count
+
+    self.refreshCount++; // announce the update
+
+    $rootScope.$broadcast('imagesUpdated');
+  };
+
+  self.reset();
+  $rootScope.$on('reset', self.reset);
+  self.loadRemoteImages();
+}]);
+/*
+ * BEEP app
+ * Author: Iconize <pim@iconize.nl>
+ *
  * Load controller
  */
 
@@ -1348,8 +1510,8 @@ app.controller('UserCtrl', function ($scope, $rootScope, $window, $location, $ro
     }
 
     if ($routeParams.email != undefined && $routeParams.email != '') {
-      $scope.fields.login.email = $routeParams.email;
-      $scope.fields.register.email = $routeParams.email;
+      $scope.fields.login.email = $routeParams.email.replace(' ', '+');
+      $scope.fields.register.email = $routeParams.email.replace(' ', '+');
     }
   };
 
@@ -1595,11 +1757,11 @@ app.controller('SettingsCtrl', function ($scope, $rootScope, $window, $timeout, 
     return a.value != 0 && a.name != 'id';
   };
 
-  $scope.updateSensors = function () {
+  $scope.updateDevices = function () {
     $scope.sensors = measurements.sensors;
   };
 
-  $scope.sensorsUpdatedHandler = $rootScope.$on('sensorsUpdated', $scope.updateSensors);
+  $scope.devicesUpdatedHandler = $rootScope.$on('devicesUpdated', $scope.updateDevices);
 
   $scope.updateWeightSensors = function () {
     $scope.weightSensors = convertOjectToNameArray(measurements.weightSensors);
@@ -1725,7 +1887,7 @@ app.controller('SettingsCtrl', function ($scope, $rootScope, $window, $timeout, 
   $scope.removeListeners = function () {
     $scope.settingsSavedHandler();
     $scope.settingsErrorHandler();
-    $scope.sensorsUpdatedHandler();
+    $scope.devicesUpdatedHandler();
     $scope.lastSensorValuesUpdatedHandler();
     $scope.calibrateWeightHandler();
     $scope.weightSensorsUpdatedHandler();
@@ -1759,14 +1921,19 @@ app.controller('LocationsCtrl', function ($scope, $rootScope, $window, $location
     "honey_layers": "1",
     "frames": "10",
     "offset": "1",
-    "prefix": "Kast",
+    "prefix": $rootScope.lang.Hive_short,
     "country_code": "nl",
     "city": "",
     "postal_code": "",
     "street": "",
     "street_no": "",
     "lat": 52,
-    "lon": 5
+    "lon": 5,
+    "bb_width_cm": null,
+    "bb_depth_cm": null,
+    "bb_height_cm": null,
+    "fr_width_cm": null,
+    "fr_height_cm": null
   };
   $scope.types = "['address']";
   $scope.mybounds = {
@@ -1775,6 +1942,29 @@ app.controller('LocationsCtrl', function ($scope, $rootScope, $window, $location
       lng: $scope.hive.lon
     },
     radius: 200000
+  }; // tabclasses for location create wizard
+
+  $scope.tabClasses = ["active", "", "", "", ""];
+
+  function initTabs() {
+    $scope.tabClasses = ["", "", "", "", ""];
+  }
+
+  $scope.getTabClass = function (tabNum) {
+    return $scope.tabClasses[tabNum];
+  };
+
+  $scope.getTabPaneClass = function (tabNum) {
+    return "tab-pane " + $scope.tabClasses[tabNum];
+  };
+
+  $scope.setActiveTab = function (tabNum) {
+    initTabs();
+    $scope.tabClasses[tabNum] = "active";
+  };
+
+  $scope.rangeStep = function (min, max, step) {
+    return rangeStep(min, max, step);
   };
 
   $scope.init = function () {
@@ -1797,6 +1987,11 @@ app.controller('LocationsCtrl', function ($scope, $rootScope, $window, $location
         if ($routeParams.locationId != undefined) {
           $scope.locationsUpdate();
         }
+
+        if ($location.path() == 'locations/create') {
+          initTabs();
+          $scope.setActiveTab(0);
+        }
       } else {
         hives.loadRemoteLocations();
       }
@@ -1807,9 +2002,16 @@ app.controller('LocationsCtrl', function ($scope, $rootScope, $window, $location
     hives.toggle_open_loc(loc.id);
   };
 
-  $scope.setHiveType = function (id) {
-    console.log(id);
-    $scope.hive.hive_type_id = id;
+  $scope.selectHiveType = function (item) {
+    $scope.hive.hive_type_id = item.id;
+
+    if (settings.hivedimensions && typeof settings.hivedimensions[item.name] != 'undefined') {
+      $scope.hive.bb_width_cm = settings.hivedimensions[item.name].bb_width_cm;
+      $scope.hive.bb_depth_cm = settings.hivedimensions[item.name].bb_depth_cm;
+      $scope.hive.bb_height_cm = settings.hivedimensions[item.name].bb_height_cm;
+      $scope.hive.fr_width_cm = settings.hivedimensions[item.name].fr_width_cm;
+      $scope.hive.fr_height_cm = settings.hivedimensions[item.name].fr_height_cm;
+    }
   };
 
   $scope.updateTaxonomy = function () {
@@ -2145,6 +2347,14 @@ app.controller('HivesCtrl', function ($scope, $rootScope, $window, $location, $f
 
   $scope.selectHiveType = function (item) {
     $scope.hive.hive_type_id = item.id;
+
+    if (settings.hivedimensions && typeof settings.hivedimensions[item.name] != 'undefined') {
+      $scope.hive.bb_width_cm = settings.hivedimensions[item.name].bb_width_cm;
+      $scope.hive.bb_depth_cm = settings.hivedimensions[item.name].bb_depth_cm;
+      $scope.hive.bb_height_cm = settings.hivedimensions[item.name].bb_height_cm;
+      $scope.hive.fr_width_cm = settings.hivedimensions[item.name].fr_width_cm;
+      $scope.hive.fr_height_cm = settings.hivedimensions[item.name].fr_height_cm;
+    }
   };
 
   $scope.selectBeeRace = function (item) {
@@ -2514,37 +2724,27 @@ app.controller('InspectionCreateCtrl', function ($scope, $rootScope, $window, $l
   $scope.hive = null;
   $scope.hives = null;
   $scope.location = null;
-  $scope.locations = null;
-  $scope.beeraces = null;
-  $scope.hivetypes = null;
   $scope.langScript = $rootScope.lang.pick_a_date_lang_file;
 
   $scope.init = function () {
     if (api.getApiToken() == null) {
       $location.path('/login');
     } else {
-      // console.log('checklist', inspections.checklist);
-      // console.log('checklists', inspections.checklists);
       $scope.setDateLanguage();
       $rootScope.beeraces = settings.beeraces;
       $rootScope.hivetypes = settings.hivetypes;
       $rootScope.hives = hives.hives;
       $rootScope.locations = hives.locations;
+      $scope.showMore = hives.hives.length > 1 ? true : false;
       $scope.hive = hives.getHiveById($routeParams.hiveId);
       if ($scope.hive == null) $scope.hive = groups.getHiveById($routeParams.hiveId);
-      $scope.inspection = inspections.newSaveObject();
-      $scope.checklistsUpdated();
-      $scope.checklist = inspections.checklist;
-      $scope.updateLists(false);
-      $scope.showMore = hives.hives.length > 1 ? true : false;
+      $rootScope.hive = $scope.hive;
+      $scope.inspection = inspections.newSaveObject(); // $scope.checklistsUpdated();
 
-      if ($routeParams.inspectionId) {
-        $scope.inspection_id = $routeParams.inspectionId;
-        inspections.loadRemoteInspection($routeParams.inspectionId);
-      } //console.log('init-inspection', $scope.inspection);
-
+      inspections.getChecklists(); //console.log('init-inspection', $scope.inspection);
     }
-  };
+  }; // Datepicker
+
 
   $scope.setDateLanguage = function () {
     $("#dtBox").DateTimePicker({
@@ -2589,6 +2789,7 @@ app.controller('InspectionCreateCtrl', function ($scope, $rootScope, $window, $l
     data.notes = $scope.inspection.notes;
     data.reminder_date = $scope.inspection.reminder_date;
     data.reminder = $scope.inspection.reminder;
+    data.checklist_id = $scope.checklist_id;
     data.hive_id = $routeParams.hiveId;
     console.log("saveInspection", data);
 
@@ -2641,11 +2842,12 @@ app.controller('InspectionCreateCtrl', function ($scope, $rootScope, $window, $l
 
   $scope.updateLists = function () {
     var force = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : false;
-    var id = $scope.checklist ? $scope.checklist.id : null;
+    var lastUsedChecklistId = api.getLocalStoreValue('open_checklist_id');
+    var currentChecklistId = $scope.checklist ? $scope.checklist.id : lastUsedChecklistId;
 
     if (inspections.checklist == null || force) {
       $scope.setDateLanguage();
-      $scope.selectChecklist(id, force); //console.log('selected checklist id NULL', id, force);
+      $scope.selectChecklist(currentChecklistId, force); //console.log('selected checklist id NULL', id, force);
     } else {
       //console.log('selected checklist id NOT NULL', id, force);
       $scope.checklistUpdated(null, null);
@@ -2670,6 +2872,13 @@ app.controller('InspectionCreateCtrl', function ($scope, $rootScope, $window, $l
 
   $scope.checklistsUpdated = function (e, type) {
     $scope.checklists = inspections.checklists;
+    $scope.checklist = inspections.checklist;
+    $scope.updateLists(false);
+
+    if ($routeParams.inspectionId) {
+      $scope.inspection_id = $routeParams.inspectionId;
+      inspections.loadRemoteInspection($routeParams.inspectionId);
+    }
   };
 
   $scope.checklistsHandler = $rootScope.$on('checklistsUpdated', $scope.checklistsUpdated);
@@ -2688,6 +2897,7 @@ app.controller('InspectionCreateCtrl', function ($scope, $rootScope, $window, $l
 
   $scope.inspectionUpdate = function (e, data) {
     $scope.inspection = inspections.newSaveObject(data);
+    $rootScope.inspection = $scope.inspection; // for beep-checklist-input.js directive
   };
 
   $scope.inspectionHandler = $rootScope.$on('inspectionUpdated', $scope.inspectionUpdate);
@@ -2709,6 +2919,7 @@ app.controller('InspectionCreateCtrl', function ($scope, $rootScope, $window, $l
       }
     }
 
+    $rootScope.hive = $scope.hive;
     $location.path('/hives/' + $scope.hive.id + '/inspect'); //inspections.loadRemoteInspections($scope.hive.id);
   };
 
@@ -3245,7 +3456,7 @@ app.controller('MeasurementsCtrl', function ($scope, $rootScope, $timeout, $inte
     labels: {
       usePointStyle: true,
       fontSize: $rootScope.mobile ? $scope.fontSizeMob : $scope.fontSize,
-      boxWidth: $rootScope.mobile ? $scope.fontSizeMob : $scope.fontSize + 2,
+      boxWidth: $rootScope.mobile ? $scope.fontSizeMob - 2 : $scope.fontSize - 5,
       padding: $rootScope.mobile ? 6 : 10,
       fullWidth: $rootScope.mobile ? false : true // generateLabels: function(chart) 
       // {
@@ -3393,6 +3604,7 @@ app.controller('MeasurementsCtrl', function ($scope, $rootScope, $timeout, $inte
 
     }
   };
+  $scope.chart.optionsWeather = angular.copy($scope.chart.optionsSensors);
   $scope.chart.optionsSound = angular.copy($scope.chart.optionsSensors);
   $scope.chart.optionsDebug = angular.copy($scope.chart.optionsSensors);
   $scope.chart.optionsActuators.legend.position = 'bottom';
@@ -3490,7 +3702,7 @@ app.controller('MeasurementsCtrl', function ($scope, $rootScope, $timeout, $inte
     }
   };
 
-  $scope.sensorHandler = $rootScope.$on('sensorsUpdated', $scope.updateSensors);
+  $scope.sensorHandler = $rootScope.$on('devicesUpdated', $scope.updateSensors);
 
   $scope.loadData = function (id) {
     //console.log('sensors:', $scope.sensors);
@@ -3576,18 +3788,22 @@ app.controller('MeasurementsCtrl', function ($scope, $rootScope, $timeout, $inte
       if ($scope.measurementData != null) {
         //console.log($scope.measurementData);
         // Set axes
+        $scope.chart.optionsWeather.scales.yAxes = typeof $scope.measurementData.weather.yAxes != 'undefined' ? $scope.measurementData.weather.yAxes : [];
         $scope.chart.optionsSensors.scales.yAxes = typeof $scope.measurementData.sensors.yAxes != 'undefined' ? $scope.measurementData.sensors.yAxes : [];
         $scope.chart.optionsSound.scales.yAxes = typeof $scope.measurementData.sound.yAxes != 'undefined' ? $scope.measurementData.sound.yAxes : [];
         $scope.chart.optionsDebug.scales.yAxes = typeof $scope.measurementData.debug.yAxes != 'undefined' ? $scope.measurementData.debug.yAxes : [];
         $scope.chart.optionsActuators.scales.yAxes = typeof $scope.measurementData.actuators.yAxes != 'undefined' ? $scope.measurementData.actuators.yAxes : [];
+        $scope.chart.optionsWeather.scales.xAxes[0].time.tooltipFormat = tooltipTimeFormat;
         $scope.chart.optionsSensors.scales.xAxes[0].time.tooltipFormat = tooltipTimeFormat;
         $scope.chart.optionsSound.scales.xAxes[0].time.tooltipFormat = tooltipTimeFormat;
         $scope.chart.optionsDebug.scales.xAxes[0].time.tooltipFormat = tooltipTimeFormat;
         $scope.chart.optionsActuators.scales.xAxes[0].time.tooltipFormat = tooltipTimeFormat; //$scope.chart.optionsSensors.scales.xAxes[0].time.unit   = $scope.activeUnit;
 
+        $scope.chart.optionsWeather.scales.xAxes[0].ticks.min = $scope.startTime;
         $scope.chart.optionsSensors.scales.xAxes[0].ticks.min = $scope.startTime;
         $scope.chart.optionsSound.scales.xAxes[0].ticks.min = $scope.startTime;
         $scope.chart.optionsDebug.scales.xAxes[0].ticks.min = $scope.startTime;
+        $scope.chart.optionsWeather.scales.xAxes[0].ticks.max = $scope.endTime;
         $scope.chart.optionsSensors.scales.xAxes[0].ticks.max = $scope.endTime;
         $scope.chart.optionsSound.scales.xAxes[0].ticks.max = $scope.endTime;
         $scope.chart.optionsDebug.scales.xAxes[0].ticks.max = $scope.endTime; //$scope.chart.optionsActuators.scales.xAxes[0].time.unit = $scope.activeUnit;
@@ -3648,11 +3864,24 @@ app.controller('MeasurementsCtrl', function ($scope, $rootScope, $timeout, $inte
  * User controller
  */
 
-app.controller('ExportCtrl', function ($scope, $rootScope, $window, $location, $routeParams, api) {
+app.controller('ExportCtrl', function ($scope, $rootScope, $window, $location, $routeParams, api, measurements, moment) {
   // set the title
   $rootScope.title = $rootScope.lang.Data_export;
   $scope.message = null;
   $scope.error = null;
+  $scope.error_msg = null;
+  $scope.timeZone = 'Europe/Amsterdam';
+  $scope.startDate = null;
+  $scope.endDate = null;
+  $scope.fileName = null;
+  $scope.separator = ';';
+  $scope.dataAvailable = false;
+  $scope.devices = [];
+  $scope.selectedDevice = null;
+  $scope.selectedDeviceId = null;
+  $scope.measurementTypes = [];
+  $scope.selectedMeasurementTypes = [];
+  $scope.selectedMeasurementNames = [];
 
   $scope.init = function () {
     // Check locale
@@ -3660,11 +3889,103 @@ app.controller('ExportCtrl', function ($scope, $rootScope, $window, $location, $
       $rootScope.switchLocale($routeParams.language);
       $location.search('language', null);
     }
+
+    $scope.updateDevices();
   };
 
   $scope.exportData = function () {
     api.getApiRequest('export', 'export');
   };
+
+  $scope.updateDevices = function () {
+    $scope.devices = measurements.sensors;
+
+    if ($scope.devices.length > 0) {
+      $scope.selectedDeviceId = measurements.sensorId; // set selected device, load first if not set 
+
+      if ($scope.selectedDeviceId == null && $scope.devices.length > 0) $scope.selectedDeviceId = $scope.devices[0].id;
+      $scope.loadDeviceData($scope.selectedDeviceId);
+    }
+  };
+
+  $scope.deviceHandler = $rootScope.$on('devicesUpdated', $scope.updateDevices);
+
+  $scope.loadDeviceData = function (id) {
+    if (id != null && typeof id != 'undefined') {
+      $scope.error_msg = null;
+      var resetDates = false;
+      if ($scope.selectedDeviceId != id) resetDates = true;
+      $scope.selectedDeviceId = id;
+      $scope.selectedDevice = measurements.getSensorById(id);
+      if ($scope.startDate == null || resetDates) $scope.startDate = moment().add(-1, 'weeks').toDate(); //$scope.selectedDevice.start.substr(0,10);
+
+      if ($scope.endDate == null || resetDates) $scope.endDate = moment().toDate(); //$scope.selectedDevice.end.substr(0,10);
+
+      $scope.fileName = $scope.selectedDevice.name + '_' + moment($scope.startDate).format('YYYY-MM-DD') + '_' + moment($scope.endDate).format('YYYY-MM-DD') + '.csv'; // load measurement types
+
+      $scope.measurementTypes = [];
+      $scope.loadMeasurementNamesAvailable();
+    }
+  };
+
+  $scope.updateMeasurementTypes = function (e, data) {
+    $scope.dataAvailable = Object.keys(data).length > 0 ? true : false;
+    $scope.measurementTypes = data;
+  };
+
+  $scope.selectMeasurementTypes = function (types) {
+    $scope.selectedMeasurementNames = [];
+
+    for (var i = 0; i < types.length; i++) {
+      var typeName = types[i].abbreviation;
+      $scope.selectedMeasurementNames.push(typeName);
+    } //console.log($scope.selectedMeasurementNames); 
+
+  };
+
+  $scope.loadMeasurementNamesAvailable = function () {
+    var options = {
+      'device_id': $scope.selectedDeviceId,
+      'start': moment($scope.startDate).format('YYYY-MM-DD'),
+      'end': moment($scope.endDate).format('YYYY-MM-DD')
+    };
+    api.getApiRequest('measurementTypesAvailable', 'sensors/measurement_types_available', options);
+  };
+
+  $scope.measurementTypeHandler = $rootScope.$on('measurementTypesAvailableLoaded', $scope.updateMeasurementTypes);
+
+  $scope.setSeparator = function (separator) {
+    $scope.separator = separator;
+  };
+
+  $scope.exportSensorData = function () {
+    $scope.error_msg = null;
+    var options = {
+      'device_id': $scope.selectedDeviceId,
+      'start': moment($scope.startDate).format('YYYY-MM-DD'),
+      'end': moment($scope.endDate).format('YYYY-MM-DD'),
+      'separator': $scope.separator,
+      'measurements': $scope.selectedMeasurementNames
+    };
+    api.postApiRequest('export', 'export/csv', options);
+  };
+
+  $scope.downloadData = function (e, data) {
+    exportToCsv($scope.fileName, data);
+  };
+
+  $scope.exportHandler = $rootScope.$on('exportLoaded', $scope.downloadData);
+
+  $scope.errorHandler = function (type, data) {
+    console.log('Export errorHandler', type, data);
+    if (data.status === -1) $scope.error_msg = $rootScope.lang.too_much_data;else if (data.message === 'influx-query-empty') {
+      $scope.error_msg = $rootScope.lang.no_chart_data;
+      $scope.dataAvailable = false;
+    } else $scope.error_msg = $rootScope.lang.no_data;
+  };
+
+  $scope.exportError = $rootScope.$on('exportError', $scope.errorHandler);
+  $scope.measurementTypeError = $rootScope.$on('measurementTypesAvailableError', $scope.errorHandler);
 
   $scope.back = function () {
     $location.path('/login');
@@ -3679,6 +4000,10 @@ app.controller('ExportCtrl', function ($scope, $rootScope, $window, $location, $
 
   $scope.removeListeners = function () {
     $scope.backListener();
+    $scope.exportHandler();
+    $scope.exportError();
+    $scope.measurementTypeHandler();
+    $scope.measurementTypeError();
   };
 });
 /*
@@ -3693,18 +4018,29 @@ app.controller('SensorsCtrl', function ($scope, $rootScope, $timeout, $interval,
   $scope.sensors = [];
   $scope.hives = [];
   $scope.sensortypes = null;
+  $scope.selectedDevice = null;
   $scope.selectedSensor = null;
   $scope.selectedSensorId = null;
   $scope.measurementData = null;
   $scope.success_msg = null;
   $scope.error_msg = null;
-  $scope.sensorTimer = null; // handle loading of all the settings
+  $scope.sensorTimer = null;
+  $scope.editMode = false;
+  $scope.sensormeasurements = [];
+  $scope.defs = []; // handle loading of all the settings
 
   $scope.init = function () {
     if ($rootScope.pageSlug == 'sensors') {
-      $scope.updateSensors();
+      $scope.updateDevices();
+      $scope.updateSensormeasurements();
     }
   };
+
+  $scope.updateSensormeasurements = function () {
+    $scope.sensormeasurements = settings.sensormeasurements;
+  };
+
+  $scope.updateSensormeasurementsHandler = $rootScope.$on('taxonomyListsUpdated', $scope.updateSensormeasurements);
 
   $scope.selectSensorHive = function (sensorIndex, hiveId) {
     var s = measurements.getSensorOwnedByIndex(sensorIndex);
@@ -3743,7 +4079,7 @@ app.controller('SensorsCtrl', function ($scope, $rootScope, $timeout, $interval,
   };
 
   $scope.showMeasurements = function (sensorIndex) {
-    var s = measurements.getSensorByIndex(sensorIndex);
+    var s = measurements.getSensorOwnedByIndex(sensorIndex);
     return $location.path('/measurements/' + s.id);
   };
 
@@ -3753,10 +4089,10 @@ app.controller('SensorsCtrl', function ($scope, $rootScope, $timeout, $interval,
     if (typeof s["delete"] == 'undefined') s["delete"] = true;else s["delete"] = s["delete"] ? false : true;
   };
 
-  $scope.saveSensors = function () {
+  $scope.saveDevices = function () {
     $scope.success_msg = null;
     $scope.error_msg = null;
-    api.postApiRequest('saveSensors', 'sensors/store', $scope.sensors);
+    api.postApiRequest('saveDevices', 'devices/multiple', $scope.sensors);
   };
 
   $scope.showSuccess = function (type, data) {
@@ -3797,16 +4133,16 @@ app.controller('SensorsCtrl', function ($scope, $rootScope, $timeout, $interval,
     if (msg.length > 0) $scope.error_msg = msg.join(' ');else $scope.error_msg = error.message;
   };
 
-  $scope.saveSensorsSuccessHandler = $rootScope.$on('saveSensorsLoaded', $scope.showSuccess);
-  $scope.saveSensorsErrorHandler = $rootScope.$on('saveSensorsError', $scope.showError);
+  $scope.saveDevicesSuccessHandler = $rootScope.$on('saveDevicesLoaded', $scope.showSuccess);
+  $scope.saveDevicesErrorHandler = $rootScope.$on('saveDevicesError', $scope.showError);
 
-  $scope.updateSensors = function () {
+  $scope.updateDevices = function () {
     $scope.sensortypes = settings.sensortypes;
     $scope.sensors = measurements.sensors_owned;
 
     if ($scope.sensors.length == 0 && $scope.sensorTimer == null) {
       $scope.sensorTimer = $timeout(function () {
-        measurements.loadRemoteSensors();
+        measurements.loadRemoteDevices();
       }, 500);
       return;
     }
@@ -3831,10 +4167,86 @@ app.controller('SensorsCtrl', function ($scope, $rootScope, $timeout, $interval,
 
     $scope.selectedSensorId = measurements.sensorId;
     $scope.selectedSensor = measurements.getSensorById($scope.selectedSensorId);
+    if ($scope.selectedDevice) $scope.selectDeviceId($scope.selectedDevice.id);
   };
 
-  $scope.sensorHandler = $rootScope.$on('sensorsUpdated', $scope.updateSensors);
-  $scope.hivesHandler = $rootScope.$on('hivesUpdated', $scope.updateSensors);
+  $scope.devicesHandler = $rootScope.$on('devicesUpdated', $scope.updateDevices);
+  $scope.hivesHandler = $rootScope.$on('hivesUpdated', $scope.updateDevices); // Sensor Definition editing
+
+  $scope.selectDevice = function (deviceIndex) {
+    $scope.selectedDevice = measurements.getSensorOwnedByIndex(deviceIndex);
+    $scope.setSelectedDefs();
+  };
+
+  $scope.selectDeviceId = function (deviceId) {
+    $scope.selectedDevice = measurements.getSensorOwnedById(deviceId);
+    $scope.setSelectedDefs();
+  };
+
+  $scope.setSelectedDefs = function () {
+    $scope.defs = [];
+
+    if ($scope.selectedDevice.sensor_definitions.length > 0) {
+      $scope.defs = $scope.selectedDevice.sensor_definitions;
+
+      for (var i = $scope.defs.length - 1; i >= 0; i--) {
+        var d = $scope.defs[i];
+
+        if (d != null) {
+          d.input_measurement = {
+            id: d.input_measurement_id
+          };
+          d.output_measurement = {
+            id: d.output_measurement_id
+          };
+        }
+      }
+    }
+  };
+
+  $scope.addSensorDefinition = function () {
+    $scope.defs.push({
+      'device_id': $scope.selectedDevice.id,
+      'name': 'Sensor ' + ($scope.defs.length + 1),
+      'inside': null,
+      'offset': 0,
+      'multiplier': 1,
+      'input_measurement_id': null,
+      'output_measurement_id': null
+    });
+  };
+
+  $scope.removeSensorDefinitionByIndex = function (i) {
+    return typeof $scope.defs[i] != 'undefined' ? $scope.defs.splice(i, 1) : null;
+  };
+
+  $scope.deleteSensorDefinition = function (i) {
+    var s = typeof $scope.defs[i] != 'undefined' ? $scope.defs[i] : null;
+    if (typeof s.id == 'undefined') return $scope.removeSensorDefinitionByIndex(i);
+    if (typeof s["delete"] == 'undefined') s["delete"] = true;else s["delete"] = s["delete"] ? false : true;
+  };
+
+  $scope.selectInputSensorMeasurement = function (i, m_i) {
+    $scope.defs[i].input_measurement_id = m_i;
+    $scope.defs[i].input_measurement = {
+      id: m_i
+    };
+  };
+
+  $scope.selectOutputSensorMeasurement = function (i, m_i) {
+    $scope.defs[i].output_measurement_id = m_i;
+    $scope.defs[i].output_measurement = {
+      id: m_i
+    };
+  };
+
+  $scope.saveSensorDefinition = function (i) {
+    var sensorDef = $scope.defs[i];
+    var sensorDefId = typeof sensorDef.id != 'undefined' ? '/' + sensorDef.id : '';
+    if (sensorDef["delete"] == 1) api.deleteApiRequest('sensorDefinition', 'sensordefinition' + sensorDefId, sensorDef);else if (sensorDefId != '') api.putApiRequest('sensorDefinition', 'sensordefinition' + sensorDefId, sensorDef);else api.postApiRequest('sensorDefinition', 'sensordefinition', sensorDef);
+  };
+
+  $scope.saveSensorDefinitionHandler = $rootScope.$on('sensorDefinitionLoaded', measurements.loadRemoteDevices);
 
   $scope.nativeBackbutton = function (e) {
     if (runsNative()) {
@@ -3847,9 +4259,11 @@ app.controller('SensorsCtrl', function ($scope, $rootScope, $timeout, $interval,
   $scope.init(); // remove references to the controller
 
   $scope.removeListeners = function () {
-    $scope.saveSensorsSuccessHandler();
-    $scope.saveSensorsErrorHandler();
-    $scope.sensorHandler();
+    $scope.updateSensormeasurementsHandler();
+    $scope.saveSensorDefinitionHandler();
+    $scope.saveDevicesSuccessHandler();
+    $scope.saveDevicesErrorHandler();
+    $scope.devicesHandler();
     $scope.hivesHandler();
     $scope.backListener();
   };
@@ -4168,4 +4582,171 @@ app.controller('GroupsCtrl', function ($scope, $rootScope, $window, $location, $
   }); // call the init function
 
   $scope.init();
+});
+/*
+ * BEEP app
+ * Author: Iconize <pim@iconize.nl>
+ *
+ * Researxches controller
+ */
+
+app.controller('ResearchesCtrl', function ($scope, $rootScope, $window, $timeout, $location, $filter, $interval, api, $routeParams, ngDialog, hives, measurements) {
+  // settings
+  $scope.hives = [];
+  $scope.apiaries = [];
+  $scope.sensors = [];
+  $scope.researches = []; // handlers
+
+  $scope.isLoading = false;
+
+  $scope.init = function () {
+    $scope.hives = hives.hives;
+    $scope.apiaries = hives.locations_owned;
+    $scope.sensors = measurements.sensors;
+    $scope.loadResearches();
+  };
+
+  $scope.loadResearches = function () {
+    $scope.researches = api.getApiRequest('research', 'research');
+  };
+
+  $scope.updateResearches = function (e, data) {
+    $scope.researches = data;
+  };
+
+  $scope.researchLoadedHandler = $rootScope.$on('researchLoaded', $scope.updateResearches);
+
+  $scope.consentToggle = function (research_id, consent) {
+    if (consent) {
+      api.postApiRequest('researchConsent', 'research/' + research_id + '/add_consent');
+    } else {
+      api.postApiRequest('researchConsent', 'research/' + research_id + '/remove_consent');
+    }
+  };
+
+  $scope.researchConsentLoadedHandler = $rootScope.$on('researchConsentLoaded', $scope.loadResearches);
+
+  $scope.back = function () {
+    if ($rootScope.optionsDialog) {
+      $rootScope.optionsDialog.close();
+    } else {
+      $rootScope.historyBack();
+    }
+  }; //close options dialog
+
+
+  $scope.backListener = $rootScope.$on('backbutton', $scope.back);
+  $scope.init(); // remove the listeners
+
+  $scope.$on('$destroy', function () {
+    $scope.removeListeners();
+  }); // remove listeners
+
+  $scope.removeListeners = function () {
+    $scope.researchLoadedHandler();
+    $scope.researchConsentLoadedHandler();
+    $scope.backListener();
+  };
+});
+/*
+ * BEEP app
+ * Author: Iconize <pim@iconize.nl>
+ *
+ * Images controller
+ */
+
+app.controller('ImagesCtrl', function ($scope, $rootScope, $window, $timeout, $location, $filter, $interval, api, $routeParams, ngDialog, images) {
+  // settings
+  $scope.images = [];
+  $scope.orderName = 'date';
+  $scope.orderDirection = 'false';
+  $scope.size = 100;
+  $scope.thumbStyle = {
+    'width': '100px',
+    'height': '100px',
+    'display': 'inline-block',
+    'border': '1px solid #333',
+    'margin': '5px'
+  };
+  $scope.labelStyle = {
+    'font-size': '10px',
+    'width': '100%',
+    'text-align': 'center'
+  }; // handlers
+
+  $scope.editMode = false;
+  $scope.isLoading = false;
+
+  $scope.init = function () {
+    images.loadRemoteImages();
+  };
+
+  $scope.updateImages = function (e, data) {
+    $scope.images = images.images;
+  };
+
+  $scope.imageLoadedHandler = $rootScope.$on('imagesUpdated', $scope.updateImages);
+
+  $scope.setOrder = function (name) {
+    if ($scope.orderName == name) {
+      $scope.orderDirection = !$scope.orderDirection;
+    } else {
+      $scope.orderDirection = false;
+    }
+
+    $scope.orderName = name;
+  };
+
+  $scope.toggleEditMode = function () {
+    $scope.editMode = !$scope.editMode;
+  };
+
+  $scope.setSize = function (size) {
+    $scope.size = size;
+    $scope.thumbStyle = {
+      'width': size + 'px',
+      'height': size + 'px',
+      'display': 'inline-block',
+      'border': '1px solid #999',
+      'margin': '5px'
+    };
+    $scope.labelStyle = {
+      'font-size': 5 + 2 * Math.round(size / 50) + 'px',
+      'width': '100%',
+      'text-align': 'center'
+    };
+  };
+
+  $scope.natSort = function (a, b) {
+    //console.log($scope.orderName, a.value, b.value);
+    if ($scope.orderName == 'size') {
+      return b.value - a.value;
+    } else if ($scope.orderName == 'date') {
+      if (a.value == null || a.value == '') return -1;
+      if (b.value == null || b.value == '') return 1;
+    }
+
+    return naturalSort(a.value, b.value);
+  };
+
+  $scope.back = function () {
+    if ($rootScope.optionsDialog) {
+      $rootScope.optionsDialog.close();
+    } else {
+      $rootScope.historyBack();
+    }
+  }; //close options dialog
+
+
+  $scope.backListener = $rootScope.$on('backbutton', $scope.back);
+  $scope.init(); // remove the listeners
+
+  $scope.$on('$destroy', function () {
+    $scope.removeListeners();
+  }); // remove listeners
+
+  $scope.removeListeners = function () {
+    $scope.imageLoadedHandler();
+    $scope.backListener();
+  };
 });

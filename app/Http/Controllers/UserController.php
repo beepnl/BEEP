@@ -6,7 +6,7 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\User;
 use App\Role;
-use App\Sensor;
+use App\Device;
 use DB;
 use Hash;
 use Image;
@@ -39,7 +39,7 @@ class UserController extends Controller
     public function create()
     {
         $roles = $this->getMyPermittedRoles(Auth::user());
-        $sensors = Sensor::all()->pluck('name','id');
+        $sensors = Device::all()->pluck('name','id');
         return view('users.create',compact('roles','sensors'));
     }
 
@@ -71,7 +71,7 @@ class UserController extends Controller
         if($request->hasFile('avatar')){
             $avatar = $request->file('avatar');
             $filename = time() . '.' . $avatar->getClientOriginalExtension();
-            Image::make($avatar)->resize(300, 300)->save( public_path('uploads/avatars/' . $filename ) );
+            InterventionImage::make($avatar)->resize(300, 300)->save( public_path('uploads/avatars/' . $filename ) );
             $user->avatar = $filename;
         }
 
@@ -168,7 +168,7 @@ class UserController extends Controller
         if($request->hasFile('avatar')){
             $avatar = $request->file('avatar');
             $filename = time() . '.' . $avatar->getClientOriginalExtension();
-            Image::make($avatar)->fit(300, 300)->save( public_path('uploads/avatars/' . $filename ) );
+            InterventionImage::make($avatar)->fit(300, 300)->save( public_path('uploads/avatars/' . $filename ) );
             $user->avatar = $filename;
         }
 

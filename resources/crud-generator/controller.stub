@@ -36,6 +36,7 @@ class DummyClass extends Controller
      */
     public function create()
     {
+        ${{crudNameSingular}} = new {{modelName}}();
         return view('{{viewPath}}{{viewName}}.create');
     }
 

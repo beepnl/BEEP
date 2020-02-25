@@ -13,7 +13,7 @@ use App\Queen;
 use App\Checklist;
 use App\ChecklistCategory;
 use App\HiveLayerFrame;
-use App\Sensor;
+use App\Device;
 use App\Measurement;
 use DB;
 
@@ -59,7 +59,7 @@ class DashboardController extends Controller
         $data['queens']     = Queen::count();
         $data['checklists'] = Checklist::count();
         $data['checklists_edited'] = Checklist::whereRaw('updated_at - created_at > 60')->count();
-        $data['sensors']    = Sensor::count();
+        $data['sensors']    = Device::count();
 
         $checklist_details = false;
         $connection        = true;

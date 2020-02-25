@@ -10,12 +10,18 @@ class HiveFactory
         $this->layer_order = 0;
     }
 
-	public function createHive($user_id, Location $location, $name, $hive_type_id, $color, $broodLayerAmount, $honeyLayerAmount, $frameAmount)
+	public function createHive($user_id, Location $location, $name, $hive_type_id, $color, $broodLayerAmount, $honeyLayerAmount, $frameAmount, $bb_width_cm, $bb_depth_cm, $bb_height_cm, $fr_width_cm, $fr_height_cm, $order)
 	{
 		$this->layer_order  = 0;
 
 		$hive 	     		= new Hive();
 		$hive->name  		= $name;
+		$hive->order  		= $order;
+		$hive->bb_width_cm  = $bb_width_cm;
+		$hive->bb_depth_cm  = $bb_depth_cm;
+		$hive->bb_height_cm = $bb_height_cm;
+		$hive->fr_width_cm  = $fr_width_cm;
+		$hive->fr_height_cm = $fr_height_cm;
 		$hive->user_id 		= $user_id;
 		$hive->color 		= $color;
 		$hive->location_id  = $location->id;
@@ -38,9 +44,15 @@ class HiveFactory
 		return $hive;
 	}
 
-	public function updateHive(Hive $hive, Location $location, $name, $hive_type_id, $color, $broodLayerAmount, $honeyLayerAmount, $frameAmount)
+	public function updateHive(Hive $hive, Location $location, $name, $hive_type_id, $color, $broodLayerAmount, $honeyLayerAmount, $frameAmount, $bb_width_cm, $bb_depth_cm, $bb_height_cm, $fr_width_cm, $fr_height_cm, $order)
 	{
 		$hive->name  		= $name;
+		$hive->order  		= $order;
+		$hive->bb_width_cm  = $bb_width_cm;
+		$hive->bb_depth_cm  = $bb_depth_cm;
+		$hive->bb_height_cm = $bb_height_cm;
+		$hive->fr_width_cm  = $fr_width_cm;
+		$hive->fr_height_cm = $fr_height_cm;
 		$hive->location_id  = $location->id;
 		$hive->color 		= $color;
 		$hive->hive_type_id = $hive_type_id;
@@ -137,12 +149,12 @@ class HiveFactory
 		return $frame;
 	}
 
- 	public function createMultipleHives($user_id, $amount, Location $location, $name, $hive_type_id, $color, $broodLayerAmount, $honeyLayerAmount, $frameAmount, $count_start)
+ 	public function createMultipleHives($user_id, $amount, Location $location, $name, $hive_type_id, $color, $broodLayerAmount, $honeyLayerAmount, $frameAmount, $count_start, $bb_width_cm, $bb_depth_cm, $bb_height_cm, $fr_width_cm, $fr_height_cm)
 	{
 		$hives = collect([]);
 		for ($i=0; $i < $amount ;$i++) 
 		{ 
-			$hives->push($this->createHive($user_id, $location, $name.' '.($count_start+$i), $hive_type_id, $color, $broodLayerAmount, $honeyLayerAmount, $frameAmount));
+			$hives->push($this->createHive($user_id, $location, $name.' '.($count_start+$i), $hive_type_id, $color, $broodLayerAmount, $honeyLayerAmount, $frameAmount, $bb_width_cm, $bb_depth_cm, $bb_height_cm, $fr_width_cm, $fr_height_cm, null));
 		}
 		return $hives;
 	}

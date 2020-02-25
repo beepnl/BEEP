@@ -29,7 +29,7 @@
     <!-- Sidebar Menu -->
     <ul class="sidebar-menu">
 
-      <li class="header">MENU</li>
+      <li class="header">BEEP App v2.2.0</li>
       <!-- Optionally, you can add icons to the links -->
       <!-- <li ng-class="{active: pageSlug == 'dashboard'}">
           <a ng-click="switchMenu($event, true, '/dashboard')">
@@ -67,6 +67,12 @@
             <span ng-cloak>{{lang.sensors}}</span>
           </a>
       </li>
+      <!-- <li ng-class="{active: pageSlug == 'images'}">
+          <a ng-click="switchMenu($event, true, '/images')" data-toggle="{{ mobile ? 'offcanvas' : '' }}">
+            <i class="fa fa-photo"></i>
+            <span ng-cloak>{{lang.Images}}</span>
+          </a>
+      </li> -->
       <li ng-class="{active: pageSlug == 'export'}">
         <a ng-click="switchMenu($event, true, '/export')" data-toggle="{{ mobile ? 'offcanvas' : '' }}">
           <i class="fa fa-file-excel-o "></i>
@@ -74,17 +80,30 @@
         </a>    
       </li>     
 
-      <li class="header">INFO</li>
-      <li data-toggle="{{ mobile ? 'offcanvas' : '' }}">
-        <a ng-click="loadUrl('https://beep.nl/app-home')">
-          <i class="fa fa-star"></i>
-          <span ng-cloak>{{lang.Whats_new}}</span>
+
+      <li class="header">{{lang.research}}</li>
+      
+      <li ng-class="{active: pageSlug == 'research'}">
+        <a ng-click="switchMenu($event, true, '/research')" data-toggle="{{ mobile ? 'offcanvas' : '' }}">
+          <i class="fa fa-graduation-cap"></i>
+          <span ng-cloak>{{lang.research}}</span>
         </a>    
-      </li>  
+      </li>     
+
+
+
+      <li class="header">{{lang.info}}</li>
+      
       <li data-toggle="{{ mobile ? 'offcanvas' : '' }}">
         <a ng-click="switchMenu($event, true, '/support')" data-toggle="{{ mobile ? 'offcanvas' : '' }}">
           <i class="fa fa-question"></i>
           <span ng-cloak>Helpdesk</span>
+        </a>    
+      </li>  
+      <li data-toggle="{{ mobile ? 'offcanvas' : '' }}">
+        <a ng-click="switchMenu($event, true, '/new')" data-toggle="{{ mobile ? 'offcanvas' : '' }}">
+          <i class="fa fa-star"></i>
+          <span ng-cloak>{{lang.Whats_new}}</span>
         </a>    
       </li>  
       <li data-toggle="{{ mobile ? 'offcanvas' : '' }}">
@@ -93,12 +112,12 @@
           <span ng-cloak>Beep {{lang.Website}}</span>
         </a>    
       </li>   
-      <li data-toggle="{{ mobile ? 'offcanvas' : '' }}">
+      <!-- <li data-toggle="{{ mobile ? 'offcanvas' : '' }}">
         <a ng-click="sendMail('feedback@beep.nl',lang.Feedback_mail_header, lang.Feedback_mail_body+lang.Diagnostic_info+'host:'+host+',user_id:'+user.id+',browser:'+browser)">
           <i class="fa fa-comment"></i>
           <span ng-cloak>{{lang.Feedback}}</span>
         </a>    
-      </li>   
+      </li>    -->
 
     </ul>
     <!-- /.sidebar-menu -->

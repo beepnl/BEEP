@@ -1,0 +1,69 @@
+<h4>Lieberfeld method explanation (EN)</h4>
+<div style="max-width: 40vw;" class="pull-right">
+	<img src="/img/inspection-lieberfelder-frame-overlay.png" style="width:100%;">
+	<p style="font-style: italic; text-align: center;">Figure 1. Scheme of grid for Liebefeld method. Squares should be 5x5 cm2.</p>
+</div>
+<ul>
+	<li>Colony traits that need to be measured are: colony size (bees), capped brood (pupae), open brood (larvae), eggs, drone brood, pollen stores, and honey (sealed only). If not present score them as 0.</li>
+	<li>Open a colony and sequentially remove combs of bees (frames).</li>
+	<li>Overlay each side of every comb in a hive with a grid pre-marked in 5x5 cm2 (Figure 1.).</li>
+	<li>First measure the area covered with bees.</li>
+	<li>Per frame side, count the total number of squares covered with bees. This includes the number of squares fully covered and the ones partially covered. The partially covered squares should be estimated as fraction covered, up to one decimal.</li>
+	<li>Record the number of squares in the BEEP app for each side of all frames in the hive. The BEEP app will automatically calculate the sum of bees.</li>
+	<li>Then remove the bees from the frame before counting the other targets one by one. Frames do not need to be free of bees completely. It is fine if bees stay on the frame as long as the brood and/or food reserves are visible and can be estimated.</li>
+	<li>For removing the bees hold a frame above (or half in) the brood box, and remove the bees by 1) moving the frame downwards with a sudden stop, 2) holding the frame by one ‘ear’ and tapping with your free hand on the hand holding the ear (a little rough on the eggs), or use a feather or soft brush (not very hygienic).</li>
+	<li>Repeat the counting of squares for the other parameters and record the information in the BEEP app.</li>
+	<li>In the BEEP app, please keep the same sequence for all targets, as such that in theory we could ‘rebuild’ the colony frame by frame.</li>
+</ul>
+<hr>
+<div class="row">
+	<div class="col-xs-12 col-sm-6 col-md-4 col-lg-3">
+		<div class="form-item">
+            <label>{{ hive.name }}</label>
+        	<div>
+    			<div class="hive left">
+	    			<p class="lid" style="width: {{hive.frames*13}}px;"></p>
+	            	<p ng-repeat="(key, layer) in hive.layers | orderBy : '-type' " ng-if="layer.type != 'brood'" class="layer" ng-class="layer.type" style="background-color: {{hive.color}}; width: {{hive.frames*13}}px;">
+	            		<span ng-repeat="f in rangeStep(1,hive.frames)" class="frame wax" ng-class="layer.type"></span>
+	            	</p>
+	            	<p ng-repeat="layer in rangeStep(1,hive.brood_layers)" class="layer brood" style="background-color: {{hive.color}}; width: {{hive.frames*13}}px;">
+	            		<span ng-repeat="f in rangeStep(1,hive.frames)" class="frame wax"></span>
+	            	</p>
+	            	<p class="bottom" style="width: {{hive.frames*13}}px;"></p>
+            	</div>
+            </div>
+    	</div>
+	</div>
+	<div class="col-xs-12 col-sm-4 col-md-6">
+		<div class="row">
+			<div class="col-xs-6">
+				<div>
+					<label>{{ lang.Hive_brood_layers }}</label>
+					<div step="1" ng-disabled="false" min="0" ng-model="hive.brood_layers" ng-change="calculateLieberfeldColonySize()" rn-stepper></div>
+				</div>
+				<div>
+					<label>{{ lang.Hive_frames }}</label>
+					<div step="1" ng-disabled="false" min="0" ng-model="hive.frames" ng-change="calculateLieberfeldColonySize()" rn-stepper></div>
+				</div>
+			</div>
+			
+			<div class="col-xs-6">
+				<div>
+					<label>{{ lang.fr_width_cm }}</label>
+					<p>{{ hive.fr_width_cm }} cm</p>
+				</div>
+				<div>
+					<label>{{ lang.fr_height_cm }}</label>
+					<p>{{ hive.fr_height_cm }} cm</p>
+				</div>
+			</div>
+    	</div>
+    </div>
+    <div class="col-xs-12 col-sm-4 col-md-3">
+		<label>Total colony size</label>
+		<p style="font-size: 40px;">
+			{{ colony_size }} bees
+		</p>
+    </div>
+</div>
+<hr>

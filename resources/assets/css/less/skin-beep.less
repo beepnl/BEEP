@@ -18,12 +18,14 @@ body,a,input,textarea,h1,h2,h3,h4,h5,h6,.h1,.h2,.h3,.h4,.h5,.h6,.btn,.dtpicker-b
       .navbar-variant(@yellow, #000);
       .sidebar-toggle {
         color: #000;
+        font-size: 14px;
         &:hover {
           background-color: @yellow;
           color: #000;
         }
       }
       .navbar-nav{
+        font-size: 14px;
         li.user-header {
           background-color: @yellow;
           > p {
@@ -148,6 +150,24 @@ body,a,input,textarea,h1,h2,h3,h4,h5,h6,.h1,.h2,.h3,.h4,.h5,.h6,.btn,.dtpicker-b
     margin-bottom: 6px;
     border-radius: @input-radius;
     border: 1px solid #ddd;
+  }
+  .nav-tabs-custom{
+    .nav-tabs{
+      border-bottom-color:none;
+      li.active{
+        border-top-color: @brand-primary;
+      }
+    }
+  }
+
+  .modal-body{
+    text-align: center;
+    .modal-image-holder{
+      overflow: auto;
+      align-items: center;
+      text-align: center;
+      vertical-align: middle;
+    }
   }
 
 }

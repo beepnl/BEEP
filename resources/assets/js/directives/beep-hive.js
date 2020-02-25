@@ -27,7 +27,7 @@ app.directive('beepHive', ['$rootScope', function($rootScope) {
             '</a>'+
             '<div class="btn-group" role="group" style="margin-bottom: 10px;">'+
               '<a href="#!/hives/{{hive.id}}/inspections" class="btn btn-default" title="{{lang.Inspections}}"><i class="fa fa-search"></i></a>'+
-              '<a href="#!/hives/{{hive.id}}/inspect" class="btn btn-default" title="{{lang.inspect}}"><i class="fa fa-pencil"></i></a>'+
+              '<a href="#!/hives/{{hive.id}}/inspect" class="btn btn-default" title="{{lang.inspect}}"><i class="fa fa-edit"></i></a>'+
             '</div>'+
           '</div>'+
           //New
@@ -81,7 +81,7 @@ app.directive('beepHive', ['$rootScope', function($rootScope) {
             '</div>'+
             '<div class="col-xs-2 text-right">'+
               '<a href="#!/hives/{{hive.id}}/inspections" class="btn btn-default" title="{{lang.Inspections}}"><i class="fa fa-search"></i></a>'+
-              '<br><a href="#!/hives/{{hive.id}}/inspect" class="btn btn-default" title="{{lang.inspect}}"><i class="fa fa-pencil"></i></a>'+
+              '<br><a href="#!/hives/{{hive.id}}/inspect" class="btn btn-default" title="{{lang.inspect}}"><i class="fa fa-edit"></i></a>'+
             '</div>'+
           '</div>'+
           // New

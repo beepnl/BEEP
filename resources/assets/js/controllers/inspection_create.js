@@ -19,10 +19,6 @@ app.controller('InspectionCreateCtrl', function($scope, $rootScope, $window, $lo
 	$scope.hive 			= null;
 	$scope.hives 			= null;
 	$scope.location 		= null;
-	$scope.locations 		= null;
-
-	$scope.beeraces 		= null;
-	$scope.hivetypes 		= null;
 
 	$scope.langScript	    = $rootScope.lang.pick_a_date_lang_file;
 
@@ -34,32 +30,30 @@ app.controller('InspectionCreateCtrl', function($scope, $rootScope, $window, $lo
 		}
 		else
 		{
-			// console.log('checklist', inspections.checklist);
-			// console.log('checklists', inspections.checklists);
 			$scope.setDateLanguage();
+
 			$rootScope.beeraces   = settings.beeraces;
 			$rootScope.hivetypes  = settings.hivetypes;
 			$rootScope.hives  	  = hives.hives;
 			$rootScope.locations  = hives.locations;
-			
+
+			$scope.showMore   	  = hives.hives.length > 1 ? true : false;
 			$scope.hive 	  	  = hives.getHiveById($routeParams.hiveId);
 			if ($scope.hive == null)
 				$scope.hive = groups.getHiveById($routeParams.hiveId);
 
+			$rootScope.hive  	  = $scope.hive;
+
 			$scope.inspection 	  = inspections.newSaveObject();
-			$scope.checklistsUpdated();
-			$scope.checklist      = inspections.checklist;
-			$scope.updateLists(false);
-			$scope.showMore   	  = hives.hives.length > 1 ? true : false;
-			if ($routeParams.inspectionId)
-			{
-				$scope.inspection_id = $routeParams.inspectionId;
-				inspections.loadRemoteInspection($routeParams.inspectionId);
-			}
+			// $scope.checklistsUpdated();
+			inspections.getChecklists();
+
 			//console.log('init-inspection', $scope.inspection);
 		}
 	};
 
+
+    // Datepicker
 	$scope.setDateLanguage = function()
 	{
 		$("#dtBox").DateTimePicker(
@@ -104,12 +98,13 @@ app.controller('InspectionCreateCtrl', function($scope, $rootScope, $window, $lo
 	{
 		var data  	 = inspections.validateChecklist();
 		// set general items
-		data.date 			=  $scope.inspection.date;
-		data.impression 	=  $scope.inspection.impression;
-		data.attention	 	=  $scope.inspection.attention;
-		data.notes 			=  $scope.inspection.notes;
-		data.reminder_date 	=  $scope.inspection.reminder_date;
-		data.reminder 		=  $scope.inspection.reminder;
+		data.date 			= $scope.inspection.date;
+		data.impression 	= $scope.inspection.impression;
+		data.attention	 	= $scope.inspection.attention;
+		data.notes 			= $scope.inspection.notes;
+		data.reminder_date 	= $scope.inspection.reminder_date;
+		data.reminder 		= $scope.inspection.reminder;
+		data.checklist_id   = $scope.checklist_id;
 
 		data.hive_id = $routeParams.hiveId;
 		console.log("saveInspection", data);
@@ -171,11 +166,12 @@ app.controller('InspectionCreateCtrl', function($scope, $rootScope, $window, $lo
 
     $scope.updateLists = function(force=false)
 	{
-		var id = $scope.checklist ? $scope.checklist.id : null
+		var lastUsedChecklistId = api.getLocalStoreValue('open_checklist_id');
+		var currentChecklistId  = $scope.checklist ? $scope.checklist.id : lastUsedChecklistId
 		if (inspections.checklist == null || force)
 		{
 			$scope.setDateLanguage();
-			$scope.selectChecklist(id, force);
+			$scope.selectChecklist(currentChecklistId, force);
 			//console.log('selected checklist id NULL', id, force);
 		}
 		else
@@ -187,14 +183,14 @@ app.controller('InspectionCreateCtrl', function($scope, $rootScope, $window, $lo
 	
 	$scope.checklistUpdated = function(e, type)
 	{
-		$scope.checklist  = inspections.checklist;
+		$scope.checklist = inspections.checklist;
 		var id = $scope.checklist ? $scope.checklist.id : null
 		
 		if (id != null)
 		{
-			$scope.checklist_id = id;
-			$scope.checklists = null;
-			$scope.checklists = inspections.checklists;
+			$scope.checklist_id 	= id;
+			$scope.checklists 		= null;
+			$scope.checklists 		= inspections.checklists;
 			//console.log('checklistUpdated id', id, $scope.checklists);
 		}
 
@@ -208,6 +204,13 @@ app.controller('InspectionCreateCtrl', function($scope, $rootScope, $window, $lo
 	$scope.checklistsUpdated = function(e, type)
 	{
 		$scope.checklists = inspections.checklists;
+		$scope.checklist  = inspections.checklist;
+		$scope.updateLists(false);
+		if ($routeParams.inspectionId)
+		{
+			$scope.inspection_id = $routeParams.inspectionId;
+			inspections.loadRemoteInspection($routeParams.inspectionId);
+		}
 	};
 	$scope.checklistsHandler = $rootScope.$on('checklistsUpdated', $scope.checklistsUpdated);
 
@@ -220,13 +223,14 @@ app.controller('InspectionCreateCtrl', function($scope, $rootScope, $window, $lo
 			return;
 		}
 		
-		$scope.checklist_id = id;
+		$scope.checklist_id 	= id;
 		inspections.loadChecklist(id);
 	}
 
 	$scope.inspectionUpdate = function(e, data)
 	{
 		$scope.inspection = inspections.newSaveObject(data);
+		$rootScope.inspection = $scope.inspection; // for beep-checklist-input.js directive
 	};
 	$scope.inspectionHandler = $rootScope.$on('inspectionUpdated', $scope.inspectionUpdate);
 
@@ -255,6 +259,8 @@ app.controller('InspectionCreateCtrl', function($scope, $rootScope, $window, $lo
 				$scope.hive = hives.hives[max];
 			}
 		}
+		$rootScope.hive = $scope.hive;
+
 		$location.path('/hives/'+$scope.hive.id+'/inspect');
 
 		//inspections.loadRemoteInspections($scope.hive.id);

@@ -147,13 +147,17 @@
 						        <span ng-if="item.type == 'score_quality'" style="color: {{ qualityColor(item.value) }};">{{ scoreQualityOptions[item.value] }}</span>
 								<span ng-if="item.type == 'score_amount'" style="color: {{ amountColor(item.value) }}; font-weight: bold;">{{ scoreAmountOptions[item.value] }}</span>
 
+								<span ng-if="item.type == 'square_25cm2'">{{item.val * 25}} cm2 ({{item.val}} sq)</span>
 								<span ng-if="item.type == 'select_apiary'">{{item.val}}</span>
 								<span ng-if="item.type == 'select_hive'">{{item.val}}</span>
 								<span ng-if="item.type == 'select_country'">{{item.val.toUpperCase()}}</span>
 								<span ng-if="item.type == 'bee_subspecies'">{{item.val}}</span>
 								<span ng-if="item.type == 'select_hive_type'">{{item.val}}</span>
+								<span ng-if="item.type == 'image'">
+									<img src="{{item.val}}" class="image-thumb" style="max-height: 60px; max-width: 80px" ng-click="setActiveImage(item.val)" data-toggle="modal" data-target="#photo-modal">
+								</span>
 
-								<span ng-if="item.unit != null">{{item.unit}}</span>
+								<span ng-if="item.unit != null && item.type != 'square_25cm2'">{{item.unit}}</span>
 
 							</td>
 							<td ng-if="items.items != null" class="filler"></td>

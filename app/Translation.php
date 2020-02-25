@@ -48,4 +48,22 @@ class Translation extends Model
 	    }
 	    return false;
     }
+
+    public static function createTranslations($name, $type)
+    {
+        $trans = ucfirst(str_replace('_', ' ', $name));
+        $count = 0;
+
+        foreach (Language::all()->pluck('abbreviation') as $abbr) 
+        {
+            $lang_id = Language::where('abbreviation', $abbr)->value('id');
+            if (Translation::where('name',$name)->where('type','category')->where('language_id',$lang_id)->count() == 0)
+            {
+                Translation::create(['language_id'=>$lang_id, 'name'=>$name, 'type'=>'category', 'translation'=>$trans]);
+                $count++;
+            }
+        }
+
+        return $count;
+    }
 }

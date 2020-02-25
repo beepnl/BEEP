@@ -34,4 +34,7 @@ return [
     'required_in_inspection' => 'Verplicht bij inspectie',
     'Measurement'       => 'Meting',
     'measurement'       => 'sensormeting',
+    'Research'          => 'Onderzoek',
+    'Researches'        => 'Onderzoeken',
+    'calibration'       => 'calibratie',
 ];

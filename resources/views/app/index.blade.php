@@ -44,7 +44,7 @@
         <link rel="stylesheet" href="{{ mix('css/skin-base.css') }}" media="screen">
         <link rel="stylesheet" href="{{ mix('app/css/skin.css') }}" media="screen">
         <link rel="stylesheet" href="{{ mix('css/skin-additions.css') }}" media="screen">
-        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+        <link rel="stylesheet" href="/css/font-awesome.min.css">
 
         <!--[if lt IE 9]>
             <link rel="stylesheet" type="text/css" href="vendor/datetimepicker/src/DateTimePicker-ltie9.css" />
@@ -55,7 +55,7 @@
         
     </head>
 
-    <body id="app" class="hold-transition skin-beep" ng-class="templateClass" maps-autocomplete-mobile>
+    <body id="app" class="hold-transition skin-beep @if(env('BETA', false) == true) beta @endif" ng-class="templateClass" maps-autocomplete-mobile>
 
         <div ng-class="{'wrapper':showAdminTemplate}">
 
@@ -71,7 +71,10 @@
           </div>
           
           <!-- Main Footer -->
-          <div ng-include="'/app/views/template/template-block-footer.html'" ng-show="showAdminTemplate"></div>
+          <div ng-include="'/app/views/template/template-block-footer.html?v=2'" ng-show="showAdminTemplate"></div>
+
+          <!-- Photo modal -->
+          <div ng-include="'/app/views/template/template-block-photo-modal.html?v=1'" ng-show="showAdminTemplate"></div>
           
         </div>
 

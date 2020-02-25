@@ -13,7 +13,7 @@ class Hive extends Model
     use SoftDeletes, CascadeSoftDeletes;
 
     protected $cascadeDeletes = ['queen','inspections','layers','frames','productions'];
-    protected $fillable = ['user_id', 'location_id', 'hive_type_id', 'color', 'name'];
+    protected $fillable = ['user_id', 'location_id', 'hive_type_id', 'color', 'name', 'bb_width_cm', 'bb_depth_cm', 'bb_height_cm', 'fr_width_cm', 'fr_height_cm', 'order'];
     protected $guarded  = ['id'];
 	protected $hidden 	= ['user_id','deleted_at'];
     protected $appends  = ['type','location','attention','impression','reminder','reminder_date','inspection_count','sensors','owner'];
@@ -74,7 +74,7 @@ class Hive extends Model
 
     public function getSensorsAttribute()
     {
-        return $this->sensors()->pluck('id')->toArray();
+        return $this->devices()->pluck('id')->toArray();
     }
 
     public function getNameAndLocationAttribute()
@@ -100,7 +100,7 @@ class Hive extends Model
 
     public function getOwnerAttribute()
     {
-        if ($this->user_id == Auth::user()->id)
+        if (Auth::check() && $this->user_id == Auth::user()->id)
             return true;
         
         return false;
@@ -155,9 +155,9 @@ class Hive extends Model
         return $this->hasManyThrough(HiveLayerFrame::class, HiveLayer::class, 'hive_id', 'layer_id');
     }
     
-    public function sensors()
+    public function devices()
     {
-        return $this->hasMany(Sensor::class);
+        return $this->hasMany(Device::class);
     }
 
     // manually inserted items

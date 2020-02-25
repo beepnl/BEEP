@@ -70,7 +70,7 @@ class ChecklistController extends Controller
         $requestData = $request->except(['user_id']);
         $checklist   = Checklist::create($requestData);
 
-        $this->addChecklistToUser($request, $checklist);
+        $this->addChecklistToUsers($request, $checklist);
 
         if ($request->filled('categories'))
         {
@@ -118,20 +118,10 @@ class ChecklistController extends Controller
         return view('checklists.edit', compact('checklist', 'taxonomy', 'selected', 'users', 'selectedUserIds'));
     }
 
-    private function addChecklistToUser(Request $request, $checklist)
+    private function addChecklistToUsers(Request $request, $checklist)
     {
-        if ($request->filled('user_id') && $checklist)
-        {
-            $user_id = $request->input('user_id');
-            $user    = User::find($user_id);
-
-            if (User::where('id', $user_id)->count() == 1 && $user->checklists()->pluck('id')->search($checklist->id) === false)
-                $user->checklists()->attach($checklist);
-        }
-        else
-        {
-            $checklist->users()->detach();
-        }
+        if ($checklist)
+            $checklist->users()->sync($request->input('user_id'));
     }
 
     /**
@@ -150,7 +140,7 @@ class ChecklistController extends Controller
         $checklist = $this->getUserChecklists()->find($id);
         $checklist->update($requestData);
 
-        $this->addChecklistToUser($request, $checklist);
+        $this->addChecklistToUsers($request, $checklist);
 
         if ($request->filled('categories'))
         {

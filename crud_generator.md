@@ -1,0 +1,63 @@
+Laravel CRUD generator
+https://github.com/appzcoder/crud-generator/blob/master/doc/configuration.md
+
+# SensorDefinition
+php artisan crud:generate SensorDefinition -—fields='zero_value#float#nullable; unit_per_value#float#nullable; input_measurement_id#integer#unsigned#nullable; output_measurement_id#integer#unsigned#nullable; sensor_id#integer#unsigned' --relationships='input_measurement_id#belongsTo#Measurement::class; output_measurement_id#belongsTo#Measurement::class; sensor#belongsTo#Sensor::class' --form-helper=html
+
+php artisan crud:api SensorDefinition -—fields='zero_value#float#nullable; unit_per_value#float#nullable; input_measurement_id#integer#unsigned#nullable; output_measurement_id#integer#unsigned#nullable; sensor_id#integer#unsigned' --relationships='input_measurement_id#belongsTo#Measurement::class; output_measurement_id#belongsTo#Measurement::class; sensor#belongsTo#Sensor::class' --controller-namespace=Api
+
+# Image
+php artisan crud:generate Image -—fields='filename#string#required; image_url#string#required; thumb_url#string; description#string; type#string; height#number; width#number; size_kb#number; date#timestamp; user_id#integer#unsigned; hive_id#integer#unsigned; category_id#integer#unsigned; checklist_id#integer#unsigned' --relationships=‘user#belongsTo#User::class; hive#belongsTo#Hive::class; category#belongsTo#Category::class; checklist#belongsTo#Checklist::class' --form-helper=html
+
+php artisan crud:api Image --fields='filename#string#required; image_url#string#required; thumb_url#string; description#string; type#string; height#number; width#number; size_kb#number; date#timestamp; user_id#integer#unsigned; hive_id#integer#unsigned; category_id#integer#unsigned; checklist_id#integer#unsigned' --relationships='user#belongsTo#User::class; category#belongsTo#Category::class; hive#belongsTo#Hive::class; checklist#belongsTo#Checklist::class' --controller-namespace=Api
+
+# Research
+php artisan crud:generate Research --fields='name#string#required; url#string; image#file; description#string; type#string; institution#string; type_of_data_used#string; start_date#timestamp; end_date#timestamp; checklist_id#integer#unsigned' --relationships='checklist#hasOne#Checklist::class' --form-helper=html
+
+php artisan crud:api Research --fields='name#string#required; url#string; image#file; description#string; type#string; institution#string; type_of_data_used#string; start_date#timestamp; end_date#timestamp; checklist_id#integer#unsigned' --controller-namespace=Api
+
+# Inspection
+php artisan crud:generate Inspections --fields='notes#text#nullable; impression#integer#nullable; attention#boolean#nullable; created_at#timestamp#useCurrent;' --relationships='user#belongsTo#Class:User' --form-helper=html --route=no
+php artisan crud:generate InspectionItems --fields='value#string#nullable; inspection_id#integer#unsigned; category_id#integer#unsigned' --relationships='inspection#belongsTo#Inspection::class; category#hasOne#Category::class' --form-helper=html
+
+# Measurement
+php artisan crud:generate Measurement --fields="abbreviation#string; physical_quantity_id#integer#unsigned; show_in_charts#boolean; chart_group#integer#unsigned; min_value#float" --relationships='physical_quantity#hasOne#PhysicalQuantity::class' --form-helper=html
+
+php artisan crud:controller MeasurementController --crud-name=measurement --model-name=Measurement --force
+php artisan crud:view measurement --fields='abbreviation#string; physical_quantity_id#integer#unsigned; show_in_charts#boolean; chart_group#integer#unsigned' --form-helper=html --validations='abbreviation#required; physical_quantity_id#required'
+
+
+# PhysicalQuantity
+php artisan crud:controller PostsController --crud-name=posts --model-name=Post --view-path="directory" --route-group=admin
+php artisan crud:controller PhysicalQuantityController --crud-name=physicalquantity --model-name=PhysicalQuantity  --pagination=1000 --force
+php artisan crud:view posts --fields="title#string; body#text" --view-path="directory" --route-group=admin --form-helper=html
+php artisan crud:view physicalquantity --fields="name#string; unit#string; abbreviation#string" --form-helper=html --validations="name#required; unit#required"
+
+# BeeRace
+php artisan crud:controller BeeRaceController --crud-name=beerace --model-name=BeeRace --pagination=1000 --force
+php artisan crud:view beerace --fields="name#string; type#string; synonyms#string; continents#string" --form-helper=html --validations="name#required; type#required"
+
+# Categoryinputs
+php artisan crud:controller CategoryInputsController --crud-name=categoryinputs --model-name=CategoryInput --pagination=1000 --force
+php artisan crud:view categoryinputs --fields="name#string; type#string; min#number; max#number; decimals#number; icon#string" --form-helper=html  --validations="name#required; type#required"
+
+# HiveTytpes
+php artisan crud:controller HiveTypeController --crud-name=hivetype --model-name=HiveType --pagination=1000 --force
+php artisan crud:view hivetype --fields="name#string; type#string; image#string; continents#string; info_url#string" --form-helper=html --validations="name#required; type#required"
+
+# Categories
+php artisan crud:controller CategoryController --crud-name=categories --model-name=Category --pagination=1000
+php artisan crud:view categories --fields="name#string; type#string; options#string; parent_id#number" --form-helper=html  --validations="name#required; type#required"
+
+# Checklists
+php artisan crud:model Checklist --fillable="['name', 'type', 'description']"
+php artisan crud:controller ChecklistController --crud-name=checklists --model-name=Checklist --pagination=1000
+php artisan crud:view checklists --fields="name#string; type#string; description#string" --form-helper=html
+
+# Laguages
+php artisan crud:controller LanguageController --crud-name=languages --model-name=Language --pagination=1000
+php artisan crud:view languages --fields="name#string; name_english#string; icon#string; abbreviation#string" --form-helper=html  --validations="name#required; name_english#required; abbreviation#required"
+
+# Permissions
+php artisan crud:controller PermissionController --crud-name=permissions --model-name=Permission --pagination=1000
+php artisan crud:view permissions --fields="name#string; display_name#string; description#string" --form-helper=html --validations="name#required; display_name#required; description#required"

@@ -45,7 +45,7 @@
 			<div class="form-group {{ $errors->has('user_id') ? 'has-error' : ''}}">
 			    <label for="user_id" control-label>{{ __('general.User') }}</label>
 			    <div>
-			        {!! Form::select('user_id', $users, $selectedUserIds, array('id'=>'user_id', 'multiple'=>'multiple', 'class' => 'form-control', 'placeholder'=>'Select users...')) !!}
+			        {!! Form::select('user_id[]', $users, $selectedUserIds, array('id'=>'user_id', 'multiple'=>'multiple', 'class' => 'form-control select2', 'placeholder'=>'Select users...')) !!}
 			        {!! $errors->first('user_id', '<p class="help-block">:message</p>') !!}
 			    </div>
 			</div>

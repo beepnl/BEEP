@@ -1,12 +1,18 @@
-<fieldset ng-if="cat.children.length > 0 && (cat.input == 'label' || (cat.input != 'list' && cat.input != 'select' && cat.input != 'options'))" class="col-xs-12">
+<fieldset ng-if="cat.children.length > 0 && (cat.input == 'label' || (cat.input != 'list' && cat.input != 'select' && cat.input != 'options'))" class="col-xs-12 {{ cat.name }}">
 	
 	<legend>{{ cat.trans[locale] || cat.name}}</legend>
 
-	<div ng-if="cat.children.length > 0" ng-repeat="item in cat.children">
+	<div ng-include="'/app/views/template/template-inspection-liebefelder_method.html?v=2'" ng-show="cat.name == 'liebefelder_method'"></div>
+	<div ng-include="'/app/views/template/template-inspection-top_photo_analysis.html?v=2'" ng-show="cat.name == 'top_photo_analysis'"></div>
 
+	<div ng-if="cat.children.length > 0 && cat.name != 'liebefelder_method'" ng-repeat="item in cat.children">
     	<checklist-input ng-if="item.input != 'label'" item="item" cols="cols"></checklist-input>
 	    <checklist-fieldset ng-if="item.input == 'label'" cat="item" cols="cols"></checklist-fieldset>
-    
+    </div>
+
+    <div ng-if="cat.children.length > 0 && i <= (hive.brood_layers * hive.frames * 2) && cat.name == 'liebefelder_method'" ng-repeat="(i, item) in cat.children">
+    	<checklist-input ng-if="item.input != 'label'" item="item" cols="cols"></checklist-input>
+	    <checklist-fieldset ng-if="item.input == 'label'" cat="item" cols="cols"></checklist-fieldset>
     </div>
 
 	<checklist-input ng-if="cat.children.length == 0" item="cat" cols="cols"></checklist-input>

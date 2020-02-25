@@ -210,7 +210,7 @@
     
     /* settings */  
     General                    : 'Général',
-    Location                   : 'Emplacement',
+    Place                      : 'Emplacement',
     Country                    : 'Pays',
     City                       : 'Ville',
     Address                    : 'Adresse',
@@ -261,6 +261,16 @@
     Select_sensor              : 'Sélectionnez un capteur',
     temperature                : 'Température',
     t                          : 'Température',
+    t_0                        : 'Température 1',
+    t_1                        : 'Température 2',
+    t_2                        : 'Température 3',
+    t_3                        : 'Température 4',
+    t_4                        : 'Température 5',
+    t_5                        : 'Température 6',
+    t_6                        : 'Température 7',
+    t_7                        : 'Température 8',
+    t_8                        : 'Température 9',
+    t_9                        : 'Température 10',
     light                      : 'Lumière du soleil',
     l                          : 'Lumière du soleil',
     water                      : 'Eau',
@@ -309,6 +319,22 @@
     's_bin439_488Hz'           : '439-488Hz',
     's_bin488_537Hz'           : '488-537Hz',
     's_bin537_586Hz'           : '537-586Hz',
+    'icon'                  : 'Icon',
+    'precipIntensity'       : 'Rainfall',
+    'precipProbability'     : 'Rain probability',
+    'precipType'            : 'Rain type',
+    'temperature'           : 'Outside temperature',
+    'apparentTemperature'   : 'Apparent temperature',
+    'dewPoint'              : 'Dew point',
+    'humidity'              : 'Humidity',
+    'pressure'              : 'Air pressure',
+    'windSpeed'             : 'Wind speed',
+    'windGust'              : 'Wind gust',
+    'windBearing'           : 'Wind bearing',
+    'cloudCover'            : 'Cloud cover',
+    'uvIndex'               : 'UV index',
+    'visibility'            : 'Visibility',
+    'ozone'                 : 'Ozone',
     
     /* Measurements */  
     hour                       : 'Heure',
@@ -347,7 +373,7 @@
     server_down                : 'L\'application n\'est pas disponible en raison  de maintenance. Veuillez réessayer plus tard',
     add_to_calendar            : 'Ajouter au calendrier',
     sort_on                    : 'Trier sur',
-    Whats_new                  : 'Nouveau dans v2 !',
+    Whats_new                  : 'Nouveau!',
     Manual                     : 'Manuel (EN)',
     
         
@@ -363,15 +389,7 @@
     on_the_scale               : 'sur la balance',
     calibration_started        : 'L\'étalonnage a commencé... Attendez que la prochaine mesure prenne effet',
     calibration_ended          : 'L\'étalonnage a réussi !',
-    
-    /* General items */ 
-    server_down                : 'L\'application n\'est pas disponible en raison de maintenance. Veuillez réessayer plus tard',
-    add_to_calendar            : 'Ajouter au calendrier',
-    sort_on                    : 'Trier sur',
-    Whats_new                  : 'Nouveau dans v2.1!',
-    Manual                     : 'Manuel (EN)',
-        
-        
+                
     Site_title                 : 'BEEP | Moniteur abeille',
     
     could_not_create_user      : 'L\'utilisateur ne peut pas être créé pour le moment. Désolé pour la gêne occasionnée, veuillez réessayer plus tard',
@@ -415,6 +433,70 @@
     group_explanation_2        : '2. Inviter d\'autres utilisateurs Beep sur leur adresse e-mail Beep',
     group_explanation_3        : '3. Partager des ruches spécifiques pour être vues par d\'autres, pour coopérer',
     Filter_and_sort_on         : 'Filtrer et trier sur:',
+    
+    /* New translations v2.2.0 */
+    roofed                  : 'Does the apiary have a roof?',
+    info                    : 'Info',
+    
+    research                : 'Research',
+    research_explanation    : 'This screen contains the available researches for which you can opt-in to share your data with. When you consent to share your BEEP account data, you contribute to research to support honeybee health. Before you consent, please review the research description provided through the link below and request for additional details if needed. You can withdraw your consent at any time, no new data will be shared from that moment. The data that your shared in the period that you did consent to will remain available for research. In case of questions, please direct these to the contact person provided.',
+    research_info           : 'By sharing your data with researchers, you help them to being able to analyse more data and come to better conclusions for their research.',
+    start_date              : 'Start date',
+    end_date                : 'End date',
+    purpose                 : 'Research purpose',
+    institution             : 'Research institution',
+    type_of_data_used       : 'Data usage',
+    link                    : 'Link',
+    Consent                 : 'Consent',
+    history                 : 'history',
+    Current_consent         : 'Current consent',
+    consent_yes             : 'I consent to share my data',
+    consent_no              : 'I do NOT consent to share my data',
+    my_beep_data            : 'My own BEEP data',
+    
+    new_apiary_explanation  : 'Create a new apiary in 4 steps',
+    start_here              : 'Click here to start',
+    optional                : 'optional',
+    dimensions              : 'dimensions',
+    details                 : 'details',
+    configuration           : 'configuration',
+    adjustments             : 'adjustments',
+    changes_queen_color     : 'editing changes the color',
+
+    Brood_box_and_frame     : 'Brood box and frame',
+    Hive_order              : 'Hive order at apiary',
+    bb_width_cm             : 'Brood box width (cm)',
+    bb_height_cm            : 'Brood box height (cm)',
+    bb_depth_cm             : 'Brood box depth (cm)',
+    fr_width_cm             : 'Frame width (cm)',
+    fr_height_cm            : 'Frame height (cm)',
+    queen_line              : 'line',
+    queen_tree              : 'tree',
+    queen_description       : 'notes',
+    Hive_short              : 'Hive',
+
+    Images                  : 'Images',
+    Size                    : 'Size',
+    preview                 : 'preview',
+
+    Sensor_definitions      : 'Sensor definitions',
+    Inside                  : 'Measures inside',
+    Offset                  : 'Offset',
+    Multiplier              : 'Multiplier',
+    Input                   : 'Input',
+    Output                  : 'Output',
+    Last                    : 'Last',
+
+    Export_sensor_data      : 'Export all data per device in the highest possible resolution as a .csv file that you can open in Excel, or SPSS. NB: The date time data in the \'time\' column is in GMT time, formatted by the RFC 3339 date-time standard.',
+    CSV_export_separator    : 'CSV data column separator',
+    Selected_date           : 'Selected time span',
+    Sensor_measurements     : 'Sensor measurements',
+    too_much_data           : 'Too much data to process, please select fewer Sensor measurements, or reduce the timespan between start and end date.',
+
+    beep_base_explanation   : 'If you have a BEEP base (shown in the picture above), please use the native app (iOS and Android) to set-up the communication with this app. If you don\'t have a BEEP base yet, please click on the menu item \'BEEP website\' for updates on how to get a BEEP base. I you have your own measurement device and would like to see the data in the BEEP app, please send us a message to ask for joining our Slack community and you can get access to the API description.', 
+
+
+    
  };
 
 

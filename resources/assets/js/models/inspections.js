@@ -18,6 +18,7 @@ app.service('inspections', ['$http', '$rootScope', 'api', 'settings', function($
 		this.checklistTree= [];
 		this.checklist    = null; // use for filling
 		this.checklistNull= null; // clean loaded checklist
+		this.lastUsedChecklistId = null; // last loaded checklist id
 
 		this.saveObject   = {}; // hold inspection items for saving
 
@@ -43,6 +44,7 @@ app.service('inspections', ['$http', '$rootScope', 'api', 'settings', function($
 		'number_1_decimals': null,
 		'number_2_decimals': null,
 		'number_3_decimals': null,
+		'square_25cm2': null,
 		'text': "",
 		'select': "",
 		'options': "",
@@ -58,6 +60,8 @@ app.service('inspections', ['$http', '$rootScope', 'api', 'settings', function($
 		'smileys_3': -1,
 		'slider': 0,
 		'grade': 0,
+		'file': null,
+		'image': null,
 	}
 	
 	this.newSaveObject = function(data, init=false)
@@ -168,6 +172,17 @@ app.service('inspections', ['$http', '$rootScope', 'api', 'settings', function($
 		return self.saveObject;
 	}
 
+	this.geChecklistById = function(id)
+	{
+		for (var i = 0; i < self.checklists.length; i++) 
+		{
+			var checklist = self.checklists[i];
+			if (checklist.id == id)
+				return checklist;
+		}
+		return null;
+	}
+
 	this.typeIsNonNumeric = function(type)
 	{
 		switch(type)
@@ -178,6 +193,8 @@ app.service('inspections', ['$http', '$rootScope', 'api', 'settings', function($
 			case 'list':
 			case 'select':
 			case 'select_country':
+			case 'file':
+			case 'image':
 				return true;
 		}
 		return false;
@@ -185,6 +202,8 @@ app.service('inspections', ['$http', '$rootScope', 'api', 'settings', function($
 
 	this.parseTypeValueForChecklistInput = function(type, value)
 	{
+		console.log(type, value);
+		
 		switch(type)
 		{
 			case 'list_item':
@@ -211,6 +230,7 @@ app.service('inspections', ['$http', '$rootScope', 'api', 'settings', function($
 			case 'number_1_decimals':
 			case 'number_2_decimals':
 			case 'number_3_decimals':	
+			case 'square_25cm2':	
 				return parseFloat(value);	
 		}
 		return value;
@@ -221,7 +241,10 @@ app.service('inspections', ['$http', '$rootScope', 'api', 'settings', function($
 	{
 		var suffix = '';
 		if (typeof id != 'undefined' && id != null)
+		{
 			suffix = 'id='+id;
+			api.setLocalStoreValue('open_checklist_id', id);
+		}
 
 		api.getApiRequest('checklist', 'inspections/lists', suffix);
 	};
@@ -344,26 +367,31 @@ app.service('inspections', ['$http', '$rootScope', 'api', 'settings', function($
 		{
 			if (items == false)
 			{
-				//console.log('Changed '+type+' = '+value, name);
+				console.log('Changed '+type+' = '+value, name);
 				self.saveObject[type] = value;
 			}
 			else
 			{
 				if (self.STD_VALUES[type] != value)
 				{
-					//console.log('Added '+type+' ('+id+') = '+value, name);
+					console.log('Added '+type+' ('+id+') = '+value, name);
 					self.saveObject.items[id] = value;
 				}
 				else if (typeof self.saveObject.items[id] != 'undefined')
 				{
-					//console.log('Removed '+type+' ('+id+') = '+self.saveObject.items[id], name);
+					console.log('Removed '+type+' ('+id+') = '+self.saveObject.items[id], name);
+
+					if (type == 'image')
+						api.deleteApiRequest('imageDeleteInspection', 'images', {'image_url':self.saveObject.items[id]});
+
 					delete self.saveObject.items[id];
 				}
 			}
+			$rootScope.$broadcast('inspectionItemUpdated');
 		}
 		else
 		{
-			//console.log('NOT createInspectionObject', type, id, value, name);
+			console.log('NOT createInspectionObject', type, id, value, name);
 		}
 	}
 

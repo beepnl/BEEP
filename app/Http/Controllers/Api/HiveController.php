@@ -11,6 +11,9 @@ use Illuminate\Http\Request;
 use App\Http\Requests\PostHiveRequest;
 use App\Http\Controllers\Controller;
 
+/**
+ * @group Api\HiveController
+ */
 class HiveController extends Controller
 {
     /**
@@ -25,12 +28,15 @@ class HiveController extends Controller
 
     private function saveQueen(Request $request, $hive)
     {
-        if ($request->filled('queen.race_id') || $request->filled('queen.name') || $request->filled('queen.created_at') || $request->filled('queen.color') || $request->filled('queen.clipped') || $request->filled('queen.fertilized'))
+        if ($request->filled('queen.race_id') || $request->filled('queen.name') || $request->filled('queen.created_at') || $request->filled('queen.color') || $request->filled('queen.clipped') || $request->filled('queen.fertilized') || $request->filled('queen.description') || $request->filled('queen.line') || $request->filled('queen.tree'))
         {
             $race_id = Category::findCategoryIdByParentAndName('subspecies', 'other');
             $date  = $request->filled('queen.created_at') ? $request->input('queen.created_at') : date("Y-m-d");
             $queen = [
                     'name'          =>$request->input('queen.name'),
+                    'description'   =>$request->input('queen.description'),
+                    'line'          =>$request->input('queen.line'),
+                    'tree'          =>$request->input('queen.tree'),
                     'race_id'       =>$request->input('queen.race_id', $race_id),
                     'created_at'    =>$date.' 00:00:00',
                     'color'         =>$request->input('queen.color'),
@@ -44,10 +50,58 @@ class HiveController extends Controller
     }
 
     /**
-     * Display a listing of the resource.
-     *
+     * api/hives GET
+     * Display a listing of user hives.
      * @return \Illuminate\Http\Response
-     */
+     * @authenticated
+     * @response{
+    "hives": [
+        {
+            "id": 1,
+            "location_id": 1,
+            "hive_type_id": 43,
+            "color": "#35f200",
+            "name": "Kast 1",
+            "created_at": "2017-07-13 23:34:49",
+            "type": "spaarkast",
+            "location": "",
+            "attention": null,
+            "impression": null,
+            "reminder": null,
+            "reminder_date": null,
+            "inspection_count": 0,
+            "sensors": [
+                3,
+                19
+            ],
+            "owner": true,
+            "layers": [
+                {
+                    "id": 1,
+                    "order": 0,
+                    "color": "#35f200",
+                    "type": "brood",
+                    "framecount": 10
+                },
+                {
+                    "id": 2,
+                    "order": 1,
+                    "color": "#35f200",
+                    "type": "brood",
+                    "framecount": 10
+                },
+                {
+                    "id": 3,
+                    "order": 2,
+                    "color": "#35f200",
+                    "type": "honey",
+                    "framecount": 10
+                }
+            ],
+            "queen": null
+        }
+    ]}
+    */
     public function index(Request $request)
     {
         if ($request->user()->hives()->count() > 0)
@@ -58,8 +112,9 @@ class HiveController extends Controller
 
   
     /**
-     * Store a newly created resource in storage.
-     *
+     * api/hives POST
+     * Store a newly created Hive in storage for the authenticated user.
+     * @authenticated
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
@@ -69,21 +124,28 @@ class HiveController extends Controller
         $user_id          = $request->user()->id;
         $location         = $request->user()->locations()->findOrFail($request->input('location_id'));
         $name             = $request->input('name'); 
+        $order            = $request->input('order', null); 
+        $bb_width_cm      = $request->input('bb_width_cm', null); 
+        $bb_depth_cm      = $request->input('bb_depth_cm', null); 
+        $bb_height_cm     = $request->input('bb_height_cm', null); 
+        $fr_width_cm      = $request->input('fr_width_cm', null); 
+        $fr_height_cm     = $request->input('fr_height_cm', null); 
         $hive_type_id     = $request->input('hive_type_id', 63); 
         $color            = $request->input('color', '#FABB13'); // yellow
         $broodLayerAmount = $request->input('brood_layers', 1);
         $honeyLayerAmount = $request->input('honey_layers', 1);
         $frameAmount      = $request->input('frames', 10);
 
-        $hive = $this->hiveFactory->createHive($user_id, $location, $name, $hive_type_id, $color, $broodLayerAmount, $honeyLayerAmount, $frameAmount);
+        $hive = $this->hiveFactory->createHive($user_id, $location, $name, $hive_type_id, $color, $broodLayerAmount, $honeyLayerAmount, $frameAmount, $bb_width_cm, $bb_depth_cm, $bb_height_cm, $fr_width_cm, $fr_height_cm, $order);
         $hive = $this->saveQueen($request, $hive);
 
         return $this->show($request, $hive);
     }
 
     /**
+     * api/hives/{id} GET
      * Display the specified resource.
-     *
+     * @authenticated
      * @param  \App\Hive  $hive
      * @return \Illuminate\Http\Response
      */
@@ -94,8 +156,9 @@ class HiveController extends Controller
 
 
     /**
-     * Update the specified resource in storage.
-     *
+     * api/hives/{id} PATCH
+     * Update the specified user Hive in storage.
+     * @authenticated
      * @param  \Illuminate\Http\Request  $request
      * @param  \App\Hive  $hive
      * @return \Illuminate\Http\Response
@@ -104,22 +167,29 @@ class HiveController extends Controller
     {
         $hive             = $request->user()->allhives(true)->findOrFail($hive->id);
         $location         = $request->user()->allLocations(true)->findOrFail($request->input('location_id'));
-        $name             = $request->input('name'); 
+        $name             = $request->input('name');
+        $order            = $request->input('order', null); 
+        $bb_width_cm      = $request->input('bb_width_cm', null); 
+        $bb_depth_cm      = $request->input('bb_depth_cm', null); 
+        $bb_height_cm     = $request->input('bb_height_cm', null); 
+        $fr_width_cm      = $request->input('fr_width_cm', null); 
+        $fr_height_cm     = $request->input('fr_height_cm', null); 
         $hive_type_id     = $request->input('hive_type_id'); 
         $color            = $request->input('color', '#FABB13'); // yellow
         $broodLayerAmount = $request->input('brood_layers', 1);
         $honeyLayerAmount = $request->input('honey_layers', 1);
         $frameAmount      = $request->input('frames', 10);
 
-        $hive = $this->hiveFactory->updateHive($hive, $location, $name, $hive_type_id, $color, $broodLayerAmount, $honeyLayerAmount, $frameAmount);
+        $hive = $this->hiveFactory->updateHive($hive, $location, $name, $hive_type_id, $color, $broodLayerAmount, $honeyLayerAmount, $frameAmount, $bb_width_cm, $bb_depth_cm, $bb_height_cm, $fr_width_cm, $fr_height_cm, $order);
         $hive = $this->saveQueen($request, $hive);
 
         return $this->show($request, $hive);
     }
 
     /**
-     * Remove the specified resource from storage.
-     *
+     * api/hives/{id} DELETE
+     * Remove the specified user Hive from storage.
+     * @authenticated
      * @param  \App\Hive  $hive
      * @return \Illuminate\Http\Response
      */

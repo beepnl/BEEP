@@ -25,7 +25,6 @@ app.controller('HivesCtrl', function($scope, $rootScope, $window, $location, $fi
 	$scope.queen_colors     = ['#4A90E2','#F4F4F4','#F8DB31','#D0021B','#7ED321','#4A90E2','#F4F4F4','#F8DB31','#D0021B','#7ED321']; // year ending of birth year is index
 	$scope.orderName        = 'name';
 	$scope.orderDirection   = false;
-
 	$scope.dateFormat   	= 'yyyy-MM-dd';
 
 	$scope.setDateLanguage = function()
@@ -91,7 +90,7 @@ app.controller('HivesCtrl', function($scope, $rootScope, $window, $location, $fi
 		$scope.beeraces  = settings.beeraces;
 		$scope.hivetypes = settings.hivetypes;
 		$scope.locations = hives.locations_owned;
-		
+
 		if (hives.hives.length > 0)
 		{
 			$scope.hives = hives.hives_owned;
@@ -196,6 +195,15 @@ app.controller('HivesCtrl', function($scope, $rootScope, $window, $location, $fi
 	$scope.selectHiveType = function(item)
 	{
 		$scope.hive.hive_type_id = item.id;
+
+		if (settings.hivedimensions && typeof settings.hivedimensions[item.name] != 'undefined')
+		{
+			$scope.hive.bb_width_cm  = settings.hivedimensions[item.name].bb_width_cm;
+			$scope.hive.bb_depth_cm  = settings.hivedimensions[item.name].bb_depth_cm;
+			$scope.hive.bb_height_cm = settings.hivedimensions[item.name].bb_height_cm;
+			$scope.hive.fr_width_cm  = settings.hivedimensions[item.name].fr_width_cm;
+			$scope.hive.fr_height_cm = settings.hivedimensions[item.name].fr_height_cm;
+		}
 	}
 	$scope.selectBeeRace = function(item)
 	{

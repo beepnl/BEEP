@@ -33,7 +33,7 @@
                     ,
                     "order": 
                     [
-                        [ 1, "asc" ]
+                        [ 9, "desc" ]
                     ],
                 });
             });
@@ -44,6 +44,7 @@
             <thead>
                 <tr>
                     <th>#</th>
+                    <th>Image</th>
                     <th>Users</th>
                     <th>Hives</th>
                     <th>Locations</th>
@@ -59,6 +60,7 @@
             @foreach($inspections as $item)
                 <tr>
                     <td>{{ $item->id }}</td>
+                    <td>@if(isset($item->image_id))<img src="{{$item->image->thumb_url}}" style="width:40px; height: 40px; border-radius: 20%; border: 1px solid #333; display: inline-block;">@endif</td>
                     <td>{{ $item->users()->pluck('name')->implode(', ') }}</td>
                     <td>{{ $item->hives()->pluck('name')->implode(', ') }} ({{ $item->hives()->pluck('id')->implode(', ') }})</td>
                     <td>{{ $item->locations()->pluck('name')->implode(', ') }}</td>

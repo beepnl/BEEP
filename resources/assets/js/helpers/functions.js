@@ -60,6 +60,16 @@ var range = function(n)
   return new Array(n);
 };
 
+var rangeStep = function(min, max, step) 
+{
+    step = step || 1;
+    var input = [];
+    for (var i = min; i <= max; i += step) {
+        input.push(i);
+    }
+    return input;
+};
+
 var convertOjectToArray = function(obj)
 {
   var array = [];
@@ -135,11 +145,12 @@ var convertInfluxMeasurementsArrayToChartObject = function(obj_arr, lang, labelS
   var yAxisR  = {display: false, position: 'right', id:'y2', scaleLabel:{display:false, labelArray:[], labelString:'', fontSize: labelSize}, ticks: { fontSize: labelSize } };
   var noAxis  = {display: false, offsetGridLines: true};
   
+  var weather  = {datasets:[], series:[], data:[], colors:[], yAxes:[angular.copy(yAxisL), angular.copy(yAxisR)]};
   var sensors  = {datasets:[], series:[], data:[], colors:[], yAxes:[angular.copy(yAxisL), angular.copy(yAxisR)]};
   var debug    = {datasets:[], series:[], data:[], colors:[], yAxes:[angular.copy(yAxisL), angular.copy(yAxisR)]};
   var sound    = {datasets:[], series:[], data:[], colors:[], yAxes:[angular.copy(yAxisL), angular.copy(yAxisR)]};
   var actuators= {datasets:[], series:[], data:[], colors:[], yAxes:[noAxis], labels:[]};
-  var obj_out  = {sensors:sensors, actuators:actuators, sound:sound, debug:debug};
+  var obj_out  = {sensors:sensors, actuators:actuators, sound:sound, debug:debug, weather:weather};
   
   var unitLenMx= 10; // max length of unit in y-scale
 
@@ -154,12 +165,13 @@ var convertInfluxMeasurementsArrayToChartObject = function(obj_arr, lang, labelS
       
       if (quantity != null)
       {
+        var isWeather    = WEATHER.indexOf(name) > -1 ? true : false; 
         var isSensor     = SENSORS.indexOf(name) > -1 ? true : false; 
         var isSound      = SOUND.indexOf(name) > -1 ? true : false; 
         var isDebug      = DEBUG.indexOf(name) > -1 ? true : false; 
-        var isActuator   = isSensor || isSound || isDebug ? false : true; 
+        var isActuator   = isSensor || isSound || isDebug || isWeather ? false : true; 
         
-        var chart         = isSensor ? obj_out.sensors : isSound ? obj_out.sound : isDebug? obj_out.debug : obj_out.actuators; // sensor or other output
+        var chart         = isSensor ? obj_out.sensors : isSound ? obj_out.sound : isDebug? obj_out.debug : isWeather? obj_out.weather : obj_out.actuators; // sensor or other output
         var new_dataset   = angular.copy(dataset); 
         
         var quantityUnit  = (SENSOR_UNITS[name] !== 'undefined') ? SENSOR_UNITS[name] : null;
@@ -236,12 +248,13 @@ var convertInfluxMeasurementsArrayToChartObject = function(obj_arr, lang, labelS
       {
         var val          = obj[name];
         var unit         = (SENSOR_UNITS[name] !== 'undefined') ? SENSOR_UNITS[name] : null;
+        var isWeather    = WEATHER.indexOf(name) > -1 ? true : false; 
         var isSensor     = SENSORS.indexOf(name) > -1 ? true : false; 
         var isSound      = SOUND.indexOf(name) > -1 ? true : false; 
         var isDebug      = DEBUG.indexOf(name) > -1 ? true : false; 
-        var isActuator   = isSensor || isSound || isDebug ? false : true; 
+        var isActuator   = isSensor || isSound || isDebug || isWeather ? false : true; 
 
-        var chart        = isSensor ? obj_out.sensors : isSound ? obj_out.sound : isDebug? obj_out.debug : obj_out.actuators; // sensor or other output
+        var chart        = isSensor ? obj_out.sensors : isSound ? obj_out.sound : isDebug? obj_out.debug : isWeather? obj_out.weather : obj_out.actuators; // sensor or other output
         var dataSetIndex = chart.series.indexOf(name);
         
         if (dataSetIndex > -1)
@@ -259,6 +272,7 @@ var convertInfluxMeasurementsArrayToChartObject = function(obj_arr, lang, labelS
               {
                 chart.yAxes[1].display = true;
                 chart.datasets[dataSetIndex].yAxisID = 'y2';
+
                 var label = '';
                 
                 if (unit != null && unit != '' && chart.yAxes[1].scaleLabel.labelArray.indexOf(unit) == -1)
@@ -506,22 +520,23 @@ function randomString(length=16) {
     return 0;
 }
 
-// $(document).ready(function() {
-
-//   $("[data-widget='collapse']").click(function() {
-//       //Find the box parent........
-//       var box = $(this).parents(".box").first();
-//       //Find the body and the footer
-//       var bf = box.find(".box-body, .box-footer");
-
-//       if (!$(this).children().find(".box-tools").children().hasClass("fa-plus")) {
-//           $(this).children().find(".box-tools").children(".fa-minus").removeClass("fa-minus").addClass("fa-plus");
-//           bf.slideUp();
-//       } else {
-//           //Convert plus into minus
-//           $(this).children().find(".box-tools").children(".fa-plus").removeClass("fa-plus").addClass("fa-minus");
-//           bf.slideDown();
-//       }
-//   });
-
-// });
+// CSV export to downloadable file
+function exportToCsv(filename, csvData) {
+    
+    var blob = new Blob([csvData], { type: 'text/csv;charset=utf-8;' });
+    if (navigator.msSaveBlob) { // IE 10+
+        navigator.msSaveBlob(blob, filename);
+    } else {
+        var link = document.createElement("a");
+        if (link.download !== undefined) { // feature detection
+            // Browsers that support HTML5 download attribute
+            var url = URL.createObjectURL(blob);
+            link.setAttribute("href", url);
+            link.setAttribute("download", filename);
+            link.style.visibility = 'hidden';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+    }
+}

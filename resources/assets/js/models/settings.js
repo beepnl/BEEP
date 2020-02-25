@@ -21,7 +21,9 @@ app.service('settings', ['$http', '$rootScope', 'api', function($http, $rootScop
 
 		this.beeraces  	  		= [];
 		this.hivetypes 	  		= [];
+		this.hivedimensions 	= {};
 		this.sensortypes 	  	= [];
+		this.sensormeasurements = [];
 		this.taxonomy			= [];
 		this.settings_array		= [];
 	}
@@ -53,12 +55,30 @@ app.service('settings', ['$http', '$rootScope', 'api', function($http, $rootScop
 		if (typeof data.hivetypes != 'undefined')
 			self.hivetypes = data.hivetypes;
 
+		if (typeof data.hivedimensions != 'undefined')
+			self.hivedimensions = data.hivedimensions;
+
+		if (typeof data.sensormeasurements != 'undefined')
+			self.sensormeasurements = data.sensormeasurements;
+
 		if (typeof data.hivetypes != 'undefined' || typeof data.beeraces != 'undefined')
 			$rootScope.$broadcast('taxonomyListsUpdated');
 
 	};
 	$rootScope.$on('taxonomyListsLoaded', self.taxonomyHandler);
 	$rootScope.$on('taxonomyItemsLoaded', self.taxonomyHandler);
+
+	this.getSensormeasurementById = function(id)
+	{
+		for(var i in this.sensormeasurements)
+		{
+			var sm = this.sensormeasurements[i];
+			if (sm.id == id)
+				return sm;
+		}
+		return null;
+	
+	}
 
 	this.saveSettings = function(settings)
 	{

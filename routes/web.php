@@ -75,13 +75,13 @@ Route::group(
 				Route::patch('groups/{id}',			['as'=>'groups.update','uses'=>'GroupController@update','middleware' => ['permission:group-edit']]);
 				Route::delete('groups/{id}',		['as'=>'groups.destroy','uses'=>'GroupController@destroy','middleware' => ['permission:group-delete']]);
 
-				Route::get('sensors',				['as'=>'sensors.index','uses'=>'SensorController@index','middleware' => ['permission:sensor-list|sensor-create|sensor-edit|sensor-delete']]);
-				Route::get('sensors/create',		['as'=>'sensors.create','uses'=>'SensorController@create','middleware' => ['permission:sensor-create']]);
-				Route::post('sensors/create',		['as'=>'sensors.store','uses'=>'SensorController@store','middleware' => ['permission:sensor-create']]);
-				Route::get('sensors/{id}',			['as'=>'sensors.show','uses'=>'SensorController@show']);
-				Route::get('sensors/{id}/edit',		['as'=>'sensors.edit','uses'=>'SensorController@edit','middleware' => ['permission:sensor-edit']]);
-				Route::patch('sensors/{id}',		['as'=>'sensors.update','uses'=>'SensorController@update','middleware' => ['permission:sensor-edit']]);
-				Route::delete('sensors/{id}',		['as'=>'sensors.destroy','uses'=>'SensorController@destroy','middleware' => ['permission:sensor-delete']]);
+				Route::get('devices',				['as'=>'devices.index','uses'=>'DeviceController@index','middleware' => ['permission:sensor-list|sensor-create|sensor-edit|sensor-delete']]);
+				Route::get('devices/create',		['as'=>'devices.create','uses'=>'DeviceController@create','middleware' => ['permission:sensor-create']]);
+				Route::post('devices/create',		['as'=>'devices.store','uses'=>'DeviceController@store','middleware' => ['permission:sensor-create']]);
+				Route::get('devices/{id}',			['as'=>'devices.show','uses'=>'DeviceController@show']);
+				Route::get('devices/{id}/edit',		['as'=>'devices.edit','uses'=>'DeviceController@edit','middleware' => ['permission:sensor-edit']]);
+				Route::patch('devices/{id}',		['as'=>'devices.update','uses'=>'DeviceController@update','middleware' => ['permission:sensor-edit']]);
+				Route::delete('devices/{id}',		['as'=>'devices.destroy','uses'=>'DeviceController@destroy','middleware' => ['permission:sensor-delete']]);
 				
 		});
 
@@ -108,10 +108,14 @@ Route::group(
 				Route::resource('categoryinputs', 	'CategoryInputsController');
 				Route::resource('inspection-items', 'InspectionItemsController');
 				Route::resource('measurement', 		'MeasurementController');
+				Route::resource('research', 		'ResearchController');
+				Route::resource('image', 			'ImageController');
+				Route::resource('sensordefinition' ,'SensorDefinitionController');
 
 				Route::resource('categories', 		'CategoriesController');
 				Route::delete('categories/{id}/pop',['as'=>'categories.pop','uses'=>'CategoriesController@pop','middleware' => ['permission:taxonomy-delete']]);
 				Route::get('categories/{id}/fix',	['as'=>'categories.fix','uses'=>'CategoriesController@fix']);
+				Route::get('categories/{id}/duplicate',	['as'=>'categories.duplicate','uses'=>'CategoriesController@duplicate']);
 				Route::get('taxonomy/display',	['as'=>'taxonomy.display','uses'=>'TaxonomyController@display']);
 
 				Route::delete('checklists/destroy/copies',	['as'=>'checklists.copies','uses'=>'ChecklistController@destroyCopies']);
@@ -122,4 +126,3 @@ Route::group(
 	}
 );
 Auth::routes(['verify' => true]);
-

@@ -22,6 +22,7 @@ mix.styles([
 	'node_modules/normalize-css/normalize.css',
 	'node_modules/admin-lte/bootstrap/css/bootstrap.min.css',
 	'node_modules/jstree/dist/themes/default/style.min.css',
+    'node_modules/admin-lte/plugins/select2/select2.min.css',
 	'resources/assets/css/portal.css',
 	'resources/assets/css/skin-beep.css',
 	], 'public/css/skin-base.css').version();
@@ -29,6 +30,7 @@ mix.styles([
 
 mix.copy([
 	'node_modules/admin-lte/bootstrap/css/bootstrap.min.css.map',
+    'node_modules/components-font-awesome/css/fontawesome.min.css',
 	], 'public/css');
 
 mix.copy([
@@ -47,6 +49,7 @@ mix.styles([
 	'node_modules/angularjs-slider/dist/rzslider.min.css',
 	'node_modules/datetimepicker/dist/DateTimePicker.min.css',
 	'resources/assets/css/measurements.css',
+    'resources/assets/css/file-upload.css',
 	], 'public/app/css/skin.css').version();
 
 mix.styles([
@@ -70,6 +73,7 @@ mix.scripts([
 	'node_modules/admin-lte/bootstrap/js/bootstrap.min.js',
     'node_modules/admin-lte/dist/js/app.js',
     'node_modules/admin-lte/plugins/slimScroll/jquery.slimscroll.min.js',
+    'node_modules/admin-lte/plugins/select2/select2.min.js',
 	'node_modules/hammerjs/hammer.min.js',
     'node_modules/jstree/dist/jstree.min.js',   
 	], 'public/js/scripts-base.js').version();
@@ -105,6 +109,8 @@ mix.babel([
     'node_modules/ng-iScroll/src/ng-iscroll.js',
     'node_modules/angularjs-gauge/src/angularjs-gauge.js', 
     'node_modules/datetimepicker/src/DateTimePicker.js', 
+    'node_modules/ng-file-upload/dist/ng-file-upload-shim.min.js', 
+    'node_modules/ng-file-upload/dist/ng-file-upload.min.js', 
 	], 'public/app/js/angular-modules.js').version();
 
 mix.babel([
@@ -156,6 +162,7 @@ mix.babel([
     'resources/assets/js/directives/beep-group-hive.js',
     'resources/assets/js/directives/beep-user-selector.js',
     'resources/assets/js/directives/beep-sensor.js',
+    'resources/assets/js/directives/beep-sensor-definition.js',
     'resources/assets/js/directives/angular-country-select.js',
     'resources/assets/js/directives/angular-restrict-input.js',
     'node_modules/angular-password/angular-password.min.js',
@@ -168,6 +175,7 @@ mix.babel([
     'resources/assets/js/models/measurements.js',
     'resources/assets/js/models/inspections.js',
     'resources/assets/js/models/groups.js',
+    'resources/assets/js/models/images.js',
     'resources/assets/js/controllers/load.js',
     'resources/assets/js/controllers/user.js',
     'resources/assets/js/controllers/settings.js',
@@ -181,10 +189,12 @@ mix.babel([
     'resources/assets/js/controllers/export.js',
     'resources/assets/js/controllers/sensors.js',
     'resources/assets/js/controllers/groups.js',
+    'resources/assets/js/controllers/researches.js',
+    'resources/assets/js/controllers/images.js',
 	], 'public/app/js/angular-code.js').version();
 
 
-mix.copyDirectory('node_modules/components-font-awesome/webfonts', 'public/webfonts');
+mix.copyDirectory('node_modules/components-font-awesome/webfonts', 'public/fonts');
 mix.copyDirectory('resources/assets/app-views', 'public/app/views').version();
 
 mix.copy('resources/terms', 'public');

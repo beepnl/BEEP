@@ -29,11 +29,11 @@
 			<div class="col-xs-6">
 				<div>
 					<label>{{ lang.Hive_brood_layers }}</label>
-					<div step="1" ng-disabled="false" min="0" ng-model="hive.brood_layers" ng-change="calculateTpaColonySize()" rn-stepper></div>
+					<div step="1" ng-disabled="false" min="0" max="5" ng-model="hive.brood_layers" ng-change="calculateTpaColonySize()" rn-stepper></div>
 				</div>
 				<div>
 					<label>{{ lang.Hive_frames }}</label>
-					<div step="1" ng-disabled="false" min="0" ng-model="hive.frames" ng-change="calculateTpaColonySize()" rn-stepper></div>
+					<div step="1" ng-disabled="false" min="0" max="20" ng-model="hive.frames" ng-change="calculateTpaColonySize()" rn-stepper></div>
 				</div>
 			</div>
 			

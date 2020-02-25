@@ -115,9 +115,12 @@ class Weather extends Model
 
         foreach ($locations as $loc) 
         {
-            $result = Weather::callApi($loc);
-            if (gettype($result) == 'string')
-                $count++;
+            if ($loc->devices()->count() > 0)
+            {
+                $result = Weather::callApi($loc);
+                if (gettype($result) == 'string')
+                    $count++;
+            }
         }
         return 'updated_'.$count.'_locations';
     }

@@ -1,6 +1,7 @@
 {
     "name": "beepnl/beep",
-    "version": "2.1.0",
+    "vendor":"BEEP Foundation",
+    "version": "2.2.0",
     "description": "BEEP digital hive monitor",
     "keywords": ["Beep", "Beekeeping", "apiary", "hive", "app", "measurement system"],
     "license": "MIT",

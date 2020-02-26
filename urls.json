@@ -1,0 +1,36 @@
+{
+	"updated":"2020-02-26T22:00:00",
+	"info":"development@beep.nl",
+	"website":"https://beep.nl",
+	"helpdesk":"https://beepsupport.freshdesk.com",
+	"production":
+	{
+		"api":"https://api.beep.nl/api",
+		"app_ios":"",
+		"app_android":"",
+		"app_web":"https://app.beep.nl",
+		"data_sensors":"https://api.beep.nl/api/sensors",
+		"data_sensors_unsecure":"http://api.beep.nl/api/unsecure_sensors",
+		"data_sensors_lora":"https://api.beep.nl/api/lora_sensors",
+	},
+	"acceptance":
+	{
+		"api":"https://test.beep.nl/api",
+		"app_ios":"",
+		"app_android":"",
+		"app_web":"https://test.beep.nl/webapp",
+		"data_sensors":"https://test.beep.nl/api/sensors",
+		"data_sensors_unsecure":"http://test.beep.nl/api/unsecure_sensors",
+		"data_sensors_lora":"https://test.beep.nl/api/lora_sensors",
+	},
+	"test":
+	{
+		"api":"https://test.beep.nl/api",
+		"app_ios":"",
+		"app_android":"",
+		"app_web":"https://test.beep.nl/webapp",
+		"data_sensors":"https://test.beep.nl/api/sensors",
+		"data_sensors_unsecure":"http://test.beep.nl/api/unsecure_sensors",
+		"data_sensors_lora":"https://test.beep.nl/api/lora_sensors",
+	}
+}

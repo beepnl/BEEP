@@ -26,7 +26,7 @@
         <div class="col-xs-12 col-sm-12 col-md-12">
             <div class="form-group">
                 <label>{{ __('crud.type') }}:</label>
-                {!! Form::select('category_id', $types, null, ['placeholder'=>__('crud.select', ['item'=>__('general.device').' '.__('general.type')]),'class' => 'form-control']) !!}
+                {!! Form::select('category_id', $types, null, ['placeholder'=>__('crud.select', ['item'=>__('general.device').' '.__('general.type')]),'class' => 'form-control select2']) !!}
             </div>
         </div>
         <div class="col-xs-12 col-sm-12 col-md-12">

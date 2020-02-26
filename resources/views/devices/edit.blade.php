@@ -26,7 +26,7 @@
         <div class="col-xs-12 col-sm-6 col-md-4">
             <div class="form-group">
                 <label>{{ __('crud.type') }}</label>
-                {!! Form::select('category_id', $types, $item->category_id, array('placeholder'=>__('crud.select', ['item'=>__('general.device').' '.__('general.type')]),'class' => 'form-control')) !!}
+                {!! Form::select('category_id', $types, $item->category_id, array('placeholder'=>__('crud.select', ['item'=>__('general.device').' '.__('general.type')]),'class' => 'form-control select2')) !!}
             </div>
         </div>
         <div class="col-xs-12 col-sm-6 col-md-4">
@@ -38,13 +38,13 @@
         <div class="col-xs-12 col-sm-6 col-md-4">
             <div class="form-group">
                 <label>{{ __('general.User') }}</label>
-                {!! Form::select('user_id', $users, $item->user_id, array('placeholder'=>__('crud.select', ['item'=>__('general.user')]),'class' => 'form-control')) !!}
+                {!! Form::select('user_id', $users, $item->user_id, array('placeholder'=>__('crud.select', ['item'=>__('general.user')]),'class' => 'form-control select2')) !!}
             </div>
         </div>
         <div class="col-xs-12 col-sm-6 col-md-4">
             <div class="form-group">
                 <label>{{ __('beep.Hive') }}</label>
-                {!! Form::select('hive_id', $hives, $item->hive_id, array('placeholder'=>__('crud.select', ['item'=>__('beep.Hive')]),'class' => 'form-control')) !!}
+                {!! Form::select('hive_id', $hives, $item->hive_id, array('placeholder'=>__('crud.select', ['item'=>__('beep.Hive')]),'class' => 'form-control select2')) !!}
             </div>
         </div>
         <div class="col-xs-12 col-sm-6 col-md-4">

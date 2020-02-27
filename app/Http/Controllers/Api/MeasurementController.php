@@ -479,9 +479,18 @@ class MeasurementController extends Controller
 
         if ($device == null && $field == 'hardware_id' && $value !== null && env('ALLOW_DEVICE_CREATION') == 'true' && Auth::user()->hasRole('sensor-data')) // no device with this key available
         {
-            $category_id = Category::findCategoryIdByParentAndName('sensor', 'beep');
-            $device_name = 'BEEPBASE-'.strtoupper(substr($key, -4, 4));
-            $device      = Device::create(['name'=> $device_name, 'key'=>$key, 'hardware_id'=>$value, 'user_id'=>1, 'category_id'=>$category_id]);
+            $device = Device::where('hardware_id', $value)->first();
+            
+            if ($device)
+            {
+                $device->key = $key; // update hardware id to the supplied key to prevent double hardware id's
+            }
+            else
+            {
+                $category_id = Category::findCategoryIdByParentAndName('sensor', 'beep');
+                $device_name = 'BEEPBASE-'.strtoupper(substr($key, -4, 4));
+                $device      = Device::create(['name'=> $device_name, 'key'=>$key, 'hardware_id'=>$value, 'user_id'=>1, 'category_id'=>$category_id]);
+            }
         }
 
         if($device)

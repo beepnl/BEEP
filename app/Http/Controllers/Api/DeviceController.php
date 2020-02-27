@@ -193,8 +193,8 @@ class DeviceController extends Controller
         $validator = Validator::make($device, [
             'key'               => ['required_without:id','string','min:4',Rule::unique('sensors')->ignore($sid)],
             'name'              => 'nullable|string',
-            'id'                => ['nullable','integer',Rule::unique('sensors')->ignore($sid)],
-            'hardware_id'       => ['nullable','string',Rule::unique('sensors')->ignore($sid)],
+            'id'                => ['nullable','integer', Rule::unique('sensors')->ignore($sid)],
+            'hardware_id'       => ['nullable','string', Rule::unique('sensors')->ignore($sid)],
             'hive_id'           => 'nullable|integer|exists:hives,id',
             'type'              => 'nullable|string|exists:categories,name',
             'delete'            => 'nullable|boolean'
@@ -202,7 +202,7 @@ class DeviceController extends Controller
 
         if ($validator->fails())
         {
-            return ['errors'=>$validator->errors()];
+            return ['errors'=>$validator->errors().' (DEV EUI: '.$key.')'];
         }
         else
         {

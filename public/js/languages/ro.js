@@ -299,6 +299,7 @@
     s_fly_a                 : 'Albine care zboară',
     sound_total             : 'Sunet total',
     s_tot                   : 'Sunet total',
+    s_spl                   : 'Sunet total',
     bee_count_in            : 'Număr albine intrate',
     bc_i                    : 'Număr albine intrate',
     bee_count_out           : 'Număr albine ieșite',

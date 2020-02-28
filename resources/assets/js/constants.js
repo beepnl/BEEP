@@ -28,7 +28,7 @@ var COLORS =
 
 var WEATHER = ['icon','precipIntensity','precipProbability','precipType','temperature','apparentTemperature','dewPoint','humidity','pressure','windSpeed','windGust','windBearing','cloudCover','uvIndex','visibility','ozone']; // weather indicators
 var SENSORS = ['t','h','p','l','bc_i','bc_o','weight_kg_corrected','weight_kg','t_i','t_0','t_1','t_2','t_3','t_4','t_5','t_6','t_7','t_8','t_9']; // not actuators
-var SOUND   = ['s_fan_4','s_fan_6','s_fan_9','s_fly_a','s_tot','s_bin']; // all sound releated sensors
+var SOUND   = ['s_fan_4','s_fan_6','s_fan_9','s_fly_a','s_tot','s_bin','s_spl']; // all sound releated sensors
 var DEBUG   = ['bv','rssi','snr']; // all debugging info sensors
 
 var SENSOR_COLOR = {
@@ -42,6 +42,7 @@ var SENSOR_COLOR = {
 	s_fan_9 :COLORS.pink,
 	s_fly_a :COLORS.pink,
 	s_tot 	:COLORS.pink,
+	s_spl 	:COLORS.pink,
 	bc_i	:COLORS.purple,
 	bc_o	:COLORS.purple,
 	weight_kg			:COLORS.orange,
@@ -110,6 +111,7 @@ var SENSOR_NAMES =
 	s_fan_9 : 's_fan_9',
 	s_fly_a : 's_fly_a',
 	s_tot 	: 's_tot',
+	s_spl 	: 's_spl',
 	bc_i	: 'bc_i',
 	bc_o	: 'bc_o',
 	weight_kg			: 'weight_kg',
@@ -178,6 +180,7 @@ var SENSOR_MIN =
 	s_fan_9 : 0,
 	s_fly_a : 0,
 	s_tot 	: 0,
+	s_spl 	: 0,
 	bc_i	: 0,
 	bc_o	: 0,
 	weight_kg			: 0,
@@ -221,6 +224,7 @@ var SENSOR_LOW =
 	s_fan_9 : 0,
 	s_fly_a : 0,
 	s_tot 	: 0,
+	s_spl 	: 30,
 	bc_i	: 0,
 	bc_o	: 0,
 	weight_kg			: 1,
@@ -254,6 +258,7 @@ var SENSOR_HIGH =
 	s_fan_9 : 5,
 	s_fly_a : 5,
 	s_tot 	: 20,
+	s_spl 	: 80,
 	bc_i	: 5000,
 	bc_o	: 5000,
 	weight_kg			: 100,
@@ -277,6 +282,7 @@ var SENSOR_MAX =
 	s_fan_9 : 10,
 	s_fly_a : 10,
 	s_tot 	: 50,
+	s_spl 	: 140,
 	bc_i	: 50000,
 	bc_o	: 50000,
 	weight_kg			: 125,
@@ -310,6 +316,7 @@ var SENSOR_UNITS =
 	s_fan_9 : '',
 	s_fly_a : '',
 	s_tot 	: '',
+	s_spl 	: 'dB(A)',
 	bc_i	: '#',
 	bc_o	: '#',
 	weight_kg			: 'kg',

@@ -84,9 +84,10 @@ app.controller('MeasurementsCtrl', function($scope, $rootScope, $timeout, $inter
                 position: "bottom",
                 ticks: 
                 {
+                  source: 'auto',
                   autoSkip: true,
-                  maxRotation: 0,
-                  minRotation: 0,
+                  // maxRotation: 0,
+                  // minRotation: 0,
                   fontSize: $rootScope.mobile ? $scope.fontSizeMob : $scope.fontSize,
                 },
                 type:"time",
@@ -102,6 +103,7 @@ app.controller('MeasurementsCtrl', function($scope, $rootScope, $timeout, $inter
             [{
                 ticks: 
                 {
+                  autoSkip: true,
                   fontSize: $rootScope.mobile ? $scope.fontSizeMob : $scope.fontSize,
                 },
                 display: false,

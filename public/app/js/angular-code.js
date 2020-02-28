@@ -3479,9 +3479,10 @@ app.controller('MeasurementsCtrl', function ($scope, $rootScope, $timeout, $inte
       display: true,
       position: "bottom",
       ticks: {
+        source: 'auto',
         autoSkip: true,
-        maxRotation: 0,
-        minRotation: 0,
+        // maxRotation: 0,
+        // minRotation: 0,
         fontSize: $rootScope.mobile ? $scope.fontSizeMob : $scope.fontSize
       },
       type: "time",
@@ -3494,6 +3495,7 @@ app.controller('MeasurementsCtrl', function ($scope, $rootScope, $timeout, $inte
     }],
     yAxes: [{
       ticks: {
+        autoSkip: true,
         fontSize: $rootScope.mobile ? $scope.fontSizeMob : $scope.fontSize
       },
       display: false,

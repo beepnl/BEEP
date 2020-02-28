@@ -300,6 +300,7 @@
     s_fly_a                    : 'Abeilles volantes',
     sound_total                : 'Son total',
     s_tot                      : 'Son total',
+    s_spl                      : 'Son total',
     bee_count_in               : 'Comptez les abeilles',
     bc_i                       : 'Comptez les abeilles',
     bee_count_out              : 'Comptage d\'abeilles sorties',

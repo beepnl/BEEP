@@ -299,6 +299,7 @@
     s_fly_a                 : 'Abelhas em voo',
     sound_total             : 'Som total',
     s_tot                   : 'Som total',
+    s_spl                   : 'Som total',
     bee_count_in            : 'Contagem de abelhas dentro',
     bc_i                    : 'Contagem de abelhas dentro',
     bee_count_out           : 'Contagem de abelhas fora',

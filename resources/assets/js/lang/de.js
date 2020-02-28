@@ -299,6 +299,7 @@ LANG['de'] =
 	s_fly_a : 'Fliegende Bienen', 
 	sound_total : 'Totaler Sound', 
 	s_tot : 'Totaler Sound', 
+	s_spl : 'Totaler Sound', 
 	bee_count_in : 'Bienenzähler nach innen', 
 	bc_i : 'Bienenzähler nach innen', 
 	bee_count_out : 'Bienenzähler nach außen', 

@@ -299,6 +299,8 @@
     s_fly_a                 : 'Flying bees',
     sound_total             : 'Total sound',
     s_tot                   : 'Total sound',
+    s_spl                   : 'Sound pressure level',
+    s_spl                   : 'Sound pressure level',
     bee_count_in            : 'Bee count in',
     bc_i                    : 'Bee count in',
     bee_count_out           : 'Bee count out',

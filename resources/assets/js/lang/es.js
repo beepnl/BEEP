@@ -300,6 +300,7 @@
     s_fly_a : 'Abejas voladoras',
     sound_total : 'Sonido total',
     s_tot : 'Sonido total',
+    s_spl : 'Sonido total',
     bee_count_in : 'Cuenta de abejas en el interior',
     bc_i : 'Cuenta de abejas en el interior',
     bee_count_out : 'Cuenta de abejas en el exterior',

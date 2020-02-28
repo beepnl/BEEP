@@ -316,7 +316,7 @@ var SENSOR_UNITS =
 	s_fan_9 : '',
 	s_fly_a : '',
 	s_tot 	: '',
-	s_spl 	: 'dB(A)',
+	s_spl 	: 'dB',
 	bc_i	: '#',
 	bc_o	: '#',
 	weight_kg			: 'kg',

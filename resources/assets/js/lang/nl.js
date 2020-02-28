@@ -301,6 +301,7 @@
     s_fly_a                 : 'Vlieggeluid',
     sound_total             : 'Totaal geluid',
     s_tot                   : 'Totaal geluid',
+    s_spl                   : 'Geluidsdruk',
     bee_count_in            : 'Bijen naar binnen',
     bc_i                    : 'Bijen naar binnen',
     bee_count_out           : 'Bijen naar buiten',

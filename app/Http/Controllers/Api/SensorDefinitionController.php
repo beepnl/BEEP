@@ -161,6 +161,10 @@ class SensorDefinitionController extends Controller
             $sensordefinition = $device->sensorDefinitions()->findOrFail($id);
             //$request_data     = $this->makeRequestDataArray($request);
             $request_data = $request->only('name', 'inside', 'offset', 'multiplier', 'input_measurement_id', 'output_measurement_id', 'device_id');
+            
+            if ($request->has('inside'))
+                $request_data['inside'] = $request_data['inside'] == true ? 1 : 0;
+
             $sensordefinition->update($request_data);
             return response()->json($sensordefinition, 200);
         }

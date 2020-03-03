@@ -45,6 +45,12 @@ class SensorDefinition extends Model
         return null;
     }
 
+    // transform bool output into real boolean value 
+    public function getInsideAttribute($value)
+    {
+        return $value == 1 ? true : false;
+    }
+
     public function input_measurement()
     {
         return $this->belongsTo(Measurement::class);

@@ -188,7 +188,7 @@ class DeviceController extends Controller
     public function updateOrCreateDevice($device)
     {
         $sid = isset($device['id']) ? $device['id'] : null;
-        $key = isset($device['key']) ? $device['key'] : null;
+        $key = isset($device['key']) ? strtolower($device['key']) : null;
 
         $validator = Validator::make($device, [
             'key'               => ['required_without:id','string','min:4',Rule::unique('sensors')->ignore($sid)],
@@ -258,7 +258,7 @@ class DeviceController extends Controller
                 $device_new['last_message_received'] = $device['last_message_received'];
             
             if (isset($device['hardware_id']))
-                $device_new['hardware_id'] = $device['hardware_id'];
+                $device_new['hardware_id'] = strtolower($device['hardware_id']);
             
             if (isset($device['firmware_version']))
                 $device_new['firmware_version'] = $device['firmware_version'];

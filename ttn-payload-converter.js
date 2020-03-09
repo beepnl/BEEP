@@ -68,12 +68,12 @@ function Converter(decoded, port) {
     
     // weight is not converted
 
-    // temperature
+    // temperature (-99 is error code)
     if (decoded.ds18b20_present)
     {
       if (decoded.ds18b20_sensor_amount == 1)
       {
-        if (decoded.t_i > 0)
+        if (decoded.t_i > -99)
           converted.t_i =  decoded.t_i / 100;
         
       }
@@ -81,7 +81,8 @@ function Converter(decoded, port) {
       {
         for (var i = 0; i < decoded.ds18b20_sensor_amount; i++) 
         {
-          converted['t_'+i] = decoded['t_'+i] / 100;
+          if (decoded['t_'+i] > -99)
+            converted['t_'+i] = decoded['t_'+i] / 100;
         }
       }
     }

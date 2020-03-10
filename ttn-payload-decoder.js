@@ -14,6 +14,18 @@ function Decoder(bytes, port) {
     return number.toString(16) + ""; // always return a string
   }
 
+  function hexToInt(hex) {
+    if (hex.length % 2 != 0) {
+        hex = "0" + hex;
+    }
+    var num = parseInt(hex, 16);
+    var maxVal = Math.pow(2, hex.length / 2 * 8);
+    if (num > maxVal / 2 - 1) {
+        num = num - maxVal
+    }
+    return num;
+}
+
   if (port == 1)
   {
     decoded.length = bytes.length;
@@ -205,14 +217,14 @@ function Decoder(bytes, port) {
       decoded.ds18b20_present = true;
       if (decoded.ds18b20_sensor_amount == 1)
       {
-        decoded.t_i =  (bytes[ds18b20_values_start_byte] << 8) + bytes[ds18b20_values_start_byte+1]; // 04 (11 temp) 01 (12 1x) 07D6 (13-14 value)
+        decoded.t_i =  hexToInt(toHexString(bytes[ds18b20_values_start_byte], 2) + toHexString(bytes[ds18b20_values_start_byte+1], 2)); // 04 (11 temp) 01 (12 1x) 07D6 (13-14 value)
       }
       else
       {
         for(var j = 0; j < decoded.ds18b20_sensor_amount; j++)
         {
           var tempValueByteIndex = ds18b20_values_start_byte + (j * ds18b20_byte_length); 
-          decoded['t_' + j] = (bytes[tempValueByteIndex] << 8) + bytes[tempValueByteIndex+1]; 
+          decoded['t_' + j] = hexToInt(toHexString(bytes[tempValueByteIndex], 2) + toHexString(bytes[tempValueByteIndex+1], 2)); 
         }
       }
     }
@@ -258,13 +270,13 @@ function Decoder(bytes, port) {
     // BME280: 0x07
     var bme280_start_byte        = fft_values_end_byte;
     var bme280_values_start_byte = bme280_start_byte + 1;
-    var bme280_t = (bytes[bme280_values_start_byte+0] << 8) + bytes[bme280_values_start_byte+1];
+    var bme280_t = hexToInt(toHexString(bytes[bme280_values_start_byte+0], 2) + toHexString(bytes[bme280_values_start_byte+1], 2));
     var bme280_h = (bytes[bme280_values_start_byte+2] << 8) + bytes[bme280_values_start_byte+3];
     var bme280_p = (bytes[bme280_values_start_byte+4] << 8) + bytes[bme280_values_start_byte+5];
     if (bytes[bme280_start_byte] == 0x07 && (bme280_t + bme280_h + bme280_p) != 0)
     {
       decoded.bme280_present = true;
-      decoded.bme280_t = (bytes[bme280_values_start_byte+0] << 8) + bytes[bme280_values_start_byte+1];
+      decoded.bme280_t = hexToInt(toHexString(bytes[bme280_values_start_byte+0], 2) + toHexString(bytes[bme280_values_start_byte+1], 2));
       decoded.bme280_h = (bytes[bme280_values_start_byte+2] << 8) + bytes[bme280_values_start_byte+3];
       decoded.bme280_p = (bytes[bme280_values_start_byte+4] << 8) + bytes[bme280_values_start_byte+5];
     }

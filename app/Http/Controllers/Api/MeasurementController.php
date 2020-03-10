@@ -477,7 +477,7 @@ class MeasurementController extends Controller
     {
         $device = Device::where('key', $key)->first();
 
-        if ($device == null && $field == 'hardware_id' && $value !== null && env('ALLOW_DEVICE_CREATION') == 'true' && Auth::user()->hasRole('sensor-data')) // no device with this key available
+        if ($device == null && $field == 'hardware_id' && $value !== null && env('ALLOW_DEVICE_CREATION') == 'true' && Auth::user() && Auth::user()->hasRole('sensor-data')) // no device with this key available
         {
             $device = Device::where('hardware_id', $value)->first();
             

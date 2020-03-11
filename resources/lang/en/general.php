@@ -41,8 +41,8 @@ return [
     'last_action'   => 'Last action',
     'last_login'    => 'Last login',
     
-    'superadmin'    => 'Super administrator',
-    'admin'         => 'Administrator',
+    'superadmin'    => 'Super admin',
+    'admin'         => 'Admin',
     'manager'       => 'Sensor manager',
 
     'Menu'          => 'Menu',

@@ -67,6 +67,12 @@ Route::group(
 				Route::get('translations/{language}',['as'=>'translations.edit','uses'=>'TranslationController@edit','middleware' => ['permission:translation-create']]);
 				Route::patch('translations/{language}',['as'=>'translations.update','uses'=>'TranslationController@update','middleware' => ['permission:translation-edit']]);
 
+			});
+
+		Route::group(
+			['middleware' => ['role:superadmin|admin']],
+			function()
+			{		
 				Route::get('groups',				['as'=>'groups.index','uses'=>'GroupController@index','middleware' => ['permission:group-list|group-create|group-edit|group-delete']]);
 				Route::get('groups/create',			['as'=>'groups.create','uses'=>'GroupController@create','middleware' => ['permission:group-create']]);
 				Route::post('groups/create',		['as'=>'groups.store','uses'=>'GroupController@store','middleware' => ['permission:group-create']]);
@@ -83,7 +89,19 @@ Route::group(
 				Route::patch('devices/{id}',		['as'=>'devices.update','uses'=>'DeviceController@update','middleware' => ['permission:sensor-edit']]);
 				Route::delete('devices/{id}',		['as'=>'devices.destroy','uses'=>'DeviceController@destroy','middleware' => ['permission:sensor-delete']]);
 				
-		});
+				Route::resource('physicalquantity', 'PhysicalQuantityController');
+				Route::resource('categoryinputs', 	'CategoryInputsController');
+				Route::resource('inspection-items', 'InspectionItemsController');
+				Route::resource('measurement', 		'MeasurementController');
+				Route::resource('research', 		'ResearchController');
+				Route::resource('sensordefinition' ,'SensorDefinitionController');
+				
+				Route::resource('categories', 		'CategoriesController');
+				Route::delete('categories/{id}/pop',['as'=>'categories.pop','uses'=>'CategoriesController@pop','middleware' => ['permission:taxonomy-delete']]);
+				Route::get('categories/{id}/fix',	['as'=>'categories.fix','uses'=>'CategoriesController@fix']);
+				Route::get('categories/{id}/duplicate',	['as'=>'categories.duplicate','uses'=>'CategoriesController@duplicate']);
+				Route::get('taxonomy/display',	['as'=>'taxonomy.display','uses'=>'TaxonomyController@display']);
+			});
 
 		Route::group(
 			['middleware' => ['role:superadmin']],
@@ -104,24 +122,11 @@ Route::group(
 
 				// Resource controllers 
 				Route::resource('permissions', 		'PermissionController');
-				Route::resource('physicalquantity', 'PhysicalQuantityController');
-				Route::resource('categoryinputs', 	'CategoryInputsController');
-				Route::resource('inspection-items', 'InspectionItemsController');
-				Route::resource('measurement', 		'MeasurementController');
-				Route::resource('research', 		'ResearchController');
 				Route::resource('image', 			'ImageController');
-				Route::resource('sensordefinition' ,'SensorDefinitionController');
-
-				Route::resource('categories', 		'CategoriesController');
-				Route::delete('categories/{id}/pop',['as'=>'categories.pop','uses'=>'CategoriesController@pop','middleware' => ['permission:taxonomy-delete']]);
-				Route::get('categories/{id}/fix',	['as'=>'categories.fix','uses'=>'CategoriesController@fix']);
-				Route::get('categories/{id}/duplicate',	['as'=>'categories.duplicate','uses'=>'CategoriesController@duplicate']);
-				Route::get('taxonomy/display',	['as'=>'taxonomy.display','uses'=>'TaxonomyController@display']);
 
 				Route::delete('checklists/destroy/copies',	['as'=>'checklists.copies','uses'=>'ChecklistController@destroyCopies']);
 				
-			}
-		);
+			});
 
 	}
 );

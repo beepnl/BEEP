@@ -322,7 +322,7 @@
 		</div>
 
 
-		@else
+		@elseif (Auth::user()->hasRole(['superadmin','admin']))
 
 			<div class="col-lg-12 col-xs-12">
 			<!-- small box -->

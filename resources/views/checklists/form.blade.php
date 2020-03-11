@@ -58,7 +58,7 @@
 			    <label for="user_id" control-label>{{ __('general.User') }}</label>
 			    <div>
 			        <p>{{ Auth::user()->name }}</p>
-			        {!! Form::hidden('user_id', $selectedUserId) !!}
+			        {!! Form::hidden('user_id[]', Auth::user()->id) !!}
 			        {!! $errors->first('user_id', '<p class="help-block">:message</p>') !!}
 			    </div>
 			</div>

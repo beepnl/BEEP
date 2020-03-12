@@ -13,7 +13,7 @@ use Illuminate\Http\Request;
 |
 */
 
-Route::group([], function()
+Route::group(['middleware' => \Barryvdh\Cors\HandleCors::class], function()
 {    
 
 	Route::get('/',function(){

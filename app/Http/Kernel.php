@@ -42,7 +42,6 @@ class Kernel extends HttpKernel
             \App\Http\Middleware\Cors::class,
             'throttle:60,1',
             'bindings',
-            \Barryvdh\Cors\HandleCors::class,
         ],
     ];
 

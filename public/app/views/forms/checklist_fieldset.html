@@ -1,6 +1,11 @@
 <fieldset ng-if="cat.children.length > 0 && (cat.input == 'label' || (cat.input != 'list' && cat.input != 'select' && cat.input != 'options'))" class="col-xs-12 {{ cat.name }}">
 	
-	<legend>{{ cat.trans[locale] || cat.name}}</legend>
+	<legend>{{ cat.trans[locale] || cat.name}} <a ng-if="cat.description != null || cat.source != null" ng-click="cat.showInfo = cat.showInfo ? false : true"><i class="fa fa-info-circle" style="margin-left: 10px; font-size: 18px;"></i></a></legend>
+
+	<p ng-if="cat.showInfo">
+		<em ng-if="cat.description != null">{{ cat.description }}<br></em>
+		<a ng-if="cat.source != null" href="{{cat.source}}" target="_blank">{{cat.source}}</a>
+	</p>
 
 	<div ng-include="'/app/views/template/template-inspection-liebefelder_method.html?v=2'" ng-show="cat.name == 'liebefelder_method'"></div>
 	<div ng-include="'/app/views/template/template-inspection-top_photo_analysis.html?v=2'" ng-show="cat.name == 'top_photo_analysis'"></div>

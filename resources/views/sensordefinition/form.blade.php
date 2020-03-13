@@ -59,7 +59,7 @@
 	<div class="form-group {{ $errors->has('device_id') ? 'has-error' : ''}}">
 	    <label for="device_id" control-label>{{ 'Device' }}*</label>
 	    <div>
-	        {!! Form::select('device_id', Auth::user()->devices->sortBy('name')->pluck('name','id'), isset($sensordefinition->device_id) ? $sensordefinition->device_id : null, array('id'=>'device_id', 'class' => 'form-control select2', 'placeholder'=>'Select sensor...')) !!}
+	        {!! Form::select('device_id', App\Device::selectList(), isset($sensordefinition->device_id) ? $sensordefinition->device_id : null, array('id'=>'device_id', 'class' => 'form-control select2')) !!}
 	        {!! $errors->first('device_id', '<p class="help-block">:message</p>') !!}
 	    </div>
 	</div>

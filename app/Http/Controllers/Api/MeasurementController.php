@@ -315,7 +315,7 @@ class MeasurementController extends Controller
                 //$data_array = $this->add_weight_kg_corrected_with_temperature($device, $data_array);
             }
         }
-        
+
         $time = time();
         if (isset($data_array['time']))
             $time = intVal($data_array['time']);
@@ -327,6 +327,7 @@ class MeasurementController extends Controller
         } 
         else
         {
+            //die(print_r($data_array));
             Storage::disk('local')->put('sensors/sensor_write_error.log', json_encode($data_array));
             return Response::json('sensor-write-error', 500);
         }

@@ -37,4 +37,5 @@ return [
     'Research'          => 'Research',
     'Researches'        => 'Researches',
     'calibration'       => 'calibration',
+    'SensorDefinition'  => 'Sensor definition',
 ];

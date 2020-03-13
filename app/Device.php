@@ -77,4 +77,26 @@ class Device extends Model
     {
         return $this->belongsTo(User::class);
     }
+
+    public static function selectList()
+    {
+        $list = [];
+        
+        if (Auth::user()->hasRole(['superadmin','admin']))
+            $list = Device::all();
+        else
+            $list = Auth::user()->devices;
+
+        $list_out     = [];
+
+        foreach($list as $i)
+        {
+            $id = $i->id;
+            $label = $i->name.' ('.$i->key.')';
+
+            $list_out[$id] = $label;
+
+        }
+        return $list_out;
+    }
 }

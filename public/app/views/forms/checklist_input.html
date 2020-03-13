@@ -3,11 +3,16 @@
         
         <label title="{{ item.description != null ? item.description : '' }} {{ item.required == 1 ? lang.required : '' }}" ng-class="{required:item.required}">
             {{item.trans[locale] || item.name}}{{item.unit != null ? ' ('+item.unit+')' : ''}} {{ item.required == 1 ? '*' : '' }}
-            <a ng-if="item.source != null" href="{{item.source}}" target="_blank"><i class="fa fa-info-circle" style="margin-left: 10px; font-size: 18px;"></i></a> 
+            <a ng-if="item.source != null || item.description != null" ng-click="item.showInfo = item.showInfo ? false : true"><i class="fa fa-info-circle" style="margin-left: 10px; font-size: 18px;"></i></a> 
             <!-- <span class="dev-label">{{item.input}}</span>  -->
         </label>
         <br>
         
+        <p ng-if="item.showInfo">
+            <em ng-if="item.description != null">{{ item.description }}<br></em>
+            <a ng-if="item.source != null" href="{{item.source}}" target="_blank">{{item.source}}</a>
+        </p>
+
         <textarea ng-if="item.input == 'text'" ng-model="item.value" type="item.input" placeholder="{{ item.trans[locale] || item.name }}" class="form-control"></textarea>
         
         <!-- NB: decimals, min/max not taken from api, because makes API payload a lot bigger -->
@@ -145,8 +150,6 @@
         <div ng-if="item.input == 'select_location' || item.input == 'select_hive_layer' || item.input == 'select_hive_layer_frame' || item.input == 'select_continent'">
             <p>{{lang.Not_implemented_yet}}</p>
         </div>
-
-        <p ng-if="item.description != null"><em>{{ item.description }}</em></p>
 
     </div>
 </div>

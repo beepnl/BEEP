@@ -760,7 +760,7 @@ class MeasurementController extends Controller
             if ($device)
             {
                 $groupByResolution = 'GROUP BY time('.$resolution.') fill(null)';
-                $queryList         = $this->getAvailableSensorNamesFromData($names, 'sensors', '"key" = \''.$device->key.'\' AND time >= \''.$staTimestampString.'\' AND time <= \''.$endTimestampString.'\'', $limit, true);
+                $queryList         = $this->getAvailableSensorNamesFromData($names, 'sensors', '("key" = \''.$device->key.'\' OR "key" = \''.strtolower($device->key).'\' OR "key" = \''.strtoupper($device->key).'\') AND time >= \''.$staTimestampString.'\' AND time <= \''.$endTimestampString.'\'', $limit, true);
 
                 foreach ($queryList as $i => $name) 
                     $queryList[$i] = 'MEAN("'.$name.'") AS "'.$name.'"';
@@ -785,7 +785,7 @@ class MeasurementController extends Controller
         
         if ($groupBySelect != null) 
         {
-            $sensorQuery = 'SELECT '.$groupBySelect.' FROM "sensors" WHERE "key" = \''.$device->key.'\' AND time >= \''.$staTimestampString.'\' AND time <= \''.$endTimestampString.'\' '.$groupByResolution.' '.$limit;
+            $sensorQuery = 'SELECT '.$groupBySelect.' FROM "sensors" WHERE ("key" = \''.$device->key.'\' OR "key" = \''.strtolower($device->key).'\' OR "key" = \''.strtoupper($device->key).'\') AND time >= \''.$staTimestampString.'\' AND time <= \''.$endTimestampString.'\' '.$groupByResolution.' '.$limit;
             $result      = $client::query($sensorQuery, $options);
             $sensors_out = $result->getPoints();
         }

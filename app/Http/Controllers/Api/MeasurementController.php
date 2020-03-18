@@ -112,7 +112,7 @@ class MeasurementController extends Controller
         try
         {
             $client = $this->client;
-            $query  = 'SELECT '.$fields.' from "sensors" WHERE "key" = \''.$device->key.'\' AND time > now() - 365d '.$groupby.' ORDER BY time DESC LIMIT '.$limit;
+            $query  = 'SELECT '.$fields.' from "sensors" WHERE ("key" = \''.$device->key.'\' OR "key" = \''.strtolower($device->key).'\' OR "key" = \''.strtoupper($device->key).'\') AND time > now() - 365d '.$groupby.' ORDER BY time DESC LIMIT '.$limit;
             //die(print_r($query));
             $result = $client::query($query);
             $values = $result->getPoints();
@@ -388,7 +388,7 @@ class MeasurementController extends Controller
             $endString   = $endMoment->setTimezone($tz)->format($this->timeFormat);
             
             $sensors             = $request->input('sensors', $this->output_sensors);
-            $where               = '"key" = \''.$device->key.'\' AND time >= \''.$startString.'\' AND time <= \''.$endString.'\'';
+            $where               = '("key" = \''.$device->key.'\' OR "key" = \''.strtolower($device->key).'\' OR "key" = \''.strtoupper($device->key).'\') AND time >= \''.$startString.'\' AND time <= \''.$endString.'\'';
 
             $sensor_measurements = $this->getAvailableSensorNamesFromData($sensors, 'sensors', $where, '', false);
             //die(print_r([$device->name, $device->key]));
@@ -689,7 +689,7 @@ class MeasurementController extends Controller
         $location= $device->location();
         
         $client = $this->client;
-        $first  = $client::query('SELECT * FROM "sensors" WHERE "key" = \''.$device->key.'\' ORDER BY time ASC LIMIT 1')->getPoints(); // get first sensor date
+        $first  = $client::query('SELECT * FROM "sensors" WHERE ("key" = \''.$device->key.'\' OR "key" = \''.strtolower($device->key).'\' OR "key" = \''.strtoupper($device->key).'\') ORDER BY time ASC LIMIT 1')->getPoints(); // get first sensor date
         $first_w= [];
         if ($location && isset($location->coordinate_lat) && isset($location->coordinate_lon))
             $first_w = $client::query('SELECT * FROM "weather" WHERE "lat" = \''.$location->coordinate_lat.'\' AND "lon" = \''.$location->coordinate_lon.'\' ORDER BY time ASC LIMIT 1')->getPoints(); // get first weather date

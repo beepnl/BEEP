@@ -920,6 +920,31 @@ dl.hive-select{
 	margin-right: 10px; 
 }
 
+a.delete-no-consent{
+    color: #D00220; 
+    padding: 0px; 
+    width: 20px; 
+    height: 20px;
+    cursor: pointer;
+    display: inline-block;
+    text-align: center;
+    font-size: 16px;
+}
+	a:hover.delete-no-consent{
+		color: white;
+		background-color: #D00220; 
+	    border-radius: 50%; 
+	    border: 1px solid #333;
+	}
+
+dt a i.fa {
+	margin-left: 10px;
+	color: #999;
+}
+	dt a:hover i.fa {
+		color: #000;
+	}
+
 /* Table items */
 .table-responsive{
     border:none;

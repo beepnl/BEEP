@@ -102,8 +102,14 @@
 									
 								<dl class="dl-horizontal">
 									<div ng-repeat="ch in r.consent_history">
-										<dt style="text-align: left;">{{ ch.updated_at }}</dt>
-										<dd><strong ng-class="{'text-danger':ch.consent==null, 'text-danger':ch.consent==0, 'text-success':ch.consent==1}">{{ ch.consent ? lang.consent_yes : lang.consent_no }}</strong></dd>
+										<dt style="text-align: left;">
+											<span ng-if="!ch.edit">{{ ch.updated_at }} <a ng-click="ch.edit=true"><i class="fa fa-pencil"></i></a></span>
+											<span ng-if="ch.edit"><input disabled="disabled" type="text" data-field="datetime" ng-model="ch.updated_at"><a ng-click="updateConsent(ch.id, ch.updated_at); ch.edit=false"><i class="fa fa-save"></i></a></span>
+										</dt>
+										<dd>
+											<strong ng-class="{'text-danger':ch.consent==null, 'text-danger':ch.consent==0, 'text-success':ch.consent==1}">{{ ch.consent ? lang.consent_yes : lang.consent_no }}</strong>
+											<a ng-if="ch.consent==0" ng-click="deleteNoConsent(ch.id)" class="delete-no-consent"><i class="fa fa-times"></i></a>
+										</dd>
 									</div>
 								</dl>
 									
@@ -128,7 +134,7 @@
         </div>
 	</div>
 
-
-
-
 </section>
+
+<div id="dtBox"></div>
+

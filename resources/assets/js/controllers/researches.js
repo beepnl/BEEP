@@ -1,8 +1,8 @@
 /*
  * BEEP app
- * Author: Iconize <pim@iconize.nl>
+ * Author: Iconize <pim@beep.nl>
  *
- * Researxches controller
+ * Researches controller
  */
 app.controller('ResearchesCtrl', function($scope, $rootScope, $window, $timeout, $location, $filter, $interval, api, $routeParams, ngDialog, hives, measurements) 
 {
@@ -48,6 +48,17 @@ app.controller('ResearchesCtrl', function($scope, $rootScope, $window, $timeout,
         }
     }
     $scope.researchConsentLoadedHandler = $rootScope.$on('researchConsentLoaded', $scope.loadResearches);
+
+    $scope.updateConsent = function(consent_id, date)
+    {
+        console.log('Update consent', consent_id, date);
+    }
+
+    $scope.deleteNoConsent = function(consent_id)
+    {
+        console.log('Delete consent', consent_id);
+    }
+
 
     $scope.back = function()
     {

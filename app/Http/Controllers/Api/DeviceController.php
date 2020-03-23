@@ -9,6 +9,9 @@ use App\Category;
 use Validator;
 use Illuminate\Validation\Rule;
 use Response;
+use GuzzleHttp\Client;
+use GuzzleHttp\Psr7;
+use GuzzleHttp\Exception\RequestException;
 
 /**
  * @group Api\DeviceController
@@ -16,7 +19,26 @@ use Response;
  */
 class DeviceController extends Controller
 {
-   
+    private function doTTNRequest(Request $request, $deviceId, $type='GET', $data=null)
+    {
+        $guzzle = new Client();
+        $url    = env('TTN_API_URL').'/applications/'.env('TTN_APP_NAME').'/devices/'.$deviceId;
+        try
+        {
+            $response = $guzzle->request($type, $url, ['headers'=>['Authorization'=>'Key '.env('TTN_APP_KEY')]]);
+        }
+        catch(RequestException $e)
+        {
+            if (!$e->hasResponse())
+                return Response::json("no-response", 500);
+            
+            $response = $e->getResponse();
+        }
+
+        return Response::json(json_decode($response->getBody()), $response->getStatusCode());
+    }
+
+
     /**
     api/devices GET
     List all user Devices
@@ -71,6 +93,46 @@ class DeviceController extends Controller
             return Response::json('No sensors found', 404);
 
         return Response::json($devices->get());
+    }
+
+    /**
+    api/devices/ttn/{hardwareId} GET
+    Get a TTN Device by hardware ID
+    @authenticated
+    */
+    public function getTTNDevice(Request $request, $hardware_id)
+    {
+        return $this->doTTNRequest($request, $hardware_id);
+    }
+    /**
+    api/devices/ttn/{hardwareId}/dev_eui/{$devEUI} POST
+    Create a Device on TTN by hardware ID and Dev EUI
+    Posts to TTN:
+    {
+      "dev_id": "<deviceId>",
+      "lorawan_device": {
+        "app_id": "beep-digital-hive-monitoring",
+        "dev_eui": "<devEui>", 
+        "dev_id": "<deviceId>", 
+        "app_key": "<appKey>",
+        "app_eui": "<appEui>" 
+      }
+    }
+    @authenticated
+    */
+    public function postTTNDevice(Request $request, $hardware_id, $dev_eui)
+    {
+        $data = [
+            "dev_id" => $hardware_id,
+            "lorawan_device"=>[
+                "app_id"=>"beep-digital-hive-monitoring",
+                "dev_eui"=>$dev_eui, 
+                "dev_id"=>$hardware_id, 
+                "app_key"=>env('TTN_APP_KEY'),
+                "app_eui"=>env('TTN_APP_EUI') 
+            ]
+        ];
+        return $this->doTTNRequest($request, $hardware_id, 'POST', $data);
     }
 
     /**

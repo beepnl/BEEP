@@ -49,7 +49,7 @@ Route::group(['middleware' => \Barryvdh\Cors\HandleCors::class], function()
 		// get more data of 1 sensor (Device)
 		Route::post('devices/multiple',		'Api\DeviceController@storeMultiple');
 		Route::get('devices/ttn/{hardware_id}', 'Api\DeviceController@getTTNDevice');
-		Route::post('devices/ttn/{hardware_id}/dev_eui/{dev_eui}', 'Api\DeviceController@postTTNDevice');
+		Route::post('devices/ttn/{hardware_id}','Api\DeviceController@postTTNDevice');
 		Route::get('sensors/measurements', 	'Api\MeasurementController@data');
 		Route::get('sensors/lastvalues', 	'Api\MeasurementController@lastvalues');
 		Route::get('sensors/lastweight', 	'Api\MeasurementController@lastweight');

@@ -96,18 +96,17 @@ class DeviceController extends Controller
     }
 
     /**
-    api/devices/ttn/{hardwareId} GET
-    Get a TTN Device by hardware ID
+    api/devices/ttn/{dev_id} GET
+    Get a TTN Device by Device ID (BEEP hardware_id)
     @authenticated
     */
-    public function getTTNDevice(Request $request, $hardware_id)
+    public function getTTNDevice(Request $request, $dev_id)
     {
-        return $this->doTTNRequest($request, $hardware_id);
+        return $this->doTTNRequest($request, $dev_id);
     }
     /**
     api/devices/ttn/{dev_id} POST
-    @urlParam hardwareId string required The dev_id a unique identifier for the device. It can contain lowercase letters, numbers, - and _
-    Create an OTAA LoRaWAN Device in the BEEP TTN Console by dev_id ID and this payload:
+    Create an OTAA LoRaWAN Device in the BEEP TTN Console by dev_id (dev_id (= BEEP hardware_id) a unique identifier for the device. It can contain lowercase letters, numbers, - and _) and this payload:
     {
       "lorawan_device": {
         "dev_eui": "<8 byte identifier for the device>", 

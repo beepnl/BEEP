@@ -25,7 +25,7 @@ class DeviceController extends Controller
         $url    = env('TTN_API_URL').'/applications/'.env('TTN_APP_NAME').'/devices/'.$deviceId;
         try
         {
-            $response = $guzzle->request($type, $url, ['headers'=>['Authorization'=>'Key '.env('TTN_APP_KEY')]]);
+            $response = $guzzle->request($type, $url, ['headers'=>['Authorization'=>'Key '.env('TTN_APP_KEY')], 'json' => $data]);
         }
         catch(RequestException $e)
         {
@@ -96,43 +96,50 @@ class DeviceController extends Controller
     }
 
     /**
-    api/devices/ttn/{hardwareId} GET
-    Get a TTN Device by hardware ID
+    api/devices/ttn/{dev_id} GET
+    Get a TTN Device by Device ID (BEEP hardware_id)
     @authenticated
     */
-    public function getTTNDevice(Request $request, $hardware_id)
+    public function getTTNDevice(Request $request, $dev_id)
     {
-        return $this->doTTNRequest($request, $hardware_id);
+        return $this->doTTNRequest($request, $dev_id);
     }
     /**
-    api/devices/ttn/{hardwareId}/dev_eui/{$devEUI} POST
-    Create a Device on TTN by hardware ID and Dev EUI
-    Posts to TTN:
+    api/devices/ttn/{dev_id} POST
+    Create an OTAA LoRaWAN Device in the BEEP TTN Console by dev_id (dev_id (= BEEP hardware_id) a unique identifier for the device. It can contain lowercase letters, numbers, - and _) and this payload:
     {
-      "dev_id": "<deviceId>",
       "lorawan_device": {
-        "app_id": "beep-digital-hive-monitoring",
-        "dev_eui": "<devEui>", 
-        "dev_id": "<deviceId>", 
-        "app_key": "<appKey>",
-        "app_eui": "<appEui>" 
+        "dev_eui": "<8 byte identifier for the device>", 
+        "app_key": "<16 byte static key that is known by the device and the application. It is used for negotiating session keys (OTAA)>"
       }
     }
     @authenticated
     */
-    public function postTTNDevice(Request $request, $hardware_id, $dev_eui)
+    public function postTTNDevice(Request $request, $dev_id)
     {
+        $validator = Validator::make($request->input(), [
+            'lorawan_device.dev_eui' => 'required|alpha-num|size:16',
+            'lorawan_device.app_key' => 'required|alpha-num|size:32'
+        ]);
+
+        if ($validator->fails())
+            return ['errors'=>$validator->errors()];
+
+        $dev_eui = $request->input('lorawan_device.dev_eui');
+        $app_key = $request->input('lorawan_device.app_key');
+
         $data = [
-            "dev_id" => $hardware_id,
+            "dev_id" => $dev_id,
             "lorawan_device"=>[
+                "activation_constraints"=>"otaa",
                 "app_id"=>"beep-digital-hive-monitoring",
                 "dev_eui"=>$dev_eui, 
-                "dev_id"=>$hardware_id, 
-                "app_key"=>env('TTN_APP_KEY'),
+                "dev_id"=>$dev_id, 
+                "app_key"=>$app_key,
                 "app_eui"=>env('TTN_APP_EUI') 
             ]
         ];
-        return $this->doTTNRequest($request, $hardware_id, 'POST', $data);
+        return $this->doTTNRequest($request, $dev_id, 'POST', $data);
     }
 
     /**

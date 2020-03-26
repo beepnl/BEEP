@@ -76,7 +76,7 @@ Route::group(['middleware' => \Barryvdh\Cors\HandleCors::class], function()
 		Route::get('research', 				'Api\ResearchController@index');
 		Route::post('research/{id}/add_consent',   'Api\ResearchController@add_consent');
 		Route::post('research/{id}/remove_consent','Api\ResearchController@remove_consent');
-		Route::post('research/{id}/edit/{consent_id}','Api\ResearchController@edit_consent');
+		Route::patch('research/{id}/edit/{consent_id}','Api\ResearchController@edit_consent');
 		Route::delete('research/{id}/delete/{consent_id}','Api\ResearchController@delete_no_consent');
 
 		Route::delete('user', 				'Api\UserController@destroy');

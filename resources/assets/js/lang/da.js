@@ -452,6 +452,9 @@
     consent_yes             : 'I consent to share my data',
     consent_no              : 'I do NOT consent to share my data',
     my_beep_data            : 'My own BEEP data',
+    Consent_can_only_be_set : 'Consent can only be adjusted to',
+    earlier                 : 'an earlier',
+    later                   : 'a later',
     
     new_apiary_explanation  : 'Create a new apiary in 4 steps',
     start_here              : 'Click here to start',

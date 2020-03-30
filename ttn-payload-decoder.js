@@ -6,7 +6,6 @@ function Decoder(bytes, port) {
 
   function toHexString( number, width )
   {
-    console.log('toHexString', number, width);
     width -= number.toString(16).length;
     if ( width > 0 )
     {
@@ -271,19 +270,15 @@ function Decoder(bytes, port) {
     // BME280: 0x07
     var bme280_start_byte        = fft_values_end_byte;
     var bme280_values_start_byte = bme280_start_byte + 1;
-
-    if (bytes[bme280_start_byte] == 0x07)
+    var bme280_t = hexToInt(toHexString(bytes[bme280_values_start_byte+0], 2) + toHexString(bytes[bme280_values_start_byte+1], 2));
+    var bme280_h = (bytes[bme280_values_start_byte+2] << 8) + bytes[bme280_values_start_byte+3];
+    var bme280_p = (bytes[bme280_values_start_byte+4] << 8) + bytes[bme280_values_start_byte+5];
+    if (bytes[bme280_start_byte] == 0x07 && (bme280_t + bme280_h + bme280_p) != 0)
     {
-      var bme280_t = hexToInt(toHexString(bytes[bme280_values_start_byte+0], 2) + toHexString(bytes[bme280_values_start_byte+1], 2));
-      var bme280_h = (bytes[bme280_values_start_byte+2] << 8) + bytes[bme280_values_start_byte+3];
-      var bme280_p = (bytes[bme280_values_start_byte+4] << 8) + bytes[bme280_values_start_byte+5];
-      if ((bme280_t + bme280_h + bme280_p) != 0)
-      {
-        decoded.bme280_present = true;
-        decoded.bme280_t = hexToInt(toHexString(bytes[bme280_values_start_byte+0], 2) + toHexString(bytes[bme280_values_start_byte+1], 2));
-        decoded.bme280_h = (bytes[bme280_values_start_byte+2] << 8) + bytes[bme280_values_start_byte+3];
-        decoded.bme280_p = (bytes[bme280_values_start_byte+4] << 8) + bytes[bme280_values_start_byte+5];
-      }
+      decoded.bme280_present = true;
+      decoded.bme280_t = hexToInt(toHexString(bytes[bme280_values_start_byte+0], 2) + toHexString(bytes[bme280_values_start_byte+1], 2));
+      decoded.bme280_h = (bytes[bme280_values_start_byte+2] << 8) + bytes[bme280_values_start_byte+3];
+      decoded.bme280_p = (bytes[bme280_values_start_byte+4] << 8) + bytes[bme280_values_start_byte+5];
     }
     else
     {

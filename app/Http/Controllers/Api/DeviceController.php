@@ -19,10 +19,12 @@ use GuzzleHttp\Exception\RequestException;
  */
 class DeviceController extends Controller
 {
-    private function doTTNRequest(Request $request, $deviceId, $type='GET', $data=null)
+    private function doTTNRequest($deviceId, $type='GET', $data=null)
     {
-        $guzzle = new Client();
-        $url    = env('TTN_API_URL').'/applications/'.env('TTN_APP_NAME').'/devices/'.$deviceId;
+        $guzzle   = new Client();
+        $url      = env('TTN_API_URL').'/applications/'.env('TTN_APP_NAME').'/devices/'.$deviceId;
+        $response = null;
+
         try
         {
             $response = $guzzle->request($type, $url, ['headers'=>['Authorization'=>'Key '.env('TTN_APP_KEY')], 'json' => $data]);
@@ -35,7 +37,7 @@ class DeviceController extends Controller
             $response = $e->getResponse();
         }
 
-        return Response::json(json_decode($response->getBody()), $response->getStatusCode());
+        return $response;
     }
 
 
@@ -46,7 +48,7 @@ class DeviceController extends Controller
     @bodyParam hardware_id string Provide to filter on hardware_id
     @response [
         {
-            "id": 13,
+            "id": 1,
             "hive_id": 2,
             "name": "BEEPBASE-0000",
             "key": "000000000000000",
@@ -75,7 +77,9 @@ class DeviceController extends Controller
                     "multiplier": null,
                     "input_measurement_id": 7,
                     "output_measurement_id": 20,
-                    "device_id": 13
+                    "device_id": 1,
+                    "input_abbr": "w_v",
+                    "output_abbr": "weight_kg"
                 }
             ]
         }
@@ -90,7 +94,12 @@ class DeviceController extends Controller
             $devices = $request->user()->allDevices()->with('sensorDefinitions');
 
         if ($devices->count() == 0)
-            return Response::json('No sensors found', 404);
+        {
+            if (Device::where('hardware_id', $request->input('hardware_id'))->count() > 0)
+                return Response::json('sensor_not_yours', 403);
+
+            return Response::json('no_sensors_found', 404);
+        }
 
         return Response::json($devices->get());
     }
@@ -102,7 +111,9 @@ class DeviceController extends Controller
     */
     public function getTTNDevice(Request $request, $dev_id)
     {
-        return $this->doTTNRequest($request, $dev_id);
+        
+        $response = $this->doTTNRequest($dev_id);
+        return Response::json(json_decode($response->getBody()), $response->getStatusCode());
     }
     /**
     api/devices/ttn/{dev_id} POST
@@ -128,6 +139,12 @@ class DeviceController extends Controller
         $dev_eui = $request->input('lorawan_device.dev_eui');
         $app_key = $request->input('lorawan_device.app_key');
 
+        $response = $this->createTTNDevice($dev_id, $dev_eui, $app_key);
+        return Response::json(json_decode($response->getBody()), $response->getStatusCode());
+    }
+
+    private function createTTNDevice($dev_id, $dev_eui, $app_key)
+    {
         $data = [
             "dev_id" => $dev_id,
             "lorawan_device"=>[
@@ -139,7 +156,7 @@ class DeviceController extends Controller
                 "app_eui"=>env('TTN_APP_EUI') 
             ]
         ];
-        return $this->doTTNRequest($request, $dev_id, 'POST', $data);
+        return $this->doTTNRequest($dev_id, 'POST', $data);
     }
 
     /**
@@ -176,9 +193,26 @@ class DeviceController extends Controller
     @bodyParam battery_voltage float Last measured battery voltage
     @bodyParam next_downlink_message string Hex string to send via downlink at next connection (LoRaWAN port 6)
     @bodyParam last_downlink_result string Result received from BEEP base after downlink message (LoRaWAN port 5)
+    @bodyParam create_ttn_device boolean If true, create a new LoRaWAN device in the BEEP TTN console. If succesfull, create the device.
+    @bodyParam app_key string BEEP base LoRaWAN application key that you would like to store in TTN
+
     */
     public function store(Request $request)
     {
+        if ($request->filled('create_ttn_device') && $request->input('create_ttn_device') == true && $request->filled('hardware_id') && $request->filled('key'))
+        {
+            if ($request->user()->hasRole(['superadmin', 'admin']) == false)
+            {
+                $device_count = Device::where('user_id', $request->user()->id)->count();
+                if ($device_count > 50)
+                    return Response::json("max_ttn_devices_reached_please_request_more", 403);
+            }
+
+            $response = $this->createTTNDevice($request->input('hardware_id'), $request->input('key'), $request->input('app_key'));
+            if ($response->getStatusCode() != 200)
+                return Response::json(json_decode($response->getBody()), $response->getStatusCode());
+        }
+
         $result = $this->updateOrCreateDevice($request->input());
 
         return Response::json($result, $result == null || gettype($result) == 'array' ? 500 : 201);

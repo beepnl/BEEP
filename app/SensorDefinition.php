@@ -26,8 +26,8 @@ class SensorDefinition extends Model
      * @var array
      */
     protected $fillable = ['name', 'inside', 'offset', 'multiplier', 'input_measurement_id', 'output_measurement_id', 'device_id'];
-
-    //protected $hidden   = ['created_at', 'updated_at'];
+    protected $appends  = ['input_abbr', 'output_abbr'];
+    protected $hidden   = ['input_measurement', 'output_measurement'];
 
     public function getInputAbbrAttribute()
     {

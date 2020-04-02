@@ -57,7 +57,7 @@ Route::group(['middleware' => \Barryvdh\Cors\HandleCors::class], function()
 		Route::post('sensors/offsetweight' ,'Api\MeasurementController@offsetweight');
 		Route::get('sensors/measurement_types', 'Api\MeasurementController@sensor_measurement_types');
 		Route::get('sensors/measurement_types_available', 'Api\MeasurementController@sensor_measurement_types_available');
-		Route::post('lora_sensors_auth',  	'Api\MeasurementController@lora_sensors');
+		Route::post('lora_sensors_auth',  	'Api\MeasurementController@lora_sensors')->middleware('throttle:500,1');
 
 		Route::post('settings', 			'Api\SettingController@store');
 		Route::get('settings', 				'Api\SettingController@index');

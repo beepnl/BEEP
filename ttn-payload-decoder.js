@@ -6,7 +6,7 @@ function Decoder(bytes, port) {
 
   function toHexString( number, width )
   {
-    console.log('toHexString', number, width);
+    //console.log('toHexString', number, width);
     width -= number.toString(16).length;
     if ( width > 0 )
     {
@@ -15,18 +15,17 @@ function Decoder(bytes, port) {
     return number.toString(16) + ""; // always return a string
   }
 
-  function hexToInt(hex) {
-    if (hex.length % 2 !== 0) {
-        hex = "0" + hex;
+  function hexToInt(hex, size) 
+  {
+    var a = parseInt(hex, 16);
+    if (size == 4 && (a & 0x8000) > 0) {
+       a = a - 0x10000;
     }
-    var num = parseInt(hex, 16);
-    var maxVal = Math.pow(2, hex.length / 2 * 8);
-    if (num > maxVal / 2 - 1) {
-        num = num - maxVal;
-    }
-    return num;
-}
+    return a;
+  }
 
+
+  // check ports and convert payload data
   if (port == 1)
   {
     decoded.length = bytes.length;
@@ -211,21 +210,22 @@ function Decoder(bytes, port) {
     var ds18b20_values_start_byte     = ds18b20_start_byte + 2;
     decoded.ds18b20_sensor_amount     = bytes[ds18b20_start_byte + 1];
     
-    console.log(bytes[7], decoded.weight_sensor_amount, weight_start_byte, weight_values_end_byte, ds18b20_start_byte, bytes[ds18b20_start_byte]);
+    //console.log(bytes[7], decoded.weight_sensor_amount, weight_start_byte, weight_values_end_byte, ds18b20_start_byte, bytes[ds18b20_start_byte]);
 
     if (bytes[ds18b20_start_byte] == 0x04 && decoded.ds18b20_sensor_amount > 0)
     {
       decoded.ds18b20_present = true;
       if (decoded.ds18b20_sensor_amount == 1)
       {
-        decoded.t_i =  hexToInt(toHexString(bytes[ds18b20_values_start_byte], 2) + toHexString(bytes[ds18b20_values_start_byte+1], 2)); // 04 (11 temp) 01 (12 1x) 07D6 (13-14 value)
+        decoded.t_i =  hexToInt(toHexString(bytes[ds18b20_values_start_byte], 2) + toHexString(bytes[ds18b20_values_start_byte+1], 2), 4); // 04 (11 temp) 01 (12 1x) 07D6 (13-14 value)
       }
       else
       {
         for(var j = 0; j < decoded.ds18b20_sensor_amount; j++)
         {
           var tempValueByteIndex = ds18b20_values_start_byte + (j * ds18b20_byte_length); 
-          decoded['t_' + j] = hexToInt(toHexString(bytes[tempValueByteIndex], 2) + toHexString(bytes[tempValueByteIndex+1], 2)); 
+          decoded['t_' + j] = hexToInt(toHexString(bytes[tempValueByteIndex], 2) + toHexString(bytes[tempValueByteIndex+1], 2), 4); 
+          //console.log(tempValueByteIndex, tempValueByteIndex+1, toHexString(bytes[tempValueByteIndex], 2) + toHexString(bytes[tempValueByteIndex+1], 2), decoded['t_' + j]);
         }
       }
     }
@@ -274,13 +274,13 @@ function Decoder(bytes, port) {
 
     if (bytes[bme280_start_byte] == 0x07)
     {
-      var bme280_t = hexToInt(toHexString(bytes[bme280_values_start_byte+0], 2) + toHexString(bytes[bme280_values_start_byte+1], 2));
+      var bme280_t = hexToInt(toHexString(bytes[bme280_values_start_byte+0], 2) + toHexString(bytes[bme280_values_start_byte+1], 2), 4);
       var bme280_h = (bytes[bme280_values_start_byte+2] << 8) + bytes[bme280_values_start_byte+3];
       var bme280_p = (bytes[bme280_values_start_byte+4] << 8) + bytes[bme280_values_start_byte+5];
       if ((bme280_t + bme280_h + bme280_p) != 0)
       {
         decoded.bme280_present = true;
-        decoded.bme280_t = hexToInt(toHexString(bytes[bme280_values_start_byte+0], 2) + toHexString(bytes[bme280_values_start_byte+1], 2));
+        decoded.bme280_t = hexToInt(toHexString(bytes[bme280_values_start_byte+0], 2) + toHexString(bytes[bme280_values_start_byte+1], 2), 4);
         decoded.bme280_h = (bytes[bme280_values_start_byte+2] << 8) + bytes[bme280_values_start_byte+3];
         decoded.bme280_p = (bytes[bme280_values_start_byte+4] << 8) + bytes[bme280_values_start_byte+5];
       }

@@ -239,6 +239,29 @@
 			</div>
 		</div>
 
+		<div class="col-lg-3 col-xs-6">
+		<!-- small box -->
+			<div class="small-box bg-purple">
+				<div class="inner">
+					<div class="pull-right" style="overflow: auto; height: 50px;">
+						@foreach($data['researches'] as $r)
+							<p style="line-height: 10px;">
+								{{ $r['name'] }}
+								<span style="display: inline-block; font-weight: bold;">Consented yes:{{ $r['yes'] }} no:{{ $r['no'] }}</span> 
+							</p>
+						@endforeach
+					</div>
+					<h3>{{ count($data['researches']) }}</h3>
+					<p>{{ __('beep.Researches') }}</p>
+				</div>
+				<div class="icon">
+					<i class="fa fa-search"></i>
+				</div>
+				<a href="#" class="small-box-footer">
+	              No extra info
+	            </a>
+			</div>
+		</div>
 		
 
 	</div>

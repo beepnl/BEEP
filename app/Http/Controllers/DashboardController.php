@@ -15,6 +15,7 @@ use App\ChecklistCategory;
 use App\HiveLayerFrame;
 use App\Device;
 use App\Measurement;
+use App\Research;
 use DB;
 
 use Moment\Moment;
@@ -60,6 +61,15 @@ class DashboardController extends Controller
         $data['checklists'] = Checklist::count();
         $data['checklists_edited'] = Checklist::whereRaw('updated_at - created_at > 60')->count();
         $data['sensors']    = Device::count();
+        $data['researches'] = [];
+
+        foreach (Research::all() as $key => $r)
+        {
+            $data['researches'][$key] = [];
+            $data['researches'][$key]['name'] = $r->name;
+            $data['researches'][$key]['yes']  = DB::table('research_user')->where('research_id', $r->id)->where('consent', 1)->count();
+            $data['researches'][$key]['no']   = DB::table('research_user')->where('research_id', $r->id)->where('consent', 0)->count();
+        }
 
         $checklist_details = false;
         $connection        = true;

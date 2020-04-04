@@ -456,6 +456,9 @@
     consent_yes             : 'Ik sta toe mijn data te gebruiken',
     consent_no              : 'Ik sta NIET toe mijn data te gebruiken',
     my_beep_data            : 'Mijn eigen BEEP gegevens',
+    Consent_can_only_be_set : 'Toestemming kan alleen aangepast worden naar',
+    earlier                 : 'een eerdere',
+    later                   : 'een latere',
     
     new_apiary_explanation  : 'Maak een nieuwe bijenstand in 4 stappen',
     start_here              : 'Begin hier',

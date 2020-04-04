@@ -42,6 +42,34 @@ class ResearchController extends Controller
         return response()->json($this->save_consent($request, $id, false), 200);
     }
 
+    public function edit_consent(Request $request, $id, $consent_id)
+    {
+        $consent = DB::table('research_user')->where('user_id', $request->user()->id)->where('research_id', $id)->find($consent_id);
+        
+        $saved = false;
+        if ($consent && $request->filled('updated_at'))
+        {
+            $timestamp = $request->input('updated_at');
+            DB::table('research_user')->where('id', $consent_id)->update(['updated_at'=>$timestamp]);
+            $saved = true;
+        }
+        return response()->json($saved, $saved ? 200 : 500);
+    }
+
+    public function delete_no_consent(Request $request, $id, $consent_id)
+    {
+        $consent = DB::table('research_user')->where('user_id', $request->user()->id)->where('research_id', $id)->find($consent_id);
+
+        $deleted = false;
+        if ($consent && $consent->consent == false)
+        {
+            DB::table('research_user')->where('id', $consent_id)->delete();
+            $deleted = true;
+        }
+
+        return response()->json($deleted, $deleted ? 200 : 500);
+    }
+
     private function save_consent(Request $request, $id, $consent)
     {
         $research  = Research::findOrFail($id);

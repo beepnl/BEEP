@@ -84,14 +84,14 @@
 										{{ lang.Current_consent }}
 									</dt>
 									<dd>
-										<strong ng-class="{'text-danger':r.consent==null, 'text-danger':r.consent==0, 'text-success':r.consent==1}">{{ r.consent ? lang.consent_yes : lang.consent_no }}</strong>
+										<strong ng-class="{'text-danger':r.consent===null, 'text-danger':r.consent===0, 'text-success':r.consent===1}">{{ r.consent ? lang.consent_yes : lang.consent_no }}</strong>
 									</dd>
 									<br>
 									<dt>
 										{{ lang.edit }} {{ lang.Consent.toLowerCase() }}
 									</dt>
 									<dd>
-										<button ng-click="consentToggle(r.id, r.consent ? 0 : 1)" class="btn btn-primary">{{ r.consent==1 ? lang.consent_no : lang.consent_yes }}</button>
+										<button ng-click="consentToggle(r.id, r.consent ? 0 : 1)" class="btn btn-primary">{{ r.consent ? lang.consent_no : lang.consent_yes }}</button>
 									</dd>
 								</dl>
 							</div>
@@ -102,8 +102,21 @@
 									
 								<dl class="dl-horizontal">
 									<div ng-repeat="ch in r.consent_history">
-										<dt style="text-align: left;">{{ ch.updated_at }}</dt>
-										<dd><strong ng-class="{'text-danger':ch.consent==null, 'text-danger':ch.consent==0, 'text-success':ch.consent==1}">{{ ch.consent ? lang.consent_yes : lang.consent_no }}</strong></dd>
+										<dt style="text-align: left;">
+											<span ng-if="!ch.edit">
+												{{ ch.updated_at }} 
+												<a ng-click="editConsentDate(ch); ch.edit=true">
+													<i class="fa fa-pencil" title="{{ lang.Consent_can_only_be_set }} {{ ch.consent===1 ? lang.earlier+' '+lang.start_date.toLowerCase() : lang.later+' '+lang.end_date.toLowerCase() }}"></i>
+												</a>
+											</span>
+											<span ng-if="ch.edit">
+												<input type="text" data-field="datetime" readonly="true" ng-model="ch.updated_at" style="cursor: pointer; background-color: #DDD; border: 1px solid #999; border-radius: 7px; padding-left: 6px; padding-right: 0;"><a ng-click="updateConsent(r.id, ch.id, ch.updated_at); ch.edit=false"><i class="fa fa-save"></i></a>
+											</span>
+										</dt>
+										<dd>
+											<strong ng-class="{'text-danger':ch.consent===null, 'text-danger':ch.consent===0, 'text-success':ch.consent===1}">{{ ch.consent ? lang.consent_yes : lang.consent_no }}</strong>
+											<a ng-if="ch.consent===0" ng-click="deleteNoConsent(r.id, ch)" class="delete-no-consent"><i class="fa fa-times"></i></a>
+										</dd>
 									</div>
 								</dl>
 									
@@ -128,7 +141,7 @@
         </div>
 	</div>
 
-
-
-
 </section>
+
+<div id="dtBox"></div>
+

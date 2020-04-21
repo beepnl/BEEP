@@ -65,7 +65,7 @@ app.controller('SensorsCtrl', function($scope, $rootScope, $timeout, $interval, 
 
     $scope.addSensor = function()
     {
-        var key = randomString(16);
+        var key = randomString(16).toLowerCase();
         $scope.sensors.push({'name':'Sensor '+($scope.sensors.length+1), 'key':key});
     }
 

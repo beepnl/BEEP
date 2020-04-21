@@ -318,6 +318,8 @@ class DeviceController extends Controller
                 $device_obj = Auth::user()->devices->find($sid);
             else if (isset($key))
                 $device_obj = Auth::user()->devices->where('key', $key)->first();
+            else if (isset($device['key']))
+                $device_obj = Auth::user()->devices->where('key', $device['key'])->first();
 
             if ($device_obj != null)
             {
@@ -348,8 +350,8 @@ class DeviceController extends Controller
 
             // $device_new['id'] = $device_id; 
 
-            if (isset($key))
-                $device_new['key'] = $key; 
+            if (isset($device['key']))
+                $device_new['key'] = $device['key'];
             
             if (isset($device['name']))
                 $device_new['name'] = $device['name']; 

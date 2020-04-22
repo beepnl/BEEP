@@ -1003,6 +1003,7 @@ dt a i.fa {
 	}
 .table.inspections tbody{
 	display: block;
+	min-height: 350px;
 	max-height: calc(100vh - 225px);
 	overflow-y: scroll;
 	overflow-x: visible;

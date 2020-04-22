@@ -878,11 +878,11 @@ app.directive('restrictInput', function () {
         if (!options.regex && options.type) {
           switch (options.type) {
             case 'digitsOnly':
-              options.regex = '^\-?[0-9]*$';
+              options.regex = '^[0-9\-]*$';
               break;
 
             case 'digitsAndDotOnly':
-              options.regex = '^\-?(\d+\.?\d*|\d*\.?\d+)$';
+              options.regex = '^[0-9.\-]*$';
               break;
 
             case 'lettersOnly':

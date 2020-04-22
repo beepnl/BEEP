@@ -7,8 +7,8 @@ app.directive('restrictInput', function() {
         var options = scope.$eval(attr.restrictInput);
         if (!options.regex && options.type) {
           switch (options.type) {
-            case 'digitsOnly': options.regex = '^[0-9]*$'; break;
-            case 'digitsAndDotOnly': options.regex = '^[0-9.]*$'; break;
+            case 'digitsOnly': options.regex = '^\-?[0-9]*$'; break;
+            case 'digitsAndDotOnly': options.regex = '^\-?(\d+\.?\d*|\d*\.?\d+)$'; break;
             case 'lettersOnly': options.regex = '^[a-zA-Z]*$'; break;
             case 'lowercaseLettersOnly': options.regex = '^[a-z]*$'; break;
             case 'uppercaseLettersOnly': options.regex = '^[A-Z]*$'; break;

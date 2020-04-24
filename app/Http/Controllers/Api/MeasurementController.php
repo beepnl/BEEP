@@ -454,7 +454,24 @@ class MeasurementController extends Controller
             $data_array['lon']  = $request_data['DevEUI_uplink']['LrrLON'];
 
         if (isset($request_data['DevEUI_uplink']['payload_hex']))
-            $data_array = array_merge($data_array, $this->decode_simpoint_payload($request_data['DevEUI_uplink']['payload_hex']));
+            $data_array = array_merge($data_array, $this->decode_simpoint_payload($request_data['DevEUI_uplink']));
+
+        //die(print_r($data_array));
+        if (isset($data_array['beep_base']) && boolval($data_array['beep_base']) && isset($data_array['key']) && isset($data_array['hardware_id'])) // store hardware id
+        {
+            $this->storeDeviceMeta($data_array['key'], 'hardware_id', $data_array['hardware_id']);
+            if (isset($data_array['measurement_transmission_ratio']))
+                $this->storeDeviceMeta($data_array['key'], 'measurement_transmission_ratio', $data_array['measurement_transmission_ratio']);
+            if (isset($data_array['measurement_interval_min']))
+                $this->storeDeviceMeta($data_array['key'], 'measurement_interval_min', $data_array['measurement_interval_min']);
+            if (isset($data_array['hardware_version']))
+                $this->storeDeviceMeta($data_array['key'], 'hardware_version', $data_array['hardware_version']);
+            if (isset($data_array['firmware_version']))
+                $this->storeDeviceMeta($data_array['key'], 'firmware_version', $data_array['firmware_version']);
+            if (isset($data_array['bootcount']))
+                $this->storeDeviceMeta($data_array['key'], 'bootcount', $data_array['bootcount']);
+        }
+
 
         if (isset($data_array['w_fl']) || isset($data_array['w_fr']) || isset($data_array['w_bl']) || isset($data_array['w_br'])) // v7 firmware
         {

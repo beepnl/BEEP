@@ -120,63 +120,123 @@ trait MeasurementLegacyCalculationsTrait
         return $arr;
     }
 
-    private function decode_simpoint_payload($payload)
+    private function decode_simpoint_payload($data)
     {
         $out = [];
-        $beep_sensors = [
-            't'  , // 0
-            'h'  , // 1
-            'w_v',
-            't_i',
-            'a_i',
-            'bv' ,
-            's_tot',
-            's_fan_4',
-            's_fan_6',
-            's_fan_9',
-            's_fly_a',
-            'w_fl_hb',
-            'w_fl_lb',
-            'w_fr_hb',
-            'w_fr_lb',
-            'w_bl_hb',
-            'w_bl_lb',
-            'w_br_hb',       
-            'w_br_lb', // 18  
-        ];
+        
+        if (isset($data['payload_hex']) == false)
+            return $out;
 
-        $minLength = min(strlen($payload)/2, count($beep_sensors));
+        // distighuish BEEP base v2 and v3 payload
 
-        for ($i=0; $i < $minLength; $i++) 
-        { 
-            if (strlen($payload) > count($beep_sensors)*2)
-            {
-                $index = $i * 4 + 2; 
-            }
-            else
-            {
-                $index = $i * 2;
-            }
-            $sensor = $beep_sensors[$i];
-            $hexval = substr($payload, $index, 2);
+        $payload = $data['payload_hex'];
+        $port    = $data['FPort'];
 
-            if (strpos($sensor, '_hb') !== false) // step 1 of 2 byte value
+        if ($port != 1) // BEEP base v3 firmware
+        {
+            $p  = strtolower($payload);
+            $pu = strtoupper($payload);
+
+            if ($port == 2)
             {
-                $sensor = substr($sensor, 0, strpos($sensor, '_hb'));
-                $out[$sensor] = $hexval;
-            } 
-            else if (strpos($sensor, '_lb') !== false) // step 2 of 2 byte value
-            {
-                $sensor = substr($sensor, 0, strpos($sensor, '_lb'));
-                $totalHexVal  = $out[$sensor].$hexval;
-                $out[$sensor] = hexdec($totalHexVal);
+                if (substr($p, 0, 2) == '01' && (strlen($p) == 52 || strlen($p) == 60)) // BEEP base fw 1.3.3+ start-up message)
+                {
+                    $out['beep_base'] = true;
+                    // 0100010003000502935cbdd3ffff94540e0123af9aed3527beee1d000001
+                    // 0100010003000402935685E6FFFF94540E01237A26A67D24D8EE1D000001
+                    //                                                 0e01236dada5c40a28ee
+                    // 01 00 01 00 03 00 04 02 93 56 85 E6 FF FF 94 54 0E 01 23 7A 26 A6 7D 24 D8 EE 1D 00 00 01 
+                    // 0  1  2  3  4  5  6  7  8  9  10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 
+                    //    pl fw version     hw version                 ATTEC ID (14)                 app config
+
+                    $out['firmware_version'] = hexdec(substr($p, 2, 4)).'.'.hexdec(substr($p, 6, 4)).'.'.hexdec(substr($p, 10, 4)); // 2-13
+                    // $out['hardware_version'] = hexdec(substr($p, 16, 16)); // 14-31
+                    $out['hardware_id']      = substr($p, 32, 20); // 32-52
+                    
+                    if (strlen($p) > 52)
+                    {
+                        $out['measurement_transmission_ratio'] = hexdec(substr($p, 54, 2)); 
+                        $out['measurement_interval_min']       = hexdec(substr($p, 56, 4)); 
+                    }
+                }
             }
-            else
+            else if ($port == 3 || $port == 4)
             {
-                $out[$sensor] = hexdec($hexval);
+                if (($port == 3 && substr($pu, 0, 2) == '1B') || ($port == 4 && substr($pu, 2, 2) == '1B'))  // BEEP base fw 1.2.0+ measurement message, and alarm message
+                {
+                    $out['beep_base'] = true;
+                    //              1B 0C 1B 0C 0E 64  0A 01 FF F6 98  04 02 0A D7 0A DD  0C 0A 00 FF 00 58 00 12 00 10 00 0C 00 0D 00 0A 00 0A 00 09 00 08 00 07  07 00 00 00 00 00 00
+                    // pl incl fft: 1B 0D 15 0D 0A 64  0A 01 00 00 93  04 00              0C 0A 00 FF 00 20 00 05 00 0C 00 03 00 05 00 09 00 04 00 11 00 06 00 02  07 00 00 00 00 00 00
+                    //              0  1  2  3  4  5   6  7  8  9  10  11 12              13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36  37 38 39 40 41 42 43
+                    //                 Batt            Weight          Temp               FFT                                                                      BME280
+                    // raw pl  1B0C4B0C44640A01012D2D040107D6
+                    // Payload 1B 0C4B0C4464 0A 01 012D2D 04 01 07D6
+                    //         6  batt       5  1 weight  5 1-5 temp (1 to 5)
+
+                    $sb = $port == 4 ? 8 : 6; // start byte
+
+                    $out['bv']       = hexdec(substr($p, $sb, 4))/1000;
+                    $out['bat_perc'] = hexdec(substr($p, $sb+4, 2));
+                }
             }
         }
-        //die(print_r($minLength));
+        else // BEEP base v2 firmware
+        {
+            $beep_sensors = [
+                't'  , // 0
+                'h'  , // 1
+                'w_v',
+                't_i',
+                'a_i',
+                'bv' ,
+                's_tot',
+                's_fan_4',
+                's_fan_6',
+                's_fan_9',
+                's_fly_a',
+                'w_fl_hb',
+                'w_fl_lb',
+                'w_fr_hb',
+                'w_fr_lb',
+                'w_bl_hb',
+                'w_bl_lb',
+                'w_br_hb',       
+                'w_br_lb', // 18  
+            ];
+
+            $minLength = min(strlen($payload)/2, count($beep_sensors));
+
+            for ($i=0; $i < $minLength; $i++) 
+            { 
+                if (strlen($payload) > count($beep_sensors)*2)
+                {
+                    $index = $i * 4 + 2; 
+                }
+                else
+                {
+                    $index = $i * 2;
+                }
+                $sensor = $beep_sensors[$i];
+                $hexval = substr($payload, $index, 2);
+
+                if (strpos($sensor, '_hb') !== false) // step 1 of 2 byte value
+                {
+                    $sensor = substr($sensor, 0, strpos($sensor, '_hb'));
+                    $out[$sensor] = $hexval;
+                } 
+                else if (strpos($sensor, '_lb') !== false) // step 2 of 2 byte value
+                {
+                    $sensor = substr($sensor, 0, strpos($sensor, '_lb'));
+                    $totalHexVal  = $out[$sensor].$hexval;
+                    $out[$sensor] = hexdec($totalHexVal);
+                }
+                else
+                {
+                    $out[$sensor] = hexdec($hexval);
+                }
+            }
+        }
+        //die(print_r($out));
         return $out;
     }
 

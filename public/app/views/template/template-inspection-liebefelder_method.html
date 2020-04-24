@@ -46,24 +46,14 @@
 					<div step="1" ng-disabled="false" min="0" max="11" ng-model="hive.frames" ng-change="calculateLieberfeldColonySize()" rn-stepper></div>
 				</div>
 			</div>
-			
 			<div class="col-xs-6">
-				<div>
-					<label>{{ lang.fr_width_cm }}</label>
-					<p>{{ hive.fr_width_cm }} cm</p>
-				</div>
-				<div>
-					<label>{{ lang.fr_height_cm }}</label>
-					<p>{{ hive.fr_height_cm }} cm</p>
-				</div>
+				<label>Total colony size</label>
+				<p style="font-size: 40px;">
+					<span ng-if="colony_size">{{ colony_size }} bees</span>
+					<span ng-if="!colony_size">N/A</span>
+				</p>
 			</div>
-    	</div>
-    </div>
-    <div class="col-xs-12 col-sm-4 col-md-3">
-		<label>Total colony size</label>
-		<p style="font-size: 40px;">
-			{{ colony_size }} bees
-		</p>
-    </div>
+		</div>
+	</div>
 </div>
 <hr>

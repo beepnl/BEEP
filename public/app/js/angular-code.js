@@ -794,7 +794,7 @@ app.service('inspections', ['$http', '$rootScope', 'api', 'settings', function (
 
     this.checklistNull = null; // clean loaded checklist
 
-    this.lastUsedChecklistId = null; // last loaded checklist id
+    this.checklistId = null; // last loaded checklist id
 
     this.saveObject = {}; // hold inspection items for saving
 
@@ -838,7 +838,8 @@ app.service('inspections', ['$http', '$rootScope', 'api', 'settings', function (
     'image': null
   };
 
-  this.newSaveObject = function (data) {
+  this.newSaveObject = function () {
+    var data = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
     var init = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
     self.saveObject = {
       impression: -1,
@@ -859,11 +860,15 @@ app.service('inspections', ['$http', '$rootScope', 'api', 'settings', function (
 
     if (init) // initialize first
       {
+        self.inspection = null;
         self.createInspectionObject('impression', null, -1, false);
         self.createInspectionObject('attention', null, -1, false);
         self.createInspectionObject('reminder', null, '', false);
         self.createInspectionObject('notes', null, '', false);
+        self.createInspectionObject('reminder_date', null, '', false);
       }
+
+    if (data == null && init == false) data = self.inspection;
 
     if (typeof data != 'undefined' && data != null) {
       //console.log('newSaveObject filling checklist with available data');
@@ -1001,8 +1006,8 @@ app.service('inspections', ['$http', '$rootScope', 'api', 'settings', function (
 
   this.checklistHandler = function (e, data) {
     self.checklist = data.checklist;
+    self.checklistId = data.checklist.id;
     self.checklistNull = data.checklist;
-    if (self.inspection) self.newSaveObject(self.inspection);
     $rootScope.$broadcast('checklistUpdated');
   };
 
@@ -1110,7 +1115,7 @@ app.service('inspections', ['$http', '$rootScope', 'api', 'settings', function (
 
 
   this.loadRemoteInspections = function (hive_id) {
-    api.getApiRequest('inspections', 'inspections/hive/' + hive_id);
+    if (_typeof(hive_id) != undefined && hive_id != null) api.getApiRequest('inspections', 'inspections/hive/' + hive_id);
   };
 
   this.inspectionsHandler = function (e, data) {
@@ -1132,7 +1137,8 @@ app.service('inspections', ['$http', '$rootScope', 'api', 'settings', function (
 
   this.inspectionHandler = function (e, data) {
     self.inspection = data;
-    $rootScope.$broadcast('inspectionUpdated', data);
+    if (typeof data.checklist_id != 'undefined') self.checklistId = data.checklist_id;else self.checklistId = null;
+    $rootScope.$broadcast('inspectionUpdated');
   };
 
   $rootScope.$on('inspectionLoaded', self.inspectionHandler);
@@ -2720,6 +2726,8 @@ app.controller('InspectionCreateCtrl', function ($scope, $rootScope, $window, $l
   $scope.checklist = null;
   $scope.checklists = null;
   $scope.checklist_id = null;
+  $scope.memory = null; // rember object for storing info before navigating
+
   $scope.inspection = {};
   $scope.hive = null;
   $scope.hives = null;
@@ -2739,7 +2747,7 @@ app.controller('InspectionCreateCtrl', function ($scope, $rootScope, $window, $l
       $scope.hive = hives.getHiveById($routeParams.hiveId);
       if ($scope.hive == null) $scope.hive = groups.getHiveById($routeParams.hiveId);
       $rootScope.hive = $scope.hive;
-      $scope.inspection = inspections.newSaveObject(); // $scope.checklistsUpdated();
+      $scope.updateInspection(); // $scope.checklistsUpdated();
 
       inspections.getChecklists(); //console.log('init-inspection', $scope.inspection);
     }
@@ -2824,9 +2832,9 @@ app.controller('InspectionCreateCtrl', function ($scope, $rootScope, $window, $l
   };
 
   $scope.editChecklist = function () {
-    var so = inspections.saveObject; //console.log('editChecklist', so);
+    var so = $scope.inspection; //console.log('editChecklist', so);
 
-    if (so && (Object.keys(so.items).length > 0 || so.impression != -1 || so.attention != -1 || so.notes != '' || so.reminder != '' || so.reminder_date != '')) {
+    if (so && (Object.keys(inspections.saveObject.items).length > 0 || so.impression != -1 || so.attention != -1 || so.notes != '' || so.reminder != '' || so.reminder_date != '')) {
       $rootScope.showConfirm($rootScope.lang.save_input_first, $scope.saveAndeditChecklist, null, $scope.navigateToEditChecklist);
     } else {
       $scope.navigateToEditChecklist();
@@ -2847,7 +2855,7 @@ app.controller('InspectionCreateCtrl', function ($scope, $rootScope, $window, $l
 
     if (inspections.checklist == null || force) {
       $scope.setDateLanguage();
-      $scope.selectChecklist(currentChecklistId, force); //console.log('selected checklist id NULL', id, force);
+      $scope.selectChecklist(currentChecklistId, force);
     } else {
       //console.log('selected checklist id NOT NULL', id, force);
       $scope.checklistUpdated(null, null);
@@ -2861,10 +2869,22 @@ app.controller('InspectionCreateCtrl', function ($scope, $rootScope, $window, $l
     if (id != null) {
       $scope.checklist_id = id;
       $scope.checklists = null;
-      $scope.checklists = inspections.checklists; //console.log('checklistUpdated id', id, $scope.checklists);
+      $scope.checklists = inspections.checklists;
     }
 
     if (typeof e != 'undefined' && e != null && typeof e.name != 'undefined' && e.name == 'localeChange') $scope.updateLists(true);
+
+    if ($scope.memory != null) {
+      if (typeof $scope.memory.update_inspection != 'undefined') {
+        console.log('updateInspection from memorized flag');
+        $scope.memory = null;
+        $scope.updateInspection();
+      } else if (typeof $scope.memory.init_inspection != 'undefined') {
+        console.log('inspectionInit from memorized flag');
+        $scope.memory = null;
+        $scope.inspectionInit();
+      }
+    }
   };
 
   $scope.checklistHandler = $rootScope.$on('checklistUpdated', $scope.checklistUpdated);
@@ -2885,24 +2905,59 @@ app.controller('InspectionCreateCtrl', function ($scope, $rootScope, $window, $l
 
   $scope.selectChecklist = function (id) {
     var force = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
+    var updateInspection = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
+
+    // check if a checklist_id to load was in memory (from saveBeforeNavigate)
+    if ($scope.memory != null && typeof $scope.memory.checklist_id != 'undefined') {
+      id = $scope.memory.checklist_id;
+      console.log('selectChecklist from memorized id ', id);
+      $scope.memory = {
+        init_inspection: true
+      };
+    }
 
     if ($scope.checklist && id == $scope.checklist.id && force == false) {
       console.log('DO NOT selectChecklist', id, force);
       return;
+    } else {
+      console.log('selectChecklist id', id, force);
     }
 
     $scope.checklist_id = id;
     inspections.loadChecklist(id);
   };
 
-  $scope.inspectionUpdate = function (e, data) {
-    $scope.inspection = inspections.newSaveObject(data);
+  $scope.updateInspection = function () {
+    var data = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
+    var init = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
+    $scope.inspection = inspections.newSaveObject(data, init);
     $rootScope.inspection = $scope.inspection; // for beep-checklist-input.js directive
+  };
+
+  $scope.inspectionInit = function (e, type) {
+    console.log('$scope.inspectionInit');
+    $scope.inspection = null;
+    $scope.updateInspection(null, true);
+  }; //$scope.saveInspectionLoadedHandler= $rootScope.$on('saveInspectionLoaded', $scope.inspectionInit);
+
+
+  $scope.inspectionUpdate = function (e, data) {
+    var init = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
+
+    if ($scope.checklist_id != inspections.checklistId) {
+      $scope.selectChecklist(inspections.checklistId, false);
+      $scope.memory = {
+        update_inspection: true
+      };
+    } else {
+      $scope.updateInspection(data, init);
+    }
   };
 
   $scope.inspectionHandler = $rootScope.$on('inspectionUpdated', $scope.inspectionUpdate);
 
   $scope.loadHiveIndex = function (direction) {
+    $scope.inspectionInit();
     var i = hives.getHiveIndex($routeParams.hiveId); //console.log('inspection_create loadedHiveIndex:', i);
 
     var max = hives.hives.length - 1;
@@ -2931,6 +2986,26 @@ app.controller('InspectionCreateCtrl', function ($scope, $rootScope, $window, $l
     $scope.loadHiveIndex(1);
   };
 
+  $scope.saveAndGoCallback = function (callback) {
+    $scope.saveInspectionHandler();
+    $scope.saveInspectionHandler = $rootScope.$on('saveInspectionLoaded', callback);
+    $scope.saveInspection();
+  };
+
+  $scope.saveBeforeNavigate = function () {
+    var callback = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
+    var memory = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
+    $scope.memory = memory;
+    var so = $scope.inspection;
+
+    if (so && (Object.keys(inspections.saveObject.items).length > 0 || so.impression != -1 || so.attention != -1 || so.notes != '' || so.reminder != '' || so.reminder_date != '')) {
+      console.log('saveBeforeNavigate items', Object.keys(inspections.saveObject.items).length, so);
+      return $rootScope.showConfirm($rootScope.lang.save_input_first, $scope.saveAndGoCallback, callback, callback);
+    } else {
+      if (typeof callback == 'function') return callback();
+    }
+  };
+
   $scope.back = function () {
     if ($rootScope.optionsDialog) {
       $rootScope.optionsDialog.close();
@@ -2939,12 +3014,13 @@ app.controller('InspectionCreateCtrl', function ($scope, $rootScope, $window, $l
       for (var i = $rootScope.history.length - 1; i >= 0; i--) {
         var path = $rootScope.history[i];
         var go = false;
-        var hive_id = typeof $scope.hive != 'undefined' && $scope.hive != null ? $scope.hive.id : '';
-        if (path.indexOf('/inspections') > -1 && path.indexOf('/inspections/') == -1 || path.indexOf('/locations') > -1 || path.indexOf('/hives') > -1 && path.indexOf('/hives/' + hive_id) == -1 || path.indexOf('/groups') > -1) go = true;
+        var hive_id = typeof $scope.hive != 'undefined' && $scope.hive != null ? $scope.hive.id : ''; // go if history item contains main menu item
+
+        if (path.indexOf('/inspections') > -1 && path.indexOf('/inspections/') == -1 || path.indexOf('/locations') > -1 || path.indexOf('/hives') > -1 && path.indexOf('/hives/' + hive_id) == -1 && path.indexOf('/inspect') == -1 || path.indexOf('/groups') > -1) go = true;
         if (go) return $location.path(path);
       }
 
-      $rootScope.historyBack();
+      return $rootScope.historyBack();
     }
   }; //close options dialog
 
@@ -2952,6 +3028,7 @@ app.controller('InspectionCreateCtrl', function ($scope, $rootScope, $window, $l
   $scope.backListener = $rootScope.$on('backbutton', $scope.back); // remove references to the controller
 
   $scope.removeListeners = function () {
+    //$scope.saveInspectionLoadedHandler();
     $scope.saveInspectionHandler();
     $scope.saveInspectionErrorHandler();
     $scope.checklistHandler();
@@ -3036,10 +3113,10 @@ app.controller('InspectionsCtrl', function ($scope, $rootScope, $window, $locati
       $scope.hiveId = $routeParams.hiveId;
       $scope.hive = hives.getHiveById($scope.hiveId);
       if ($scope.hive == null) $scope.hive = groups.getHiveById($scope.hiveId);
+      if ($scope.hive == null) return $location.path('/locations');
       $scope.showMore = hives.hives_inspected.length > 1 ? true : false;
       $scope.setScales();
       $scope.loadInspections();
-      console.log($scope.hive);
     }
   };
 
@@ -3149,6 +3226,7 @@ app.controller('InspectionsCtrl', function ($scope, $rootScope, $window, $locati
   $scope.backListener = $rootScope.$on('backbutton', $scope.back); // remove references to the controller
 
   $scope.removeListeners = function () {
+    $scope.inspectionsDeleteHandler();
     $scope.inspectionsHandler();
     $scope.inspectionsErrorHandler();
     $scope.localeChangeHandler();

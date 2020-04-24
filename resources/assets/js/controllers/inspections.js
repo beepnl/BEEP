@@ -93,11 +93,12 @@ app.controller('InspectionsCtrl', function($scope, $rootScope, $window, $locatio
 			$scope.hive 	= hives.getHiveById($scope.hiveId);
 			if ($scope.hive == null)
 				$scope.hive = groups.getHiveById($scope.hiveId);
-			
+			if ($scope.hive == null)
+				return $location.path('/locations');
+
 			$scope.showMore = hives.hives_inspected.length > 1 ? true : false;
 			$scope.setScales();
 			$scope.loadInspections();
-			console.log($scope.hive);
 		}
 	};
 
@@ -242,6 +243,7 @@ app.controller('InspectionsCtrl', function($scope, $rootScope, $window, $locatio
 	// remove references to the controller
     $scope.removeListeners = function()
     {
+		$scope.inspectionsDeleteHandler();
 		$scope.inspectionsHandler();
 		$scope.inspectionsErrorHandler();
 		$scope.localeChangeHandler();

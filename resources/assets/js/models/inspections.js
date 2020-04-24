@@ -18,7 +18,7 @@ app.service('inspections', ['$http', '$rootScope', 'api', 'settings', function($
 		this.checklistTree= [];
 		this.checklist    = null; // use for filling
 		this.checklistNull= null; // clean loaded checklist
-		this.lastUsedChecklistId = null; // last loaded checklist id
+		this.checklistId  = null; // last loaded checklist id
 
 		this.saveObject   = {}; // hold inspection items for saving
 
@@ -64,7 +64,7 @@ app.service('inspections', ['$http', '$rootScope', 'api', 'settings', function($
 		'image': null,
 	}
 	
-	this.newSaveObject = function(data, init=false)
+	this.newSaveObject = function(data=null, init=false)
 	{
 		self.saveObject = 
 		{
@@ -87,11 +87,16 @@ app.service('inspections', ['$http', '$rootScope', 'api', 'settings', function($
 
 		if (init) // initialize first
 		{
+			self.inspection = null;
 			self.createInspectionObject('impression', null, -1, false);
 			self.createInspectionObject('attention', null, -1, false);
 			self.createInspectionObject('reminder', null, '', false);
 			self.createInspectionObject('notes', null, '', false);
+			self.createInspectionObject('reminder_date', null, '', false);
 		}
+
+		if (data == null && init == false)
+			data = self.inspection;
 
 		if (typeof data != 'undefined' && data != null)
 		{
@@ -252,9 +257,8 @@ app.service('inspections', ['$http', '$rootScope', 'api', 'settings', function($
 	this.checklistHandler = function(e, data)
 	{
 		self.checklist 	   = data.checklist;
+		self.checklistId   = data.checklist.id;
 		self.checklistNull = data.checklist;
-		if (self.inspection)
-			self.newSaveObject(self.inspection);
 
 		$rootScope.$broadcast('checklistUpdated');
 	};
@@ -398,7 +402,8 @@ app.service('inspections', ['$http', '$rootScope', 'api', 'settings', function($
 	// Inspections
 	this.loadRemoteInspections = function(hive_id)
 	{
-		api.getApiRequest('inspections', 'inspections/hive/'+hive_id);
+		if (typeof hive_id != undefined && hive_id != null)
+			api.getApiRequest('inspections', 'inspections/hive/'+hive_id);
 	};
 
 	this.inspectionsHandler = function(e, data)
@@ -425,7 +430,13 @@ app.service('inspections', ['$http', '$rootScope', 'api', 'settings', function($
 	this.inspectionHandler = function(e, data)
 	{
 		self.inspection = data;
-		$rootScope.$broadcast('inspectionUpdated', data);
+
+		if (typeof data.checklist_id != 'undefined')
+			self.checklistId = data.checklist_id;
+		else
+			self.checklistId = null;
+
+		$rootScope.$broadcast('inspectionUpdated');
 	};
 	$rootScope.$on('inspectionLoaded', self.inspectionHandler);
 	

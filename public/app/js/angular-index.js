@@ -177,9 +177,7 @@ app.run(function ($rootScope, $location, $window, $route, $routeParams, amMoment
   $window.addEventListener('resize', $rootScope.setDevice); // listen to the colorwheel event
 
   document.addEventListener('colorwheel.select', function (e) {
-    $rootScope.$apply(function () {
-      $rootScope.$broadcast('colorwheelSelect', e);
-    });
+    $rootScope.$broadcast('colorwheelSelect', e);
   }); //api.reset();
 
   $rootScope.logout = function () {
@@ -223,10 +221,8 @@ app.run(function ($rootScope, $location, $window, $route, $routeParams, amMoment
 
   $rootScope.$on('userUpdated', $rootScope.checkPolicy);
   setTimeout(function () {
-    $rootScope.$apply(function () {
-      $rootScope.loading = false;
-      $rootScope.checkToken();
-    });
+    $rootScope.loading = false;
+    $rootScope.checkToken();
   }, 200); // check if we want header details
 
   $rootScope.$on('$routeChangeSuccess', function () {
@@ -343,9 +339,7 @@ app.run(function ($rootScope, $location, $window, $route, $routeParams, amMoment
       // prevent default
       e.preventDefault(); // apply
 
-      $rootScope.$apply(function () {
-        $rootScope.$broadcast('backbutton');
-      });
+      $rootScope.$broadcast('backbutton');
     });
   };
 

@@ -198,10 +198,7 @@ app.run(function($rootScope, $location, $window, $route, $routeParams, amMoment,
     // listen to the colorwheel event
     document.addEventListener('colorwheel.select', function(e)
     {
-        $rootScope.$apply(function()
-        {
-            $rootScope.$broadcast('colorwheelSelect', e);
-        });
+        $rootScope.$broadcast('colorwheelSelect', e);
     });
 
     //api.reset();
@@ -268,11 +265,8 @@ app.run(function($rootScope, $location, $window, $route, $routeParams, amMoment,
 
     setTimeout(function()
     {  
-        $rootScope.$apply(function()
-        {
-            $rootScope.loading = false;
-            $rootScope.checkToken();
-        });
+        $rootScope.loading = false;
+        $rootScope.checkToken();
     }, 200);
 
 
@@ -420,10 +414,7 @@ app.run(function($rootScope, $location, $window, $route, $routeParams, amMoment,
             e.preventDefault();
 
             // apply
-            $rootScope.$apply(function()
-            {
-                $rootScope.$broadcast('backbutton');
-            });
+            $rootScope.$broadcast('backbutton');
         });
     };
 

@@ -19,7 +19,7 @@ app.directive('checklistFieldset', ['$rootScope', function($rootScope) {
               scope.calculateTpaColonySize = function() 
               { 
                 var bees_per_cm2= 1.25;
-                var colony_size = 0;
+                var colony_size = null;
                 var pixelsTotal = 0;
                 var pixelsBees  = 0;
 
@@ -34,9 +34,9 @@ app.directive('checklistFieldset', ['$rootScope', function($rootScope) {
                 }
 
                 var hive = scope.hive;
-                if (pixelsTotal == 0 || typeof hive == 'undefined' || hive == null || isNaN(pixelsBees) || isNaN(pixelsTotal))
+                if (pixelsTotal == 0 || typeof hive == 'undefined' || hive == null || isNaN(pixelsBees) || isNaN(pixelsTotal || hive.fr_width_cm == null || hive.fr_height_cm == null))
                 {
-                    colony_size = 0;
+                    colony_size = null;
                 }
                 else
                 {
@@ -54,7 +54,7 @@ app.directive('checklistFieldset', ['$rootScope', function($rootScope) {
                         child.value = colony_size;
                 }
                 scope.colony_size = colony_size;
-                console.log('tpa_colony_size', colony_size);
+                //console.log('tpa_colony_size', colony_size);
               };
               $rootScope.$on('inspectionItemUpdated', scope.calculateTpaColonySize);
           }
@@ -64,7 +64,7 @@ app.directive('checklistFieldset', ['$rootScope', function($rootScope) {
               scope.calculateLieberfeldColonySize = function() 
               { 
                 var bees_per_cm2= 1.25;
-                var colony_size = 0;
+                var colony_size = null;
                 var bees_squares_25cm2 = 0;
 
                 for (var i = scope.cat.children.length - 1; i >= 0; i--) 
@@ -85,9 +85,9 @@ app.directive('checklistFieldset', ['$rootScope', function($rootScope) {
                 }
                 
                 var hive = scope.hive;
-                if (typeof hive == 'undefined' || hive == null || isNaN(bees_squares_25cm2) )
+                if (typeof hive == 'undefined' || hive == null || isNaN(bees_squares_25cm2) || bees_squares_25cm2 == 0)
                 {
-                    colony_size = 0;
+                    colony_size = null;
                 }
                 else
                 {
@@ -102,7 +102,7 @@ app.directive('checklistFieldset', ['$rootScope', function($rootScope) {
                         child.value = colony_size;
                 }
                 scope.colony_size = colony_size;
-                console.log('lieberfeld_colony_size', colony_size);
+                //console.log('lieberfeld_colony_size', colony_size);
                 //console.log(hive, scope.colony_size, pixelsTotal, pixelsBees, parseFloat(hive.fr_width_cm), parseFloat(hive.fr_height_cm), hive.frames);
               };
               $rootScope.$on('inspectionItemUpdated', scope.calculateLieberfeldColonySize);

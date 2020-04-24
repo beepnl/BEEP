@@ -1,13 +1,13 @@
 <section class="content-header">
   <h1>
   	<!-- <a ng-if="inspection_id == null" class="icn prev" ng-class="{'mobile':mobile}" href="#!/locations"></a> -->
-  	<a class="icn prev" ng-class="{'mobile':mobile}" ng-click="back()"></a>
+  	<a class="icn prev" ng-class="{'mobile':mobile}" ng-click="saveBeforeNavigate(back)"></a>
     {{mobile ? '' : inspection_id ? lang.Edit_inspection + ' - ' : lang.New_inspection + ' - '}} {{hive.name}}
 
     <div class="pull-right" >
     	<div ng-if="showMore" style="display: inline-block; margin-left: 20px;">
-		  	<a class="icn prev" ng-class="{'mobile':mobile}" ng-click="prevHive()"></a>
-		  	<a class="icn next" ng-click="nextHive()"></a>
+		  	<a class="icn prev" ng-class="{'mobile':mobile}" ng-click="saveBeforeNavigate(prevHive)"></a>
+		  	<a class="icn next" ng-click="saveBeforeNavigate(nextHive)"></a>
 		</div>
 	</div>
   </h1>
@@ -39,7 +39,7 @@
 	        	<!-- <select ng-change="selectChecklist(checklist_id)" ng-model="checklist_id" class="form-control" >
 	        		<option ng-repeat="item in checklists track by item.id" value="{{item.id}}" ng-selected="item.id == checklist_id">{{ item.name || item.id }}</option>
 	        	</select> -->
-	        	<select ng-model="checklist" ng-options="checklist as checklist.name+(checklist.researches.length > 0 ? ' ('+lang.research+': '+checklist.researches[0]+')' : '') for checklist in checklists track by checklist.id" ng-change="selectChecklist(checklist.id)" class="form-control">
+	        	<select ng-model="checklist" ng-options="checklist as checklist.name+(checklist.researches.length > 0 ? ' ('+lang.research+': '+checklist.researches[0]+')' : '') for checklist in checklists track by checklist.id" ng-change="saveBeforeNavigate(selectChecklist, {checklist_id:checklist.id})" class="form-control">
 	        	</select>
 	    	</div>
 	    </div>
@@ -57,129 +57,132 @@
 		</div>
 	</div>
 
-	<!-- Inspection items from checklist -->
-	<div class="box collapsed-box" ng-repeat="cat_main in checklist.categories">
-	    <div class="box-header with-border">
-	      <h3 class="box-title">{{cat_main.trans[locale] || cat_main.name}}</h3>
+	<form autocomplete="off">
 
-	      <div class="box-tools pull-right">
-	        <button type="button" class="btn btn-box-tool" data-widget="collapse" ng-mouseup="renderSliders()"><i class="fa fa-plus"></i>
-	        </button>
-	      </div>
-	    </div>
+		<!-- Inspection items from checklist -->
+		<div class="box collapsed-box" ng-repeat="cat_main in checklist.categories">
+		    <div class="box-header with-border">
+		      <h3 class="box-title">{{cat_main.trans[locale] || cat_main.name}}</h3>
 
-	    <!-- New dynamic checklist -->
-	    <div class="box-body">
-			<div class="row">
-				<div ng-repeat="cat in cat_main.children" class="{{ cat.children.length > 0 ? 'col-xs-12' : '' }}">
-					<checklist-fieldset cat="cat"></checklist-fieldset>
-				</div>
-			</div>
-	    </div>
+		      <div class="box-tools pull-right">
+		        <button type="button" class="btn btn-box-tool" data-widget="collapse" ng-mouseup="renderSliders()"><i class="fa fa-plus"></i>
+		        </button>
+		      </div>
+		    </div>
 
-	    <div class="overlay" ng-if="loading">
-          <i class="fa fa-refresh fa-spin"></i>
-        </div>
-
-	</div>
-
-	<!-- General inspection items -->
-	<div class="box">
-	    <div class="box-header with-border">
-	      <h3 class="box-title">{{lang.overall}}</h3>
-
-	      <div class="box-tools pull-right">
-	        <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
-	        </button>
-	        <!--button type="button" class="btn btn-box-tool" data-widget="remove"><i class="fa fa-times"></i></button-->
-	      </div>
-	    </div>
-
-	    <div class="box-body">
-
-			<fieldset>
-				<legend>{{ lang.positive_impression }}</legend>
+		    <!-- New dynamic checklist -->
+		    <div class="box-body">
 				<div class="row">
-					<div class="col-xs-12 col-sm-4 col-md-4">
-			        	<div class="form-group">
-							<label>{{ lang.positive_impression }}</label>
-							<div max="3" ng-model="inspection.impression" readonly="false" smile-rating></div>
-						</div>
+					<div ng-repeat="cat in cat_main.children" class="{{ cat.children.length > 0 ? 'col-xs-12' : '' }}">
+						<checklist-fieldset cat="cat"></checklist-fieldset>
 					</div>
-					<div class="col-xs-12 col-sm-4 col-md-4">
-			        	<div class="form-group">
-							<label>{{ lang.needs_attention }}</label>
-							<div ng-model="inspection.attention" readonly="false" class="yes_red" yes="lang.yes" no="lang.no" yes-no-rating></div>
-						</div>
-					</div>
-					<!-- <div class="col-xs-12 col-sm-4 col-md-4">
-			        	<div class="form-group">
-							<label>{{ lang.photo }}</label>
-							<div>
-					            <div ng-if="!inspection.image.$error && inspection.image">
-					                <div style="font:smaller">{{f.name}} {{errFile.name}} {{errFile.$error}} {{errFile.$errorParam}}
-					                    <span class="progress" ng-show="f.progress >= 0">
-					                        <div style="width:{{f.progress}}%" ng-bind="f.progress + '%'"></div>
-					                    </span>
-					                </div>     
-					                {{errorMsg}}
+				</div>
+		    </div>
 
-					                <div class="preview">
-					                    <a class="delete" ng-if="!imspection.image.$error && imspection.image" ng-click="deleteImage(imspection.image); imspection.image=null"><i class="fa fa-times-circle fa-2x face"></i></a>
-					                    <img ngf-src="!imspection.image.$error && imspection.image" ng-click="setActiveImage(imspection.image)" data-toggle="modal" data-target="#photo-modal">
-					                </div>
-					            </div>
-					            <div ng-if="imspection.image.$error || !imspection.image">
-					                <div ngf-select ngf-drop ng-model="imspection.image" class="drop-box"
-					                    ngf-drag-over-class="'dragover'" 
-					                    ngf-validate="{size: {max: '5MB', min: '10B'}, height: {max: 12000}, width: {max: 12000}, duration: {max: '1m'}}"
-					                    ngf-pattern="'image/*'"
-					                    ngf-capture="camera"
-					                    ngf-drop-available="dropAvailable">
-					                    Select<span ng-show="dropAvailable">/drop</span> image
-					                </div>
-					            </div>
-					        </div>
-						</div>
-					</div> -->
-					<div class="col-xs-12">
-			        	<div class="form-group">
-							<label>{{ lang.notes }}</label>
-							<textarea ng-model="inspection.notes" type="text" class="form-control" maxlength="1024"></textarea>
-						</div>
-					</div>
-				</div>
-			</fieldset>
+		    <div class="overlay" ng-if="loading">
+	          <i class="fa fa-refresh fa-spin"></i>
+	        </div>
 
-			<fieldset>
-				<legend>{{ lang.reminder }}</legend>
-				<div class="row">
-					<div class="col-xs-12 col-sm-4">
-			        	<div class="form-group">
-							<label>{{ lang.remind_date }}</label>
-							<div class="input-group date">
-								<div class="input-group-addon">
-							    <i class="fa fa-calendar"></i>
-							</div>
-							<input class="form-control pull-right" data-field="datetime" type="text" readonly="true" ng-model="inspection.reminder_date">
-						</div>
-				</div>
-					</div>
-					<div class="col-xs-12 col-sm-8">
-			        	<div class="form-group">
-							<label>{{ lang.reminder }}</label>
-							<textarea ng-model="inspection.reminder" type="text" placeholder="{{ lang.notes_for_next_inspection }}" class="form-control" maxlength="100"></textarea>
-						</div>
-					</div>
-				</div>
-			</fieldset>
 		</div>
 
-		<div class="overlay" ng-if="loading">
-          <i class="fa fa-refresh fa-spin"></i>
-        </div>
-	</div>
+		<!-- General inspection items -->
+		<div class="box">
+		    <div class="box-header with-border">
+		      <h3 class="box-title">{{lang.overall}}</h3>
+
+		      <div class="box-tools pull-right">
+		        <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
+		        </button>
+		        <!--button type="button" class="btn btn-box-tool" data-widget="remove"><i class="fa fa-times"></i></button-->
+		      </div>
+		    </div>
+
+		    <div class="box-body">
+
+				<fieldset>
+					<legend>{{ lang.positive_impression }}</legend>
+					<div class="row">
+						<div class="col-xs-12 col-sm-4 col-md-4">
+				        	<div class="form-group">
+								<label>{{ lang.positive_impression }}</label>
+								<div max="3" ng-model="inspection.impression" readonly="false" smile-rating></div>
+							</div>
+						</div>
+						<div class="col-xs-12 col-sm-4 col-md-4">
+				        	<div class="form-group">
+								<label>{{ lang.needs_attention }}</label>
+								<div ng-model="inspection.attention" readonly="false" class="yes_red" yes="lang.yes" no="lang.no" yes-no-rating></div>
+							</div>
+						</div>
+						<!-- <div class="col-xs-12 col-sm-4 col-md-4">
+				        	<div class="form-group">
+								<label>{{ lang.photo }}</label>
+								<div>
+						            <div ng-if="!inspection.image.$error && inspection.image">
+						                <div style="font:smaller">{{f.name}} {{errFile.name}} {{errFile.$error}} {{errFile.$errorParam}}
+						                    <span class="progress" ng-show="f.progress >= 0">
+						                        <div style="width:{{f.progress}}%" ng-bind="f.progress + '%'"></div>
+						                    </span>
+						                </div>     
+						                {{errorMsg}}
+
+						                <div class="preview">
+						                    <a class="delete" ng-if="!imspection.image.$error && imspection.image" ng-click="deleteImage(imspection.image); imspection.image=null"><i class="fa fa-times-circle fa-2x face"></i></a>
+						                    <img ngf-src="!imspection.image.$error && imspection.image" ng-click="setActiveImage(imspection.image)" data-toggle="modal" data-target="#photo-modal">
+						                </div>
+						            </div>
+						            <div ng-if="imspection.image.$error || !imspection.image">
+						                <div ngf-select ngf-drop ng-model="imspection.image" class="drop-box"
+						                    ngf-drag-over-class="'dragover'" 
+						                    ngf-validate="{size: {max: '5MB', min: '10B'}, height: {max: 12000}, width: {max: 12000}, duration: {max: '1m'}}"
+						                    ngf-pattern="'image/*'"
+						                    ngf-capture="camera"
+						                    ngf-drop-available="dropAvailable">
+						                    Select<span ng-show="dropAvailable">/drop</span> image
+						                </div>
+						            </div>
+						        </div>
+							</div>
+						</div> -->
+						<div class="col-xs-12">
+				        	<div class="form-group">
+								<label>{{ lang.notes }}</label>
+								<textarea ng-model="inspection.notes" type="text" class="form-control" maxlength="1024"></textarea>
+							</div>
+						</div>
+					</div>
+				</fieldset>
+
+				<fieldset>
+					<legend>{{ lang.reminder }}</legend>
+					<div class="row">
+						<div class="col-xs-12 col-sm-4">
+				        	<div class="form-group">
+								<label>{{ lang.remind_date }}</label>
+								<div class="input-group date">
+									<div class="input-group-addon">
+								    <i class="fa fa-calendar"></i>
+								</div>
+								<input class="form-control pull-right" data-field="datetime" type="text" readonly="true" ng-model="inspection.reminder_date">
+							</div>
+					</div>
+						</div>
+						<div class="col-xs-12 col-sm-8">
+				        	<div class="form-group">
+								<label>{{ lang.reminder }}</label>
+								<textarea ng-model="inspection.reminder" type="text" placeholder="{{ lang.notes_for_next_inspection }}" class="form-control" maxlength="100"></textarea>
+							</div>
+						</div>
+					</div>
+				</fieldset>
+			</div>
+
+			<div class="overlay" ng-if="loading">
+	          <i class="fa fa-refresh fa-spin"></i>
+	        </div>
+		</div>
 	
+	</form>
 
 	<div class="alert alert-danger" ng-show="error_msg != null">
         <p>{{ error_msg }}</p>

@@ -120,6 +120,26 @@ trait MeasurementLegacyCalculationsTrait
         return $arr;
     }
 
+    private function hexdecs($hex)
+    {
+        // ignore non hex characters
+        $hex = preg_replace('/[^0-9A-Fa-f]/', '', $hex);
+       
+        // converted decimal value:
+        $dec = hexdec($hex);
+       
+        // maximum decimal value based on length of hex + 1:
+        //   number of bits in hex number is 8 bits for each 2 hex -> max = 2^n
+        //   use 'pow(2,n)' since '1 << n' is only for integers and therefore limited to integer size.
+        $max = pow(2, 4 * (strlen($hex) + (strlen($hex) % 2)));
+       
+        // complement = maximum - converted hex:
+        $_dec = $max - $dec;
+       
+        // if dec value is larger than its complement we have a negative value (first bit is set)
+        return $dec > $_dec ? -$_dec : $dec;
+    }
+
     private function decode_simpoint_payload($data)
     {
         $out = [];
@@ -177,8 +197,9 @@ trait MeasurementLegacyCalculationsTrait
                     $sb = $port == 4 ? 2 : 0; // start byte
 
                     // add battery
-                    $out['bv']       = hexdec(substr($p, $sb+2, 4))/1000;
-                    $out['bat_perc'] = hexdec(substr($p, $sb+8, 2));
+                    $out['vcc']      = hexdec(substr($p, $sb+2, 4))/1000;
+                    $out['bv']       = hexdec(substr($p, $sb+6, 4))/1000;
+                    $out['bat_perc'] = hexdec(substr($p, $sb+10, 2));
 
                     // add weight
                     $weight_amount   = hexdec(substr($p, $sb+14, 2));
@@ -203,13 +224,13 @@ trait MeasurementLegacyCalculationsTrait
                     
                     if ($temp_amount == 1)
                     {
-                        $out['t_i'] = hexdec(substr($p, $sb+4, 4))/100;
+                        $out['t_i'] = $this->hexdecs(substr($p, $sb+4, 4))/100;
                     }
                     else if ($temp_amount > 1)
                     {
                         for ($i=0; $i < $temp_amount; $i++)
                         { 
-                            $out['t_'.$i] = hexdec(substr($p, $sb+4+($i*4), 4))/100;
+                            $out['t_'.$i] = $this->hexdecs(substr($p, $sb+4+($i*4), 4))/100;
                         }
                     }
 

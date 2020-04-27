@@ -71,7 +71,7 @@ class InspectionsController extends Controller
 
     public function store(Request $request)
     {
-        if ($request->filled('date') && $request->filled('items'))
+        if ($request->filled('date') && ( $request->filled('items') || ($request->filled('item_ids') && $request->filled('item_vals')) ) )
         {
             $moment       = new Moment($request->input('date'));
             $date         = $moment->format('Y-m-d H:i:s');
@@ -126,34 +126,60 @@ class InspectionsController extends Controller
             // clear to remove items not in input
             $inspection->items()->forceDelete();
             // add items in input
-            foreach ($request->input('items') as $cat_id => $value) 
-            {
-                $category = Category::find($cat_id);
-                if (isset($category) && isset($value))
-                {
-                    $itemData = 
-                    [
-                        'category_id'   => $category->id,
-                        'inspection_id' => $inspection->id,
-                        'value'         => $value,
-                    ];
-                    InspectionItem::create($itemData);
 
-                    // add inspection link to Image
-                    if ($category->inputTypeType() == 'image')
+            // combine item_ids and item_vals to items
+            if (!$request->filled('items') && $request->filled('item_ids') && $request->filled('item_vals'))
+            {
+                $items = [];
+                $item_ids  = explode(',', $request->input('item_ids'));
+                $item_vals = explode(',', $request->input('item_vals'));
+                if (count($item_ids) == count($item_vals))
+                {
+                    for ($i=0; $i < count($item_ids); $i++) 
+                    { 
+                        $items[$item_ids[$i]] = $item_vals[$i];
+                    }
+                }
+            }
+            else
+            {
+                $items = $request->input('items');  
+            }
+            
+            if (count($items) > 0)
+            {
+                foreach ($items as $cat_id => $value) 
+                {
+                    $category = Category::find($cat_id);
+                    if (isset($category) && isset($value))
                     {
-                        $image = Image::where('thumb_url', $value)->first();
-                        if ($image)
+                        $itemData = 
+                        [
+                            'category_id'   => $category->id,
+                            'inspection_id' => $inspection->id,
+                            'value'         => $value,
+                        ];
+                        InspectionItem::create($itemData);
+
+                        // add inspection link to Image
+                        if ($category->inputTypeType() == 'image')
                         {
-                            $image->inspection_id = $inspection->id;
-                            $image->save();
+                            $image = Image::where('thumb_url', $value)->first();
+                            if ($image)
+                            {
+                                $image->inspection_id = $inspection->id;
+                                $image->save();
+                            }
                         }
                     }
                 }
             }
         }
+
         if (isset($inspection))
             return response()->json($inspection->id, 201);
+
+        return response()->json('error', 500);
 
     }
 

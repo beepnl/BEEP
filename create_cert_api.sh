@@ -1,3 +1,5 @@
 #!/bin/sh
 
-sudo /opt/bitnami/letsencrypt/scripts/generate-certificate.sh -m pim@iconize.nl -d api.beep.nl -d app.beep.nl -d graph.beep.nl -d help.beep.nl -d test.beep.nl
+sudo /opt/bitnami/ctlscript.sh stop apache
+sudo /opt/bitnami/letsencrypt/lego --tls --email="pim@beep.nl" --domains="api.beep.nl" --domains="app.beep.nl" --domains="graph.beep.nl" --path="/opt/bitnami/letsencrypt" run
+sudo /opt/bitnami/ctlscript.sh start apache

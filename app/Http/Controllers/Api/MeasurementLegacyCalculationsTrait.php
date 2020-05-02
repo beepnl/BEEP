@@ -326,7 +326,7 @@ trait MeasurementLegacyCalculationsTrait
                 }
             }
         }
-        die(print_r($out));
+        //die(print_r($out));
         return $out;
     }
 

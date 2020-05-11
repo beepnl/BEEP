@@ -153,7 +153,7 @@ class DeviceController extends Controller
                 "dev_eui"=>$dev_eui, 
                 "dev_id"=>$dev_id, 
                 "app_key"=>$app_key,
-                "app_eui"=>env('TTN_APP_EUI') 
+                "app_eui"=>env('TTN_APP_EUI')
             ]
         ];
         return $this->doTTNRequest($dev_id, 'POST', $data);
@@ -178,12 +178,12 @@ class DeviceController extends Controller
     api/devices POST
     Create or Update a Device
     @authenticated
-    @bodyParam key string required DEV EUI of the sensor to enable storing sensor data incoming on the api/sensors or api/lora_sensors endpoint
+    @bodyParam key string DEV EUI of the sensor to enable storing sensor data incoming on the api/sensors or api/lora_sensors endpoint
     @bodyParam name string Device name
     @bodyParam hive_id integer Hive that the sensor is measuring. Default: null
     @bodyParam type string Category name of the hive type from the Categories table. Default: beep
     @bodyParam last_message_received timestamp Will be converted with date('Y-m-d H:i:s', $last_message_received); before storing
-    @bodyParam hardware_id string Unchangeable Device id
+    @bodyParam hardware_id string required Unchangeable Device id
     @bodyParam firmware_version string Firmware version of the Device
     @bodyParam hardware_version string Hardware version of the Device
     @bodyParam boot_count integer Amount of boots of the Device
@@ -195,11 +195,13 @@ class DeviceController extends Controller
     @bodyParam last_downlink_result string Result received from BEEP base after downlink message (LoRaWAN port 5)
     @bodyParam create_ttn_device boolean If true, create a new LoRaWAN device in the BEEP TTN console. If succesfull, create the device.
     @bodyParam app_key string BEEP base LoRaWAN application key that you would like to store in TTN
-
     */
+
     public function store(Request $request)
     {
-        if ($request->filled('create_ttn_device') && $request->input('create_ttn_device') == true && $request->filled('hardware_id') && $request->filled('key'))
+        $device_array = $request->input();
+
+        if ($request->filled('create_ttn_device') && $request->input('create_ttn_device') == true && $request->filled('hardware_id'))
         {
             if ($request->user()->hasRole(['superadmin', 'admin']) == false)
             {
@@ -208,12 +210,25 @@ class DeviceController extends Controller
                     return Response::json("max_ttn_devices_reached_please_request_more", 403);
             }
 
-            $response = $this->createTTNDevice($request->input('hardware_id'), $request->input('key'), $request->input('app_key'));
-            if ($response->getStatusCode() != 200)
+            $dev_eui = $request->filled('key') ? $request->input('key') : bin2hex(random_bytes(8)); // doubles output length
+            $app_key = $request->filled('app_key') ? $request->input('app_key') : bin2hex(random_bytes(16)); // doubles output length
+
+            $response = $this->createTTNDevice($request->input('hardware_id'), $dev_eui, $app_key);
+            if ($response->getStatusCode() == 200 || $response->getStatusCode() == 201)
+            {
+                $device_array['key']     = $dev_eui;
+                $device_array['app_key'] = $app_key;
+            }
+            else
+            {
                 return Response::json(json_decode($response->getBody()), $response->getStatusCode());
+            }
         }
 
-        $result = $this->updateOrCreateDevice($request->input());
+        $result = $this->updateOrCreateDevice($device_array);
+
+        if (gettype($result) == 'object' && $request->filled('create_ttn_device') && isset($device_array['app_key']))
+            $result['app_key'] = $device_array['app_key'];
 
         return Response::json($result, $result == null || gettype($result) == 'array' ? 500 : 201);
     }
@@ -222,12 +237,12 @@ class DeviceController extends Controller
     api/devices/multiple POST
     Store/update multiple Devices in an array of Device objects
     @authenticated
-    @bodyParam key string required DEV EUI of the sensor to enable storing sensor data incoming on the api/sensors or api/lora_sensors endpoint
+    @bodyParam key string DEV EUI of the sensor to enable storing sensor data incoming on the api/sensors or api/lora_sensors endpoint
     @bodyParam name string Device name
     @bodyParam hive_id integer Hive that the sensor is measuring. Default: null
     @bodyParam type string Category name of the hive type from the Categories table. Default: beep
     @bodyParam last_message_received timestamp Will be converted with date('Y-m-d H:i:s', $last_message_received); before storing
-    @bodyParam hardware_id string Unchangeable Device id
+    @bodyParam hardware_id string required Unchangeable Device id
     @bodyParam firmware_version string Firmware version of the Device
     @bodyParam hardware_version string Hardware version of the Device
     @bodyParam boot_count integer Amount of boots of the Device
@@ -256,13 +271,13 @@ class DeviceController extends Controller
     Update an existing Device
     @authenticated
     @bodyParam id integer required Device to update
-    @bodyParam key string required DEV EUI of the sensor to enable storing sensor data incoming on the api/sensors or api/lora_sensors endpoint
+    @bodyParam key string DEV EUI of the sensor to enable storing sensor data incoming on the api/sensors or api/lora_sensors endpoint
     @bodyParam name string Name of the sensor
     @bodyParam hive_id integer Hive that the sensor is measuring. Default: null
     @bodyParam type string Category name of the hive type from the Categories table. Default: beep
     @bodyParam delete boolean If true delete the sensor and all it's data in the Influx database
     @bodyParam last_message_received timestamp Will be converted with date('Y-m-d H:i:s', $last_message_received); before storing
-    @bodyParam hardware_id string Unchangeable Device id
+    @bodyParam hardware_id string required Unchangeable Device id
     @bodyParam firmware_version string Firmware version of the Device
     @bodyParam hardware_version string Hardware version of the Device
     @bodyParam boot_count integer Amount of boots of the Device
@@ -292,12 +307,20 @@ class DeviceController extends Controller
     {
         $sid = isset($device['id']) ? $device['id'] : null;
         $key = isset($device['key']) ? strtolower($device['key']) : null;
+        $hwi = isset($device['hardware_id']) ? strtolower($device['hardware_id']) : null;
+
+        // user webapp generated key fix for required hw id
+        if (isset($key) && !isset($id) && !isset($hwi))
+        {
+            $hwi = $key;
+            $device['hardware_id'] = $device['key'];
+        }
 
         $validator = Validator::make($device, [
-            'key'               => ['required_without:id','string','min:4',Rule::unique('sensors')->ignore($sid)],
+            'key'               => ['nullable','string','min:4',Rule::unique('sensors', 'key')->ignore($sid)],
             'name'              => 'nullable|string',
-            'id'                => ['nullable','integer', Rule::unique('sensors')->ignore($sid)],
-            'hardware_id'       => ['nullable','string', Rule::unique('sensors')->ignore($sid)],
+            'id'                => ['required_without:hardware_id','integer', Rule::unique('sensors')->ignore($sid)],
+            'hardware_id'       => ['required_without:key','string'],
             'hive_id'           => 'nullable|integer|exists:hives,id',
             'type'              => 'nullable|string|exists:categories,name',
             'delete'            => 'nullable|boolean'
@@ -305,7 +328,7 @@ class DeviceController extends Controller
 
         if ($validator->fails())
         {
-            return ['errors'=>$validator->errors().' (DEV EUI: '.$key.')'];
+            return ['errors'=>$validator->errors().' (KEY: '.$key.', HW ID: '.$hwi.')'];
         }
         else
         {
@@ -316,10 +339,14 @@ class DeviceController extends Controller
 
             if (isset($sid))
                 $device_obj = Auth::user()->devices->find($sid);
-            else if (isset($key))
-                $device_obj = Auth::user()->devices->where('key', $key)->first();
+            else if (isset($device['hardware_id']))
+                $device_obj = Auth::user()->devices->where('hardware_id', $device['hardware_id'])->first();
+            else if (isset($hwi))
+                $device_obj = Auth::user()->devices->where('hardware_id', $hwi)->first();
             else if (isset($device['key']))
                 $device_obj = Auth::user()->devices->where('key', $device['key'])->first();
+            else if (isset($key))
+                $device_obj = Auth::user()->devices->where('key', $key)->first();
 
             if ($device_obj != null)
             {
@@ -344,6 +371,15 @@ class DeviceController extends Controller
                 $device_new = $device_obj->toArray();
                 $device_id  = $device_obj->id;
             }
+            else
+            {
+                // Check if hw id is available
+                if (isset($device['hardware_id']) && Device::where('hardware_id', $device['hardware_id'])->count() > 0)
+                    return ['errors'=>'sensor_not_yours'];
+
+                if (isset($device['key']) && Device::where('key', $device['key'])->count() > 0)
+                    return ['errors'=>'sensor_not_yours'];
+            }
 
             $typename                  = isset($device['type']) ? $device['type'] : 'beep'; 
             $device_new['category_id'] = Category::findCategoryIdByParentAndName('sensor', $typename);
@@ -363,7 +399,7 @@ class DeviceController extends Controller
                 $device_new['last_message_received'] = $device['last_message_received'];
             
             if (isset($device['hardware_id']))
-                $device_new['hardware_id'] = strtolower($device['hardware_id']);
+                $device_new['hardware_id'] = $hwi;
             
             if (isset($device['firmware_version']))
                 $device_new['firmware_version'] = $device['firmware_version'];

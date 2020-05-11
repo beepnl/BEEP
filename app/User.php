@@ -25,8 +25,13 @@ class User extends Authenticatable
 
     //protected $cascadeDeletes = ['hives','checklists','inspections','locations','sensors']; // for soft deletes
 
-    //protected $appends  = ['inspectioncount'];
+    protected $appends  = ['app_debug'];
 
+
+    public function getAppDebugAttribute()
+    {
+        return $this->can('app-debug');
+    }
 
     // links
     public function images()

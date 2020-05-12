@@ -165,7 +165,7 @@ class UserController extends Controller
             if($user) 
             {
                 $user->sendApiEmailVerificationNotification();
-                return Response::json(['email_verification_sent'], 400);
+                return Response::json(['email_verification_sent'], 201);
             } 
             else
             {

@@ -1664,11 +1664,6 @@ app.controller('UserCtrl', function ($scope, $rootScope, $window, $location, $ro
       $scope.error.password_retype = true;
     } else if (msg == 'email_not_verified') {
       verifyOn = true;
-    } else if (msg == 'email_verification_sent') {
-      $scope.error.email = false;
-      $scope.formStatus = 'registered';
-      verifyOn = true;
-      resultStyle = 'success';
     } // set the message
 
 
@@ -1689,6 +1684,18 @@ app.controller('UserCtrl', function ($scope, $rootScope, $window, $location, $ro
   $scope.userRegisteredErrorHandler = $rootScope.$on('registerError', $scope.authError);
   $scope.userRegisteredHandler = $rootScope.$on('registerLoaded', function (e, data) {
     var result = data;
+    var msg = data.message != undefined ? data.message : data;
+
+    if (msg == 'email_verification_sent') {
+      $scope.error.email = false;
+      $scope.message = {
+        show: true,
+        resultType: 'success',
+        resultMessage: $rootScope.lang[msg],
+        verifyLink: true
+      };
+    }
+
     if (result.api_token != null) api.setApiToken(result.api_token); // set the status on registered
 
     $scope.formStatus = 'registered';

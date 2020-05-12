@@ -32,7 +32,7 @@ class DeviceController extends Controller
         catch(RequestException $e)
         {
             if (!$e->hasResponse())
-                return Response::json("no-response", 500);
+                return Response::json('no_ttn_response', 500);
             
             $response = $e->getResponse();
         }
@@ -95,10 +95,10 @@ class DeviceController extends Controller
 
         if ($devices->count() == 0)
         {
-            if (Device::where('hardware_id', $request->input('hardware_id'))->count() > 0)
-                return Response::json('sensor_not_yours', 403);
+            if ($request->filled('hardware_id') &&  Device::where('hardware_id', $request->input('hardware_id'))->count() > 0)
+                return Response::json('device_not_yours', 403);
 
-            return Response::json('no_sensors_found', 404);
+            return Response::json('no_devices_found', 404);
         }
 
         return Response::json($devices->get());
@@ -171,7 +171,7 @@ class DeviceController extends Controller
         if ($device)
             return Response::json($device);
 
-        return Response::json('No sensor found', 404);
+        return Response::json('no_devices_found', 404);
     }
 
     /**
@@ -364,7 +364,7 @@ class DeviceController extends Controller
                         return ['errors'=>'Data values of device with key '.$device_obj->key.' cannot be deleted, try again later...'];
                     }
                     $device_obj->delete();
-                    return 'sensor_deleted';
+                    return 'device_deleted';
                 }
 
                 // edit
@@ -375,10 +375,10 @@ class DeviceController extends Controller
             {
                 // Check if hw id is available
                 if (isset($device['hardware_id']) && Device::where('hardware_id', $device['hardware_id'])->count() > 0)
-                    return ['errors'=>'sensor_not_yours'];
+                    return ['errors'=>'device_not_yours'];
 
                 if (isset($device['key']) && Device::where('key', $device['key'])->count() > 0)
-                    return ['errors'=>'sensor_not_yours'];
+                    return ['errors'=>'device_not_yours'];
             }
 
             $typename                  = isset($device['type']) ? $device['type'] : 'beep'; 

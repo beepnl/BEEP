@@ -178,12 +178,13 @@ class DeviceController extends Controller
     api/devices POST
     Create or Update a Device
     @authenticated
-    @bodyParam key string DEV EUI of the sensor to enable storing sensor data incoming on the api/sensors or api/lora_sensors endpoint
+    @bodyParam id integer Device id to update. (Required without key and hardware_id)
+    @bodyParam key string DEV EUI of the sensor to enable storing sensor data incoming on the api/sensors or api/lora_sensors endpoint. (Required without id and hardware_id)
+    @bodyParam hardware_id string Hardware id of the device as device name in TTN. (Required without id and key)
     @bodyParam name string Device name
     @bodyParam hive_id integer Hive that the sensor is measuring. Default: null
     @bodyParam type string Category name of the hive type from the Categories table. Default: beep
     @bodyParam last_message_received timestamp Will be converted with date('Y-m-d H:i:s', $last_message_received); before storing
-    @bodyParam hardware_id string required Unchangeable Device id
     @bodyParam firmware_version string Firmware version of the Device
     @bodyParam hardware_version string Hardware version of the Device
     @bodyParam boot_count integer Amount of boots of the Device
@@ -237,12 +238,13 @@ class DeviceController extends Controller
     api/devices/multiple POST
     Store/update multiple Devices in an array of Device objects
     @authenticated
-    @bodyParam key string DEV EUI of the sensor to enable storing sensor data incoming on the api/sensors or api/lora_sensors endpoint
+    @bodyParam id integer Device id to update. (Required without key and hardware_id)
+    @bodyParam key string DEV EUI of the sensor to enable storing sensor data incoming on the api/sensors or api/lora_sensors endpoint. (Required without id and hardware_id)
+    @bodyParam hardware_id string Hardware id of the device as device name in TTN. (Required without id and key)
     @bodyParam name string Device name
     @bodyParam hive_id integer Hive that the sensor is measuring. Default: null
     @bodyParam type string Category name of the hive type from the Categories table. Default: beep
     @bodyParam last_message_received timestamp Will be converted with date('Y-m-d H:i:s', $last_message_received); before storing
-    @bodyParam hardware_id string required Unchangeable Device id
     @bodyParam firmware_version string Firmware version of the Device
     @bodyParam hardware_version string Hardware version of the Device
     @bodyParam boot_count integer Amount of boots of the Device
@@ -270,14 +272,14 @@ class DeviceController extends Controller
     api/devices PUT/PATCH
     Update an existing Device
     @authenticated
-    @bodyParam id integer required Device to update
-    @bodyParam key string DEV EUI of the sensor to enable storing sensor data incoming on the api/sensors or api/lora_sensors endpoint
+    @bodyParam id integer Device id to update. (Required without key and hardware_id)
+    @bodyParam key string DEV EUI of the sensor to enable storing sensor data incoming on the api/sensors or api/lora_sensors endpoint. (Required without id and hardware_id)
+    @bodyParam hardware_id string Hardware id of the device as device name in TTN. (Required without id and key)
     @bodyParam name string Name of the sensor
     @bodyParam hive_id integer Hive that the sensor is measuring. Default: null
     @bodyParam type string Category name of the hive type from the Categories table. Default: beep
     @bodyParam delete boolean If true delete the sensor and all it's data in the Influx database
     @bodyParam last_message_received timestamp Will be converted with date('Y-m-d H:i:s', $last_message_received); before storing
-    @bodyParam hardware_id string required Unchangeable Device id
     @bodyParam firmware_version string Firmware version of the Device
     @bodyParam hardware_version string Hardware version of the Device
     @bodyParam boot_count integer Amount of boots of the Device
@@ -317,10 +319,10 @@ class DeviceController extends Controller
         }
 
         $validator = Validator::make($device, [
-            'key'               => ['nullable','string','min:4',Rule::unique('sensors', 'key')->ignore($sid)],
+            'key'               => ['required_without_all:id,hardware_id','string','min:4',Rule::unique('sensors', 'key')->ignore($sid)],
             'name'              => 'nullable|string',
-            'id'                => ['required_without:hardware_id','integer', Rule::unique('sensors')->ignore($sid)],
-            'hardware_id'       => ['required_without:key','string'],
+            'id'                => ['required_without_all:key,hardware_id','integer', Rule::unique('sensors')->ignore($sid)],
+            'hardware_id'       => ['required_without_all:key,id','string'],
             'hive_id'           => 'nullable|integer|exists:hives,id',
             'type'              => 'nullable|string|exists:categories,name',
             'delete'            => 'nullable|boolean'

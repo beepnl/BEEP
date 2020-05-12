@@ -229,7 +229,10 @@ class DeviceController extends Controller
         $result = $this->updateOrCreateDevice($device_array);
 
         if (gettype($result) == 'object' && $request->filled('create_ttn_device') && isset($device_array['app_key']))
+        {
             $result['app_key'] = $device_array['app_key'];
+            $result['app_eui'] = env('TTN_APP_EUI');
+        }
 
         return Response::json($result, $result == null || gettype($result) == 'array' ? 500 : 201);
     }

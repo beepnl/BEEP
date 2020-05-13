@@ -232,9 +232,9 @@ class DeviceController extends Controller
 
         if (gettype($result) == 'object' && $request->filled('create_ttn_device') && isset($device_array['app_key']))
         {
-            $device = Device::find($result->id)->toArray();
-            $device['app_key'] = $device_array['app_key'];
-            $device['app_eui'] = strtolower(env('TTN_APP_EUI'));
+            $device          = Device::find($result->id);
+            $device->app_key = $device_array['app_key'];
+            $device->app_eui = strtolower(env('TTN_APP_EUI'));
         }
         else
         {

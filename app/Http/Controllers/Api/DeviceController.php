@@ -213,12 +213,14 @@ class DeviceController extends Controller
 
             $dev_eui = $request->filled('key') ? $request->input('key') : bin2hex(random_bytes(8)); // doubles output length
             $app_key = $request->filled('app_key') ? $request->input('app_key') : bin2hex(random_bytes(16)); // doubles output length
+            $dev_id  = strtolower($request->input('hardware_id'));
 
-            $response = $this->createTTNDevice($request->input('hardware_id'), $dev_eui, $app_key);
+            $response = $this->createTTNDevice($dev_id, $dev_eui, $app_key);
             if ($response->getStatusCode() == 200 || $response->getStatusCode() == 201)
             {
-                $device_array['key']     = $dev_eui;
-                $device_array['app_key'] = $app_key;
+                $device_array['hardware_id']= $dev_id;
+                $device_array['key']        = $dev_eui;
+                $device_array['app_key']    = $app_key;
             }
             else
             {
@@ -231,10 +233,15 @@ class DeviceController extends Controller
         if (gettype($result) == 'object' && $request->filled('create_ttn_device') && isset($device_array['app_key']))
         {
             $result['app_key'] = $device_array['app_key'];
-            $result['app_eui'] = env('TTN_APP_EUI');
+            $result['app_eui'] = strtolower(env('TTN_APP_EUI'));
+            $device = Device::find($result->id);
+        }
+        else
+        {
+            $device = $result;
         }
 
-        return Response::json($result, $result == null || gettype($result) == 'array' ? 500 : 201);
+        return Response::json($device, $device == null || gettype($device) == 'array' ? 500 : 201);
     }
 
     /**

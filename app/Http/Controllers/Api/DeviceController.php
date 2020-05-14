@@ -241,7 +241,14 @@ class DeviceController extends Controller
             $device = $result;
         }
 
-        return Response::json($device, $device == null || gettype($device) == 'array' ? 500 : 200);
+        if (gettype($device) == 'array' && isset($device['http_response_code']))
+        {
+            $http_response_code = $device['http_response_code'];
+            unset($device['http_response_code']);
+            return Response::json($device, $http_response_code);
+        }
+
+        return Response::json($device, $device == null || gettype($device) == 'array' ? 400 : 200);
     }
 
     /**
@@ -271,8 +278,17 @@ class DeviceController extends Controller
         foreach ($request->input() as $device) 
         {
             $result = $this->updateOrCreateDevice($device);
+
             if ($result == null || gettype($result) == 'array')
-                return Response::json($result, 500);
+            {
+                if (gettype($result) == 'array' && isset($result['http_response_code']))
+                {
+                    $http_response_code = $result['http_response_code'];
+                    unset($result['http_response_code']);
+                    return Response::json($result, $http_response_code);
+                }
+                return Response::json($result, 400);
+            }
         }
        
         return $this->index($request);
@@ -311,7 +327,14 @@ class DeviceController extends Controller
             $result = $this->updateOrCreateDevice($device);
         }
 
-        return Response::json($result, $result == null || gettype($result) == 'array' ? 404 : 200);
+        if (gettype($result) == 'array' && isset($result['http_response_code']))
+        {
+            $http_response_code = $result['http_response_code'];
+            unset($result['http_response_code']);
+            return Response::json($result, $http_response_code);
+        }
+
+        return Response::json($result, $result == null || gettype($result) == 'array' ? 400 : 200);
     }
 
 
@@ -340,7 +363,7 @@ class DeviceController extends Controller
 
         if ($validator->fails())
         {
-            return ['errors'=>$validator->errors().' (KEY: '.$key.', HW ID: '.$hwi.')'];
+            return ['errors'=>$validator->errors().' (KEY: '.$key.', HW ID: '.$hwi.')', 'http_response_code'=>400];
         }
         else
         {
@@ -373,7 +396,7 @@ class DeviceController extends Controller
                     }
                     catch(\Exception $e)
                     {
-                        return ['errors'=>'Data values of device with key '.$device_obj->key.' cannot be deleted, try again later...'];
+                        return ['errors'=>'Data values of device with key '.$device_obj->key.' cannot be deleted, try again later...', 'http_response_code'=>500];
                     }
                     $device_obj->delete();
                     return 'device_deleted';
@@ -387,10 +410,10 @@ class DeviceController extends Controller
             {
                 // Check if hw id is available
                 if (isset($device['hardware_id']) && Device::where('hardware_id', $device['hardware_id'])->count() > 0)
-                    return ['errors'=>'device_not_yours'];
+                    return ['errors'=>'device_not_yours', 'http_response_code'=>403];
 
                 if (isset($device['key']) && Device::where('key', $device['key'])->count() > 0)
-                    return ['errors'=>'device_not_yours'];
+                    return ['errors'=>'device_not_yours', 'http_response_code'=>403];
             }
 
             $typename                  = isset($device['type']) ? $device['type'] : 'beep'; 

@@ -164,6 +164,22 @@ e. You should see the back-end dashboard, looking like this:
 ## Management interface
 ![BEEP Management interface](https://github.com/beepnl/BEEP/blob/bob-additions/BEEP-management-interface.png)
 
+# Installation using docker compose
+
+A simple setup for small installations can be achived with [docker-compose](https://docs.docker.com/compose/). The tool will spinn up a mysqldb, influd, a webserver and initialize the beep database.
+
+1. [Install docker-compose](https://docs.docker.com/compose/install/)
+2. Checkout BEEP and switch into the code repository
+3. Adjust `docker-compose.yaml`(set suitable environment variables).
+4. Run `docker-compose up`. During the first start, you might see some database connectivity issues. Docker compose will restart the BEEP Server component untill a database connection is available. So don't worry.
+5. Register as a new user: [http://localhost:8000/webapp](http://localhost:8000/webapp).
+6. Grant user administrator rights: `docker-compose exec  mysql mysql -h localhost -P 3306 -ppass -u user -D bee_data -Bse "INSERT INTO role_user (user_id,role_id) VALUES(1,1);"`
+7. Login to mamagement interface: [http://localhost:8000/admin](http://localhost:8000/admin)
+
+To upgrade beep to the latest version, simply stop and start docker-compose.
+
+As the setup is based on docker containers, code changes inside the repository will not have an effeact till the underlying docker image is updated. 
+
 
 # Contributing
 

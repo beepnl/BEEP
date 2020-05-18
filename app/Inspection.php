@@ -35,9 +35,9 @@ class Inspection extends Model
      */
     protected $fillable = ['notes', 'created_at', 'impression', 'attention', 'reminder', 'reminder_date', 'checklist_id', 'image_id'];
 
-    protected $hidden   = ['pivot','deleted_at'];
+    protected $hidden   = ['pivot','deleted_at', 'hives'];
 
-    protected $appends  = ['owner', 'thumb_url'];
+    protected $appends  = ['owner', 'thumb_url', 'hive_id'];
 
     public $timestamps = false;
 
@@ -55,6 +55,14 @@ class Inspection extends Model
     {
         if (isset($this->image_id))
             return $this->image->thumb_url;
+
+        return null;
+    }
+
+    public function getHiveIdAttribute()
+    {
+        if (isset($this->hives))
+            return $this->hives->first()->id;
 
         return null;
     }

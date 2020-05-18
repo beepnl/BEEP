@@ -83,6 +83,7 @@
                     ngf-drop-available="dropAvailable">
                     Select<span ng-show="dropAvailable">/drop</span> image
                 </div>
+                <div ng-if="item.value.$error" class="error">{{ item.value.$error }}</div>
             </div>
         </div>
 

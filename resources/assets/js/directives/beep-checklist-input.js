@@ -46,20 +46,32 @@ app.directive('checklistInput', ['$rootScope', '$timeout', 'Upload', 'api', 'ima
                         inspection:  scope.inspection != null ? scope.inspection.id : '',
                         file:        file  
                       }
-                  }).then(
-                  function (resp) {
-                      $timeout(function() {
-                          if (typeof resp.data != 'undefined' && typeof resp.data.thumb_url)
-                            $rootScope.changeChecklistItem(scope.item.input, scope.item.id, resp.data.thumb_url, true);
-                      });
-                  }, 
-                  function (resp) {
-                    console.error('Image upload error: ' + resp.status, resp.data);
-                  }
-                  ,function (evt) {
-                      var progressPercentage = parseInt(100.0 * evt.loaded / evt.total);
-                      scope.log = 'progress: ' + progressPercentage + '% ' + evt.config.data.file.name + '\n' + scope.log;
-                  });
+                  }).
+                  then(
+                    function (resp) { // success
+                        $timeout(function() {
+                            if (typeof resp.data != 'undefined' && typeof resp.data.thumb_url)
+                            {
+                              $rootScope.changeChecklistItem(scope.item.input, scope.item.id, resp.data.thumb_url, true);
+                              $rootScope.$broadcast('reloadImages');
+                            }
+                        });
+                    }, 
+                    function (err) { // error
+                      if (typeof err != 'undefined')
+                      {
+                        console.log('Image upload error:', err);
+                        if (typeof err.data != 'undefined' && typeof err.data.message != 'undefined')
+                        {
+                          $rootScope.showMessage(err.data.message, null, 'Image upload error');
+                        }
+                      }
+                    },
+                    function (evt) { // progress?
+                        var progressPercentage = parseInt(100.0 * evt.loaded / evt.total);
+                        scope.log = 'progress: ' + progressPercentage + '% ' + evt.config.data.file.name + '\n' + scope.log;
+                    }
+                  );
                 }
               }
               else if (newValue == null && (typeof oldValue == 'object' || oldValue !== null))// newValue == null, image removed

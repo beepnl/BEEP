@@ -1419,6 +1419,7 @@ app.service('images', ['$http', '$rootScope', 'api', function ($http, $rootScope
 
   self.reset();
   $rootScope.$on('reset', self.reset);
+  $rootScope.$on('reloadImages', self.loadRemoteImages);
   self.loadRemoteImages();
 }]);
 /*

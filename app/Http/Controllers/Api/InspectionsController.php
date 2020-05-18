@@ -19,7 +19,39 @@ use LaravelLocalization;
  */
 class InspectionsController extends Controller
 {
-    
+    /**
+    api/inspections/lists GET
+    List checklists and its  inspections linked to Hive id. The 'inspections' object contains a descending date ordered list of general inspection data. The 'items_by_date' object contains a list of (rows of) inspection items that can be placed (in columns) under the inspections by created_at date (table format). NB: Use 'Accept-Language' Header (default nl_NL) to provide localized category names (anc, name) in items_by_date. 
+    @authenticated
+    @bodyParam id integer required The hive to request inspections from. 
+    @response {
+    "checklists": [
+        {
+            "id": 810,
+            "type": "beep_v2_copy",
+            "name": "Beep v2 - info@beep.nl",
+            "description": null,
+            "created_at": "2020-01-13 18:30:02",
+            "updated_at": "2020-01-13 19:58:47",
+            "category_ids": [
+                149,
+                771,
+                963,
+                964,
+                965,
+                966,
+                263,
+                265,
+                270,
+                276
+            ],
+            "required_ids": [],
+            "owner": true,
+            "researches": []
+        }
+    ]
+}
+    **/
     public function lists(Request $request)
     {
         $out               = [];
@@ -45,7 +77,7 @@ class InspectionsController extends Controller
     api/inspections/hive/{hive_id} GET
     List all inspections linked to Hive id. The 'inspections' object contains a descending date ordered list of general inspection data. The 'items_by_date' object contains a list of (rows of) inspection items that can be placed (in columns) under the inspections by created_at date (table format). NB: Use 'Accept-Language' Header (default nl_NL) to provide localized category names (anc, name) in items_by_date. 
     @authenticated
-    @bodyParam id integer required The hive to request inspections from. 
+    @queryParam hive_id integer required The hive to request inspections from. 
     @response {
     "inspections": [
         {
@@ -53,7 +85,7 @@ class InspectionsController extends Controller
             "notes": null,
             "reminder": null,
             "reminder_date": null,
-            "impression": null,
+            "impression": 1,
             "attention": null,
             "created_at": "2020-05-18 12:34:00",
             "checklist_id": 829,
@@ -151,6 +183,12 @@ class InspectionsController extends Controller
         return response()->json(['inspections'=>$inspections, 'items_by_date'=>$items_by_date]);
     }
 
+    /**
+    api/inspections/{id} GET
+    Show the 'inspection' object. The object reflects only the general inspection data.
+    @authenticated
+    @queryParam id integer required The id of the inspection. 
+    **/
     public function show(Request $request, $id)
     {
         $inspection = $request->user()->allInspections()->find($id);
@@ -162,7 +200,20 @@ class InspectionsController extends Controller
         return response()->json($inspection);
     }
 
-
+    /**
+    api/inspections POST
+    Register a new hive inspection the 'inspection' object. The object reflects only the general inspection data.
+    @authenticated
+    @bodyParam date date required The date of the inspection. Example: 2020-05-18 16:16
+    @bodyParam items object required An object of category id's containing their inspected values (id's in case of lists, otherwise numeric/textual values). Example: {"547":0,"595":1,"845":"814"}
+    @bodyParam hive_id integer required Hive id for which this inspection has been carried out. Example: 42
+    @bodyParam impression integer Numeric impression value -1 (unfilled) to 1-3 (smileys). Example: -1
+    @bodyParam attention integer Numeric impression value -1 (unfilled) to 0-1 (needs attention). Example: 1
+    @bodyParam reminder string Textual value of the reminder fields. Example: This is an inspection reminder
+    @bodyParam reminder_date date Date for an optional reminder that can be fed to the users calender. Example: 2020-05-27 16:16
+    @bodyParam notes string Textual value of the notes fields. Example: This is an inspection note
+    @bodyParam checklist_id integer Id of the user checklist for generating this inspection. Example: 829
+    **/
     public function store(Request $request)
     {
         if ($request->filled('date') && ( $request->filled('items') || ($request->filled('item_ids') && $request->filled('item_vals')) ) )

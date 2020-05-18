@@ -66,7 +66,7 @@ Route::group(['middleware' => \Barryvdh\Cors\HandleCors::class], function()
 		Route::get('taxonomy/taxonomy', 	'Api\TaxonomyController@taxonomy');
 
 		Route::get('inspections/lists', 	'Api\InspectionsController@lists');
-		Route::get('inspections/{hive_id}', 'Api\InspectionsController@show');
+		Route::get('inspections/{id}', 		'Api\InspectionsController@show');
 		Route::get('inspections/hive/{hive_id}', 'Api\InspectionsController@hive');
 		Route::post('inspections/store', 	'Api\InspectionsController@store');
 		Route::delete('inspections/{id}', 	'Api\InspectionsController@destroy');

@@ -345,7 +345,10 @@ app.directive('yesNoRating', function () {
           });
         }
 
-        if (scope.smile[scope.ratingValue] != undefined) scope.smile[scope.ratingValue].filled = true;
+        if (typeof scope.ratingValue != 'undefined') {
+          var ratingIndex = scope.ratingValue ? 1 : 0;
+          if (scope.ratingValue !== -1 && scope.ratingValue !== null && scope.smile[ratingIndex] != undefined) scope.smile[ratingIndex].filled = true;
+        }
       }
 
       ;
@@ -368,7 +371,7 @@ app.directive('yesNoRating', function () {
       };
 
       scope.$watch('ratingValue', function (oldValue, newValue) {
-        if (oldValue > -1 || newValue === -1 || oldValue != newValue) {
+        if (oldValue !== -1 || newValue === -1 || oldValue != newValue) {
           updateStars();
         }
       });

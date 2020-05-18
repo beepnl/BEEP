@@ -2754,9 +2754,8 @@ app.controller('InspectionCreateCtrl', function ($scope, $rootScope, $window, $l
       $scope.hive = hives.getHiveById($routeParams.hiveId);
       if ($scope.hive == null) $scope.hive = groups.getHiveById($routeParams.hiveId);
       $rootScope.hive = $scope.hive;
-      $scope.updateInspection(); // $scope.checklistsUpdated();
-
-      inspections.getChecklists(); //console.log('init-inspection', $scope.inspection);
+      $scope.inspectionInit();
+      inspections.getChecklists();
     }
   }; // Datepicker
 
@@ -2944,6 +2943,7 @@ app.controller('InspectionCreateCtrl', function ($scope, $rootScope, $window, $l
   $scope.inspectionInit = function (e, type) {
     console.log('$scope.inspectionInit');
     $scope.inspection = null;
+    $rootScope.inspection = null;
     $scope.updateInspection(null, true);
   }; //$scope.saveInspectionLoadedHandler= $rootScope.$on('saveInspectionLoaded', $scope.inspectionInit);
 

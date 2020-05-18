@@ -45,11 +45,8 @@ app.controller('InspectionCreateCtrl', function($scope, $rootScope, $window, $lo
 
 			$rootScope.hive  	  = $scope.hive;
 
-			$scope.updateInspection();
-			// $scope.checklistsUpdated();
+			$scope.inspectionInit();
 			inspections.getChecklists();
-
-			//console.log('init-inspection', $scope.inspection);
 		}
 	};
 
@@ -264,6 +261,7 @@ app.controller('InspectionCreateCtrl', function($scope, $rootScope, $window, $lo
 	{
 		console.log('$scope.inspectionInit');
 		$scope.inspection = null;
+		$rootScope.inspection = null;
 		$scope.updateInspection(null, true);
 	}
 	//$scope.saveInspectionLoadedHandler= $rootScope.$on('saveInspectionLoaded', $scope.inspectionInit);

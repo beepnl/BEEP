@@ -48,7 +48,10 @@ class SensorDefinition extends Model
     // transform bool output into real boolean value 
     public function getInsideAttribute($value)
     {
-        return $value == 1 ? true : false;
+        if (isset($value))
+            return $value == 1 ? true : false;
+
+        return null;
     }
 
     public function input_measurement()

@@ -67,8 +67,10 @@ class SensorDefinitionController extends Controller
      * Display a listing of the resource.
      *
      * @authenticated
-     * @bodyParam device_id integer Device that the definition value belongs to
-     * @bodyParam device_hardware_id string required Device that the definition values belong to
+     * @bodyParam device_id integer Either device_id, or device_hardware_id is required. Device that the definition value belongs to.
+     * @bodyParam device_hardware_id string Either device_id, or device_hardware_id is required. Device that the definition values belong to.
+     * @bodyParam input_measurement_abbreviation string Filter sensordefinitions by provided input abbreviation.
+     * @bodyParam limit integer If input_abbr is set, limit the amount of results provided by more than 1 to get all historic sensordefinitions of this type.
      *
      * @return \Illuminate\Http\Response
      */
@@ -78,7 +80,21 @@ class SensorDefinitionController extends Controller
 
         if ($device)
         {
-            $sensordefinitions = $device->sensorDefinitions;
+            
+            if ($request->filled('input_measurement_abbreviation'))
+            {
+                $measurement_in    = $this->getMeasurementFromRequestKey($request, false);
+                $limit             = $request->filled('limit') ? intVal($request->input('limit')) : 1;
+
+                if (isset($measurement_in))
+                    $sensordefinitions = $device->sensorDefinitions->where('input_measurement_id', $measurement_in->id)->sortByDesc('updated_at')->take($limit)->values();
+                else
+                    $sensordefinitions = $device->sensorDefinitions->sortByDesc('updated_at')->take($limit)->values();
+            }
+            else
+            {
+                $sensordefinitions = $device->sensorDefinitions->sortByDesc('updated_at')->values();
+            }
 
             if ($sensordefinitions)
                 return response()->json($sensordefinitions);

@@ -1,5 +1,5 @@
 {
-	"updated":"2020-05-14T16:14:00Z",
+	"updated":"2020-05-20T13:50:00Z",
 	"info":"development@beep.nl",
 	"website":"https://beep.nl",
 	"helpdesk":"https://beepsupport.freshdesk.com",
@@ -12,6 +12,7 @@
 		"data_sensors":"https://api.beep.nl/api/sensors",
 		"data_sensors_unsecure":"http://api.beep.nl/api/unsecure_sensors",
 		"data_sensors_lora":"https://api.beep.nl/api/lora_sensors",
+		"firmware_index":"https://assets/beep.nl/fimware/firmware_index.json"
 	},
 	"acceptance":
 	{
@@ -22,6 +23,7 @@
 		"data_sensors":"https://test.beep.nl/api/sensors",
 		"data_sensors_unsecure":"http://test.beep.nl/api/unsecure_sensors",
 		"data_sensors_lora":"https://test.beep.nl/api/lora_sensors",
+		"firmware_index":"https://assets/beep.nl/fimware/firmware_index.json"
 	},
 	"test":
 	{
@@ -32,5 +34,6 @@
 		"data_sensors":"https://test.beep.nl/api/sensors",
 		"data_sensors_unsecure":"http://test.beep.nl/api/unsecure_sensors",
 		"data_sensors_lora":"https://test.beep.nl/api/lora_sensors",
+		"firmware_index":"https://assets/beep.nl/fimware/firmware_index.json"
 	}
 }

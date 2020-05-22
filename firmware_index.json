@@ -1,0 +1,18 @@
+[
+	{
+		"v1.4.0":
+		{
+			"release_date":"2020-05-19T14:00:00Z",
+			"release_note":"Can switch off tilt sensor",
+			"stability":"test",
+			"download_url":"https://assets.beep.nl/firmware/basev3/1.4.0/Beepbase_app.zip"
+		},
+		"v1.3.5":
+		{
+			"release_date":"2020-02-27T14:12:00Z",
+			"release_note":"Stable release with tilt switch stabilization timer",
+			"stability":"stable",
+			"download_url":"https://assets.beep.nl/firmware/basev3/1.3.5/Beepbase_app.zip"
+		}
+	}
+]

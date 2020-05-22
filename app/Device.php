@@ -99,4 +99,13 @@ class Device extends Model
         }
         return $list_out;
     }
+
+    public function delete()
+    {
+        // delete all related sensorDefinitions 
+        $this->sensorDefinitions()->delete();
+
+        // delete the photo
+        return parent::delete();
+    }
 }

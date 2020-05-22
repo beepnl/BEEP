@@ -145,14 +145,16 @@ class DeviceController extends Controller
 
     private function createTTNDevice($dev_id, $dev_eui, $app_key)
     {
+        $dev_id = strtolower($dev_id);
+
         $data = [
             "dev_id" => $dev_id,
             "lorawan_device"=>[
                 "activation_constraints"=>"otaa",
-                "app_id"=>"beep-digital-hive-monitoring",
-                "dev_eui"=>$dev_eui, 
-                "dev_id"=>$dev_id, 
-                "app_key"=>$app_key,
+                "app_id"=>env('TTN_APP_NAME'),
+                "dev_eui"=>strtolower($dev_eui),
+                "dev_id"=>$dev_id,
+                "app_key"=>strtolower($app_key),
                 "app_eui"=>env('TTN_APP_EUI')
             ]
         ];

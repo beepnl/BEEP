@@ -100,7 +100,7 @@ class MeasurementController extends Controller
             if(isset($check_device))
                 return $check_device;
         }
-        return Response::json('No key found for user', 404);
+        return Response::json('no_device_found', 404);
     }
 
     
@@ -495,13 +495,16 @@ class MeasurementController extends Controller
     {
         $device = Device::where('key', $key)->first();
 
-        if ($device == null && $field == 'hardware_id' && $value !== null && env('ALLOW_DEVICE_CREATION') == 'true' && Auth::user() && Auth::user()->hasRole('sensor-data')) // no device with this key available
+        if ($device == null && $field == 'hardware_id' && $value !== null && env('ALLOW_DEVICE_CREATION') == 'true' && Auth::user() && Auth::user()->hasRole('sensor-data')) // no device with this key available, so create new device by hardware id
         {
             $device = Device::where('hardware_id', $value)->first();
+
+            if (!isset($device) && count($value) == 18) // TODO: remove if TTN and app fix and DB change have been implemented
+                $device = Device::where('hardware_id', '0e'.$value)->first();
             
             if ($device)
             {
-                $device->key = $key; // update hardware id to the supplied key to prevent double hardware id's
+                $device->key = $key; // update device key of hardware id to prevent double hardware id's
             }
             else
             {

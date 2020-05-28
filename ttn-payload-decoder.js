@@ -83,7 +83,7 @@ function Decoder(bytes, port) {
       decoded.beep_base        = true;
       decoded.firmware_version = ((bytes[1] << 8) + bytes[2]) + "." + ((bytes[3] << 8) + bytes[4]) + "." + ((bytes[5] << 8) + bytes[6]);
       decoded.hardware_version = ((bytes[8] << 8) + bytes[9]) + "." + ((bytes[10] << 8) + bytes[11]) + " ID:" + ((bytes[12] << 32) + (bytes[13] << 16) + (bytes[14] << 8) + bytes[15]);
-      decoded.hardware_id      = toHexString(bytes[16], 2) + toHexString(bytes[17], 2) + toHexString(bytes[18], 2) + toHexString(bytes[19], 2) + toHexString(bytes[20], 2) + toHexString(bytes[21], 2) + toHexString(bytes[22], 2) + toHexString(bytes[23], 2) + toHexString(bytes[24], 2) + toHexString(bytes[25], 2);
+      decoded.hardware_id      = toHexString(bytes[17], 2) + toHexString(bytes[18], 2) + toHexString(bytes[19], 2) + toHexString(bytes[20], 2) + toHexString(bytes[21], 2) + toHexString(bytes[22], 2) + toHexString(bytes[23], 2) + toHexString(bytes[24], 2) + toHexString(bytes[25], 2);
       decoded.measurement_transmission_ratio = (bytes[27]);
       decoded.measurement_interval_min       = ((bytes[28] << 8) + bytes[29]);
     }
@@ -95,7 +95,7 @@ function Decoder(bytes, port) {
       decoded.beep_base        = true;
       decoded.firmware_version = ((bytes[1] << 8) + bytes[2]) + "." + ((bytes[3] << 8) + bytes[4]) + "." + ((bytes[5] << 8) + bytes[6]);
       decoded.hardware_version = ((bytes[8] << 8) + bytes[9]) + "." + ((bytes[10] << 8) + bytes[11]) + " ID:" + ((bytes[12] << 32) + (bytes[13] << 16) + (bytes[14] << 8) + bytes[15]);
-      decoded.hardware_id      = toHexString(bytes[16], 2) + toHexString(bytes[17], 2) + toHexString(bytes[18], 2) + toHexString(bytes[19], 2) + toHexString(bytes[20], 2) + toHexString(bytes[21], 2) + toHexString(bytes[22], 2) + toHexString(bytes[23], 2) + toHexString(bytes[24], 2) + toHexString(bytes[25], 2);
+      decoded.hardware_id      = toHexString(bytes[17], 2) + toHexString(bytes[18], 2) + toHexString(bytes[19], 2) + toHexString(bytes[20], 2) + toHexString(bytes[21], 2) + toHexString(bytes[22], 2) + toHexString(bytes[23], 2) + toHexString(bytes[24], 2) + toHexString(bytes[25], 2);
     }
     else if (bytes[0] == 0x02 && bytes.length == 40) // BEEP base fw 1.3.3+ start-up message
     {
@@ -106,7 +106,7 @@ function Decoder(bytes, port) {
       decoded.beep_base        = true;
       decoded.firmware_version = ((bytes[3] << 8) + bytes[4]) + "." + ((bytes[5] << 8) + bytes[6]) + "." + ((bytes[7] << 8) + bytes[8]);
       decoded.hardware_version = ((bytes[10] << 8) + bytes[11]) + "." + ((bytes[12] << 8) + bytes[13]) + " ID:" + ((bytes[14] << 32) + (bytes[15] << 16) + (bytes[16] << 8) + bytes[17]);
-      decoded.hardware_id      = toHexString(bytes[18], 2) + toHexString(bytes[19], 2) + toHexString(bytes[20], 2) + toHexString(bytes[21], 2) + toHexString(bytes[22], 2) + toHexString(bytes[23], 2) + toHexString(bytes[24], 2) + toHexString(bytes[25], 2) + toHexString(bytes[26], 2) + toHexString(bytes[27], 2);
+      decoded.hardware_id      = toHexString(bytes[19], 2) + toHexString(bytes[20], 2) + toHexString(bytes[21], 2) + toHexString(bytes[22], 2) + toHexString(bytes[23], 2) + toHexString(bytes[24], 2) + toHexString(bytes[25], 2) + toHexString(bytes[26], 2) + toHexString(bytes[27], 2);
       decoded.bootcount        = ((bytes[29] << 32) + (bytes[30] << 16) + (bytes[31] << 8) + bytes[32]);
       decoded.ds18b20_sensor_amount          = (bytes[34]);
       decoded.measurement_transmission_ratio = (bytes[36]);

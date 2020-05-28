@@ -89,13 +89,22 @@ class DeviceController extends Controller
     {
         
         if ($request->filled('hardware_id'))
-            $devices = $request->user()->allDevices()->where('hardware_id', $request->input('hardware_id'))->with('sensorDefinitions');
+        {
+            $hw_id   = $request->input('hardware_id');
+            $devices = $request->user()->allDevices()->where('hardware_id', $hw_id)->with('sensorDefinitions');
+
+            // TODO: Exception for old hardware id's (including 0e as first byte) that have been stored, can be removed after implementation of issue #36 (correct hw_id in native apps, LoRa message parsers and database update of old id's)
+            if ($devices->count() == 0)
+                $devices = $request->user()->allDevices()->where('hardware_id', '0e'.$hw_id)->with('sensorDefinitions');
+        }  
         else
+        {
             $devices = $request->user()->allDevices()->with('sensorDefinitions');
+        }
 
         if ($devices->count() == 0)
         {
-            if ($request->filled('hardware_id') &&  Device::where('hardware_id', $request->input('hardware_id'))->count() > 0)
+            if ($request->filled('hardware_id') && Device::where('hardware_id', $request->input('hardware_id'))->count() > 0)
                 return Response::json('device_not_yours', 403);
 
             return Response::json('no_devices_found', 404);
@@ -324,9 +333,9 @@ class DeviceController extends Controller
 
         if ($id)
         {
-            $device = $request->input();
+            $device       = $request->input();
             $device['id'] = $id;
-            $result = $this->updateOrCreateDevice($device);
+            $result       = $this->updateOrCreateDevice($device);
         }
 
         if (gettype($result) == 'array' && isset($result['http_response_code']))

@@ -28,7 +28,7 @@ var COLORS =
 }
 
 var WEATHER = ['icon','precipIntensity','precipProbability','precipType','temperature','apparentTemperature','dewPoint','humidity','pressure','windSpeed','windGust','windBearing','cloudCover','uvIndex','visibility','ozone']; // weather indicators
-var SENSORS = ['t','h','p','l','bc_i','bc_o','weight_kg_corrected','weight_kg','t_i','t_0','t_1','t_2','t_3','t_4','t_5','t_6','t_7','t_8','t_9']; // not actuators
+var SENSORS = ['t','h','p','l','bc_i','bc_o','bc_tot','weight_kg_corrected','weight_kg','t_i','t_0','t_1','t_2','t_3','t_4','t_5','t_6','t_7','t_8','t_9']; // not actuators
 var SOUND   = ['s_fan_4','s_fan_6','s_fan_9','s_fly_a','s_tot','s_bin','s_spl','s_bin098_146Hz','s_bin146_195Hz','s_bin195_244Hz','s_bin244_293Hz','s_bin293_342Hz','s_bin342_391Hz','s_bin391_439Hz','s_bin439_488Hz','s_bin488_537Hz','s_bin537_586Hz','s_bin_71_122' ,'s_bin_122_173','s_bin_173_224','s_bin_224_276','s_bin_276_327','s_bin_327_378','s_bin_378_429','s_bin_429_480','s_bin_532_583']; // all sound releated sensors
 var DEBUG   = ['bv','rssi','snr']; // all debugging info sensors
 
@@ -45,7 +45,8 @@ var SENSOR_COLOR = {
 	s_tot 	:COLORS.black,
 	s_spl 	:COLORS.black,
 	bc_i	:COLORS.purple,
-	bc_o	:COLORS.purple,
+	bc_o	:COLORS.pink,
+	bc_tot	:COLORS.black,
 	weight_kg			:COLORS.orange,
 	weight_kg_corrected	:COLORS.darkgrey,
 	t_i     :COLORS.red,
@@ -115,6 +116,7 @@ var SENSOR_NAMES =
 	s_spl 	: 's_spl',
 	bc_i	: 'bc_i',
 	bc_o	: 'bc_o',
+	bc_tot	: 'bc_tot',
 	weight_kg			: 'weight_kg',
 	weight_kg_corrected	: 'weight_kg_corrected',
 	t_i		: 't_i',
@@ -184,6 +186,7 @@ var SENSOR_MIN =
 	s_spl 	: 0,
 	bc_i	: 0,
 	bc_o	: 0,
+	bc_tot	: 0,
 	weight_kg			: 0,
 	weight_kg_corrected	: 0,
 	t_i		: 0,
@@ -228,6 +231,7 @@ var SENSOR_LOW =
 	s_spl 	: 30,
 	bc_i	: 0,
 	bc_o	: 0,
+	bc_tot	: 0,
 	weight_kg			: 1,
 	weight_kg_corrected	: 1,
 	t_i		: 34,
@@ -262,6 +266,7 @@ var SENSOR_HIGH =
 	s_spl 	: 80,
 	bc_i	: 5000,
 	bc_o	: 5000,
+	bc_tot	: 10000,
 	weight_kg			: 100,
 	weight_kg_corrected	: 100,
 	t_i		: 37,
@@ -284,8 +289,9 @@ var SENSOR_MAX =
 	s_fly_a : 10,
 	s_tot 	: 50,
 	s_spl 	: 140,
-	bc_i	: 50000,
-	bc_o	: 50000,
+	bc_i	: 10000,
+	bc_o	: 10000,
+	bc_tot	: 20000,
 	weight_kg			: 125,
 	weight_kg_corrected	: 125,
 	t_i		: 50,
@@ -320,6 +326,7 @@ var SENSOR_UNITS =
 	s_spl 	: 'dB',
 	bc_i	: '#',
 	bc_o	: '#',
+	bc_tot	: '#',
 	weight_kg			: 'kg',
 	weight_kg_corrected	: 'kg',
 	t_i		: '°C',

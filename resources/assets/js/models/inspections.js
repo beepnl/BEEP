@@ -80,14 +80,11 @@ app.service('inspections', ['$http', '$rootScope', 'api', 'settings', function($
 		};
 
 		if (self.checklistNull != null)
-		{
 			self.checklist = angular.copy(self.checklistNull);
-			//console.log('newSaveObject checklist cloned');
-		}
-
+		
 		if (init) // initialize first
 		{
-			self.inspection = null;
+			self.inspection = {};
 			self.createInspectionObject('impression', null, -1, false);
 			self.createInspectionObject('attention', null, -1, false);
 			self.createInspectionObject('reminder', null, '', false);
@@ -97,7 +94,7 @@ app.service('inspections', ['$http', '$rootScope', 'api', 'settings', function($
 
 		if (data == null && init == false)
 			data = self.inspection;
-
+		
 		if (typeof data != 'undefined' && data != null)
 		{
 			//console.log('newSaveObject filling checklist with available data');
@@ -144,7 +141,6 @@ app.service('inspections', ['$http', '$rootScope', 'api', 'settings', function($
 			}
 		}
 
-		//console.log('newSaveObject', self.saveObject);
 		return self.saveObject;
 	}
 
@@ -258,7 +254,7 @@ app.service('inspections', ['$http', '$rootScope', 'api', 'settings', function($
 	{
 		self.checklist 	   = data.checklist;
 		self.checklistId   = data.checklist.id;
-		self.checklistNull = data.checklist;
+		self.checklistNull = angular.copy(data.checklist);
 
 		$rootScope.$broadcast('checklistUpdated');
 	};

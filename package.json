@@ -65,6 +65,7 @@
         "angularjs-slider": "^6.5.0",
         "animate.css": "^3.7.2",
         "chart.js": "^2.9.3",
+        "chartjs-chart-matrix": "^0.1.3",
         "components-font-awesome": "github:components/font-awesome",
         "datatables.net-bs4": "^1.10.19",
         "datatables.net-plugins": "github:DataTables/Plugins",

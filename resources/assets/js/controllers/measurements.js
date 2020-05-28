@@ -176,6 +176,13 @@ app.controller('MeasurementsCtrl', function($scope, $rootScope, $timeout, $inter
         }
     };
 
+    $scope.chart.optionsMatrix = 
+    {
+        type: 'matrix',
+        legend: angular.copy($scope.chartLegend),
+        scales: angular.copy($scope.chartScales)
+    };
+
     $scope.chart.optionsActuators = 
     {
         legend: angular.copy($scope.chartLegend),
@@ -216,7 +223,7 @@ app.controller('MeasurementsCtrl', function($scope, $rootScope, $timeout, $inter
     };
 
     $scope.chart.optionsWeather = angular.copy($scope.chart.optionsSensors);
-    $scope.chart.optionsSound   = angular.copy($scope.chart.optionsSensors);
+    $scope.chart.optionsSound   = angular.copy($scope.chart.optionsMatrix);
     $scope.chart.optionsDebug   = angular.copy($scope.chart.optionsSensors);
     $scope.chart.optionsActuators.legend.position = 'bottom';
 

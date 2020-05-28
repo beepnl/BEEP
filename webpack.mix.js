@@ -99,6 +99,7 @@ mix.babel([
     'node_modules/angular-moment/angular-moment.min.js',
     'node_modules/chart.js/dist/Chart.min.js',
     'node_modules/angular-chart.js/angular-chart.js',
+    'node_modules/chartjs-chart-matrix/chartjs-chart-matrix.min.js',
     'node_modules/ng-dialog/js/ngDialog.js',
     'node_modules/ngmap/build/scripts/ng-map.min.js',
     'node_modules/angular-color-picker/angular-color-picker.js',

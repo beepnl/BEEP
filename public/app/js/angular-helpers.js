@@ -1371,7 +1371,7 @@ var convertInfluxMeasurementsArrayToChartObject = function convertInfluxMeasurem
           if (!isActuator) {
             if (val != null || firstLast) {
               //console.log(name, val, dataSetIndex, firstLast);
-              if (!isSensor && Math.abs(val) > 100 && chart.series.length > 1) // transfer unit to y-scale 2
+              if (!isSensor && !isSound && Math.abs(val) > 100 && chart.series.length > 1) // transfer unit to y-scale 2
                 {
                   chart.yAxes[1].display = true;
                   chart.datasets[dataSetIndex].yAxisID = 'y2';

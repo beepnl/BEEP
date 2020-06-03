@@ -1,18 +1,42 @@
 [
-	{
-		"v1.4.0":
-		{
-			"release_date":"2020-05-19T14:00:00Z",
-			"release_note":"Can switch off tilt sensor",
-			"stability":"test",
-			"download_url":"https://assets.beep.nl/firmware/basev3/1.4.0/Beepbase_app.zip"
-		},
-		"v1.3.5":
-		{
-			"release_date":"2020-02-27T14:12:00Z",
-			"release_note":"Stable release with tilt switch stabilization timer",
-			"stability":"stable",
-			"download_url":"https://assets.beep.nl/firmware/basev3/1.3.5/Beepbase_app.zip"
-		}
-	}
+  {
+    "version": "1.4.1",
+    "release_date": "2020-06-02T13:00:00Z",
+    "release_notes": "BEEP base 1.4.1 adds a fix for sending sensor data by KPN LoRaWAN.",
+    "stability": "test",
+    "size": 174300,
+    "download_url": "https://assets.beep.nl/firmware/basev3/1.4.1/Beepbase_app.zip"
+  },
+  {
+    "version": "1.4.0",
+    "release_date": "2020-05-19T14:00:00Z",
+    "release_notes": "BEEP base 1.4.0 adds the ability to switch off the tilt sensor.",
+    "stability": "stable",
+    "size": 174300,
+    "download_url": "https://assets.beep.nl/firmware/basev3/1.4.0/Beepbase_app.zip"
+  },
+  {
+    "version": "1.3.5",
+    "release_date": "2020-02-27T14:12:00Z",
+    "release_notes": "BEEP base 1.3.5 adds a tilt switch stabilization timer.",
+    "stability": "stable",
+    "size": 174300,
+    "download_url": "https://assets.beep.nl/firmware/basev3/1.3.5/Beepbase_app.zip"
+  },
+  {
+    "version": "1.3.4",
+    "release_date": "2020-02-27T14:12:00Z",
+    "release_notes": "BEEP base 1.3.4 adds improvements for LoRa.",
+    "stability": "stable",
+    "size": 174300,
+    "download_url": "https://assets.beep.nl/firmware/basev3/1.3.4/Beepbase_app.zip"
+  },
+  {
+    "version": "1.3.3",
+    "release_date": "2020-02-27T14:12:00Z",
+    "release_notes": "BEEP base 1.3.3 adds energy improvements: The default measurement interval is now 15 minutes instead of 1 minute. Of course this can still be overriden.\n\nIf you have already configured your BEEP base with a different measurement interval, it will not be overwritten.",
+    "stability": "stable",
+    "size": 174300,
+    "download_url": "https://assets.beep.nl/firmware/basev3/1.3.3/Beepbase_app.zip"
+  }
 ]

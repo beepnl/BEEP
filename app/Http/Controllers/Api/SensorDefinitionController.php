@@ -60,7 +60,7 @@ class SensorDefinitionController extends Controller
             if ($request_data['inside'] == -1)
                 $request_data['inside'] = null;
             else
-                $request_data['inside'] = $request_data['inside'] === 'true' || $request_data['inside'] === '1' ? 1 : 0;
+                $request_data['inside'] = $request_data['inside'] === 'true' || $request_data['inside'] === '1' || $request_data['inside'] === 1 ? 1 : 0;
         }
 
         if (!isset($request_data['name']) && isset($measurement_out))
@@ -191,7 +191,7 @@ class SensorDefinitionController extends Controller
                 if ($request_data['inside'] == -1)
                     $request_data['inside'] = null;
                 else
-                    $request_data['inside'] = $request_data['inside'] === 'true' || $request_data['inside'] === '1' ? 1 : 0;
+                    $request_data['inside'] = $request_data['inside'] === 'true' || $request_data['inside'] === '1' || $request_data['inside'] === 1 ? 1 : 0;
             }
 
             $sensordefinition->update($request_data);

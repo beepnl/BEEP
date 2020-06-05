@@ -55,7 +55,7 @@ class SensorDefinitionController extends Controller
         $request_data['input_measurement_id']  = isset($measurement_in) ? $measurement_in->id : null;
         $request_data['output_measurement_id'] = isset($measurement_out) ? $measurement_out->id : null;
 
-        if (isset($request_data->inside))
+        if ($request->filled('inside'))
         {
             if ($request_data['inside'] === -1)
                 $request_data['inside'] = null;

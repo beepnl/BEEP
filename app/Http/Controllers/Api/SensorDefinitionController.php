@@ -55,12 +55,12 @@ class SensorDefinitionController extends Controller
         $request_data['input_measurement_id']  = isset($measurement_in) ? $measurement_in->id : null;
         $request_data['output_measurement_id'] = isset($measurement_out) ? $measurement_out->id : null;
 
-        if ($request->filled('inside'))
+        if (isset($request_data->inside))
         {
-            if ($request_data['inside'] == -1)
+            if ($request_data['inside'] === -1)
                 $request_data['inside'] = null;
             else
-                $request_data['inside'] = $request_data['inside'] === 'true' || $request_data['inside'] === '1' || $request_data['inside'] === 1 || $request_data['inside'] === true ? 1 : 0;
+                $request_data['inside'] = $request_data['inside'] == "false" ? 0 : boolval($request_data['inside']) ? 1 : 0;
         }
 
         if (!isset($request_data['name']) && isset($measurement_out))
@@ -188,10 +188,10 @@ class SensorDefinitionController extends Controller
             
             if ($request->filled('inside'))
             {
-                if ($request_data['inside'] == -1)
+                if ($request_data['inside'] === -1)
                     $request_data['inside'] = null;
                 else
-                    $request_data['inside'] = $request_data['inside'] === 'true' || $request_data['inside'] === '1' || $request_data['inside'] === 1 || $request_data['inside'] === true ? 1 : 0;
+                    $request_data['inside'] = $request_data['inside'] == "false" ? 0 : boolval($request_data['inside']) ? 1 : 0;
             }
 
             $sensordefinition->update($request_data);

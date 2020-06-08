@@ -150,7 +150,8 @@ class UserController extends Controller
                 'email'     => $request->input('email'),
                 'api_token' => str_random(60),
                 'remember_token' => str_random(10),
-                'policy_accepted'=> $request->input('policy_accepted')
+                'policy_accepted'=> $request->input('policy_accepted'),
+                'locale'    => $request->input('locale')
             ];
 
             // save the user
@@ -341,6 +342,12 @@ class UserController extends Controller
             if($request->filled('email'))
             {
                 $user->email = $request->input('email');
+                $save = true;
+            }
+
+            if($request->filled('locale'))
+            {
+                $user->locale = $request->input('locale');
                 $save = true;
             }
 

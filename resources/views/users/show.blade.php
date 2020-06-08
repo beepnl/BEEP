@@ -20,6 +20,12 @@
         </div>
         <div class="col-xs-12 col-sm-12 col-md-12">
             <div class="form-group">
+                <label>{{ __('general.Language') }}:</label>
+                <p>{{ $user->locale }}</p>
+            </div>
+        </div>
+        <div class="col-xs-12 col-sm-12 col-md-12">
+            <div class="form-group">
                 <label>{{ __('crud.avatar') }}:</label>
                 <br>
                 <img src="/uploads/avatars/{{ $user->avatar }}" style="width:100px; height:100px; margin-right: 20px; margin-bottom: 10px;" class="img-circle">

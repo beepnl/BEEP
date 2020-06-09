@@ -11,7 +11,7 @@ class DatabaseSeeder extends Seeder
      */
     public function run()
     {
-    	$this->call(TtnDeviceCorrectionSeeder::class);
+    	$this->call(DeviceCorrectionSeeder::class);
         // $this->call(UserSeeder::class);
     	// $this->call(MeasurementSeeder::class);
     }

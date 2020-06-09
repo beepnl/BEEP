@@ -7,7 +7,7 @@ use GuzzleHttp\Client;
 use GuzzleHttp\Psr7;
 use GuzzleHttp\Exception\RequestException;
 
-class TtnDeviceCorrectionSeeder extends Seeder
+class DeviceCorrectionSeeder extends Seeder
 {
     
     public function run()

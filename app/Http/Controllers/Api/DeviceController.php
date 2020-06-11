@@ -92,6 +92,10 @@ class DeviceController extends Controller
         {
             $hw_id   = $request->input('hardware_id');
             $devices = $request->user()->allDevices()->where('hardware_id', $hw_id)->with('sensorDefinitions');
+
+            // TODO: Exception for old hardware id's (including 0e as first byte) that have been stored, can be removed after implementation of issue #36 (correct hw_id in native apps, LoRa message parsers and database update of old id's)
+            if ($devices->count() == 0 && count($hw_id) == 18)
+                $devices = $request->user()->allDevices()->where('hardware_id', '0e'.$hw_id)->with('sensorDefinitions');
         }  
         else
         {

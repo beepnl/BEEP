@@ -280,9 +280,9 @@ function Decoder(bytes, port) {
       if ((bme280_t + bme280_h + bme280_p) != 0)
       {
         decoded.bme280_present = true;
-        decoded.bme280_t = hexToInt(toHexString(bytes[bme280_values_start_byte+0], 2) + toHexString(bytes[bme280_values_start_byte+1], 2), 4);
-        decoded.bme280_h = (bytes[bme280_values_start_byte+2] << 8) + bytes[bme280_values_start_byte+3];
-        decoded.bme280_p = (bytes[bme280_values_start_byte+4] << 8) + bytes[bme280_values_start_byte+5];
+        decoded.bme280_t = bme280_t;
+        decoded.bme280_h = bme280_h;
+        decoded.bme280_p = bme280_p;
       }
     }
     else

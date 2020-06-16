@@ -3,7 +3,7 @@
     "version": "1.4.2",
     "release_date": "2020-06-05T13:00:00Z",
     "release_notes": "BEEP base 1.4.2 adds a fix for stability of LoRa messages sent over KPN LoRaWAN. You should replace 1.4.1 with 1.4.2.",
-    "stability": "test",
+    "stability": "stable",
     "size": 174300,
     "download_url": "https://assets.beep.nl/firmware/basev3/1.4.2/Beepbase_app.zip"
   },

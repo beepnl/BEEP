@@ -171,7 +171,7 @@ trait MeasurementLegacyCalculationsTrait
 
                     $out['firmware_version'] = hexdec(substr($p, 2, 4)).'.'.hexdec(substr($p, 6, 4)).'.'.hexdec(substr($p, 10, 4)); // 2-13
                     // $out['hardware_version'] = hexdec(substr($p, 16, 16)); // 14-31
-                    $out['hardware_id']      = substr($p, 32, 20); // 32-52
+                    $out['hardware_id']      = substr($p, 34, 18); // 34-51
                     
                     if (strlen($p) > 52)
                     {
@@ -196,77 +196,97 @@ trait MeasurementLegacyCalculationsTrait
 
                     $sb = $port == 4 ? 2 : 0; // start byte
 
-                    // add battery
+                    // Battery: 0x1B
                     $out['vcc']      = hexdec(substr($p, $sb+2, 4))/1000;
                     $out['bv']       = hexdec(substr($p, $sb+6, 4))/1000;
                     $out['bat_perc'] = hexdec(substr($p, $sb+10, 2));
 
-                    // add weight
-                    $weight_amount   = hexdec(substr($p, $sb+14, 2));
+                    // Weight (1 or 2): 0x0A
+                    $sb = $sb+12;
+                    $weight_amount   = hexdec(substr($p, $sb+2, 2));
                     $out['weight_sensor_amount'] = $weight_amount;
                     
-                    if ($weight_amount == 1)
+                    if (substr($pu, $sb, 2) == '0A' && $weight_amount > 0)
                     {
-                        $out['w_v'] = hexdec(substr($p, $sb+16, 6));
-                    }
-                    else if ($weight_amount > 1)
-                    {
-                        for ($i=0; $i < $weight_amount; $i++)
-                        { 
-                            $out['w_v_'.$i] = hexdec(substr($p, $sb+16+($i*6), 6));
+                        if ($weight_amount == 1)
+                        {
+                            $out['w_v'] = hexdec(substr($p, $sb+4, 6));
+                        }
+                        else if ($weight_amount > 1)
+                        {
+                            for ($i=0; $i < $weight_amount; $i++)
+                            { 
+                                $out['w_v_'.$i] = hexdec(substr($p, $sb+4+($i*6), 6));
+                            }
                         }
                     }
 
-                    // add temperature
-                    $sb            = 16 + $weight_amount * 6;
+                    // Temperature 1-5x DS18b20: 0x04
+                    $sb            = $sb + 4 + $weight_amount * 6;
                     $temp_amount   = hexdec(substr($p, $sb+2, 2));
                     $out['ds18b20_sensor_amount'] = $temp_amount;
                     
-                    if ($temp_amount == 1)
+                    if (substr($pu, $sb, 2) == '04' && $temp_amount > 0)
                     {
-                        $out['t_i'] = $this->hexdecs(substr($p, $sb+4, 4))/100;
-                    }
-                    else if ($temp_amount > 1)
-                    {
-                        for ($i=0; $i < $temp_amount; $i++)
-                        { 
-                            $out['t_'.$i] = $this->hexdecs(substr($p, $sb+4+($i*4), 4))/100;
+                        if ($temp_amount == 1)
+                        {
+                            $out['t_i'] = $this->hexdecs(substr($p, $sb+4, 4))/100;
+                        }
+                        else if ($temp_amount > 1)
+                        {
+                            for ($i=0; $i < $temp_amount; $i++)
+                            { 
+                                $out['t_'.$i] = $this->hexdecs(substr($p, $sb+4+($i*4), 4))/100;
+                            }
                         }
                     }
 
-                    // add sound
-                    $sb           = $sb + 4 + $temp_amount * 4;
-                    $fft_amount   = hexdec(substr($p, $sb+2, 2));
-
+                    // Audio FFT: 0x0C
+                    $sb                     = $sb + 4 + $temp_amount * 4;
+                    $fft_char_len           = 4;
+                    $fft_bin_amount         = hexdec(substr($p, $sb+2, 2));
                     $fft_bin_freq           = 3.937752016; // = about 2000 / 510
-                    $out['fft_bin_amount']  = $fft_amount;
-                    $out['fft_start_bin']   = hexdec(substr($sb+4, 2));
-                    $out['fft_stop_bin']    = hexdec(substr($sb+6, 2));
-                    $fft_bin_total          = $out['fft_stop_bin'] - $out['fft_start_bin'];
+                    $fft_start_bin          = hexdec(substr($p, $sb+4, 2));
+                    $fft_stop_bin           = hexdec(substr($p, $sb+6, 2));
+                    $fft_bin_total          = $fft_stop_bin - $fft_start_bin;
+                    $out['fft_bin_amount']  = $fft_bin_amount;
+                    $out['fft_start_bin']   = $fft_start_bin;
+                    $out['fft_stop_bin']    = $fft_stop_bin;
                     $fft_sb                 = $sb + 8;
                     
-                    // if ($fft_amount > 0)
-                    // {
-                    //     for ($i=0; $i < $fft_amount; $i++)
-                    //     { 
-                    //         $out['s_bin_'.$i] = hexdec(substr($p, $sb+4+($i*4), 4));
-                    //     }
-                    // }
+                    if (substr($pu, $sb, 2) == '0C' && $fft_bin_amount > 0 && $fft_bin_total)
+                    {
+                        $summed_bins = ceil($fft_bin_total * 2 / $fft_bin_amount) ;
+                        
+                        for ($i=0; $i < $fft_bin_amount; $i++)
+                        { 
+                            $fftValueIndex    = $fft_sb + ($i * $fft_char_len);
+                            $fftValue         = hexdec(substr($p, $fftValueIndex, $fft_char_len));
 
-                    // // add bme
-                    // $sb           = $sb + 4 + $temp_amount * 4;
-                    // $fft_amount   = hexdec(substr($p, $sb+2, 2));
-                    // $fft_start_bin=
-                    // $out['ds18b20_sensor_amount'] = $fft_amount;
-                    
-                    // if ($fft_amount > 0)
-                    // {
-                    //     for ($i=0; $i < $fft_amount; $i++)
-                    //     { 
-                    //         $out['s_bin_'.$i] = hexdec(substr($p, $sb+4+($i*4), 4));
-                    //     }
-                    // }
+                            $start_freq = round( ( ($fft_start_bin * 2) + $i * $summed_bins) * $fft_bin_freq);
+                            $stop_freq  = round( ( ($fft_start_bin * 2) + ($i+1) * $summed_bins) * $fft_bin_freq);
 
+                            //$out['s_bin_'.$i] = [$start_freq, $stop_freq, $fftValue];
+                            $out['s_bin_'.$start_freq.'_'.$stop_freq] = $fftValue;
+                        }
+                    }
+
+                    // BME280: 0x07
+                    $sb           = $fft_sb + $fft_bin_amount * $fft_char_len;
+                    $bme_start    = $sb+2;
+
+                    if (substr($pu, $sb, 2) == '07')
+                    {
+                      $bme280_t = hexdec(substr($p, $bme_start, 4));
+                      $bme280_h = hexdec(substr($p, $bme_start+4, 4));
+                      $bme280_p = hexdec(substr($p, $bme_start+8, 4));
+                      if (($bme280_t + $bme280_h + $bme280_p) != 0)
+                      {
+                        $out['t'] = $bme280_t/100;
+                        $out['h'] = $bme280_h/100;
+                        $out['p'] = $bme280_p;
+                      }
+                    }
                 }
             }
         }

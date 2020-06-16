@@ -527,7 +527,7 @@ app.config(['$routeProvider', '$locationProvider', function ($routeProvider) {
     templateUrl: '/app/views/forms/location_create.html'
   }).when('/locations', {
     controller: 'LocationsCtrl',
-    templateUrl: '/app/views/locations.html?v=1'
+    templateUrl: '/app/views/locations.html?v=2'
   }) // hives
   .when('/hives/create', {
     controller: 'HivesCtrl',

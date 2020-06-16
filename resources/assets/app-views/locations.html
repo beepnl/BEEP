@@ -59,7 +59,7 @@
 	      	<table ng-if="mobile" class="table table-striped">
 	      		<thead></thead>
 				<tbody>
-					<tr ng-repeat="(key, hive) in loc.hives | orderBy:'name':false:natSort">
+					<tr ng-repeat="(key, hive) in loc.hives | orderBy:['order','name']:false:natSort">
 						<td>
 							<beep-hive hive="hive"></beep-hive>
 			            </td>

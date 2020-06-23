@@ -11,9 +11,6 @@
 
 <section class="content" >
 	
-	<div class="alert alert-danger" ng-show="error_msg != null">
-        <p>{{ error_msg }}</p>
-    </div>
 	
 	<!-- Data export -->
 	<div class="box">
@@ -29,10 +26,15 @@
 			<button ng-click="exportData()" class="btn btn-primary btn-block">{{lang.Data_export}}</button>
 		</div>
 		
-	    <div class="overlay" ng-if="loading">
+	    <div class="overlay" ng-if="exploading">
           <i class="fa fa-refresh fa-spin"></i>
         </div>
 	</div>
+
+
+	<div class="alert alert-danger" ng-show="error_msg != null">
+        <p>{{ error_msg }}</p>
+    </div>
 
 	<!-- Measurement Data export -->
 	<div class="box" ng-if="devices.length > 0">
@@ -95,7 +97,7 @@
 		<button ng-disabled="!dataAvailable" ng-click="exportSensorData()" class="btn btn-primary btn-block">Download {{ lang.Sensor_measurements }}</button>
 	</div>
 		
-    <div class="overlay" ng-if="loading">
+    <div class="overlay" ng-if="csvloading">
       <i class="fa fa-refresh fa-spin"></i>
     </div>
 </div>

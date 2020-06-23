@@ -3952,6 +3952,8 @@ app.controller('ExportCtrl', function ($scope, $rootScope, $window, $location, $
   // set the title
   $rootScope.title = $rootScope.lang.Data_export;
   $scope.message = null;
+  $scope.exploading = null;
+  $scope.csvloading = null;
   $scope.error = null;
   $scope.error_msg = null;
   $scope.timeZone = 'Europe/Amsterdam';
@@ -3978,8 +3980,16 @@ app.controller('ExportCtrl', function ($scope, $rootScope, $window, $location, $
   };
 
   $scope.exportData = function () {
+    $scope.exploading = true;
     api.getApiRequest('export', 'export');
   };
+
+  $scope.exportLoaded = function () {
+    $scope.exploading = false;
+  };
+
+  $scope.exportHandler = $rootScope.$on('exportLoaded', $scope.exportLoaded);
+  $scope.exportError = $rootScope.$on('exportError', $scope.exportLoaded);
 
   $scope.updateDevices = function () {
     $scope.devices = measurements.sensors;
@@ -4044,6 +4054,7 @@ app.controller('ExportCtrl', function ($scope, $rootScope, $window, $location, $
 
   $scope.exportSensorData = function () {
     $scope.error_msg = null;
+    $scope.csvloading = true;
     var options = {
       'device_id': $scope.selectedDeviceId,
       'start': moment($scope.startDate).format('YYYY-MM-DD'),
@@ -4051,16 +4062,18 @@ app.controller('ExportCtrl', function ($scope, $rootScope, $window, $location, $
       'separator': $scope.separator,
       'measurements': $scope.selectedMeasurementNames
     };
-    api.postApiRequest('export', 'export/csv', options);
+    api.postApiRequest('exportCsv', 'export/csv', options);
   };
 
-  $scope.downloadData = function (e, data) {
+  $scope.downloadCsvData = function (e, data) {
+    $scope.csvloading = false;
     exportToCsv($scope.fileName, data);
   };
 
-  $scope.exportHandler = $rootScope.$on('exportLoaded', $scope.downloadData);
+  $scope.exportCsvHandler = $rootScope.$on('exportCsvLoaded', $scope.downloadCsvData);
 
-  $scope.errorHandler = function (type, data) {
+  $scope.errorCsvHandler = function (type, data) {
+    $scope.csvloading = false;
     console.log('Export errorHandler', type, data);
     if (data.status === -1) $scope.error_msg = $rootScope.lang.too_much_data;else if (data.message === 'influx-query-empty') {
       $scope.error_msg = $rootScope.lang.no_chart_data;
@@ -4068,8 +4081,8 @@ app.controller('ExportCtrl', function ($scope, $rootScope, $window, $location, $
     } else $scope.error_msg = $rootScope.lang.no_data;
   };
 
-  $scope.exportError = $rootScope.$on('exportError', $scope.errorHandler);
-  $scope.measurementTypeError = $rootScope.$on('measurementTypesAvailableError', $scope.errorHandler);
+  $scope.exportError = $rootScope.$on('exportCsvError', $scope.errorCsvHandler);
+  $scope.measurementTypeError = $rootScope.$on('measurementTypesAvailableError', $scope.errorCsvHandler);
 
   $scope.back = function () {
     $location.path('/login');
@@ -4083,9 +4096,12 @@ app.controller('ExportCtrl', function ($scope, $rootScope, $window, $location, $
   }); // remove listeners
 
   $scope.removeListeners = function () {
+    $scope.deviceHandler();
     $scope.backListener();
     $scope.exportHandler();
     $scope.exportError();
+    $scope.exportCsvHandler();
+    $scope.exportCsvError();
     $scope.measurementTypeHandler();
     $scope.measurementTypeError();
   };

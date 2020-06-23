@@ -94,7 +94,7 @@ class DeviceController extends Controller
             $devices = $request->user()->allDevices()->where('hardware_id', $hw_id)->with('sensorDefinitions');
 
             // TODO: Exception for old hardware id's (including 0e as first byte) that have been stored, can be removed after implementation of issue #36 (correct hw_id in native apps, LoRa message parsers and database update of old id's)
-            if ($devices->count() == 0 && count($hw_id) == 18)
+            if ($devices->count() == 0 && strlen($hw_id) == 18)
                 $devices = $request->user()->allDevices()->where('hardware_id', '0e'.$hw_id)->with('sensorDefinitions');
         }  
         else
@@ -355,6 +355,14 @@ class DeviceController extends Controller
         $key = isset($device['key']) ? strtolower($device['key']) : null;
         $hwi = isset($device['hardware_id']) ? strtolower($device['hardware_id']) : null;
 
+        // Get $sid from hardware_id key combination
+        if (isset($key) && !isset($id) && isset($hwi))
+        {
+            $dev = Device::where('hardware_id', $hwi)->where('key', $key)->first();
+            if ($dev)
+                $sid = $dev->id;
+        }
+
         // user webapp generated key fix for required hw id
         if (isset($key) && !isset($id) && !isset($hwi))
         {
@@ -432,11 +440,18 @@ class DeviceController extends Controller
 
             // $device_new['id'] = $device_id; 
 
+            // Update devicename if BEEPBASE-[####] and not a new name is being set
+            if ($typename == 'beep' && isset($device['key']) && isset($device['app_key']) && (!isset($device['name']) || ($device_obj['name'] == $device['name'])) && substr($device_obj['name'], 0, 9) == 'BEEPBASE-')
+            {
+                $device_new['name'] = 'BEEPBASE-'.strtoupper(substr($device['key'], -4, 4));
+            }
+            else if (isset($device['name']))
+            {
+                $device_new['name'] = $device['name']; 
+            }
+
             if (isset($device['key']))
                 $device_new['key'] = $device['key'];
-            
-            if (isset($device['name']))
-                $device_new['name'] = $device['name']; 
             
             if (isset($device['hive_id']))
                 $device_new['hive_id'] = $device['hive_id'];

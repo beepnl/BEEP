@@ -499,7 +499,7 @@ class MeasurementController extends Controller
         {
             $device = Device::where('hardware_id', $value)->first();
 
-            if (!isset($device) && count($value) == 18) // TODO: remove if TTN and app fix and DB change have been implemented
+            if (!isset($device) && strlen($value) == 18) // TODO: remove if TTN and app fix and DB change have been implemented
                 $device = Device::where('hardware_id', '0e'.$value)->first();
             
             if ($device)

@@ -247,7 +247,7 @@ class ExportController extends Controller
         $end          = $request->input('end');
         $separator    = $request->input('separator', ';');
         $measurements = $request->input('measurements', '*');
-        $device       = $request->user()->devices()->find($device_id);
+        $device       = $request->user()->allDevices()->find($device_id);
 
         if ($device == null)
             return Response::json('invalid-user-device', 500);

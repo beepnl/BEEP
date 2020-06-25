@@ -57,6 +57,7 @@ class ExportController extends Controller
                 $sheet->freezeFirstRow();
                 $sheet->fromModel($userExport);
             });
+            // Bug https://github.com/Maatwebsite/Laravel-Excel/issues/2478
             $excel->sheet(__('export.locations'), function($sheet) use ($locaExport) 
             {
                 $sheet->freezeFirstRow();

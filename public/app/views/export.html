@@ -56,13 +56,13 @@
 					<div class="col-md-3 col-xs-12">
 						<div class="form-group">
 							<label for="start" control-label>{{lang.start_date}}</label>
-							<input class="form-control" type="date" ng-model="startDate" ng-blur="loadDeviceData(selectedDevice.id)">
+							<input class="form-control" type="date" ng-model="startDate" ng-blur="loadDeviceData(selectedDevice.id, true, startDate)">
 						</div>
 					</div>
 					<div class="col-md-3 col-xs-12">
 						<div class="form-group">
 							<label for="start" control-label>{{lang.end_date}}</label>
-							<input class="form-control" type="date" ng-model="endDate" ng-blur="loadDeviceData(selectedDevice.id)">
+							<input class="form-control" type="date" ng-model="endDate" ng-blur="loadDeviceData(selectedDevice.id, false, endDate)">
 						</div>
 					</div>
 					

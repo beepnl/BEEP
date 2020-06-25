@@ -4004,18 +4004,27 @@ app.controller('ExportCtrl', function ($scope, $rootScope, $window, $location, $
 
   $scope.deviceHandler = $rootScope.$on('devicesUpdated', $scope.updateDevices);
 
-  $scope.loadDeviceData = function (id) {
+  $scope.loadDeviceData = function (id, dateIsStart, date) {
     if (id != null && typeof id != 'undefined') {
       $scope.error_msg = null;
-      var resetDates = false;
-      if ($scope.selectedDeviceId != id) resetDates = true;
+      var resetDates = false; // if ($scope.selectedDeviceId != id)
+      // 	resetDates = true;
+
+      var start = $scope.startDate;
+      var end = $scope.endDate;
       $scope.selectedDeviceId = id;
       $scope.selectedDevice = measurements.getSensorById(id);
-      if ($scope.startDate == null || resetDates) $scope.startDate = moment().add(-1, 'weeks').toDate(); //$scope.selectedDevice.start.substr(0,10);
+      if ($scope.startDate == null || resetDates) start = moment().add(-1, 'weeks').toDate(); //$scope.selectedDevice.start.substr(0,10);
 
-      if ($scope.endDate == null || resetDates) $scope.endDate = moment().toDate(); //$scope.selectedDevice.end.substr(0,10);
+      if ($scope.endDate == null || resetDates) end = moment().toDate(); //$scope.selectedDevice.end.substr(0,10);
 
-      $scope.fileName = $scope.selectedDevice.name + '_' + moment($scope.startDate).format('YYYY-MM-DD') + '_' + moment($scope.endDate).format('YYYY-MM-DD') + '.csv'; // load measurement types
+      if (typeof date != 'undefined') {
+        if (dateIsStart) start = date;else end = date;
+      }
+
+      $scope.startDate = start;
+      $scope.endDate = end;
+      $scope.fileName = $scope.selectedDevice.name + '_' + moment(start).format('YYYY-MM-DD') + '_' + moment(end).format('YYYY-MM-DD') + '.csv'; // load measurement types
 
       $scope.measurementTypes = [];
       $scope.loadMeasurementNamesAvailable();
@@ -4025,6 +4034,11 @@ app.controller('ExportCtrl', function ($scope, $rootScope, $window, $location, $
   $scope.updateMeasurementTypes = function (e, data) {
     $scope.dataAvailable = Object.keys(data).length > 0 ? true : false;
     $scope.measurementTypes = data;
+    $scope.refreshSelectedMeasurementTypes();
+  };
+
+  $scope.refreshSelectedMeasurementTypes = function () {
+    $scope.selectMeasurementTypes($scope.selectedMeasurementTypes);
   };
 
   $scope.selectMeasurementTypes = function (types) {
@@ -4074,14 +4088,15 @@ app.controller('ExportCtrl', function ($scope, $rootScope, $window, $location, $
 
   $scope.errorCsvHandler = function (type, data) {
     $scope.csvloading = false;
-    console.log('Export errorHandler', type, data);
-    if (data.status === -1) $scope.error_msg = $rootScope.lang.too_much_data;else if (data.message === 'influx-query-empty') {
+    if (data.status === -1) $scope.error_msg = $rootScope.lang.too_much_data;else if (type.name == 'exportCsvError') {
+      $scope.error_msg = $rootScope.lang.no_chart_data;
+    } else if (type.name == 'measurementTypesAvailableError' && data.message == 'influx-query-empty') {
       $scope.error_msg = $rootScope.lang.no_chart_data;
       $scope.dataAvailable = false;
     } else $scope.error_msg = $rootScope.lang.no_data;
   };
 
-  $scope.exportError = $rootScope.$on('exportCsvError', $scope.errorCsvHandler);
+  $scope.exportCsvError = $rootScope.$on('exportCsvError', $scope.errorCsvHandler);
   $scope.measurementTypeError = $rootScope.$on('measurementTypesAvailableError', $scope.errorCsvHandler);
 
   $scope.back = function () {
@@ -4099,7 +4114,7 @@ app.controller('ExportCtrl', function ($scope, $rootScope, $window, $location, $
     $scope.deviceHandler();
     $scope.backListener();
     $scope.exportHandler();
-    $scope.exportError();
+    $scope.exportCsvError();
     $scope.exportCsvHandler();
     $scope.exportCsvError();
     $scope.measurementTypeHandler();

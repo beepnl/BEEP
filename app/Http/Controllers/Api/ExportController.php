@@ -250,6 +250,7 @@ class ExportController extends Controller
         $measurements = $request->input('measurements', '*');
         $device       = $request->user()->allDevices()->find($device_id);
 
+
         if ($device == null)
             return Response::json('invalid-user-device', 500);
 
@@ -262,14 +263,13 @@ class ExportController extends Controller
         else
             $sensor_measurements = '"'.implode('","',$measurements).'"';
 
-        $query = 'SELECT '.$sensor_measurements.' FROM "sensors" WHERE "key" = \''.$sensor_key.'\' AND time >= \''.$start.'\' AND time < \''.$end.'\'';
-        //die(print_r($query));
+        $query = 'SELECT '.$sensor_measurements.' FROM "sensors" WHERE ("key" = \''.$device->key.'\' OR "key" = \''.strtolower($device->key).'\' OR "key" = \''.strtoupper($device->key).'\') AND time >= \''.$start.'\' AND time < \''.$end.'\'';
         
         try{
             $client = new \Influx; 
             $data   = $client::query($query, $options)->getPoints(); // get first sensor date
         } catch (InfluxDB\Exception $e) {
-            return Response::json('influx-query-error', 500);
+            return Response::json('influx-query-error: '.$query, 500);
         }
 
         if (count($data) == 0)

@@ -42,4 +42,8 @@ class Queen extends Model
         return $this->hasOne(Queen::class, 'mother_id');
     }
 
+    public static function selectList()
+    {
+        return Queen::orderBy('name')->pluck('name','id');
+    }
 }

@@ -115,6 +115,7 @@
             <li class="{{ Route::currentRouteNamed('roles.index') ? 'active' : '' }}"><a href="{{ route('roles.index') }}"><i class="fa fa-address-book-o"></i><span>{{ __('general.Roles') }}</span></a></li>
             <li class="{{ Route::currentRouteNamed('permissions.index') ? 'active' : '' }}"><a href="{{ route('permissions.index') }}"><i class="fa fa-lock"></i><span>{{ __('general.Permissions') }}</span></a></li>
             <li class="{{ Route::currentRouteNamed('image.index') ? 'active' : '' }}"><a href="{{ route('image.index') }}"><i class="fa fa-photo"></i><span>{{ __('general.Images') }}</span></a></li>
+            <li class="{{ Route::currentRouteNamed('sample-code.index') ? 'active' : '' }}"><a href="{{ route('sample-code.index') }}"><i class="fa fa-qrcode"></i><span>Sample codes</span></a></li>
           </ul>
         </li>
         @endrole

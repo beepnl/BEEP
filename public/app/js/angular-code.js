@@ -835,7 +835,8 @@ app.service('inspections', ['$http', '$rootScope', 'api', 'settings', function (
     'slider': 0,
     'grade': 0,
     'file': null,
-    'image': null
+    'image': null,
+    'sample_code': null
   };
 
   this.newSaveObject = function () {
@@ -946,6 +947,7 @@ app.service('inspections', ['$http', '$rootScope', 'api', 'settings', function (
       case 'select_country':
       case 'file':
       case 'image':
+      case 'sample_code':
         return true;
     }
 

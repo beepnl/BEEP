@@ -93,6 +93,7 @@ Route::group(['middleware' => \Barryvdh\Cors\HandleCors::class], function()
 		Route::resource('queens', 			'Api\QueenController',		 			['except'=>['create','edit']]);
 		Route::resource('images', 			'Api\ImageController', 					['except'=>['create','edit','destroy']]);
 		Route::resource('sensordefinition', 'Api\SensorDefinitionController', 		['except'=>['create','edit']]);
+		Route::resource('samplecode', 		'Api\SampleCodeController', 			['except'=>['create','edit']]);
 
 		Route::delete('images', 			'Api\ImageController@destroyByUrl');
 

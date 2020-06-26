@@ -119,6 +119,20 @@
             </label>
         </div>
         
+        <div ng-if="item.input == 'sample_code'">
+            <p ng-if="hive == null">First select a hive, to request a unique sample code</p>
+            <div ng-if="hive != null" class="input-group samplecode">
+                <a ng-if="item.value == null" class="input-group-addon" ng-click="requestSampleCode()">
+                    <i class="fa fa-qrcode"></i>
+                </a>
+                <a ng-if="item.value != null" class="input-group-addon" ng-click="removeSampleCode(item.value)">
+                    <i class="fa fa-times"></i>
+                </a>
+                <a ng-if="item.value == null" class="form-control btn btn-primary pull-right" ng-click="requestSampleCode()">Request unique sample code</a>
+                <input ng-if="item.value != null" class="form-control pull-right" readonly="true" type="text" ng-model="item.value">
+            </div>
+        </div>
+
         <div ng-if="item.input == 'date'">
     		<div class="input-group date">
     		  <div class="input-group-addon">

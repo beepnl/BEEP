@@ -61,3 +61,6 @@ php artisan crud:view languages --fields="name#string; name_english#string; icon
 # Permissions
 php artisan crud:controller PermissionController --crud-name=permissions --model-name=Permission --pagination=1000
 php artisan crud:view permissions --fields="name#string; display_name#string; description#string" --form-helper=html --validations="name#required; display_name#required; description#required"
+
+# LabCode
+php artisan crud:generate SampleCode --fields="sample_code#string#unique; sample_note#text; sample_date#timestamp; test_result#text; test#text; test_date#timestamp; test_lab_name#text; hive_id#integer#unsigned; queen_id#integer#unsigned; user_id#integer#unsigned;" --relationships='hive#belongsTo#Hive::class; queen#belongsTo#Queen::class; user#belongsTo#User::class;' --form-helper=html --validations="sample_code#required; hive_id#required"

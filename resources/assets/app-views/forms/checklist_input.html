@@ -125,7 +125,7 @@
                 <a ng-if="item.value == null" class="input-group-addon" ng-click="requestSampleCode()">
                     <i class="fa fa-qrcode"></i>
                 </a>
-                <a ng-if="item.value != null" class="input-group-addon" ng-click="removeSampleCode(item.value)">
+                <a ng-if="item.value != null" class="input-group-addon" ng-click="removeSampleCode(item.value)" title="Delete unique sample code">
                     <i class="fa fa-times"></i>
                 </a>
                 <a ng-if="item.value == null" class="form-control btn btn-primary pull-right" ng-click="requestSampleCode()">Request unique sample code</a>

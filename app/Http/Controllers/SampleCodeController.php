@@ -19,25 +19,8 @@ class SampleCodeController extends Controller
      */
     public function index(Request $request)
     {
-        $keyword = $request->get('search');
-        $perPage = 25;
-
-        if (!empty($keyword)) {
-            $samplecode = SampleCode::where('sample_code', 'LIKE', "%$keyword%")
-                ->orWhere('sample_note', 'LIKE', "%$keyword%")
-                ->orWhere('sample_date', 'LIKE', "%$keyword%")
-                ->orWhere('test_result', 'LIKE', "%$keyword%")
-                ->orWhere('test', 'LIKE', "%$keyword%")
-                ->orWhere('test_date', 'LIKE', "%$keyword%")
-                ->orWhere('test_lab_name', 'LIKE', "%$keyword%")
-                ->orWhere('inspection_id', 'LIKE', "%$keyword%")
-                ->orWhere('hive_id', 'LIKE', "%$keyword%")
-                ->orWhere('queen_id', 'LIKE', "%$keyword%")
-                ->paginate($perPage);
-        } else {
-            $samplecode = SampleCode::paginate($perPage);
-        }
-
+        $samplecode = SampleCode::all();
+        
         return view('sample-code.index', compact('samplecode'));
     }
 

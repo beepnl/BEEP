@@ -33,7 +33,7 @@
                     ,
                     "order": 
                     [
-                        [ 1, "asc" ]
+                        [ 3, "desc" ]
                     ],
                 });
             });
@@ -49,7 +49,7 @@
             <tbody>
             @foreach($samplecode as $item)
                 <tr>
-                    <td>{{ $loop->iteration or $item->id }}</td>
+                    <td>{{ $loop->iteration ?? $item->id }}</td>
                     <td>{{ $item->sample_code }}</td><td>{{ $item->sample_note }}</td><td>{{ $item->sample_date }}</td><td>{{ $item->test_result }}</td><td>{{ $item->test }}</td><td>{{ $item->test_date }}</td><td>{{ $item->test_lab_name }}</td><td>{{ $item->hive_id }}</td>
                     <td col-sm-1>
                         <a href="{{ route('sample-code.show', $item->id) }}" title="{{ __('crud.show') }}"><button class="btn btn-default"><i class="fa fa-eye" aria-hidden="true"></i></button></a>
@@ -68,8 +68,6 @@
             @endforeach
             </tbody>
         </table>
-
-        <div class="pagination-wrapper"> {!! $samplecode->render() !!} </div>
 
         @endslot
     @endcomponent

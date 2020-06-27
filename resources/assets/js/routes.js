@@ -100,12 +100,12 @@ app.config(['$routeProvider', '$locationProvider',  function($routeProvider)
   .when('/hives/:hiveId/inspect',
   {
       controller  : 'InspectionCreateCtrl',
-      templateUrl : '/app/views/inspect.html?v=6',
+      templateUrl : '/app/views/inspect.html?v=7',
   })
   .when('/hives/:hiveId/inspections/:inspectionId',
   {
       controller  : 'InspectionCreateCtrl',
-      templateUrl : '/app/views/inspect.html?v=6',
+      templateUrl : '/app/views/inspect.html?v=7',
   })
   .when('/hives/:hiveId/inspections',
   {

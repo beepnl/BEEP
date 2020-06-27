@@ -393,7 +393,7 @@ app.directive('mapsAutocompleteMobile', function ($timeout) {
     }
   };
 });
-app.directive('checklistFieldset', ['$rootScope', function ($rootScope) {
+app.directive('checklistFieldset', ['$rootScope', '$filter', function ($rootScope, $filter) {
   return {
     restrict: 'EA',
     scope: {
@@ -445,28 +445,41 @@ app.directive('checklistFieldset', ['$rootScope', function ($rootScope) {
 
         $rootScope.$on('inspectionItemUpdated', scope.calculateTpaColonySize);
       } else if (scope.cat.name == 'liebefelder_method') {
-        //console.log('top_photo_analysis function defined');
+        scope.frame_filter = function (item) {
+          if (typeof item.name != 'undefined' && item.name.indexOf('frame') > -1 && parseInt(item.name.split('_')[1]) <= scope.hive.brood_layers * scope.hive.frames) return true;else return false;
+        };
+
+        scope.super_filter = function (item) {
+          if (typeof item.name != 'undefined' && item.name.indexOf('super') > -1 && parseInt(item.name.split('_')[1]) <= scope.hive.honey_layers) return true;else return false;
+        };
+
+        scope.super_and_frame_filter = function (item) {
+          if (typeof item.name != 'undefined' && (item.name.indexOf('super') > -1 || item.name.indexOf('frame') > -1)) {
+            if (item.name.indexOf('frame') > -1 && parseInt(item.name.split('_')[1]) <= scope.hive.brood_layers * scope.hive.frames) return true;else if (item.name.indexOf('super') > -1 && parseInt(item.name.split('_')[1]) <= scope.hive.honey_layers) return true;
+          }
+
+          return false;
+        }; //console.log('top_photo_analysis function defined');
+
+
         scope.calculateLieberfeldColonySize = function () {
+          var hive = scope.hive;
           var bees_per_cm2 = 1.25;
           var colony_size = null;
           var bees_squares_25cm2 = 0;
+          var bee_layers = $filter('filter')(scope.cat.children, scope.super_and_frame_filter); //console.log('bee_layers', bee_layers);
 
-          for (var i = scope.cat.children.length - 1; i >= 0; i--) {
-            var child = scope.cat.children[i];
+          for (var i = bee_layers.length - 1; i >= 0; i--) {
+            var child = bee_layers[i];
 
-            if (typeof child != 'undefined' && child != null && typeof child.name != 'undefined' && child.name.indexOf('frame') > -1) // frame_1_side_a
-              {
-                for (var j = child.children.length - 1; j >= 0; j--) {
-                  var child2 = child.children[j];
+            for (var j = child.children.length - 1; j >= 0; j--) {
+              var child2 = child.children[j];
 
-                  if (typeof child2 != 'undefined' && child2 != null && typeof child2.name != 'undefined' && child2.name == 'bees_squares_25cm2' && parseFloat(child2.value) > 0) {
-                    bees_squares_25cm2 += parseFloat(child2.value);
-                  }
-                }
+              if (typeof child2 != 'undefined' && child2 != null && typeof child2.name != 'undefined' && child2.name == 'bees_squares_25cm2' && parseFloat(child2.value) > 0) {
+                bees_squares_25cm2 += parseFloat(child2.value);
               }
+            }
           }
-
-          var hive = scope.hive;
 
           if (typeof hive == 'undefined' || hive == null || isNaN(bees_squares_25cm2) || bees_squares_25cm2 == 0) {
             colony_size = null;
@@ -475,9 +488,9 @@ app.directive('checklistFieldset', ['$rootScope', function ($rootScope) {
           } // put value into input element 'colony_size'
 
 
-          for (var i = scope.cat.children.length - 1; i >= 0; i--) {
-            var child = scope.cat.children[i];
-            if (child.name == 'colony_size') child.value = colony_size;
+          for (var k = scope.cat.children.length; k >= 0; k--) {
+            var child = scope.cat.children[k];
+            if (typeof child != 'undefined' && child != null && child.name == 'colony_size') child.value = colony_size;
           }
 
           scope.colony_size = colony_size; //console.log('lieberfeld_colony_size', colony_size);

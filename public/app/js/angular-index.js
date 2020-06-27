@@ -534,10 +534,10 @@ app.config(['$routeProvider', '$locationProvider', function ($routeProvider) {
     templateUrl: '/app/views/hive_edit.html?v=6'
   }).when('/hives/:hiveId/inspect', {
     controller: 'InspectionCreateCtrl',
-    templateUrl: '/app/views/inspect.html?v=6'
+    templateUrl: '/app/views/inspect.html?v=7'
   }).when('/hives/:hiveId/inspections/:inspectionId', {
     controller: 'InspectionCreateCtrl',
-    templateUrl: '/app/views/inspect.html?v=6'
+    templateUrl: '/app/views/inspect.html?v=7'
   }).when('/hives/:hiveId/inspections', {
     controller: 'InspectionsCtrl',
     templateUrl: '/app/views/inspections.html?v=4'

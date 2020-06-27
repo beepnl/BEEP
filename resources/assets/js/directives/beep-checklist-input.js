@@ -109,16 +109,17 @@ app.directive('checklistInput', ['$rootScope', '$timeout', 'Upload', 'api', 'ima
           scope.setChecklistItemHandler = function(type, result, status)
           {
             scope.item.value = result.sample_code;
+            scope.item.new   = true;
             $rootScope.changeChecklistItem(scope.item.input, scope.item.id, result.sample_code, true);
-            scope.apiRequestListener = null;
-            scope.apiRequestError    = null;
+            scope.apiRequestListener();
+            scope.apiRequestError();
           }
           scope.setChecklistItemError = function(type, result, status)
           {
             scope.item.value = null;
             $rootScope.changeChecklistItem(scope.item.input, scope.item.id, null, true);
-            scope.apiRequestListener = null;
-            scope.apiRequestError    = null;
+            scope.apiRequestListener();
+            scope.apiRequestError();
           }
 
           scope.requestSampleCode = function()
@@ -137,11 +138,12 @@ app.directive('checklistInput', ['$rootScope', '$timeout', 'Upload', 'api', 'ima
           scope.removeSampleCode = function(code)
           {
             scope.apiRequestListener = $rootScope.$on('sampleCodeLoaded', scope.setChecklistItemError);
+            scope.apiRequestError    = $rootScope.$on('sampleCodeError', scope.setChecklistItemError);
             api.deleteApiRequest('sampleCode', 'samplecode', {'sample_code':code});
           }
 
 
-
+          // List item handling
           scope.addRemoveFromList = function(listItem)
           { 
             var id = listItem.id;

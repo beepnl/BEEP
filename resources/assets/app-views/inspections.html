@@ -120,7 +120,7 @@
 								<span ng-if="item.type == 'options'">{{ item.val }}</span>
 								<span ng-if="item.type == 'select'">{{ item.val }}</span>
 								<span ng-if="item.type == 'text'">{{ item.val }}</span>
-								<span ng-if="item.type == 'sample_code'">{{ item.val }}</span>
+								<span ng-if="item.type == 'sample_code'" style="letter-spacing: 2px; font-weight: bold;">{{ item.val }}</span>
 								<span ng-if="item.type == 'date'">{{ item.val | amDateFormat:'dd D MMM YYYY HH:mm' }}</span>
 								<span ng-if="item.type.indexOf('number') > -1">{{ item.val }}</span>
 								

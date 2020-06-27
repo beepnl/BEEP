@@ -120,16 +120,16 @@
         </div>
         
         <div ng-if="item.input == 'sample_code'">
-            <p ng-if="hive == null">First select a hive, to request a unique sample code</p>
-            <div ng-if="hive != null" class="input-group samplecode">
-                <a ng-if="item.value == null" class="input-group-addon" ng-click="requestSampleCode()">
+            <p ng-show="item.value == null && hive == null">{{lang.sample_code_hive}}</p>
+            <div ng-show="hive != null || item.value != null" class="input-group samplecode">
+                <div ng-show="item.value == null || item.new == undefined" class="input-group-addon">
                     <i class="fa fa-qrcode"></i>
-                </a>
-                <a ng-if="item.value != null" class="input-group-addon" ng-click="removeSampleCode(item.value)">
+                </div>
+                <a ng-show="item.value != null && item.new != undefined" class="input-group-addon" ng-click="removeSampleCode(item.value)" title="{{lang.sample_code_delete}}">
                     <i class="fa fa-times"></i>
                 </a>
-                <a ng-if="item.value == null" class="form-control btn btn-primary pull-right" ng-click="requestSampleCode()">Request unique sample code</a>
-                <input ng-if="item.value != null" class="form-control pull-right" readonly="true" type="text" ng-model="item.value">
+                <a ng-show="item.value == null" class="form-control btn btn-primary pull-right" ng-click="requestSampleCode()">{{lang.sample_code_generate}}</a>
+                <input ng-show="item.value != null" class="form-control pull-right" readonly="true" type="text" ng-model="item.value" style="letter-spacing: 5px; font-weight: bold;">
             </div>
         </div>
 

@@ -192,4 +192,9 @@ class Hive extends Model
 
         return $items_by_date;
     }
+
+    public static function selectList()
+    {
+        return Hive::orderBy('name')->pluck('name','id');
+    }
 }

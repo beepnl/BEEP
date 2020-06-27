@@ -51,6 +51,6 @@
 <br>
 <div class="form-group">
     <div class="col-xs-12">
-        <input class="btn btn-primary btn-block" type="submit" value="{{ $submitButtonText or 'Create' }}">
+        <input class="btn btn-primary btn-block" type="submit" value="{{ $submitButtonText ?? 'Create' }}">
     </div>
 </div>

@@ -38,4 +38,5 @@ return [
     'Researches'        => 'Onderzoeken',
     'calibration'       => 'calibratie',
     'SensorDefinition'  => 'Sensordefinitie',
+    'SampleCode'        => 'Sample code',
 ];

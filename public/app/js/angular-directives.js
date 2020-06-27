@@ -577,7 +577,50 @@ app.directive('checklistInput', ['$rootScope', '$timeout', 'Upload', 'api', 'ima
           // }
 
         }
-      });
+      }); // Sample code request handling
+
+      scope.apiRequestListener = null;
+      scope.apiRequestError = null;
+
+      scope.setChecklistItemHandler = function (type, result, status) {
+        scope.item.value = result.sample_code;
+        scope.item["new"] = true;
+        $rootScope.changeChecklistItem(scope.item.input, scope.item.id, result.sample_code, true);
+        scope.apiRequestListener();
+        scope.apiRequestError();
+      };
+
+      scope.setChecklistItemError = function (type, result, status) {
+        scope.item.value = null;
+        $rootScope.changeChecklistItem(scope.item.input, scope.item.id, null, true);
+        scope.apiRequestListener();
+        scope.apiRequestError();
+      };
+
+      scope.requestSampleCode = function () {
+        var hive_id = scope.hive != null ? scope.hive.id : '';
+        var queen_id = scope.hive != null && scope.hive.queen != null ? scope.hive.queen.id : '';
+        var sample_date = scope.inspection != null ? scope.inspection.date : null;
+
+        if (scope.hive != null) {
+          scope.apiRequestListener = $rootScope.$on('sampleCodeLoaded', scope.setChecklistItemHandler);
+          scope.apiRequestError = $rootScope.$on('sampleCodeError', scope.setChecklistItemError);
+          api.postApiRequest('sampleCode', 'samplecode', {
+            'hive_id': hive_id,
+            'sample_date': sample_date,
+            'queen_id': queen_id
+          });
+        }
+      };
+
+      scope.removeSampleCode = function (code) {
+        scope.apiRequestListener = $rootScope.$on('sampleCodeLoaded', scope.setChecklistItemError);
+        scope.apiRequestError = $rootScope.$on('sampleCodeError', scope.setChecklistItemError);
+        api.deleteApiRequest('sampleCode', 'samplecode', {
+          'sample_code': code
+        });
+      }; // List item handling
+
 
       scope.addRemoveFromList = function (listItem) {
         var id = listItem.id;

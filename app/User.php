@@ -74,6 +74,16 @@ class User extends Authenticatable
         return $this->hasMany(Setting::class);
     }
 
+    public function samplecodes()
+    {
+        return $this->hasMany(SampleCode::class);
+    }
+
+    public function queens()
+    {
+        return $this->hasManyThrough(Queen::class, Hive::class, 'user_id', 'hive_id');
+    }
+
     public function researchChecklists()
     {
         $research_ids = $this->researches->pluck('id')->toArray();
@@ -194,5 +204,10 @@ class User extends Authenticatable
     public function sendPasswordResetNotification($token)
     {
         $this->notify(new ResetPassword($token)); // my notification
+    }
+
+    public static function selectList()
+    {
+        return User::orderBy('name')->pluck('name','id');
     }
 }

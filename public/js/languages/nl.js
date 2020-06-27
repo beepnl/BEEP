@@ -501,6 +501,9 @@
 
     beep_base_explanation   : 'Als je een BEEP-base hebt (zoals getoond in het bovenstaande afbeelding), gebruik dan de native app (iOS en Android) om de communicatie met deze app in te stellen. Als je nog geen BEEP-base hebt, klik dan op het menu item \'BEEP website\' voor updates over hoe je aan een BEEP-base kunt komen. Als je je eigen meetapparaat hebt en de gegevens graag in de BEEP-app wilt zien, stuur ons dan een bericht met het verzoek om lid te worden van onze Slack-community en je krijgt toegang tot de API-beschrijving.',
 
+    sample_code_hive        : 'Selecteer eerst een kast om een unieke sample code te kunnen genereren',
+    sample_code_generate    : 'Genereer een unieke sample code',
+    sample_code_delete      : 'Verwijder deze unieke sample code',
  };
 
 

@@ -123,6 +123,7 @@ Route::group(
 				// Resource controllers 
 				Route::resource('permissions', 		'PermissionController');
 				Route::resource('image', 			'ImageController');
+				Route::resource('sample-code', 		'SampleCodeController');
 
 				Route::delete('checklists/destroy/copies',	['as'=>'checklists.copies','uses'=>'ChecklistController@destroyCopies']);
 				

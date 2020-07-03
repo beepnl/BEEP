@@ -232,7 +232,7 @@ History:
 
 # Documentation
 
-Documentation and manual of the app can be found at https://beep.nl/manual. 
+Documentation and manual of the app can be found at https://beep.nl/beep-app. 
 
 
 # Security Vulnerabilities

@@ -29,6 +29,10 @@ Route::get('webapp', function(){
 	return view('app/index');
 });
 
+Route::get('code', 	 	 ['as'=>'sample-code.code','uses'=>'SampleCodeController@code']);
+Route::post('codecheck', ['as'=>'sample-code.check','uses'=>'SampleCodeController@check'])->middleware('throttle:3,1');
+Route::patch('coderesult',['as'=>'sample-code.resultsave','uses'=>'SampleCodeController@resultsave']);
+
 // Hack for redirecting e-mail reset password link to webapp
 // Route::get('password/reset/{token}',['as'=>'password.reset', function ($token) {
 //     return redirect(env('APP_URL').'/#!/login/reset/'.$token);

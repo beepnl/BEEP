@@ -12,6 +12,49 @@ use Illuminate\Support\Str;
 
 class SampleCodeController extends Controller
 {
+    // Open routes
+    public function code()
+    {
+        return view('sample-code.code');
+    }
+
+    public function check(Request $request)
+    {
+        $samplecode = SampleCode::where('sample_code', $request->input('samplecode'))->first();
+
+        if ($samplecode)
+            return view('sample-code.result', compact('samplecode'));
+
+        return redirect('code')->with('error', 'Sample code not found');
+    }
+
+    public function resultsave(Request $request)
+    {
+        $samplecode = SampleCode::where('sample_code', $request->input('samplecode'))->first();
+
+        if ($samplecode)
+        {
+            if ($request->filled('test_lab_name'))
+                $samplecode->test_lab_name = $request->input('test_lab_name');
+
+            if ($request->filled('test_date'))
+                $samplecode->test_date = $request->input('test_date');
+
+            if ($request->filled('test'))
+                $samplecode->test = $request->input('test');
+
+            if ($request->filled('test_result'))
+                $samplecode->test_result = $request->input('test_result');
+
+            $samplecode->save();
+
+            return redirect('code')->with('success', 'Sample code results saved');
+
+        }
+        return redirect('code')->with('error', 'Sample code not found');
+    }
+
+
     /**
      * Display a listing of the resource.
      *

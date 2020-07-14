@@ -122,8 +122,8 @@ class Inspection extends Model
         { 
             $cat_id = $item->category_id;
             $cat = Category::find($cat_id);
-            if ($cat->isSystem())
-                continue;
+            // if ($cat->isSystem())
+            //     continue;
             
             $arr = [];
             $set = false;

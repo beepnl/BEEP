@@ -51,17 +51,17 @@ class HiveFactory
 		
 		$inspection_data 		  = [];
 		$inspection_data['notes'] = __('beep.Hive').' auto '.strtolower(__('beep.Inspection'));
-		$inspection_data['date']  = date('Y-m-d H:i:s');
+		$inspection_data['date']  = date('Y-m-d H:i');
 		$inspection_data['items'] = [];
 		if ($location->id != $hive->location_id)
 		{
-			$from_apiary = Category::findCategoryIdByParentAndName('change', 'from_apiary');
-			if ($from_apiary)
-				$inspection_data['items']["$from_apiary->id" => $hive->location_id];
+			$from_apiary_id = Category::findCategoryIdByRootParentAndName('hive', 'location', 'apiary', ['system','checklist']);
+			if ($to_apiary_id)
+				$inspection_data['items']["$from_apiary_id"] = $hive->location_id;
 
-			$to_apiary 	 = Category::findCategoryIdByParentAndName('change', 'to_apiary');
-			if ($to_apiary)
-				$inspection_data['items']["$to_apiary->id" => $location->id];
+			$to_apiary_id   = Category::findCategoryIdByRootParentAndName('hive', 'relocation', 'destiny_apiary', ['system','checklist']);
+			if ($to_apiary_id)
+				$inspection_data['items']["$to_apiary_id"] = $location->id;
 		}
 
 		$hive->name  		= $name;
@@ -118,18 +118,42 @@ class HiveFactory
 		// Create new inspection 
 		if ($broodLayerDiff != 0)
 		{
-			$added_brood_layers = Category::findCategoryIdByParentAndName('added_brood_layers', 'change');
-			if ($added_brood_layers)
-				$inspection_data['items']["$added_brood_layers->id" => $broodLayerDiff];
+			$added_brood_layers_id = Category::findCategoryIdByRootParentAndName('hive', 'configuration', 'brood_layers', ['system','checklist']);
+			if ($added_brood_layers_id)
+				$inspection_data['items'][$added_brood_layers_id] = $broodLayerDiff;
+
 		}
 		if ($honeyLayerDiff != 0)
 		{
-			$added_honey_layers = Category::findCategoryIdByParentAndName('added_honey_layers', 'change');
-			if ($added_honey_layers)
-				$inspection_data['items']["$added_honey_layers->id" => $honeyLayerDiff];
+			$added_honey_layers_id = Category::findCategoryIdByRootParentAndName('hive', 'configuration', 'supers', ['system','checklist']);
+			if ($added_honey_layers_id)
+				$inspection_data['items'][$added_honey_layers_id] = $honeyLayerDiff;
 		}
 
-		$inspection  = Inspection::create($inspection_data);
+		if (($broodLayerDiff + $honeyLayerDiff) != 0)
+		{
+			$action_id = Category::findCategoryIdByRootParentAndName('hive', 'component', 'action', ['system','checklist']);
+			if ($broodLayerDiff > 0)
+				$action_item_id = Category::findCategoryIdByRootParentAndName('hive', 'action', 'added', ['system','checklist']);
+			else if ($broodLayerDiff < 0)
+				$action_item_id = Category::findCategoryIdByRootParentAndName('hive', 'action', 'removed', ['system','checklist']);
+
+			if ($action_item_id)
+				$inspection_data['items'][$action_id] = $action_item_id;
+		}
+
+		$inspection = Inspection::create($inspection_data);
+		foreach ($inspection_data['items'] as $cat_id => $value) 
+        {
+            $itemData = 
+            [
+                'category_id'   => $cat_id,
+                'inspection_id' => $inspection->id,
+                'value'         => $value,
+            ];
+            InspectionItem::create($itemData);
+        }
+
 		$inspection->users()->sync(Auth::user()->id);
 
         if (isset($location))

@@ -3,6 +3,8 @@
 namespace App;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\DB;
+use LaravelLocalization;
 
 class Translation extends Model
 {
@@ -15,6 +17,43 @@ class Translation extends Model
     public function language()
     {
         return $this->hasOne(Language::class, 'id', 'language_id');
+    }
+
+
+    // static functions
+    public static function translate($name, $locale=null, $array=false)
+    {
+        if ($locale == null && $array == false)
+            $locale = LaravelLocalization::getCurrentLocale();
+
+        $trans = DB::table('translations')
+                    ->join('languages', 'translations.language_id', '=', 'languages.id')
+                    ->where('translations.name', $name)
+                    ->select('translations.translation', 'languages.twochar')
+                    ->get();
+
+        if ($trans)
+        {
+            $out = [];
+            foreach($trans as $item)
+            {
+                if ($array == false && isset($locale) && $item->twochar == $locale)
+                    return $item->translation;
+
+                $out[$item->twochar] = $item->translation; 
+            }
+            
+            if ($array == false)
+                return ucfirst(str_replace('_', ' ', $name));
+            else
+                return $out;
+        }
+        return null;
+    }
+
+    public static function translateArray($name)
+    {
+        return Translation::translate($name, null, true);
     }
 
     public static function saveText($language_abbr, $name, $type, $text)

@@ -122,6 +122,7 @@ class Inspection extends Model
         { 
             $cat_id = $item->category_id;
             $cat = Category::find($cat_id);
+            // Commented out to enable showing 'system' category inspection items
             // if ($cat->isSystem())
             //     continue;
             

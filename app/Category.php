@@ -5,7 +5,6 @@ namespace App;
 use Illuminate\Database\Eloquent\Model;
 use Kalnoy\Nestedset\NodeTrait;
 use LaravelLocalization;
-use Illuminate\Support\Facades\DB;
 
 class Category extends Model
 {
@@ -177,33 +176,13 @@ class Category extends Model
 
     public function trans()
     {
-        //$trans = Translation::where('name', $this->name)->with('language')->get()->pluck('translation','language.lang');
-        $trans = DB::table('translations')
-                    ->join('languages', 'translations.language_id', '=', 'languages.id')
-                    ->where('translations.name', $this->name)
-                    ->select('translations.translation', 'languages.twochar')
-                    ->get();
-
-        if ($trans)
-        {
-            $out = [];
-            foreach($trans as $item)
-            {
-                $out[$item->twochar] = $item->translation; 
-            }
-            return $out;
-        }
-        
-        return null;
+        return Translation::translateArray($this->name);
     }
 
     public function transName($locale = null)
     {
-        if ($locale == null)
-            $locale = LaravelLocalization::getCurrentLocale();
-        
-        $trans = $this->trans;
-        return isset($trans[$locale]) ? $trans[$locale] : $this->name;
+        $trans = Translation::translate($this->name);
+        return isset($trans) ? $trans : $this->name;
     }
 
     public function ancName($locale = null, $sep = " > ")

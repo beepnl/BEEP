@@ -2,6 +2,8 @@
 
 namespace App;
 
+use Auth;
+
 class HiveFactory
 {
 
@@ -28,8 +30,8 @@ class HiveFactory
 		$hive->hive_type_id = $hive_type_id != '' && $hive_type_id != null ? $hive_type_id : 63;
 		$hive->save();
 
-		$layersBrood = $this->createLayers('brood', $broodLayerAmount, $color);
-		$layersHoney = $this->createLayers('honey', $honeyLayerAmount, $color);
+		$layersBrood = $this->createLayers('brood', $broodLayerAmount, $color, $this->layer_order);
+		$layersHoney = $this->createLayers('honey', $honeyLayerAmount, $color, $this->layer_order);
 		$layers = $layersBrood->merge($layersHoney);
 
 		$hive->layers()->saveMany($layers); 
@@ -46,6 +48,22 @@ class HiveFactory
 
 	public function updateHive(Hive $hive, Location $location, $name, $hive_type_id, $color, $broodLayerAmount, $honeyLayerAmount, $frameAmount, $bb_width_cm, $bb_depth_cm, $bb_height_cm, $fr_width_cm, $fr_height_cm, $order)
 	{
+		
+		$inspection_data 		  = [];
+		$inspection_data['notes'] = __('beep.Hive').' auto '.strtolower(__('beep.Inspection'));
+		$inspection_data['date']  = date('Y-m-d H:i:s');
+		$inspection_data['items'] = [];
+		if ($location->id != $hive->location_id)
+		{
+			$from_apiary = Category::findCategoryIdByParentAndName('change', 'from_apiary');
+			if ($from_apiary)
+				$inspection_data['items']["$from_apiary->id" => $hive->location_id];
+
+			$to_apiary 	 = Category::findCategoryIdByParentAndName('change', 'to_apiary');
+			if ($to_apiary)
+				$inspection_data['items']["$to_apiary->id" => $location->id];
+		}
+
 		$hive->name  		= $name;
 		$hive->order  		= $order;
 		$hive->bb_width_cm  = $bb_width_cm;
@@ -61,10 +79,20 @@ class HiveFactory
 		$layers 	 = collect();
 		$layersBrood = collect();
 		$layersHoney = collect();
+
+		// get highest layer order
+		$layer_order = -999999;
+		foreach ($hive->layers as $l) 
+			$layer_order = max($layer_order, $l->order);
+		
+		if ($layer_order == -999999)
+			$layer_order = 0;
+
+		// Create or delete layers
 		$broodLayerDiff = $broodLayerAmount - $hive->getBroodlayersAttribute();
 		if ($broodLayerDiff > 0)
 		{
-			$layersBrood = $this->createLayers('brood', $broodLayerDiff, $color);
+			$layersBrood = $this->createLayers('brood', $broodLayerDiff, $color, $layer_order+1);
 			$layers->merge($layersBrood);
 			$hive->layers()->saveMany($layersBrood);
 		}
@@ -77,7 +105,7 @@ class HiveFactory
 		$honeyLayerDiff = $honeyLayerAmount - $hive->getHoneylayersAttribute();
 		if ($honeyLayerDiff > 0)
 		{
-			$layersHoney = $this->createLayers('honey', $honeyLayerDiff, $color);
+			$layersHoney = $this->createLayers('honey', $honeyLayerDiff, $color, $layer_order+1);
 			$layers->merge($layersBrood);
 			$hive->layers()->saveMany($layersHoney); 
 		}
@@ -87,6 +115,30 @@ class HiveFactory
 			$hive->layers()->where('category_id',$category_id)->limit(-1*$honeyLayerDiff)->delete();
 		}
 		
+		// Create new inspection 
+		if ($broodLayerDiff != 0)
+		{
+			$added_brood_layers = Category::findCategoryIdByParentAndName('added_brood_layers', 'change');
+			if ($added_brood_layers)
+				$inspection_data['items']["$added_brood_layers->id" => $broodLayerDiff];
+		}
+		if ($honeyLayerDiff != 0)
+		{
+			$added_honey_layers = Category::findCategoryIdByParentAndName('added_honey_layers', 'change');
+			if ($added_honey_layers)
+				$inspection_data['items']["$added_honey_layers->id" => $honeyLayerDiff];
+		}
+
+		$inspection  = Inspection::create($inspection_data);
+		$inspection->users()->sync(Auth::user()->id);
+
+        if (isset($location))
+            $inspection->locations()->sync($location->id);
+
+        if (isset($hive))
+            $inspection->hives()->sync($hive->id);
+
+
 		// Adjust frames
 		foreach ($hive->layers()->get() as $layer) 
 		{
@@ -109,13 +161,13 @@ class HiveFactory
 		return $hive;
 	}
 
-	private function createLayers($type, $amount, $color)
+	private function createLayers($type, $amount, $color, $order=0)
 	{
 		$layers = collect([]);
 		for ($i=0; $i < $amount ;$i++) 
 		{ 
-			$layers->push($this->createLayer($type, $this->layer_order, $color));
-			$this->layer_order++;
+			$layers->push($this->createLayer($type, $order, $color));
+			$order++;
 		}	
 
 		return $layers;

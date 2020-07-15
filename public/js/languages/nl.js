@@ -311,7 +311,7 @@
     snr                     : 'Zendruis',
     lat                     : 'Noorderbreedte',
     lon                     : 'Oosterlengte',
-    Sound_measurements      : 'Geluidsmetingen',
+    Sound_measurements      : 'Geluid (frequentietelling)',
     Sensor_info             : 'Sensorinformatie',
     's_bin098_146Hz'        : '098-146Hz',
     's_bin146_195Hz'        : '146-195Hz',

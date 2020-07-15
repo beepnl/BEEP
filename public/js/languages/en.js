@@ -310,7 +310,7 @@
     snr                     : 'Signal noise',
     lat                     : 'Lattitude',
     lon                     : 'Longitude',
-    Sound_measurements      : 'Sound measurements',
+    Sound_measurements      : 'Sound (frequency count)',
     Sensor_info             : 'Sensor info',
     's_bin098_146Hz'        : '098-146Hz',
     's_bin146_195Hz'        : '146-195Hz',

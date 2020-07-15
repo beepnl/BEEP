@@ -504,6 +504,9 @@
     sample_code_hive        : 'Selecteer eerst een kast om een unieke sample code te kunnen genereren',
     sample_code_generate    : 'Genereer een unieke sample code',
     sample_code_delete      : 'Verwijder deze unieke sample code',
+
+    measurement_interval    : 'interval',
+    from_weather_service    : 'van nabij weerstation',
  };
 
 

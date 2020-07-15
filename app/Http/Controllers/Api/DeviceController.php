@@ -102,6 +102,7 @@ class DeviceController extends Controller
             $devices = $request->user()->allDevices()->with('sensorDefinitions');
         }
 
+        // Check for device hijacking
         if ($devices->count() == 0)
         {
             if ($request->filled('hardware_id') && Device::where('hardware_id', $request->input('hardware_id'))->count() > 0)

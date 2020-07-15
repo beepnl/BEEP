@@ -503,6 +503,9 @@
     sample_code_generate    : 'Generate unique sample code',
     sample_code_delete      : 'Delete unique sample code',
     
+    measurement_interval    : 'interval',
+    from_weather_service    : 'from weather service',
+    
  };
 
 

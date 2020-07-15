@@ -48,6 +48,7 @@ app.controller('MeasurementsCtrl', function($scope, $rootScope, $timeout, $inter
     $scope.allinone     = false;
 
     $scope.measurementData = null;
+    $scope.dataResolution = null;
 
     $scope.chart         = {};
     $scope.chartLegend   =
@@ -417,6 +418,7 @@ app.controller('MeasurementsCtrl', function($scope, $rootScope, $timeout, $inter
 
             var fontSize           = $rootScope.mobile ? $scope.fontSizeMob : $scope.fontSize;
             var measurementData    = data.measurements;
+            var sensorDefinitions  = data.sensorDefinitions;
             var resolutionCharacter= typeof data.resolution !== 'undefined' ? data.resolution.substr(-1, 1) : null;
             var resolutionFormat   = {
                 'w':$scope.displayFormats['week'],
@@ -427,10 +429,11 @@ app.controller('MeasurementsCtrl', function($scope, $rootScope, $timeout, $inter
             }
             var tooltipTimeFormat  = resolutionCharacter != null ? resolutionFormat[resolutionCharacter] : $scope.displayFormats[$scope.activeUnit];
             $scope.tooltTimeFrmt = tooltipTimeFormat;
+            $scope.dataResolution = data.resolution;
 
             //console.log('Parsing '+measurementData.length+' '+data.interval+' '+data.index+' measurementData', 'resolutionCharacter: '+resolutionCharacter, 'tooltipTimeFormat: '+tooltipTimeFormat);
             $scope.measurementData = null;
-            $scope.measurementData = convertInfluxMeasurementsArrayToChartObject(measurementData, $rootScope.lang, fontSize, $scope.chartParseFormat);
+            $scope.measurementData = convertInfluxMeasurementsArrayToChartObject(measurementData, $rootScope.lang, fontSize, $scope.chartParseFormat, sensorDefinitions);
             
             if ($scope.measurementData != null)
             {

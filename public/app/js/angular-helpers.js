@@ -1181,7 +1181,7 @@ var solidColorObj = function solidColorObj(rgbaStr, borderRgbaStr) // This is th
   return cObj;
 };
 
-var convertInfluxMeasurementsArrayToChartObject = function convertInfluxMeasurementsArrayToChartObject(obj_arr, lang, labelSize, timeParseFormat) {
+var convertInfluxMeasurementsArrayToChartObject = function convertInfluxMeasurementsArrayToChartObject(obj_arr, lang, labelSize, timeParseFormat, sensorDefinitions) {
   if (obj_arr.length == 0) {
     console.log('convertSensorMeasurementsArrayToChartObject has no data');
     return null;
@@ -1292,7 +1292,7 @@ var convertInfluxMeasurementsArrayToChartObject = function convertInfluxMeasurem
 
         var new_dataset = angular.copy(dataset);
         var quantityUnit = SENSOR_UNITS[name] !== 'undefined' ? SENSOR_UNITS[name] : null;
-        var readableName = typeof lang[quantity] !== 'undefined' ? lang[quantity] : quantity;
+        var readableName = typeof sensorDefinitions[name] !== 'undefined' && typeof sensorDefinitions[name]['name'] !== 'undefined' ? sensorDefinitions[name]['name'] : typeof lang[quantity] !== 'undefined' ? lang[quantity] : quantity;
         var nameAndUnit = quantityUnit != null && quantityUnit != '' ? readableName + ' (' + quantityUnit + ')' : readableName;
         var abbrName = readableName.substring(0, unitLenMx);
         var rgb = typeof SENSOR_COLOR[name] !== 'undefined' ? SENSOR_COLOR[name] : {

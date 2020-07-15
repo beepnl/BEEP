@@ -63,6 +63,7 @@ class Measurement extends Model
         return $this->hasOne(PhysicalQuantity::class, 'id', 'physical_quantity_id');
     }
 
+
     public function pq_name()
     {
         // add sensor name (temporarily)
@@ -103,6 +104,15 @@ class Measurement extends Model
     public function getAbbrNamedObjectAttribute()
     {
         return $this->toArray();
+    }
+
+    public static function getIdByAbbreviation($abbreviation)
+    {
+        $m = Measurement::where('abbreviation', $abbreviation)->first();
+        if ($m)
+            return $m->id;
+
+        return null;
     }
 
     public static function selectList()

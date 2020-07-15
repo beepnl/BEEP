@@ -130,7 +130,7 @@ var solidColorObj = function(rgbaStr, borderRgbaStr) // This is the only way to 
     return cObj;
 };
 
-var convertInfluxMeasurementsArrayToChartObject = function(obj_arr, lang, labelSize, timeParseFormat)
+var convertInfluxMeasurementsArrayToChartObject = function(obj_arr, lang, labelSize, timeParseFormat, sensorDefinitions)
 {
   if(obj_arr.length == 0)
   {
@@ -175,7 +175,7 @@ var convertInfluxMeasurementsArrayToChartObject = function(obj_arr, lang, labelS
         var new_dataset   = angular.copy(dataset); 
         
         var quantityUnit  = (SENSOR_UNITS[name] !== 'undefined') ? SENSOR_UNITS[name] : null;
-        var readableName  = (typeof lang[quantity] !== 'undefined') ? lang[quantity] : quantity;
+        var readableName  = (typeof sensorDefinitions[name] !== 'undefined' && typeof sensorDefinitions[name]['name'] !== 'undefined') ? sensorDefinitions[name]['name'] : (typeof lang[quantity] !== 'undefined') ? lang[quantity] : quantity;
         var nameAndUnit   = (quantityUnit != null && quantityUnit != '') ? readableName + ' ('+quantityUnit+')' : readableName;
         var abbrName      = readableName.substring(0, unitLenMx);
        

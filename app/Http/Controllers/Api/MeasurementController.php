@@ -723,6 +723,21 @@ class MeasurementController extends Controller
         if (count($names) == 0)
             Response::json('sensor-none-defined', 500);
 
+        // add sensorDefinition names
+        $sensorDefinitions = [];
+        foreach ($names as $name)
+        {
+            $measurement_id   = Measurement::getIdByAbbreviation($name);
+            $sensordefinition = $device->sensorDefinitions->where('output_measurement_id', $measurement_id)->sortByDesc('updated_at')->first();
+            if ($sensordefinition)
+                $sensorDefinitions["$name"] = ['name'=>$sensordefinition->name, 'inside'=>$sensordefinition->inside];
+        }
+
+        // select appropriate interval
+        $deviceMaxResolutionMinutes = 1;
+        if (isset($device->measurement_interval_min))
+            $deviceMaxResolutionMinutes = $device->measurement_interval_min * max(1,$device->measurement_transmission_ratio);
+
         $interval  = $request->input('interval','day');
         $index     = $request->input('index',0);
         $timeGroup = $request->input('timeGroup','day');
@@ -745,23 +760,23 @@ class MeasurementController extends Controller
                     $endTimestamp->subtractYears($index);
                     break;
                 case 'month':
-                    $resolution = '3h';
+                    $resolution = $deviceMaxResolutionMinutes > 180 ? $deviceMaxResolutionMinutes.'m' : '3h';
                     $staTimestamp->subtractMonths($index);
                     $endTimestamp->subtractMonths($index);
                     break;
                 case 'week':
                     $requestInterval = 'week';
-                    $resolution = '1h';
+                    $resolution = $deviceMaxResolutionMinutes > 60 ? $deviceMaxResolutionMinutes.'m' : '1h';
                     $staTimestamp->subtractWeeks($index);
                     $endTimestamp->subtractWeeks($index);
                     break;
                 case 'day':
-                    $resolution = '10m';
+                    $resolution = $deviceMaxResolutionMinutes > 10 ? $deviceMaxResolutionMinutes.'m' : '10m';
                     $staTimestamp->subtractDays($index);
                     $endTimestamp->subtractDays($index);
                     break;
                 case 'hour':
-                    $resolution = '2m';
+                    $resolution = $deviceMaxResolutionMinutes > 2 ? $deviceMaxResolutionMinutes.'m' : '2m';
                     $staTimestamp->subtractHours($index);
                     $endTimestamp->subtractHours($index);
                     break;
@@ -787,7 +802,7 @@ class MeasurementController extends Controller
                 
                 $groupBySelect = implode(', ', $queryList);
             }
-            
+            // Add weather
             if ($location && isset($location->coordinate_lat) && isset($location->coordinate_lon))
             {
                 $queryListWeather     = $this->getAvailableSensorNamesFromData($names, 'weather', '"lat" = \''.$location->coordinate_lat.'\' AND "lon" = \''.$location->coordinate_lon.'\' AND time >= \''.$staTimestampString.'\' AND time <= \''.$endTimestampString.'\'', $limit, true);
@@ -834,6 +849,6 @@ class MeasurementController extends Controller
             }
         }
 
-        return Response::json( ['id'=>$device->id, 'interval'=>$interval, 'index'=>$index, 'timeGroup'=>$timeGroup, 'resolution'=>$resolution, 'measurements'=>$sensors_out, 'old_values'=>$old_values] );
+        return Response::json( ['id'=>$device->id, 'interval'=>$interval, 'index'=>$index, 'timeGroup'=>$timeGroup, 'resolution'=>$resolution, 'measurements'=>$sensors_out, 'old_values'=>$old_values, 'sensorDefinitions'=>$sensorDefinitions] );
     }
 }

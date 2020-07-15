@@ -331,10 +331,12 @@ app.controller('HivesCtrl', function($scope, $rootScope, $window, $location, $fi
 		$scope.redirect = "/locations";
 		if ($location.path().indexOf('/hives/create') > -1)
 		{
+			$scope.hive.layers = null;
 			api.postApiRequest('saveHive', 'hives', $scope.hive);
 		}
 		else
 		{
+			$scope.hive.layers = null;
 			api.patchApiRequest('saveHive', 'hives/'+$scope.hive.id, $scope.hive);
 		}
 	}

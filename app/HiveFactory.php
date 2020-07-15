@@ -12,7 +12,7 @@ class HiveFactory
         $this->layer_order = 0;
     }
 
-	public function createHive($user_id, Location $location, $name, $hive_type_id, $color, $broodLayerAmount, $honeyLayerAmount, $frameAmount, $bb_width_cm, $bb_depth_cm, $bb_height_cm, $fr_width_cm, $fr_height_cm, $order)
+	public function createHive($user_id, Location $location, $name, $hive_type_id, $color, $broodLayerAmount, $honeyLayerAmount, $frameAmount, $bb_width_cm, $bb_depth_cm, $bb_height_cm, $fr_width_cm, $fr_height_cm, $order, $hive_layers)
 	{
 		$this->layer_order  = 0;
 
@@ -30,9 +30,18 @@ class HiveFactory
 		$hive->hive_type_id = $hive_type_id != '' && $hive_type_id != null ? $hive_type_id : 63;
 		$hive->save();
 
-		$layersBrood = $this->createLayers('brood', $broodLayerAmount, $color, $this->layer_order);
-		$layersHoney = $this->createLayers('honey', $honeyLayerAmount, $color, $this->layer_order);
-		$layers = $layersBrood->merge($layersHoney);
+		$layers = collect();
+		if (isset($hive_layers))
+		{
+			foreach ($hive_layers as $layer)
+				$layers->add($this->createLayer($layer['type'], $layer['order'], $layer['color']));
+		}
+		else
+		{
+			$layersBrood = $this->createLayers('brood', $broodLayerAmount, $color, $this->layer_order);
+			$layersHoney = $this->createLayers('honey', $honeyLayerAmount, $color, $this->layer_order);
+			$layers = $layersBrood->merge($layersHoney);
+		}
 
 		$hive->layers()->saveMany($layers); 
 
@@ -46,7 +55,7 @@ class HiveFactory
 		return $hive;
 	}
 
-	public function updateHive(Hive $hive, Location $location, $name, $hive_type_id, $color, $broodLayerAmount, $honeyLayerAmount, $frameAmount, $bb_width_cm, $bb_depth_cm, $bb_height_cm, $fr_width_cm, $fr_height_cm, $order)
+	public function updateHive(Hive $hive, Location $location, $name, $hive_type_id, $color, $broodLayerAmount, $honeyLayerAmount, $frameAmount, $bb_width_cm, $bb_depth_cm, $bb_height_cm, $fr_width_cm, $fr_height_cm, $order, $hive_layers)
 	{
 		
 		$inspection_data 		  = [];
@@ -76,43 +85,96 @@ class HiveFactory
 		$hive->hive_type_id = $hive_type_id;
 		$hive->save();
 
-		$layers 	 = collect();
-		$layersBrood = collect();
-		$layersHoney = collect();
+		$layers 		= collect();
+		$broodLayerDiff = 0;
+		$honeyLayerDiff = 0;
 
-		// get highest layer order
-		$layer_order = -999999;
-		foreach ($hive->layers as $l) 
-			$layer_order = max($layer_order, $l->order);
-		
-		if ($layer_order == -999999)
-			$layer_order = 0;
+		if (isset($hive_layers))
+		{
+			$broodLayerAmount = 0;
+			$honeyLayerAmount = 0;
+			$broodLayerDiff   = -1 * $hive->getBroodlayersAttribute();
+			$honeyLayerDiff   = -1 * $hive->getHoneylayersAttribute();
+			$foundLayerIds    = [];
+			foreach ($hive_layers as $layer)
+			{
+				if ($layer['type'] == 'brood')
+				{
+					$broodLayerDiff++;
+					$broodLayerAmount++;
+				}
 
-		// Create or delete layers
-		$broodLayerDiff = $broodLayerAmount - $hive->getBroodlayersAttribute();
-		if ($broodLayerDiff > 0)
-		{
-			$layersBrood = $this->createLayers('brood', $broodLayerDiff, $color, $layer_order+1);
-			$layers->merge($layersBrood);
-			$hive->layers()->saveMany($layersBrood);
-		}
-		else if ($broodLayerDiff < 0)
-		{
-			$category_id = Category::findCategoryIdByParentAndName('hive_layer', 'brood');
-			$hive->layers()->where('category_id',$category_id)->limit(-1*$broodLayerDiff)->delete();
-		}
+				if ($layer['type'] == 'honey')
+				{
+					$honeyLayerDiff++;
+					$honeyLayerAmount++;
+				}
 
-		$honeyLayerDiff = $honeyLayerAmount - $hive->getHoneylayersAttribute();
-		if ($honeyLayerDiff > 0)
-		{
-			$layersHoney = $this->createLayers('honey', $honeyLayerDiff, $color, $layer_order+1);
-			$layers->merge($layersBrood);
-			$hive->layers()->saveMany($layersHoney); 
+				if (!isset($layer['id'])) // create new layer
+				{
+					$new_layer = $hive->layers()->save($this->createLayer($layer['type'], $layer['order'], $layer['color']));
+					$foundLayerIds[] = $new_layer->id;
+				}
+				else // edit, or delete existing layer
+				{
+					$l = $hive->layers()->find($layer['id']);
+					if ($l)
+					{
+						$foundLayerIds[] = $layer['id'];
+						$l->category_id  = Category::findCategoryIdByRootParentAndName('hive', 'hive_layer', $layer['type']);
+						$l->order 		 = $layer['order'];
+						$l->color 		 = $layer['color'];
+						$l->save();
+					}
+				}
+			}
+			// delete removed layers
+			foreach ($hive->layers as $layer)
+			{
+				if (isset($layer['id']) && !in_array($layer['id'], $foundLayerIds))
+					$hive->layers()->find($layer['id'])->delete();
+			}
 		}
-		else if ($honeyLayerDiff < 0)
+		else
 		{
-			$category_id = Category::findCategoryIdByParentAndName('hive_layer', 'honey');
-			$hive->layers()->where('category_id',$category_id)->limit(-1*$honeyLayerDiff)->delete();
+
+			$layersBrood = collect();
+			$layersHoney = collect();
+
+			// get highest layer order
+			$layer_order = -999999;
+			foreach ($hive->layers as $l) 
+				$layer_order = max($layer_order, $l->order);
+			
+			if ($layer_order == -999999)
+				$layer_order = 0;
+
+			// Create or delete layers
+			$broodLayerDiff = $broodLayerAmount - $hive->getBroodlayersAttribute();
+			if ($broodLayerDiff > 0)
+			{
+				$layersBrood = $this->createLayers('brood', $broodLayerDiff, $color, $layer_order+1);
+				$layers->merge($layersBrood);
+				$hive->layers()->saveMany($layersBrood);
+			}
+			else if ($broodLayerDiff < 0)
+			{
+				$category_id = Category::findCategoryIdByParentAndName('hive_layer', 'brood');
+				$hive->layers()->where('category_id',$category_id)->limit(-1*$broodLayerDiff)->delete();
+			}
+
+			$honeyLayerDiff = $honeyLayerAmount - $hive->getHoneylayersAttribute();
+			if ($honeyLayerDiff > 0)
+			{
+				$layersHoney = $this->createLayers('honey', $honeyLayerDiff, $color, $layer_order+1);
+				$layers->merge($layersBrood);
+				$hive->layers()->saveMany($layersHoney); 
+			}
+			else if ($honeyLayerDiff < 0)
+			{
+				$category_id = Category::findCategoryIdByParentAndName('hive_layer', 'honey');
+				$hive->layers()->where('category_id',$category_id)->limit(-1*$honeyLayerDiff)->delete();
+			}
 		}
 		
 		// Create new inspection 

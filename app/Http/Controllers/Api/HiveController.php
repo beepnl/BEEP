@@ -135,8 +135,9 @@ class HiveController extends Controller
         $broodLayerAmount = $request->input('brood_layers', 1);
         $honeyLayerAmount = $request->input('honey_layers', 1);
         $frameAmount      = $request->input('frames', 10);
+        $layers           = $request->input('layers', null);
 
-        $hive = $this->hiveFactory->createHive($user_id, $location, $name, $hive_type_id, $color, $broodLayerAmount, $honeyLayerAmount, $frameAmount, $bb_width_cm, $bb_depth_cm, $bb_height_cm, $fr_width_cm, $fr_height_cm, $order);
+        $hive = $this->hiveFactory->createHive($user_id, $location, $name, $hive_type_id, $color, $broodLayerAmount, $honeyLayerAmount, $frameAmount, $bb_width_cm, $bb_depth_cm, $bb_height_cm, $fr_width_cm, $fr_height_cm, $order, $layers);
         $hive = $this->saveQueen($request, $hive);
 
         return $this->show($request, $hive);
@@ -179,8 +180,9 @@ class HiveController extends Controller
         $broodLayerAmount = $request->input('brood_layers', 1);
         $honeyLayerAmount = $request->input('honey_layers', 1);
         $frameAmount      = $request->input('frames', 10);
+        $layers           = $request->input('layers', null);
 
-        $hive = $this->hiveFactory->updateHive($hive, $location, $name, $hive_type_id, $color, $broodLayerAmount, $honeyLayerAmount, $frameAmount, $bb_width_cm, $bb_depth_cm, $bb_height_cm, $fr_width_cm, $fr_height_cm, $order);
+        $hive = $this->hiveFactory->updateHive($hive, $location, $name, $hive_type_id, $color, $broodLayerAmount, $honeyLayerAmount, $frameAmount, $bb_width_cm, $bb_depth_cm, $bb_height_cm, $fr_width_cm, $fr_height_cm, $order, $layers);
         $hive = $this->saveQueen($request, $hive);
 
         return $this->show($request, $hive);

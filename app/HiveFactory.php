@@ -58,12 +58,17 @@ class HiveFactory
 	public function updateHive(Hive $hive, Location $location, $name, $hive_type_id, $color, $broodLayerAmount, $honeyLayerAmount, $frameAmount, $bb_width_cm, $bb_depth_cm, $bb_height_cm, $fr_width_cm, $fr_height_cm, $order, $hive_layers)
 	{
 		
+		// First set inspection because location will be fixed after setting in hive
 		$inspection_data 		  = [];
 		$inspection_data['notes'] = Translation::translate('hive').' '.strtolower(Translation::translate('action'));
 		$inspection_data['date']  = date('Y-m-d H:i');
 		$inspection_data['items'] = [];
+		$locationChange 		  = false;
+
 		if ($location->id != $hive->location_id)
 		{
+			$locationChange = true;
+
 			$from_apiary_id = Category::findCategoryIdByRootParentAndName('hive', 'location', 'apiary', ['system','checklist']);
 			if ($from_apiary_id)
 				$inspection_data['items'][$from_apiary_id] = $hive->getLocationAttribute();
@@ -73,6 +78,7 @@ class HiveFactory
 				$inspection_data['items'][$to_apiary_id] = $location->name;
 		}
 
+		// Edit hive
 		$hive->name  		= $name;
 		$hive->order  		= $order;
 		$hive->bb_width_cm  = $bb_width_cm;
@@ -88,8 +94,9 @@ class HiveFactory
 		$layers 		= collect();
 		$broodLayerDiff = 0;
 		$honeyLayerDiff = 0;
+		$frameDiff 		= 0; 
 
-		if (isset($hive_layers))
+		if (isset($hive_layers)) // edit by layers object
 		{
 			$broodLayerAmount = 0;
 			$honeyLayerAmount = 0;
@@ -115,7 +122,7 @@ class HiveFactory
 					$new_layer = $hive->layers()->save($this->createLayer($layer['type'], $layer['order'], $layer['color']));
 					$foundLayerIds[] = $new_layer->id;
 				}
-				else // edit, or delete existing layer
+				else // edit existing layer
 				{
 					$l = $hive->layers()->find($layer['id']);
 					if ($l)
@@ -135,7 +142,7 @@ class HiveFactory
 					$hive->layers()->find($layer['id'])->delete();
 			}
 		}
-		else
+		else // edit by $broodLayerAmount and $honeyLayerAmount
 		{
 
 			$layersBrood = collect();
@@ -177,34 +184,7 @@ class HiveFactory
 			}
 		}
 		
-		// Create new inspection 
-		if ($broodLayerDiff != 0)
-		{
-			$brood_layers_id = Category::findCategoryIdByRootParentAndName('hive', 'configuration', 'brood_layers', ['system','checklist']);
-			if ($brood_layers_id)
-				$inspection_data['items'][$brood_layers_id] = $broodLayerAmount;
-
-		}
-		if ($honeyLayerDiff != 0)
-		{
-			$honey_layers_id = Category::findCategoryIdByRootParentAndName('hive', 'configuration', 'supers', ['system','checklist']);
-			if ($honey_layers_id)
-				$inspection_data['items'][$honey_layers_id] = $honeyLayerAmount;
-		}
-
-		$layers_added = $broodLayerDiff + $honeyLayerDiff;
-		if ($layers_added != 0)
-		{
-			$action_id = Category::findCategoryIdByRootParentAndName('hive', 'component', 'action', ['system','checklist']);
-			if ($layers_added > 0)
-				$action_item_id = Category::findCategoryIdByRootParentAndName('hive', 'action', 'added', ['system','checklist']);
-			else if ($layers_added < 0)
-				$action_item_id = Category::findCategoryIdByRootParentAndName('hive', 'action', 'removed', ['system','checklist']);
-
-			if ($action_item_id)
-				$inspection_data['items'][$action_id] = $action_item_id;
-		}
-
+		
 		// Adjust frames
 		foreach ($hive->layers()->get() as $layer) 
 		{
@@ -223,35 +203,44 @@ class HiveFactory
 				$category_id = Category::findCategoryIdByParentAndName('hive_frame', 'wax');
 				$layer->frames()->where('category_id',$category_id)->limit(-1*$frameDiff)->delete();
 			}
-			// Add inspection item
-			if ($frameDiff != 0)
-			{
-				$frames_per_layer_id = Category::findCategoryIdByRootParentAndName('hive', 'configuration', 'frames_per_layer', ['system','checklist']);
-				if ($frames_per_layer_id)
-					$inspection_data['items'][$frames_per_layer_id] = $frameAmount;
-			}
 		}
 
-		// Crerate auto inspection
-		$inspection = Inspection::create($inspection_data);
-		foreach ($inspection_data['items'] as $cat_id => $value) 
-        {
-            $itemData = 
-            [
-                'category_id'   => $cat_id,
-                'inspection_id' => $inspection->id,
-                'value'         => $value,
-            ];
-            InspectionItem::create($itemData);
-        }
+		// Create auto inspection
+		if ($broodLayerDiff != 0 || $honeyLayerDiff != 0 || $frameDiff != 0 || $locationChange)
+		{
+			// Inspection items to add 
+			$brood_layers_id = Category::findCategoryIdByRootParentAndName('hive', 'configuration', 'brood_layers', ['system','checklist']);
+			if ($brood_layers_id)
+				$inspection_data['items'][$brood_layers_id] = $broodLayerAmount;
 
-		$inspection->users()->sync(Auth::user()->id);
+			$honey_layers_id = Category::findCategoryIdByRootParentAndName('hive', 'configuration', 'supers', ['system','checklist']);
+			if ($honey_layers_id)
+				$inspection_data['items'][$honey_layers_id] = $honeyLayerAmount;
 
-        if (isset($location))
-            $inspection->locations()->sync($location->id);
+			$frames_per_layer_id = Category::findCategoryIdByRootParentAndName('hive', 'configuration', 'frames_per_layer', ['system','checklist']);
+			if ($frames_per_layer_id)
+				$inspection_data['items'][$frames_per_layer_id] = $frameAmount;
 
-        if (isset($hive))
-            $inspection->hives()->sync($hive->id);
+			$inspection = Inspection::create($inspection_data);
+			foreach ($inspection_data['items'] as $cat_id => $value) 
+	        {
+	            $itemData = 
+	            [
+	                'category_id'   => $cat_id,
+	                'inspection_id' => $inspection->id,
+	                'value'         => $value,
+	            ];
+	            InspectionItem::create($itemData);
+	        }
+
+			$inspection->users()->sync(Auth::user()->id);
+
+	        if (isset($location))
+	            $inspection->locations()->sync($location->id);
+
+	        if (isset($hive))
+	            $inspection->hives()->sync($hive->id);
+	    }
 
 		return $hive;
 	}

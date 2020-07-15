@@ -177,7 +177,7 @@ var convertInfluxMeasurementsArrayToChartObject = function(obj_arr, lang, labelS
         var quantityUnit  = (SENSOR_UNITS[name] !== 'undefined') ? SENSOR_UNITS[name] : null;
         var readableName  = (typeof sensorDefinitions[name] !== 'undefined' && typeof sensorDefinitions[name]['name'] !== 'undefined') ? sensorDefinitions[name]['name'] : (typeof lang[quantity] !== 'undefined') ? lang[quantity] : quantity;
         var nameAndUnit   = (quantityUnit != null && quantityUnit != '') ? readableName + ' ('+quantityUnit+')' : readableName;
-        var abbrName      = readableName.substring(0, unitLenMx);
+        var abbrName      = readableName != null ? readableName.substring(0, unitLenMx) : '';
        
         var rgb   = (typeof SENSOR_COLOR[name] !== 'undefined') ? SENSOR_COLOR[name] : {r:150, g: 150, b:150};
         var color = solidColorObj('rgba('+rgb.r+','+rgb.g+','+rgb.b+',0.1)', 'rgba('+rgb.r+','+rgb.g+','+rgb.b+',1)');

@@ -69,11 +69,11 @@ class HiveFactory
 		{
 			$locationChange = true;
 
-			$from_apiary_id = Category::findCategoryIdByRootParentAndName('hive', 'location', 'apiary', ['system','checklist']);
+			$from_apiary_id = Category::findCategoryIdByRootParentAndName('hive', 'relocation', 'previous_apiary', ['system','checklist']);
 			if ($from_apiary_id)
 				$inspection_data['items'][$from_apiary_id] = $hive->getLocationAttribute();
 
-			$to_apiary_id   = Category::findCategoryIdByRootParentAndName('hive', 'relocation', 'destiny_apiary', ['system','checklist']);
+			$to_apiary_id   = Category::findCategoryIdByRootParentAndName('hive', 'location', 'apiary', ['system','checklist']);
 			if ($to_apiary_id)
 				$inspection_data['items'][$to_apiary_id] = $location->name;
 		}

@@ -11,14 +11,14 @@
 	<!-- <a href="#" ng-show="showMore" title="{{lang.next}}" ng-click="next($event)" class="btn menu-btn icon next">{{lang.next}}</a> -->
 	<br>
 	<div class="row">
-		<div class="col-xs-12 col-md-9">
+		<div class="col-xs-12 col-md-12">
 			<select ng-if="sensors.length > 0" ng-model="selectedSensor" ng-options="sensor as sensor.hive_name+' - '+sensor.name group by sensor.location_name for sensor in sensors | orderBy:'hive_name'" ng-change="loadData(selectedSensor.id)" class="form-control">
 				<option value="">{{ lang.Select }} {{ lang.hive }}...</option>
 			</select>
 		</div>
-		<div class="col-xs-12 col-md-3">
+		<!-- <div class="col-xs-12 col-md-3">
 			<a ng-if="selectedSensorId" class="btn btn-default btn-block" href="#!/settings"><i class="fa fa-cog"></i> <span ng-if="!mobile">{{lang.calibrate_weight}}</span></a>
-		</div>
+		</div> -->
 		<div class="col-xs-12">
 			<div class="tab-bar-wrapper" ng-class="{'mobile':mobile}">
 

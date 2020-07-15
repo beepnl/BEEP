@@ -77,17 +77,18 @@
 				    			<div rn-stepper ng-model="hive.frames" ng-disabled="hive.frames < 1" min="1" max="20" step="1"></div>
 				    		</div>
 			    			
-			    			<div ng-if="hive.layers.length > 0">
-					    		<label>{{lang.Hive}}</label>
-					    		<div>
-					    			<div class="hive left">
-						    			<p class="lid" style="width: {{hive.width*(mobile?4:1)}}px;"></p>
-						            	<p ng-repeat="(key, layer) in hive.layers | orderBy : '-type' " class="layer" ng-class="layer.type" style="background-color: {{hive.color}}; width: {{hive.width*(mobile?4:1)}}px;">
-						            		<span ng-repeat="(key, frame) in layer.frames track by $index" class="frame" ng-class="layer.type"></span>
-						            	</p>
-						            	<p class="bottom" style="width: {{hive.width*(mobile?4:1)}}px;"></p>
-					            	</div>
-					            </div>
+			    			<div>
+					    		<label>{{ hive.name != null && hive.name != '' ? hive.name : lang.Hive }}</label>
+				    			<div class="hive left">
+					    			<p class="lid" style="width: {{hive.frames*13}}px;"></p>
+					            	<p ng-repeat="layer in rangeStep(1,hive.honey_layers)" class="layer honey" style="background-color: {{hive.color}}; width: {{hive.frames*13}}px;">
+					            		<span ng-repeat="f in rangeStep(1,hive.frames)" class="frame wax"></span>
+					            	</p>
+					            	<p ng-repeat="layer in rangeStep(1,hive.brood_layers)" class="layer brood" style="background-color: {{hive.color}}; width: {{hive.frames*13}}px;">
+					            		<span ng-repeat="f in rangeStep(1,hive.frames)" class="frame wax"></span>
+					            	</p>
+					            	<p class="bottom" style="width: {{hive.frames*13}}px;"></p>
+				            	</div>
 					        </div>
 			    		</div>
 			    		<div class="col-xs-12 col-md-4">

@@ -6,7 +6,7 @@
  */
 app.controller('MeasurementsCtrl', function($scope, $rootScope, $timeout, $interval, $routeParams, $location, api, moment, measurements) 
 {
-    $rootScope.title    = $rootScope.lang.sensors;
+    $rootScope.title    = $rootScope.lang.measurements;
     
     $scope.periods      = ['hour','day','week','month','year'];
     $scope.timeZone     = 'Europe/Amsterdam';
@@ -18,15 +18,26 @@ app.controller('MeasurementsCtrl', function($scope, $rootScope, $timeout, $inter
     $scope.timeFormat   = 'ddd D MMM YYYY';
     $scope.tooltTimeFrmt= 'ddd D MMM YYYY';
     $scope.displayFormats = {
-        "year": 'YYYY MMM D',
-        "month": 'YYYY MMM D',
-        "quarter": 'YYYYY MMM D',
+        "year": 'MMM YYYY',
+        "quarter": 'MMM YYYYY',
+        "month": 'MMM YYYY',
         "week": '[w]W',
         "day": 'D MMM',
         "hour": 'ddd H[u]',
         "minute": 'HH:mm',
         "second": 'HH:mm:ss',
         "millisecond": 'HH:mm:ss',
+    };
+    $scope.tooltipFormats = {
+        "year": 'MMM YYYY',
+        "quarter": 'MMM YYYYY',
+        "month": 'MMM YYYY',
+        "week": '[w]W',
+        "day": 'ddd D MMM',
+        "hour": 'ddd D MMM H[u]',
+        "minute": 'ddd D MMM HH:mm',
+        "second": 'ddd D MMM HH:mm:ss',
+        "millisecond": 'ddd D MMM HH:mm:ss',
     };
     $scope.showChart    = false;
     // $scope.showActuators= true;
@@ -421,14 +432,14 @@ app.controller('MeasurementsCtrl', function($scope, $rootScope, $timeout, $inter
             var sensorDefinitions  = data.sensorDefinitions;
             var resolutionCharacter= typeof data.resolution !== 'undefined' ? data.resolution.substr(-1, 1) : null;
             var resolutionFormat   = {
-                'w':$scope.displayFormats['week'],
-                'd':$scope.displayFormats['day'],
-                'h':$scope.displayFormats['hour'],
-                'm':$scope.displayFormats['minute'],
-                's':$scope.displayFormats['second'],
+                'w':$scope.tooltipFormats['week'],
+                'd':$scope.tooltipFormats['day'],
+                'h':$scope.tooltipFormats['hour'],
+                'm':$scope.tooltipFormats['minute'],
+                's':$scope.tooltipFormats['second'],
             }
-            var tooltipTimeFormat  = resolutionCharacter != null ? resolutionFormat[resolutionCharacter] : $scope.displayFormats[$scope.activeUnit];
-            $scope.tooltTimeFrmt = tooltipTimeFormat;
+            var tooltipTimeFormat  = resolutionCharacter != null ? resolutionFormat[resolutionCharacter] : $scope.tooltipFormats[$scope.activeUnit];
+            $scope.tooltTimeFrmt   = tooltipTimeFormat;
             $scope.dataResolution = data.resolution;
 
             //console.log('Parsing '+measurementData.length+' '+data.interval+' '+data.index+' measurementData', 'resolutionCharacter: '+resolutionCharacter, 'tooltipTimeFormat: '+tooltipTimeFormat);

@@ -166,11 +166,11 @@ app.config(['$routeProvider', '$locationProvider',  function($routeProvider)
 
 
   // settings
- .when('/settings', 
- {
-        controller:'SettingsCtrl',
-        templateUrl:'/app/views/forms/settings.html?v=2'
- })
+ // .when('/settings', 
+ // {
+ //        controller:'SettingsCtrl',
+ //        templateUrl:'/app/views/forms/settings.html?v=2'
+ // })
 
  .when('/export', 
  {

@@ -2246,6 +2246,10 @@ app.controller('HivesCtrl', function ($scope, $rootScope, $window, $location, $f
     });
   };
 
+  $scope.rangeStep = function (min, max, step) {
+    return rangeStep(min, max, step);
+  };
+
   $scope.init = function () {
     if (api.getApiToken() == null) {
       $location.path('/login');
@@ -3497,7 +3501,7 @@ app.controller('ChecklistCtrl', function ($scope, $rootScope, $window, $location
  */
 
 app.controller('MeasurementsCtrl', function ($scope, $rootScope, $timeout, $interval, $routeParams, $location, api, moment, measurements) {
-  $rootScope.title = $rootScope.lang.sensors;
+  $rootScope.title = $rootScope.lang.measurements;
   $scope.periods = ['hour', 'day', 'week', 'month', 'year'];
   $scope.timeZone = 'Europe/Amsterdam';
   $scope.periodIndex = 0;
@@ -3508,15 +3512,26 @@ app.controller('MeasurementsCtrl', function ($scope, $rootScope, $timeout, $inte
   $scope.timeFormat = 'ddd D MMM YYYY';
   $scope.tooltTimeFrmt = 'ddd D MMM YYYY';
   $scope.displayFormats = {
-    "year": 'YYYY MMM D',
-    "month": 'YYYY MMM D',
-    "quarter": 'YYYYY MMM D',
+    "year": 'MMM YYYY',
+    "quarter": 'MMM YYYYY',
+    "month": 'MMM YYYY',
     "week": '[w]W',
     "day": 'D MMM',
     "hour": 'ddd H[u]',
     "minute": 'HH:mm',
     "second": 'HH:mm:ss',
     "millisecond": 'HH:mm:ss'
+  };
+  $scope.tooltipFormats = {
+    "year": 'MMM YYYY',
+    "quarter": 'MMM YYYYY',
+    "month": 'MMM YYYY',
+    "week": '[w]W',
+    "day": 'ddd D MMM',
+    "hour": 'ddd D MMM H[u]',
+    "minute": 'ddd D MMM HH:mm',
+    "second": 'ddd D MMM HH:mm:ss',
+    "millisecond": 'ddd D MMM HH:mm:ss'
   };
   $scope.showChart = false; // $scope.showActuators= true;
 
@@ -3863,13 +3878,13 @@ app.controller('MeasurementsCtrl', function ($scope, $rootScope, $timeout, $inte
       var sensorDefinitions = data.sensorDefinitions;
       var resolutionCharacter = typeof data.resolution !== 'undefined' ? data.resolution.substr(-1, 1) : null;
       var resolutionFormat = {
-        'w': $scope.displayFormats['week'],
-        'd': $scope.displayFormats['day'],
-        'h': $scope.displayFormats['hour'],
-        'm': $scope.displayFormats['minute'],
-        's': $scope.displayFormats['second']
+        'w': $scope.tooltipFormats['week'],
+        'd': $scope.tooltipFormats['day'],
+        'h': $scope.tooltipFormats['hour'],
+        'm': $scope.tooltipFormats['minute'],
+        's': $scope.tooltipFormats['second']
       };
-      var tooltipTimeFormat = resolutionCharacter != null ? resolutionFormat[resolutionCharacter] : $scope.displayFormats[$scope.activeUnit];
+      var tooltipTimeFormat = resolutionCharacter != null ? resolutionFormat[resolutionCharacter] : $scope.tooltipFormats[$scope.activeUnit];
       $scope.tooltTimeFrmt = tooltipTimeFormat;
       $scope.dataResolution = data.resolution; //console.log('Parsing '+measurementData.length+' '+data.interval+' '+data.index+' measurementData', 'resolutionCharacter: '+resolutionCharacter, 'tooltipTimeFormat: '+tooltipTimeFormat);
 

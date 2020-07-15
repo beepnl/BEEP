@@ -572,10 +572,12 @@ app.config(['$routeProvider', '$locationProvider', function ($routeProvider) {
     controller: 'SensorsCtrl',
     templateUrl: '/app/views/sensors.html'
   }) // settings
-  .when('/settings', {
-    controller: 'SettingsCtrl',
-    templateUrl: '/app/views/forms/settings.html?v=2'
-  }).when('/export', {
+  // .when('/settings', 
+  // {
+  //        controller:'SettingsCtrl',
+  //        templateUrl:'/app/views/forms/settings.html?v=2'
+  // })
+  .when('/export', {
     controller: 'ExportCtrl',
     templateUrl: '/app/views/export.html'
   }).when('/research', {

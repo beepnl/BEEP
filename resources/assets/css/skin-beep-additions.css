@@ -1027,7 +1027,7 @@ dt a i.fa {
 /* Mobile */
 @media (max-width: 400px) {
 	.header-title {
-	    padding-left: 14%;
+	    padding-left: 0;
 	}
 	.switch.wide {
 	  width: 100px;

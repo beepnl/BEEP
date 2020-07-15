@@ -49,7 +49,10 @@ app.controller('HivesCtrl', function($scope, $rootScope, $window, $location, $fi
 								}
         });
 	};
-
+	
+	$scope.rangeStep = function(min, max, step) {
+   	    return rangeStep(min, max, step);
+    };
 
 	$scope.init = function()
 	{

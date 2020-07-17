@@ -27,8 +27,8 @@
     lighting                : 'Sfeerverlichting',
     camera                  : 'Camera',
     weather                 : 'Weer',
-    sensors                 : 'Sensoren',
-    sensors_na              : 'Hier komt straks een overzicht van jouw BEEP sensoren, waarmee je kasten op afstand kunt monitoren. Je kunt ook sensoren van andere partijen koppelen, mits ze een API hebben, waarmee je de data kunt uitlezen.',
+    sensors                 : 'Meetsystemen',
+    sensors_na              : 'Als je een BEEP base hebt, komt hier een overzicht van jouw BEEP meetsystemen waarmee je kasten op afstand kunt monitoren. Je kunt ook sensoren van andere partijen koppelen, mits ze een API hebben waarmee je de data kunt uitlezen.',
 
     no_valid_authentication : 'Geen geldige login ontvangen',
     succesfully_saved       : 'Succesvol opgeslagen',
@@ -183,7 +183,6 @@
     Queen_clipped           : 'Moer geknipt',
     Queen_fertilized        : 'Moer bevrucht',
     Age                     : 'Leeftijd',
-    year                    : 'jaar oud',
 
     /* Hive check items */
     Date_of_inspection      : 'Inspectiedatum',
@@ -239,7 +238,6 @@
 
     sensors_title           : 'Meetsysteem instellingen',
     sensors_description     : 'Meetsysteem status en registratie',
-    sensors                 : 'Meetsystemen',
     sensor                  : 'Meetsysteem',
 
     Select                  : 'Selecteer',
@@ -327,10 +325,8 @@
     'precipIntensity'       : 'Regenval',
     'precipProbability'     : 'Kans op regen',
     'precipType'            : 'Soort regen',
-    'temperature'           : 'Buitentemperatuur',
     'apparentTemperature'   : 'Schijnbare temperatuur',
     'dewPoint'              : 'Douwpunt',
-    'humidity'              : 'Luchtvochtigheid',
     'pressure'              : 'Luchtdruk',
     'windSpeed'             : 'Windsnelheid',
     'windGust'              : 'Windstoten',

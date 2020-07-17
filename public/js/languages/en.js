@@ -181,7 +181,6 @@
     Queen_clipped           : 'Queen clipped',
     Queen_fertilized        : 'Queen fertilized',
     Age                     : 'Age',
-    year                    : 'years old',
 
     /* Hive check items */
     Date_of_inspection      : 'Date of inspection',
@@ -237,7 +236,6 @@
 
     sensors_title           : 'Device settings',
     sensors_description     : 'Devices status and registration',
-    sensors                 : 'Devices',
     sensor                  : 'Device',
 
     Select                  : 'Select',
@@ -326,10 +324,8 @@
     'precipIntensity'       : 'Rainfall',
     'precipProbability'     : 'Rain probability',
     'precipType'            : 'Rain type',
-    'temperature'           : 'Outside temperature',
     'apparentTemperature'   : 'Apparent temperature',
     'dewPoint'              : 'Dew point',
-    'humidity'              : 'Humidity',
     'pressure'              : 'Air pressure',
     'windSpeed'             : 'Wind speed',
     'windGust'              : 'Wind gust',

@@ -38,7 +38,7 @@ class HiveController extends Controller
                     'line'          =>$request->input('queen.line'),
                     'tree'          =>$request->input('queen.tree'),
                     'race_id'       =>$request->input('queen.race_id', $race_id),
-                    'created_at'    =>$date.' 00:00:00',
+                    'created_at'    =>date('Y-m-d H:i:s', strtotime($date)),
                     'color'         =>$request->input('queen.color'),
                     'clipped'       =>boolval($request->input('queen.clipped')),
                     'fertilized'    =>boolval($request->input('queen.fertilized')),

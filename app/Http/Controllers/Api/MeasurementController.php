@@ -828,7 +828,7 @@ class MeasurementController extends Controller
         // Add weather data
         if ($groupBySelectWeather != null && $location && isset($location->coordinate_lat) && isset($location->coordinate_lon))
         {
-            $weatherResolutionSetting = env('DARKSKY_API_CHECK_MINUTES', 60).'m';
+            $weatherResolutionSetting = $interval == 'year' ? '1d' : '3h'; // env('DARKSKY_API_CHECK_MINUTES', 60).'m'
             $groupByWeatherResolution = 'GROUP BY time('.$weatherResolutionSetting.') fill(null)';
             $weatherQuery = 'SELECT '.$groupBySelectWeather.' FROM "weather" WHERE "lat" = \''.$location->coordinate_lat.'\' AND "lon" = \''.$location->coordinate_lon.'\' AND time >= \''.$staTimestampString.'\' AND time <= \''.$endTimestampString.'\' '.$groupByWeatherResolution.' '.$limit;
             $result       = $client::query($weatherQuery, $options);

@@ -16,7 +16,7 @@ class Hive extends Model
     protected $fillable = ['user_id', 'location_id', 'hive_type_id', 'color', 'name', 'bb_width_cm', 'bb_depth_cm', 'bb_height_cm', 'fr_width_cm', 'fr_height_cm', 'order'];
     protected $guarded  = ['id'];
 	protected $hidden 	= ['user_id','deleted_at'];
-    protected $appends  = ['type','location','attention','impression','reminder','reminder_date','inspection_count','sensors','owner','group_ids', 'last_inspection_date'];
+    protected $appends  = ['type','location','attention','impression','reminder','reminder_date','inspection_count','sensors','owner','editable','group_ids','last_inspection_date'];
 
     public $timestamps = false;
 
@@ -111,6 +111,10 @@ class Hive extends Model
         return false;
     }
 
+    public function getEditableAttribute()
+    {
+        return $this->getOwnerAttribute();
+    }
 
 
 

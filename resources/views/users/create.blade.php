@@ -31,6 +31,12 @@
         </div>
         <div class="col-xs-12 col-sm-12 col-md-12">
             <div class="form-group">
+                <label>{{ __('general.Language') }}:</label>
+                {!! Form::text('locale', null, array('placeholder' => __('general.Language').' code','class' => 'form-control')) !!}
+            </div>
+        </div>
+        <div class="col-xs-12 col-sm-12 col-md-12">
+            <div class="form-group">
                 <label>{{ __('crud.avatar') }}:</label>
                 {!! Form::file('avatar', array('class' => 'btn btn-default')) !!}
                 <p class="help-block">{{ __('crud.avatar_file') }}</p>

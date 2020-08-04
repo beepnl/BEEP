@@ -83,6 +83,7 @@ class LocationController extends Controller
                 'street_no'     =>$request->input('street_no'),
                 'postal_code'   =>$request->input('postal_code'),
                 'country_code'  =>$request->input('country_code', 'nl'),
+                'hex_color'     =>$request->input('hex_color'),
             ]);
 
         //die(print_r($location));
@@ -144,6 +145,7 @@ class LocationController extends Controller
         $location->street_no     = $request->input('street_no');
         $location->postal_code   = $request->input('postal_code');
         $location->country_code  = $request->input('country_code', 'nl');
+        $location->hex_color     = $request->input('hex_color');
 
         $request->user()->locations()->save($location);
     }

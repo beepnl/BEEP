@@ -580,8 +580,11 @@ class MeasurementController extends Controller
     {
         $data_array = [];
 
+        // parse payload
         if (isset($request_data['payload_fields']))
             $data_array = $request_data['payload_fields'];
+        else if (isset($request_data['payload_raw']))
+            $data_array = $this->decode_ttn_payload($request_data);
 
         if (isset($request_data['hardware_serial']) && !isset($data_array['key']))
             $data_array['key'] = $request_data['hardware_serial']; // LoRa WAN = Device EUI
@@ -593,6 +596,7 @@ class MeasurementController extends Controller
             $data_array['lora_channel']  = $request_data['metadata']['gateways'][0]['channel'];
         if (isset($request_data['metadata']['data_rate']))
             $data_array['data_rate']  = $request_data['metadata']['data_rate'];
+
 
         // store device metadata
         if (isset($data_array['beep_base']) && boolval($data_array['beep_base']) && isset($data_array['key']) && isset($data_array['hardware_id'])) // store hardware id

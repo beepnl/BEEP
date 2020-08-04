@@ -140,6 +140,19 @@ trait MeasurementLegacyCalculationsTrait
         return $dec > $_dec ? -$_dec : $dec;
     }
 
+    private function decode_ttn_payload($data)
+    {
+        $out = [];
+        
+        if (isset($data['payload_raw']) == false)
+            return $out;
+
+        $payload = bin2hex(base64_decode($data['payload_raw']));
+        $port    = $data['port'];
+
+        return $this->decode_beep_payload($payload, $port);
+    }
+
     private function decode_simpoint_payload($data)
     {
         $out = [];
@@ -147,11 +160,18 @@ trait MeasurementLegacyCalculationsTrait
         if (isset($data['payload_hex']) == false)
             return $out;
 
-        // distighuish BEEP base v2 and v3 payload
-
         $payload = $data['payload_hex'];
         $port    = $data['FPort'];
 
+        return $this->decode_beep_payload($payload, $port);
+    }
+    
+    private function decode_beep_payload($payload, $port)
+    {
+        $out = [];
+        
+        // distighuish BEEP base v2 and v3 payload
+        
         if ($port != 1) // BEEP base v3 firmware
         {
             $p  = strtolower($payload);

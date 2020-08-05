@@ -7,7 +7,6 @@
         <meta name="description" content="">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <script src="ttn-payload-decoder.js"></script>
-        <script src="ttn-payload-converter.js"></script>
         <style type="text/css">
             body{
                 font-family: Arial, sans-serif;
@@ -93,8 +92,6 @@
         <textarea id="bytearray" cols="140" rows="2"></textarea>
         <h3>Decoder test result:</h3>
         <textarea id="decoder-result" cols="100" rows="10"></textarea>
-        <h3>Converter test result:</h3>
-        <textarea id="converter-result" cols="100" rows="10"></textarea>
 
         <script>
             function setPayloadAndPort(payload, port)
@@ -137,13 +134,10 @@
                 payload_spaced = payload_spaced + "\n" + payload_count;
 
                 var decoded   = Decoder(byteArray, port);
-                var converted = Converter(decoded, port);
                 console.log('decoded', decoded);
-                console.log('converted', converted);
                 document.getElementById("bytearray").innerHTML = byteArray;
                 document.getElementById("payload-spaced").innerHTML = payload_spaced;
                 document.getElementById("decoder-result").innerHTML = JSON.stringify(decoded);
-                document.getElementById("converter-result").innerHTML = JSON.stringify(converted);
             }
         </script>
     </body>

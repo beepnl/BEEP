@@ -293,6 +293,101 @@ function Decoder(bytes, port) {
 
 
   }
-  return decoded;
+
+
+  // Integrate converter because of not supporting by TTN console from mid 2020
+  var converted = {};
+
+  if (port === 1 && decoded.long === false && decoded.beep_base === false)
+  {
+    if (decoded.t > 0)
+      converted.t     =  decoded.t / 100;
+    if (decoded.h > 0)
+      converted.h     =  decoded.h / 100;
+    if (decoded.w_v > 0)
+      converted.w_v   =  decoded.w_v / 100;
+    if (decoded.t_i > 0)
+      converted.t_i   =  decoded.t_i / 100;
+    if (decoded.a_i > 0)
+      converted.a_i     = decoded.a_i;
+    if (decoded.bv > 0)
+      converted.bv    =  decoded.bv / 100;
+    if (decoded.s_tot > 0)
+      converted.s_tot =  decoded.s_tot;
+  }
+  else if (port === 1 && decoded.long === true && decoded.beep_base === false)
+  {
+    // leave sounds and w_v as is
+    if (decoded.t > 0)
+      converted.t       =  (decoded.t / 5) - 10;
+    if (decoded.h > 0)
+      converted.h       =  decoded.h / 2;
+    if (decoded.w_v > 0)
+      converted.w_v     = decoded.w_v
+    if (decoded.t_i > 0)
+      converted.t_i     =  (decoded.t_i / 5) - 10;
+    if (decoded.a_i > 0)
+      converted.a_i     = decoded.a_i;
+    if (decoded.bv > 0)
+      converted.bv      =  decoded.bv / 10;
+    if (decoded.s_tot > 0)
+      converted.s_tot   = decoded.s_tot;
+    if (decoded.s_fan_4 > 0)
+      converted.s_fan_4 = decoded.s_fan_4;
+    if (decoded.s_fan_6 > 0)
+      converted.s_fan_6 = decoded.s_fan_6;
+    if (decoded.s_fan_9 > 0)
+      converted.s_fan_9 = decoded.s_fan_9;
+    if (decoded.s_fly_a > 0)
+      converted.s_fly_a = decoded.s_fly_a;
+    if (decoded.w_fl > 0)
+      converted.w_fl    =  decoded.w_fl / 300;
+    if (decoded.w_fr > 0)
+      converted.w_fr    =  decoded.w_fr / 300;
+    if (decoded.w_bl > 0)
+      converted.w_bl    =  decoded.w_bl / 300;
+    if (decoded.w_br > 0)
+      converted.w_br    =  decoded.w_br / 300;
+  }
+  else if (decoded.beep_base === true)
+  {
+    converted = decoded;
+    
+    // battery
+    if (decoded.bv > 0)
+      converted.bv =  decoded.bv / 1000;
+    
+    // weight is not converted
+
+    // temperature (-99 is error code)
+    if (decoded.ds18b20_present)
+    {
+      if (decoded.ds18b20_sensor_amount == 1)
+      {
+        if (decoded.t_i > -99)
+          converted.t_i =  decoded.t_i / 100;
+        
+      }
+      else if (decoded.ds18b20_sensor_amount > 1)
+      {
+        for (var i = 0; i < decoded.ds18b20_sensor_amount; i++) 
+        {
+          converted['t_'+i] = decoded['t_'+i] / 100;
+        }
+      }
+    }
+
+    // sound fft not converted
+
+    // bme280
+    if (decoded.bme280_present)
+    {
+      converted.t = decoded.bme280_t / 100;
+      converted.h = decoded.bme280_h / 100;
+      converted.p = decoded.bme280_p; // hPa
+    }
+  }
+
+  return converted;
 }
 

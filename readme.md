@@ -165,16 +165,6 @@ e. You should see the back-end dashboard, looking like this:
 ![BEEP Management interface](https://github.com/beepnl/BEEP/blob/bob-additions/BEEP-management-interface.png)
 
 
-# Getting your BEEP base measurement data into the BEEP app
-
-1. a) Create a TTN account at https://console.thethingsnetwork.org/ (or other LoRa network) and create an HTTP integration pointing to https://api.beep.nl/api/lora_sensors
-1. b) Or point your own measurement device data stream HTTP POST to https://api.beep.nl/api/sensors (please refer to our [Slack channel](beep-global.slack.com) for API description)
-2. Use the native [Android](https://play.google.com/store/apps/details?id=appinventor.ai_app_beep_nl.BEEP_commissioning_V06&gl=NL) / [iOS](https://apps.apple.com/us/app/beep-base/id1495605010) app to configure your BEEP base by Bluetooth. 
-3. With the app, connect the BEEP base to the BEEP TTN network (auto configuration), or connect the BEEP base (manually) to your own LoRa network
-4. The native app adds a BEEP base measurement device to your BEEP account
-5. You can see the measurement data at the Measurements menu item of the webapp 
-
-
 # Installation using docker compose
 
 A simple setup for small installations can be achived with [docker-compose](https://docs.docker.com/compose/). The tool will spinn up a mysqldb, influd, a webserver and initialize the beep database.
@@ -190,6 +180,15 @@ A simple setup for small installations can be achived with [docker-compose](http
 To upgrade beep to the latest version, simply stop and start docker-compose.
 
 As the setup is based on docker containers, code changes inside the repository will not have an effeact till the underlying docker image is updated. 
+
+
+# Get your BEEP base measurement data into the BEEP app
+
+1. Create a TTN account at https://console.thethingsnetwork.org/ (or other LoRa network) and create an HTTP integration pointing to https://api.beep.nl/api/lora_sensors, or point your own measurement device data stream HTTP POST to https://api.beep.nl/api/sensors (please refer to our [Slack channel](beep-global.slack.com) for API description)
+2. Use the native [Android](https://play.google.com/store/apps/details?id=appinventor.ai_app_beep_nl.BEEP_commissioning_V06&gl=NL) / [iOS](https://apps.apple.com/us/app/beep-base/id1495605010) app to configure your BEEP base by Bluetooth. 
+3. With the app, connect the BEEP base to the BEEP TTN network (auto configuration), or connect the BEEP base (manually) to your own LoRa network
+4. The native app adds a BEEP base measurement device to your BEEP account
+5. You can see the measurement data at the Measurements menu item of the webapp 
 
 
 # Contributing

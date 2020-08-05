@@ -653,7 +653,7 @@ class MeasurementController extends Controller
             $data_array = $this->parse_kpn_payload($request_data);
             $payload_type = 'kpn';
         }
-        else if ($request->filled('payload_fields') && $request->filled('hardware_serial')) // TTN HTTP POST
+        else if (($request->filled('payload_fields') || $request->filled('payload_raw')) && $request->filled('hardware_serial')) // TTN HTTP POST
         {
             $data_array = $this->parse_ttn_payload($request_data);
             $payload_type = 'ttn';

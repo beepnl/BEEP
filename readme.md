@@ -48,6 +48,8 @@ a. Make the ```run_actions.sh``` file executable by ```chmod +x run_actions.sh``
 
 b. Then run it: ```./run_actions.sh```
 
+NB: To stick to a certain PHP version (on the server e.g. 7.1.25), use ```composer install --ignore-platform-reqs``` or ```composer update --ignore-platform-reqs```
+
 ## 4. Set up your end-points
 
 a. Make sure your server has 2 different virtual hosts for the API and the APP

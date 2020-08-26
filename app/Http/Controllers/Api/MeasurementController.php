@@ -719,13 +719,15 @@ class MeasurementController extends Controller
             $first_w = $client::query('SELECT * FROM "weather" WHERE "lat" = \''.$location->coordinate_lat.'\' AND "lon" = \''.$location->coordinate_lon.'\' ORDER BY time ASC LIMIT 1')->getPoints(); // get first weather date
         
         if (count($first) == 0 && count($first_w) == 0)
-            Response::json('sensor-none-error', 500);
+            return Response::json('sensor-none-error', 500);
         
-        $all_names = array_keys($this->valid_sensors);
-        $names     = $request->input('names', $all_names);
+        $names = array_keys($this->valid_sensors);
+
+        if ($request->filled('names'))
+            $names = explode(",", $request->input('names'));
 
         if (count($names) == 0)
-            Response::json('sensor-none-defined', 500);
+            return Response::json('sensor-none-defined', 500);
 
         // add sensorDefinition names
         $sensorDefinitions = [];

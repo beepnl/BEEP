@@ -188,7 +188,7 @@ app.config(['$routeProvider', '$locationProvider',  function($routeProvider)
   .when('/support', 
   {
         controller:'SettingsCtrl',
-        templateUrl:'/app/views/support.html'
+        templateUrl:'/app/views/support.html?v=1'
   })
 
   .when('/new', 

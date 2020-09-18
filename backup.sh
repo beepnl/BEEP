@@ -18,33 +18,25 @@ then
 fi
 
 echo "Backing up MySQL database"
-MDIR="/home/bitnami/backups/mysql/$DATE"
+MYSQL_USER=$(/bin/grep -oP '^DB_USERNAME=\K.*' /home/bitnami/apps/BEEP/.env)
 MYSQL_PASS=$(/bin/grep -oP '^DB_PASSWORD=\K.*' /home/bitnami/apps/BEEP/.env)
-/opt/bitnami/mysql/bin/mysqldump -u beep -p"$MYSQL_PASS" bee_base | /bin/gzip > /home/bitnami/backups/mysql/bee_base.sql.gz
+/opt/bitnami/mysql/bin/mysqldump -u"$MYSQL_USER" -p"$MYSQL_PASS" bee_base | /bin/gzip > /home/bitnami/backups/mysql/bee_base-$DATE.gz
 
-if [ -d "$MDIR" ]
-then
-	echo "Removing existing MySQL backup dir $MDIR"
-	sudo rm -rf $MDIR
-fi
-sudo mkdir $MDIR
-echo "Copying MySQL backup to dir $MDIR"
-sudo cp /home/bitnami/backups/mysql/bee_base.sql.gz $MDIR
+echo "Remove MySQL backups older than 60 days"
+sudo find /home/bitnami/backups/mysql/* -mtime +60 -delete
+
+# Sync todays backup to S3 (delete all available files there, and only sync the files inside the root folder + all folders that are named like the first of the month)
+/usr/bin/aws s3 sync /home/bitnami/backups/mysql/ s3://beeplegacyinfrastructurestack-bucket83908e77-1088rn21ai0um/backups/mysql --exclude "*" --include "*.gz" --delete
 
 echo "Backing up Influx database"
-IDIR="/home/bitnami/backups/influx/$DATE"
+influxd backup -database bee_data -retention autogen /home/bitnami/backups/influx
+sudo rm /home/bitnami/backups/influx/*.pending
 
-if [ -d "$IDIR" ]
-then
-	echo "Removing existing Influx backup dir $IDIR"
-	sudo rm -rf $IDIR
-fi
-sudo mkdir $IDIR
-influxd backup -database bee_data -retention autogen $IDIR
+echo "Compress Influx backup to file and remove backups older than 30 days"
+/bin/tar -czf "/home/bitnami/backups/influx/bee_data-$DATE-influx.gz" /home/bitnami/backups/influx/*.00 && sudo rm /home/bitnami/backups/influx/*.00 && sudo find /home/bitnami/backups/influx/* -mtime +30 -delete
 
-sudo rm /home/bitnami/backups/influx/*.00
-echo "Copying Influx backup to dir $IDIR"
-sudo cp $IDIR/*.00 /home/bitnami/backups/influx/
+# Sync todays backup to S3 (option: delete all available files there, and only sync the files inside the home/bitnami folder + all folders that are named like the first of the month: --exclude "*/*" --include "????-??-01/*")
+/usr/bin/aws s3 sync /home/bitnami/backups/influx/ s3://beeplegacyinfrastructurestack-bucket83908e77-1088rn21ai0um/backups/influx --exclude "*" --include "*.gz" --delete
 
 echo "Finished backup for $DATE"
 echo ""

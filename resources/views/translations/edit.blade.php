@@ -20,7 +20,7 @@
                         <li>Download the <a href="/js/languages/{{ $language->twochar }}.js">{{ $language->name_english }} app translations Javascript file ({{ $language->twochar }}.js) here</a></li>
                         <li>Open it in a text editor</li>
                         <li>ONLY change all the English texts after the colons (:) between 'single quotes' (and leave the quotes there). You can use all UTF-8 characters.</li>
-                        <li>If translated, please send the file to <a href="mailto:pim@beep.nl">pim@beep.nl</a> to create a new app language and include it in the app files.</li> 
+                        <li>If translated, please send the file to <a href="mailto:support@beep.nl">support@beep.nl</a> to create a new app language and include it in the app files.</li> 
                     </ol>
                     <p><strong>The translations will be made available in the on-line Beep app as soon as both the app texts and the taxonomy fields (see box below) are filled for a new language.</strong></p>
                 </div>

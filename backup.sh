@@ -33,7 +33,7 @@ influxd backup -database bee_data -retention autogen /home/bitnami/backups/influ
 sudo rm /home/bitnami/backups/influx/*.pending
 
 echo "Compress Influx backup to file and remove backups older than 30 days"
-/bin/tar -czf "/home/bitnami/backups/influx/bee_data-$DATE-influx.gz" /home/bitnami/backups/influx/*.01 && sudo rm /home/bitnami/backups/influx/*.01 && sudo find /home/bitnami/backups/influx/* -mtime +30 -delete
+/bin/tar -czf "/home/bitnami/backups/influx/bee_data-$DATE-influx.gz" /home/bitnami/backups/influx/*.00 && sudo rm /home/bitnami/backups/influx/*.00 && sudo find /home/bitnami/backups/influx/* -mtime +30 -delete
 
 # Sync todays backup to S3 (option: delete all available files there, and only sync the files inside the home/bitnami folder + all folders that are named like the first of the month: --exclude "*/*" --include "????-??-01/*")
 /usr/bin/aws s3 sync /home/bitnami/backups/influx/ s3://beeplegacyinfrastructurestack-bucket83908e77-1088rn21ai0um/backups/influx --exclude "*" --include "*.gz" --delete

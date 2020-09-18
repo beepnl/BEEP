@@ -1,5 +1,13 @@
 [
   {
+    "version": "1.5.0",
+    "release_date": "2020-09-18T10:00:00Z",
+    "release_notes": "BEEP base 1.5.0 removes the tilt sensor functionality and makes it possible to switch on/off the base by holding the magnet in front of the side for 10 seconds. It also adds time logging in flash memory.",
+    "stability": "test",
+    "size": 179000,
+    "download_url": "https://assets.beep.nl/firmware/basev3/1.5.0/Beepbase_app.zip"
+  },
+  {
     "version": "1.4.2",
     "release_date": "2020-06-05T13:00:00Z",
     "release_notes": "BEEP base 1.4.2 adds a fix for stability of LoRa messages sent over KPN LoRaWAN. You should replace 1.4.1 with 1.4.2.",

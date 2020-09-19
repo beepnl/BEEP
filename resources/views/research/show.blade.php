@@ -16,15 +16,96 @@
         @endslot
 
         @slot('body')
-
+            <h1>Research</h1>
             <table class="table table-responsive table-striped">
                 <tbody>
                     <tr>
-                        <th>ID</th><td>{{ $research->id }}</td>
+                        <th>ID</th>
+                        <td>{{ $research->id }}</td>
                     </tr>
-                    <tr><th> Name </th><td> {{ $research->name }} </td></tr><tr><th> Image </th><td> {{ $research->image }} </td></tr><tr><th> Description </th><td> {{ $research->description }} </td></tr><tr><th> Type </th><td> {{ $research->type }} </td></tr><tr><th> Institution </th><td> {{ $research->institution }} </td></tr><tr><th> Type Of Data Used </th><td> {{ $research->type_of_data_used }} </td></tr><tr><th> Start Date </th><td> {{ $research->start_date }} </td></tr><tr><th> End Date </th><td> {{ $research->end_date }} </td></tr>
+                    <tr>
+                        <th> Name </th><td> {{ $research->name }} </td></tr><tr>
+                        <th> Image </th><td> <img src="{{ $research->image->image_url }}" style="width: 100px;"> </td></tr><tr>
+                        <th> Description </th><td> {{ $research->description }} </td></tr><tr>
+                        <th> Type </th><td> {{ $research->type }} </td></tr><tr>
+                        <th> Institution </th><td> {{ $research->institution }} </td></tr><tr>
+                        <th> Type Of Data Used </th><td> {{ $research->type_of_data_used }} </td></tr><tr>
+                        <th> Start Date </th><td> {{ $research->start_date }} </td></tr><tr>
+                        <th> End Date </th><td> {{ $research->end_date }} </td></tr>
                 </tbody>
             </table>
+
+            <h1>User consents</h1>
+            <table class="table table-responsive table-striped">
+                <thead>
+                    <tr>
+                        <th>User</th>
+                        <th>Date</th>
+                        <th>Consent</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach($consents as $uc)
+                    <tr>
+                        <td>{{ App\User::find($uc->user_id)->name }}</td>
+                        <td>{{ $uc->updated_at }}</td>
+                        <td>{{ $uc->consent }}</td>
+                    </tr>
+                    @endforeach
+                </tbody>
+            </table>
+
+            <h1>Research content</h1>
+            <div style="width: 100%; overflow-y: hidden; overflow-x: auto;">
+                <table class="table table-responsive table-striped table-header-rotated">
+                    <thead>
+                        <tr>
+                            <th></th>
+                            @foreach($dates as $date => $d)
+                                <th class="rotate"><div><span>{{ $date }}</span></div></th>
+                            @endforeach
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <th class="row-header"><span><i class="fa fa-2x fa-user"></i> Users</span></th> 
+                            @foreach($dates as $date => $d)
+                                <td>{{ $d['users'] > 0 ? $d['users'] : '' }}</td>
+                            @endforeach
+                        </tr>
+                        <tr>
+                            <th class="row-header"><span><i class="fa fa-2x fa-map-marker"></i> Apiaries</span></th> 
+                            @foreach($dates as $date => $d)
+                                <td>{{ $d['apiaries'] > 0 ? $d['apiaries'] : '' }}</td>
+                            @endforeach
+                        </tr>
+                        <tr>
+                            <th class="row-header"><span><i class="fa fa-2x fa-archive"></i> Hives</span></th> 
+                            @foreach($dates as $date => $d)
+                                <td>{{ $d['hives'] > 0 ? $d['hives'] : '' }}</td>
+                            @endforeach
+                        </tr>
+                        <tr>
+                            <th class="row-header"><span><i class="fa fa-2x fa-edit"></i> Inspections</span></th> 
+                            @foreach($dates as $date => $d)
+                                <td>{{ $d['inspections'] > 0 ? $d['inspections'] : '' }}</td>
+                            @endforeach
+                        </tr>
+                        <tr>
+                            <th class="row-header"><span><i class="fa fa-2x fa-feed"></i> Devices</span></th> 
+                            @foreach($dates as $date => $d)
+                                <td>{{ $d['devices'] > 0 ? $d['devices'] : '' }}</td>
+                            @endforeach
+                        </tr>
+                        <tr>
+                            <th class="row-header"><span><i class="fa fa-2x fa-line-chart"></i> Measurements</span></th> 
+                            @foreach($dates as $date => $d)
+                                <td>{{ $d['measurements'] > 0 ? $d['measurements'] : '' }}</td>
+                            @endforeach
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
 
         @endslot
     @endcomponent

@@ -1024,6 +1024,47 @@ dt a i.fa {
 		width: 100%;
 	}
 
+/* Research */
+.table-header-rotated {
+  border-collapse: collapse;
+}
+.table-header-rotated td {
+  width: 30px;
+}
+.table-header-rotated td {
+  text-align: center;
+  padding: 10px 5px;
+  border: 1px solid #ccc;
+}
+.table-header-rotated th.rotate {
+  height: 100px;
+  white-space: nowrap;
+}
+.table-header-rotated th.rotate > div {
+  -webkit-transform: translate(25px, 0px) rotate(315deg);
+          transform: translate(25px, 0px) rotate(315deg);
+  width: 30px;
+}
+.table-header-rotated th.rotate > div > span {
+  border-bottom: 1px solid #ccc;
+  padding: 5px 10px;
+}
+.table-header-rotated th.row-header {
+  min-width: 200px;
+  border-bottom: 1px solid #ccc;
+  vertical-align: middle;
+}
+	.table-header-rotated th.row-header > span {
+		padding: 0 10px;
+		vertical-align: middle;
+	}
+		.table-header-rotated th.row-header > span > i {
+			margin-right: 10px;
+		    width: 30px;
+		    text-align: center;
+		    vertical-align: middle;
+		}
+
 /* Mobile */
 @media (max-width: 400px) {
 	.header-title {

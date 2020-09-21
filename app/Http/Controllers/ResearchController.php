@@ -7,9 +7,15 @@ use Illuminate\Http\Request;
 
 use App\Http\Controllers\Controller;
 
+use App\User;
 use App\Research;
+use App\Location;
+use App\Hive;
+use App\Inspection;
+use App\Device;
 
 use DB;
+use InfluxDB;
 use Moment\Moment;
 
 class ResearchController extends Controller
@@ -102,8 +108,7 @@ class ResearchController extends Controller
     public function show($id)
     {
         $research = Research::findOrFail($id);
-
-        $consents = DB::table('research_user')->where('research_id', $id)->whereDate('updated_at', '>=', $research->start_date)->whereDate('updated_at', '<', $research->end_date)->orderBy('user_id')->orderBy('updated_at','desc')->get();
+        $influx   = new \Influx;
 
         // Make dates table
         $dates = [];
@@ -116,57 +121,94 @@ class ResearchController extends Controller
             $moment_end = $moment_now;
             
         $moment_start = $moment_start->endof('day');
-        $moment = $moment_end->startof('day');
+        $moment_end   = $moment_end->endof('day');
+        $moment = $moment_start->startof('day');
         $assets = ["users"=>0, "apiaries"=>0, "hives"=>0, "inspections"=>0, "devices"=>0, "measurements"=>0];
-        
-        while($moment > $moment_start)
+
+        while($moment < $moment_end)
         {
+            // make date
             $dates[$moment->format('Y-m-d')] = $assets;
-            $moment = $moment->addDays(-1);
+            // next
+            $moment = $moment->addDays(1);
         }
 
         // count user consents within dates
+        $consent_users = DB::table('research_user')->where('research_id', $id)->whereDate('updated_at', '<', $research->end_date)->orderBy('user_id')->groupBy('user_id')->get();
+        $user_id       = null;
 
+        foreach ($consent_users as $cu) 
+        {
+            $user_consents   = DB::table('research_user')->where('research_id', $id)->where('user_id', $cu->user_id)->whereDate('updated_at', '<', $research->end_date)->orderBy('updated_at','asc')->get()->toArray();
+            
+            //die(print_r($consents));
+            $user_consent      = $user_consents[0]->consent;
+            $date_next_consent = $moment_end->format('Y-m-d');
+            $date_curr_consent = $moment_end->format('Y-m-d');
+            $index             = 0;
 
+            if (count($user_consents) > 1)
+            {
+                $date_next_consent = substr($user_consents[1]->updated_at, 0, 10);
+                $index             = 1;
+            }
+            elseif ($user_consent === 0) // if only 1 and consent is false, continue to next user
+            {
+                continue;
+            }
 
-        // try
-        // {
-        //     $client = new \Influx;
-        //     $sensor_counts = $client::query('SELECT COUNT(*) as "count" FROM "sensors"')->getPoints(); // get first sensor date
-        // }
-        // catch(\Exception $e)
-        // {
-        //     $connection = $e;
-        // }
-        // $sensor_count = [];
-        // $sensor_total = 0;
-        // $measurements = Measurement::all()->pluck('pq', 'abbreviation')->toArray();
+            // go over dates, compare consent dates
+            foreach ($dates as $d => $v) 
+            {
+                if ($d >= $date_next_consent && $index > 0 && $index < count($user_consents)-1) // change user_consent if multiple user_consents exist and check date is past the active consent date 
+                {
+                    // take current user_consent
+                    $user_consent       = $user_consents[$index]->consent;
+                    $date_curr_consent  = substr($user_consents[$index]->updated_at, 0, 10);
+                    //fill up to next consent date
+                    $date_next_consent  = substr($user_consents[$index+1]->updated_at, 0, 10);
+                    $index++;
+                }
 
-        // //die(print_r($measurements));
+                if ($user_consent)
+                {
+                    $user_apiaries     = Location::where('user_id', $cu->user_id)->whereDate('created_at', '<=', $d)->count();
+                    $user_hives        = Hive::where('user_id', $cu->user_id)->whereDate('created_at', '<=', $d)->count();
+                    $user_inspections  = User::find($cu->user_id)->inspections()->whereDate('created_at', '=', $d)->count();
+                    $user_device_keys  = Device::where('user_id', $cu->user_id)->whereDate('created_at', '<=', $d)->pluck('key')->toArray();
+                    $user_measurements = 0;
 
-        // if (count($sensor_counts) > 0 && count(reset($sensor_counts)) > 1)
-        // {
-        //     $arr = reset($sensor_counts);
-        //     foreach ($arr as $key => $val) 
-        //     {
-        //         $sensor_abbr = substr($key, 6);
-        //         $sensor_name = in_array($sensor_abbr, array_keys($measurements)) ? $measurements[$sensor_abbr].' ('.$sensor_abbr.')' : null;
-        //         //die(print_r($val));
+                    if (count($user_device_keys) > 0)
+                    {
+                        $points = [];
+                        $user_sensor_query = $influx::query('SELECT COUNT(*) as "count" FROM "sensors" WHERE ("key" = \''.$user_device_keys[0].'\' OR "key" = \''.strtolower($user_device_keys[0]).'\' OR "key" = \''.strtoupper($user_device_keys[0]).'\') AND time >= \''.$d." 00:00:00".'\' AND time <= \''.$d." 23:59:59".'\'')->getPoints();
+                        try{
+                            $result  = $influx::query($user_sensor_query);
+                            $points = $result->getPoints();
+                        } catch (InfluxDB\Exception $e) {
+                            // return Response::json('influx-group-by-query-error', 500);
+                        } catch (Exception $e) {
+                            // return Response::json('influx-group-by-query-error', 500);
+                        }
+                        if (count($points) > 0 && $points[0]['count'] > 0)
+                            $user_measurements = $points[0]['count'];
+                    }
 
-        //         if ($sensor_name != null)
-        //         {
-        //             $count = intval($val);
-        //             $sensor_count[$sensor_name] = $count;
-        //             $sensor_total += $count;
-        //         }
-        //     }
+                    $dates[$d]['users']       = $v['users'] + $user_consent;
+                    $dates[$d]['apiaries']    = $v['apiaries'] + $user_apiaries;
+                    $dates[$d]['hives']       = $v['hives'] + $user_hives;
+                    $dates[$d]['inspections'] = $v['inspections'] + $user_inspections;
+                    $dates[$d]['devices']     = $v['devices'] + count($user_device_keys);
+                    $dates[$d]['measurements']= $v['measurements'] + $user_measurements;
+                }
+            }
+            //die(print_r([$user_consent, $date_next_consent, $user_consents, $dates]));
+        }
 
-        //     ksort($sensor_count);
-        // }
-        // $data['measurements']= $sensor_total;
-        // $data['measurement_details']= $sensor_count;
+        // reverse array for display
+        krsort($dates);
 
-        return view('research.show', compact('research', 'consents', 'dates'));
+        return view('research.show', compact('research', 'dates'));
     }
 
     /**

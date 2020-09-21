@@ -70,6 +70,7 @@
                     <td>{{ $item->checklists->pluck('name')->join(', ') }}</td>
                     <td>{{ $item->users->count() }}</td>
                     <td>
+                        <a href="{{ route('research.show', $item->id) }}" title="{{ __('crud.view') }}"><button class="btn btn-default"><i class="fa fa-eye" aria-hidden="true"></i></button></a>
                         <a href="{{ route('research.edit', $item->id) }}" title="{{ __('crud.edit') }}"><button class="btn btn-primary"><i class="fa fa-pencil" aria-hidden="true"></i></button></a>
 
                         <form method="POST" action="{{ route('research.destroy', $item->id) }}" accept-charset="UTF-8" style="display:inline">

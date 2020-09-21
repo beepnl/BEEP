@@ -1027,9 +1027,12 @@ dt a i.fa {
 /* Research */
 .table-header-rotated {
   border-collapse: collapse;
+  margin: 0;
+  padding: 0;
 }
 .table-header-rotated td {
   width: 30px;
+  height: 45px;
 }
 .table-header-rotated td {
   text-align: center;
@@ -1050,8 +1053,9 @@ dt a i.fa {
   padding: 5px 10px;
 }
 .table-header-rotated th.row-header {
-  min-width: 200px;
+  width: 199px;
   border-bottom: 1px solid #ccc;
+  border-right: 1px solid #999;
   vertical-align: middle;
 }
 	.table-header-rotated th.row-header > span {

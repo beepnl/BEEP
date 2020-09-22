@@ -6,7 +6,7 @@
 @section('content')
     @component('components/box')
         @slot('title')
-            {{ (isset($research->name) ? $research->name : __('general.Item')).' '.__('crud.attributes') }}
+            Research consent data
         @endslot
 
         @slot('action')
@@ -35,10 +35,8 @@
                 </tbody>
             </table> -->
 
-            <h1>Research consent data</h1>
             <div class="col-xs-12">
                 <form method="GET" action="{{ route('research.show',$research->id) }}" accept-charset="UTF-8" class="form-horizontal" enctype="multipart/form-data">
-                    
                     <div class="col-xs-7">
                         <div class="form-group {{ $errors->has('user_ids') ? 'has-error' : ''}}">
                             <label for="user_ids" control-label>{{ 'Select consented users' }}</label>
@@ -53,11 +51,13 @@
                     <div class="col-xs-4">
                         <div class="form-group">
                             <label control-label>Load data</label>
-                            <a href="{{ route('research.show', $research->id) }}" title="{{ __('crud.show') }}"><button class="btn btn-primary btn-block"><i class="fa fa-refresh" aria-hidden="true"></i> Reload consent data table</button></a>
+                            <button class="btn btn-primary btn-block" type="submit"><i class="fa fa-refresh" aria-hidden="true"></i> Reload consent data table</button>
                         </div>
                     </div>
                 </form>
             </div>
+
+            <!-- Data table -->
             <div style="display: inline-block;">
                 <table class="table table-responsive table-striped table-header-rotated">
                     <thead>
@@ -129,6 +129,21 @@
                         </tr>
                     </tbody>
                 </table>
+            </div>
+
+            <!-- Download button -->
+            <br>
+            <br>
+
+            <div class="col-xs-12">
+                <form method="GET" action="{{ route('research.show',[$research->id,'download'=>true]) }}" accept-charset="UTF-8" class="form-horizontal" enctype="multipart/form-data">
+                    <div class="col-xs-4">
+                        <div class="form-group">
+                            <label control-label>Download dataset</label>
+                            <button class="btn btn-primary btn-block disabled" type="submit" disabled><i class="fa fa-download" aria-hidden="true"></i> Download selected consent data set</button>
+                        </div>
+                    </div>
+                </form>
             </div>
 
         @endslot

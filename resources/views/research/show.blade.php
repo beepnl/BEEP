@@ -16,7 +16,7 @@
         @endslot
 
         @slot('body')
-            <h1>Research</h1>
+            <!-- <h1>Research</h1>
             <table class="table table-responsive table-striped">
                 <tbody>
                     <tr>
@@ -33,9 +33,31 @@
                         <th> Start Date </th><td> {{ $research->start_date }} </td></tr><tr>
                         <th> End Date </th><td> {{ $research->end_date }} </td></tr>
                 </tbody>
-            </table>
+            </table> -->
 
-            <h1>Research content</h1>
+            <h1>Research consent data</h1>
+            <div class="col-xs-12">
+                <form method="GET" action="{{ route('research.show',$research->id) }}" accept-charset="UTF-8" class="form-horizontal" enctype="multipart/form-data">
+                    
+                    <div class="col-xs-7">
+                        <div class="form-group {{ $errors->has('user_ids') ? 'has-error' : ''}}">
+                            <label for="user_ids" control-label>{{ 'Select consented users' }}</label>
+                            <div>
+                                {!! Form::select('user_ids[]', $consent_users_select, $consent_users_selected, array('id'=>'user_ids','class' => 'form-control select2', 'multiple')) !!}
+                                {!! $errors->first('user_ids', '<p class="help-block">:message</p>') !!}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xs-1">
+                    </div>
+                    <div class="col-xs-4">
+                        <div class="form-group">
+                            <label control-label>Load data</label>
+                            <a href="{{ route('research.show', $research->id) }}" title="{{ __('crud.show') }}"><button class="btn btn-primary btn-block"><i class="fa fa-refresh" aria-hidden="true"></i> Reload consent data table</button></a>
+                        </div>
+                    </div>
+                </form>
+            </div>
             <div style="display: inline-block;">
                 <table class="table table-responsive table-striped table-header-rotated">
                     <thead>

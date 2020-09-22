@@ -105,7 +105,7 @@ class ResearchController extends Controller
      *
      * @return \Illuminate\View\View
      */
-    public function show($id)
+    public function show($id, Request $request)
     {
         $research = Research::findOrFail($id);
         $influx   = new \Influx;
@@ -134,8 +134,19 @@ class ResearchController extends Controller
         }
 
         // count user consents within dates
-        $consent_users = DB::table('research_user')->where('research_id', $id)->whereDate('updated_at', '<', $research->end_date)->orderBy('user_id')->groupBy('user_id')->get();
-        $user_id       = null;
+        $consent_users_select = DB::table('research_user')->join('users', 'users.id', '=', 'research_user.user_id')->where('research_user.research_id', $id)->whereDate('research_user.updated_at', '<', $research->end_date)->groupBy('research_user.user_id')->pluck('users.name','users.id')->toArray();
+        asort($consent_users_select, SORT_NATURAL);
+        
+        $consent_users_selected = null;
+
+        // select users
+        if ($request->has('user_ids'))
+            $consent_users_selected = $request->input('user_ids');
+        else
+            $consent_users_selected = [array_keys($consent_users_select)[0]];
+
+        $consent_users = DB::table('research_user')->where('research_id', $id)->whereIn('user_id', $consent_users_selected)->whereDate('updated_at', '<', $research->end_date)->get();
+        
 
         foreach ($consent_users as $cu) 
         {
@@ -157,6 +168,12 @@ class ResearchController extends Controller
                 continue;
             }
 
+            // add user data
+            $user_apiaries     = Location::where('user_id', $cu->user_id)->orderBy('created_at')->get();
+            $user_hives        = Hive::where('user_id', $cu->user_id)->orderBy('created_at')->get();
+            $user_inspections  = User::find($cu->user_id)->inspections()->orderBy('created_at')->get();
+            $user_devices      = Device::where('user_id', $cu->user_id)->orderBy('created_at')->get();
+
             // go over dates, compare consent dates
             foreach ($dates as $d => $v) 
             {
@@ -172,33 +189,29 @@ class ResearchController extends Controller
 
                 if ($user_consent)
                 {
-                    $user_apiaries     = Location::where('user_id', $cu->user_id)->whereDate('created_at', '<=', $d)->count();
-                    $user_hives        = Hive::where('user_id', $cu->user_id)->whereDate('created_at', '<=', $d)->count();
-                    $user_inspections  = User::find($cu->user_id)->inspections()->whereDate('created_at', '=', $d)->count();
-                    $user_device_keys  = Device::where('user_id', $cu->user_id)->whereDate('created_at', '<=', $d)->pluck('key')->toArray();
                     $user_measurements = 0;
 
-                    if (count($user_device_keys) > 0)
-                    {
-                        $points = [];
-                        $user_sensor_query = $influx::query('SELECT COUNT(*) as "count" FROM "sensors" WHERE ("key" = \''.$user_device_keys[0].'\' OR "key" = \''.strtolower($user_device_keys[0]).'\' OR "key" = \''.strtoupper($user_device_keys[0]).'\') AND time >= \''.$d." 00:00:00".'\' AND time <= \''.$d." 23:59:59".'\'')->getPoints();
-                        try{
-                            $result  = $influx::query($user_sensor_query);
-                            $points = $result->getPoints();
-                        } catch (InfluxDB\Exception $e) {
-                            // return Response::json('influx-group-by-query-error', 500);
-                        } catch (Exception $e) {
-                            // return Response::json('influx-group-by-query-error', 500);
-                        }
-                        if (count($points) > 0 && $points[0]['count'] > 0)
-                            $user_measurements = $points[0]['count'];
-                    }
+                    // if (count($user_devices) > 0)
+                    // {
+                    //     $points = [];
+                    //     $user_sensor_query = $influx::query('SELECT COUNT(*) as "count" FROM "sensors" WHERE ("key" = \''.$user_devices[0].'\' OR "key" = \''.strtolower($user_devices[0]).'\' OR "key" = \''.strtoupper($user_devices[0]).'\') AND time >= \''.$d." 00:00:00".'\' AND time <= \''.$d." 23:59:59".'\'')->getPoints();
+                    //     try{
+                    //         $result  = $influx::query($user_sensor_query);
+                    //         $points = $result->getPoints();
+                    //     } catch (InfluxDB\Exception $e) {
+                    //         // return Response::json('influx-group-by-query-error', 500);
+                    //     } catch (Exception $e) {
+                    //         // return Response::json('influx-group-by-query-error', 500);
+                    //     }
+                    //     if (count($points) > 0 && $points[0]['count'] > 0)
+                    //         $user_measurements = $points[0]['count'];
+                    // }
 
                     $dates[$d]['users']       = $v['users'] + $user_consent;
-                    $dates[$d]['apiaries']    = $v['apiaries'] + $user_apiaries;
-                    $dates[$d]['hives']       = $v['hives'] + $user_hives;
-                    $dates[$d]['inspections'] = $v['inspections'] + $user_inspections;
-                    $dates[$d]['devices']     = $v['devices'] + count($user_device_keys);
+                    $dates[$d]['apiaries']    = $v['apiaries'] + $user_apiaries->where('created_at', '<=', $d)->count();
+                    $dates[$d]['hives']       = $v['hives'] + $user_hives->where('created_at', '<=', $d)->count();
+                    $dates[$d]['inspections'] = $v['inspections'] + $user_inspections->where('created_at', '=', $d)->count();
+                    $dates[$d]['devices']     = $v['devices'] + $user_devices->where('created_at', '<=', $d)->count();
                     $dates[$d]['measurements']= $v['measurements'] + $user_measurements;
                 }
             }
@@ -208,7 +221,7 @@ class ResearchController extends Controller
         // reverse array for display
         krsort($dates);
 
-        return view('research.show', compact('research', 'dates'));
+        return view('research.show', compact('research', 'dates', 'consent_users_select', 'consent_users_selected'));
     }
 
     /**

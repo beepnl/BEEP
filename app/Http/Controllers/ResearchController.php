@@ -192,7 +192,7 @@ class ResearchController extends Controller
                 } catch (Exception $e) {
                     // return Response::json('influx-group-by-query-error', 500);
                 }
-                if (count($points) > 0 && $points[0]['count'] > 0)
+                if (count($points) > 0)
                     die(print_r($points));
             }
 

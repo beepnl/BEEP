@@ -173,7 +173,7 @@ class ResearchController extends Controller
             $user_hives        = Hive::where('user_id', $cu->user_id)->orderBy('created_at')->get();
             $user_inspections  = User::find($cu->user_id)->inspections()->orderBy('created_at')->get();
             $user_devices      = Device::where('user_id', $cu->user_id)->orderBy('created_at')->get();
-            $user_measurements = 0;
+            $user_measurements = [];
 
             if ($user_devices->count() > 0)
             {
@@ -186,14 +186,17 @@ class ResearchController extends Controller
                 $user_device_keys = '('.implode(' OR ', $user_device_keys).')';
 
                 try{
-                    $points = $influx::query('SELECT COUNT(*) as "count" FROM "sensors" WHERE '.$user_device_keys.' AND time >= \''.$user_consents[0]->updated_at.'\' AND time <= \''.$moment_end->format('Y-m-d H:i:s').'\' GROUP BY time(1d) fill(null)')->getPoints();
+                    $points = $influx::query('SELECT COUNT("bv") as "count" FROM "sensors" WHERE '.$user_device_keys.' AND time >= \''.$user_consents[0]->updated_at.'\' AND time <= \''.$moment_end->format('Y-m-d H:i:s').'\' GROUP BY time(1d) fill(null)')->getPoints();
                 } catch (InfluxDB\Exception $e) {
                     // return Response::json('influx-group-by-query-error', 500);
                 } catch (Exception $e) {
                     // return Response::json('influx-group-by-query-error', 500);
                 }
                 if (count($points) > 0)
-                    die(print_r($points));
+                {
+                    foreach ($points as $point) 
+                        $user_measurements[substr($point['time'],0,10)] = $point['count'];
+                }
             }
 
             // go over dates, compare consent dates
@@ -216,7 +219,8 @@ class ResearchController extends Controller
                     $dates[$d]['hives']       = $v['hives'] + $user_hives->where('created_at', '<=', $d)->count();
                     $dates[$d]['inspections'] = $v['inspections'] + $user_inspections->where('created_at', '>=', $d.' 00:00:00')->where('created_at', '<=', $d.' 23:59:59')->count();
                     $dates[$d]['devices']     = $v['devices'] + $user_devices->where('created_at', '<=', $d)->count();
-                    $dates[$d]['measurements']= $v['measurements'] + $user_measurements;
+                    if (in_array($d, array_keys($user_measurements)))
+                        $dates[$d]['measurements']= $v['measurements'] + $user_measurements[$d];
                 }
             }
             //die(print_r([$user_consent, $date_next_consent, $user_consents, $dates]));

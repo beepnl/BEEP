@@ -191,26 +191,33 @@ class ResearchController extends Controller
                 {
                     $user_measurements = 0;
 
-                    // if (count($user_devices) > 0)
-                    // {
-                    //     $points = [];
-                    //     $user_sensor_query = $influx::query('SELECT COUNT(*) as "count" FROM "sensors" WHERE ("key" = \''.$user_devices[0].'\' OR "key" = \''.strtolower($user_devices[0]).'\' OR "key" = \''.strtoupper($user_devices[0]).'\') AND time >= \''.$d." 00:00:00".'\' AND time <= \''.$d." 23:59:59".'\'')->getPoints();
-                    //     try{
-                    //         $result  = $influx::query($user_sensor_query);
-                    //         $points = $result->getPoints();
-                    //     } catch (InfluxDB\Exception $e) {
-                    //         // return Response::json('influx-group-by-query-error', 500);
-                    //     } catch (Exception $e) {
-                    //         // return Response::json('influx-group-by-query-error', 500);
-                    //     }
-                    //     if (count($points) > 0 && $points[0]['count'] > 0)
-                    //         $user_measurements = $points[0]['count'];
-                    // }
+                    if (count($user_devices) > 0)
+                    {
+                        $points = [];
+                        $where  = [];
+                        foreach ($user_devices as $device) 
+                        {
+                            $key    = $device->key;
+                            $where[]= '"key" = \''.$key.'\' OR "key" = \''.strtolower($key).'\' OR "key" = \''.strtoupper($key).'\'';
+                        }
+                        $where = '('.implode(' OR ', $where).')';
+                        $user_sensor_query = $influx::query('SELECT COUNT(*) as "count" FROM "sensors" WHERE '.$where.' AND time >= \''.$d." 00:00:00".'\' AND time <= \''.$d." 23:59:59".'\'')->getPoints();
+                        try{
+                            $result  = $influx::query($user_sensor_query);
+                            $points = $result->getPoints();
+                        } catch (InfluxDB\Exception $e) {
+                            // return Response::json('influx-group-by-query-error', 500);
+                        } catch (Exception $e) {
+                            // return Response::json('influx-group-by-query-error', 500);
+                        }
+                        if (count($points) > 0 && $points[0]['count'] > 0)
+                            die(print_r($points)); //$user_measurements = $points[0]['count'];
+                    }
 
                     $dates[$d]['users']       = $v['users'] + $user_consent;
                     $dates[$d]['apiaries']    = $v['apiaries'] + $user_apiaries->where('created_at', '<=', $d)->count();
                     $dates[$d]['hives']       = $v['hives'] + $user_hives->where('created_at', '<=', $d)->count();
-                    $dates[$d]['inspections'] = $v['inspections'] + $user_inspections->where('created_at', '=', $d)->count();
+                    $dates[$d]['inspections'] = $v['inspections'] + $user_inspections->where('created_at', '>=', $d.' 00:00:00')->where('created_at', '<=', $d.' 23:59:59')->count();
                     $dates[$d]['devices']     = $v['devices'] + $user_devices->where('created_at', '<=', $d)->count();
                     $dates[$d]['measurements']= $v['measurements'] + $user_measurements;
                 }

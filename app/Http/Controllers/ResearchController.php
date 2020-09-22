@@ -120,9 +120,9 @@ class ResearchController extends Controller
         if ($moment_now < $moment_end)
             $moment_end = $moment_now;
             
-        $moment_start = $moment_start->endof('day');
+        $moment_start = $moment_start->startof('day');
         $moment_end   = $moment_end->endof('day');
-        $moment = $moment_start->startof('day');
+        $moment = $moment_start;
         $assets = ["users"=>0, "apiaries"=>0, "hives"=>0, "inspections"=>0, "devices"=>0, "measurements"=>0];
 
         while($moment < $moment_end)
@@ -154,8 +154,8 @@ class ResearchController extends Controller
             
             //die(print_r($consents));
             $user_consent      = $user_consents[0]->consent;
+            $date_curr_consent = substr($user_consents[0]->updated_at, 0, 10);
             $date_next_consent = $moment_end->format('Y-m-d');
-            $date_curr_consent = $moment_end->format('Y-m-d');
             $index             = 0;
 
             if (count($user_consents) > 1)
@@ -173,6 +173,28 @@ class ResearchController extends Controller
             $user_hives        = Hive::where('user_id', $cu->user_id)->orderBy('created_at')->get();
             $user_inspections  = User::find($cu->user_id)->inspections()->orderBy('created_at')->get();
             $user_devices      = Device::where('user_id', $cu->user_id)->orderBy('created_at')->get();
+            $user_measurements = 0;
+
+            if ($user_devices->count() > 0)
+            {
+                // get daily counts of sensor measurements
+                $points           = [];
+                $user_device_keys = [];
+                foreach ($user_devices as $device) 
+                    $user_device_keys[]= '"key" = \''.$device->key.'\' OR "key" = \''.strtolower($device->key).'\' OR "key" = \''.strtoupper($device->key).'\'';
+                
+                $user_device_keys = '('.implode(' OR ', $user_device_keys).')';
+
+                try{
+                    $points = $influx::query('SELECT COUNT(*) as "count" FROM "sensors" WHERE '.$user_device_keys.' AND time >= \''.$user_consents[0]->updated_at.'\' AND time <= \''.$moment_end->format('Y-m-d H:i:s').'\' GROUP BY time(1d) fill(null)')->getPoints();
+                } catch (InfluxDB\Exception $e) {
+                    // return Response::json('influx-group-by-query-error', 500);
+                } catch (Exception $e) {
+                    // return Response::json('influx-group-by-query-error', 500);
+                }
+                if (count($points) > 0 && $points[0]['count'] > 0)
+                    die(print_r($points));
+            }
 
             // go over dates, compare consent dates
             foreach ($dates as $d => $v) 
@@ -189,31 +211,6 @@ class ResearchController extends Controller
 
                 if ($user_consent)
                 {
-                    $user_measurements = 0;
-
-                    if (count($user_devices) > 0)
-                    {
-                        $points = [];
-                        $where  = [];
-                        foreach ($user_devices as $device) 
-                        {
-                            $key    = $device->key;
-                            $where[]= '"key" = \''.$key.'\' OR "key" = \''.strtolower($key).'\' OR "key" = \''.strtoupper($key).'\'';
-                        }
-                        $where = '('.implode(' OR ', $where).')';
-                        $user_sensor_query = $influx::query('SELECT COUNT(*) as "count" FROM "sensors" WHERE '.$where.' AND time >= \''.$d." 00:00:00".'\' AND time <= \''.$d." 23:59:59".'\'')->getPoints();
-                        try{
-                            $result  = $influx::query($user_sensor_query);
-                            $points = $result->getPoints();
-                        } catch (InfluxDB\Exception $e) {
-                            // return Response::json('influx-group-by-query-error', 500);
-                        } catch (Exception $e) {
-                            // return Response::json('influx-group-by-query-error', 500);
-                        }
-                        if (count($points) > 0 && $points[0]['count'] > 0)
-                            die(print_r($points)); //$user_measurements = $points[0]['count'];
-                    }
-
                     $dates[$d]['users']       = $v['users'] + $user_consent;
                     $dates[$d]['apiaries']    = $v['apiaries'] + $user_apiaries->where('created_at', '<=', $d)->count();
                     $dates[$d]['hives']       = $v['hives'] + $user_hives->where('created_at', '<=', $d)->count();

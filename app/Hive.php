@@ -184,7 +184,7 @@ class Hive extends Model
     {
         // Get the available dates
         $inspections   = $this->inspections_by_date();
-        $items_by_date = Inspection::item_names($inspections);
+        $items_by_date = Inspection::item_names($inspections, true);
 
         // Add category header
         for ($i=count($items_by_date)-1; $i >= 0; $i--)

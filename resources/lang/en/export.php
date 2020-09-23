@@ -4,6 +4,7 @@ return [
 
     'id'            => 'ID',
     'user'          => 'User',
+    'users'         => 'Users',
     'location_id'   => 'Apiary',
     'hive_type_id'  => 'Hive type ID',
     'color'         => 'Color (HEX)',

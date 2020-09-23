@@ -39,7 +39,7 @@
                 <form method="GET" action="{{ route('research.show',$research->id) }}" accept-charset="UTF-8" class="form-horizontal" enctype="multipart/form-data">
                     <div class="col-xs-7">
                         <div class="form-group {{ $errors->has('user_ids') ? 'has-error' : ''}}">
-                            <label for="user_ids" control-label>{{ 'Select consented users' }}</label>
+                            <label for="user_ids" control-label>{{ 'Select consented users' }} ({{ count($consent_users_selected) }} / {{ count($consent_users_select) }})</label>
                             <div>
                                 {!! Form::select('user_ids[]', $consent_users_select, $consent_users_selected, array('id'=>'user_ids','class' => 'form-control select2', 'multiple')) !!}
                                 {!! $errors->first('user_ids', '<p class="help-block">:message</p>') !!}
@@ -136,11 +136,13 @@
             <br>
 
             <div class="col-xs-12">
-                <form method="GET" action="{{ route('research.show',[$research->id,'download'=>true]) }}" accept-charset="UTF-8" class="form-horizontal" enctype="multipart/form-data">
-                    <div class="col-xs-4">
+                <form method="GET" action="{{ route('research.show',$research->id) }}" accept-charset="UTF-8" class="form-horizontal" enctype="multipart/form-data">
+                    <div class="col-xs-12">
                         <div class="form-group">
                             <label control-label>Download dataset</label>
-                            <button class="btn btn-primary btn-block disabled" type="submit" disabled><i class="fa fa-download" aria-hidden="true"></i> Download selected consent data set</button>
+                            <input type="hidden" name="user_ids[]" value="{{ implode(',',$consent_users_selected) }}">
+                            <input type="hidden" name="download" value="1">
+                            <button class="btn btn-primary btn-block" type="submit"><i class="fa fa-download" aria-hidden="true"></i> Download selected consent data set</button>
                         </div>
                     </div>
                 </form>

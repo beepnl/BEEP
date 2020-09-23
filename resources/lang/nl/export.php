@@ -4,6 +4,7 @@ return [
 
     'id'            => 'ID',
     'user'          => 'Gebruiker',
+    'users'         => 'Gebruikers',
     'location_id'   => 'Bijenstand ID',
     'hive_type_id'  => 'Kasttype ID',
     'color'         => 'Kleur (HEX)',

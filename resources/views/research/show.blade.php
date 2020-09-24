@@ -141,7 +141,9 @@
                     <div class="col-xs-12">
                         <div class="form-group">
                             <label control-label>Download dataset</label>
-                            <input type="hidden" name="user_ids[]" value="{{ implode(',',$consent_users_selected) }}">
+                            @foreach($consent_users_selected as $i => $id)
+                                <input type="hidden" name="user_ids[{{ $i }}]" value="{{ $id }}">
+                            @endforeach
                             <input type="hidden" name="download" value="1">
                             <button class="btn btn-primary btn-block" type="submit"><i class="fa fa-download" aria-hidden="true"></i> Download selected consent data set</button>
                         </div>

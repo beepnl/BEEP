@@ -114,6 +114,7 @@ class ResearchController extends Controller
         $research     = Research::findOrFail($id);
         $influx       = new \Influx;
         $download_url = null;
+        $download     = $request->has('download');
 
         // Make dates table
         $dates = [];
@@ -146,7 +147,7 @@ class ResearchController extends Controller
 
         // select users
         if ($request->has('user_ids'))
-            $consent_users_selected = explode(',',$request->input('user_ids')[0]);
+            $consent_users_selected = $request->input('user_ids');
         else
             $consent_users_selected = [array_keys($consent_users_select)[0]];
 
@@ -156,7 +157,10 @@ class ResearchController extends Controller
                             ->whereDate('updated_at', '<', $research->end_date)
                             ->groupBy('user_id')
                             ->get();
-        
+
+        $users = User::whereIn('id', $consent_users_selected)->get();
+
+        //die(print_r([$request->input('user_ids'), $consent_users_selected, $users]));
         // Fill dates array
         $assets = ["users"=>0, "apiaries"=>0, "hives"=>0, "inspections"=>0, "devices"=>0, "measurements"=>0];
         $moment = $moment_start;
@@ -168,15 +172,112 @@ class ResearchController extends Controller
             $moment = $moment->addDays(1);
         }
 
+        $spreadsheet_array = [];
+        if ($download)
+        {
+            // Fill export array
+            // first combine all user's itemnames
+            $item_ancs  = [];
+            $item_names = [];
+            foreach ($users as $user) 
+            {
+                $ins = Inspection::item_names($user->inspections()->get());
+                foreach ($ins as $in) 
+                {
+                    $name = $in['anc'].$in['name'];
+                    if (!in_array($name, $item_ancs))
+                    {
+                        $item_ancs[]  = $name;
+                        $item_names[] = $in; 
+                    }
+                }
+            }
+
+            // Define header rows of tabs
+            $spreadsheet_array[__('export.users')] = [
+                           ['User_id',
+                            __('export.name'),
+                            __('export.email'),
+                            __('export.avatar'),
+                            __('export.created_at'),
+                            __('export.updated_at'),
+                            __('export.last_login')]
+                        ];
+
+            $spreadsheet_array[__('export.locations')] = [
+                           ['User_id',
+                            'Location_id',
+                            __('export.name'),
+                            __('export.type'),
+                            __('export.hives'),
+                            __('export.coordinate_lat'),
+                            __('export.coordinate_lon'),
+                            __('export.address'),
+                            __('export.postal_code'),
+                            __('export.city'),
+                            __('export.country_code'),
+                            __('export.continent'),
+                            __('export.created_at'),
+                            __('export.deleted_at')]
+                        ];
+
+            $spreadsheet_array[__('export.hives')] = [
+                           ['User_id',
+                            'Hive_id',
+                            __('export.name'),
+                            __('export.type'),
+                            'Location_id',
+                            __('export.color'),
+                            __('export.queen'),
+                            __('export.queen_color'),
+                            __('export.queen_born'),
+                            __('export.queen_fertilized'),
+                            __('export.queen_clipped'),
+                            __('export.brood_layers'),
+                            __('export.honey_layers'),
+                            __('export.frames'),
+                            __('export.created_at'),
+                            __('export.deleted_at')]
+                        ];
+
+            $spreadsheet_array[__('export.inspections')] = [
+                           ['User_id',
+                            'Inspection_id',
+                            __('export.created_at'),
+                            'Hive_id',
+                            'Location_id',
+                            __('export.impression'),
+                            __('export.attention'),
+                            __('export.reminder'),
+                            __('export.reminder_date'),
+                            __('export.notes')]
+                        ];
+
+            $spreadsheet_array['Sensor data'] = [
+                        ];
+
+            // Add item names to header row of inspections
+            foreach ($item_ancs as $name) 
+                $spreadsheet_array[__('export.inspections')][0][] = $name;
+
+            $spreadsheet_array[__('export.inspections')][0][] = __('export.deleted_at');
+
+            // add user data to sheet data arrays
+            foreach ($users as $user) 
+                $spreadsheet_array[__('export.users')][] = $this->getUser($user);
+
+        }
+
         // Fill dates array with counts of data
         foreach ($consents as $cu) 
         {
-            $user_consents = DB::table('research_user')->where('research_id', $id)->where('user_id', $cu->user_id)->whereDate('updated_at', '<', $research->end_date)->orderBy('updated_at','asc')->get()->toArray();
+            $user_id       = $cu->user_id;
+            $user_consents = DB::table('research_user')->where('research_id', $id)->where('user_id', $user_id)->whereDate('updated_at', '<', $research->end_date)->orderBy('updated_at','asc')->get()->toArray();
             
             //die(print_r($consents));
             $user_consent      = $user_consents[0]->consent;
-            $date_curr_consent = substr($user_consents[0]->updated_at, 0, 10);
-            $date_next_consent = $moment_end->format('Y-m-d');
+            $date_curr_consent = $user_consents[0]->updated_at;
+            $date_next_consent = $moment_end->format('Y-m-d H:i:s');
             $index             = 0;
 
             if (count($user_consents) > 1)
@@ -190,11 +291,13 @@ class ResearchController extends Controller
             }
 
             // add user data
-            $user_apiaries     = Location::where('user_id', $cu->user_id)->orderBy('created_at')->get();
-            $user_hives        = Hive::where('user_id', $cu->user_id)->orderBy('created_at')->get();
-            $user_inspections  = User::find($cu->user_id)->inspections()->orderBy('created_at')->get();
-            $user_devices      = Device::where('user_id', $cu->user_id)->orderBy('created_at')->get();
+            $user_apiaries     = Location::withTrashed()->where('user_id', $user_id)->where('created_at', '<', $research->end_date)->orderBy('created_at')->get();
+            $user_hives        = Hive::withTrashed()->where('user_id', $user_id)->where('created_at', '<', $research->end_date)->orderBy('created_at')->get();
+            $user_inspections  = User::find($user_id)->inspections()->withTrashed()->with('items')->where('created_at', '<', $research->end_date)->orderBy('created_at')->get();
+            $user_devices      = Device::where('user_id', $user_id)->orderBy('created_at')->get();
             $user_measurements = [];
+
+            //die(print_r([$user_apiaries->toArray(), $user_hives->toArray()]));
 
             if ($user_devices->count() > 0)
             {
@@ -223,25 +326,46 @@ class ResearchController extends Controller
             // go over dates, compare consent dates
             foreach ($dates as $d => $v) 
             {
-                if ($d >= $date_next_consent && $index > 0 && $index < count($user_consents)-1) // change user_consent if multiple user_consents exist and check date is past the active consent date 
+                $d_start = $d.' 00:00:00';
+                $d_end   = $d.' 23:59:59';
+
+                if ($d_end >= $date_next_consent && $index > 0 && $index < count($user_consents)-1) // change user_consent if multiple user_consents exist and check date is past the active consent date 
                 {
                     // take current user_consent
                     $user_consent       = $user_consents[$index]->consent;
-                    $date_curr_consent  = substr($user_consents[$index]->updated_at, 0, 10);
+                    $date_curr_consent  = $user_consents[$index]->updated_at;
                     //fill up to next consent date
-                    $date_next_consent  = substr($user_consents[$index+1]->updated_at, 0, 10);
+                    $date_next_consent  = $user_consents[$index+1]->updated_at;
                     $index++;
                 }
 
-                if ($user_consent)
+                if ($user_consent && $d_start > $date_curr_consent)
                 {
+                    // Count
                     $dates[$d]['users']       = $v['users'] + $user_consent;
-                    $dates[$d]['apiaries']    = $v['apiaries'] + $user_apiaries->where('created_at', '<=', $d)->count();
-                    $dates[$d]['hives']       = $v['hives'] + $user_hives->where('created_at', '<=', $d)->count();
-                    $dates[$d]['inspections'] = $v['inspections'] + $user_inspections->where('created_at', '>=', $d.' 00:00:00')->where('created_at', '<=', $d.' 23:59:59')->count();
-                    $dates[$d]['devices']     = $v['devices'] + $user_devices->where('created_at', '<=', $d)->count();
+                    $dates[$d]['apiaries']    = $v['apiaries'] + $user_apiaries->where('created_at', '<=', $d_end)->count();
+                    $dates[$d]['hives']       = $v['hives'] + $user_hives->where('created_at', '<=', $d_end)->count();
+                    $dates[$d]['inspections'] = $v['inspections'] + $user_inspections->where('created_at', '>=', $d_start)->where('created_at', '<=', $d_end)->count();
+                    $dates[$d]['devices']     = $v['devices'] + $user_devices->where('created_at', '<=', $d_end)->count();
+                    
                     if (in_array($d, array_keys($user_measurements)))
                         $dates[$d]['measurements']= $v['measurements'] + $user_measurements[$d];
+
+                    // Download
+                    if ($download)
+                    {
+                        $locas = $this->getLocations($user_id, $user_apiaries, $d_start, $d_end);
+                        foreach ($locas as $loca)
+                            $spreadsheet_array[__('export.locations')][] = $loca;
+
+                        $hives = $this->getHives($user_id, $user_hives, $d_start, $d_end);
+                        foreach ($hives as $hive)
+                            $spreadsheet_array[__('export.hives')][] = $hive;
+
+                        $insps = $this->getInspections($user_id, $user_inspections, $item_ancs, $d_start, $d_end);
+                        foreach ($insps as $insp)
+                            $spreadsheet_array[__('export.inspections')][] = $insp;
+                    }
                 }
             }
             //die(print_r([$user_consent, $date_next_consent, $user_consents, $dates]));
@@ -251,9 +375,10 @@ class ResearchController extends Controller
         krsort($dates);
 
         // Export data, show download link
-        if ($request->has('download'))
+        if ($download)
         {
-            $download_url = $this->export($research, $consent_users_selected);
+            $fileName     = strtolower(env('APP_NAME')).'-export-'.$research->name;
+            $download_url = $this->export($spreadsheet_array, $fileName);
         }
 
         return view('research.show', compact('research', 'dates', 'consent_users_select', 'consent_users_selected', 'download_url'));
@@ -330,145 +455,27 @@ class ResearchController extends Controller
 
     /* Data export functions */
 
-    private function export(Research $research, $user_ids=null, $start_date=null, $end_date=null, $fileType='xlsx')
+    private function export($spreadsheetArray, $fileName='export')
     {
-        $users = User::whereIn('id', $user_ids)->get();
-
-        // first combine all user's itemnames
-        $item_ancs  = [];
-        $item_names = [];
-        foreach ($users as $user) 
-        {
-            $ins = Inspection::item_names($user->inspections()->get());
-            foreach ($ins as $in) 
-            {
-                $name = $in['anc'].$in['name'];
-                if (!in_array($name, $item_ancs))
-                {
-                    $item_ancs[]  = $name;
-                    $item_names[] = $in; 
-                }
-            }
-        }
-
-        // set start and end date of data
-        if ($start_date == null || $start_date < $research->start_date)
-            $start_date = $research->start_date;
-
-        if ($end_date == null || $end_date > $research->end_date)
-            $end_date = $research->end_date;
-
-        // Define header rows of tabs
-        $userExport = [
-                       ['User_id',
-                        __('export.name'),
-                        __('export.email'),
-                        __('export.avatar'),
-                        __('export.created_at'),
-                        __('export.updated_at'),
-                        __('export.last_login')]
-                    ];
-
-        $locaExport = [
-                       ['User_id',
-                        'Location_id',
-                        __('export.name'),
-                        __('export.type'),
-                        __('export.hives'),
-                        __('export.coordinate_lat'),
-                        __('export.coordinate_lon'),
-                        __('export.address'),
-                        __('export.postal_code'),
-                        __('export.city'),
-                        __('export.country_code'),
-                        __('export.continent'),
-                        __('export.created_at'),
-                        __('export.deleted_at')]
-                    ];
-
-        $hiveExport = [
-                       ['User_id',
-                        'Hive_id',
-                        __('export.name'),
-                        __('export.type'),
-                        'Location_id',
-                        __('export.color'),
-                        __('export.queen'),
-                        __('export.queen_color'),
-                        __('export.queen_born'),
-                        __('export.queen_fertilized'),
-                        __('export.queen_clipped'),
-                        __('export.brood_layers'),
-                        __('export.honey_layers'),
-                        __('export.frames'),
-                        __('export.created_at'),
-                        __('export.deleted_at')]
-                    ];
-
-        $inspExport = [
-                       ['User_id',
-                        'Inspection_id',
-                        __('export.created_at'),
-                        'Hive_id',
-                        'Location_id',
-                        __('export.impression'),
-                        __('export.attention'),
-                        __('export.reminder'),
-                        __('export.reminder_date'),
-                        __('export.notes')]
-                    ];
-
-        // Add item names to header row of inspections
-        foreach ($item_ancs as $name) 
-            $inspExport[0][] = $name;
-
-        $inspExport[0][] = __('export.deleted_at');
-
-        // add user data to sheet data arrays
-        foreach ($users as $user) 
-        {
-            $userExport[] = $this->getUser($user);
-            
-            $locas = $this->getLocations($user, $start_date, $end_date);
-            foreach ($locas as $loca)
-                $locaExport[] = $loca;
-
-            $hives = $this->getHives($user, $start_date, $end_date);
-            foreach ($hives as $hive)
-                $hiveExport[] = $hive;
-
-            $insps = $this->getInspections($user, $item_ancs, $start_date, $end_date);
-            foreach ($insps as $insp)
-                $inspExport[] = $insp;
-        }
-
-        //die(print_r($locaExport));
         $spreadsheet = new Spreadsheet();
+        $sheet = $spreadsheet->getActiveSheet();
+        $sheet->setTitle('Meta data');
+        $sheet->setCellValue('A1', env('APP_NAME').' data export');
+        $sheet->setCellValue('A2', date('Y-m-d H:i:s'));
+        $sheet->setCellValue('A3', 'Sheets');
+        $sheet->setCellValue('B3', count($spreadsheetArray));
         
         // fill sheet
-        $sheet = $spreadsheet->getActiveSheet();
-        $sheet->setTitle(__('export.users'));
-        $sheet->fromArray($userExport);
-
-        $sheet = $spreadsheet->createSheet();
-        $sheet->setTitle(__('export.locations'));
-        $sheet->fromArray($locaExport);
-
-        // TODO: Fill headers and data below
-        $sheet = $spreadsheet->createSheet();
-        $sheet->setTitle(__('export.hives'));
-        $sheet->fromArray($hiveExport);
-
-        $sheet = $spreadsheet->createSheet();
-        $sheet->setTitle(__('export.inspections'));
-        $sheet->fromArray($inspExport);
-
-        $sheet = $spreadsheet->createSheet();
-        $sheet->setTitle('Data');
-
+        foreach ($spreadsheetArray as $title => $data) 
+        {
+            $sheet = $spreadsheet->createSheet();
+            $sheet->setTitle($title);
+            $sheet->fromArray($data);
+        }
+        
         // save sheet
-        $fileName = strtolower(env('APP_NAME')).'-export-'.$research->name.'-'.Str::random(40);
-        $filePath = 'exports/'.$fileName.'.'.$fileType;
+        $fileName = $fileName.'-'.Str::random(40);
+        $filePath = 'exports/'.$fileName.'.xlsx';
         $writer = new Xlsx($spreadsheet);
         //$writer->setOffice2003Compatibility(true);
 
@@ -497,12 +504,12 @@ class ResearchController extends Controller
         ];
     }
 
-    private function getLocations(User $user, $start_date=null, $end_date=null)
+    private function getLocations($user_id, $locations, $start_date=null, $end_date=null)
     {
-        return $user->locations()->withTrashed()->whereDate('created_at', '>=', $start_date)->whereDate('created_at', '<=', $end_date)->orderBy('deleted_at')->orderBy('name')->get()->map(function($item) use ($user)
+        return $locations->where('created_at', '>=', $start_date)->where('created_at', '<=', $end_date)->sortBy('name')->map(function($item) use ($user_id)
         {
             return [
-                $user->id,
+                $user_id,
                 $item->id,
                 $item->name,
                 $item->type,
@@ -520,14 +527,14 @@ class ResearchController extends Controller
         });
     }
     
-    private function getHives(User $user, $start_date=null, $end_date=null)
+    private function getHives($user_id, $hives, $start_date=null, $end_date=null)
     {
-        return $user->hives()->withTrashed()->whereDate('created_at', '>=', $start_date)->whereDate('created_at', '<=', $end_date)->orderBy('deleted_at')->orderBy('location_id')->orderBy('name')->get()->map(function($item) use ($user)
+        return $hives->where('created_at', '>=', $start_date)->where('created_at', '<=', $end_date)->sortBy('name')->map(function($item) use ($user_id)
         {
             $queen = $item->queen;
 
             return [
-                $user->id,
+                $user_id,
                 $item->id, 
                 $item->name,
                 $item->type,
@@ -547,15 +554,15 @@ class ResearchController extends Controller
         });
     }
 
-    private function getInspections(User $user, $item_names, $start_date=null, $end_date=null)
+    private function getInspections($user_id, $inspections, $item_names, $start_date=null, $end_date=null)
     {
         // array of inspection items and data
         $inspection_data = array_fill_keys($item_names, '');
 
-        $inspections = $user->inspections()->withTrashed()->whereDate('created_at', '>=', $start_date)->whereDate('created_at', '<=', $end_date)->with('items')->orderBy('deleted_at')->orderByDesc('created_at')->get();
+        $inspections = $inspections->where('created_at', '>=', $start_date)->where('created_at', '<=', $end_date)->sortByDesc('created_at');
 
 
-        $table = $inspections->map(function($inspection) use ($inspection_data, $user)
+        $table = $inspections->map(function($inspection) use ($inspection_data, $user_id)
         {
             if (isset($inspection->items))
             {
@@ -579,7 +586,7 @@ class ResearchController extends Controller
             
             // add general inspection data columns
             $pre = [
-                'user_id' => $user->id,
+                'user_id' => $user_id,
                 'inspection_id' => $inspection->id,
                 __('export.created_at') => $inspection->created_at,
                 __('export.hive') => $inspection->hives()->count() > 0 ? $inspection->hives()->first()->id : '', 

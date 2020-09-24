@@ -69,7 +69,7 @@ class Research extends Model
     
     public function users()
     {
-        return $this->belongsToMany(User::class, 'research_user');
+        return $this->belongsToMany(User::class, 'research_user')->distinct('user_id');
     }
 
     public function checklists()

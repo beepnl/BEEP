@@ -17,6 +17,8 @@ use App\Device;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 use DB;
+use Str;
+use Storage;
 use InfluxDB;
 use Moment\Moment;
 
@@ -109,8 +111,9 @@ class ResearchController extends Controller
      */
     public function show($id, Request $request)
     {
-        $research = Research::findOrFail($id);
-        $influx   = new \Influx;
+        $research     = Research::findOrFail($id);
+        $influx       = new \Influx;
+        $download_url = null;
 
         // Make dates table
         $dates = [];
@@ -143,22 +146,16 @@ class ResearchController extends Controller
 
         // select users
         if ($request->has('user_ids'))
-            $consent_users_selected = $request->input('user_ids');
+            $consent_users_selected = explode(',',$request->input('user_ids')[0]);
         else
             $consent_users_selected = [array_keys($consent_users_select)[0]];
 
-        $consent_users = DB::table('research_user')
+        $consents = DB::table('research_user')
                             ->where('research_id', $id)
                             ->whereIn('user_id', $consent_users_selected)
                             ->whereDate('updated_at', '<', $research->end_date)
                             ->groupBy('user_id')
                             ->get();
-        
-        // Export data, or show data table
-        if ($request->has('download'))
-        {
-            return $this->export($research, $consent_users->pluck('user_id')->toArray());
-        }
         
         // Fill dates array
         $assets = ["users"=>0, "apiaries"=>0, "hives"=>0, "inspections"=>0, "devices"=>0, "measurements"=>0];
@@ -172,7 +169,7 @@ class ResearchController extends Controller
         }
 
         // Fill dates array with counts of data
-        foreach ($consent_users as $cu) 
+        foreach ($consents as $cu) 
         {
             $user_consents = DB::table('research_user')->where('research_id', $id)->where('user_id', $cu->user_id)->whereDate('updated_at', '<', $research->end_date)->orderBy('updated_at','asc')->get()->toArray();
             
@@ -253,7 +250,13 @@ class ResearchController extends Controller
         // reverse array for display
         krsort($dates);
 
-        return view('research.show', compact('research', 'dates', 'consent_users_select', 'consent_users_selected'));
+        // Export data, show download link
+        if ($request->has('download'))
+        {
+            $download_url = $this->export($research, $consent_users_selected);
+        }
+
+        return view('research.show', compact('research', 'dates', 'consent_users_select', 'consent_users_selected', 'download_url'));
     }
 
     /**
@@ -329,8 +332,7 @@ class ResearchController extends Controller
 
     private function export(Research $research, $user_ids=null, $start_date=null, $end_date=null, $fileType='xlsx')
     {
-        $fileName = strtolower(env('APP_NAME')).'-export-'.$research->name.'-'.time();
-        $users    = User::whereIn('id', $user_ids)->get();
+        $users = User::whereIn('id', $user_ids)->get();
 
         // first combine all user's itemnames
         $item_ancs  = [];
@@ -340,31 +342,102 @@ class ResearchController extends Controller
             $ins = Inspection::item_names($user->inspections()->get());
             foreach ($ins as $in) 
             {
-                if (!in_array($in['anc'], $item_ancs))
+                $name = $in['anc'].$in['name'];
+                if (!in_array($name, $item_ancs))
                 {
-                    $item_ancs[]  = $in['anc'];
+                    $item_ancs[]  = $name;
                     $item_names[] = $in; 
                 }
             }
         }
 
-        $userExport = [[__('export.id'), __('export.name'), __('export.email'), __('export.avatar'), __('export.created_at'), __('export.updated_at'), __('export.last_login')]];
-        $locaExport = [[__('export.id'), __('export.name'), __('export.type'), __('export.hives'), __('export.coordinate_lat'), __('export.coordinate_lon'), __('export.address'), __('export.postal_code'), __('export.city'), __('export.country_code'), __('export.continent'), __('export.created_at'), __('export.deleted_at')]];
-        $inspExport = [];
+        // set start and end date of data
+        if ($start_date == null || $start_date < $research->start_date)
+            $start_date = $research->start_date;
 
+        if ($end_date == null || $end_date > $research->end_date)
+            $end_date = $research->end_date;
+
+        // Define header rows of tabs
+        $userExport = [
+                       ['User_id',
+                        __('export.name'),
+                        __('export.email'),
+                        __('export.avatar'),
+                        __('export.created_at'),
+                        __('export.updated_at'),
+                        __('export.last_login')]
+                    ];
+
+        $locaExport = [
+                       ['User_id',
+                        'Location_id',
+                        __('export.name'),
+                        __('export.type'),
+                        __('export.hives'),
+                        __('export.coordinate_lat'),
+                        __('export.coordinate_lon'),
+                        __('export.address'),
+                        __('export.postal_code'),
+                        __('export.city'),
+                        __('export.country_code'),
+                        __('export.continent'),
+                        __('export.created_at'),
+                        __('export.deleted_at')]
+                    ];
+
+        $hiveExport = [
+                       ['User_id',
+                        'Hive_id',
+                        __('export.name'),
+                        __('export.type'),
+                        'Location_id',
+                        __('export.color'),
+                        __('export.queen'),
+                        __('export.queen_color'),
+                        __('export.queen_born'),
+                        __('export.queen_fertilized'),
+                        __('export.queen_clipped'),
+                        __('export.brood_layers'),
+                        __('export.honey_layers'),
+                        __('export.frames'),
+                        __('export.created_at'),
+                        __('export.deleted_at')]
+                    ];
+
+        $inspExport = [
+                       ['User_id',
+                        'Inspection_id',
+                        __('export.created_at'),
+                        'Hive_id',
+                        'Location_id',
+                        __('export.impression'),
+                        __('export.attention'),
+                        __('export.reminder'),
+                        __('export.reminder_date'),
+                        __('export.notes')]
+                    ];
+
+        // Add item names to header row of inspections
+        foreach ($item_ancs as $name) 
+            $inspExport[0][] = $name;
+
+        $inspExport[0][] = __('export.deleted_at');
+
+        // add user data to sheet data arrays
         foreach ($users as $user) 
         {
             $userExport[] = $this->getUser($user);
             
-            $locas = $this->getLocations($user);
+            $locas = $this->getLocations($user, $start_date, $end_date);
             foreach ($locas as $loca)
                 $locaExport[] = $loca;
 
-            $hives = $this->getLocations($user);
+            $hives = $this->getHives($user, $start_date, $end_date);
             foreach ($hives as $hive)
                 $hiveExport[] = $hive;
 
-            $insps = $this->getInspections($user, $item_names);
+            $insps = $this->getInspections($user, $item_ancs, $start_date, $end_date);
             foreach ($insps as $insp)
                 $inspExport[] = $insp;
         }
@@ -394,12 +467,21 @@ class ResearchController extends Controller
         $sheet->setTitle('Data');
 
         // save sheet
-        $path   = storage_path('exports').'/'.$fileName.'.'.$fileType;
+        $fileName = strtolower(env('APP_NAME')).'-export-'.$research->name.'-'.Str::random(40);
+        $filePath = 'exports/'.$fileName.'.'.$fileType;
         $writer = new Xlsx($spreadsheet);
         //$writer->setOffice2003Compatibility(true);
-        $writer->save($path);
 
-        return $path;
+        ob_start();
+        $writer->save('php://output');
+        $file_content = ob_get_contents();
+        ob_end_clean();
+
+        $disk = env('EXPORT_STORAGE', 'public');
+        if (Storage::disk($disk)->put($filePath, $file_content))
+            return Storage::disk($disk)->url($filePath);
+
+        return null;
     }
     
     private function getUser(User $user)
@@ -415,11 +497,12 @@ class ResearchController extends Controller
         ];
     }
 
-    private function getLocations(User $user)
+    private function getLocations(User $user, $start_date=null, $end_date=null)
     {
-        return $user->locations()->withTrashed()->orderBy('deleted_at')->orderBy('name')->get()->map(function($item)
+        return $user->locations()->withTrashed()->whereDate('created_at', '>=', $start_date)->whereDate('created_at', '<=', $end_date)->orderBy('deleted_at')->orderBy('name')->get()->map(function($item) use ($user)
         {
             return [
+                $user->id,
                 $item->id,
                 $item->name,
                 $item->type,
@@ -437,46 +520,42 @@ class ResearchController extends Controller
         });
     }
     
-    private function getHives(User $user)
+    private function getHives(User $user, $start_date=null, $end_date=null)
     {
-        return $user->hives()->withTrashed()->orderBy('deleted_at')->orderBy('location_id')->orderBy('name')->get()->map(function($item)
+        return $user->hives()->withTrashed()->whereDate('created_at', '>=', $start_date)->whereDate('created_at', '<=', $end_date)->orderBy('deleted_at')->orderBy('location_id')->orderBy('name')->get()->map(function($item) use ($user)
         {
             $queen = $item->queen;
 
             return [
-                __('export.id') => $item->id, 
-                __('export.name') => $item->name,
-                __('export.type') => $item->type,
-                __('export.location') => $item->location,
-                __('export.color') => $item->color,
-                __('export.queen') => isset($queen) ? $queen->name : '',
-                __('export.queen_color') => isset($queen) ? $queen->color : '',
-                __('export.queen_born') => isset($queen) ? $queen->created_at : '',
-                __('export.queen_fertilized') => isset($queen) ? $queen->fertilized : '',
-                __('export.queen_clipped') => isset($queen) ? $queen->clipped : '',
-                __('export.brood_layers') => $item->getBroodlayersAttribute(),
-                __('export.honey_layers') => $item->getHoneylayersAttribute(),
-                __('export.frames') => $item->frames()->count(),
-                __('export.created_at') => $item->created_at,
-                __('export.deleted_at') => $item->deleted_at,
+                $user->id,
+                $item->id, 
+                $item->name,
+                $item->type,
+                $item->location_id,
+                $item->color,
+                isset($queen) ? $queen->name : '',
+                isset($queen) ? $queen->color : '',
+                isset($queen) ? $queen->created_at : '',
+                isset($queen) ? $queen->fertilized : '',
+                isset($queen) ? $queen->clipped : '',
+                $item->getBroodlayersAttribute(),
+                $item->getHoneylayersAttribute(),
+                $item->frames()->count(),
+                $item->created_at,
+                $item->deleted_at,
             ];
         });
     }
 
-    private function getInspections(User $user, $item_names)
+    private function getInspections(User $user, $item_names, $start_date=null, $end_date=null)
     {
         // array of inspection items and data
-        $inspection_data = array_fill_keys(array_map(function($name_arr)
-        {
-            return $name_arr['anc'].$name_arr['name'];
+        $inspection_data = array_fill_keys($item_names, '');
 
-        }, $item_names),'');
-        
-
-        $inspections = $user->inspections()->withTrashed()->with('items')->orderBy('deleted_at')->orderByDesc('created_at')->get();
+        $inspections = $user->inspections()->withTrashed()->whereDate('created_at', '>=', $start_date)->whereDate('created_at', '<=', $end_date)->with('items')->orderBy('deleted_at')->orderByDesc('created_at')->get();
 
 
-        $table = $inspections->map(function($inspection) use ($inspection_data)
+        $table = $inspections->map(function($inspection) use ($inspection_data, $user)
         {
             if (isset($inspection->items))
             {
@@ -486,7 +565,7 @@ class ResearchController extends Controller
                     $inspection_data[$array_key] = $inspectionItem->humanReadableValue();
                 }
             }
-            $locationName = ($inspection->locations()->count() > 0 ? $inspection->locations()->first()->name : ($inspection->hives()->count() > 0 ? $inspection->hives()->first()->location()->first()->name : ''));
+            $locationId = ($inspection->locations()->count() > 0 ? $inspection->locations()->first()->id : ($inspection->hives()->count() > 0 ? $inspection->hives()->first()->location()->first()->id : ''));
             
             $reminder_date= '';
             if (isset($inspection->reminder_date) && $inspection->reminder_date != null)
@@ -498,10 +577,13 @@ class ResearchController extends Controller
             $smileys  = __('taxonomy.smileys');
             $boolean  = __('taxonomy.boolean');
             
+            // add general inspection data columns
             $pre = [
+                'user_id' => $user->id,
+                'inspection_id' => $inspection->id,
                 __('export.created_at') => $inspection->created_at,
-                __('export.hive') => $inspection->hives()->count() > 0 ? $inspection->hives()->first()->name : '', 
-                __('export.location') => $locationName, 
+                __('export.hive') => $inspection->hives()->count() > 0 ? $inspection->hives()->first()->id : '', 
+                __('export.location') => $locationId, 
                 __('export.impression') => $inspection->impression > -1 &&  $inspection->impression < count($smileys) ? $smileys[$inspection->impression] : '',
                 __('export.attention') => $inspection->attention > -1 &&  $inspection->attention < count($boolean) ? $boolean[$inspection->attention] : '',
                 __('export.reminder') => $inspection->reminder,
@@ -511,41 +593,9 @@ class ResearchController extends Controller
 
             $dat = array_merge($pre, $inspection_data, [__('export.deleted_at') => $inspection->deleted_at]);
 
-            return $dat;
+            return array_values($dat);
         });
-
-        // Add extra title rows
-        // $context = $inspection_data;
-        $legends = $inspection_data;
-        // $types   = $inspection_data;
-
-        foreach ($item_names as $item) 
-        {
-            // if(in_array($item['name'], array_keys($context)))
-            //     $context[$item['name']] = $item['anc'];
-
-            if(in_array($item['name'], array_keys($legends)))
-                $legends[$item['name']] = $item['range'];
-
-            // if(in_array($item['name'], array_keys($types)))
-            //     $types[$item['name']] = $item['type'];
-        }
-
-        $ins_cols = [
-                __('export.created_at') => '',
-                __('export.hive') => '', 
-                __('export.location') => '', 
-                __('export.impression') => '',
-                __('export.attention') => '',
-                __('export.reminder') => '',
-                __('export.reminder_date') => '',
-                __('export.notes') => '',
-            ];
-
-        $table->prepend(array_merge($ins_cols, $legends));
-        //$table->prepend(array_merge($ins_cols,$types));
-        // $table->prepend(array_merge($ins_cols, $context));
-
+        //die(print_r($table));
         return $table;
     }
 

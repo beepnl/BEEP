@@ -136,6 +136,7 @@
             <br>
 
             <div class="col-xs-12">
+                @if(!isset($download_url))
                 <form method="GET" action="{{ route('research.show',$research->id) }}" accept-charset="UTF-8" class="form-horizontal" enctype="multipart/form-data">
                     <div class="col-xs-12">
                         <div class="form-group">
@@ -146,7 +147,15 @@
                         </div>
                     </div>
                 </form>
+                @else
+                    <label control-label>Download dataset</label>
+                    <br>
+                    <a href="{{$download_url}}"><i class="fa fa-download"></i> Download selected consent data set</a>
+                @endif
             </div>
+
+            <br>
+            <br>
 
         @endslot
     @endcomponent

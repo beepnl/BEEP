@@ -269,9 +269,9 @@ class ResearchController extends Controller
         }
 
         // Fill dates array with counts of data
-        foreach ($consents as $cu) 
+        foreach ($users as $u) 
         {
-            $user_id       = $cu->user_id;
+            $user_id       = $u->id;
             $user_consents = DB::table('research_user')->where('research_id', $id)->where('user_id', $user_id)->whereDate('updated_at', '<', $research->end_date)->orderBy('updated_at','asc')->get()->toArray();
             
             //die(print_r($consents));
@@ -324,13 +324,17 @@ class ResearchController extends Controller
             }
 
             // go over dates, compare consent dates
+            $i = 0;
             foreach ($dates as $d => $v) 
             {
-                $d_start = $d.' 00:00:00';
-                $d_end   = $d.' 23:59:59';
+                $d_start      = $d.' 00:00:00';
+                $d_end        = $d.' 23:59:59';
+                $next_consent = false;
 
                 if ($d_end >= $date_next_consent && $index > 0 && $index < count($user_consents)-1) // change user_consent if multiple user_consents exist and check date is past the active consent date 
                 {
+                    $next_consent = true;
+
                     // take current user_consent
                     $user_consent       = $user_consents[$index]->consent;
                     $date_curr_consent  = $user_consents[$index]->updated_at;
@@ -351,24 +355,26 @@ class ResearchController extends Controller
                     if (in_array($d, array_keys($user_measurements)))
                         $dates[$d]['measurements']= $v['measurements'] + $user_measurements[$d];
 
-                    // Download
-                    if ($download)
-                    {
-                        $locas = $this->getLocations($user_id, $user_apiaries, $d_start, $d_end);
-                        foreach ($locas as $loca)
-                            $spreadsheet_array[__('export.locations')][] = $loca;
-
-                        $hives = $this->getHives($user_id, $user_hives, $d_start, $d_end);
-                        foreach ($hives as $hive)
-                            $spreadsheet_array[__('export.hives')][] = $hive;
-
-                        $insps = $this->getInspections($user_id, $user_inspections, $item_ancs, $d_start, $d_end);
-                        foreach ($insps as $insp)
-                            $spreadsheet_array[__('export.inspections')][] = $insp;
-                    }
                 }
+
+                // Fill download objects (not for day, but for consent period)
+                if ($download && $user_consent && ($next_consent || $i == 0))
+                {
+                    $locas = $this->getLocations($user_id, $user_apiaries, $date_curr_consent, $date_next_consent);
+                    foreach ($locas as $loca)
+                        $spreadsheet_array[__('export.locations')][] = $loca;
+
+                    $hives = $this->getHives($user_id, $user_hives, $date_curr_consent, $date_next_consent);
+                    foreach ($hives as $hive)
+                        $spreadsheet_array[__('export.hives')][] = $hive;
+
+                    $insps = $this->getInspections($user_id, $user_inspections, $item_ancs, $date_curr_consent, $date_next_consent);
+                    foreach ($insps as $insp)
+                        $spreadsheet_array[__('export.inspections')][] = $insp;
+                }
+
+                $i++;
             }
-            //die(print_r([$user_consent, $date_next_consent, $user_consents, $dates]));
         }
 
         // reverse array for display
@@ -377,6 +383,7 @@ class ResearchController extends Controller
         // Export data, show download link
         if ($download)
         {
+            die(print_r([$user_consent, $spreadsheet_array[__('export.locations')]]));
             $fileName     = strtolower(env('APP_NAME')).'-export-'.$research->name;
             $download_url = $this->export($spreadsheet_array, $fileName);
         }

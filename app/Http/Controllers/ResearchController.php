@@ -383,7 +383,7 @@ class ResearchController extends Controller
         // Export data, show download link
         if ($download)
         {
-            die(print_r([$user_consent, $spreadsheet_array[__('export.locations')]]));
+            //die(print_r([$user_consent, $spreadsheet_array[__('export.locations')]]));
             $fileName     = strtolower(env('APP_NAME')).'-export-'.$research->name;
             $download_url = $this->export($spreadsheet_array, $fileName);
         }

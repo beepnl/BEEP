@@ -446,7 +446,7 @@ app.directive('checklistFieldset', ['$rootScope', '$filter', function ($rootScop
         $rootScope.$on('inspectionItemUpdated', scope.calculateTpaColonySize);
       } else if (scope.cat.name == 'liebefelder_method') {
         scope.frame_filter = function (item) {
-          if (typeof item.name != 'undefined' && item.name.indexOf('frame') > -1 && parseInt(item.name.split('_')[1]) <= scope.hive.brood_layers * scope.hive.frames) return true;else return false;
+          if (typeof item.name != 'undefined' && (item.name.indexOf('colony_size') > -1 || item.name.indexOf('frame') > -1 && parseInt(item.name.split('_')[1]) <= scope.hive.brood_layers * scope.hive.frames)) return true;else return false;
         };
 
         scope.super_filter = function (item) {

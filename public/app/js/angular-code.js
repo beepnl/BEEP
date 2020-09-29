@@ -2771,8 +2771,13 @@ app.controller('InspectionCreateCtrl', function ($scope, $rootScope, $window, $l
     if ($scope.hive == null && $rootScope.hive != null) $scope.hive = $rootScope.hive; // for tpa interface and calculation
 
     if ($scope.hive != null) {
-      if (typeof $scope.hive.brood_layers != 'undefined') $scope.hive.brood_layers_tpa = $scope.hive.brood_layers;
-      if (typeof $scope.hive.frames != 'undefined') $scope.hive.frames_tpa = $scope.hive.frames;
+      if (typeof $routeParams.inspectionId != 'undefined') {
+        $scope.hive.brood_layers_tpa = null;
+        $scope.hive.frames_tpa = null;
+      } else {
+        if (typeof $scope.hive.brood_layers != 'undefined') $scope.hive.brood_layers_tpa = $scope.hive.brood_layers;
+        if (typeof $scope.hive.frames != 'undefined') $scope.hive.frames_tpa = $scope.hive.frames;
+      }
     }
 
     if ($rootScope.hive != $scope.hive) $rootScope.hive = $scope.hive;

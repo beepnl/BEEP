@@ -18,6 +18,14 @@ app.directive('checklistFieldset', ['$rootScope', '$filter', function($rootScope
               //console.log('top_photo_analysis function defined');
               scope.calculateTpaColonySize = function() 
               { 
+                var hive = scope.hive;
+
+                if (typeof hive == 'undefined' || (typeof hive != 'undefined' && hive.brood_layers_tpa == null && hive.frames_tpa == null))
+                {
+                  // don't recalculate TPA colony size, because if hive changes, the edit inspection is wrogly saved
+                  return;
+                }                  
+
                 var bees_per_cm2= 1.25;
                 var colony_size = null;
                 var pixelsTotal = 0;
@@ -33,7 +41,6 @@ app.directive('checklistFieldset', ['$rootScope', '$filter', function($rootScope
                         pixelsTotal = parseInt(child.value);
                 }
 
-                var hive = scope.hive;
                 if (pixelsTotal == 0 || typeof hive == 'undefined' || hive == null || isNaN(pixelsBees) || isNaN(pixelsTotal || hive.fr_width_cm == null || hive.fr_height_cm == null))
                 {
                     colony_size = null;

@@ -2753,17 +2753,33 @@ app.controller('InspectionCreateCtrl', function ($scope, $rootScope, $window, $l
       $scope.setDateLanguage();
       $rootScope.beeraces = settings.beeraces;
       $rootScope.hivetypes = settings.hivetypes;
-      $rootScope.hives = hives.hives;
-      $rootScope.locations = hives.locations;
-      $scope.showMore = hives.hives.length > 1 ? true : false;
-      $scope.hive = hives.getHiveById($routeParams.hiveId);
-      if ($scope.hive == null) $scope.hive = groups.getHiveById($routeParams.hiveId);
-      $rootScope.hive = $scope.hive;
+      $scope.setHiveFromRoute();
       $scope.inspectionInit();
       inspections.getChecklists();
     }
-  }; // Datepicker
+  };
 
+  $scope.setHiveFromRoute = function () {
+    if (hives.hives.length > 0) {
+      $rootScope.hives = hives.hives;
+      $rootScope.locations = hives.locations;
+      $scope.showMore = hives.hives.length > 1 ? true : false;
+      if (typeof $routeParams.hiveId != 'undefined') $scope.hive = hives.getHiveById($routeParams.hiveId);
+    }
+
+    if ($scope.hive == null && groups.hives.length > 0 && typeof $routeParams.hiveId != 'undefined') $scope.hive = groups.getHiveById($routeParams.hiveId);
+    if ($scope.hive == null && $rootScope.hive != null) $scope.hive = $rootScope.hive; // for tpa interface and calculation
+
+    if ($scope.hive != null) {
+      if (typeof $scope.hive.brood_layers != 'undefined') $scope.hive.brood_layers_tpa = $scope.hive.brood_layers;
+      if (typeof $scope.hive.frames != 'undefined') $scope.hive.frames_tpa = $scope.hive.frames;
+    }
+
+    if ($rootScope.hive != $scope.hive) $rootScope.hive = $scope.hive;
+  };
+
+  $scope.hivesHandler = $rootScope.$on('hivesUpdated', $scope.setHiveFromRoute);
+  $scope.groupsHandler = $rootScope.$on('groupsUpdated', $scope.setHiveFromRoute); // Datepicker
 
   $scope.setDateLanguage = function () {
     $("#dtBox").DateTimePicker({
@@ -3041,6 +3057,8 @@ app.controller('InspectionCreateCtrl', function ($scope, $rootScope, $window, $l
 
   $scope.removeListeners = function () {
     //$scope.saveInspectionLoadedHandler();
+    $scope.hivesHandler();
+    $scope.groupsHandler();
     $scope.saveInspectionHandler();
     $scope.saveInspectionErrorHandler();
     $scope.checklistHandler();

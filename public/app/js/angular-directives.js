@@ -429,10 +429,10 @@ app.directive('checklistFieldset', ['$rootScope', '$filter', function ($rootScop
             colony_size = null;
           } else {
             // colony_size = ratio occupied * fully occupied frames * 2 * brood layers * bees per cm2
-            var ratio = pixelsTotal > pixelsBees ? pixelsBees / pixelsTotal : 1;
-            colony_size = Math.round(ratio * (parseFloat(hive.fr_width_cm) * parseFloat(hive.fr_height_cm) * hive.frames * 2 * hive.brood_layers * bees_per_cm2));
-          } //console.log(hive, colony_size, pixelsTotal, pixelsBees, parseFloat(hive.fr_width_cm), parseFloat(hive.fr_height_cm), hive.frames);
-          // put value into input element 'colony_size'
+            var ratio = 0;
+            if (!isNaN(pixelsTotal) && !isNaN(pixelsBees) && pixelsBees > 0) ratio = pixelsTotal > pixelsBees ? pixelsBees / pixelsTotal : 1;
+            colony_size = Math.round(ratio * (parseFloat(hive.fr_width_cm) * parseFloat(hive.fr_height_cm) * hive.frames_tpa * 2 * hive.brood_layers_tpa * bees_per_cm2)); //console.log(ratio, colony_size, pixelsTotal, pixelsBees, parseFloat(hive.fr_width_cm), parseFloat(hive.fr_height_cm), hive.frames);
+          } // put value into input element 'colony_size'
 
 
           for (var i = scope.cat.children.length - 1; i >= 0; i--) {
@@ -446,15 +446,15 @@ app.directive('checklistFieldset', ['$rootScope', '$filter', function ($rootScop
         $rootScope.$on('inspectionItemUpdated', scope.calculateTpaColonySize);
       } else if (scope.cat.name == 'liebefelder_method') {
         scope.frame_filter = function (item) {
-          if (typeof item.name != 'undefined' && (item.name.indexOf('colony_size') > -1 || item.name.indexOf('frame') > -1 && parseInt(item.name.split('_')[1]) <= scope.hive.brood_layers * scope.hive.frames)) return true;else return false;
+          if (typeof scope.hive != 'undefined' && typeof item.name != 'undefined' && (item.name.indexOf('colony_size') > -1 || item.name.indexOf('frame') > -1 && parseInt(item.name.split('_')[1]) < scope.hive.brood_layers * scope.hive.frames)) return true;else return false;
         };
 
         scope.super_filter = function (item) {
-          if (typeof item.name != 'undefined' && item.name.indexOf('super') > -1 && parseInt(item.name.split('_')[1]) <= scope.hive.honey_layers) return true;else return false;
+          if (typeof scope.hive != 'undefined' && typeof item.name != 'undefined' && item.name.indexOf('super') > -1 && parseInt(item.name.split('_')[1]) <= scope.hive.honey_layers) return true;else return false;
         };
 
         scope.super_and_frame_filter = function (item) {
-          if (typeof item.name != 'undefined' && (item.name.indexOf('super') > -1 || item.name.indexOf('frame') > -1)) {
+          if (typeof scope.hive != 'undefined' && typeof item.name != 'undefined' && (item.name.indexOf('super') > -1 || item.name.indexOf('frame') > -1)) {
             if (item.name.indexOf('frame') > -1 && parseInt(item.name.split('_')[1]) <= scope.hive.brood_layers * scope.hive.frames) return true;else if (item.name.indexOf('super') > -1 && parseInt(item.name.split('_')[1]) <= scope.hive.honey_layers) return true;
           }
 

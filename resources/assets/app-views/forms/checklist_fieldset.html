@@ -7,8 +7,8 @@
 		<a ng-if="cat.source != null" href="{{cat.source}}" target="_blank">{{cat.source}}</a>
 	</p>
 
-	<div ng-include="'/app/views/template/template-inspection-liebefelder_method.html?v=6'" ng-show="cat.name == 'liebefelder_method'"></div>
-	<div ng-include="'/app/views/template/template-inspection-top_photo_analysis.html?v=6'" ng-show="cat.name == 'top_photo_analysis'"></div>
+	<div ng-include="'/app/views/template/template-inspection-liebefelder_method.html?v=6'" ng-if="cat.name == 'liebefelder_method'"></div>
+	<div ng-include="'/app/views/template/template-inspection-top_photo_analysis.html?v=6'" ng-if="cat.name == 'top_photo_analysis'"></div>
 
 	<div ng-if="cat.children.length > 0 && cat.name != 'liebefelder_method'" ng-repeat="item in cat.children">
     	<checklist-input ng-if="item.input != 'label'" item="item" cols="cols"></checklist-input>

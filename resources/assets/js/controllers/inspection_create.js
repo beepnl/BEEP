@@ -39,17 +39,23 @@ app.controller('InspectionCreateCtrl', function($scope, $rootScope, $window, $lo
 			$rootScope.locations  = hives.locations;
 
 			$scope.showMore   	  = hives.hives.length > 1 ? true : false;
-			$scope.hive 	  	  = hives.getHiveById($routeParams.hiveId);
-			if ($scope.hive == null)
-				$scope.hive = groups.getHiveById($routeParams.hiveId);
-
-			$rootScope.hive  	  = $scope.hive;
-
+			
+			$scope.setHiveFromRoute();
 			$scope.inspectionInit();
 			inspections.getChecklists();
 		}
 	};
 
+
+	$scope.setHiveFromRoute = function()
+	{
+		$scope.hive 	  	  = hives.getHiveById($routeParams.hiveId);
+		if ($scope.hive == null)
+			$scope.hive = groups.getHiveById($routeParams.hiveId);
+
+		$rootScope.hive = $scope.hive;
+	}
+	$scope.hivesHandler = $rootScope.$on('hivesUpdated', $scope.setHiveFromRoute);
 
     // Datepicker
 	$scope.setDateLanguage = function()
@@ -382,6 +388,7 @@ app.controller('InspectionCreateCtrl', function($scope, $rootScope, $window, $lo
     $scope.removeListeners = function()
     {
 		//$scope.saveInspectionLoadedHandler();
+		$scope.hivesHandler();
 		$scope.saveInspectionHandler();
 		$scope.saveInspectionErrorHandler();
 		$scope.checklistHandler();

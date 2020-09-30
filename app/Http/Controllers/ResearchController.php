@@ -13,6 +13,7 @@ use App\Location;
 use App\Hive;
 use App\Inspection;
 use App\Device;
+use App\Measurement;
 
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
@@ -114,8 +115,9 @@ class ResearchController extends Controller
         $research     = Research::findOrFail($id);
         $influx       = new \Influx;
         $download_url = null;
+        $sensor_urls  = [];
         $download     = $request->has('download');
-        $sensordata   = $request->has('sensordata');
+        $sensordata   = true; //$request->has('sensordata');
 
         // Make dates table
         $dates = [];
@@ -277,6 +279,11 @@ class ResearchController extends Controller
 
             if ($sensordata)
                 $spreadsheet_array['Sensor data'] = [
+                            ['User_id',
+                            'Device_id',
+                            'Date from',
+                            'Date to',
+                            'Filename']
                         ];
 
             // Add item names to header row of inspections
@@ -396,31 +403,18 @@ class ResearchController extends Controller
 
                     if ($sensordata && $user_devices->count() > 0)
                     {
-                        // Get devices
-                        $devs = $this->getDevices($user_id, $user_devices, $date_curr_consent, $date_next_consent);
-                        foreach ($devs as $dev)
-                            $spreadsheet_array[__('export.devices')][] = $dev;
-                        
-                        // Fill data
-                        $points = [];
-                        try{
-                            $points = $influx::query('SELECT * FROM "sensors" WHERE '.$user_device_keys.' AND time >= \''.$date_curr_consent.'\' AND time <= \''.$date_next_consent.'\' ORDER BY time DESC')->getPoints();
-                        } catch (InfluxDB\Exception $e) {
-                            // return Response::json('influx-group-by-query-error', 500);
-                        }
-                        if (count($points) > 0)
+                        foreach ($user_devices as $dev)
                         {
-                            //die(print_r([$user_device_keys, $date_curr_consent, $date_next_consent, 'points'=>$points]));
-                            $header_row             = array_keys($points[0]);
-                            $key_index              = array_search('key', $header_row);
-                            $header_row[$key_index] = 'Device_id';
-
-                            $spreadsheet_array['Sensor data'][] = $header_row;
-                            foreach ($points as $point)
+                            // Add device to spreadsheet
+                            $spreadsheet_array[__('export.devices')][] = $this->getDevice($user_id, $dev, $date_curr_consent, $date_next_consent);
+                        
+                            // Export data to file per device / period
+                            $fileName = strtolower(env('APP_NAME')).'-export-'.$research->name.'-device-id-'.$dev->id.'-sensor-data-'.$d.'-'.Str::random(10).'.csv';
+                            $filePath = $this->exportCsvFromInflux($dev, $date_curr_consent, $date_next_consent, $fileName, '*');
+                            if ($filePath)
                             {
-                                // replace sensor key by sensor_id
-                                $point['key'] = $user_devices->where('key', strtolower($point['key']))->first()->id;
-                                $spreadsheet_array['Sensor data'][] = $point;
+                                $spreadsheet_array['Sensor data'][] = [$user_id, $dev->id, $date_curr_consent, $date_next_consent, $fileName];
+                                $sensor_urls[$fileName] = $filePath;
                             }
                         }
                     }
@@ -436,12 +430,12 @@ class ResearchController extends Controller
         // Export data, show download link
         if ($download)
         {
-            //die(print_r([$consents, $spreadsheet_array['Sensor data']]));
+            //die(print_r([$consents, $spreadsheet_array[__('export.devices')], $spreadsheet_array['Sensor data']]));
             $fileName     = strtolower(env('APP_NAME')).'-export-'.$research->name;
             $download_url = $this->export($spreadsheet_array, $fileName);
         }
 
-        return view('research.show', compact('research', 'dates', 'consent_users_select', 'consent_users_selected', 'download_url'));
+        return view('research.show', compact('research', 'dates', 'consent_users_select', 'consent_users_selected', 'download_url', 'sensor_urls'));
     }
 
     /**
@@ -625,31 +619,28 @@ class ResearchController extends Controller
         });
     }
 
-    private function getDevices($user_id, $devices, $start_date=null, $end_date=null)
+    private function getDevice($user_id, $item, $start_date=null, $end_date=null)
     {
-        return $devices->where('created_at', '>=', $start_date)->where('created_at', '<=', $end_date)->sortBy('name')->map(function($item) use ($user_id)
-        {
-            return [
-                $user_id,
-                $item->id, 
-                $item->hive_id,
-                $item->getTypeAttribute(),
-                $item->location_id,
-                $item->last_message_received,
-                $item->hardware_id,
-                $item->firmware_version,
-                $item->hardware_version,
-                $item->boot_count,
-                $item->measurement_interval_min,
-                $item->measurement_transmission_ratio,
-                $item->ble_pin,
-                $item->battery_voltage,
-                $item->next_downlink_message,
-                $item->last_downlink_result,
-                $item->created_at,
-                $item->deleted_at
-            ];
-        });
+        return [
+            $user_id,
+            $item->id, 
+            $item->hive_id,
+            $item->getTypeAttribute(),
+            $item->location_id,
+            $item->last_message_received,
+            $item->hardware_id,
+            $item->firmware_version,
+            $item->hardware_version,
+            $item->boot_count,
+            $item->measurement_interval_min,
+            $item->measurement_transmission_ratio,
+            $item->ble_pin,
+            $item->battery_voltage,
+            $item->next_downlink_message,
+            $item->last_downlink_result,
+            $item->created_at,
+            $item->deleted_at
+        ];
     }
 
     private function getInspections($user_id, $inspections, $item_names, $start_date=null, $end_date=null)
@@ -702,6 +693,57 @@ class ResearchController extends Controller
         });
         //die(print_r($table));
         return $table;
+    }
+
+    private function exportCsvFromInflux(Device $device, $start, $end, $fileName='research-export-', $measurements='*', $separator=',')
+    {
+        $options= ['precision'=>'rfc3339', 'format'=>'csv'];
+        
+        if ($measurements == null || $measurements == '' || $measurements === '*')
+            $sensor_measurements = '*';
+        else
+            $sensor_measurements = '"'.implode('","',$measurements).'"';
+
+        $query = 'SELECT '.$sensor_measurements.' FROM "sensors" WHERE ("key" = \''.$device->key.'\' OR "key" = \''.strtolower($device->key).'\' OR "key" = \''.strtoupper($device->key).'\') AND time >= \''.$start.'\' AND time <= \''.$end.'\'';
+        
+        try{
+            $client = new \Influx; 
+            $data   = $client::query($query, $options)->getPoints(); // get first sensor date
+        } catch (InfluxDB\Exception $e) {
+            return null;
+        }
+
+        if (count($data) == 0)
+            return null;
+
+        // format CSV header row: time, sensor1 (unit2), sensor2 (unit2), etc. Excluse the 'sensor' and 'key' columns
+        $csv_file = "";
+
+        $csv_sens = array_diff(array_keys($data[0]),["sensor","key"]);
+        $csv_head = [];
+        foreach ($csv_sens as $sensor_name) 
+        {
+            $meas       = Measurement::where('abbreviation', $sensor_name)->first();
+            $csv_head[] = $meas ? $meas->pq_name_unit() : $sensor_name;
+        }
+        $csv_head = '"'.implode('"'.$separator.'"', $csv_head).'"'."\r\n";
+
+        // format CSV file body
+        $csv_body = [];
+        foreach ($data as $sensor_values) 
+        {
+            $csv_body[] = implode($separator, array_diff_key($sensor_values,["sensor"=>0,"key"=>0]));
+        }
+        $csv_file = $csv_head.implode("\r\n", $csv_body);
+
+        // return the CSV file content in a file on disk
+        $filePath = 'exports/'.$fileName;
+        $disk     = env('EXPORT_STORAGE', 'public');
+
+        if (Storage::disk($disk)->put($filePath, $csv_file))
+            return Storage::disk($disk)->url($filePath);
+
+        return null;
     }
 
 }

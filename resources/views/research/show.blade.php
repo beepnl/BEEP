@@ -150,9 +150,24 @@
                     </div>
                 </form>
                 @else
-                    <label control-label>Download dataset</label>
+                    <h3 control-label>Download dataset</h3>
                     <br>
+                    <h4>Excel dataset</h4>
                     <a href="{{$download_url}}"><i class="fa fa-download"></i> Download selected consent data set</a>
+
+                    @if(count($sensor_urls) > 0)
+                        <h4>Sensor datasets</h4>
+                        <p>Export files are saved per device per consent period. 
+                            All data per device in the highest possible resolution as comma separated (,) .csv file that you can open in Excel, or SPSS.
+                            <br>
+                            <em>NB: The date time data in the 'time' column is in GMT time (this differs from what you see in the BEEP app), formatted by the RFC 3339 date-time standard.</em>
+                        </p>
+                        @foreach($sensor_urls as $fileName => $url)
+                            <a href="{{$url}}"><i class="fa fa-download"></i> {{ $fileName }}</a>
+                            <br>
+                        @endforeach
+                    @endif
+
                 @endif
             </div>
 

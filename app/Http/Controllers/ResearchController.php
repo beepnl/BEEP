@@ -115,6 +115,7 @@ class ResearchController extends Controller
         $influx       = new \Influx;
         $download_url = null;
         $download     = $request->has('download');
+        $sensordata   = $request->has('sensordata');
 
         // Make dates table
         $dates = [];
@@ -274,7 +275,8 @@ class ResearchController extends Controller
                             __('export.deleted_at')]
                         ];
 
-            $spreadsheet_array['Sensor data'] = [
+            if ($sensordata)
+                $spreadsheet_array['Sensor data'] = [
                         ];
 
             // Add item names to header row of inspections
@@ -334,8 +336,6 @@ class ResearchController extends Controller
                     $points = $influx::query('SELECT COUNT("bv") as "count" FROM "sensors" WHERE '.$user_device_keys.' AND time >= \''.$user_consents[0]->updated_at.'\' AND time <= \''.$moment_end->format('Y-m-d H:i:s').'\' GROUP BY time(1d) fill(null)')->getPoints();
                 } catch (InfluxDB\Exception $e) {
                     // return Response::json('influx-group-by-query-error', 500);
-                } catch (Exception $e) {
-                    // return Response::json('influx-group-by-query-error', 500);
                 }
                 if (count($points) > 0)
                 {
@@ -393,18 +393,19 @@ class ResearchController extends Controller
                     foreach ($insps as $insp)
                         $spreadsheet_array[__('export.inspections')][] = $insp;
                     
-                    $devs = $this->getDevices($user_id, $user_devices, $date_curr_consent, $date_next_consent);
-                    foreach ($devs as $dev)
-                        $spreadsheet_array[__('export.devices')][] = $dev;
 
-                    if ($user_devices->count() > 0)
+                    if ($sensordata && $user_devices->count() > 0)
                     {
+                        // Get devices
+                        $devs = $this->getDevices($user_id, $user_devices, $date_curr_consent, $date_next_consent);
+                        foreach ($devs as $dev)
+                            $spreadsheet_array[__('export.devices')][] = $dev;
+                        
+                        // Fill data
                         $points = [];
                         try{
-                            $points = $influx::query('SELECT * FROM "sensors" WHERE '.$user_device_keys.' AND time >= \''.$date_curr_consent.'\' AND time <= \''.$date_next_consent.'\' ORDER BY time ASC')->getPoints();
+                            $points = $influx::query('SELECT * FROM "sensors" WHERE '.$user_device_keys.' AND time >= \''.$date_curr_consent.'\' AND time <= \''.$date_next_consent.'\' ORDER BY time DESC')->getPoints();
                         } catch (InfluxDB\Exception $e) {
-                            // return Response::json('influx-group-by-query-error', 500);
-                        } catch (Exception $e) {
                             // return Response::json('influx-group-by-query-error', 500);
                         }
                         if (count($points) > 0)
@@ -419,7 +420,7 @@ class ResearchController extends Controller
                             {
                                 // replace sensor key by sensor_id
                                 $point['key'] = $user_devices->where('key', strtolower($point['key']))->first()->id;
-                                $spreadsheet_array['Sensor data'][] = array_values($point);
+                                $spreadsheet_array['Sensor data'][] = $point;
                             }
                         }
                     }

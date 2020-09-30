@@ -15,6 +15,7 @@ return [
     'type'          => 'Type',
     'hive'          => 'Hive',
     'hives'         => 'Hives',
+    'devices'       => 'Sensor devices',
     'location'      => 'Apiary',
     'locations'     => 'Apiaries',
     'attention'     => 'Needs attention',

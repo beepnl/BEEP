@@ -15,6 +15,7 @@ return [
     'type'          => 'Type',
     'hive'          => 'Kast',
     'hives'         => 'Kasten',
+    'devices'       => 'Meetapparaten',
     'location'      => 'Bijenstand',
     'locations'     => 'Bijenstanden',
     'attention'     => 'Aandacht nodig',

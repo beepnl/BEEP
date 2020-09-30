@@ -409,7 +409,7 @@ class ResearchController extends Controller
                             $spreadsheet_array[__('export.devices')][] = $this->getDevice($user_id, $dev, $date_curr_consent, $date_next_consent);
                         
                             // Export data to file per device / period
-                            $fileName = strtolower(env('APP_NAME')).'-export-'.$research->name.'-device-id-'.$dev->id.'-sensor-data-'.$d.'-'.Str::random(10).'.csv';
+                            $fileName = strtolower(env('APP_NAME')).'-export-'.$research->name.'-device-id-'.$dev->id.'-sensor-data-'.substr($date_curr_consent,0,10).'-'.substr($date_next_consent,0,10).'-'.Str::random(10).'.csv';
                             $filePath = $this->exportCsvFromInflux($dev, $date_curr_consent, $date_next_consent, $fileName, '*');
                             if ($filePath)
                             {

@@ -153,7 +153,7 @@
                     <h3 control-label>Download dataset</h3>
                     <br>
                     <h4>Excel dataset</h4>
-                    <a href="{{$download_url}}"><i class="fa fa-download"></i> Download selected consent data set</a>
+                    <a href="{{$download_url}}" target="_blank"><i class="fa fa-download"></i> Download selected consent data set</a>
 
                     @if(count($sensor_urls) > 0)
                         <h4>Sensor datasets</h4>
@@ -163,7 +163,7 @@
                             <em>NB: The date time data in the 'time' column is in GMT time (this differs from what you see in the BEEP app), formatted by the RFC 3339 date-time standard.</em>
                         </p>
                         @foreach($sensor_urls as $fileName => $url)
-                            <a href="{{$url}}"><i class="fa fa-download"></i> {{ $fileName }}</a>
+                            <a href="{{$url}}" target="_blank"><i class="fa fa-download"></i> {{ $fileName }}</a>
                             <br>
                         @endforeach
                     @endif

@@ -283,7 +283,7 @@ class ResearchController extends Controller
                             'Device_id',
                             'Date from',
                             'Date to',
-                            'Filename']
+                            'Data file']
                         ];
 
             // Add item names to header row of inspections
@@ -413,7 +413,7 @@ class ResearchController extends Controller
                             $filePath = $this->exportCsvFromInflux($dev, $date_curr_consent, $date_next_consent, $fileName, '*');
                             if ($filePath)
                             {
-                                $spreadsheet_array['Sensor data'][] = [$user_id, $dev->id, $date_curr_consent, $date_next_consent, $fileName];
+                                $spreadsheet_array['Sensor data'][] = [$user_id, $dev->id, $date_curr_consent, $date_next_consent, $filePath];
                                 $sensor_urls[$fileName] = $filePath;
                             }
                         }

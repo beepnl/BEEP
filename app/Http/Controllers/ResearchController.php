@@ -18,6 +18,7 @@ use App\Measurement;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 use DB;
+use Auth;
 use Str;
 use Storage;
 use InfluxDB;
@@ -25,6 +26,12 @@ use Moment\Moment;
 
 class ResearchController extends Controller
 {
+    private function checkAuthorization(Request $request)
+    {
+        if ($request->user()->researchMenuOption() == false)
+            return redirect('dashboard')->with('error', 'Unauthorized');
+    }
+
     /**
      * Display a listing of the resource.
      *
@@ -32,23 +39,12 @@ class ResearchController extends Controller
      */
     public function index(Request $request)
     {
-        $keyword = $request->get('search');
-        $perPage = 25;
+        $this->checkAuthorization($request);
 
-        if (!empty($keyword)) {
-            $research = Research::where('description', 'LIKE', "%$keyword%")
-                ->orWhere('name', 'LIKE', "%$keyword%")
-                ->orWhere('url', 'LIKE', "%$keyword%")
-                ->orWhere('type', 'LIKE', "%$keyword%")
-                ->orWhere('institution', 'LIKE', "%$keyword%")
-                ->orWhere('type_of_data_used', 'LIKE', "%$keyword%")
-                ->orWhere('start_date', 'LIKE', "%$keyword%")
-                ->orWhere('end_date', 'LIKE', "%$keyword%")
-                ->orWhere('checklist_id', 'LIKE', "%$keyword%")
-                ->paginate($perPage);
-        } else {
-            $research = Research::paginate($perPage);
-        }
+        if ($request->user()->hasRole('superadmin'))
+            $research = Research::all();
+        else
+            $research = $request->user()->allResearches()->get();
 
         return view('research.index', compact('research'));
     }
@@ -60,6 +56,9 @@ class ResearchController extends Controller
      */
     public function create()
     {
+        if(Auth::user()->hasRole('superadmin') == false)
+            return redirect('dashboard')->with('error', 'Unauthorized');
+
         $research = new Research();
         return view('research.create', compact('research'));
     }
@@ -73,7 +72,8 @@ class ResearchController extends Controller
      */
     public function store(Request $request)
     {
-        
+        $this->checkAuthorization($request);
+
         $this->validate($request, [
             'name'          => 'required|string',
             'url'           => 'nullable|url',
@@ -81,6 +81,8 @@ class ResearchController extends Controller
             'start_date'    => 'nullable|date',
             'end_date'      => 'nullable|date|after:start',
             'checklist_ids' => 'nullable|exists:checklists,id',
+            'viewer_ids'    => 'nullable|exists:users,id',
+            'user_id'       => 'nullable|exists:users,id',
         ]);
 
         $requestData = $request->all();
@@ -100,6 +102,9 @@ class ResearchController extends Controller
         if (isset($requestData['checklist_ids']))
             $research->checklists()->sync($requestData['checklist_ids']);
 
+        if (isset($requestData['viewer_ids']))
+            $research->viewers()->sync($requestData['viewer_ids']);
+
         return redirect('research')->with('flash_message', 'Research added!');
     }
 
@@ -112,7 +117,13 @@ class ResearchController extends Controller
      */
     public function show($id, Request $request)
     {
-        $research     = Research::findOrFail($id);
+        $this->checkAuthorization($request);
+
+        if ($request->user()->hasRole('superadmin'))
+            $research = Research::findOrFail($id);
+        else
+            $research = $request->user()->allResearches()->find($id);
+
         $influx       = new \Influx;
         $download_url = null;
         $sensor_urls  = [];
@@ -146,12 +157,12 @@ class ResearchController extends Controller
 
         asort($consent_users_select, SORT_NATURAL);
 
-        $consent_users_selected = null;
+        $consent_users_selected = [];
 
         // select users
         if ($request->has('user_ids'))
             $consent_users_selected = $request->input('user_ids');
-        else
+        else if (count($consent_users_select) > 0)
             $consent_users_selected = [array_keys($consent_users_select)[0]];
 
         $consents = DB::table('research_user')
@@ -447,7 +458,10 @@ class ResearchController extends Controller
      */
     public function edit($id)
     {
-        $research = Research::findOrFail($id);
+        if (Auth::user()->hasRole('superadmin'))
+            $research = Research::findOrFail($id);
+        else
+            $research = Auth::user()->researchesOwned()->findOrFail($id);
 
         return view('research.edit', compact('research'));
     }
@@ -462,14 +476,23 @@ class ResearchController extends Controller
      */
     public function update(Request $request, $id)
     {
+        $this->checkAuthorization($request);
+
         $this->validate($request, [
             'name'          => 'required|string',
             'url'           => 'nullable|url',
             'image'         => 'nullable|image|max:2000',
             'start_date'    => 'nullable|date',
             'end_date'      => 'nullable|date|after:start',
+            'user_id'       => 'nullable|exists:users,id',
+            'viewer_ids'    => 'nullable|exists:users,id',
             'checklist_ids' => 'nullable|exists:checklists,id',
         ]);
+
+        if (Auth::user()->hasRole('superadmin'))
+            $research = Research::findOrFail($id);
+        else
+            $research =$request->user()->researchesOwned()->findOrFail($id);
 
         $requestData = $request->all();
         
@@ -483,11 +506,14 @@ class ResearchController extends Controller
             }
         }
 
-        $research = Research::findOrFail($id);
+
         $research->update($requestData);
 
         if (isset($requestData['checklist_ids']))
             $research->checklists()->sync($requestData['checklist_ids']);
+
+        if (isset($requestData['viewer_ids']))
+            $research->viewers()->sync($requestData['viewer_ids']);
 
         return redirect('research')->with('flash_message', 'Research updated!');
     }
@@ -501,7 +527,15 @@ class ResearchController extends Controller
      */
     public function destroy($id)
     {
-        Research::destroy($id);
+        if (Auth::user()->hasRole('superadmin'))
+        {
+            Research::destroy($id);
+        }
+        else
+        {
+            $research = Auth::user()->researchesOwned()->findOrFail($id);
+            $research->delete();
+        }
 
         return redirect('research')->with('flash_message', 'Research deleted!');
     }

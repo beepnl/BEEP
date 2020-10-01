@@ -46,11 +46,6 @@ Route::group(
 	], 
 	function() 
 	{
-		Route::get('dashboard', ['as'=>'dashboard.index','uses'=>'DashboardController@index']);
-
-		Route::resource('checklists', 'ChecklistController');
-		Route::resource('inspections', 'InspectionsController');
-		Route::resource('users', 'UserController');		
 		
 
 		Route::group(
@@ -97,8 +92,11 @@ Route::group(
 				Route::resource('categoryinputs', 	'CategoryInputsController');
 				Route::resource('inspection-items', 'InspectionItemsController');
 				Route::resource('measurement', 		'MeasurementController');
-				Route::resource('research', 		'ResearchController');
 				Route::resource('sensordefinition' ,'SensorDefinitionController');
+
+				// Create new research
+				Route::get('research/create',		['as'=>'research.create','uses'=>'ResearchController@create']);
+				Route::post('research/create',		['as'=>'research.store','uses'=>'ResearchController@store']);
 				
 				Route::resource('categories', 		'CategoriesController');
 				Route::delete('categories/{id}/pop',['as'=>'categories.pop','uses'=>'CategoriesController@pop','middleware' => ['permission:taxonomy-delete']]);
@@ -133,6 +131,18 @@ Route::group(
 				
 			});
 
+		// Open research routes based on database access
+		Route::get('dashboard', ['as'=>'dashboard.index','uses'=>'DashboardController@index']);
+
+		Route::resource('checklists', 'ChecklistController');
+		Route::resource('inspections', 'InspectionsController');
+		Route::resource('users', 'UserController');		
+
+		Route::get('research', 				['as'=>'research.index','uses'=>'ResearchController@index']);
+		Route::get('research/{id}', 		['as'=>'research.show','uses'=>'ResearchController@show']);
+		Route::get('research/{id}/edit',	['as'=>'research.edit','uses'=>'ResearchController@edit']);
+		Route::patch('research/{id}',		['as'=>'research.update','uses'=>'ResearchController@update']);
+		Route::delete('research/{id}',		['as'=>'research.destroy','uses'=>'ResearchController@destroy']);
 	}
 );
 Auth::routes(['verify' => true]);

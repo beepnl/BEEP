@@ -71,6 +71,8 @@
                     <td>{{ $item->users->count() }}</td>
                     <td>
                         <a href="{{ route('research.show', $item->id) }}" title="{{ __('crud.view') }}"><button class="btn btn-default"><i class="fa fa-eye" aria-hidden="true"></i></button></a>
+                        
+                        @if (Auth::user()->hasRole('superadmin') || Auth::user()->researchesOwned()->where('id', $item->id)->count() == 1)
                         <a href="{{ route('research.edit', $item->id) }}" title="{{ __('crud.edit') }}"><button class="btn btn-primary"><i class="fa fa-pencil" aria-hidden="true"></i></button></a>
 
                         <form method="POST" action="{{ route('research.destroy', $item->id) }}" accept-charset="UTF-8" style="display:inline">
@@ -80,13 +82,12 @@
                                 <i class="fa fa-trash-o" aria-hidden="true"></i>
                             </button>
                         </form>
+                        @endif
                     </td>
                 </tr>
             @endforeach
             </tbody>
         </table>
-
-        <div class="pagination-wrapper"> {!! $research->render() !!} </div>
 
         @endslot
     @endcomponent

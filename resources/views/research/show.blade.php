@@ -16,25 +16,6 @@
         @endslot
 
         @slot('body')
-            <!-- <h1>Research</h1>
-            <table class="table table-responsive table-striped">
-                <tbody>
-                    <tr>
-                        <th>ID</th>
-                        <td>{{ $research->id }}</td>
-                    </tr>
-                    <tr>
-                        <th> Name </th><td> {{ $research->name }} </td></tr><tr>
-                        <th> Image </th><td> <img src="{{ $research->image->image_url }}" style="width: 100px;"> </td></tr><tr>
-                        <th> Description </th><td> {{ $research->description }} </td></tr><tr>
-                        <th> Type </th><td> {{ $research->type }} </td></tr><tr>
-                        <th> Institution </th><td> {{ $research->institution }} </td></tr><tr>
-                        <th> Type Of Data Used </th><td> {{ $research->type_of_data_used }} </td></tr><tr>
-                        <th> Start Date </th><td> {{ $research->start_date }} </td></tr><tr>
-                        <th> End Date </th><td> {{ $research->end_date }} </td></tr>
-                </tbody>
-            </table> -->
-
             <div class="col-xs-12">
                 <form method="GET" action="{{ route('research.show',$research->id) }}" accept-charset="UTF-8" class="form-horizontal" enctype="multipart/form-data">
                     <div class="col-xs-7">
@@ -170,9 +151,6 @@
 
                 @endif
             </div>
-
-            <br>
-            <br>
 
         @endslot
     @endcomponent

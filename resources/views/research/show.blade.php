@@ -68,7 +68,7 @@
                     </tbody>
                 </table>
             </div>
-            <div style="display: inline-block; width: calc( 100% - 214px); overflow-y: hidden; overflow-x: auto;">
+            <div style="display: inline-block; width: calc( 100% - 224px); overflow-y: hidden; overflow-x: auto;">
                 <table class="table table-responsive table-striped table-header-rotated">
                     <thead>
                         <tr>

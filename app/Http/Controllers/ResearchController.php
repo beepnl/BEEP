@@ -131,7 +131,7 @@ class ResearchController extends Controller
         $sensordata   = true; //$request->has('sensordata');
 
         // Make dates table
-        $dates = [];
+        $dates  = [];
 
         $moment_start = new Moment($research->start_date);
         $moment_end   = new Moment($research->end_date);
@@ -177,6 +177,7 @@ class ResearchController extends Controller
         //die(print_r([$request->input('user_ids'), $consent_users_selected, $users]));
         // Fill dates array
         $assets = ["users"=>0, "apiaries"=>0, "hives"=>0, "inspections"=>0, "devices"=>0, "measurements"=>0];
+
         $moment = $moment_start;
         while($moment < $moment_end)
         {
@@ -270,9 +271,10 @@ class ResearchController extends Controller
             $spreadsheet_array[__('export.devices')] = [
                            ['User_id',
                             'Device_id',
+                            __('export.name'),
                             'Hive_id',
-                            'Type',
                             'Location_id',
+                            'Type',
                             'last_message_received',
                             'hardware_id',
                             'firmware_version',
@@ -315,7 +317,6 @@ class ResearchController extends Controller
             $user_id       = $u->id;
             $user_consents = DB::table('research_user')->where('research_id', $id)->where('user_id', $user_id)->whereDate('updated_at', '<', $research->end_date)->orderBy('updated_at','asc')->get()->toArray();
             
-            //die(print_r($consents));
             $user_consent      = $user_consents[0]->consent;
             $date_curr_consent = $user_consents[0]->updated_at;
             $date_next_consent = $moment_end->format('Y-m-d H:i:s');
@@ -323,19 +324,20 @@ class ResearchController extends Controller
 
             if (count($user_consents) > 1)
             {
-                $date_next_consent = substr($user_consents[1]->updated_at, 0, 10);
+                $date_next_consent = $user_consents[1]->updated_at;
                 $index             = 1;
             }
             elseif ($user_consent === 0) // if only 1 and consent is false, continue to next user
             {
                 continue;
             }
+            //die(print_r([$user_consents, $date_curr_consent, $date_next_consent, $index]));
 
             // add user data
-            $user_apiaries     = Location::withTrashed()->where('user_id', $user_id)->where('created_at', '<', $research->end_date)->orderBy('created_at')->get();
-            $user_hives        = Hive::withTrashed()->where('user_id', $user_id)->where('created_at', '<', $research->end_date)->orderBy('created_at')->get();
-            $user_inspections  = User::find($user_id)->inspections()->withTrashed()->with('items')->where('created_at', '<', $research->end_date)->orderBy('created_at')->get();
-            $user_devices      = Device::where('user_id', $user_id)->orderBy('created_at')->get();
+            $user_apiaries     = Location::where('user_id', $user_id)->where('created_at', '<', $research->end_date)->orderBy('created_at')->get();
+            $user_hives        = Hive::where('user_id', $user_id)->where('created_at', '<', $research->end_date)->orderBy('created_at')->get();
+            $user_devices      = Device::where('user_id', $user_id)->where('created_at', '<', $research->end_date)->orderBy('created_at')->get();
+            $user_inspections  = User::find($user_id)->inspections()->with('items')->where('created_at', '<', $research->end_date)->orderBy('created_at')->get();
             $user_measurements = [];
 
             //die(print_r([$user_apiaries->toArray(), $user_hives->toArray()]));
@@ -364,13 +366,16 @@ class ResearchController extends Controller
 
             // go over dates, compare consent dates
             $i = 0;
+            //print_r([$index, $user_consent, $date_curr_consent, $date_next_consent]);
+            $user_data_counts = $assets;
+
             foreach ($dates as $d => $v) 
             {
                 $d_start      = $d.' 00:00:00';
                 $d_end        = $d.' 23:59:59';
                 $next_consent = false;
 
-                if ($d_end >= $date_next_consent && $index > 0 && $index < count($user_consents)-1) // change user_consent if multiple user_consents exist and check date is past the active consent date 
+                if ($d_end >= $date_next_consent && $index > 0 && $index < count($user_consents)) // change user_consent if multiple user_consents exist and check date is past the active consent date 
                 {
                     $next_consent = true;
 
@@ -378,65 +383,101 @@ class ResearchController extends Controller
                     $user_consent       = $user_consents[$index]->consent;
                     $date_curr_consent  = $user_consents[$index]->updated_at;
                     //fill up to next consent date
-                    $date_next_consent  = $user_consents[$index+1]->updated_at;
+                    if ($index < count($user_consents)-1)
+                        $date_next_consent  = $user_consents[$index+1]->updated_at;
+                    else
+                        $date_next_consent = $moment_end->format('Y-m-d H:i:s');
+
+                    //print_r([$index, $user_consent, $date_curr_consent, $date_next_consent]);
                     $index++;
                 }
 
+                // Fill objects for consent period
+                if ($user_consent && ($next_consent || $i == 0))
+                {    
+                    // add 
+                    $user_data_counts['users']    = $user_consent;
+                    $user_data_counts['apiaries'] = $user_apiaries->where('created_at', '<=', $date_next_consent)->count();
+                    $user_data_counts['hives']    = $user_hives->where('created_at', '<=', $date_next_consent)->count();
+                    $user_data_counts['devices']  = $user_devices->where('created_at', '<=', $date_next_consent)->count();
+
+                    if ($download)
+                    {
+
+                        $locas = $this->getLocations($user_id, $user_apiaries, $date_curr_consent, $date_next_consent);
+                        foreach ($locas as $loca)
+                            $spreadsheet_array[__('export.locations')][] = $loca;
+
+                        $hives = $this->getHives($user_id, $user_hives, $date_curr_consent, $date_next_consent);
+                        foreach ($hives as $hive)
+                            $spreadsheet_array[__('export.hives')][] = $hive;
+
+                        $insps = $this->getInspections($user_id, $user_inspections, $item_ancs, $date_curr_consent, $date_next_consent);
+                        foreach ($insps as $insp)
+                            $spreadsheet_array[__('export.inspections')][] = $insp;
+                        
+
+                        if ($sensordata && $user_devices->count() > 0)
+                        {
+                            foreach ($user_devices as $dev)
+                            {
+                                // Add device to spreadsheet
+                                if ($dev->created_at < $date_next_consent)
+                                {
+                                    $spreadsheet_array[__('export.devices')][] = $this->getDevice($user_id, $dev);
+                                
+                                    // Export data to file per device / period
+                                    $fileName = strtolower(env('APP_NAME')).'-export-'.$research->name.'-device-id-'.$dev->id.'-sensor-data-'.substr($date_curr_consent,0,10).'-'.substr($date_next_consent,0,10).'-'.Str::random(10).'.csv';
+                                    $filePath = $this->exportCsvFromInflux($dev, $date_curr_consent, $date_next_consent, $fileName, '*');
+                                    if ($filePath)
+                                    {
+                                        $spreadsheet_array['Sensor data'][] = [$user_id, $dev->id, $date_curr_consent, $date_next_consent, $filePath];
+                                        $sensor_urls[$fileName] = $filePath;
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                }
+
+                // Fill day array
                 if ($user_consent && $d_start > $date_curr_consent)
                 {
                     // Count
-                    $dates[$d]['users']       = $v['users'] + $user_consent;
-                    $dates[$d]['apiaries']    = $v['apiaries'] + $user_apiaries->where('created_at', '<=', $d_end)->count();
-                    $dates[$d]['hives']       = $v['hives'] + $user_hives->where('created_at', '<=', $d_end)->count();
-                    $dates[$d]['inspections'] = $v['inspections'] + $user_inspections->where('created_at', '>=', $d_start)->where('created_at', '<=', $d_end)->count();
-                    $dates[$d]['devices']     = $v['devices'] + $user_devices->where('created_at', '<=', $d_end)->count();
+                    $dates[$d]['users']      += $user_data_counts['users'];
+                    $dates[$d]['apiaries']   += $user_data_counts['apiaries'];
+                    $dates[$d]['hives']      += $user_data_counts['hives'];
+                    $dates[$d]['devices']    += $user_data_counts['devices'];
+
+                    $inspections_today        = $user_inspections->where('created_at', '>=', $d_start)->where('created_at', '<=', $d_end)->count();
+                    $dates[$d]['inspections'] = $v['inspections'] + $inspections_today;
                     
                     if (in_array($d, array_keys($user_measurements)))
                         $dates[$d]['measurements']= $v['measurements'] + $user_measurements[$d];
 
                 }
 
-                // Fill download objects (not for day, but for consent period)
-                if ($download && $user_consent && ($next_consent || $i == 0))
-                {
-                    $locas = $this->getLocations($user_id, $user_apiaries, $date_curr_consent, $date_next_consent);
-                    foreach ($locas as $loca)
-                        $spreadsheet_array[__('export.locations')][] = $loca;
-
-                    $hives = $this->getHives($user_id, $user_hives, $date_curr_consent, $date_next_consent);
-                    foreach ($hives as $hive)
-                        $spreadsheet_array[__('export.hives')][] = $hive;
-
-                    $insps = $this->getInspections($user_id, $user_inspections, $item_ancs, $date_curr_consent, $date_next_consent);
-                    foreach ($insps as $insp)
-                        $spreadsheet_array[__('export.inspections')][] = $insp;
-                    
-
-                    if ($sensordata && $user_devices->count() > 0)
-                    {
-                        foreach ($user_devices as $dev)
-                        {
-                            // Add device to spreadsheet
-                            $spreadsheet_array[__('export.devices')][] = $this->getDevice($user_id, $dev, $date_curr_consent, $date_next_consent);
-                        
-                            // Export data to file per device / period
-                            $fileName = strtolower(env('APP_NAME')).'-export-'.$research->name.'-device-id-'.$dev->id.'-sensor-data-'.substr($date_curr_consent,0,10).'-'.substr($date_next_consent,0,10).'-'.Str::random(10).'.csv';
-                            $filePath = $this->exportCsvFromInflux($dev, $date_curr_consent, $date_next_consent, $fileName, '*');
-                            if ($filePath)
-                            {
-                                $spreadsheet_array['Sensor data'][] = [$user_id, $dev->id, $date_curr_consent, $date_next_consent, $filePath];
-                                $sensor_urls[$fileName] = $filePath;
-                            }
-                        }
-                    }
-                }
-
                 $i++;
             }
+            //die();
         }
 
         // reverse array for display
         krsort($dates);
+
+        // Count totals
+        $totals = $assets;
+        foreach ($dates as $day => $day_arr) 
+        {
+            foreach ($day_arr as $asset => $count) 
+            {
+                if ($asset == 'inspections' || $asset == 'measurements')
+                    $totals[$asset] += $count;
+                else
+                    $totals[$asset] = max($totals[$asset], $count);
+            }
+        }
 
         // Export data, show download link
         if ($download)
@@ -446,7 +487,7 @@ class ResearchController extends Controller
             $download_url = $this->export($spreadsheet_array, $fileName);
         }
 
-        return view('research.show', compact('research', 'dates', 'consent_users_select', 'consent_users_selected', 'download_url', 'sensor_urls'));
+        return view('research.show', compact('research', 'dates', 'consent_users_select', 'consent_users_selected', 'download_url', 'sensor_urls', 'totals'));
     }
 
     /**
@@ -605,7 +646,7 @@ class ResearchController extends Controller
 
     private function getLocations($user_id, $locations, $start_date=null, $end_date=null)
     {
-        return $locations->where('created_at', '>=', $start_date)->where('created_at', '<=', $end_date)->sortBy('name')->map(function($item) use ($user_id)
+        return $locations->where('created_at', '<=', $end_date)->sortBy('name')->map(function($item) use ($user_id)
         {
             return [
                 $user_id,
@@ -628,7 +669,7 @@ class ResearchController extends Controller
     
     private function getHives($user_id, $hives, $start_date=null, $end_date=null)
     {
-        return $hives->where('created_at', '>=', $start_date)->where('created_at', '<=', $end_date)->sortBy('name')->map(function($item) use ($user_id)
+        return $hives->where('created_at', '<=', $end_date)->sortBy('name')->map(function($item) use ($user_id)
         {
             $queen = $item->queen;
 
@@ -653,14 +694,15 @@ class ResearchController extends Controller
         });
     }
 
-    private function getDevice($user_id, $item, $start_date=null, $end_date=null)
+    private function getDevice($user_id, $item)
     {
         return [
             $user_id,
             $item->id, 
+            $item->name, 
             $item->hive_id,
-            $item->getTypeAttribute(),
             $item->location_id,
+            $item->getTypeAttribute(),
             $item->last_message_received,
             $item->hardware_id,
             $item->firmware_version,

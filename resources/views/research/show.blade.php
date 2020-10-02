@@ -48,27 +48,27 @@
                     </thead>
                     <tbody>
                         <tr>
-                            <th class="row-header"><span><i class="fa fa-2x fa-user"></i> Users</span></th> 
+                            <th class="row-header"><span><i class="fa fa-2x fa-user"></i> Users ({{ $totals['users'] }})</span></th> 
                         </tr>
                         <tr>
-                            <th class="row-header"><span><i class="fa fa-2x fa-map-marker"></i> Apiaries</span></th> 
+                            <th class="row-header"><span><i class="fa fa-2x fa-map-marker"></i> Apiaries ({{ $totals['apiaries'] }})</span></th> 
                         </tr>
                         <tr>
-                            <th class="row-header"><span><i class="fa fa-2x fa-archive"></i> Hives</span></th> 
+                            <th class="row-header"><span><i class="fa fa-2x fa-archive"></i> Hives ({{ $totals['hives'] }})</span></th> 
                         </tr>
                         <tr>
-                            <th class="row-header"><span><i class="fa fa-2x fa-edit"></i> Inspections</span></th> 
+                            <th class="row-header"><span><i class="fa fa-2x fa-edit"></i> Inspections ({{ $totals['inspections'] }})</span></th> 
                         </tr>
                         <tr>
-                            <th class="row-header"><span><i class="fa fa-2x fa-feed"></i> Devices</span></th> 
+                            <th class="row-header"><span><i class="fa fa-2x fa-feed"></i> Devices ({{ $totals['devices'] }})</span></th> 
                         </tr>
                         <tr>
-                            <th class="row-header"><span><i class="fa fa-2x fa-line-chart"></i> Measurements</span></th> 
+                            <th class="row-header"><span><i class="fa fa-2x fa-line-chart"></i> Measurements ({{ $totals['measurements'] }})</span></th> 
                         </tr>
                     </tbody>
                 </table>
             </div>
-            <div style="display: inline-block; width: calc( 100% - 203px); overflow-y: hidden; overflow-x: auto;">
+            <div style="display: inline-block; width: calc( 100% - 214px); overflow-y: hidden; overflow-x: auto;">
                 <table class="table table-responsive table-striped table-header-rotated">
                     <thead>
                         <tr>
@@ -133,11 +133,11 @@
                 @else
                     <h3 control-label>Download dataset</h3>
                     <br>
-                    <h4>Excel dataset</h4>
+                    <h4>Inspection data</h4>
                     <a href="{{$download_url}}" target="_blank"><i class="fa fa-download"></i> Download selected consent data set</a>
 
                     @if(count($sensor_urls) > 0)
-                        <h4>Sensor datasets</h4>
+                        <h4>Sensor data</h4>
                         <p>Export files are saved per device per consent period. 
                             All data per device in the highest possible resolution as comma separated (,) .csv file that you can open in Excel, or SPSS.
                             <br>

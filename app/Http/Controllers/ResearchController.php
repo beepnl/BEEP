@@ -191,24 +191,29 @@ class ResearchController extends Controller
         if ($download)
         {
             // Fill export array
-            // first combine all user's itemnames
-            $item_ancs  = [];
-            $item_names = [];
-            foreach ($users as $user) 
-            {
-                $ins = Inspection::item_names($user->inspections()->get());
-                foreach ($ins as $in) 
-                {
-                    $name = $in['anc'].$in['name'];
-                    if (!in_array($name, $item_ancs))
-                    {
-                        $item_ancs[]  = $name;
-                        $item_names[] = $in; 
-                    }
-                }
-            }
-
+            
             // Define header rows of tabs
+            $spreadsheet_array['User consents'] = [
+                           ['User_id',
+                           __('export.name'),
+                           'Consent date',
+                           'Consent (0=no, 1=yes)',
+                            ]
+                        ];
+
+            $consents_export = DB::table('research_user')
+                                ->join('users', 'users.id', '=', 'research_user.user_id')
+                                ->select('users.id','users.name','research_user.updated_at','research_user.consent')
+                                ->where('research_user.research_id', $id)
+                                ->whereIn('user_id', $consent_users_selected)
+                                ->whereDate('research_user.updated_at', '<', $research->end_date)
+                                ->get()
+                                ->toArray();
+
+            foreach($consents_export as $cex)
+                $spreadsheet_array['User consents'][] = [$cex->id, $cex->name, $cex->updated_at, "$cex->consent"];
+
+
             $spreadsheet_array[__('export.users')] = [
                            ['User_id',
                             __('export.name'),
@@ -218,6 +223,11 @@ class ResearchController extends Controller
                             __('export.updated_at'),
                             __('export.last_login')]
                         ];
+
+            // add user data to sheet data arrays
+            foreach ($users as $user) 
+                $spreadsheet_array[__('export.users')][] = $this->getUser($user);
+
 
             $spreadsheet_array[__('export.locations')] = [
                            ['User_id',
@@ -300,15 +310,27 @@ class ResearchController extends Controller
                         ];
 
             // Add item names to header row of inspections
+            // first combine all user's itemnames
+            $item_ancs  = [];
+            $item_names = [];
+            foreach ($users as $user) 
+            {
+                $ins = Inspection::item_names($user->inspections()->get());
+                foreach ($ins as $in) 
+                {
+                    $name = $in['anc'].$in['name'];
+                    if (!in_array($name, $item_ancs))
+                    {
+                        $item_ancs[]  = $name;
+                        $item_names[] = $in; 
+                    }
+                }
+            }
+
             foreach ($item_ancs as $name) 
                 $spreadsheet_array[__('export.inspections')][0][] = $name;
 
             $spreadsheet_array[__('export.inspections')][0][] = __('export.deleted_at');
-
-            // add user data to sheet data arrays
-            foreach ($users as $user) 
-                $spreadsheet_array[__('export.users')][] = $this->getUser($user);
-
         }
 
         // Fill dates array with counts of data, and select the data for each user by consent

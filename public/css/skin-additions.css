@@ -1053,13 +1053,13 @@ dt a i.fa {
   padding: 5px 10px;
 }
 .table-header-rotated th.row-header {
-  width: 230px;
+  width: 236px;
   border-bottom: 1px solid #ccc;
   border-right: 1px solid #999;
   vertical-align: middle;
 }
 	.table-header-rotated th.row-header > span {
-		padding: 0 10px;
+		padding: 0 5px;
 		vertical-align: middle;
 	}
 		.table-header-rotated th.row-header > span > i {

@@ -31,12 +31,16 @@
 </div>
 <div class="col-xs-12">
 	<div class="form-group {{ $errors->has('image') ? 'has-error' : ''}}">
-	    <label for="image" control-label>{{ 'Image' }}</label>
-	    <div>
-	        <image src="{{ isset($research->image) ? $research->image : ''}}">
-	        <input class="form-control" name="image" type="file" id="image" >
-
-	        {!! $errors->first('image', '<p class="help-block">:message</p>') !!}
+	    <div class="row">
+	        <div class="col-xs-6">
+	    		<label for="image" control-label>{{ 'Upload new image' }}</label>
+		        <input class="form-control" name="image" type="file" id="image" >
+	        	{!! $errors->first('image', '<p class="help-block">:message</p>') !!}
+		    </div>
+	        <div class="col-xs-6">
+        		<label for="image" control-label>{{ 'Current image' }}</label><br>
+        		<img src="{{ isset($research->image_id) ? $research->thumb_url : '' }}" style="width:40px; height: 40px; border-radius: 20%; border: 1px solid #333; display: inline-block; overflow: hidden;">
+		    </div>
 	    </div>
 	</div>
 </div><div class="col-xs-12">

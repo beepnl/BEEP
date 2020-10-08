@@ -113,7 +113,7 @@ class Hive extends Model
 
     public function getEditableAttribute()
     {
-        return $this->getOwnerAttribute();
+        return $this->getOwnerAttribute(); // ovewritten by group->hive->editable
     }
 
 

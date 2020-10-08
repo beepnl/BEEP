@@ -1,4 +1,12 @@
 [
+    {
+    "version": "1.5.1",
+    "release_date": "2020-10-08T14:00:00Z",
+    "release_notes": "BEEP base 1.5.1 offers the ability to switch off the tilt sensor and switch on (3s) / off (10s) the BEEP base with magnet only. It also adds time logging in flash memory.",
+    "stability": "test",
+    "size": 348200,
+    "download_url": "https://assets.beep.nl/firmware/basev3/1.5.1/Beepbase_sd_boot_app.zip"
+  },
   {
     "version": "1.5.0",
     "release_date": "2020-09-18T10:00:00Z",

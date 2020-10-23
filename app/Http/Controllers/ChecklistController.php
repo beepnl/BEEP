@@ -33,7 +33,7 @@ class ChecklistController extends Controller
     {
         
         if (Auth::user()->hasRole('superadmin'))
-            $checklists = CheckList::all();
+            $checklists = CheckList::with('users')->get();
         else
             $checklists = $this->getUserChecklists()->get();
             

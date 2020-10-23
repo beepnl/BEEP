@@ -59,7 +59,7 @@
                 <tr>
                     <td>{{ $item->id }}</td>
                     <td>{{ $item->abbreviation }}</td>
-                    <td>{{ $item->pq_name_unit() }}</td>
+                    <td>{{ $item->pq_name_unit }}</td>
                     <td>{{ isset($item->show_in_charts) && 1 == $item->show_in_charts ? 'Yes' : 'No' }}</td>
                     <td>{{ $item->chart_group }}</td>
                     <td>{{ $item->min_value }}</td>

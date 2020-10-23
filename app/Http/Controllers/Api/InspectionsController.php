@@ -258,14 +258,12 @@ class InspectionsController extends Controller
             else if ($location)
                 $inspection = $location->inspections()->orderBy('created_at','desc')->where('created_at', $date)->first();
             else
-                $inspection = $user->inspections()->orderBy('created_at','desc')->where('created_at', $date)->first();
+                return response()->json('no_owner_or_edit_rights', 400);
+                //$inspection = $user->inspections()->orderBy('created_at','desc')->where('created_at', $date)->first();
 
             // filter -1 values for impression and attention
             $data['impression']   = $request->filled('impression') && $request->input('impression') > -1 ? $request->input('impression') : null;
             $data['attention']    = $request->filled('attention')  && $request->input('attention')  > -1 ? $request->input('attention')  : null;
-
-            //die(print_r(['data'=>$data,'inspection'=>$inspection,'user'=>$user->inspections()->get()->toArray()]));
-
 
             if (isset($inspection))
                 $inspection->update($data);
@@ -283,7 +281,6 @@ class InspectionsController extends Controller
 
 
             // Set inspection items
-            //die(print_r($request->input('items')));
             // clear to remove items not in input
             $inspection->items()->forceDelete();
             // add items in input

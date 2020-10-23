@@ -123,6 +123,12 @@
                 {!! Form::hidden('last_downlink_result', $item->last_downlink_result) !!}
             </div>
         </div>
+        <div class="col-xs-12 col-sm-6 col-md-4">
+            <div class="form-group">
+                <label>Created date</label>
+                <p>{{ $item->created_at }}</p>
+            </div>
+        </div>
         <div class="col-xs-12 col-sm-12 col-md-12 text-center">
             <br>
 			<button type="submit" class="btn btn-primary btn-block">{{ __('crud.save') }}</button>

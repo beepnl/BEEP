@@ -28,8 +28,8 @@ class Research extends Model
      *
      * @var array
      */
-    protected $fillable = ['description', 'name', 'url', 'image_id', 'type', 'institution', 'type_of_data_used', 'start_date', 'end_date'];
-    protected $hidden   = ['users', 'deleted_at'];
+    protected $fillable = ['description', 'name', 'url', 'image_id', 'type', 'institution', 'type_of_data_used', 'start_date', 'end_date', 'user_id'];
+    protected $hidden   = ['users', 'deleted_at', 'user_id', 'owner', 'viewers'];
     protected $appends  = ['consent', 'consent_history', 'checklist_names', 'thumb_url'];
 
     public static $pictureType = 'research';
@@ -67,9 +67,19 @@ class Research extends Model
         return null;
     }
     
+    public function owner()
+    {
+        return $this->belongsTo(User::class);
+    }
+
     public function users()
     {
-        return $this->belongsToMany(User::class, 'research_user');
+        return $this->belongsToMany(User::class, 'research_user')->distinct('user_id');
+    }
+
+    public function viewers()
+    {
+        return $this->belongsToMany(User::class, 'research_viewer');
     }
 
     public function checklists()

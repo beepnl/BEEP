@@ -19,7 +19,7 @@ class User extends Authenticatable
 
     protected $fillable = ['name', 'email', 'password', 'api_token', 'last_login', 'policy_accepted', 'locale'];
 
-    protected $hidden = ['password', 'remember_token'];
+    protected $hidden = ['password', 'remember_token', 'researchesVisible', 'researchesOwned'];
 
     protected $guarded  = ['id'];
 
@@ -59,6 +59,39 @@ class User extends Authenticatable
         return $this->belongsToMany(Research::class, 'research_user');
     }
     
+    public function researchesOwned()
+    {
+        return $this->hasMany(Research::class);
+    }
+
+    public function researchesVisible()
+    {
+        return $this->belongsToMany(Research::class, 'research_viewer');
+    }
+    
+
+    public function researchMenuOption()
+    {
+        if ($this->hasRole('superadmin'))
+            return true;
+        
+        if ($this->researchesOwned && $this->researchesOwned->count() > 0)
+            return true;
+
+        if ($this->researchesVisible && $this->researchesVisible->count() > 0)
+            return true;
+
+        return false;
+    }
+
+    public function allResearches() // Including Group hives
+    {
+        $own_ids = $this->researchesOwned()->pluck('id');
+        $vis_ids = $this->researchesVisible()->pluck('research_id');
+        $all_ids = $own_ids->merge($vis_ids);
+        return Research::whereIn('id',$all_ids);
+    }
+
     public function devices()
     {
         return $this->hasMany(Device::class);

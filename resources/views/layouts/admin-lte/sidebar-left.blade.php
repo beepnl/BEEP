@@ -68,9 +68,14 @@
           </ul>
         </li>
         
-        <li class="{{ Route::currentRouteNamed('research.index') ? 'active' : '' }}"><a href="{{ route('research.index') }}"><i class="fa fa-graduation-cap"></i><span>{{ __('beep.Researches') }}</span></a></li>
+        <!-- <li class="{{ Route::currentRouteNamed('research.index') ? 'active' : '' }}"><a href="{{ route('research.index') }}"><i class="fa fa-graduation-cap"></i><span>{{ __('beep.Researches') }}</span></a></li> -->
       @endrole
 
+      @if(Auth::user()->researchMenuOption())
+      <li class="header">{{ 'Research data' }}</li>
+      <li class="{{ Route::currentRouteNamed('research.index') ? 'active' : '' }}"><a href="{{ route('research.index') }}"><i class="fa fa-graduation-cap"></i><span>{{ __('beep.Researches') }}</span></a></li>
+      @endrole
+      
       @role(['superadmin','admin','translator'])
         <li class="header">{{ __('general.Translations').' '.__('general.menu') }}</li>
         <li class="{{ Route::currentRouteNamed('languages.index') ? 'active' : '' }}"><a href="{{ route('languages.index') }}"><i class="fa fa-flag"></i><span>{{ __('general.Languages') }}</span></a></li>
@@ -83,16 +88,8 @@
         
         {{-- <li class="{{ Route::currentRouteNamed('groups.index') ? 'active' : '' }}"><a href="{{ route('groups.index') }}"><i class="fa fa-cubes"></i><span>{{ __('general.Groups') }}</span></a></li> --}}
       @endrole
-      {{-- <li class="header">{{ __('general.menu_data') }}</li>
-      <li>
-          <a href="#"><i class="fa fa-dashboard"></i><span>{{ __('general.dashboard') }}</span></a>
-      </li> 
-      <li>
-          <a href="#"><i class="fa fa-dot-circle-o"></i><span>{{ __('general.sensordata') }}</span></a>
-      </li>
-      <li>
-          <a href="#"><i class="fa fa-bar-chart"></i><span>{{ __('general.dataanalysis') }}</span></a>
-      </li>          --}}
+
+
       <li class="header">{{ __('general.User').' '.__('general.menu') }}</li>
       <li class="{{ Route::currentRouteNamed('checklists.index') ? 'active' : '' }}"><a href="{{ route('checklists.index') }}"><i class="fa fa-list"></i><span>{{ __('beep.Checklists') }}</span></a></li>
       <li class="{{ Route::currentRouteNamed('inspections.index') ? 'active' : '' }}"><a href="{{ route('inspections.index') }}"><i class="fa fa-check-circle"></i><span>{{ __('beep.Inspections') }}</span></a></li>

@@ -109,7 +109,7 @@ class Inspection extends Model
 
 
 
-    public static function item_names($inspections) // get a locale ordered list of InspectionItem names
+    public static function item_names($inspections, $include_inspection_items=false) // get a locale ordered list of InspectionItem names
     {
         $locale          = LaravelLocalization::getCurrentLocale();
         $inspection_ids  = $inspections->pluck('id')->toArray();
@@ -126,26 +126,33 @@ class Inspection extends Model
             // if ($cat->isSystem())
             //     continue;
             
-            $arr = [];
-            $set = false;
-            //die(print_r($cat->toArray()));
-            foreach ($inspections as $d => $inspection) 
+            if ($include_inspection_items)
             {
-                $inspection_items = $inspection->items()->get();//->with('name')->orderBy('name', 'asc')->get();
-                $arr[$d] = '';
-                //die(print_r($inspection_items->toArray()));
-                foreach ($inspection_items as $inspection_item) 
+                $arr = [];
+                $set = false;
+                //die(print_r($cat->toArray()));
+                foreach ($inspections as $d => $inspection) 
                 {
-                    if ($inspection_item->category_id == $cat_id)
+                    $inspection_items = $inspection->items()->get();//->with('name')->orderBy('name', 'asc')->get();
+                    $arr[$d] = '';
+                    //die(print_r($inspection_items->toArray()));
+                    foreach ($inspection_items as $inspection_item) 
                     {
-                        $arr[$d] = $inspection_item;
-                        $set = true;
-                        continue;
+                        if ($inspection_item->category_id == $cat_id)
+                        {
+                            $arr[$d] = $inspection_item;
+                            $set = true;
+                            continue;
+                        }
                     }
                 }
+                if ($set)
+                    $item_names[] = ['anc' => $cat->ancName($locale), 'name' => $cat->transName($locale), 'type'=>$cat->input, 'range'=>$cat->inputRange(), 'items' => $arr];
+            } 
+            else
+            {
+                $item_names[] = ['anc' => $cat->ancName($locale), 'name' => $cat->transName($locale), 'type'=>$cat->input, 'range'=>$cat->inputRange()];
             }
-            if ($set)
-                $item_names[] = ['anc' => $cat->ancName($locale), 'name' => $cat->transName($locale), 'type'=>$cat->input, 'range'=>$cat->inputRange(), 'items' => $arr];
 
         }
 

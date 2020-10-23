@@ -1,4 +1,15 @@
 <div class="col-xs-12">
+	<div class="form-group {{ $errors->has('user_id') ? 'has-error' : ''}}">
+	    <label for="user_id" control-label>{{ 'Owner' }}</label>
+	    <div>
+	        {{-- <input class="form-control" name="checklist_id" type="number" id="checklist_id" value="{{ isset($research->checklist_id) ? $research->checklist_id : '' }}" > --}}
+	        {!! Form::select('user_id', App\User::selectList(), isset($research->user_id) ? $research->user_id : Auth::user()->id, array('id'=>'user_id','class' => 'form-control select2')) !!}
+	        {!! $errors->first('user_id', '<p class="help-block">:message</p>') !!}
+	    </div>
+	</div>
+</div>
+
+<div class="col-xs-12">
 	<div class="form-group {{ $errors->has('name') ? 'has-error' : ''}}">
 	    <label for="name" control-label>{{ 'Name' }}</label>
 	    <div>
@@ -20,12 +31,16 @@
 </div>
 <div class="col-xs-12">
 	<div class="form-group {{ $errors->has('image') ? 'has-error' : ''}}">
-	    <label for="image" control-label>{{ 'Image' }}</label>
-	    <div>
-	        <image src="{{ isset($research->image) ? $research->image : ''}}">
-	        <input class="form-control" name="image" type="file" id="image" >
-
-	        {!! $errors->first('image', '<p class="help-block">:message</p>') !!}
+	    <div class="row">
+	        <div class="col-xs-6">
+	    		<label for="image" control-label>{{ 'Upload new image' }}</label>
+		        <input class="form-control" name="image" type="file" id="image" >
+	        	{!! $errors->first('image', '<p class="help-block">:message</p>') !!}
+		    </div>
+	        <div class="col-xs-6">
+        		<label for="image" control-label>{{ 'Current image' }}</label><br>
+        		<img src="{{ isset($research->image_id) ? $research->thumb_url : '' }}" style="width:40px; height: 40px; border-radius: 20%; border: 1px solid #333; display: inline-block; overflow: hidden;">
+		    </div>
 	    </div>
 	</div>
 </div><div class="col-xs-12">
@@ -80,13 +95,25 @@
 	        {!! $errors->first('end_date', '<p class="help-block">:message</p>') !!}
 	    </div>
 	</div>
-</div><div class="col-xs-12">
+</div>
+<div class="col-xs-12">
 	<div class="form-group {{ $errors->has('checklist_ids') ? 'has-error' : ''}}">
 	    <label for="checklist_ids" control-label>{{ 'Checklists' }}</label>
 	    <div>
 	        {{-- <input class="form-control" name="checklist_id" type="number" id="checklist_id" value="{{ isset($research->checklist_id) ? $research->checklist_id : '' }}" > --}}
 	        {!! Form::select('checklist_ids[]', App\Checklist::selectList(), ($research->checklists->count() > 0) ? $research->checklists->pluck('id') : null, array('id'=>'checklist_ids','class' => 'form-control select2', 'multiple')) !!}
 	        {!! $errors->first('checklist_ids', '<p class="help-block">:message</p>') !!}
+	    </div>
+	</div>
+</div>
+
+<div class="col-xs-12">
+	<div class="form-group {{ $errors->has('viewer_ids') ? 'has-error' : ''}}">
+	    <label for="viewer_ids" control-label>{{ 'Viewers' }}</label>
+	    <div>
+	        {{-- <input class="form-control" name="checklist_id" type="number" id="checklist_id" value="{{ isset($research->checklist_id) ? $research->checklist_id : '' }}" > --}}
+	        {!! Form::select('viewer_ids[]', App\User::selectList(), ($research->viewers->count() > 0) ? $research->viewers->pluck('id') : null, array('id'=>'viewer_ids','class' => 'form-control select2', 'multiple')) !!}
+	        {!! $errors->first('viewer_ids', '<p class="help-block">:message</p>') !!}
 	    </div>
 	</div>
 </div>

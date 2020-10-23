@@ -60,8 +60,8 @@
             @foreach($research as $item)
                 <tr>
                     {{-- <td>{{ $loop->iteration or $item->id }}</td> --}}
-                    <td><a href="{{$item->url}}" target="_blank">@if(isset($item->thumb_url))<img src="{{$item->thumb_url}}" style="width:40px; height: 40px; border-radius: 20%; border: 1px solid #333; display: inline-block;">@endif</a></td>
-                    <td><a href="{{$item->url}}" target="_blank">{{ $item->name }}</a></td>
+                    <td><a href="{{ route('research.show', $item->id) }}">@if(isset($item->thumb_url))<img src="{{$item->thumb_url}}" style="width:40px; height: 40px; border-radius: 20%; border: 1px solid #333; display: inline-block; overflow: hidden;">@endif</a></td>
+                    <td><a href="{{ route('research.show', $item->id) }}">{{ $item->name }}<br>(ID: {{ $item->id }})</a></td>
                     <td>{{ $item->description }}</td>
                     <td>{{ $item->type }}</td>
                     <td>{{ $item->institution }}</td>
@@ -70,6 +70,9 @@
                     <td>{{ $item->checklists->pluck('name')->join(', ') }}</td>
                     <td>{{ $item->users->count() }}</td>
                     <td>
+                        <a href="{{ route('research.show', $item->id) }}" title="{{ __('crud.view') }}"><button class="btn btn-default"><i class="fa fa-eye" aria-hidden="true"></i></button></a>
+                        
+                        @if (Auth::user()->hasRole('superadmin') || Auth::user()->researchesOwned()->where('id', $item->id)->count() == 1)
                         <a href="{{ route('research.edit', $item->id) }}" title="{{ __('crud.edit') }}"><button class="btn btn-primary"><i class="fa fa-pencil" aria-hidden="true"></i></button></a>
 
                         <form method="POST" action="{{ route('research.destroy', $item->id) }}" accept-charset="UTF-8" style="display:inline">
@@ -79,13 +82,12 @@
                                 <i class="fa fa-trash-o" aria-hidden="true"></i>
                             </button>
                         </form>
+                        @endif
                     </td>
                 </tr>
             @endforeach
             </tbody>
         </table>
-
-        <div class="pagination-wrapper"> {!! $research->render() !!} </div>
 
         @endslot
     @endcomponent

@@ -135,12 +135,12 @@ class User extends Authenticatable
         return Checklist::whereIn('id', $checklist_ids);
     }
 
-    public function groupHives($mine = false)
+    public function groupHives($editable = false)
     {
         $group_ids = $this->groups->pluck('id')->toArray();
 
         $hive_ids  = [];
-        if ($mine)
+        if ($editable)
             $hive_ids  = DB::table('group_hive')->where('edit_hive', 1)->whereIn('group_id',$group_ids)->distinct('hive_id')->pluck('hive_id')->toArray();
         else
             $hive_ids  = DB::table('group_hive')->whereIn('group_id',$group_ids)->distinct('hive_id')->pluck('hive_id')->toArray();
@@ -148,18 +148,18 @@ class User extends Authenticatable
         return Hive::whereIn('id',$hive_ids);
     }
 
-    public function allHives($mine = false) // Including Group hives
+    public function allHives($editable = false) // Including Group hives
     {
         $own_ids = $this->hives()->pluck('id');
-        $hiv_ids = $this->groupHives($mine)->pluck('id');
+        $hiv_ids = $this->groupHives($editable)->pluck('id');
         $all_ids = $own_ids->merge($hiv_ids);
         return Hive::whereIn('id',$all_ids);
     }
 
-    public function allInspections($mine = false) // Including Group hive locations
+    public function allInspections($editable = false) // Including Group hive locations
     {
         $own_ids = $this->inspections()->pluck('id');
-        $hiv_ids = $this->groupHives($mine)->pluck('id');
+        $hiv_ids = $this->groupHives($editable)->pluck('id');
         $ins_ids = DB::table('inspection_hive')->whereIn('hive_id',$hiv_ids)->distinct('inspection_id')->pluck('inspection_id')->toArray();
         $all_ids = $own_ids->merge($ins_ids);
         return Inspection::whereIn('id',$all_ids);
@@ -170,20 +170,20 @@ class User extends Authenticatable
         return $this->hasMany(Location::class);
     }
 
-    public function allLocations($mine = false) // Including Group hive locations
+    public function allLocations($editable = false) // Including Group hive locations
     {
         $own_ids = $this->locations()->pluck('id');
-        $hiv_ids = $this->groupHives($mine)->pluck('id');
+        $hiv_ids = $this->groupHives($editable)->pluck('id');
         $loc_ids = DB::table('hives')->whereIn('id',$hiv_ids)->distinct('hive_id')->pluck('location_id')->toArray();
         $all_ids = $own_ids->merge($loc_ids);
         return Location::whereIn('id',$all_ids);
     }
 
     
-    public function allDevices($mine = false) // Including Group hive locations
+    public function allDevices($editable = false) // Including Group hive locations
     {
         $own_ids = $this->devices()->pluck('id');
-        $hiv_ids = $this->groupHives($mine)->pluck('id');
+        $hiv_ids = $this->groupHives($editable)->pluck('id');
         $sen_ids = DB::table('sensors')->whereIn('hive_id',$hiv_ids)->distinct('hive_id')->pluck('id')->toArray();
         $all_ids = $own_ids->merge($sen_ids);
         return Device::whereIn('id',$all_ids);

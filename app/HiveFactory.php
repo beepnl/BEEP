@@ -94,7 +94,12 @@ class HiveFactory
 		$layers 		= collect();
 		$broodLayerDiff = 0;
 		$honeyLayerDiff = 0;
+		$feedingBoxDiff = 0;
+		$queenExcluderDiff = 0;
 		$frameDiff 		= 0; 
+
+		$feedingBoxAmount = 0;
+		$queenExcluderAmount = 0;
 
 		if (isset($hive_layers)) // edit by layers object
 		{
@@ -102,6 +107,8 @@ class HiveFactory
 			$honeyLayerAmount = 0;
 			$broodLayerDiff   = -1 * $hive->getBroodlayersAttribute();
 			$honeyLayerDiff   = -1 * $hive->getHoneylayersAttribute();
+			$feedingBoxDiff   = -1 * $hive->getFeedingBoxCount();
+			$queenExcluderDiff= -1 * $hive->getQueenExcluderCount();
 			$foundLayerIds    = [];
 			foreach ($hive_layers as $layer)
 			{
@@ -111,11 +118,11 @@ class HiveFactory
 					$broodLayerAmount++;
 				}
 
-				if ($layer['type'] == 'honey')
-				{
-					$honeyLayerDiff++;
-					$honeyLayerAmount++;
-				}
+				if ($layer['type'] == 'feeding_box')
+					$feedingBoxDiff++;
+
+				if ($layer['type'] == 'queen_excluder')
+					$queenExcluderDiff++;
 
 				if (!isset($layer['id'])) // create new layer
 				{
@@ -206,7 +213,7 @@ class HiveFactory
 		}
 
 		// Create auto inspection
-		if ($broodLayerDiff != 0 || $honeyLayerDiff != 0 || $frameDiff != 0 || $locationChange)
+		if ($broodLayerDiff != 0 || $honeyLayerDiff != 0 || $feedingBoxDiff != 0 || $queenExcluderDiff != 0 || $frameDiff != 0 || $locationChange)
 		{
 			// Inspection items to add 
 			$brood_layers_id = Category::findCategoryIdByRootParentAndName('hive', 'configuration', 'brood_layers', ['system','checklist']);
@@ -220,6 +227,14 @@ class HiveFactory
 			$frames_per_layer_id = Category::findCategoryIdByRootParentAndName('hive', 'configuration', 'frames_per_layer', ['system','checklist']);
 			if ($frames_per_layer_id)
 				$inspection_data['items'][$frames_per_layer_id] = $frameAmount;
+
+			$feeding_box_id = Category::findCategoryIdByRootParentAndName('hive', 'configuration', 'feeding_box', ['system','checklist']);
+			if ($feeding_box_id)
+				$inspection_data['items'][$feeding_box_id] = $hive->getFeedingBoxCount();
+
+			$queen_excluder_id = Category::findCategoryIdByRootParentAndName('hive', 'configuration', 'queen_excluder', ['system','checklist']);
+			if ($queen_excluder_id)
+				$inspection_data['items'][$queen_excluder_id] = $hive->getQueenExcluderCount();
 
 			$inspection = Inspection::create($inspection_data);
 			foreach ($inspection_data['items'] as $cat_id => $value) 

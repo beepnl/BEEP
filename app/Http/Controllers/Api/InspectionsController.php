@@ -26,7 +26,7 @@ class InspectionsController extends Controller
     **/
     public function index(Request $request)
     {
-        $inspections = $request->user()->allInspections();
+        $inspections = $request->user()->allInspections()->orderBy('created_at', 'desc')->get();
         
         if (!isset($inspections))
             return response()->json(null, 404);

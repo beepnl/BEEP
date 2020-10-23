@@ -61,7 +61,7 @@ class Inspection extends Model
 
     public function getHiveIdAttribute()
     {
-        if (isset($this->hives))
+        if (isset($this->hives) && $this->hives->count() > 0)
             return $this->hives->first()->id;
 
         return null;

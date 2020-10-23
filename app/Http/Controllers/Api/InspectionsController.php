@@ -20,6 +20,22 @@ use LaravelLocalization;
 class InspectionsController extends Controller
 {
     /**
+    api/inspections GET
+    Show the 'inspections' list with objects reflecting only the general inspection data.
+    @authenticated
+    **/
+    public function index(Request $request)
+    {
+        $inspections = $request->user()->allInspections()->orderBy('created_at', 'desc')->get();
+        
+        if (!isset($inspections))
+            return response()->json(null, 404);
+
+        return response()->json($inspections);
+    }
+
+
+    /**
     api/inspections/lists GET
     List checklists and its  inspections linked to Hive id. The 'inspections' object contains a descending date ordered list of general inspection data. The 'items_by_date' object contains a list of (rows of) inspection items that can be placed (in columns) under the inspections by created_at date (table format). NB: Use 'Accept-Language' Header (default nl_NL) to provide localized category names (anc, name) in items_by_date. 
     @authenticated

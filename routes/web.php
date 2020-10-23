@@ -11,7 +11,7 @@
 |
 */
 
-Auth::routes();
+Auth::routes(['verify' => true]);
 
 Route::get('/',function(){
 	return redirect('https://beep.nl');
@@ -145,4 +145,3 @@ Route::group(
 		Route::delete('research/{id}',		['as'=>'research.destroy','uses'=>'ResearchController@destroy']);
 	}
 );
-Auth::routes(['verify' => true]);

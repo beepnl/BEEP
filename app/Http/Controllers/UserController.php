@@ -26,7 +26,7 @@ class UserController extends Controller
         $show_stats = $request->filled('stats');
 
         if (Auth::user()->hasRole('superadmin'))
-            $data = User::all();
+            $data = User::with('roles')->get();
 
         return view('users.index',compact('data', 'show_stats'));
     }

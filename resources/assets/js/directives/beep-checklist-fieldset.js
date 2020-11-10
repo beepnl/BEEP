@@ -71,7 +71,7 @@ app.directive('checklistFieldset', ['$rootScope', '$filter', function($rootScope
           else if (scope.cat.name == 'liebefelder_method')
           {
               scope.frame_filter = function (item) { 
-                if (typeof scope.hive != 'undefined' && typeof item.name != 'undefined' && (item.name.indexOf('colony_size') > -1 || (item.name.indexOf('frame') > -1 && parseInt(item.name.split('_')[1]) < scope.hive.brood_layers * scope.hive.frames)) )
+                if (typeof scope.hive != 'undefined' && typeof item.name != 'undefined' && (item.name.indexOf('colony_size') > -1 || (item.name.indexOf('frame') > -1 && parseInt(item.name.split('_')[1]) <= scope.hive.brood_layers * scope.hive.frames)) )
                   return true;
                 else
                   return false

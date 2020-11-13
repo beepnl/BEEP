@@ -37,7 +37,7 @@ class ResearchDataController extends Controller
     }
 
     /**
-    api/researches GET
+    api/researchdata GET
     List all available Researches
     @authenticated
     */
@@ -56,7 +56,7 @@ class ResearchDataController extends Controller
     }
 
     /**
-    api/researches/{id} GET
+    api/researchdata/{id} GET
     List one Research by id with list of consent_users
     @authenticated
     @queryParam id integer required The research ID to request data from. 
@@ -79,7 +79,7 @@ class ResearchDataController extends Controller
     }
 
     /**
-    api/researches/{id}/user/{user_id}/{item} GET
+    api/researchdata/{id}/user/{user_id}/{item} GET
     List all user 'item' data within the consent=1 periods of a specific user within a Research.
     @authenticated
     @queryParam id integer required The research ID to request data from. 

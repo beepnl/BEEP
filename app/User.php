@@ -84,7 +84,7 @@ class User extends Authenticatable
         return false;
     }
 
-    public function allResearches() // Including Group hives
+    public function allResearches() // all Researches visible
     {
         $own_ids = $this->researchesOwned()->pluck('id');
         $vis_ids = $this->researchesVisible()->pluck('research_id');

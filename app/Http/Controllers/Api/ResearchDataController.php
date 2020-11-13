@@ -17,7 +17,7 @@ use DB;
 
 /**
  * @group Api\ResearchDataController
- * Retreive owned Research data
+ * Retreive owned or viewable Research data
  */
 class ResearchDataController extends Controller
 {
@@ -25,13 +25,15 @@ class ResearchDataController extends Controller
     // Research API for researchers
     private function checkAuthorization(Request $request, $id=null)
     {
+        
         if ($request->user()->researchMenuOption() == false)
-            return Response::json('unauthorized', 401);
+            return false;
 
         if ($id)
             if (Research::findOrFail($id)->viewers()->where('users.id', $request->user()->id)->count() == 0)
-                return Response::json('unauthorized-for-research', 405);
-
+                return false;
+        
+        return true;
     }
 
     /**
@@ -41,7 +43,9 @@ class ResearchDataController extends Controller
     */
     public function index(Request $request)
     {
-        $this->checkAuthorization($request);
+        $auth = $this->checkAuthorization($request);
+        if ($auth == false)
+            return Response::json('unauthorized', 405);
 
         if ($request->user()->hasRole('superadmin'))
             $researches = Research::all();
@@ -59,7 +63,9 @@ class ResearchDataController extends Controller
     */
     public function show(Request $request, $id)
     {
-        $this->checkAuthorization($request, $id);
+        $auth = $this->checkAuthorization($request, $id);
+        if ($auth == false)
+            return Response::json('unauthorized-for-research', 405);
 
         $research      = $request->user()->allResearches()->findOrFail($id);
         $consent_users = DB::table('research_user')
@@ -84,7 +90,9 @@ class ResearchDataController extends Controller
     */
     public function user_data(Request $request, $id, $user_id, $item)
     {
-        $this->checkAuthorization($request, $id);
+        $auth = $this->checkAuthorization($request, $id);
+        if ($auth == false)
+            return Response::json('unauthorized-for-research', 405);
 
         // Check if user is present on 
         if (DB::table('research_user')->where('research_id', $id)->where('user_id', $user_id)->where('consent', 1)->count() == 0)

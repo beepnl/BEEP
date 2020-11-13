@@ -359,7 +359,7 @@ class ResearchController extends Controller
             $user_apiaries     = Location::where('user_id', $user_id)->where('created_at', '<', $research->end_date)->orderBy('created_at')->get();
             $user_hives        = Hive::where('user_id', $user_id)->where('created_at', '<', $research->end_date)->orderBy('created_at')->get();
             $user_devices      = Device::where('user_id', $user_id)->where('created_at', '<', $research->end_date)->orderBy('created_at')->get();
-            $user_inspections  = User::find($user_id)->inspections()->with('items')->where('created_at', '<', $research->end_date)->orderBy('created_at')->get();
+            $user_inspections  = User::find($user_id)->inspections()->with('items')->where('created_at', '>=', $research->start_date)->where('created_at', '<', $research->end_date)->orderBy('created_at')->get();
             $user_measurements = [];
 
             //die(print_r([$user_apiaries->toArray(), $user_hives->toArray()]));

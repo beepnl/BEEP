@@ -80,6 +80,10 @@ Route::group(['middleware' => \Barryvdh\Cors\HandleCors::class], function()
 		Route::patch('research/{id}/edit/{consent_id}','Api\ResearchController@edit_consent');
 		Route::delete('research/{id}/delete/{consent_id}','Api\ResearchController@delete_no_consent');
 
+		Route::get('researchdata', 			'Api\ResearchDataController@index');
+		Route::get('researchdata/{id}', 	'Api\ResearchDataController@show');
+		Route::get('researchdata/{id}/user/{user_id}/{item}', 	'Api\ResearchDataController@user_data');
+		
 		Route::delete('user', 				'Api\UserController@destroy');
 		Route::patch('user', 				'Api\UserController@edit');
 

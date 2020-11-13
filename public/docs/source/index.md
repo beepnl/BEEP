@@ -1733,7 +1733,7 @@ Store/update multiple Devices in an array of Device objects
 ```bash
 curl -X POST "https://test.beep.nl/api/devices/multiple" \
     -H "Content-Type: application/json" \
-    -d '{"id":6,"key":"amet","hardware_id":"necessitatibus","name":"possimus","hive_id":17,"type":"dolorem","last_message_received":"et","firmware_version":"aut","hardware_version":"reprehenderit","boot_count":3,"measurement_interval_min":275853058,"measurement_transmission_ratio":568681167.0480137,"ble_pin":"eaque","battery_voltage":47766012.109533,"next_downlink_message":"et","last_downlink_result":"hic"}'
+    -d '{"id":18,"key":"quia","hardware_id":"ut","name":"temporibus","hive_id":11,"type":"nemo","last_message_received":"quis","firmware_version":"repellendus","hardware_version":"vitae","boot_count":3,"measurement_interval_min":12007,"measurement_transmission_ratio":26.0232912,"ble_pin":"incidunt","battery_voltage":34385.555167923,"next_downlink_message":"dolorum","last_downlink_result":"autem"}'
 
 ```
 
@@ -1746,22 +1746,22 @@ let headers = {
 }
 
 let body = {
-    "id": 6,
-    "key": "amet",
-    "hardware_id": "necessitatibus",
-    "name": "possimus",
-    "hive_id": 17,
-    "type": "dolorem",
-    "last_message_received": "et",
-    "firmware_version": "aut",
-    "hardware_version": "reprehenderit",
+    "id": 18,
+    "key": "quia",
+    "hardware_id": "ut",
+    "name": "temporibus",
+    "hive_id": 11,
+    "type": "nemo",
+    "last_message_received": "quis",
+    "firmware_version": "repellendus",
+    "hardware_version": "vitae",
     "boot_count": 3,
-    "measurement_interval_min": 275853058,
-    "measurement_transmission_ratio": 568681167.0480137,
-    "ble_pin": "eaque",
-    "battery_voltage": 47766012.109533,
-    "next_downlink_message": "et",
-    "last_downlink_result": "hic"
+    "measurement_interval_min": 12007,
+    "measurement_transmission_ratio": 26.0232912,
+    "ble_pin": "incidunt",
+    "battery_voltage": 34385.555167923,
+    "next_downlink_message": "dolorum",
+    "last_downlink_result": "autem"
 }
 
 fetch(url, {
@@ -1894,7 +1894,7 @@ List all user Devices
 ```bash
 curl -X GET -G "https://test.beep.nl/api/devices" \
     -H "Content-Type: application/json" \
-    -d '{"hardware_id":"impedit"}'
+    -d '{"hardware_id":"atque"}'
 
 ```
 
@@ -1907,7 +1907,7 @@ let headers = {
 }
 
 let body = {
-    "hardware_id": "impedit"
+    "hardware_id": "atque"
 }
 
 fetch(url, {
@@ -1991,7 +1991,7 @@ Create or Update a Device
 ```bash
 curl -X POST "https://test.beep.nl/api/devices" \
     -H "Content-Type: application/json" \
-    -d '{"id":12,"key":"quis","hardware_id":"possimus","name":"commodi","hive_id":8,"type":"atque","last_message_received":"voluptatem","firmware_version":"rerum","hardware_version":"exercitationem","boot_count":4,"measurement_interval_min":38401,"measurement_transmission_ratio":725.06,"ble_pin":"magnam","battery_voltage":31968163.23221614,"next_downlink_message":"ex","last_downlink_result":"atque","create_ttn_device":true,"app_key":"voluptatem"}'
+    -d '{"id":10,"key":"non","hardware_id":"ex","name":"illum","hive_id":9,"type":"iusto","last_message_received":"ipsam","firmware_version":"ea","hardware_version":"sint","boot_count":9,"measurement_interval_min":450.63,"measurement_transmission_ratio":165931231.8,"ble_pin":"quia","battery_voltage":762.3161,"next_downlink_message":"voluptas","last_downlink_result":"ducimus","create_ttn_device":false,"app_key":"rem"}'
 
 ```
 
@@ -2004,24 +2004,24 @@ let headers = {
 }
 
 let body = {
-    "id": 12,
-    "key": "quis",
-    "hardware_id": "possimus",
-    "name": "commodi",
-    "hive_id": 8,
-    "type": "atque",
-    "last_message_received": "voluptatem",
-    "firmware_version": "rerum",
-    "hardware_version": "exercitationem",
-    "boot_count": 4,
-    "measurement_interval_min": 38401,
-    "measurement_transmission_ratio": 725.06,
-    "ble_pin": "magnam",
-    "battery_voltage": 31968163.23221614,
-    "next_downlink_message": "ex",
-    "last_downlink_result": "atque",
-    "create_ttn_device": true,
-    "app_key": "voluptatem"
+    "id": 10,
+    "key": "non",
+    "hardware_id": "ex",
+    "name": "illum",
+    "hive_id": 9,
+    "type": "iusto",
+    "last_message_received": "ipsam",
+    "firmware_version": "ea",
+    "hardware_version": "sint",
+    "boot_count": 9,
+    "measurement_interval_min": 450.63,
+    "measurement_transmission_ratio": 165931231.8,
+    "ble_pin": "quia",
+    "battery_voltage": 762.3161,
+    "next_downlink_message": "voluptas",
+    "last_downlink_result": "ducimus",
+    "create_ttn_device": false,
+    "app_key": "rem"
 }
 
 fetch(url, {
@@ -2115,7 +2115,7 @@ Update an existing Device
 ```bash
 curl -X PUT "https://test.beep.nl/api/devices/1" \
     -H "Content-Type: application/json" \
-    -d '{"id":1,"key":"sapiente","hardware_id":"ut","name":"laudantium","hive_id":15,"type":"quia","delete":false,"last_message_received":"rerum","firmware_version":"tempore","hardware_version":"in","boot_count":17,"measurement_interval_min":5330.861607094,"measurement_transmission_ratio":345234.3318282,"ble_pin":"laborum","battery_voltage":283.5,"next_downlink_message":"fugiat","last_downlink_result":"perspiciatis"}'
+    -d '{"id":14,"key":"incidunt","hardware_id":"et","name":"et","hive_id":1,"type":"ad","delete":true,"last_message_received":"atque","firmware_version":"vitae","hardware_version":"dolorem","boot_count":11,"measurement_interval_min":58.5519185,"measurement_transmission_ratio":968.02,"ble_pin":"qui","battery_voltage":1222341.019318,"next_downlink_message":"eos","last_downlink_result":"deleniti"}'
 
 ```
 
@@ -2128,23 +2128,23 @@ let headers = {
 }
 
 let body = {
-    "id": 1,
-    "key": "sapiente",
-    "hardware_id": "ut",
-    "name": "laudantium",
-    "hive_id": 15,
-    "type": "quia",
-    "delete": false,
-    "last_message_received": "rerum",
-    "firmware_version": "tempore",
-    "hardware_version": "in",
-    "boot_count": 17,
-    "measurement_interval_min": 5330.861607094,
-    "measurement_transmission_ratio": 345234.3318282,
-    "ble_pin": "laborum",
-    "battery_voltage": 283.5,
-    "next_downlink_message": "fugiat",
-    "last_downlink_result": "perspiciatis"
+    "id": 14,
+    "key": "incidunt",
+    "hardware_id": "et",
+    "name": "et",
+    "hive_id": 1,
+    "type": "ad",
+    "delete": true,
+    "last_message_received": "atque",
+    "firmware_version": "vitae",
+    "hardware_version": "dolorem",
+    "boot_count": 11,
+    "measurement_interval_min": 58.5519185,
+    "measurement_transmission_ratio": 968.02,
+    "ble_pin": "qui",
+    "battery_voltage": 1222341.019318,
+    "next_downlink_message": "eos",
+    "last_downlink_result": "deleniti"
 }
 
 fetch(url, {
@@ -2937,6 +2937,48 @@ fetch(url, {
 #Api\InspectionsController
 
 
+<!-- START_edd5f91a2b329960cacbe7483b5fd588 -->
+## api/inspections GET
+Show the &#039;inspections&#039; list with objects reflecting only the general inspection data.
+
+<br><small style="padding: 1px 9px 2px;font-weight: bold;white-space: nowrap;color: #ffffff;-webkit-border-radius: 9px;-moz-border-radius: 9px;border-radius: 9px;background-color: #3a87ad;">Requires authentication</small>
+> Example request:
+
+```bash
+curl -X GET -G "https://test.beep.nl/api/inspections" 
+```
+
+```javascript
+const url = new URL("https://test.beep.nl/api/inspections");
+
+let headers = {
+    "Accept": "application/json",
+    "Content-Type": "application/json",
+}
+
+fetch(url, {
+    method: "GET",
+    headers: headers,
+})
+    .then(response => response.json())
+    .then(json => console.log(json));
+```
+
+
+> Example response (401):
+
+```json
+{
+    "message": "Unauthenticated."
+}
+```
+
+### HTTP Request
+`GET api/inspections`
+
+
+<!-- END_edd5f91a2b329960cacbe7483b5fd588 -->
+
 <!-- START_ccf630a0f3579abb6ab3d47b9f4a65ab -->
 ## api/inspections/lists GET
 List checklists and its  inspections linked to Hive id. The &#039;inspections&#039; object contains a descending date ordered list of general inspection data. The &#039;items_by_date&#039; object contains a list of (rows of) inspection items that can be placed (in columns) under the inspections by created_at date (table format). NB: Use &#039;Accept-Language&#039; Header (default nl_NL) to provide localized category names (anc, name) in items_by_date.
@@ -2947,7 +2989,7 @@ List checklists and its  inspections linked to Hive id. The &#039;inspections&#0
 ```bash
 curl -X GET -G "https://test.beep.nl/api/inspections/lists" \
     -H "Content-Type: application/json" \
-    -d '{"id":8}'
+    -d '{"id":14}'
 
 ```
 
@@ -2960,7 +3002,7 @@ let headers = {
 }
 
 let body = {
-    "id": 8
+    "id": 14
 }
 
 fetch(url, {
@@ -3031,14 +3073,14 @@ Show the &#039;inspection&#039; object. The object reflects only the general ins
 > Example request:
 
 ```bash
-curl -X GET -G "https://test.beep.nl/api/inspections/1?id=quod" 
+curl -X GET -G "https://test.beep.nl/api/inspections/1?id=vero" 
 ```
 
 ```javascript
 const url = new URL("https://test.beep.nl/api/inspections/1");
 
     let params = {
-            "id": "quod",
+            "id": "vero",
         };
     Object.keys(params).forEach(key => url.searchParams.append(key, params[key]));
 
@@ -3083,14 +3125,14 @@ List all inspections linked to Hive id. The &#039;inspections&#039; object conta
 > Example request:
 
 ```bash
-curl -X GET -G "https://test.beep.nl/api/inspections/hive/1?hive_id=consectetur" 
+curl -X GET -G "https://test.beep.nl/api/inspections/hive/1?hive_id=ad" 
 ```
 
 ```javascript
 const url = new URL("https://test.beep.nl/api/inspections/hive/1");
 
     let params = {
-            "hive_id": "consectetur",
+            "hive_id": "ad",
         };
     Object.keys(params).forEach(key => url.searchParams.append(key, params[key]));
 
@@ -3517,7 +3559,7 @@ Store sensor measurement data (see BEEP sensor data API definition) from API, or
 ```bash
 curl -X POST "https://test.beep.nl/api/sensors" \
     -H "Content-Type: application/json" \
-    -d '{"key":"rem","data":[],"payload_fields":[]}'
+    -d '{"key":"ut","data":[],"payload_fields":[]}'
 
 ```
 
@@ -3530,7 +3572,7 @@ let headers = {
 }
 
 let body = {
-    "key": "rem",
+    "key": "ut",
     "data": [],
     "payload_fields": []
 }
@@ -3570,7 +3612,7 @@ When TTN payload is supplied, the TTN HTTP integration decoder/converter is assu
 ```bash
 curl -X POST "https://test.beep.nl/api/lora_sensors" \
     -H "Content-Type: application/json" \
-    -d '{"key":"sequi","payload_fields":[],"DevEUI_uplink":[]}'
+    -d '{"key":"temporibus","payload_fields":[],"DevEUI_uplink":[]}'
 
 ```
 
@@ -3583,7 +3625,7 @@ let headers = {
 }
 
 let body = {
-    "key": "sequi",
+    "key": "temporibus",
     "payload_fields": [],
     "DevEUI_uplink": []
 }
@@ -3621,7 +3663,7 @@ Store sensor measurement data (see BEEP sensor data API definition) from API, or
 ```bash
 curl -X POST "https://test.beep.nl/api/unsecure_sensors" \
     -H "Content-Type: application/json" \
-    -d '{"key":"at","data":[],"payload_fields":[]}'
+    -d '{"key":"consequatur","data":[],"payload_fields":[]}'
 
 ```
 
@@ -3634,7 +3676,7 @@ let headers = {
 }
 
 let body = {
-    "key": "at",
+    "key": "consequatur",
     "data": [],
     "payload_fields": []
 }
@@ -3673,7 +3715,7 @@ Request all sensor measurements from a certain interval (hour, day, week, month,
 ```bash
 curl -X GET -G "https://test.beep.nl/api/sensors/measurements" \
     -H "Content-Type: application/json" \
-    -d '{"key":"aperiam","id":14,"hive_id":1,"names":"ut","interval":"possimus","index":20}'
+    -d '{"key":"dicta","id":13,"hive_id":6,"names":"quia","interval":"ut","index":5}'
 
 ```
 
@@ -3686,12 +3728,12 @@ let headers = {
 }
 
 let body = {
-    "key": "aperiam",
-    "id": 14,
-    "hive_id": 1,
-    "names": "ut",
-    "interval": "possimus",
-    "index": 20
+    "key": "dicta",
+    "id": 13,
+    "hive_id": 6,
+    "names": "quia",
+    "interval": "ut",
+    "index": 5
 }
 
 fetch(url, {
@@ -3738,7 +3780,7 @@ Request last measurement values of all sensor measurements from a sensor (Device
 ```bash
 curl -X GET -G "https://test.beep.nl/api/sensors/lastvalues" \
     -H "Content-Type: application/json" \
-    -d '{"key":"quia","id":19,"hive_id":2}'
+    -d '{"key":"placeat","id":9,"hive_id":18}'
 
 ```
 
@@ -3751,9 +3793,9 @@ let headers = {
 }
 
 let body = {
-    "key": "quia",
-    "id": 19,
-    "hive_id": 2
+    "key": "placeat",
+    "id": 9,
+    "hive_id": 18
 }
 
 fetch(url, {
@@ -3797,7 +3839,7 @@ Request last weight related measurement values from a sensor (Device), used by l
 ```bash
 curl -X GET -G "https://test.beep.nl/api/sensors/lastweight" \
     -H "Content-Type: application/json" \
-    -d '{"key":"sed","id":16,"hive_id":14}'
+    -d '{"key":"ipsum","id":3,"hive_id":14}'
 
 ```
 
@@ -3810,8 +3852,8 @@ let headers = {
 }
 
 let body = {
-    "key": "sed",
-    "id": 16,
+    "key": "ipsum",
+    "id": 3,
     "hive_id": 14
 }
 
@@ -3972,7 +4014,7 @@ When TTN payload is supplied, the TTN HTTP integration decoder/converter is assu
 ```bash
 curl -X POST "https://test.beep.nl/api/lora_sensors_auth" \
     -H "Content-Type: application/json" \
-    -d '{"key":"qui","payload_fields":[],"DevEUI_uplink":[]}'
+    -d '{"key":"in","payload_fields":[],"DevEUI_uplink":[]}'
 
 ```
 
@@ -3985,7 +4027,7 @@ let headers = {
 }
 
 let body = {
-    "key": "qui",
+    "key": "in",
     "payload_fields": [],
     "DevEUI_uplink": []
 }
@@ -4554,6 +4596,174 @@ fetch(url, {
 
 <!-- END_485051d7c03d1b4a19fc58cf42d8ad90 -->
 
+#Api\ResearchDataController
+
+Retreive owned Research data
+<!-- START_65b256616f284693ece03ee6e9d2dd02 -->
+## api/researches GET
+List all available Researches
+
+<br><small style="padding: 1px 9px 2px;font-weight: bold;white-space: nowrap;color: #ffffff;-webkit-border-radius: 9px;-moz-border-radius: 9px;border-radius: 9px;background-color: #3a87ad;">Requires authentication</small>
+> Example request:
+
+```bash
+curl -X GET -G "https://test.beep.nl/api/researchdata" 
+```
+
+```javascript
+const url = new URL("https://test.beep.nl/api/researchdata");
+
+let headers = {
+    "Accept": "application/json",
+    "Content-Type": "application/json",
+}
+
+fetch(url, {
+    method: "GET",
+    headers: headers,
+})
+    .then(response => response.json())
+    .then(json => console.log(json));
+```
+
+
+> Example response (401):
+
+```json
+{
+    "message": "Unauthenticated."
+}
+```
+
+### HTTP Request
+`GET api/researchdata`
+
+
+<!-- END_65b256616f284693ece03ee6e9d2dd02 -->
+
+<!-- START_ac5a4e29917275abfbc2ec2e8fc1201b -->
+## api/researches/{id} GET
+List one Research by id with list of consent_users
+
+<br><small style="padding: 1px 9px 2px;font-weight: bold;white-space: nowrap;color: #ffffff;-webkit-border-radius: 9px;-moz-border-radius: 9px;border-radius: 9px;background-color: #3a87ad;">Requires authentication</small>
+> Example request:
+
+```bash
+curl -X GET -G "https://test.beep.nl/api/researchdata/1?id=dolores" 
+```
+
+```javascript
+const url = new URL("https://test.beep.nl/api/researchdata/1");
+
+    let params = {
+            "id": "dolores",
+        };
+    Object.keys(params).forEach(key => url.searchParams.append(key, params[key]));
+
+let headers = {
+    "Accept": "application/json",
+    "Content-Type": "application/json",
+}
+
+fetch(url, {
+    method: "GET",
+    headers: headers,
+})
+    .then(response => response.json())
+    .then(json => console.log(json));
+```
+
+
+> Example response (401):
+
+```json
+{
+    "message": "Unauthenticated."
+}
+```
+
+### HTTP Request
+`GET api/researchdata/{id}`
+
+#### Query Parameters
+
+Parameter | Status | Description
+--------- | ------- | ------- | -----------
+    id |  optional  | integer required The research ID to request data from.
+
+<!-- END_ac5a4e29917275abfbc2ec2e8fc1201b -->
+
+<!-- START_4f4cc2a64151945d3e57be605dc0b98a -->
+## api/researches/{id}/user/{user_id}/{item} GET
+List all user &#039;item&#039; data within the consent=1 periods of a specific user within a Research.
+
+<br><small style="padding: 1px 9px 2px;font-weight: bold;white-space: nowrap;color: #ffffff;-webkit-border-radius: 9px;-moz-border-radius: 9px;border-radius: 9px;background-color: #3a87ad;">Requires authentication</small>
+> Example request:
+
+```bash
+curl -X GET -G "https://test.beep.nl/api/researchdata/1/user/1/1?id=minus&user_id=ex&item=eligendi" \
+    -H "Content-Type: application/json" \
+    -d '{"date_start":"ipsam","date_until":"sunt"}'
+
+```
+
+```javascript
+const url = new URL("https://test.beep.nl/api/researchdata/1/user/1/1");
+
+    let params = {
+            "id": "minus",
+            "user_id": "ex",
+            "item": "eligendi",
+        };
+    Object.keys(params).forEach(key => url.searchParams.append(key, params[key]));
+
+let headers = {
+    "Content-Type": "application/json",
+    "Accept": "application/json",
+}
+
+let body = {
+    "date_start": "ipsam",
+    "date_until": "sunt"
+}
+
+fetch(url, {
+    method: "GET",
+    headers: headers,
+    body: body
+})
+    .then(response => response.json())
+    .then(json => console.log(json));
+```
+
+
+> Example response (401):
+
+```json
+{
+    "message": "Unauthenticated."
+}
+```
+
+### HTTP Request
+`GET api/researchdata/{id}/user/{user_id}/{item}`
+
+#### Body Parameters
+
+Parameter | Type | Status | Description
+--------- | ------- | ------- | ------- | -----------
+    date_start | datetime |  optional  | The date in RFC3339 format (2020-09-22T00:00:00Z) to request data from (default is beginning of research, or earlier (except inspections and measurements).
+    date_until | datetime |  optional  | The date in RFC3339 format (2020-09-29T23:59:59Z) to request data until (default is until the end of the user consent, or research end).
+#### Query Parameters
+
+Parameter | Status | Description
+--------- | ------- | ------- | -----------
+    id |  optional  | integer required The research ID to request data from.
+    user_id |  optional  | integer required The user id to request data from.
+    item |  optional  | string required The type of user data (apiaries/hives/devices/inspections/measurements) to request within the research (which the user gave consent for to use).
+
+<!-- END_4f4cc2a64151945d3e57be605dc0b98a -->
+
 #Api\SensorDefinitionController
 
 
@@ -4567,7 +4777,7 @@ Display a listing of the resource.
 ```bash
 curl -X GET -G "https://test.beep.nl/api/sensordefinition" \
     -H "Content-Type: application/json" \
-    -d '{"device_id":15,"device_hardware_id":"deserunt","input_measurement_abbreviation":"deserunt","limit":5}'
+    -d '{"device_id":12,"device_hardware_id":"numquam","input_measurement_abbreviation":"voluptatem","limit":8}'
 
 ```
 
@@ -4580,10 +4790,10 @@ let headers = {
 }
 
 let body = {
-    "device_id": 15,
-    "device_hardware_id": "deserunt",
-    "input_measurement_abbreviation": "deserunt",
-    "limit": 5
+    "device_id": 12,
+    "device_hardware_id": "numquam",
+    "input_measurement_abbreviation": "voluptatem",
+    "limit": 8
 }
 
 fetch(url, {
@@ -4628,7 +4838,7 @@ Store a newly created resource in storage.
 ```bash
 curl -X POST "https://test.beep.nl/api/sensordefinition" \
     -H "Content-Type: application/json" \
-    -d '{"name":"hic","inside":false,"offset":44.1,"multiplier":16910.385416,"input_measurement_id":5,"input_measurement_abbreviation":"w_v","output_measurement_id":6,"output_measurement_abbreviation":"t_i","device_id":8,"device_hardware_id":"id"}'
+    -d '{"name":"hic","inside":false,"offset":139.34,"multiplier":425,"input_measurement_id":5,"input_measurement_abbreviation":"w_v","output_measurement_id":6,"output_measurement_abbreviation":"t_i","device_id":11,"device_hardware_id":"assumenda"}'
 
 ```
 
@@ -4643,14 +4853,14 @@ let headers = {
 let body = {
     "name": "hic",
     "inside": false,
-    "offset": 44.1,
-    "multiplier": 16910.385416,
+    "offset": 139.34,
+    "multiplier": 425,
     "input_measurement_id": 5,
     "input_measurement_abbreviation": "w_v",
     "output_measurement_id": 6,
     "output_measurement_abbreviation": "t_i",
-    "device_id": 8,
-    "device_hardware_id": "id"
+    "device_id": 11,
+    "device_hardware_id": "assumenda"
 }
 
 fetch(url, {
@@ -5477,5 +5687,186 @@ fetch(url, {
 
 
 <!-- END_f2ce4d0ca8bf3878a3fd61cbc4528bdd -->
+
+<!-- START_97f371a6334e98576ea879511226a683 -->
+## Display a listing of the resource.
+
+> Example request:
+
+```bash
+curl -X GET -G "https://test.beep.nl/api/samplecode" 
+```
+
+```javascript
+const url = new URL("https://test.beep.nl/api/samplecode");
+
+let headers = {
+    "Accept": "application/json",
+    "Content-Type": "application/json",
+}
+
+fetch(url, {
+    method: "GET",
+    headers: headers,
+})
+    .then(response => response.json())
+    .then(json => console.log(json));
+```
+
+
+> Example response (401):
+
+```json
+{
+    "message": "Unauthenticated."
+}
+```
+
+### HTTP Request
+`GET api/samplecode`
+
+
+<!-- END_97f371a6334e98576ea879511226a683 -->
+
+<!-- START_a8bc3e7a0e51abfe3e43a713c5a2019f -->
+## Store a newly created resource in storage.
+
+> Example request:
+
+```bash
+curl -X POST "https://test.beep.nl/api/samplecode" 
+```
+
+```javascript
+const url = new URL("https://test.beep.nl/api/samplecode");
+
+let headers = {
+    "Accept": "application/json",
+    "Content-Type": "application/json",
+}
+
+fetch(url, {
+    method: "POST",
+    headers: headers,
+})
+    .then(response => response.json())
+    .then(json => console.log(json));
+```
+
+
+
+### HTTP Request
+`POST api/samplecode`
+
+
+<!-- END_a8bc3e7a0e51abfe3e43a713c5a2019f -->
+
+<!-- START_ede7fea00e625e61218a3fe255960541 -->
+## Display the specified resource.
+
+> Example request:
+
+```bash
+curl -X GET -G "https://test.beep.nl/api/samplecode/1" 
+```
+
+```javascript
+const url = new URL("https://test.beep.nl/api/samplecode/1");
+
+let headers = {
+    "Accept": "application/json",
+    "Content-Type": "application/json",
+}
+
+fetch(url, {
+    method: "GET",
+    headers: headers,
+})
+    .then(response => response.json())
+    .then(json => console.log(json));
+```
+
+
+> Example response (401):
+
+```json
+{
+    "message": "Unauthenticated."
+}
+```
+
+### HTTP Request
+`GET api/samplecode/{samplecode}`
+
+
+<!-- END_ede7fea00e625e61218a3fe255960541 -->
+
+<!-- START_051be30e038b6ec2beeaed77e8e1a73b -->
+## Update the specified resource in storage.
+
+> Example request:
+
+```bash
+curl -X PUT "https://test.beep.nl/api/samplecode/1" 
+```
+
+```javascript
+const url = new URL("https://test.beep.nl/api/samplecode/1");
+
+let headers = {
+    "Accept": "application/json",
+    "Content-Type": "application/json",
+}
+
+fetch(url, {
+    method: "PUT",
+    headers: headers,
+})
+    .then(response => response.json())
+    .then(json => console.log(json));
+```
+
+
+
+### HTTP Request
+`PUT api/samplecode/{samplecode}`
+
+`PATCH api/samplecode/{samplecode}`
+
+
+<!-- END_051be30e038b6ec2beeaed77e8e1a73b -->
+
+<!-- START_828c58242f3e6d3d7f10e15ba93c914a -->
+## Remove the specified resource from storage.
+
+> Example request:
+
+```bash
+curl -X DELETE "https://test.beep.nl/api/samplecode" 
+```
+
+```javascript
+const url = new URL("https://test.beep.nl/api/samplecode");
+
+let headers = {
+    "Accept": "application/json",
+    "Content-Type": "application/json",
+}
+
+fetch(url, {
+    method: "DELETE",
+    headers: headers,
+})
+    .then(response => response.json())
+    .then(json => console.log(json));
+```
+
+
+
+### HTTP Request
+`DELETE api/samplecode`
+
+
+<!-- END_828c58242f3e6d3d7f10e15ba93c914a -->
 
 

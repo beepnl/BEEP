@@ -59,7 +59,7 @@ class ResearchDataController extends Controller
     api/researchdata/{id} GET
     List one Research by id with list of consent_users
     @authenticated
-    @queryParam id integer required The research ID to request data from. 
+    @queryParam id required The research ID to request data from. 
     */
     public function show(Request $request, $id)
     {
@@ -82,9 +82,9 @@ class ResearchDataController extends Controller
     api/researchdata/{id}/user/{user_id}/{item} GET
     List all user 'item' data within the consent=1 periods of a specific user within a Research.
     @authenticated
-    @queryParam id integer required The research ID to request data from. 
-    @queryParam user_id integer required The user id to request data from. 
-    @queryParam item string required The type of user data (apiaries/hives/devices/inspections/measurements) to request within the research (which the user gave consent for to use). 
+    @queryParam id required The research ID to request data from. 
+    @queryParam user_id required The user id to request data from. 
+    @queryParam item required The type of user data (apiaries/hives/devices/inspections/measurements) to request within the research (which the user gave consent for to use). 
     @bodyParam date_start datetime The date in RFC3339 format (2020-09-22T00:00:00Z) to request data from (default is beginning of research, or earlier (except inspections and measurements). 
     @bodyParam date_until datetime The date in RFC3339 format (2020-09-29T23:59:59Z) to request data until (default is until the end of the user consent, or research end). 
     */

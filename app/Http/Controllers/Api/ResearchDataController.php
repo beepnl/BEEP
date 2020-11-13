@@ -85,8 +85,8 @@ class ResearchDataController extends Controller
     @queryParam id required The research ID to request data from. 
     @queryParam user_id required The user id to request data from. 
     @queryParam item required The type of user data (apiaries/hives/devices/inspections/measurements) to request within the research (which the user gave consent for to use). 
-    @bodyParam date_start datetime The date in RFC3339 format (2020-09-22T00:00:00Z) to request data from (default is beginning of research, or earlier (except inspections and measurements). 
-    @bodyParam date_until datetime The date in RFC3339 format (2020-09-29T23:59:59Z) to request data until (default is until the end of the user consent, or research end). 
+    @bodyParam date_start datetime The date in 'YYYY-MM-DD HH:mm:ss' format (2020-01-01 00:00:00) to request data from (default is beginning of research, or earlier (except inspections and measurements). 
+    @bodyParam date_until datetime The date in 'YYYY-MM-DD HH:mm:ss' format (2020-09-29 23:59:59) to request data until (default is until the end of the user consent, or research end). 
     */
     public function user_data(Request $request, $id, $user_id, $item)
     {

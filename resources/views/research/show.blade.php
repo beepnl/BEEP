@@ -18,7 +18,7 @@
         @slot('body')
             <div class="col-xs-12">
                 <form method="GET" action="{{ route('research.show',$research->id) }}" accept-charset="UTF-8" class="form-horizontal" enctype="multipart/form-data">
-                    <div class="col-xs-7">
+                    <div class="col-xs-12 col-md-4">
                         <div class="form-group {{ $errors->has('user_ids') ? 'has-error' : ''}}">
                             <label for="user_ids" control-label>{{ 'Select consented users' }} ({{ count($consent_users_selected) }} / {{ count($consent_users_select) }})</label>
                             <div>
@@ -27,11 +27,29 @@
                             </div>
                         </div>
                     </div>
-                    <div class="col-xs-1">
+                    <div class="col-md-1"></div>
+                    <div class="col-xs-12 col-md-3">
+                        <div class="form-group {{ $errors->has('start_date') ? 'has-error' : ''}}">
+                            <label for="start_date" control-label>{{ 'Start Date' }}</label>
+                            <div>
+                                <input class="form-control" name="start_date" type="date" id="start_date" min="{{substr($research->start_date, 0, 10)}}" max="{{substr($research->end_date, 0, 10)}}" value="{{ isset($start_date) ? substr($start_date, 0, 10) : '' }}" >
+                                {!! $errors->first('start_date', '<p class="help-block">:message</p>') !!}
+                            </div>
+                        </div>
                     </div>
-                    <div class="col-xs-4">
+                    <div class="col-md-1"></div>
+                    <div class="col-xs-12 col-md-3">
+                        <div class="form-group {{ $errors->has('end_date') ? 'has-error' : ''}}">
+                            <label for="end_date" control-label>{{ 'End Date' }}</label>
+                            <div>
+                                <input class="form-control" name="end_date" type="date" id="end_date" min="{{substr($research->start_date, 0, 10)}}" max="{{substr($research->end_date, 0, 10)}}" value="{{ isset($end_date) ? substr($end_date, 0, 10) : '' }}" >
+                                {!! $errors->first('end_date', '<p class="help-block">:message</p>') !!}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xs-12">
                         <div class="form-group">
-                            <label control-label>Load data</label>
+                            <br>
                             <button class="btn btn-primary btn-block" type="submit"><i class="fa fa-refresh" aria-hidden="true"></i> Reload consent data table</button>
                         </div>
                     </div>

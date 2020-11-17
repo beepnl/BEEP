@@ -43,7 +43,8 @@
 		    </div>
 	    </div>
 	</div>
-</div><div class="col-xs-12">
+</div>
+<div class="col-xs-12">
 	<div class="form-group {{ $errors->has('description') ? 'has-error' : ''}}">
 	    <label for="description" control-label>{{ 'Description' }}</label>
 	    <div>
@@ -52,7 +53,8 @@
 	        {!! $errors->first('description', '<p class="help-block">:message</p>') !!}
 	    </div>
 	</div>
-</div><div class="col-xs-12">
+</div>
+<div class="col-xs-12">
 	<div class="form-group {{ $errors->has('type') ? 'has-error' : ''}}">
 	    <label for="type" control-label>{{ 'Type' }}</label>
 	    <div>
@@ -70,7 +72,8 @@
 	        {!! $errors->first('institution', '<p class="help-block">:message</p>') !!}
 	    </div>
 	</div>
-</div><div class="col-xs-12">
+</div>
+<div class="col-xs-12">
 	<div class="form-group {{ $errors->has('type_of_data_used') ? 'has-error' : ''}}">
 	    <label for="type_of_data_used" control-label>{{ 'Type Of Data Used' }}</label>
 	    <div>
@@ -79,7 +82,8 @@
 	        {!! $errors->first('type_of_data_used', '<p class="help-block">:message</p>') !!}
 	    </div>
 	</div>
-</div><div class="col-xs-12">
+</div>
+<div class="col-xs-12">
 	<div class="form-group {{ $errors->has('start_date') ? 'has-error' : ''}}">
 	    <label for="start_date" control-label>{{ 'Start Date' }}</label>
 	    <div>
@@ -87,7 +91,8 @@
 	        {!! $errors->first('start_date', '<p class="help-block">:message</p>') !!}
 	    </div>
 	</div>
-</div><div class="col-xs-12">
+</div>
+<div class="col-xs-12">
 	<div class="form-group {{ $errors->has('end_date') ? 'has-error' : ''}}">
 	    <label for="end_date" control-label>{{ 'End Date' }}</label>
 	    <div>

@@ -347,7 +347,7 @@ class ResearchController extends Controller
             $user_consents = DB::table('research_user')->where('research_id', $id)->where('user_id', $user_id)->whereDate('updated_at', '<', $end_date)->orderBy('updated_at','asc')->get()->toArray();
             
             $user_consent      = $user_consents[0]->consent;
-            $date_curr_consent = $user_consents[0]->updated_at;
+            $date_curr_consent = $start_date > $user_consents[0]->updated_at ? $start_date : $user_consents[0]->updated_at;
             $date_next_consent = $moment_end->format('Y-m-d H:i:s');
             $index             = 0;
 

@@ -8,6 +8,11 @@ use App\Http\Controllers\Controller;
 use App\Weather;
 use Illuminate\Http\Request;
 
+/**
+ * @group Api\WeatherController
+ *
+ * Weather data request
+ */
 class WeatherController extends Controller
 {
     /**

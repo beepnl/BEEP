@@ -6,6 +6,11 @@ use Auth;
 use App\SampleCode;
 use Illuminate\Http\Request;
 
+/**
+ * @group Api\SampleCodeController
+ *
+ * Research lab result sample code controller
+ */
 class SampleCodeController extends Controller
 {
     /**

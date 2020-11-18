@@ -17,7 +17,7 @@ return [
      * The base URL to be used in examples and the Postman collection.
      * By default, this will be the value of config('app.url').
      */
-    'base_url' => 'https://test.beep.nl/',
+    'base_url' => 'https://api.beep.nl/',
 
     /*
      * Generate a Postman collection in addition to HTML docs.
@@ -31,12 +31,12 @@ return [
         /*
          * The name for the exported Postman collection. Default: config('app.name')." API"
          */
-        'name' => null,
+        'name' => 'BEEP',
 
         /*
          * The description for the exported Postman collection.
          */
-        'description' => null,
+        'description' => 'BEEP API',
     ],
 
     /*

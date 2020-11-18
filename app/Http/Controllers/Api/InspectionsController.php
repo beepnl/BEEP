@@ -93,7 +93,7 @@ class InspectionsController extends Controller
     api/inspections/hive/{hive_id} GET
     List all inspections linked to Hive id. The 'inspections' object contains a descending date ordered list of general inspection data. The 'items_by_date' object contains a list of (rows of) inspection items that can be placed (in columns) under the inspections by created_at date (table format). NB: Use 'Accept-Language' Header (default nl_NL) to provide localized category names (anc, name) in items_by_date. 
     @authenticated
-    @queryParam hive_id required The hive to request inspections from. 
+    @urlParam hive_id required The hive to request inspections from. 
     @response {
     "inspections": [
         {
@@ -203,7 +203,7 @@ class InspectionsController extends Controller
     api/inspections/{id} GET
     Show the 'inspection' object. The object reflects only the general inspection data.
     @authenticated
-    @queryParam id required The id of the inspection. 
+    @urlParam id required The id of the inspection. 
     **/
     public function show(Request $request, $id)
     {

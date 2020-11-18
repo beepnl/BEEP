@@ -16,7 +16,7 @@ toc_footers:
 # Info
 
 Welcome to the generated API reference.
-[Get Postman Collection](http://test.beep.nl/docs/collection.json)
+[Get Postman Collection](http://api.beep.nl/docs/collection.json)
 
 <!-- END_INFO -->
 
@@ -32,11 +32,11 @@ Display a listing of the inspection categories.
 > Example request:
 
 ```bash
-curl -X GET -G "https://test.beep.nl/api/categories" 
+curl -X GET -G "https://api.beep.nl/api/categories" 
 ```
 
 ```javascript
-const url = new URL("https://test.beep.nl/api/categories");
+const url = new URL("https://api.beep.nl/api/categories");
 
 let headers = {
     "Accept": "application/json",
@@ -1506,11 +1506,11 @@ Display the specified category.
 > Example request:
 
 ```bash
-curl -X GET -G "https://test.beep.nl/api/categories/1" 
+curl -X GET -G "https://api.beep.nl/api/categories/1" 
 ```
 
 ```javascript
-const url = new URL("https://test.beep.nl/api/categories/1");
+const url = new URL("https://api.beep.nl/api/categories/1");
 
 let headers = {
     "Accept": "application/json",
@@ -1549,11 +1549,11 @@ fetch(url, {
 > Example request:
 
 ```bash
-curl -X GET -G "https://test.beep.nl/api/checklists" 
+curl -X GET -G "https://api.beep.nl/api/checklists" 
 ```
 
 ```javascript
-const url = new URL("https://test.beep.nl/api/checklists");
+const url = new URL("https://api.beep.nl/api/checklists");
 
 let headers = {
     "Accept": "application/json",
@@ -1588,11 +1588,11 @@ fetch(url, {
 > Example request:
 
 ```bash
-curl -X POST "https://test.beep.nl/api/checklists" 
+curl -X POST "https://api.beep.nl/api/checklists" 
 ```
 
 ```javascript
-const url = new URL("https://test.beep.nl/api/checklists");
+const url = new URL("https://api.beep.nl/api/checklists");
 
 let headers = {
     "Accept": "application/json",
@@ -1620,11 +1620,11 @@ fetch(url, {
 > Example request:
 
 ```bash
-curl -X GET -G "https://test.beep.nl/api/checklists/1" 
+curl -X GET -G "https://api.beep.nl/api/checklists/1" 
 ```
 
 ```javascript
-const url = new URL("https://test.beep.nl/api/checklists/1");
+const url = new URL("https://api.beep.nl/api/checklists/1");
 
 let headers = {
     "Accept": "application/json",
@@ -1659,11 +1659,11 @@ fetch(url, {
 > Example request:
 
 ```bash
-curl -X PUT "https://test.beep.nl/api/checklists/1" 
+curl -X PUT "https://api.beep.nl/api/checklists/1" 
 ```
 
 ```javascript
-const url = new URL("https://test.beep.nl/api/checklists/1");
+const url = new URL("https://api.beep.nl/api/checklists/1");
 
 let headers = {
     "Accept": "application/json",
@@ -1693,11 +1693,11 @@ fetch(url, {
 > Example request:
 
 ```bash
-curl -X DELETE "https://test.beep.nl/api/checklists/1" 
+curl -X DELETE "https://api.beep.nl/api/checklists/1" 
 ```
 
 ```javascript
-const url = new URL("https://test.beep.nl/api/checklists/1");
+const url = new URL("https://api.beep.nl/api/checklists/1");
 
 let headers = {
     "Accept": "application/json",
@@ -1731,14 +1731,14 @@ Store/update multiple Devices in an array of Device objects
 > Example request:
 
 ```bash
-curl -X POST "https://test.beep.nl/api/devices/multiple" \
+curl -X POST "https://api.beep.nl/api/devices/multiple" \
     -H "Content-Type: application/json" \
-    -d '{"id":15,"key":"ipsum","hardware_id":"soluta","name":"eaque","hive_id":16,"type":"pariatur","last_message_received":"corrupti","firmware_version":"voluptatem","hardware_version":"nihil","boot_count":5,"measurement_interval_min":10277.20748579,"measurement_transmission_ratio":23.812,"ble_pin":"explicabo","battery_voltage":469,"next_downlink_message":"atque","last_downlink_result":"animi"}'
+    -d '{"id":1,"key":"necessitatibus","hardware_id":"sit","name":"alias","hive_id":14,"type":"doloribus","last_message_received":"incidunt","firmware_version":"quis","hardware_version":"ex","boot_count":8,"measurement_interval_min":0,"measurement_transmission_ratio":6274348.332087,"ble_pin":"aut","battery_voltage":221881238,"next_downlink_message":"dolore","last_downlink_result":"exercitationem"}'
 
 ```
 
 ```javascript
-const url = new URL("https://test.beep.nl/api/devices/multiple");
+const url = new URL("https://api.beep.nl/api/devices/multiple");
 
 let headers = {
     "Content-Type": "application/json",
@@ -1746,22 +1746,22 @@ let headers = {
 }
 
 let body = {
-    "id": 15,
-    "key": "ipsum",
-    "hardware_id": "soluta",
-    "name": "eaque",
-    "hive_id": 16,
-    "type": "pariatur",
-    "last_message_received": "corrupti",
-    "firmware_version": "voluptatem",
-    "hardware_version": "nihil",
-    "boot_count": 5,
-    "measurement_interval_min": 10277.20748579,
-    "measurement_transmission_ratio": 23.812,
-    "ble_pin": "explicabo",
-    "battery_voltage": 469,
-    "next_downlink_message": "atque",
-    "last_downlink_result": "animi"
+    "id": 1,
+    "key": "necessitatibus",
+    "hardware_id": "sit",
+    "name": "alias",
+    "hive_id": 14,
+    "type": "doloribus",
+    "last_message_received": "incidunt",
+    "firmware_version": "quis",
+    "hardware_version": "ex",
+    "boot_count": 8,
+    "measurement_interval_min": 0,
+    "measurement_transmission_ratio": 6274348.332087,
+    "ble_pin": "aut",
+    "battery_voltage": 221881238,
+    "next_downlink_message": "dolore",
+    "last_downlink_result": "exercitationem"
 }
 
 fetch(url, {
@@ -1809,11 +1809,11 @@ Get a TTN Device by Device ID (BEEP hardware_id)
 > Example request:
 
 ```bash
-curl -X GET -G "https://test.beep.nl/api/devices/ttn/1" 
+curl -X GET -G "https://api.beep.nl/api/devices/ttn/1" 
 ```
 
 ```javascript
-const url = new URL("https://test.beep.nl/api/devices/ttn/1");
+const url = new URL("https://api.beep.nl/api/devices/ttn/1");
 
 let headers = {
     "Accept": "application/json",
@@ -1857,11 +1857,11 @@ Create an OTAA LoRaWAN Device in the BEEP TTN Console by dev_id (dev_id (= BEEP 
 > Example request:
 
 ```bash
-curl -X POST "https://test.beep.nl/api/devices/ttn/1" 
+curl -X POST "https://api.beep.nl/api/devices/ttn/1" 
 ```
 
 ```javascript
-const url = new URL("https://test.beep.nl/api/devices/ttn/1");
+const url = new URL("https://api.beep.nl/api/devices/ttn/1");
 
 let headers = {
     "Accept": "application/json",
@@ -1892,14 +1892,14 @@ List all user Devices
 > Example request:
 
 ```bash
-curl -X GET -G "https://test.beep.nl/api/devices" \
+curl -X GET -G "https://api.beep.nl/api/devices" \
     -H "Content-Type: application/json" \
-    -d '{"hardware_id":"voluptas"}'
+    -d '{"hardware_id":"similique"}'
 
 ```
 
 ```javascript
-const url = new URL("https://test.beep.nl/api/devices");
+const url = new URL("https://api.beep.nl/api/devices");
 
 let headers = {
     "Content-Type": "application/json",
@@ -1907,7 +1907,7 @@ let headers = {
 }
 
 let body = {
-    "hardware_id": "voluptas"
+    "hardware_id": "similique"
 }
 
 fetch(url, {
@@ -1989,14 +1989,14 @@ Create or Update a Device
 > Example request:
 
 ```bash
-curl -X POST "https://test.beep.nl/api/devices" \
+curl -X POST "https://api.beep.nl/api/devices" \
     -H "Content-Type: application/json" \
-    -d '{"id":20,"key":"in","hardware_id":"debitis","name":"nihil","hive_id":3,"type":"dignissimos","last_message_received":"mollitia","firmware_version":"incidunt","hardware_version":"voluptatibus","boot_count":10,"measurement_interval_min":390,"measurement_transmission_ratio":1.4775683,"ble_pin":"sed","battery_voltage":43592823.35,"next_downlink_message":"ab","last_downlink_result":"tenetur","create_ttn_device":false,"app_key":"autem"}'
+    -d '{"id":16,"key":"ab","hardware_id":"laudantium","name":"nostrum","hive_id":4,"type":"eum","last_message_received":"modi","firmware_version":"illum","hardware_version":"sed","boot_count":16,"measurement_interval_min":218.343005352,"measurement_transmission_ratio":13228.3832504,"ble_pin":"minus","battery_voltage":306.848,"next_downlink_message":"eveniet","last_downlink_result":"soluta","create_ttn_device":true,"app_key":"numquam"}'
 
 ```
 
 ```javascript
-const url = new URL("https://test.beep.nl/api/devices");
+const url = new URL("https://api.beep.nl/api/devices");
 
 let headers = {
     "Content-Type": "application/json",
@@ -2004,24 +2004,24 @@ let headers = {
 }
 
 let body = {
-    "id": 20,
-    "key": "in",
-    "hardware_id": "debitis",
-    "name": "nihil",
-    "hive_id": 3,
-    "type": "dignissimos",
-    "last_message_received": "mollitia",
-    "firmware_version": "incidunt",
-    "hardware_version": "voluptatibus",
-    "boot_count": 10,
-    "measurement_interval_min": 390,
-    "measurement_transmission_ratio": 1.4775683,
-    "ble_pin": "sed",
-    "battery_voltage": 43592823.35,
-    "next_downlink_message": "ab",
-    "last_downlink_result": "tenetur",
-    "create_ttn_device": false,
-    "app_key": "autem"
+    "id": 16,
+    "key": "ab",
+    "hardware_id": "laudantium",
+    "name": "nostrum",
+    "hive_id": 4,
+    "type": "eum",
+    "last_message_received": "modi",
+    "firmware_version": "illum",
+    "hardware_version": "sed",
+    "boot_count": 16,
+    "measurement_interval_min": 218.343005352,
+    "measurement_transmission_ratio": 13228.3832504,
+    "ble_pin": "minus",
+    "battery_voltage": 306.848,
+    "next_downlink_message": "eveniet",
+    "last_downlink_result": "soluta",
+    "create_ttn_device": true,
+    "app_key": "numquam"
 }
 
 fetch(url, {
@@ -2071,11 +2071,11 @@ List one Device by id
 > Example request:
 
 ```bash
-curl -X GET -G "https://test.beep.nl/api/devices/1" 
+curl -X GET -G "https://api.beep.nl/api/devices/1" 
 ```
 
 ```javascript
-const url = new URL("https://test.beep.nl/api/devices/1");
+const url = new URL("https://api.beep.nl/api/devices/1");
 
 let headers = {
     "Accept": "application/json",
@@ -2113,14 +2113,14 @@ Update an existing Device
 > Example request:
 
 ```bash
-curl -X PUT "https://test.beep.nl/api/devices/1" \
+curl -X PUT "https://api.beep.nl/api/devices/1" \
     -H "Content-Type: application/json" \
-    -d '{"id":7,"key":"eligendi","hardware_id":"repellendus","name":"et","hive_id":3,"type":"reiciendis","delete":false,"last_message_received":"aliquam","firmware_version":"necessitatibus","hardware_version":"aut","boot_count":9,"measurement_interval_min":30.27043,"measurement_transmission_ratio":25.64,"ble_pin":"quisquam","battery_voltage":198.9654075,"next_downlink_message":"consequatur","last_downlink_result":"molestiae"}'
+    -d '{"id":20,"key":"praesentium","hardware_id":"eveniet","name":"quia","hive_id":7,"type":"laudantium","delete":true,"last_message_received":"quibusdam","firmware_version":"ipsum","hardware_version":"nostrum","boot_count":15,"measurement_interval_min":3998.31519,"measurement_transmission_ratio":35.514,"ble_pin":"consequatur","battery_voltage":591377700,"next_downlink_message":"error","last_downlink_result":"ipsum"}'
 
 ```
 
 ```javascript
-const url = new URL("https://test.beep.nl/api/devices/1");
+const url = new URL("https://api.beep.nl/api/devices/1");
 
 let headers = {
     "Content-Type": "application/json",
@@ -2128,23 +2128,23 @@ let headers = {
 }
 
 let body = {
-    "id": 7,
-    "key": "eligendi",
-    "hardware_id": "repellendus",
-    "name": "et",
-    "hive_id": 3,
-    "type": "reiciendis",
-    "delete": false,
-    "last_message_received": "aliquam",
-    "firmware_version": "necessitatibus",
-    "hardware_version": "aut",
-    "boot_count": 9,
-    "measurement_interval_min": 30.27043,
-    "measurement_transmission_ratio": 25.64,
-    "ble_pin": "quisquam",
-    "battery_voltage": 198.9654075,
-    "next_downlink_message": "consequatur",
-    "last_downlink_result": "molestiae"
+    "id": 20,
+    "key": "praesentium",
+    "hardware_id": "eveniet",
+    "name": "quia",
+    "hive_id": 7,
+    "type": "laudantium",
+    "delete": true,
+    "last_message_received": "quibusdam",
+    "firmware_version": "ipsum",
+    "hardware_version": "nostrum",
+    "boot_count": 15,
+    "measurement_interval_min": 3998.31519,
+    "measurement_transmission_ratio": 35.514,
+    "ble_pin": "consequatur",
+    "battery_voltage": 591377700,
+    "next_downlink_message": "error",
+    "last_downlink_result": "ipsum"
 }
 
 fetch(url, {
@@ -2195,11 +2195,11 @@ Export all data to an Excel file by email (GDPR)
 > Example request:
 
 ```bash
-curl -X GET -G "https://test.beep.nl/api/export" 
+curl -X GET -G "https://api.beep.nl/api/export" 
 ```
 
 ```javascript
-const url = new URL("https://test.beep.nl/api/export");
+const url = new URL("https://api.beep.nl/api/export");
 
 let headers = {
     "Accept": "application/json",
@@ -2234,11 +2234,11 @@ fetch(url, {
 > Example request:
 
 ```bash
-curl -X POST "https://test.beep.nl/api/export/csv" 
+curl -X POST "https://api.beep.nl/api/export/csv" 
 ```
 
 ```javascript
-const url = new URL("https://test.beep.nl/api/export/csv");
+const url = new URL("https://api.beep.nl/api/export/csv");
 
 let headers = {
     "Accept": "application/json",
@@ -2269,11 +2269,11 @@ fetch(url, {
 > Example request:
 
 ```bash
-curl -X POST "https://test.beep.nl/api/groups/checktoken" 
+curl -X POST "https://api.beep.nl/api/groups/checktoken" 
 ```
 
 ```javascript
-const url = new URL("https://test.beep.nl/api/groups/checktoken");
+const url = new URL("https://api.beep.nl/api/groups/checktoken");
 
 let headers = {
     "Accept": "application/json",
@@ -2301,11 +2301,11 @@ fetch(url, {
 > Example request:
 
 ```bash
-curl -X GET -G "https://test.beep.nl/api/groups" 
+curl -X GET -G "https://api.beep.nl/api/groups" 
 ```
 
 ```javascript
-const url = new URL("https://test.beep.nl/api/groups");
+const url = new URL("https://api.beep.nl/api/groups");
 
 let headers = {
     "Accept": "application/json",
@@ -2340,11 +2340,11 @@ fetch(url, {
 > Example request:
 
 ```bash
-curl -X POST "https://test.beep.nl/api/groups" 
+curl -X POST "https://api.beep.nl/api/groups" 
 ```
 
 ```javascript
-const url = new URL("https://test.beep.nl/api/groups");
+const url = new URL("https://api.beep.nl/api/groups");
 
 let headers = {
     "Accept": "application/json",
@@ -2372,11 +2372,11 @@ fetch(url, {
 > Example request:
 
 ```bash
-curl -X GET -G "https://test.beep.nl/api/groups/1" 
+curl -X GET -G "https://api.beep.nl/api/groups/1" 
 ```
 
 ```javascript
-const url = new URL("https://test.beep.nl/api/groups/1");
+const url = new URL("https://api.beep.nl/api/groups/1");
 
 let headers = {
     "Accept": "application/json",
@@ -2411,11 +2411,11 @@ fetch(url, {
 > Example request:
 
 ```bash
-curl -X PUT "https://test.beep.nl/api/groups/1" 
+curl -X PUT "https://api.beep.nl/api/groups/1" 
 ```
 
 ```javascript
-const url = new URL("https://test.beep.nl/api/groups/1");
+const url = new URL("https://api.beep.nl/api/groups/1");
 
 let headers = {
     "Accept": "application/json",
@@ -2445,11 +2445,11 @@ fetch(url, {
 > Example request:
 
 ```bash
-curl -X DELETE "https://test.beep.nl/api/groups/1" 
+curl -X DELETE "https://api.beep.nl/api/groups/1" 
 ```
 
 ```javascript
-const url = new URL("https://test.beep.nl/api/groups/1");
+const url = new URL("https://api.beep.nl/api/groups/1");
 
 let headers = {
     "Accept": "application/json",
@@ -2477,11 +2477,11 @@ fetch(url, {
 > Example request:
 
 ```bash
-curl -X DELETE "https://test.beep.nl/api/groups/detach/1" 
+curl -X DELETE "https://api.beep.nl/api/groups/detach/1" 
 ```
 
 ```javascript
-const url = new URL("https://test.beep.nl/api/groups/detach/1");
+const url = new URL("https://api.beep.nl/api/groups/detach/1");
 
 let headers = {
     "Accept": "application/json",
@@ -2515,11 +2515,11 @@ Display a listing of user hives.
 > Example request:
 
 ```bash
-curl -X GET -G "https://test.beep.nl/api/hives" 
+curl -X GET -G "https://api.beep.nl/api/hives" 
 ```
 
 ```javascript
-const url = new URL("https://test.beep.nl/api/hives");
+const url = new URL("https://api.beep.nl/api/hives");
 
 let headers = {
     "Accept": "application/json",
@@ -2609,11 +2609,11 @@ Store a newly created Hive in storage for the authenticated user.
 > Example request:
 
 ```bash
-curl -X POST "https://test.beep.nl/api/hives" 
+curl -X POST "https://api.beep.nl/api/hives" 
 ```
 
 ```javascript
-const url = new URL("https://test.beep.nl/api/hives");
+const url = new URL("https://api.beep.nl/api/hives");
 
 let headers = {
     "Accept": "application/json",
@@ -2644,11 +2644,11 @@ Display the specified resource.
 > Example request:
 
 ```bash
-curl -X GET -G "https://test.beep.nl/api/hives/1" 
+curl -X GET -G "https://api.beep.nl/api/hives/1" 
 ```
 
 ```javascript
-const url = new URL("https://test.beep.nl/api/hives/1");
+const url = new URL("https://api.beep.nl/api/hives/1");
 
 let headers = {
     "Accept": "application/json",
@@ -2686,11 +2686,11 @@ Update the specified user Hive in storage.
 > Example request:
 
 ```bash
-curl -X PUT "https://test.beep.nl/api/hives/1" 
+curl -X PUT "https://api.beep.nl/api/hives/1" 
 ```
 
 ```javascript
-const url = new URL("https://test.beep.nl/api/hives/1");
+const url = new URL("https://api.beep.nl/api/hives/1");
 
 let headers = {
     "Accept": "application/json",
@@ -2723,11 +2723,11 @@ Remove the specified user Hive from storage.
 > Example request:
 
 ```bash
-curl -X DELETE "https://test.beep.nl/api/hives/1" 
+curl -X DELETE "https://api.beep.nl/api/hives/1" 
 ```
 
 ```javascript
-const url = new URL("https://test.beep.nl/api/hives/1");
+const url = new URL("https://api.beep.nl/api/hives/1");
 
 let headers = {
     "Accept": "application/json",
@@ -2759,11 +2759,11 @@ Store and retreive image metadata (image_url, thumb_url, width, category_id, etc
 > Example request:
 
 ```bash
-curl -X GET -G "https://test.beep.nl/api/images" 
+curl -X GET -G "https://api.beep.nl/api/images" 
 ```
 
 ```javascript
-const url = new URL("https://test.beep.nl/api/images");
+const url = new URL("https://api.beep.nl/api/images");
 
 let headers = {
     "Accept": "application/json",
@@ -2799,11 +2799,11 @@ fetch(url, {
 > Example request:
 
 ```bash
-curl -X POST "https://test.beep.nl/api/images" 
+curl -X POST "https://api.beep.nl/api/images" 
 ```
 
 ```javascript
-const url = new URL("https://test.beep.nl/api/images");
+const url = new URL("https://api.beep.nl/api/images");
 
 let headers = {
     "Accept": "application/json",
@@ -2832,11 +2832,11 @@ fetch(url, {
 > Example request:
 
 ```bash
-curl -X GET -G "https://test.beep.nl/api/images/1" 
+curl -X GET -G "https://api.beep.nl/api/images/1" 
 ```
 
 ```javascript
-const url = new URL("https://test.beep.nl/api/images/1");
+const url = new URL("https://api.beep.nl/api/images/1");
 
 let headers = {
     "Accept": "application/json",
@@ -2872,11 +2872,11 @@ fetch(url, {
 > Example request:
 
 ```bash
-curl -X PUT "https://test.beep.nl/api/images/1" 
+curl -X PUT "https://api.beep.nl/api/images/1" 
 ```
 
 ```javascript
-const url = new URL("https://test.beep.nl/api/images/1");
+const url = new URL("https://api.beep.nl/api/images/1");
 
 let headers = {
     "Accept": "application/json",
@@ -2907,11 +2907,11 @@ fetch(url, {
 > Example request:
 
 ```bash
-curl -X DELETE "https://test.beep.nl/api/images" 
+curl -X DELETE "https://api.beep.nl/api/images" 
 ```
 
 ```javascript
-const url = new URL("https://test.beep.nl/api/images");
+const url = new URL("https://api.beep.nl/api/images");
 
 let headers = {
     "Accept": "application/json",
@@ -2945,11 +2945,11 @@ Show the &#039;inspections&#039; list with objects reflecting only the general i
 > Example request:
 
 ```bash
-curl -X GET -G "https://test.beep.nl/api/inspections" 
+curl -X GET -G "https://api.beep.nl/api/inspections" 
 ```
 
 ```javascript
-const url = new URL("https://test.beep.nl/api/inspections");
+const url = new URL("https://api.beep.nl/api/inspections");
 
 let headers = {
     "Accept": "application/json",
@@ -2987,14 +2987,14 @@ List checklists and its  inspections linked to Hive id. The &#039;inspections&#0
 > Example request:
 
 ```bash
-curl -X GET -G "https://test.beep.nl/api/inspections/lists" \
+curl -X GET -G "https://api.beep.nl/api/inspections/lists" \
     -H "Content-Type: application/json" \
-    -d '{"id":9}'
+    -d '{"id":15}'
 
 ```
 
 ```javascript
-const url = new URL("https://test.beep.nl/api/inspections/lists");
+const url = new URL("https://api.beep.nl/api/inspections/lists");
 
 let headers = {
     "Content-Type": "application/json",
@@ -3002,7 +3002,7 @@ let headers = {
 }
 
 let body = {
-    "id": 9
+    "id": 15
 }
 
 fetch(url, {
@@ -3073,16 +3073,11 @@ Show the &#039;inspection&#039; object. The object reflects only the general ins
 > Example request:
 
 ```bash
-curl -X GET -G "https://test.beep.nl/api/inspections/1?id=pariatur" 
+curl -X GET -G "https://api.beep.nl/api/inspections/1" 
 ```
 
 ```javascript
-const url = new URL("https://test.beep.nl/api/inspections/1");
-
-    let params = {
-            "id": "pariatur",
-        };
-    Object.keys(params).forEach(key => url.searchParams.append(key, params[key]));
+const url = new URL("https://api.beep.nl/api/inspections/1");
 
 let headers = {
     "Accept": "application/json",
@@ -3109,11 +3104,6 @@ fetch(url, {
 ### HTTP Request
 `GET api/inspections/{id}`
 
-#### Query Parameters
-
-Parameter | Status | Description
---------- | ------- | ------- | -----------
-    id |  required  | The id of the inspection.
 
 <!-- END_940d2b69b7a58b4becfea0c48da6b866 -->
 
@@ -3125,16 +3115,11 @@ List all inspections linked to Hive id. The &#039;inspections&#039; object conta
 > Example request:
 
 ```bash
-curl -X GET -G "https://test.beep.nl/api/inspections/hive/1?hive_id=dolores" 
+curl -X GET -G "https://api.beep.nl/api/inspections/hive/1" 
 ```
 
 ```javascript
-const url = new URL("https://test.beep.nl/api/inspections/hive/1");
-
-    let params = {
-            "hive_id": "dolores",
-        };
-    Object.keys(params).forEach(key => url.searchParams.append(key, params[key]));
+const url = new URL("https://api.beep.nl/api/inspections/hive/1");
 
 let headers = {
     "Accept": "application/json",
@@ -3258,11 +3243,6 @@ fetch(url, {
 ### HTTP Request
 `GET api/inspections/hive/{hive_id}`
 
-#### Query Parameters
-
-Parameter | Status | Description
---------- | ------- | ------- | -----------
-    hive_id |  required  | The hive to request inspections from.
 
 <!-- END_aeffa3642b8d8eeca87b4c02f9b26262 -->
 
@@ -3274,14 +3254,14 @@ Register a new hive inspection the &#039;inspection&#039; object. The object ref
 > Example request:
 
 ```bash
-curl -X POST "https://test.beep.nl/api/inspections/store" \
+curl -X POST "https://api.beep.nl/api/inspections/store" \
     -H "Content-Type: application/json" \
     -d '{"date":"2020-05-18 16:16","items":"{\"547\":0,\"595\":1,\"845\":\"814\"}","hive_id":42,"impression":-1,"attention":1,"reminder":"This is an inspection reminder","reminder_date":"2020-05-27 16:16","notes":"This is an inspection note","checklist_id":829}'
 
 ```
 
 ```javascript
-const url = new URL("https://test.beep.nl/api/inspections/store");
+const url = new URL("https://api.beep.nl/api/inspections/store");
 
 let headers = {
     "Content-Type": "application/json",
@@ -3336,11 +3316,11 @@ Parameter | Type | Status | Description
 > Example request:
 
 ```bash
-curl -X DELETE "https://test.beep.nl/api/inspections/1" 
+curl -X DELETE "https://api.beep.nl/api/inspections/1" 
 ```
 
 ```javascript
-const url = new URL("https://test.beep.nl/api/inspections/1");
+const url = new URL("https://api.beep.nl/api/inspections/1");
 
 let headers = {
     "Accept": "application/json",
@@ -3372,11 +3352,11 @@ Manage Apiaries
 > Example request:
 
 ```bash
-curl -X GET -G "https://test.beep.nl/api/locations" 
+curl -X GET -G "https://api.beep.nl/api/locations" 
 ```
 
 ```javascript
-const url = new URL("https://test.beep.nl/api/locations");
+const url = new URL("https://api.beep.nl/api/locations");
 
 let headers = {
     "Accept": "application/json",
@@ -3412,11 +3392,11 @@ fetch(url, {
 > Example request:
 
 ```bash
-curl -X POST "https://test.beep.nl/api/locations" 
+curl -X POST "https://api.beep.nl/api/locations" 
 ```
 
 ```javascript
-const url = new URL("https://test.beep.nl/api/locations");
+const url = new URL("https://api.beep.nl/api/locations");
 
 let headers = {
     "Accept": "application/json",
@@ -3445,11 +3425,11 @@ fetch(url, {
 > Example request:
 
 ```bash
-curl -X GET -G "https://test.beep.nl/api/locations/1" 
+curl -X GET -G "https://api.beep.nl/api/locations/1" 
 ```
 
 ```javascript
-const url = new URL("https://test.beep.nl/api/locations/1");
+const url = new URL("https://api.beep.nl/api/locations/1");
 
 let headers = {
     "Accept": "application/json",
@@ -3485,11 +3465,11 @@ fetch(url, {
 > Example request:
 
 ```bash
-curl -X PUT "https://test.beep.nl/api/locations/1" 
+curl -X PUT "https://api.beep.nl/api/locations/1" 
 ```
 
 ```javascript
-const url = new URL("https://test.beep.nl/api/locations/1");
+const url = new URL("https://api.beep.nl/api/locations/1");
 
 let headers = {
     "Accept": "application/json",
@@ -3520,11 +3500,11 @@ fetch(url, {
 > Example request:
 
 ```bash
-curl -X DELETE "https://test.beep.nl/api/locations/1" 
+curl -X DELETE "https://api.beep.nl/api/locations/1" 
 ```
 
 ```javascript
-const url = new URL("https://test.beep.nl/api/locations/1");
+const url = new URL("https://api.beep.nl/api/locations/1");
 
 let headers = {
     "Accept": "application/json",
@@ -3557,14 +3537,14 @@ Store sensor measurement data (see BEEP sensor data API definition) from API, or
 > Example request:
 
 ```bash
-curl -X POST "https://test.beep.nl/api/sensors" \
+curl -X POST "https://api.beep.nl/api/sensors" \
     -H "Content-Type: application/json" \
-    -d '{"key":"dignissimos","data":[],"payload_fields":[]}'
+    -d '{"key":"dicta","data":[],"payload_fields":[]}'
 
 ```
 
 ```javascript
-const url = new URL("https://test.beep.nl/api/sensors");
+const url = new URL("https://api.beep.nl/api/sensors");
 
 let headers = {
     "Content-Type": "application/json",
@@ -3572,7 +3552,7 @@ let headers = {
 }
 
 let body = {
-    "key": "dignissimos",
+    "key": "dicta",
     "data": [],
     "payload_fields": []
 }
@@ -3610,14 +3590,14 @@ When TTN payload is supplied, the TTN HTTP integration decoder/converter is assu
 > Example request:
 
 ```bash
-curl -X POST "https://test.beep.nl/api/lora_sensors" \
+curl -X POST "https://api.beep.nl/api/lora_sensors" \
     -H "Content-Type: application/json" \
-    -d '{"key":"facilis","payload_fields":[],"DevEUI_uplink":[]}'
+    -d '{"key":"recusandae","payload_fields":[],"DevEUI_uplink":[]}'
 
 ```
 
 ```javascript
-const url = new URL("https://test.beep.nl/api/lora_sensors");
+const url = new URL("https://api.beep.nl/api/lora_sensors");
 
 let headers = {
     "Content-Type": "application/json",
@@ -3625,7 +3605,7 @@ let headers = {
 }
 
 let body = {
-    "key": "facilis",
+    "key": "recusandae",
     "payload_fields": [],
     "DevEUI_uplink": []
 }
@@ -3661,14 +3641,14 @@ Store sensor measurement data (see BEEP sensor data API definition) from API, or
 > Example request:
 
 ```bash
-curl -X POST "https://test.beep.nl/api/unsecure_sensors" \
+curl -X POST "https://api.beep.nl/api/unsecure_sensors" \
     -H "Content-Type: application/json" \
-    -d '{"key":"vero","data":[],"payload_fields":[]}'
+    -d '{"key":"id","data":[],"payload_fields":[]}'
 
 ```
 
 ```javascript
-const url = new URL("https://test.beep.nl/api/unsecure_sensors");
+const url = new URL("https://api.beep.nl/api/unsecure_sensors");
 
 let headers = {
     "Content-Type": "application/json",
@@ -3676,7 +3656,7 @@ let headers = {
 }
 
 let body = {
-    "key": "vero",
+    "key": "id",
     "data": [],
     "payload_fields": []
 }
@@ -3713,14 +3693,14 @@ Request all sensor measurements from a certain interval (hour, day, week, month,
 > Example request:
 
 ```bash
-curl -X GET -G "https://test.beep.nl/api/sensors/measurements" \
+curl -X GET -G "https://api.beep.nl/api/sensors/measurements" \
     -H "Content-Type: application/json" \
-    -d '{"key":"deserunt","id":5,"hive_id":4,"names":"nobis","interval":"blanditiis","index":16}'
+    -d '{"key":"deserunt","id":1,"hive_id":3,"names":"veritatis","interval":"quae","index":11}'
 
 ```
 
 ```javascript
-const url = new URL("https://test.beep.nl/api/sensors/measurements");
+const url = new URL("https://api.beep.nl/api/sensors/measurements");
 
 let headers = {
     "Content-Type": "application/json",
@@ -3729,11 +3709,11 @@ let headers = {
 
 let body = {
     "key": "deserunt",
-    "id": 5,
-    "hive_id": 4,
-    "names": "nobis",
-    "interval": "blanditiis",
-    "index": 16
+    "id": 1,
+    "hive_id": 3,
+    "names": "veritatis",
+    "interval": "quae",
+    "index": 11
 }
 
 fetch(url, {
@@ -3778,14 +3758,14 @@ Request last measurement values of all sensor measurements from a sensor (Device
 > Example request:
 
 ```bash
-curl -X GET -G "https://test.beep.nl/api/sensors/lastvalues" \
+curl -X GET -G "https://api.beep.nl/api/sensors/lastvalues" \
     -H "Content-Type: application/json" \
-    -d '{"key":"consectetur","id":5,"hive_id":2}'
+    -d '{"key":"magni","id":20,"hive_id":9}'
 
 ```
 
 ```javascript
-const url = new URL("https://test.beep.nl/api/sensors/lastvalues");
+const url = new URL("https://api.beep.nl/api/sensors/lastvalues");
 
 let headers = {
     "Content-Type": "application/json",
@@ -3793,9 +3773,9 @@ let headers = {
 }
 
 let body = {
-    "key": "consectetur",
-    "id": 5,
-    "hive_id": 2
+    "key": "magni",
+    "id": 20,
+    "hive_id": 9
 }
 
 fetch(url, {
@@ -3837,14 +3817,14 @@ Request last weight related measurement values from a sensor (Device), used by l
 > Example request:
 
 ```bash
-curl -X GET -G "https://test.beep.nl/api/sensors/lastweight" \
+curl -X GET -G "https://api.beep.nl/api/sensors/lastweight" \
     -H "Content-Type: application/json" \
-    -d '{"key":"numquam","id":3,"hive_id":19}'
+    -d '{"key":"molestiae","id":6,"hive_id":7}'
 
 ```
 
 ```javascript
-const url = new URL("https://test.beep.nl/api/sensors/lastweight");
+const url = new URL("https://api.beep.nl/api/sensors/lastweight");
 
 let headers = {
     "Content-Type": "application/json",
@@ -3852,9 +3832,9 @@ let headers = {
 }
 
 let body = {
-    "key": "numquam",
-    "id": 3,
-    "hive_id": 19
+    "key": "molestiae",
+    "id": 6,
+    "hive_id": 7
 }
 
 fetch(url, {
@@ -3905,11 +3885,11 @@ Because the measurements can come in only each hour/ 3hrs, set a value to trigge
 > Example request:
 
 ```bash
-curl -X POST "https://test.beep.nl/api/sensors/calibrateweight" 
+curl -X POST "https://api.beep.nl/api/sensors/calibrateweight" 
 ```
 
 ```javascript
-const url = new URL("https://test.beep.nl/api/sensors/calibrateweight");
+const url = new URL("https://api.beep.nl/api/sensors/calibrateweight");
 
 let headers = {
     "Accept": "application/json",
@@ -3937,11 +3917,11 @@ fetch(url, {
 > Example request:
 
 ```bash
-curl -X POST "https://test.beep.nl/api/sensors/offsetweight" 
+curl -X POST "https://api.beep.nl/api/sensors/offsetweight" 
 ```
 
 ```javascript
-const url = new URL("https://test.beep.nl/api/sensors/offsetweight");
+const url = new URL("https://api.beep.nl/api/sensors/offsetweight");
 
 let headers = {
     "Accept": "application/json",
@@ -3969,11 +3949,11 @@ fetch(url, {
 > Example request:
 
 ```bash
-curl -X GET -G "https://test.beep.nl/api/sensors/measurement_types_available" 
+curl -X GET -G "https://api.beep.nl/api/sensors/measurement_types_available" 
 ```
 
 ```javascript
-const url = new URL("https://test.beep.nl/api/sensors/measurement_types_available");
+const url = new URL("https://api.beep.nl/api/sensors/measurement_types_available");
 
 let headers = {
     "Accept": "application/json",
@@ -4012,14 +3992,14 @@ When TTN payload is supplied, the TTN HTTP integration decoder/converter is assu
 > Example request:
 
 ```bash
-curl -X POST "https://test.beep.nl/api/lora_sensors_auth" \
+curl -X POST "https://api.beep.nl/api/lora_sensors_auth" \
     -H "Content-Type: application/json" \
-    -d '{"key":"eum","payload_fields":[],"DevEUI_uplink":[]}'
+    -d '{"key":"totam","payload_fields":[],"DevEUI_uplink":[]}'
 
 ```
 
 ```javascript
-const url = new URL("https://test.beep.nl/api/lora_sensors_auth");
+const url = new URL("https://api.beep.nl/api/lora_sensors_auth");
 
 let headers = {
     "Content-Type": "application/json",
@@ -4027,7 +4007,7 @@ let headers = {
 }
 
 let body = {
-    "key": "eum",
+    "key": "totam",
     "payload_fields": [],
     "DevEUI_uplink": []
 }
@@ -4065,11 +4045,11 @@ Not used
 > Example request:
 
 ```bash
-curl -X GET -G "https://test.beep.nl/api/productions" 
+curl -X GET -G "https://api.beep.nl/api/productions" 
 ```
 
 ```javascript
-const url = new URL("https://test.beep.nl/api/productions");
+const url = new URL("https://api.beep.nl/api/productions");
 
 let headers = {
     "Accept": "application/json",
@@ -4105,11 +4085,11 @@ fetch(url, {
 > Example request:
 
 ```bash
-curl -X POST "https://test.beep.nl/api/productions" 
+curl -X POST "https://api.beep.nl/api/productions" 
 ```
 
 ```javascript
-const url = new URL("https://test.beep.nl/api/productions");
+const url = new URL("https://api.beep.nl/api/productions");
 
 let headers = {
     "Accept": "application/json",
@@ -4138,11 +4118,11 @@ fetch(url, {
 > Example request:
 
 ```bash
-curl -X GET -G "https://test.beep.nl/api/productions/1" 
+curl -X GET -G "https://api.beep.nl/api/productions/1" 
 ```
 
 ```javascript
-const url = new URL("https://test.beep.nl/api/productions/1");
+const url = new URL("https://api.beep.nl/api/productions/1");
 
 let headers = {
     "Accept": "application/json",
@@ -4178,11 +4158,11 @@ fetch(url, {
 > Example request:
 
 ```bash
-curl -X PUT "https://test.beep.nl/api/productions/1" 
+curl -X PUT "https://api.beep.nl/api/productions/1" 
 ```
 
 ```javascript
-const url = new URL("https://test.beep.nl/api/productions/1");
+const url = new URL("https://api.beep.nl/api/productions/1");
 
 let headers = {
     "Accept": "application/json",
@@ -4213,11 +4193,11 @@ fetch(url, {
 > Example request:
 
 ```bash
-curl -X DELETE "https://test.beep.nl/api/productions/1" 
+curl -X DELETE "https://api.beep.nl/api/productions/1" 
 ```
 
 ```javascript
-const url = new URL("https://test.beep.nl/api/productions/1");
+const url = new URL("https://api.beep.nl/api/productions/1");
 
 let headers = {
     "Accept": "application/json",
@@ -4249,11 +4229,11 @@ Not used
 > Example request:
 
 ```bash
-curl -X GET -G "https://test.beep.nl/api/queens" 
+curl -X GET -G "https://api.beep.nl/api/queens" 
 ```
 
 ```javascript
-const url = new URL("https://test.beep.nl/api/queens");
+const url = new URL("https://api.beep.nl/api/queens");
 
 let headers = {
     "Accept": "application/json",
@@ -4289,11 +4269,11 @@ fetch(url, {
 > Example request:
 
 ```bash
-curl -X POST "https://test.beep.nl/api/queens" 
+curl -X POST "https://api.beep.nl/api/queens" 
 ```
 
 ```javascript
-const url = new URL("https://test.beep.nl/api/queens");
+const url = new URL("https://api.beep.nl/api/queens");
 
 let headers = {
     "Accept": "application/json",
@@ -4322,11 +4302,11 @@ fetch(url, {
 > Example request:
 
 ```bash
-curl -X GET -G "https://test.beep.nl/api/queens/1" 
+curl -X GET -G "https://api.beep.nl/api/queens/1" 
 ```
 
 ```javascript
-const url = new URL("https://test.beep.nl/api/queens/1");
+const url = new URL("https://api.beep.nl/api/queens/1");
 
 let headers = {
     "Accept": "application/json",
@@ -4362,11 +4342,11 @@ fetch(url, {
 > Example request:
 
 ```bash
-curl -X PUT "https://test.beep.nl/api/queens/1" 
+curl -X PUT "https://api.beep.nl/api/queens/1" 
 ```
 
 ```javascript
-const url = new URL("https://test.beep.nl/api/queens/1");
+const url = new URL("https://api.beep.nl/api/queens/1");
 
 let headers = {
     "Accept": "application/json",
@@ -4397,11 +4377,11 @@ fetch(url, {
 > Example request:
 
 ```bash
-curl -X DELETE "https://test.beep.nl/api/queens/1" 
+curl -X DELETE "https://api.beep.nl/api/queens/1" 
 ```
 
 ```javascript
-const url = new URL("https://test.beep.nl/api/queens/1");
+const url = new URL("https://api.beep.nl/api/queens/1");
 
 let headers = {
     "Accept": "application/json",
@@ -4433,11 +4413,11 @@ fetch(url, {
 > Example request:
 
 ```bash
-curl -X GET -G "https://test.beep.nl/api/research" 
+curl -X GET -G "https://api.beep.nl/api/research" 
 ```
 
 ```javascript
-const url = new URL("https://test.beep.nl/api/research");
+const url = new URL("https://api.beep.nl/api/research");
 
 let headers = {
     "Accept": "application/json",
@@ -4473,11 +4453,11 @@ fetch(url, {
 > Example request:
 
 ```bash
-curl -X POST "https://test.beep.nl/api/research/1/add_consent" 
+curl -X POST "https://api.beep.nl/api/research/1/add_consent" 
 ```
 
 ```javascript
-const url = new URL("https://test.beep.nl/api/research/1/add_consent");
+const url = new URL("https://api.beep.nl/api/research/1/add_consent");
 
 let headers = {
     "Accept": "application/json",
@@ -4505,11 +4485,11 @@ fetch(url, {
 > Example request:
 
 ```bash
-curl -X POST "https://test.beep.nl/api/research/1/remove_consent" 
+curl -X POST "https://api.beep.nl/api/research/1/remove_consent" 
 ```
 
 ```javascript
-const url = new URL("https://test.beep.nl/api/research/1/remove_consent");
+const url = new URL("https://api.beep.nl/api/research/1/remove_consent");
 
 let headers = {
     "Accept": "application/json",
@@ -4537,11 +4517,11 @@ fetch(url, {
 > Example request:
 
 ```bash
-curl -X PATCH "https://test.beep.nl/api/research/1/edit/1" 
+curl -X PATCH "https://api.beep.nl/api/research/1/edit/1" 
 ```
 
 ```javascript
-const url = new URL("https://test.beep.nl/api/research/1/edit/1");
+const url = new URL("https://api.beep.nl/api/research/1/edit/1");
 
 let headers = {
     "Accept": "application/json",
@@ -4569,11 +4549,11 @@ fetch(url, {
 > Example request:
 
 ```bash
-curl -X DELETE "https://test.beep.nl/api/research/1/delete/1" 
+curl -X DELETE "https://api.beep.nl/api/research/1/delete/1" 
 ```
 
 ```javascript
-const url = new URL("https://test.beep.nl/api/research/1/delete/1");
+const url = new URL("https://api.beep.nl/api/research/1/delete/1");
 
 let headers = {
     "Accept": "application/json",
@@ -4607,11 +4587,11 @@ List all available Researches
 > Example request:
 
 ```bash
-curl -X GET -G "https://test.beep.nl/api/researchdata" 
+curl -X GET -G "https://api.beep.nl/api/researchdata" 
 ```
 
 ```javascript
-const url = new URL("https://test.beep.nl/api/researchdata");
+const url = new URL("https://api.beep.nl/api/researchdata");
 
 let headers = {
     "Accept": "application/json",
@@ -4627,6 +4607,87 @@ fetch(url, {
 ```
 
 
+> Example response (200):
+
+```json
+[
+    {
+        "id": 1,
+        "created_at": "2020-02-25 03:01:57",
+        "updated_at": "2020-11-13 17:08:31",
+        "name": "B-GOOD",
+        "url": "https:\/\/b-good-project.eu\/",
+        "description": "B-GOOD has the overall goal to provide guidance for beekeepers and help them make better and more informed decisions.",
+        "type": "research-b-good",
+        "institution": "Wageningen University & Research",
+        "type_of_data_used": "Hive inspections, hive settings, BEEP base measurement data",
+        "start_date": "2019-07-01 00:00:00",
+        "end_date": "2023-06-30 00:00:00",
+        "image_id": 1,
+        "consent": true,
+        "consent_history": [
+            {
+                "id": 185,
+                "created_at": "2020-11-12 22:28:09",
+                "updated_at": "2020-06-12 22:28:00",
+                "user_id": 1,
+                "research_id": 1,
+                "consent": 1,
+                "consent_location_ids": null,
+                "consent_hive_ids": null,
+                "consent_sensor_ids": null
+            },
+            {
+                "id": 1,
+                "created_at": "2020-02-25 03:02:23",
+                "updated_at": "2020-05-27 03:03:00",
+                "user_id": 1,
+                "research_id": 1,
+                "consent": 0,
+                "consent_location_ids": null,
+                "consent_hive_ids": null,
+                "consent_sensor_ids": null
+            },
+            {
+                "id": 97,
+                "created_at": "2020-05-14 16:24:41",
+                "updated_at": "2020-03-14 16:24:00",
+                "user_id": 1,
+                "research_id": 1,
+                "consent": 1,
+                "consent_location_ids": null,
+                "consent_hive_ids": null,
+                "consent_sensor_ids": null
+            }
+        ],
+        "checklist_names": [
+            "1 Winter",
+            "2 Varroa",
+            "3 Summer+",
+            "4 Summer",
+            "5 Health"
+        ],
+        "thumb_url": "\/storage\/users\/1\/thumbs\/research\/6LJEp35dodWWtfxnm3xfRnL05qvvJrHbn8IXAJqNCFZj2vFjwyLXbmWscKVz.jpg",
+        "image": {
+            "id": 1,
+            "created_at": "2020-02-25 03:01:57",
+            "updated_at": "2020-02-25 03:01:57",
+            "filename": "6LJEp35dodWWtfxnm3xfRnL05qvvJrHbn8IXAJqNCFZj2vFjwyLXbmWscKVz.jpg",
+            "image_url": "\/storage\/users\/1\/images\/research\/6LJEp35dodWWtfxnm3xfRnL05qvvJrHbn8IXAJqNCFZj2vFjwyLXbmWscKVz.jpg",
+            "thumb_url": "\/storage\/users\/1\/thumbs\/research\/6LJEp35dodWWtfxnm3xfRnL05qvvJrHbn8IXAJqNCFZj2vFjwyLXbmWscKVz.jpg",
+            "description": "B-GOOD has the overall goal to provide guidance for beekeepers and help them make better and more informed decisions.",
+            "type": "research",
+            "height": 1271,
+            "width": 1271,
+            "size_kb": 51,
+            "date": "2020-02-25 03:01:57",
+            "hive_id": null,
+            "category_id": null,
+            "inspection_id": null
+        }
+    }
+]
+```
 > Example response (401):
 
 ```json
@@ -4649,16 +4710,11 @@ List one Research by id with list of consent_users
 > Example request:
 
 ```bash
-curl -X GET -G "https://test.beep.nl/api/researchdata/1?id=consequatur" 
+curl -X GET -G "https://api.beep.nl/api/researchdata/1" 
 ```
 
 ```javascript
-const url = new URL("https://test.beep.nl/api/researchdata/1");
-
-    let params = {
-            "id": "consequatur",
-        };
-    Object.keys(params).forEach(key => url.searchParams.append(key, params[key]));
+const url = new URL("https://api.beep.nl/api/researchdata/1");
 
 let headers = {
     "Accept": "application/json",
@@ -4674,6 +4730,119 @@ fetch(url, {
 ```
 
 
+> Example response (200):
+
+```json
+{
+    "research": {
+        "id": 1,
+        "created_at": "2020-02-25 03:01:57",
+        "updated_at": "2020-11-18 10:33:23",
+        "name": "B-GOOD",
+        "url": "https:\/\/b-good-project.eu\/",
+        "description": "B-GOOD has the overall goal to provide guidance for beekeepers and help them make better and more informed decisions.",
+        "type": "research-b-good",
+        "institution": "Wageningen University & Research",
+        "type_of_data_used": "Hive inspections, hive settings, BEEP base measurement data",
+        "start_date": "2019-07-01 00:00:00",
+        "end_date": "2023-06-30 00:00:00",
+        "image_id": 1,
+        "consent": true,
+        "consent_history": [
+            {
+                "id": 185,
+                "created_at": "2020-11-12 22:28:09",
+                "updated_at": "2020-06-12 22:28:00",
+                "user_id": 1,
+                "research_id": 1,
+                "consent": 1,
+                "consent_location_ids": null,
+                "consent_hive_ids": null,
+                "consent_sensor_ids": null
+            },
+            {
+                "id": 1,
+                "created_at": "2020-02-25 03:02:23",
+                "updated_at": "2020-05-27 03:03:00",
+                "user_id": 1,
+                "research_id": 1,
+                "consent": 0,
+                "consent_location_ids": null,
+                "consent_hive_ids": null,
+                "consent_sensor_ids": null
+            },
+            {
+                "id": 97,
+                "created_at": "2020-05-14 16:24:41",
+                "updated_at": "2020-03-14 16:24:00",
+                "user_id": 1,
+                "research_id": 1,
+                "consent": 1,
+                "consent_location_ids": null,
+                "consent_hive_ids": null,
+                "consent_sensor_ids": null
+            }
+        ],
+        "checklist_names": [
+            "1 Winter",
+            "2 Varroa",
+            "3 Summer+",
+            "4 Summer",
+            "5 Health"
+        ],
+        "thumb_url": "\/storage\/users\/1\/thumbs\/research\/6LJEp35dodWWtfxnm3xfRnL05qvvJrHbn8IXAJqNCFZj2vFjwyLXbmWscKVz.jpg",
+        "image": {
+            "id": 1,
+            "created_at": "2020-02-25 03:01:57",
+            "updated_at": "2020-02-25 03:01:57",
+            "filename": "6LJEp35dodWWtfxnm3xfRnL05qvvJrHbn8IXAJqNCFZj2vFjwyLXbmWscKVz.jpg",
+            "image_url": "\/storage\/users\/1\/images\/research\/6LJEp35dodWWtfxnm3xfRnL05qvvJrHbn8IXAJqNCFZj2vFjwyLXbmWscKVz.jpg",
+            "thumb_url": "\/storage\/users\/1\/thumbs\/research\/6LJEp35dodWWtfxnm3xfRnL05qvvJrHbn8IXAJqNCFZj2vFjwyLXbmWscKVz.jpg",
+            "description": "B-GOOD has the overall goal to provide guidance for beekeepers and help them make better and more informed decisions.",
+            "type": "research",
+            "height": 1271,
+            "width": 1271,
+            "size_kb": 51,
+            "date": "2020-02-25 03:01:57",
+            "hive_id": null,
+            "category_id": null,
+            "inspection_id": null
+        }
+    },
+    "consent_users": [
+        {
+            "id": 1,
+            "name": "Beep",
+            "email": "pim@beep.nl",
+            "created_at": "2017-07-14 03:34:10",
+            "updated_at": "2020-05-27 03:03:00",
+            "last_login": "2020-11-18 10:32:16",
+            "locale": null,
+            "consent": 0
+        },
+        {
+            "id": 2371,
+            "name": "app@beep.nl",
+            "email": "app@beep.nl",
+            "created_at": "2019-10-24 17:15:55",
+            "updated_at": "2020-02-25 11:46:59",
+            "last_login": "2020-08-20 18:24:22",
+            "locale": null,
+            "consent": 0
+        },
+        {
+            "id": 1,
+            "name": "Beep",
+            "email": "pim@beep.nl",
+            "created_at": "2017-07-14 03:34:10",
+            "updated_at": "2020-06-12 22:28:00",
+            "last_login": "2020-11-18 10:32:16",
+            "locale": null,
+            "consent": 1
+        }
+    ]
+}
+```
 > Example response (401):
 
 ```json
@@ -4685,37 +4854,25 @@ fetch(url, {
 ### HTTP Request
 `GET api/researchdata/{id}`
 
-#### Query Parameters
-
-Parameter | Status | Description
---------- | ------- | ------- | -----------
-    id |  required  | The research ID to request data from.
 
 <!-- END_ac5a4e29917275abfbc2ec2e8fc1201b -->
 
 <!-- START_4f4cc2a64151945d3e57be605dc0b98a -->
 ## api/researchdata/{id}/user/{user_id}/{item} GET
-List all user &#039;item&#039; data within the consent=1 periods of a specific user within a Research.
+List all user &#039;item&#039; data within the consent=1 periods of a specific user within a Research. The &#039;item&#039; field indicates the type of user data (apiaries/hives/devices/inspections/measurements) to request within the research (which the user gave consent for to use). Example: inspectionsResponse: api/researchdata/1/user/1/inspections.
 
 <br><small style="padding: 1px 9px 2px;font-weight: bold;white-space: nowrap;color: #ffffff;-webkit-border-radius: 9px;-moz-border-radius: 9px;border-radius: 9px;background-color: #3a87ad;">Requires authentication</small>
 > Example request:
 
 ```bash
-curl -X GET -G "https://test.beep.nl/api/researchdata/1/user/1/1?id=voluptates&user_id=porro&item=amet" \
+curl -X GET -G "https://api.beep.nl/api/researchdata/1/user/1/1" \
     -H "Content-Type: application/json" \
-    -d '{"date_start":"suscipit","date_until":"sed"}'
+    -d '{"date_start":"2020-01-01 00:00:00","date_until":"2020-09-29 23:59:59"}'
 
 ```
 
 ```javascript
-const url = new URL("https://test.beep.nl/api/researchdata/1/user/1/1");
-
-    let params = {
-            "id": "voluptates",
-            "user_id": "porro",
-            "item": "amet",
-        };
-    Object.keys(params).forEach(key => url.searchParams.append(key, params[key]));
+const url = new URL("https://api.beep.nl/api/researchdata/1/user/1/1");
 
 let headers = {
     "Content-Type": "application/json",
@@ -4723,8 +4880,8 @@ let headers = {
 }
 
 let body = {
-    "date_start": "suscipit",
-    "date_until": "sed"
+    "date_start": "2020-01-01 00:00:00",
+    "date_until": "2020-09-29 23:59:59"
 }
 
 fetch(url, {
@@ -4737,6 +4894,396 @@ fetch(url, {
 ```
 
 
+> Example response (200):
+
+```json
+[
+    {
+        "id": 35211,
+        "notes": "test",
+        "reminder": null,
+        "reminder_date": null,
+        "impression": 2,
+        "attention": 1,
+        "created_at": "2020-03-26 18:28:00",
+        "checklist_id": 798,
+        "image_id": null,
+        "owner": true,
+        "thumb_url": null,
+        "hive_id": 280,
+        "items": []
+    },
+    {
+        "id": 40162,
+        "notes": "Input Liebefeld",
+        "reminder": null,
+        "reminder_date": null,
+        "impression": null,
+        "attention": null,
+        "created_at": "2020-04-24 11:03:00",
+        "checklist_id": 3206,
+        "image_id": null,
+        "owner": true,
+        "thumb_url": null,
+        "hive_id": 280,
+        "items": [
+            {
+                "id": 326538,
+                "value": "0.6",
+                "inspection_id": 40162,
+                "category_id": 977,
+                "val": "0.6",
+                "unit": "x 25cm2",
+                "type": "square_25cm2"
+            },
+            {
+                "id": 326539,
+                "value": "4",
+                "inspection_id": 40162,
+                "category_id": 978,
+                "val": "4",
+                "unit": "x 25cm2",
+                "type": "square_25cm2"
+            },
+            {
+                "id": 326540,
+                "value": "2",
+                "inspection_id": 40162,
+                "category_id": 979,
+                "val": "2",
+                "unit": "x 25cm2",
+                "type": "square_25cm2"
+            },
+            {
+                "id": 326541,
+                "value": "4",
+                "inspection_id": 40162,
+                "category_id": 980,
+                "val": "4",
+                "unit": "x 25cm2",
+                "type": "square_25cm2"
+            },
+            {
+                "id": 326542,
+                "value": "3",
+                "inspection_id": 40162,
+                "category_id": 981,
+                "val": "3",
+                "unit": "x 25cm2",
+                "type": "square_25cm2"
+            },
+            {
+                "id": 326543,
+                "value": "581",
+                "inspection_id": 40162,
+                "category_id": 982,
+                "val": "581",
+                "unit": "bzz",
+                "type": "number_positive"
+            },
+            {
+                "id": 326544,
+                "value": "5",
+                "inspection_id": 40162,
+                "category_id": 984,
+                "val": "5",
+                "unit": "x 25cm2",
+                "type": "square_25cm2"
+            },
+            {
+                "id": 326545,
+                "value": "1",
+                "inspection_id": 40162,
+                "category_id": 985,
+                "val": "1",
+                "unit": "x 25cm2",
+                "type": "square_25cm2"
+            },
+            {
+                "id": 326546,
+                "value": "4",
+                "inspection_id": 40162,
+                "category_id": 987,
+                "val": "4",
+                "unit": "x 25cm2",
+                "type": "square_25cm2"
+            },
+            {
+                "id": 326547,
+                "value": "5",
+                "inspection_id": 40162,
+                "category_id": 988,
+                "val": "5",
+                "unit": "x 25cm2",
+                "type": "square_25cm2"
+            },
+            {
+                "id": 326548,
+                "value": "4",
+                "inspection_id": 40162,
+                "category_id": 989,
+                "val": "4",
+                "unit": "x 25cm2",
+                "type": "square_25cm2"
+            },
+            {
+                "id": 326549,
+                "value": "2",
+                "inspection_id": 40162,
+                "category_id": 990,
+                "val": "2",
+                "unit": "x 25cm2",
+                "type": "square_25cm2"
+            },
+            {
+                "id": 326550,
+                "value": "2",
+                "inspection_id": 40162,
+                "category_id": 991,
+                "val": "2",
+                "unit": "x 25cm2",
+                "type": "square_25cm2"
+            },
+            {
+                "id": 326551,
+                "value": "3",
+                "inspection_id": 40162,
+                "category_id": 992,
+                "val": "3",
+                "unit": "x 25cm2",
+                "type": "square_25cm2"
+            },
+            {
+                "id": 326552,
+                "value": "3",
+                "inspection_id": 40162,
+                "category_id": 993,
+                "val": "3",
+                "unit": "x 25cm2",
+                "type": "square_25cm2"
+            },
+            {
+                "id": 326553,
+                "value": "6",
+                "inspection_id": 40162,
+                "category_id": 995,
+                "val": "6",
+                "unit": "x 25cm2",
+                "type": "square_25cm2"
+            },
+            {
+                "id": 326554,
+                "value": "2",
+                "inspection_id": 40162,
+                "category_id": 996,
+                "val": "2",
+                "unit": "x 25cm2",
+                "type": "square_25cm2"
+            },
+            {
+                "id": 326555,
+                "value": "2",
+                "inspection_id": 40162,
+                "category_id": 997,
+                "val": "2",
+                "unit": "x 25cm2",
+                "type": "square_25cm2"
+            },
+            {
+                "id": 326556,
+                "value": "2",
+                "inspection_id": 40162,
+                "category_id": 998,
+                "val": "2",
+                "unit": "x 25cm2",
+                "type": "square_25cm2"
+            },
+            {
+                "id": 326557,
+                "value": "2",
+                "inspection_id": 40162,
+                "category_id": 999,
+                "val": "2",
+                "unit": "x 25cm2",
+                "type": "square_25cm2"
+            },
+            {
+                "id": 326558,
+                "value": "2",
+                "inspection_id": 40162,
+                "category_id": 1000,
+                "val": "2",
+                "unit": "x 25cm2",
+                "type": "square_25cm2"
+            },
+            {
+                "id": 326559,
+                "value": "2",
+                "inspection_id": 40162,
+                "category_id": 1001,
+                "val": "2",
+                "unit": "x 25cm2",
+                "type": "square_25cm2"
+            },
+            {
+                "id": 326560,
+                "value": "8",
+                "inspection_id": 40162,
+                "category_id": 1163,
+                "val": "8",
+                "unit": "x 25cm2",
+                "type": "square_25cm2"
+            },
+            {
+                "id": 326561,
+                "value": "4",
+                "inspection_id": 40162,
+                "category_id": 1164,
+                "val": "4",
+                "unit": "x 25cm2",
+                "type": "square_25cm2"
+            },
+            {
+                "id": 326562,
+                "value": "2",
+                "inspection_id": 40162,
+                "category_id": 1165,
+                "val": "2",
+                "unit": "x 25cm2",
+                "type": "square_25cm2"
+            },
+            {
+                "id": 326563,
+                "value": "6",
+                "inspection_id": 40162,
+                "category_id": 1166,
+                "val": "6",
+                "unit": "x 25cm2",
+                "type": "square_25cm2"
+            },
+            {
+                "id": 326564,
+                "value": "2",
+                "inspection_id": 40162,
+                "category_id": 1167,
+                "val": "2",
+                "unit": "x 25cm2",
+                "type": "square_25cm2"
+            },
+            {
+                "id": 326565,
+                "value": "2",
+                "inspection_id": 40162,
+                "category_id": 1168,
+                "val": "2",
+                "unit": "x 25cm2",
+                "type": "square_25cm2"
+            },
+            {
+                "id": 326566,
+                "value": "3",
+                "inspection_id": 40162,
+                "category_id": 1169,
+                "val": "3",
+                "unit": "x 25cm2",
+                "type": "square_25cm2"
+            }
+        ]
+    },
+    {
+        "id": 40163,
+        "notes": "Brood photograph",
+        "reminder": null,
+        "reminder_date": null,
+        "impression": null,
+        "attention": null,
+        "created_at": "2020-04-24 11:07:00",
+        "checklist_id": 3206,
+        "image_id": null,
+        "owner": true,
+        "thumb_url": null,
+        "hive_id": 280,
+        "items": [
+            {
+                "id": 326567,
+                "value": "1",
+                "inspection_id": 40163,
+                "category_id": 399,
+                "val": "Ja",
+                "unit": null,
+                "type": "boolean"
+            },
+            {
+                "id": 326568,
+                "value": "https:\/\/assets.beep.nl\/users\/1\/thumbs\/inspection\/jIcycTYnO8zYq6SHCvAwPHb97BDLFkZaDmfZUop5.png",
+                "inspection_id": 40163,
+                "category_id": 973,
+                "val": "https:\/\/assets.beep.nl\/users\/1\/thumbs\/inspection\/jIcycTYnO8zYq6SHCvAwPHb97BDLFkZaDmfZUop5.png",
+                "unit": null,
+                "type": "image"
+            }
+        ]
+    },
+    {
+        "id": 68477,
+        "notes": null,
+        "reminder": null,
+        "reminder_date": null,
+        "impression": 3,
+        "attention": 1,
+        "created_at": "2020-10-23 12:43:00",
+        "checklist_id": 3206,
+        "image_id": null,
+        "owner": true,
+        "thumb_url": null,
+        "hive_id": 281,
+        "items": []
+    },
+    {
+        "id": 68478,
+        "notes": "Hive change",
+        "reminder": null,
+        "reminder_date": null,
+        "impression": null,
+        "attention": null,
+        "created_at": "2020-10-23 13:12:33",
+        "checklist_id": null,
+        "image_id": null,
+        "owner": true,
+        "thumb_url": null,
+        "hive_id": 281,
+        "items": [
+            {
+                "id": 522496,
+                "value": "2",
+                "inspection_id": 68478,
+                "category_id": 85,
+                "val": "2",
+                "unit": null,
+                "type": "number_positive"
+            },
+            {
+                "id": 522497,
+                "value": "2",
+                "inspection_id": 68478,
+                "category_id": 87,
+                "val": "2",
+                "unit": null,
+                "type": "number"
+            },
+            {
+                "id": 522498,
+                "value": "10",
+                "inspection_id": 68478,
+                "category_id": 89,
+                "val": "10",
+                "unit": null,
+                "type": "number_positive"
+            }
+        ]
+    }
+]
+```
 > Example response (401):
 
 ```json
@@ -4754,13 +5301,6 @@ Parameter | Type | Status | Description
 --------- | ------- | ------- | ------- | -----------
     date_start | datetime |  optional  | The date in 'YYYY-MM-DD HH:mm:ss' format (2020-01-01 00:00:00) to request data from (default is beginning of research, or earlier (except inspections and measurements).
     date_until | datetime |  optional  | The date in 'YYYY-MM-DD HH:mm:ss' format (2020-09-29 23:59:59) to request data until (default is until the end of the user consent, or research end).
-#### Query Parameters
-
-Parameter | Status | Description
---------- | ------- | ------- | -----------
-    id |  required  | The research ID to request data from.
-    user_id |  required  | The user id to request data from.
-    item |  required  | The type of user data (apiaries/hives/devices/inspections/measurements) to request within the research (which the user gave consent for to use).
 
 <!-- END_4f4cc2a64151945d3e57be605dc0b98a -->
 
@@ -4775,14 +5315,14 @@ Display a listing of the resource.
 > Example request:
 
 ```bash
-curl -X GET -G "https://test.beep.nl/api/sensordefinition" \
+curl -X GET -G "https://api.beep.nl/api/sensordefinition" \
     -H "Content-Type: application/json" \
-    -d '{"device_id":12,"device_hardware_id":"maiores","input_measurement_abbreviation":"incidunt","limit":20}'
+    -d '{"device_id":8,"device_hardware_id":"hic","input_measurement_abbreviation":"non","limit":14}'
 
 ```
 
 ```javascript
-const url = new URL("https://test.beep.nl/api/sensordefinition");
+const url = new URL("https://api.beep.nl/api/sensordefinition");
 
 let headers = {
     "Content-Type": "application/json",
@@ -4790,10 +5330,10 @@ let headers = {
 }
 
 let body = {
-    "device_id": 12,
-    "device_hardware_id": "maiores",
-    "input_measurement_abbreviation": "incidunt",
-    "limit": 20
+    "device_id": 8,
+    "device_hardware_id": "hic",
+    "input_measurement_abbreviation": "non",
+    "limit": 14
 }
 
 fetch(url, {
@@ -4836,14 +5376,14 @@ Store a newly created resource in storage.
 > Example request:
 
 ```bash
-curl -X POST "https://test.beep.nl/api/sensordefinition" \
+curl -X POST "https://api.beep.nl/api/sensordefinition" \
     -H "Content-Type: application/json" \
-    -d '{"name":"iure","inside":false,"offset":806571.656330946,"multiplier":242.72931977,"input_measurement_id":5,"input_measurement_abbreviation":"w_v","output_measurement_id":6,"output_measurement_abbreviation":"t_i","device_id":4,"device_hardware_id":"eos"}'
+    -d '{"name":"aut","inside":false,"offset":2023.3,"multiplier":28.832819,"input_measurement_id":5,"input_measurement_abbreviation":"w_v","output_measurement_id":6,"output_measurement_abbreviation":"t_i","device_id":6,"device_hardware_id":"nihil"}'
 
 ```
 
 ```javascript
-const url = new URL("https://test.beep.nl/api/sensordefinition");
+const url = new URL("https://api.beep.nl/api/sensordefinition");
 
 let headers = {
     "Content-Type": "application/json",
@@ -4851,16 +5391,16 @@ let headers = {
 }
 
 let body = {
-    "name": "iure",
+    "name": "aut",
     "inside": false,
-    "offset": 806571.656330946,
-    "multiplier": 242.72931977,
+    "offset": 2023.3,
+    "multiplier": 28.832819,
     "input_measurement_id": 5,
     "input_measurement_abbreviation": "w_v",
     "output_measurement_id": 6,
     "output_measurement_abbreviation": "t_i",
-    "device_id": 4,
-    "device_hardware_id": "eos"
+    "device_id": 6,
+    "device_hardware_id": "nihil"
 }
 
 fetch(url, {
@@ -4901,11 +5441,11 @@ Display the specified resource.
 > Example request:
 
 ```bash
-curl -X GET -G "https://test.beep.nl/api/sensordefinition/1" 
+curl -X GET -G "https://api.beep.nl/api/sensordefinition/1" 
 ```
 
 ```javascript
-const url = new URL("https://test.beep.nl/api/sensordefinition/1");
+const url = new URL("https://api.beep.nl/api/sensordefinition/1");
 
 let headers = {
     "Accept": "application/json",
@@ -4942,11 +5482,11 @@ Update the specified resource in storage.
 > Example request:
 
 ```bash
-curl -X PUT "https://test.beep.nl/api/sensordefinition/1" 
+curl -X PUT "https://api.beep.nl/api/sensordefinition/1" 
 ```
 
 ```javascript
-const url = new URL("https://test.beep.nl/api/sensordefinition/1");
+const url = new URL("https://api.beep.nl/api/sensordefinition/1");
 
 let headers = {
     "Accept": "application/json",
@@ -4978,11 +5518,11 @@ Remove the specified resource from storage.
 > Example request:
 
 ```bash
-curl -X DELETE "https://test.beep.nl/api/sensordefinition/1" 
+curl -X DELETE "https://api.beep.nl/api/sensordefinition/1" 
 ```
 
 ```javascript
-const url = new URL("https://test.beep.nl/api/sensordefinition/1");
+const url = new URL("https://api.beep.nl/api/sensordefinition/1");
 
 let headers = {
     "Accept": "application/json",
@@ -5013,11 +5553,11 @@ fetch(url, {
 > Example request:
 
 ```bash
-curl -X POST "https://test.beep.nl/api/settings" 
+curl -X POST "https://api.beep.nl/api/settings" 
 ```
 
 ```javascript
-const url = new URL("https://test.beep.nl/api/settings");
+const url = new URL("https://api.beep.nl/api/settings");
 
 let headers = {
     "Accept": "application/json",
@@ -5045,11 +5585,11 @@ fetch(url, {
 > Example request:
 
 ```bash
-curl -X GET -G "https://test.beep.nl/api/settings" 
+curl -X GET -G "https://api.beep.nl/api/settings" 
 ```
 
 ```javascript
-const url = new URL("https://test.beep.nl/api/settings");
+const url = new URL("https://api.beep.nl/api/settings");
 
 let headers = {
     "Accept": "application/json",
@@ -5087,11 +5627,11 @@ fetch(url, {
 > Example request:
 
 ```bash
-curl -X GET -G "https://test.beep.nl/api/taxonomy/lists" 
+curl -X GET -G "https://api.beep.nl/api/taxonomy/lists" 
 ```
 
 ```javascript
-const url = new URL("https://test.beep.nl/api/taxonomy/lists");
+const url = new URL("https://api.beep.nl/api/taxonomy/lists");
 
 let headers = {
     "Accept": "application/json",
@@ -5126,11 +5666,11 @@ fetch(url, {
 > Example request:
 
 ```bash
-curl -X GET -G "https://test.beep.nl/api/taxonomy/taxonomy" 
+curl -X GET -G "https://api.beep.nl/api/taxonomy/taxonomy" 
 ```
 
 ```javascript
-const url = new URL("https://test.beep.nl/api/taxonomy/taxonomy");
+const url = new URL("https://api.beep.nl/api/taxonomy/taxonomy");
 
 let headers = {
     "Accept": "application/json",
@@ -5171,14 +5711,14 @@ Registers a new user and sends an e-mail verification request on succesful save
 > Example request:
 
 ```bash
-curl -X POST "https://test.beep.nl/api/register" \
+curl -X POST "https://api.beep.nl/api/register" \
     -H "Content-Type: application/json" \
     -d '{"email":"test@test.com","password":"testtest","policy_accepted":"beep_terms_2018_05_25_avg_v1"}'
 
 ```
 
 ```javascript
-const url = new URL("https://test.beep.nl/api/register");
+const url = new URL("https://api.beep.nl/api/register");
 
 let headers = {
     "Content-Type": "application/json",
@@ -5222,14 +5762,14 @@ Login via login form
 > Example request:
 
 ```bash
-curl -X POST "https://test.beep.nl/api/login" \
+curl -X POST "https://api.beep.nl/api/login" \
     -H "Content-Type: application/json" \
     -d '{"email":"test@test.com","password":"testtest"}'
 
 ```
 
 ```javascript
-const url = new URL("https://test.beep.nl/api/login");
+const url = new URL("https://api.beep.nl/api/login");
 
 let headers = {
     "Content-Type": "application/json",
@@ -5288,14 +5828,14 @@ responses: invalid_user, reminder_sent, invalid_password, invalid_token, passwor
 > Example request:
 
 ```bash
-curl -X POST "https://test.beep.nl/api/user/reminder" \
+curl -X POST "https://api.beep.nl/api/user/reminder" \
     -H "Content-Type: application/json" \
     -d '{"email":"test@test.com"}'
 
 ```
 
 ```javascript
-const url = new URL("https://test.beep.nl/api/user/reminder");
+const url = new URL("https://api.beep.nl/api/user/reminder");
 
 let headers = {
     "Content-Type": "application/json",
@@ -5343,14 +5883,14 @@ responses: INVALID_USER, RESET_LINK_SENT, INVALID_PASSWORD, INVALID_TOKEN, PASSW
 > Example request:
 
 ```bash
-curl -X POST "https://test.beep.nl/api/user/reset" \
+curl -X POST "https://api.beep.nl/api/user/reset" \
     -H "Content-Type: application/json" \
     -d '{"email":"test@test.com","password":"testtest","password_confirm":"testtest","token":"z8iQafmgP1"}'
 
 ```
 
 ```javascript
-const url = new URL("https://test.beep.nl/api/user/reset");
+const url = new URL("https://api.beep.nl/api/user/reset");
 
 let headers = {
     "Content-Type": "application/json",
@@ -5399,11 +5939,11 @@ Header parameter with Bearer [api_token] from the user object. Example: Bearer 1
 > Example request:
 
 ```bash
-curl -X POST "https://test.beep.nl/api/authenticate" 
+curl -X POST "https://api.beep.nl/api/authenticate" 
 ```
 
 ```javascript
-const url = new URL("https://test.beep.nl/api/authenticate");
+const url = new URL("https://api.beep.nl/api/authenticate");
 
 let headers = {
     "Accept": "application/json",
@@ -5450,11 +5990,11 @@ Destroy the logged in user and all its data in the database
 > Example request:
 
 ```bash
-curl -X DELETE "https://test.beep.nl/api/user" 
+curl -X DELETE "https://api.beep.nl/api/user" 
 ```
 
 ```javascript
-const url = new URL("https://test.beep.nl/api/user");
+const url = new URL("https://api.beep.nl/api/user");
 
 let headers = {
     "Accept": "application/json",
@@ -5485,14 +6025,14 @@ Edit the user details
 > Example request:
 
 ```bash
-curl -X PATCH "https://test.beep.nl/api/user" \
+curl -X PATCH "https://api.beep.nl/api/user" \
     -H "Content-Type: application/json" \
     -d '{"email":"test@test.com","password":"testtest","password_confirm":"testtest","policy_accepted":"beep_terms_2018_05_25_avg_v1"}'
 
 ```
 
 ```javascript
-const url = new URL("https://test.beep.nl/api/user");
+const url = new URL("https://api.beep.nl/api/user");
 
 let headers = {
     "Content-Type": "application/json",
@@ -5540,11 +6080,11 @@ User verification functions
 > Example request:
 
 ```bash
-curl -X GET -G "https://test.beep.nl/api/email/verify" 
+curl -X GET -G "https://api.beep.nl/api/email/verify" 
 ```
 
 ```javascript
-const url = new URL("https://test.beep.nl/api/email/verify");
+const url = new URL("https://api.beep.nl/api/email/verify");
 
 let headers = {
     "Accept": "application/json",
@@ -5578,11 +6118,11 @@ null
 > Example request:
 
 ```bash
-curl -X GET -G "https://test.beep.nl/api/email/verify/1" 
+curl -X GET -G "https://api.beep.nl/api/email/verify/1" 
 ```
 
 ```javascript
-const url = new URL("https://test.beep.nl/api/email/verify/1");
+const url = new URL("https://api.beep.nl/api/email/verify/1");
 
 let headers = {
     "Accept": "application/json",
@@ -5618,11 +6158,11 @@ fetch(url, {
 > Example request:
 
 ```bash
-curl -X POST "https://test.beep.nl/api/email/resend" 
+curl -X POST "https://api.beep.nl/api/email/resend" 
 ```
 
 ```javascript
-const url = new URL("https://test.beep.nl/api/email/resend");
+const url = new URL("https://api.beep.nl/api/email/resend");
 
 let headers = {
     "Accept": "application/json",
@@ -5654,11 +6194,11 @@ fetch(url, {
 > Example request:
 
 ```bash
-curl -X GET -G "https://test.beep.nl/api/weather" 
+curl -X GET -G "https://api.beep.nl/api/weather" 
 ```
 
 ```javascript
-const url = new URL("https://test.beep.nl/api/weather");
+const url = new URL("https://api.beep.nl/api/weather");
 
 let headers = {
     "Accept": "application/json",
@@ -5694,11 +6234,11 @@ fetch(url, {
 > Example request:
 
 ```bash
-curl -X GET -G "https://test.beep.nl/api/samplecode" 
+curl -X GET -G "https://api.beep.nl/api/samplecode" 
 ```
 
 ```javascript
-const url = new URL("https://test.beep.nl/api/samplecode");
+const url = new URL("https://api.beep.nl/api/samplecode");
 
 let headers = {
     "Accept": "application/json",
@@ -5734,11 +6274,11 @@ fetch(url, {
 > Example request:
 
 ```bash
-curl -X POST "https://test.beep.nl/api/samplecode" 
+curl -X POST "https://api.beep.nl/api/samplecode" 
 ```
 
 ```javascript
-const url = new URL("https://test.beep.nl/api/samplecode");
+const url = new URL("https://api.beep.nl/api/samplecode");
 
 let headers = {
     "Accept": "application/json",
@@ -5767,11 +6307,11 @@ fetch(url, {
 > Example request:
 
 ```bash
-curl -X GET -G "https://test.beep.nl/api/samplecode/1" 
+curl -X GET -G "https://api.beep.nl/api/samplecode/1" 
 ```
 
 ```javascript
-const url = new URL("https://test.beep.nl/api/samplecode/1");
+const url = new URL("https://api.beep.nl/api/samplecode/1");
 
 let headers = {
     "Accept": "application/json",
@@ -5807,11 +6347,11 @@ fetch(url, {
 > Example request:
 
 ```bash
-curl -X PUT "https://test.beep.nl/api/samplecode/1" 
+curl -X PUT "https://api.beep.nl/api/samplecode/1" 
 ```
 
 ```javascript
-const url = new URL("https://test.beep.nl/api/samplecode/1");
+const url = new URL("https://api.beep.nl/api/samplecode/1");
 
 let headers = {
     "Accept": "application/json",
@@ -5842,11 +6382,11 @@ fetch(url, {
 > Example request:
 
 ```bash
-curl -X DELETE "https://test.beep.nl/api/samplecode" 
+curl -X DELETE "https://api.beep.nl/api/samplecode" 
 ```
 
 ```javascript
-const url = new URL("https://test.beep.nl/api/samplecode");
+const url = new URL("https://api.beep.nl/api/samplecode");
 
 let headers = {
     "Accept": "application/json",

@@ -29,21 +29,21 @@
                     </div>
                     <div class="col-md-1"></div>
                     <div class="col-xs-12 col-md-3">
-                        <div class="form-group {{ $errors->has('start_date') ? 'has-error' : ''}}">
-                            <label for="start_date" control-label>{{ 'Start Date' }}</label>
+                        <div class="form-group {{ $errors->has('date_start') ? 'has-error' : ''}}">
+                            <label for="date_start" control-label>{{ 'From date (filters inspections/measurements)' }}</label>
                             <div>
-                                <input class="form-control" name="start_date" type="date" id="start_date" min="{{substr($research->start_date, 0, 10)}}" max="{{substr($research->end_date, 0, 10)}}" value="{{ isset($start_date) ? substr($start_date, 0, 10) : '' }}" >
-                                {!! $errors->first('start_date', '<p class="help-block">:message</p>') !!}
+                                <input class="form-control" name="date_start" type="date" id="date_start" min="{{substr($research->start_date, 0, 10)}}" max="{{substr($research->end_date, 0, 10)}}" value="{{ isset($date_start) ? substr($date_start, 0, 10) : '' }}" >
+                                {!! $errors->first('date_start', '<p class="help-block">:message</p>') !!}
                             </div>
                         </div>
                     </div>
                     <div class="col-md-1"></div>
                     <div class="col-xs-12 col-md-3">
-                        <div class="form-group {{ $errors->has('end_date') ? 'has-error' : ''}}">
-                            <label for="end_date" control-label>{{ 'End Date' }}</label>
+                        <div class="form-group {{ $errors->has('date_until') ? 'has-error' : ''}}">
+                            <label for="date_until" control-label>{{ 'Until date (filters inspections/measurements)' }}</label>
                             <div>
-                                <input class="form-control" name="end_date" type="date" id="end_date" min="{{substr($research->start_date, 0, 10)}}" max="{{substr($research->end_date, 0, 10)}}" value="{{ isset($end_date) ? substr($end_date, 0, 10) : '' }}" >
-                                {!! $errors->first('end_date', '<p class="help-block">:message</p>') !!}
+                                <input class="form-control" name="date_until" type="date" id="date_until" min="{{substr($research->start_date, 0, 10)}}" max="{{substr($research->end_date, 0, 10)}}" value="{{ isset($date_until) ? substr($date_until, 0, 10) : '' }}" >
+                                {!! $errors->first('date_until', '<p class="help-block">:message</p>') !!}
                             </div>
                         </div>
                     </div>
@@ -140,11 +140,18 @@
                     <div class="col-xs-12">
                         <div class="form-group">
                             <label control-label>Download dataset</label>
+                            <span>(reload consent data table first)</span>
                             @foreach($consent_users_selected as $i => $id)
                                 <input type="hidden" name="user_ids[{{ $i }}]" value="{{ $id }}">
                             @endforeach
+                            @if(isset($date_start))
+                                <input name="date_start" type="hidden" value="{{substr($date_start, 0, 10)}}" >
+                            @endif
+                            @if(isset($date_until))
+                                <input name="date_until" type="hidden" value="{{substr($date_until, 0, 10)}}" >
+                            @endif
                             <input type="hidden" name="download" value="1">
-                            <button class="btn btn-primary btn-block" type="submit"><i class="fa fa-download" aria-hidden="true"></i> Download selected consent data set</button>
+                            <button class="btn btn-default btn-block" type="submit"><i class="fa fa-download" aria-hidden="true"></i> Download selected consent data set</button>
                         </div>
                     </div>
                 </form>
@@ -153,7 +160,7 @@
                     <br>
                     <h4>Inspection data</h4>
                     <a href="{{$download_url}}" target="_blank"><i class="fa fa-download"></i> Download selected consent data set</a>
-
+                    <div style="display:block; height: 10px;"></div>
                     @if(count($sensor_urls) > 0)
                         <h4>Sensor data</h4>
                         <p>Export files are saved per device per consent period. 

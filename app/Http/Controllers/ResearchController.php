@@ -138,11 +138,11 @@ class ResearchController extends Controller
         $moment_now   = new Moment();
         $moment_ytd   = $moment_now->endof('day')->addDays(-1)->format('Y-m-d');
 
-        $start_date   = $request->input('start_date', $moment_2wk);
-        $end_date     = $request->input('end_date', $moment_ytd);
+        $date_start   = $request->input('date_start', $moment_2wk);
+        $date_until   = $request->input('date_until', $moment_ytd);
 
-        $moment_start = new Moment($start_date);
-        $moment_end   = new Moment($end_date);
+        $moment_start = new Moment($date_start);
+        $moment_end   = new Moment($date_until);
 
         if ($moment_now < $moment_end)
             $moment_end = $moment_now;
@@ -156,7 +156,7 @@ class ResearchController extends Controller
                                     ->select('users.name','users.id')
                                     ->selectRaw('sum(research_user.consent) as consents')
                                     ->where('research_user.research_id', $id)
-                                    ->whereDate('research_user.updated_at', '<', $end_date)
+                                    ->whereDate('research_user.updated_at', '<', $date_until)
                                     ->groupBy('research_user.user_id')
                                     ->having('consents', '>', 0)
                                     ->pluck('name','id')
@@ -175,7 +175,7 @@ class ResearchController extends Controller
         $consents = DB::table('research_user')
                             ->where('research_id', $id)
                             ->whereIn('user_id', $consent_users_selected)
-                            ->whereDate('updated_at', '<', $end_date)
+                            ->whereDate('updated_at', '<', $date_until)
                             ->groupBy('user_id')
                             ->get();
 
@@ -213,7 +213,7 @@ class ResearchController extends Controller
                                 ->select('users.id','users.name','research_user.updated_at','research_user.consent')
                                 ->where('research_user.research_id', $id)
                                 ->whereIn('user_id', $consent_users_selected)
-                                ->whereDate('research_user.updated_at', '<', $end_date)
+                                ->whereDate('research_user.updated_at', '<', $date_until)
                                 ->get()
                                 ->toArray();
 
@@ -344,10 +344,10 @@ class ResearchController extends Controller
         foreach ($users as $u) 
         {
             $user_id       = $u->id;
-            $user_consents = DB::table('research_user')->where('research_id', $id)->where('user_id', $user_id)->whereDate('updated_at', '<', $end_date)->orderBy('updated_at','asc')->get()->toArray();
+            $user_consents = DB::table('research_user')->where('research_id', $id)->where('user_id', $user_id)->whereDate('updated_at', '<', $date_until)->orderBy('updated_at','asc')->get()->toArray();
             
             $user_consent      = $user_consents[0]->consent;
-            $date_curr_consent = $start_date > $user_consents[0]->updated_at ? $start_date : $user_consents[0]->updated_at;
+            $date_curr_consent = $date_start > $user_consents[0]->updated_at ? $date_start : $user_consents[0]->updated_at;
             $date_next_consent = $moment_end->format('Y-m-d H:i:s');
             $index             = 0;
 
@@ -363,10 +363,10 @@ class ResearchController extends Controller
             //die(print_r([$user_consents, $date_curr_consent, $date_next_consent, $index]));
 
             // add user data
-            $user_apiaries     = Location::where('user_id', $user_id)->where('created_at', '<', $end_date)->orderBy('created_at')->get();
-            $user_hives        = Hive::where('user_id', $user_id)->where('created_at', '<', $end_date)->orderBy('created_at')->get();
-            $user_devices      = Device::where('user_id', $user_id)->where('created_at', '<', $end_date)->orderBy('created_at')->get();
-            $user_inspections  = User::find($user_id)->inspections()->with('items')->where('created_at', '>=', $start_date)->where('created_at', '<', $end_date)->orderBy('created_at')->get();
+            $user_apiaries     = Location::where('user_id', $user_id)->where('created_at', '<', $date_until)->orderBy('created_at')->get();
+            $user_hives        = Hive::where('user_id', $user_id)->where('created_at', '<', $date_until)->orderBy('created_at')->get();
+            $user_devices      = Device::where('user_id', $user_id)->where('created_at', '<', $date_until)->orderBy('created_at')->get();
+            $user_inspections  = User::find($user_id)->inspections()->with('items')->where('created_at', '>=', $date_start)->where('created_at', '<', $date_until)->orderBy('created_at')->get();
             $user_measurements = [];
 
             //die(print_r([$user_apiaries->toArray(), $user_hives->toArray()]));
@@ -513,10 +513,10 @@ class ResearchController extends Controller
         {
             //die(print_r([$consents, $spreadsheet_array[__('export.devices')], $spreadsheet_array['Sensor data']]));
             $fileName     = strtolower(env('APP_NAME')).'-export-'.$research->name;
-            $download_url = $this->export($spreadsheet_array, $fileName, $start_date, $end_date);
+            $download_url = $this->export($spreadsheet_array, $fileName, $date_start, $date_until);
         }
 
-        return view('research.show', compact('research', 'dates', 'consent_users_select', 'consent_users_selected', 'download_url', 'sensor_urls', 'totals', 'start_date', 'end_date'));
+        return view('research.show', compact('research', 'dates', 'consent_users_select', 'consent_users_selected', 'download_url', 'sensor_urls', 'totals', 'date_start', 'date_until'));
     }
 
     /**
@@ -613,7 +613,7 @@ class ResearchController extends Controller
 
     /* Data export functions */
 
-    private function export($spreadsheetArray, $fileName='export', $start_date='Research start', $end_date='Research end')
+    private function export($spreadsheetArray, $fileName='export', $date_start='Research start', $date_until='Research end')
     {
         $spreadsheet = new Spreadsheet();
         $sheet = $spreadsheet->getActiveSheet();
@@ -624,9 +624,9 @@ class ResearchController extends Controller
         $sheet->setCellValue('A3', env('APP_NAME').' data export');
         $sheet->setCellValue('C3', date('Y-m-d H:i:s'));
         $sheet->setCellValue('A4', 'Start date');
-        $sheet->setCellValue('C4', $start_date);
+        $sheet->setCellValue('C4', $date_start);
         $sheet->setCellValue('A5', 'End date');
-        $sheet->setCellValue('C5', $end_date);
+        $sheet->setCellValue('C5', $date_until);
         $sheet->setCellValue('A6', 'Sheets');
         $sheet->setCellValue('C6', count($spreadsheetArray));
 
@@ -677,9 +677,9 @@ class ResearchController extends Controller
         ];
     }
 
-    private function getLocations($user_id, $locations, $start_date=null, $end_date=null)
+    private function getLocations($user_id, $locations, $date_start=null, $date_until=null)
     {
-        return $locations->where('created_at', '<=', $end_date)->sortBy('name')->map(function($item) use ($user_id)
+        return $locations->where('created_at', '<=', $date_until)->sortBy('name')->map(function($item) use ($user_id)
         {
             return [
                 $user_id,
@@ -700,9 +700,9 @@ class ResearchController extends Controller
         });
     }
     
-    private function getHives($user_id, $hives, $start_date=null, $end_date=null)
+    private function getHives($user_id, $hives, $date_start=null, $date_until=null)
     {
-        return $hives->where('created_at', '<=', $end_date)->sortBy('name')->map(function($item) use ($user_id)
+        return $hives->where('created_at', '<=', $date_until)->sortBy('name')->map(function($item) use ($user_id)
         {
             $queen = $item->queen;
 
@@ -752,12 +752,12 @@ class ResearchController extends Controller
         ];
     }
 
-    private function getInspections($user_id, $inspections, $item_names, $start_date=null, $end_date=null)
+    private function getInspections($user_id, $inspections, $item_names, $date_start=null, $date_until=null)
     {
         // array of inspection items and data
         $inspection_data = array_fill_keys($item_names, '');
 
-        $inspections = $inspections->where('created_at', '>=', $start_date)->where('created_at', '<=', $end_date)->sortByDesc('created_at');
+        $inspections = $inspections->where('created_at', '>=', $date_start)->where('created_at', '<=', $date_until)->sortByDesc('created_at');
 
 
         $table = $inspections->map(function($inspection) use ($inspection_data, $user_id)

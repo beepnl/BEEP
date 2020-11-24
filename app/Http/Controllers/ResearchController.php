@@ -412,7 +412,7 @@ class ResearchController extends Controller
                 // Add weather data
                 $user_location_coord_where = '('.implode(' OR ', $user_dloc_coords).')';
                 try{
-                    $weather = $client::query('SELECT * FROM "weather" WHERE '.$user_location_coord_where.' AND time >= \''.$user_consents[0]->updated_at.'\' AND time <= \''.$moment_end->format('Y-m-d H:i:s').'\' GROUP BY time(1d)')->getPoints(); // get first weather date
+                    $weather = $influx::query('SELECT * FROM "weather" WHERE '.$user_location_coord_where.' AND time >= \''.$user_consents[0]->updated_at.'\' AND time <= \''.$moment_end->format('Y-m-d H:i:s').'\' GROUP BY time(1d)')->getPoints(); // get first weather date
                 } catch (InfluxDB\Exception $e) {
                     // return Response::json('influx-group-by-query-error', 500);
                 }

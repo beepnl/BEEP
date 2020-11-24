@@ -384,6 +384,7 @@ class ResearchController extends Controller
             {
                 // get daily counts of sensor measurements
                 $points           = [];
+                $$weather         = [];
                 $user_device_keys = [];
                 $user_dloc_coords = [];
 

@@ -30,7 +30,7 @@
                     <div class="col-md-1"></div>
                     <div class="col-xs-12 col-md-3">
                         <div class="form-group {{ $errors->has('date_start') ? 'has-error' : ''}}">
-                            <label for="date_start" control-label>{{ 'From date (filters inspections/measurements)' }}</label>
+                            <label for="date_start" control-label>{{ 'From date (filters inspections/measurements/weather data)' }}</label>
                             <div>
                                 <input class="form-control" name="date_start" type="date" id="date_start" min="{{substr($research->start_date, 0, 10)}}" max="{{substr($research->end_date, 0, 10)}}" value="{{ isset($date_start) ? substr($date_start, 0, 10) : '' }}" >
                                 {!! $errors->first('date_start', '<p class="help-block">:message</p>') !!}
@@ -40,7 +40,7 @@
                     <div class="col-md-1"></div>
                     <div class="col-xs-12 col-md-3">
                         <div class="form-group {{ $errors->has('date_until') ? 'has-error' : ''}}">
-                            <label for="date_until" control-label>{{ 'Until date (filters inspections/measurements)' }}</label>
+                            <label for="date_until" control-label>{{ 'Until date (filters inspections/measurements/weather data)' }}</label>
                             <div>
                                 <input class="form-control" name="date_until" type="date" id="date_until" min="{{substr($research->start_date, 0, 10)}}" max="{{substr($research->end_date, 0, 10)}}" value="{{ isset($date_until) ? substr($date_until, 0, 10) : '' }}" >
                                 {!! $errors->first('date_until', '<p class="help-block">:message</p>') !!}
@@ -82,6 +82,9 @@
                         </tr>
                         <tr>
                             <th class="row-header"><span><i class="fa fa-2x fa-line-chart"></i> Measurements ({{ $totals['measurements'] }})</span></th> 
+                        </tr>
+                        <tr>
+                            <th class="row-header"><span><i class="fa fa-2x fa-thermometer"></i> Weather data ({{ $totals['weather'] }})</span></th> 
                         </tr>
                     </tbody>
                 </table>
@@ -126,6 +129,11 @@
                                 <td>{{ $d['measurements'] > 0 ? $d['measurements'] : '' }}</td>
                             @endforeach
                         </tr>
+                        <tr>
+                            @foreach($dates as $date => $d)
+                                <td>{{ $d['weather'] > 0 ? $d['weather'] : '' }}</td>
+                            @endforeach
+                        </tr>
                     </tbody>
                 </table>
             </div>
@@ -162,8 +170,8 @@
                     <a href="{{$download_url}}" target="_blank"><i class="fa fa-download"></i> Download selected consent data set</a>
                     <div style="display:block; height: 10px;"></div>
                     @if(count($sensor_urls) > 0)
-                        <h4>Sensor data</h4>
-                        <p>Export files are saved per device per consent period. 
+                        <h4>Sensor and weather data</h4>
+                        <p>Export files are saved per device/location per consent period. 
                             All data per device in the highest possible resolution as comma separated (,) .csv file that you can open in Excel, or SPSS.
                             <br>
                             <em>NB: The date time data in the 'time' column is in GMT time (this differs from what you see in the BEEP app), formatted by the RFC 3339 date-time standard.</em>

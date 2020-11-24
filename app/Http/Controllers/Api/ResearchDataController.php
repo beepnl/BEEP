@@ -760,8 +760,7 @@ class ResearchDataController extends Controller
                         if ($user_devices->count() > 0)
                             foreach ($user_devices as $dev)
                                 if ($dev->created_at < $date_next_consent)
-                                    $data = array_merge( $this->getArrayFromInflux($dev, $date_curr_consent, $date_next_consent, '*') );
-
+                                    $data = array_merge($data, $this->getArrayFromInflux($dev, $date_curr_consent, $date_next_consent, '*'));
                         break;
                     default:
                         return Response::json('invalid_item', 400);

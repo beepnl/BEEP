@@ -1,4 +1,4 @@
-var _LANG$en, _LANG$de, _LANG$es, _LANG$fr, _LANG$ro, _LANG$pt, _LANG$it;
+var _LANG$en, _LANG$de, _LANG$es, _LANG$fr, _LANG$ro, _LANG$pt, _LANG$it, _LANG$fi;
 
 function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
@@ -31,6 +31,7 @@ app.run(function ($rootScope, $location, $window, $route, $routeParams, amMoment
     "de": "Deutsch",
     "en": "English",
     "fr": "Français",
+    "fi": "Suomalainen",
     "it": "Italiano",
     "pt": "Português",
     "ro": "Română",
@@ -2660,7 +2661,226 @@ LANG['it'] = (_LANG$it = {
   settings: 'Impostazioni',
   sensors_title: 'Impostazioni dispositivo',
   sensors_description: 'Stato e registrazione del dispositivo'
-}, _defineProperty(_LANG$it, "sensors", 'Dispositivi'), _defineProperty(_LANG$it, "sensor", 'Dispositivo'), _defineProperty(_LANG$it, "Select", 'Seleziona'), _defineProperty(_LANG$it, "Not_selected", 'Non selezionato'), _defineProperty(_LANG$it, "Poor", 'Scarso'), _defineProperty(_LANG$it, "Fair", 'Sufficiente'), _defineProperty(_LANG$it, "Average", 'Medio'), _defineProperty(_LANG$it, "Good", 'Buono'), _defineProperty(_LANG$it, "Excellent", 'Eccellente'), _defineProperty(_LANG$it, "Low", 'Basso'), _defineProperty(_LANG$it, "Medium", 'Medio'), _defineProperty(_LANG$it, "High", 'Alto'), _defineProperty(_LANG$it, "Extreme", 'Estremo'), _defineProperty(_LANG$it, "select_color", 'Seleziona un colore'), _defineProperty(_LANG$it, "advanced", 'Avanzate'), _defineProperty(_LANG$it, "Select_sensor", 'Seleziona un sensore'), _defineProperty(_LANG$it, "temperature", 'Temperatura'), _defineProperty(_LANG$it, "t", 'Temperatura'), _defineProperty(_LANG$it, "t_0", 'Temperatura 1'), _defineProperty(_LANG$it, "t_1", 'Temperatura 2'), _defineProperty(_LANG$it, "t_2", 'Temperatura 3'), _defineProperty(_LANG$it, "t_3", 'Temperatura 4'), _defineProperty(_LANG$it, "t_4", 'Temperatura 5'), _defineProperty(_LANG$it, "t_5", 'Temperatura 6'), _defineProperty(_LANG$it, "t_6", 'Temperatura 7'), _defineProperty(_LANG$it, "t_7", 'Temperatura 8'), _defineProperty(_LANG$it, "t_8", 'Temperatura 9'), _defineProperty(_LANG$it, "t_9", 'Temperatura 10'), _defineProperty(_LANG$it, "light", 'Irraggiamento solare'), _defineProperty(_LANG$it, "l", 'Irraggiamento solare'), _defineProperty(_LANG$it, "water", 'Acqua'), _defineProperty(_LANG$it, "w", 'Acqua'), _defineProperty(_LANG$it, "humidity", 'Umidità'), _defineProperty(_LANG$it, "h", 'Umidità'), _defineProperty(_LANG$it, "air_pressure", 'Pressione atmosferica'), _defineProperty(_LANG$it, "p", 'Pressione atmosferica'), _defineProperty(_LANG$it, "weight", 'Peso'), _defineProperty(_LANG$it, "w_v", 'Sensore di peso valore tutti i sensori'), _defineProperty(_LANG$it, "w_fl", 'Sensore di peso valore anteriore sinistr'), _defineProperty(_LANG$it, "w_fr", 'Sensore di peso valore anteriore destro'), _defineProperty(_LANG$it, "w_bl", 'Sensore di peso valore posteriore sinistro'), _defineProperty(_LANG$it, "w_br", 'Sensore di peso valore posteriore destro'), _defineProperty(_LANG$it, "weight_kg", 'Peso'), _defineProperty(_LANG$it, "weight_kg_corrected", 'Peso (corretto)'), _defineProperty(_LANG$it, "weight_combined_kg", 'Peso combinato'), _defineProperty(_LANG$it, "bat_volt", 'Batteria'), _defineProperty(_LANG$it, "bv", 'Batteria'), _defineProperty(_LANG$it, "sound_fanning_4days", 'Rumore ventilazione api 4gg'), _defineProperty(_LANG$it, "s_fan_4", 'Rumore ventilazione api 4gg'), _defineProperty(_LANG$it, "sound_fanning_6days", 'Rumore ventilazione api 6gg'), _defineProperty(_LANG$it, "s_fan_6", 'Rumore ventilazione api 6gg'), _defineProperty(_LANG$it, "sound_fanning_9days", 'Rumore ventilazione api 9gg'), _defineProperty(_LANG$it, "s_fan_9", 'Rumore ventilazione api 9gg'), _defineProperty(_LANG$it, "sound_flying_adult", 'Api in volo'), _defineProperty(_LANG$it, "s_fly_a", 'Api in volo'), _defineProperty(_LANG$it, "sound_total", 'Suono complessivo'), _defineProperty(_LANG$it, "s_tot", 'Suono complessivo'), _defineProperty(_LANG$it, "s_spl", 'Livello di pressione del suono'), _defineProperty(_LANG$it, "bee_count_in", 'Conta ape in ingresso'), _defineProperty(_LANG$it, "bc_i", 'Conta ape in ingresso'), _defineProperty(_LANG$it, "bee_count_out", 'Conta ape in uscita'), _defineProperty(_LANG$it, "bc_o", 'Conta ape in uscita'), _defineProperty(_LANG$it, "t_i", 'Temp. interna'), _defineProperty(_LANG$it, "rssi", 'Intensità segnale'), _defineProperty(_LANG$it, "snr", 'Rumore segnale'), _defineProperty(_LANG$it, "lat", 'Latitudine'), _defineProperty(_LANG$it, "lon", 'Longitudine'), _defineProperty(_LANG$it, "Sound_measurements", 'Misurazioni acustiche'), _defineProperty(_LANG$it, "Sensor_info", 'Info sensore'), _defineProperty(_LANG$it, 's_bin098_146Hz', '098-146Hz'), _defineProperty(_LANG$it, 's_bin146_195Hz', '146-195Hz'), _defineProperty(_LANG$it, 's_bin195_244Hz', '195-244Hz'), _defineProperty(_LANG$it, 's_bin244_293Hz', '244-293Hz'), _defineProperty(_LANG$it, 's_bin293_342Hz', '293-342Hz'), _defineProperty(_LANG$it, 's_bin342_391Hz', '342-391Hz'), _defineProperty(_LANG$it, 's_bin391_439Hz', '391-439Hz'), _defineProperty(_LANG$it, 's_bin439_488Hz', '439-488Hz'), _defineProperty(_LANG$it, 's_bin488_537Hz', '488-537Hz'), _defineProperty(_LANG$it, 's_bin537_586Hz', '537-586Hz'), _defineProperty(_LANG$it, 'icon', 'Icona'), _defineProperty(_LANG$it, 'precipIntensity', 'Pioggia'), _defineProperty(_LANG$it, 'precipProbability', 'Probabilità di pioggia'), _defineProperty(_LANG$it, 'precipType', 'Tipo di pioggia'), _defineProperty(_LANG$it, "temperature", 'Temperatura esterna'), _defineProperty(_LANG$it, 'apparentTemperature', 'Tempreatura percepita'), _defineProperty(_LANG$it, 'dewPoint', 'Punto di rugiada'), _defineProperty(_LANG$it, "humidity", 'Umidità'), _defineProperty(_LANG$it, 'pressure', 'Pressione atmosferica'), _defineProperty(_LANG$it, 'windSpeed', 'Velocità vento'), _defineProperty(_LANG$it, 'windGust', 'Raffica di vento'), _defineProperty(_LANG$it, 'windBearing', 'Direzione vento'), _defineProperty(_LANG$it, 'cloudCover', 'Nuvolosità'), _defineProperty(_LANG$it, 'uvIndex', 'Indice UV'), _defineProperty(_LANG$it, 'visibility', 'Visibilità'), _defineProperty(_LANG$it, 'ozone', 'Ozono'), _defineProperty(_LANG$it, "hour", 'Ora'), _defineProperty(_LANG$it, "day", 'Giorno'), _defineProperty(_LANG$it, "week", 'Settimana'), _defineProperty(_LANG$it, "month", 'Mese'), _defineProperty(_LANG$it, "year", 'Anno'), _defineProperty(_LANG$it, "could_not_load_settings", 'Le impostazioni non possono essere caricate'), _defineProperty(_LANG$it, "offline", 'Nessuna connessione'), _defineProperty(_LANG$it, "remote", 'Remoto'), _defineProperty(_LANG$it, "connected", 'Diretto'), _defineProperty(_LANG$it, "yes", 'Sì'), _defineProperty(_LANG$it, "no", 'No'), _defineProperty(_LANG$it, "footer_text", 'Apicoltura open source'), _defineProperty(_LANG$it, "beep_foundation", 'la Fondazione BEEP'), _defineProperty(_LANG$it, "Checklist", 'Lista di controllo'), _defineProperty(_LANG$it, "Checklist_items", 'Elementi lista di controllo'), _defineProperty(_LANG$it, "edit_hive_checklist", 'Seleziona/Deseleziona le caselle nella lista sottostante per aggiungere/togliere l\'elemento dalla tua lista di controlli. Puoi anche mostrare/nascondere o trascinare gli elementi per riordinarli secondo il tuo stile.. Consiglio: se inserisci una parola nel campo ricerca, tutti gli elementi contenenti quella parola saranno mostrati ed evidenziati in rosso.'), _defineProperty(_LANG$it, "Data_export", 'Esporta i dati'), _defineProperty(_LANG$it, "Export_your_data", 'Esporta tutti i dati del tuo account Beep e invia una e-mail con allegati i dati in formato Excel. Il file Excel ha vari fogli di lavoro, contenenti i tuoi dati personali, alveari, posizioni e visite.'), _defineProperty(_LANG$it, "Terms_of_use", 'Condizioni di servizio'), _defineProperty(_LANG$it, "accept_policy", 'Accetto le condizioni di servizio proposte da BEEP, che sono compatibili con la normativa Europea vigente in materia di Privacy'), _defineProperty(_LANG$it, "policy_url", 'https://beep.nl/terms-of-service'), _defineProperty(_LANG$it, "policy_version", 'beep_terms_2018_05_25_avg_v1'), _defineProperty(_LANG$it, "approve_policy", 'Non hai ancora accettato le ultime Condizioni di Servizio.'), _defineProperty(_LANG$it, "calibrate_weight", 'Calibrazione peso'), _defineProperty(_LANG$it, "calibrate_explanation", 'Imposta il peso del sensore su 0 sottraendo il valore di misura attualmente visualizzato.'), _defineProperty(_LANG$it, "set_as_zero_value", 'Imposta questi valori come Valore 0'), _defineProperty(_LANG$it, "set_weight_factor", 'Definisci il fattore peso'), _defineProperty(_LANG$it, "own_weight_kg", 'Qual\'è il tuo peso in kg?'), _defineProperty(_LANG$it, "start_calibration", 'Ora sali sulla bilancia, premi il bottone sottostante per definire il fattore peso. Distribuisci il tuo peso equamente.'), _defineProperty(_LANG$it, "currently_there_is", 'Il peso è di'), _defineProperty(_LANG$it, "nothing", 'nulla'), _defineProperty(_LANG$it, "on_the_scale", 'sulla bilancia'), _defineProperty(_LANG$it, "calibration_started", 'Calibrazione iniziata... Attendi la prossima misura per renderla effettiva.'), _defineProperty(_LANG$it, "calibration_ended", 'Calibrazione avvenuta con successo!'), _defineProperty(_LANG$it, "server_down", 'La App è al momento non disponibile causa lavori di manutenzione, riprova più tardi'), _defineProperty(_LANG$it, "add_to_calendar", 'Aggiungi al calendario'), _defineProperty(_LANG$it, "sort_on", 'ordina'), _defineProperty(_LANG$it, "Whats_new", 'Nuovo!'), _defineProperty(_LANG$it, "Manual", 'Manuale'), _defineProperty(_LANG$it, "Site_title", 'BEEP | Monitoraggio Alveari'), _defineProperty(_LANG$it, "could_not_create_user", 'L\'utente non può essere creato in questo momento. Ci scusiamo per l\'inconveniente, riprova più tardi.'), _defineProperty(_LANG$it, "email_verified", 'Il tuo indirizzo e-mail è stato verificato.'), _defineProperty(_LANG$it, "email_not_verified", 'Il tuo indirizzo e-mail non è ancora stato verificato.'), _defineProperty(_LANG$it, "email_new_verification", 'Clicca su questo link per inviare una nuova e-mail di verifica.'), _defineProperty(_LANG$it, "email_verification_sent", 'Un messaggio con in link di verifica è stato inviato al tuo indirizzo e-mail. Clicca sul link nella email per attivare il tuo account ed eseguire l\'accesso.'), _defineProperty(_LANG$it, "not_filled", 'è richiesto, ma non compilato'), _defineProperty(_LANG$it, "cannot_deselect", 'Impossibile rimuovere questo elemento, perchè contiene informazioni obbligatorie'), _defineProperty(_LANG$it, "sensor_key", 'Chiave sensore'), _defineProperty(_LANG$it, "Undelete", 'Non cancellare'), _defineProperty(_LANG$it, "the_field", 'Il'), _defineProperty(_LANG$it, "is_required", 'E\' richiesto'), _defineProperty(_LANG$it, "No_groups", 'Non ci sono gruppi disponibili'), _defineProperty(_LANG$it, "not_available_yet", 'non ancora disponibile. Clicca sul bottone in alto a destra per aggiungerne uno.'), _defineProperty(_LANG$it, "Users", 'Utenti'), _defineProperty(_LANG$it, "Member", 'Membro del gruppo'), _defineProperty(_LANG$it, "Members", 'Membri del gruppo'), _defineProperty(_LANG$it, "Invite", 'Invita'), _defineProperty(_LANG$it, "Invited", 'Invitato'), _defineProperty(_LANG$it, "invitations", 'inviti'), _defineProperty(_LANG$it, "Admin", 'Amministratore'), _defineProperty(_LANG$it, "Creator", 'Proprietario del gruppo'), _defineProperty(_LANG$it, "Groups", 'Collabora'), _defineProperty(_LANG$it, "Group", 'Gruppo di collaborazione'), _defineProperty(_LANG$it, "group", 'gruppo di collaborazione'), _defineProperty(_LANG$it, "to_share", 'per condividere con questo gruppo. clicca 1 = i membri del gruppo possono solo vedere, clicca 2 = i membri del gruppo possono modificare'), _defineProperty(_LANG$it, "Invitation_accepted", 'Invito accettato'), _defineProperty(_LANG$it, "Accept", 'Accetta'), _defineProperty(_LANG$it, "My_shared", 'Le mie condivisioni'), _defineProperty(_LANG$it, "invitee_name", 'Nome dell\'invitato'), _defineProperty(_LANG$it, "Remove_group", 'Sei sicuro di voler completamente rimuovere questo gruppo per tutti i suoi membri?'), _defineProperty(_LANG$it, "Detach_from_group", 'Rimuovi me ed i miei alveari da questo gruppo'), _defineProperty(_LANG$it, "my_hive", 'Il mio alveare'), _defineProperty(_LANG$it, "created", 'creato'), _defineProperty(_LANG$it, "group_detached", 'Gruppo abbandonato con successo'), _defineProperty(_LANG$it, "group_activated", 'Invito al gruppo accettato'), _defineProperty(_LANG$it, "group_explanation_1", '1. Crea un nuovo gruppo di collaborazione con un nome chiaro, e una (opzionale) descrizione'), _defineProperty(_LANG$it, "group_explanation_2", '2. Invita altri utenti Beep tramite il loro indirizzo e-mail Beep'), _defineProperty(_LANG$it, "group_explanation_3", '3. Condividi specifici alveari per essere visti da altri o consentire loro di collaborare'), _defineProperty(_LANG$it, "Filter_and_sort_on", 'Ordina e filtra:'), _defineProperty(_LANG$it, "roofed", 'L\'apiario ha un tetto?'), _defineProperty(_LANG$it, "info", 'Info'), _defineProperty(_LANG$it, "research", 'Ricerca'), _defineProperty(_LANG$it, "research_explanation", 'Questa schermata contiene le rierche disponibili per cui puoi decidere di condividere i dati. Quando consenti di la condivisione dei dati del tuo account BEEP, stai contribuendo alla ricerca per migliorare la salute delle api. Prima di acconsentire, prego rileggi la descrizione della ricerca tramite il link sottostante e chiedi informazioni aggiuntive se necessario. Puoi revocare il tuo consenso in ogni momento, e nessun ulteriore dato sarà più condiviso a partire da quel momento. I dati che tu hai già condiviso durante il periodo di consenso, resteranno disponibili alla ricerca. In caso di dubbi, contatta la persona di riferimento.'), _defineProperty(_LANG$it, "research_info", 'Condividendo i tuoi dati con i ricercatori, li aiuterai ad analizzare più dati ed ottenere conclusioni migliori.'), _defineProperty(_LANG$it, "start_date", 'Data di inizio'), _defineProperty(_LANG$it, "end_date", 'Data di fine'), _defineProperty(_LANG$it, "purpose", 'Scopo della ricerca'), _defineProperty(_LANG$it, "institution", 'Istituto di ricerca'), _defineProperty(_LANG$it, "type_of_data_used", 'Utilizzo dei dati'), _defineProperty(_LANG$it, "link", 'Link'), _defineProperty(_LANG$it, "Consent", 'Consenti'), _defineProperty(_LANG$it, "history", 'storia'), _defineProperty(_LANG$it, "Current_consent", 'Consenso attuale'), _defineProperty(_LANG$it, "consent_yes", 'Acconsento a condividere i miei dati'), _defineProperty(_LANG$it, "consent_no", 'NON acconsento a condividere i miei dati'), _defineProperty(_LANG$it, "my_beep_data", 'I miei dati BEEP'), _defineProperty(_LANG$it, "Consent_can_only_be_set", 'Il consenso può essere adatto solo a'), _defineProperty(_LANG$it, "earlier", 'una precedente'), _defineProperty(_LANG$it, "later", 'una successiva'), _defineProperty(_LANG$it, "new_apiary_explanation", 'Crea un nuovo apiario in 4 passaggi'), _defineProperty(_LANG$it, "start_here", 'Clicca qui per iniziare'), _defineProperty(_LANG$it, "optional", 'opzionale'), _defineProperty(_LANG$it, "dimensions", 'dimansioni'), _defineProperty(_LANG$it, "details", 'dettagli'), _defineProperty(_LANG$it, "configuration", 'configurazione'), _defineProperty(_LANG$it, "adjustments", 'adattamenti'), _defineProperty(_LANG$it, "changes_queen_color", 'modifica i cambi di colore'), _defineProperty(_LANG$it, "Brood_box_and_frame", 'Camera di covata e telai'), _defineProperty(_LANG$it, "Hive_order", 'Ordina gli alveari nell\'apiario'), _defineProperty(_LANG$it, "bb_width_cm", 'Larghezza camera di covata (cm)'), _defineProperty(_LANG$it, "bb_height_cm", 'Altezza camera di covata (cm)'), _defineProperty(_LANG$it, "bb_depth_cm", 'Profondità camera di covata (cm)'), _defineProperty(_LANG$it, "fr_width_cm", 'Larghezza telaio (cm)'), _defineProperty(_LANG$it, "fr_height_cm", 'Altezza telatio (cm)'), _defineProperty(_LANG$it, "queen_line", 'linea'), _defineProperty(_LANG$it, "queen_tree", 'genealogia'), _defineProperty(_LANG$it, "queen_description", 'note'), _defineProperty(_LANG$it, "Hive_short", 'Alveare'), _defineProperty(_LANG$it, "Images", 'Immagini'), _defineProperty(_LANG$it, "Size", 'Dimensione'), _defineProperty(_LANG$it, "preview", 'anteprima'), _defineProperty(_LANG$it, "Sensor_definitions", 'Definizioni del sensore'), _defineProperty(_LANG$it, "Inside", 'Misure interne'), _defineProperty(_LANG$it, "Offset", 'Compensazione'), _defineProperty(_LANG$it, "Multiplier", 'Moltiplicatore'), _defineProperty(_LANG$it, "Input", 'Ingresso'), _defineProperty(_LANG$it, "Output", 'Uscita'), _defineProperty(_LANG$it, "Last", 'Ultimo'), _defineProperty(_LANG$it, "Export_sensor_data", 'Esporta tutti i dati per ogni dispositivo nella massima risoluzione possibile in formato .csv che potrai aprire in Excel, o SPSS. NB: La data e l\'orario nella colonna \'time\' è mostrato nel fuso di Greenwich (GMT), formattato nello standard RFC 3339.'), _defineProperty(_LANG$it, "CSV_export_separator", 'separatore di colonne per i dati CSV'), _defineProperty(_LANG$it, "Selected_date", 'Seleziona un intervallo di tempo'), _defineProperty(_LANG$it, "Sensor_measurements", 'Misurazioni del sensore'), _defineProperty(_LANG$it, "too_much_data", 'Troppi dati da processare, prego seleziona un minor numero di misurazioni del sensore, o riduci l\'intervallo di tempo.'), _defineProperty(_LANG$it, "beep_base_explanation", 'Se hai un dispositivo BEEP (mostrato nella foto sopra), per favore usa la App nativa (iOS e Android) per l\'installazione e per impostare la comunicazione con la App. Se ancora non hai un dispositivo BEEP, premi sul menu l\'opzione  \'sitoweb BEEP\' per aggiornamenti su come ottenerne uno. Se hai un tuo dispositivo di rilevazione dati e vuoi importare i dati nella App BEEP, mandaci un messaggio di richiesta per unirti alla nostra communuty su Slack, e potrai avere accesso alle descrizioni API.'), _defineProperty(_LANG$it, "sample_code_hive", 'Prima seleziona un alveare, per generare un codice campione univoco'), _defineProperty(_LANG$it, "sample_code_generate", 'Genera un codice campione univoco'), _defineProperty(_LANG$it, "sample_code_delete", 'Cancella codice campione univoco'), _defineProperty(_LANG$it, "measurement_interval", 'intervallo'), _defineProperty(_LANG$it, "from_weather_service", 'dal servizio meteo'), _LANG$it); //! moment.js locale configuration
+}, _defineProperty(_LANG$it, "sensors", 'Dispositivi'), _defineProperty(_LANG$it, "sensor", 'Dispositivo'), _defineProperty(_LANG$it, "Select", 'Seleziona'), _defineProperty(_LANG$it, "Not_selected", 'Non selezionato'), _defineProperty(_LANG$it, "Poor", 'Scarso'), _defineProperty(_LANG$it, "Fair", 'Sufficiente'), _defineProperty(_LANG$it, "Average", 'Medio'), _defineProperty(_LANG$it, "Good", 'Buono'), _defineProperty(_LANG$it, "Excellent", 'Eccellente'), _defineProperty(_LANG$it, "Low", 'Basso'), _defineProperty(_LANG$it, "Medium", 'Medio'), _defineProperty(_LANG$it, "High", 'Alto'), _defineProperty(_LANG$it, "Extreme", 'Estremo'), _defineProperty(_LANG$it, "select_color", 'Seleziona un colore'), _defineProperty(_LANG$it, "advanced", 'Avanzate'), _defineProperty(_LANG$it, "Select_sensor", 'Seleziona un sensore'), _defineProperty(_LANG$it, "temperature", 'Temperatura'), _defineProperty(_LANG$it, "t", 'Temperatura'), _defineProperty(_LANG$it, "t_0", 'Temperatura 1'), _defineProperty(_LANG$it, "t_1", 'Temperatura 2'), _defineProperty(_LANG$it, "t_2", 'Temperatura 3'), _defineProperty(_LANG$it, "t_3", 'Temperatura 4'), _defineProperty(_LANG$it, "t_4", 'Temperatura 5'), _defineProperty(_LANG$it, "t_5", 'Temperatura 6'), _defineProperty(_LANG$it, "t_6", 'Temperatura 7'), _defineProperty(_LANG$it, "t_7", 'Temperatura 8'), _defineProperty(_LANG$it, "t_8", 'Temperatura 9'), _defineProperty(_LANG$it, "t_9", 'Temperatura 10'), _defineProperty(_LANG$it, "light", 'Irraggiamento solare'), _defineProperty(_LANG$it, "l", 'Irraggiamento solare'), _defineProperty(_LANG$it, "water", 'Acqua'), _defineProperty(_LANG$it, "w", 'Acqua'), _defineProperty(_LANG$it, "humidity", 'Umidità'), _defineProperty(_LANG$it, "h", 'Umidità'), _defineProperty(_LANG$it, "air_pressure", 'Pressione atmosferica'), _defineProperty(_LANG$it, "p", 'Pressione atmosferica'), _defineProperty(_LANG$it, "weight", 'Peso'), _defineProperty(_LANG$it, "w_v", 'Sensore di peso valore tutti i sensori'), _defineProperty(_LANG$it, "w_fl", 'Sensore di peso valore anteriore sinistr'), _defineProperty(_LANG$it, "w_fr", 'Sensore di peso valore anteriore destro'), _defineProperty(_LANG$it, "w_bl", 'Sensore di peso valore posteriore sinistro'), _defineProperty(_LANG$it, "w_br", 'Sensore di peso valore posteriore destro'), _defineProperty(_LANG$it, "weight_kg", 'Peso'), _defineProperty(_LANG$it, "weight_kg_corrected", 'Peso (corretto)'), _defineProperty(_LANG$it, "weight_combined_kg", 'Peso combinato'), _defineProperty(_LANG$it, "bat_volt", 'Batteria'), _defineProperty(_LANG$it, "bv", 'Batteria'), _defineProperty(_LANG$it, "sound_fanning_4days", 'Rumore ventilazione api 4gg'), _defineProperty(_LANG$it, "s_fan_4", 'Rumore ventilazione api 4gg'), _defineProperty(_LANG$it, "sound_fanning_6days", 'Rumore ventilazione api 6gg'), _defineProperty(_LANG$it, "s_fan_6", 'Rumore ventilazione api 6gg'), _defineProperty(_LANG$it, "sound_fanning_9days", 'Rumore ventilazione api 9gg'), _defineProperty(_LANG$it, "s_fan_9", 'Rumore ventilazione api 9gg'), _defineProperty(_LANG$it, "sound_flying_adult", 'Api in volo'), _defineProperty(_LANG$it, "s_fly_a", 'Api in volo'), _defineProperty(_LANG$it, "sound_total", 'Suono complessivo'), _defineProperty(_LANG$it, "s_tot", 'Suono complessivo'), _defineProperty(_LANG$it, "s_spl", 'Livello di pressione del suono'), _defineProperty(_LANG$it, "bee_count_in", 'Conta ape in ingresso'), _defineProperty(_LANG$it, "bc_i", 'Conta ape in ingresso'), _defineProperty(_LANG$it, "bee_count_out", 'Conta ape in uscita'), _defineProperty(_LANG$it, "bc_o", 'Conta ape in uscita'), _defineProperty(_LANG$it, "t_i", 'Temp. interna'), _defineProperty(_LANG$it, "rssi", 'Intensità segnale'), _defineProperty(_LANG$it, "snr", 'Rumore segnale'), _defineProperty(_LANG$it, "lat", 'Latitudine'), _defineProperty(_LANG$it, "lon", 'Longitudine'), _defineProperty(_LANG$it, "Sound_measurements", 'Misurazioni acustiche'), _defineProperty(_LANG$it, "Sensor_info", 'Info sensore'), _defineProperty(_LANG$it, 's_bin098_146Hz', '098-146Hz'), _defineProperty(_LANG$it, 's_bin146_195Hz', '146-195Hz'), _defineProperty(_LANG$it, 's_bin195_244Hz', '195-244Hz'), _defineProperty(_LANG$it, 's_bin244_293Hz', '244-293Hz'), _defineProperty(_LANG$it, 's_bin293_342Hz', '293-342Hz'), _defineProperty(_LANG$it, 's_bin342_391Hz', '342-391Hz'), _defineProperty(_LANG$it, 's_bin391_439Hz', '391-439Hz'), _defineProperty(_LANG$it, 's_bin439_488Hz', '439-488Hz'), _defineProperty(_LANG$it, 's_bin488_537Hz', '488-537Hz'), _defineProperty(_LANG$it, 's_bin537_586Hz', '537-586Hz'), _defineProperty(_LANG$it, 'icon', 'Icona'), _defineProperty(_LANG$it, 'precipIntensity', 'Pioggia'), _defineProperty(_LANG$it, 'precipProbability', 'Probabilità di pioggia'), _defineProperty(_LANG$it, 'precipType', 'Tipo di pioggia'), _defineProperty(_LANG$it, "temperature", 'Temperatura esterna'), _defineProperty(_LANG$it, 'apparentTemperature', 'Tempreatura percepita'), _defineProperty(_LANG$it, 'dewPoint', 'Punto di rugiada'), _defineProperty(_LANG$it, "humidity", 'Umidità'), _defineProperty(_LANG$it, 'pressure', 'Pressione atmosferica'), _defineProperty(_LANG$it, 'windSpeed', 'Velocità vento'), _defineProperty(_LANG$it, 'windGust', 'Raffica di vento'), _defineProperty(_LANG$it, 'windBearing', 'Direzione vento'), _defineProperty(_LANG$it, 'cloudCover', 'Nuvolosità'), _defineProperty(_LANG$it, 'uvIndex', 'Indice UV'), _defineProperty(_LANG$it, 'visibility', 'Visibilità'), _defineProperty(_LANG$it, 'ozone', 'Ozono'), _defineProperty(_LANG$it, "hour", 'Ora'), _defineProperty(_LANG$it, "day", 'Giorno'), _defineProperty(_LANG$it, "week", 'Settimana'), _defineProperty(_LANG$it, "month", 'Mese'), _defineProperty(_LANG$it, "year", 'Anno'), _defineProperty(_LANG$it, "could_not_load_settings", 'Le impostazioni non possono essere caricate'), _defineProperty(_LANG$it, "offline", 'Nessuna connessione'), _defineProperty(_LANG$it, "remote", 'Remoto'), _defineProperty(_LANG$it, "connected", 'Diretto'), _defineProperty(_LANG$it, "yes", 'Sì'), _defineProperty(_LANG$it, "no", 'No'), _defineProperty(_LANG$it, "footer_text", 'Apicoltura open source'), _defineProperty(_LANG$it, "beep_foundation", 'la Fondazione BEEP'), _defineProperty(_LANG$it, "Checklist", 'Lista di controllo'), _defineProperty(_LANG$it, "Checklist_items", 'Elementi lista di controllo'), _defineProperty(_LANG$it, "edit_hive_checklist", 'Seleziona/Deseleziona le caselle nella lista sottostante per aggiungere/togliere l\'elemento dalla tua lista di controlli. Puoi anche mostrare/nascondere o trascinare gli elementi per riordinarli secondo il tuo stile.. Consiglio: se inserisci una parola nel campo ricerca, tutti gli elementi contenenti quella parola saranno mostrati ed evidenziati in rosso.'), _defineProperty(_LANG$it, "Data_export", 'Esporta i dati'), _defineProperty(_LANG$it, "Export_your_data", 'Esporta tutti i dati del tuo account Beep e invia una e-mail con allegati i dati in formato Excel. Il file Excel ha vari fogli di lavoro, contenenti i tuoi dati personali, alveari, posizioni e visite.'), _defineProperty(_LANG$it, "Terms_of_use", 'Condizioni di servizio'), _defineProperty(_LANG$it, "accept_policy", 'Accetto le condizioni di servizio proposte da BEEP, che sono compatibili con la normativa Europea vigente in materia di Privacy'), _defineProperty(_LANG$it, "policy_url", 'https://beep.nl/terms-of-service'), _defineProperty(_LANG$it, "policy_version", 'beep_terms_2018_05_25_avg_v1'), _defineProperty(_LANG$it, "approve_policy", 'Non hai ancora accettato le ultime Condizioni di Servizio.'), _defineProperty(_LANG$it, "calibrate_weight", 'Calibrazione peso'), _defineProperty(_LANG$it, "calibrate_explanation", 'Imposta il peso del sensore su 0 sottraendo il valore di misura attualmente visualizzato.'), _defineProperty(_LANG$it, "set_as_zero_value", 'Imposta questi valori come Valore 0'), _defineProperty(_LANG$it, "set_weight_factor", 'Definisci il fattore peso'), _defineProperty(_LANG$it, "own_weight_kg", 'Qual\'è il tuo peso in kg?'), _defineProperty(_LANG$it, "start_calibration", 'Ora sali sulla bilancia, premi il bottone sottostante per definire il fattore peso. Distribuisci il tuo peso equamente.'), _defineProperty(_LANG$it, "currently_there_is", 'Il peso è di'), _defineProperty(_LANG$it, "nothing", 'nulla'), _defineProperty(_LANG$it, "on_the_scale", 'sulla bilancia'), _defineProperty(_LANG$it, "calibration_started", 'Calibrazione iniziata... Attendi la prossima misura per renderla effettiva.'), _defineProperty(_LANG$it, "calibration_ended", 'Calibrazione avvenuta con successo!'), _defineProperty(_LANG$it, "server_down", 'La App è al momento non disponibile causa lavori di manutenzione, riprova più tardi'), _defineProperty(_LANG$it, "add_to_calendar", 'Aggiungi al calendario'), _defineProperty(_LANG$it, "sort_on", 'ordina'), _defineProperty(_LANG$it, "Whats_new", 'Nuovo!'), _defineProperty(_LANG$it, "Manual", 'Manuale'), _defineProperty(_LANG$it, "Site_title", 'BEEP | Monitoraggio Alveari'), _defineProperty(_LANG$it, "could_not_create_user", 'L\'utente non può essere creato in questo momento. Ci scusiamo per l\'inconveniente, riprova più tardi.'), _defineProperty(_LANG$it, "email_verified", 'Il tuo indirizzo e-mail è stato verificato.'), _defineProperty(_LANG$it, "email_not_verified", 'Il tuo indirizzo e-mail non è ancora stato verificato.'), _defineProperty(_LANG$it, "email_new_verification", 'Clicca su questo link per inviare una nuova e-mail di verifica.'), _defineProperty(_LANG$it, "email_verification_sent", 'Un messaggio con in link di verifica è stato inviato al tuo indirizzo e-mail. Clicca sul link nella email per attivare il tuo account ed eseguire l\'accesso.'), _defineProperty(_LANG$it, "not_filled", 'è richiesto, ma non compilato'), _defineProperty(_LANG$it, "cannot_deselect", 'Impossibile rimuovere questo elemento, perchè contiene informazioni obbligatorie'), _defineProperty(_LANG$it, "sensor_key", 'Chiave sensore'), _defineProperty(_LANG$it, "Undelete", 'Non cancellare'), _defineProperty(_LANG$it, "the_field", 'Il'), _defineProperty(_LANG$it, "is_required", 'E\' richiesto'), _defineProperty(_LANG$it, "No_groups", 'Non ci sono gruppi disponibili'), _defineProperty(_LANG$it, "not_available_yet", 'non ancora disponibile. Clicca sul bottone in alto a destra per aggiungerne uno.'), _defineProperty(_LANG$it, "Users", 'Utenti'), _defineProperty(_LANG$it, "Member", 'Membro del gruppo'), _defineProperty(_LANG$it, "Members", 'Membri del gruppo'), _defineProperty(_LANG$it, "Invite", 'Invita'), _defineProperty(_LANG$it, "Invited", 'Invitato'), _defineProperty(_LANG$it, "invitations", 'inviti'), _defineProperty(_LANG$it, "Admin", 'Amministratore'), _defineProperty(_LANG$it, "Creator", 'Proprietario del gruppo'), _defineProperty(_LANG$it, "Groups", 'Collabora'), _defineProperty(_LANG$it, "Group", 'Gruppo di collaborazione'), _defineProperty(_LANG$it, "group", 'gruppo di collaborazione'), _defineProperty(_LANG$it, "to_share", 'per condividere con questo gruppo. clicca 1 = i membri del gruppo possono solo vedere, clicca 2 = i membri del gruppo possono modificare'), _defineProperty(_LANG$it, "Invitation_accepted", 'Invito accettato'), _defineProperty(_LANG$it, "Accept", 'Accetta'), _defineProperty(_LANG$it, "My_shared", 'Le mie condivisioni'), _defineProperty(_LANG$it, "invitee_name", 'Nome dell\'invitato'), _defineProperty(_LANG$it, "Remove_group", 'Sei sicuro di voler completamente rimuovere questo gruppo per tutti i suoi membri?'), _defineProperty(_LANG$it, "Detach_from_group", 'Rimuovi me ed i miei alveari da questo gruppo'), _defineProperty(_LANG$it, "my_hive", 'Il mio alveare'), _defineProperty(_LANG$it, "created", 'creato'), _defineProperty(_LANG$it, "group_detached", 'Gruppo abbandonato con successo'), _defineProperty(_LANG$it, "group_activated", 'Invito al gruppo accettato'), _defineProperty(_LANG$it, "group_explanation_1", '1. Crea un nuovo gruppo di collaborazione con un nome chiaro, e una (opzionale) descrizione'), _defineProperty(_LANG$it, "group_explanation_2", '2. Invita altri utenti Beep tramite il loro indirizzo e-mail Beep'), _defineProperty(_LANG$it, "group_explanation_3", '3. Condividi specifici alveari per essere visti da altri o consentire loro di collaborare'), _defineProperty(_LANG$it, "Filter_and_sort_on", 'Ordina e filtra:'), _defineProperty(_LANG$it, "roofed", 'L\'apiario ha un tetto?'), _defineProperty(_LANG$it, "info", 'Info'), _defineProperty(_LANG$it, "research", 'Ricerca'), _defineProperty(_LANG$it, "research_explanation", 'Questa schermata contiene le rierche disponibili per cui puoi decidere di condividere i dati. Quando consenti di la condivisione dei dati del tuo account BEEP, stai contribuendo alla ricerca per migliorare la salute delle api. Prima di acconsentire, prego rileggi la descrizione della ricerca tramite il link sottostante e chiedi informazioni aggiuntive se necessario. Puoi revocare il tuo consenso in ogni momento, e nessun ulteriore dato sarà più condiviso a partire da quel momento. I dati che tu hai già condiviso durante il periodo di consenso, resteranno disponibili alla ricerca. In caso di dubbi, contatta la persona di riferimento.'), _defineProperty(_LANG$it, "research_info", 'Condividendo i tuoi dati con i ricercatori, li aiuterai ad analizzare più dati ed ottenere conclusioni migliori.'), _defineProperty(_LANG$it, "start_date", 'Data di inizio'), _defineProperty(_LANG$it, "end_date", 'Data di fine'), _defineProperty(_LANG$it, "purpose", 'Scopo della ricerca'), _defineProperty(_LANG$it, "institution", 'Istituto di ricerca'), _defineProperty(_LANG$it, "type_of_data_used", 'Utilizzo dei dati'), _defineProperty(_LANG$it, "link", 'Link'), _defineProperty(_LANG$it, "Consent", 'Consenti'), _defineProperty(_LANG$it, "history", 'storia'), _defineProperty(_LANG$it, "Current_consent", 'Consenso attuale'), _defineProperty(_LANG$it, "consent_yes", 'Acconsento a condividere i miei dati'), _defineProperty(_LANG$it, "consent_no", 'NON acconsento a condividere i miei dati'), _defineProperty(_LANG$it, "my_beep_data", 'I miei dati BEEP'), _defineProperty(_LANG$it, "Consent_can_only_be_set", 'Il consenso può essere adatto solo a'), _defineProperty(_LANG$it, "earlier", 'una precedente'), _defineProperty(_LANG$it, "later", 'una successiva'), _defineProperty(_LANG$it, "new_apiary_explanation", 'Crea un nuovo apiario in 4 passaggi'), _defineProperty(_LANG$it, "start_here", 'Clicca qui per iniziare'), _defineProperty(_LANG$it, "optional", 'opzionale'), _defineProperty(_LANG$it, "dimensions", 'dimansioni'), _defineProperty(_LANG$it, "details", 'dettagli'), _defineProperty(_LANG$it, "configuration", 'configurazione'), _defineProperty(_LANG$it, "adjustments", 'adattamenti'), _defineProperty(_LANG$it, "changes_queen_color", 'modifica i cambi di colore'), _defineProperty(_LANG$it, "Brood_box_and_frame", 'Camera di covata e telai'), _defineProperty(_LANG$it, "Hive_order", 'Ordina gli alveari nell\'apiario'), _defineProperty(_LANG$it, "bb_width_cm", 'Larghezza camera di covata (cm)'), _defineProperty(_LANG$it, "bb_height_cm", 'Altezza camera di covata (cm)'), _defineProperty(_LANG$it, "bb_depth_cm", 'Profondità camera di covata (cm)'), _defineProperty(_LANG$it, "fr_width_cm", 'Larghezza telaio (cm)'), _defineProperty(_LANG$it, "fr_height_cm", 'Altezza telatio (cm)'), _defineProperty(_LANG$it, "queen_line", 'linea'), _defineProperty(_LANG$it, "queen_tree", 'genealogia'), _defineProperty(_LANG$it, "queen_description", 'note'), _defineProperty(_LANG$it, "Hive_short", 'Alveare'), _defineProperty(_LANG$it, "Images", 'Immagini'), _defineProperty(_LANG$it, "Size", 'Dimensione'), _defineProperty(_LANG$it, "preview", 'anteprima'), _defineProperty(_LANG$it, "Sensor_definitions", 'Definizioni del sensore'), _defineProperty(_LANG$it, "Inside", 'Misure interne'), _defineProperty(_LANG$it, "Offset", 'Compensazione'), _defineProperty(_LANG$it, "Multiplier", 'Moltiplicatore'), _defineProperty(_LANG$it, "Input", 'Ingresso'), _defineProperty(_LANG$it, "Output", 'Uscita'), _defineProperty(_LANG$it, "Last", 'Ultimo'), _defineProperty(_LANG$it, "Export_sensor_data", 'Esporta tutti i dati per ogni dispositivo nella massima risoluzione possibile in formato .csv che potrai aprire in Excel, o SPSS. NB: La data e l\'orario nella colonna \'time\' è mostrato nel fuso di Greenwich (GMT), formattato nello standard RFC 3339.'), _defineProperty(_LANG$it, "CSV_export_separator", 'separatore di colonne per i dati CSV'), _defineProperty(_LANG$it, "Selected_date", 'Seleziona un intervallo di tempo'), _defineProperty(_LANG$it, "Sensor_measurements", 'Misurazioni del sensore'), _defineProperty(_LANG$it, "too_much_data", 'Troppi dati da processare, prego seleziona un minor numero di misurazioni del sensore, o riduci l\'intervallo di tempo.'), _defineProperty(_LANG$it, "beep_base_explanation", 'Se hai un dispositivo BEEP (mostrato nella foto sopra), per favore usa la App nativa (iOS e Android) per l\'installazione e per impostare la comunicazione con la App. Se ancora non hai un dispositivo BEEP, premi sul menu l\'opzione  \'sitoweb BEEP\' per aggiornamenti su come ottenerne uno. Se hai un tuo dispositivo di rilevazione dati e vuoi importare i dati nella App BEEP, mandaci un messaggio di richiesta per unirti alla nostra communuty su Slack, e potrai avere accesso alle descrizioni API.'), _defineProperty(_LANG$it, "sample_code_hive", 'Prima seleziona un alveare, per generare un codice campione univoco'), _defineProperty(_LANG$it, "sample_code_generate", 'Genera un codice campione univoco'), _defineProperty(_LANG$it, "sample_code_delete", 'Cancella codice campione univoco'), _defineProperty(_LANG$it, "measurement_interval", 'intervallo'), _defineProperty(_LANG$it, "from_weather_service", 'dal servizio meteo'), _LANG$it);
+/*
+ * Beep - Translations
+ * Author: Pim van Gennip (pim@iconize.nl)
+ *
+ */
+
+LANG['fi'] = (_LANG$fi = {
+  /* Date picker */
+  monthsFull: ['Tammikuu', 'Helmikuu', 'Maaliskuu', 'Huhtikuu', 'Toukokuu', 'Kesäkuu', 'Heinäkuu', 'Elokuu', 'Syyskuu', 'Lokakuu', 'Marrakuu', 'Joulukuu'],
+  monthsShort: ['Tammi', 'Helmi', 'Maalis', 'Huhti', 'Touko', 'Kesä', 'Heinä', 'Elo', 'Syys', 'Loka', 'Marras', 'Joulu'],
+  weekdaysFull: ['Sunnuntai', 'Maanantai', 'Tiistai', 'Keskiviikko', 'Torstai', 'Perjantai', 'Lauantai'],
+  weekdaysShort: ['Su', 'Ma', 'Ti', 'Ke', 'To', 'Pe', 'La'],
+  Today: 'Tänään',
+  Clear: 'Poista',
+  Close: 'Sulje',
+  firstDay: 1,
+  format: 'pppp p kkkk vvvv',
+
+  /* main */
+  Website: 'Verkkosivu',
+  Feedback: 'Palaute',
+  Feedback_mail_header: 'Beep app palaute',
+  Feedback_mail_body: 'Hyvä Beep Säätiö,%0D%0A%0D%0ATässä palautteeni about the Beep sovelluksesta.%0D%0A%0D%0AHuomasin että:%0D%0A%0D%0AJuuri ennen kuin näin tapahtui, tein:%0D%0A%0D%0ANäyttö näytti tältä (lisää kuvakaappaus):%0D%0A%0D%0A%0D%0A%0D%0A',
+  Diagnostic_info: 'Diagnostiikkatiedot (jos kyseessä on bugi):%0D%0A',
+  back: 'Takaisin',
+  menu: 'Valikko',
+  lighting: 'Kirkkaus',
+  camera: 'Kamera',
+  weather: 'Sää',
+  sensors: 'Laitteet',
+  sensors_na: 'BEEP pesiesi etävalvontasensorit ovat pian saatavilla...',
+  no_valid_authentication: 'Todennustietoja ei vastaanotettu',
+  succesfully_saved: 'Tallennettu onnistuneesti',
+  switch_language: 'Vaihda kieli',
+  Delete: 'Poista',
+  Search: 'Hae...',
+
+  /* user error messages */
+  User: 'Käyttäjä',
+  User_data: 'Käyttäjän tiedot',
+  user_data: 'käyttäjän tiedot',
+  updated: 'päivitetty',
+  delete_complete_account: 'Oletko varma että haluat poistaa koko tilisi mukaanlukien kaikki mehiläistarhat, pesät ja pesätarkastukset? Tietoja ei voi palauttaa.',
+  username_is_required: 'Anna käyttäjätunnus',
+  username_already_exists: 'Käyttäjätunnus on jo olemassa',
+  password_is_required: 'Anna salasana',
+  email_is_required: 'Anna sähköpostiosoite',
+  email_already_exists: 'Sähköpostiosoite on jo käytössä',
+  'policy accepted_is_required': 'Hyväksy käyttöehdot ennen rekisteröintiä',
+  already_registered: 'Olen jo rekisteröitynyt',
+  invalid_user: 'Käyttäjätunnus tuntematon tai väärä salasana',
+  invalid_password: 'Salasana on liian lyhyt (vähintään 8 merkkiä)',
+  no_password_match: 'Salasanat eivät täsmää',
+  invalid_token: 'Virheellinen koodi',
+  no_valid_email: 'Virheellinen sähköpostiosoite',
+  empty_fields: 'Täytä kaikki kentät',
+  match_passwords: 'Salasanat eivät täsmää',
+  succesfully_registered: 'Olet rekisteröitynyt onnistuneesti.',
+  authentication_failed: 'Tunnistautminen epäonnistui',
+  no_valid_input_received: 'Tietoja ei voitu tallentaa, oikeanlaista tietoa ei vastaanotettu.',
+  remove_all_settings: 'Poista kaikki asetukset',
+  remove_apiary: 'Poista mehiläistarha',
+  remove_hive: 'Poista pesä',
+  remove_inspection: 'Poista pesätarkastus',
+  Error: 'Virhe',
+  Warning: 'Varoitus',
+  first_remove_hives: 'Huomio: tällä tarhalla on vielä pesiä. Voit tallentaa haluamasi pesät (ja niiden tarkastukset) siirtämällä ne ensin toiseen mehiläistarhaan. Jos jatkat poistamista, poistat KAIKKI tämän tarhapaikan pesät ja niiden tarkastukset.',
+  Date: 'Päivämäärä',
+  ok: 'Ok',
+  previous: 'Edellinen',
+  prev: 'edellinen',
+  next: 'Seuraava',
+  add: 'Lisää',
+  create_new: 'Lisää uusi',
+  New: 'Uusi',
+  warning: 'Varoitus',
+  apply: 'Ota käyttöön',
+  Cancel: 'Peruuta',
+  automatic: 'Automaattinen',
+  manually: 'Manuaalinen',
+  on: 'On',
+  off: 'Off',
+
+  /* login */
+  login_title: 'Kirjaudu',
+  login: 'Kirjaudu',
+  back_to_login: 'Takaisin kirjatumiseen',
+  forgot_password: 'Unohditko salasanasi?',
+  username: 'Käyttäjätunnus',
+  password: 'Salasana',
+  confirm_password: 'Vahvista salasana',
+  email: 'Sähköposti',
+  token: 'Koodi',
+  create_login_question: 'Minulla ei ole tiliä. Rekisteröidy uudeksi käyttäjäksi',
+  create_login: 'Rekisteröidy uudeksi käyttäjäksi',
+  create_login_summary: 'Luo uusi käyttäjätili',
+  save: 'Tallenna',
+  save_and_return: 'Tallenna ja palaa',
+  logout: 'Kirjaudu ulos',
+  logout_title: 'Kirjaudu ulos tililtä',
+  logout_now: 'Haluatko varmasti kirjautua ulos?',
+  member_since: 'Jäsen alkaen',
+
+  /* password recovery */
+  password_recovery_title: 'Unohditko salasanasi?',
+  password_recovery_remembered: 'Nyt muistin salasanani taas!',
+  password_recovery_user: 'Käyttäjän tiedot',
+  password_recovery_send_mail: 'Lähetä vahvistuskoodi',
+  password_recovery_code_not_received: 'Etkö saanut koodia 5 minuutissa?',
+  password_recovery_enter_code: 'Onko sinulla jo vahvistuskoodi? Kirjoita se tähän',
+  password_recovery_reset_title: 'Syötä uusi salasana',
+  password_recovery_reset_password: 'Vaihda salasana',
+  password_recovery_reminder_success: 'Sähköposti on lähetetty. Klikkaa sähköpostissa olevaa linkkiä vaihtaaksesi salasanan tälle tilille.',
+  password_recovery_reminder_summary: 'Syötä sähköpostiosoitteesi. Saat sähköpostin, jossa on linkki salasanan vaihtamiseen.',
+  password_recovery_reset_summary: 'Määritä uusi salasana tilillesi saamallasi koodilla',
+  password_recovery_reset_success: 'Salasanasi vaihtaminen onnistui ja olet nyt kirjautunut sisään.',
+  new_password: 'Uusi salasana',
+  confirm_new_password: 'Vahvista uusi salasana',
+  go_to_dashboard: 'Mene hallintapaneeliini',
+
+  /* overview */
+  overview_title: 'Yhteenveto',
+  overview: 'Yhteenveto',
+  color: 'Väri',
+  state: 'On/off',
+  connection_state: 'Yhteyden tila',
+
+  /* hives */
+  locations_title: 'Beep',
+  hives_title: 'Beep',
+  Hive: 'Pesä',
+  hive: 'Pesä',
+  Location: 'Mehiläistarha',
+  location: 'Mehiläistarha',
+  Hives: 'Pesät',
+  hives: 'Pesät',
+  Locations: 'Mehiläistarhat',
+  locations: 'Mehiläistarhat',
+  Name: 'Nimi',
+  name: 'Nimi',
+  Type: 'Tyyppi',
+  type: 'tyyppi',
+  Layer: 'Osasto',
+  layer: 'Osasto',
+  brood: 'Sikiöt',
+  honey: 'Hunaja',
+  inspect: 'Tarkasta',
+  inspection: 'tarkastus',
+  Inspection: 'Tarkastus',
+  Inspections: 'Tarkastukset',
+  New_inspection: 'Uusi tarkastus',
+  Edit_inspection: 'Muokkaa tarkastusta',
+  Actions: 'Toimenpiteet',
+  Conditions: 'Olosuhteet (tarkastettu)',
+  edit: 'Muokkaa',
+  Hive_brood_layers: 'Sikiö osastot',
+  Hive_honey_layers: 'Hunaja osastot',
+  Hive_layer_amount: 'Osastojen määrä',
+  Bee_race: 'Mehiläisten rotu',
+  Birth_date: 'Syntymäpäivä',
+  Color: 'Väri',
+  Queen_colored: 'Emo merkattu',
+  Queen_clipped: 'Emo siivet typistetty',
+  Queen_fertilized: 'Emo pariutunut',
+  Age: 'Ikä',
+  year: 'vuotta vanha',
+
+  /* Hive check items */
+  Date_of_inspection: 'Tarkastuspäivämäärä',
+  action: 'Toimenpide',
+  reminder: 'Muista',
+  remind_date: 'Muistutuspäivä',
+  overall: 'Yleiskuva',
+  positive_impression: 'Yleisarvio',
+  needs_attention: 'Tarvitsee lisähuomiota',
+  notes: 'Muistiinpanot',
+  notes_for_next_inspection: 'Lyhyt muistiinpano seuraavaa tarkastuskertaa varten (näkyy yleiskatsauksessa)',
+  Not_implemented_yet: 'Tätä kohdetta ei ole vielä otettu käyttöön',
+  save_input_first: 'Haluatko tallentaa tiedot ensin?',
+
+  /* dashboard */
+  dashboard_title: 'Hallintapaneeli',
+  dashboard: 'Hallintapaneeli',
+  measurements: 'Mittaukset',
+  measurementsError: 'Mittauksia ei voi ladata, tarkista verkkoyhteys',
+  last_measurement: 'Viimeisin mittaus',
+  at: 'klo',
+  measurement_system: 'Beep mittausjärjestelmä',
+  no_data: 'Tietoja ei käytettävissä',
+  no_chart_data: 'Ei kaaviotietoja valitulta ajanjaksolta',
+
+  /* settings */
+  General: 'Yleisasetukset',
+  Place: 'Sijainti',
+  Country: 'Maa',
+  City: 'Kaupunki',
+  Address: 'Osoite',
+  Lattitude: 'Leveysaste',
+  Longitude: 'Pituusaste',
+  Street: 'Katu',
+  Number: 'Numero',
+  Postal_code: 'Postinumero',
+  Description: 'Kuvaus',
+  Hive_settings: 'Pesän asetukset',
+  Hive_amount: 'Pesien määrä täällä tarhapaikalla',
+  Hive_prefix: 'Pesän nimen etuliite (ennen numeroa)',
+  Hive_number_offset: 'Pesien alkunumero',
+  Hive_type: 'Pesätyyppi',
+  Hive_layers: 'Pesän osastot',
+  Hive_frames: 'Kehiä per osasto',
+  Hive_color: 'Pesän väri',
+  Queen: 'Emo',
+  queen: 'emo',
+  settings_title: 'Asetukset',
+  settings_description: 'Anturien asetukset',
+  settings: 'asetukset',
+  sensors_title: 'Laiteasetukset',
+  sensors_description: 'Laitteiden tila ja rekisteröinti'
+}, _defineProperty(_LANG$fi, "sensors", 'Laitteet'), _defineProperty(_LANG$fi, "sensor", 'laite'), _defineProperty(_LANG$fi, "Select", 'Valitse'), _defineProperty(_LANG$fi, "Not_selected", 'Ei valittu'), _defineProperty(_LANG$fi, "Poor", 'Huono'), _defineProperty(_LANG$fi, "Fair", 'Kohtalainen'), _defineProperty(_LANG$fi, "Average", 'Keskimääräinen'), _defineProperty(_LANG$fi, "Good", 'Hyvä'), _defineProperty(_LANG$fi, "Excellent", 'Erinomainen'), _defineProperty(_LANG$fi, "Low", 'Matala'), _defineProperty(_LANG$fi, "Medium", 'Keskitaso'), _defineProperty(_LANG$fi, "High", 'Korkea'), _defineProperty(_LANG$fi, "Extreme", 'äärimmäinen'), _defineProperty(_LANG$fi, "select_color", 'Valitse väri'), _defineProperty(_LANG$fi, "advanced", 'Lisäasetukset'), _defineProperty(_LANG$fi, "Select_sensor", 'Valitse anturi'), _defineProperty(_LANG$fi, "temperature", 'Lämpötila'), _defineProperty(_LANG$fi, "t", 'Lämpötila'), _defineProperty(_LANG$fi, "t_0", 'Lämpötila 1'), _defineProperty(_LANG$fi, "t_1", 'Lämpötila 2'), _defineProperty(_LANG$fi, "t_2", 'Lämpötila 3'), _defineProperty(_LANG$fi, "t_3", 'Lämpötila 4'), _defineProperty(_LANG$fi, "t_4", 'Lämpötila 5'), _defineProperty(_LANG$fi, "t_5", 'Lämpötila 6'), _defineProperty(_LANG$fi, "t_6", 'Lämpötila 7'), _defineProperty(_LANG$fi, "t_7", 'Lämpötila 8'), _defineProperty(_LANG$fi, "t_8", 'Lämpötila 9'), _defineProperty(_LANG$fi, "t_9", 'Lämpötila 10'), _defineProperty(_LANG$fi, "light", 'Auringonvalo'), _defineProperty(_LANG$fi, "l", 'Auringonvalo'), _defineProperty(_LANG$fi, "water", 'Vesi'), _defineProperty(_LANG$fi, "w", 'Vesi'), _defineProperty(_LANG$fi, "humidity", 'Kosteus'), _defineProperty(_LANG$fi, "h", 'Kosteus'), _defineProperty(_LANG$fi, "air_pressure", 'Ilmanpaine'), _defineProperty(_LANG$fi, "p", 'Ilmanpaine'), _defineProperty(_LANG$fi, "weight", 'Paino'), _defineProperty(_LANG$fi, "w_v", 'Painoanturin arvo kaikki anturit'), _defineProperty(_LANG$fi, "w_fl", 'Painoanturin arvo etu vasen'), _defineProperty(_LANG$fi, "w_fr", 'Painoanturin arvo etu oikea'), _defineProperty(_LANG$fi, "w_bl", 'Painoanturin arvo taka vasen'), _defineProperty(_LANG$fi, "w_br", 'Painoanturin arvo taka oikea'), _defineProperty(_LANG$fi, "weight_kg", 'Paino'), _defineProperty(_LANG$fi, "weight_kg_corrected", 'Paino (corr)'), _defineProperty(_LANG$fi, "weight_combined_kg", 'Paino yhdistelmä'), _defineProperty(_LANG$fi, "bat_volt", 'Akku'), _defineProperty(_LANG$fi, "bv", 'Akku'), _defineProperty(_LANG$fi, "sound_fanning_4days", 'Tuuletus 4pv mehiläiset'), _defineProperty(_LANG$fi, "s_fan_4", 'Tuuletus 4pv mehiläiset'), _defineProperty(_LANG$fi, "sound_fanning_6days", 'Tuuletus 6pv mehiläiset'), _defineProperty(_LANG$fi, "s_fan_6", 'Tuuletus 6pv mehiläiset'), _defineProperty(_LANG$fi, "sound_fanning_9days", 'Tuuletus 9pv mehiläiset'), _defineProperty(_LANG$fi, "s_fan_9", 'Tuuletus 9pv mehiläiset'), _defineProperty(_LANG$fi, "sound_flying_adult", 'Lentomehiläiset'), _defineProperty(_LANG$fi, "s_fly_a", 'Lentomehiläiset'), _defineProperty(_LANG$fi, "sound_total", 'ääni yhteensä'), _defineProperty(_LANG$fi, "s_tot", 'ääni yhteensä'), _defineProperty(_LANG$fi, "s_spl", 'äänen painetaso'), _defineProperty(_LANG$fi, "bee_count_in", 'Mehiläisten määrä sisään'), _defineProperty(_LANG$fi, "bc_i", 'Mehiläisten määrä sisään'), _defineProperty(_LANG$fi, "bee_count_out", 'Mehiläisten määrä ulos'), _defineProperty(_LANG$fi, "bc_o", 'Mehiläisten määrä ulos'), _defineProperty(_LANG$fi, "t_i", 'Sisälämpötila'), _defineProperty(_LANG$fi, "rssi", 'Signaalin voimakkuus'), _defineProperty(_LANG$fi, "snr", 'Signaali kohina'), _defineProperty(_LANG$fi, "lat", 'Leveysaste'), _defineProperty(_LANG$fi, "lon", 'Pituusaste'), _defineProperty(_LANG$fi, "Sound_measurements", 'äänen mittaukset'), _defineProperty(_LANG$fi, "Sensor_info", 'Anturin tiedot'), _defineProperty(_LANG$fi, 's_bin098_146Hz', '098-146Hz'), _defineProperty(_LANG$fi, 's_bin146_195Hz', '146-195Hz'), _defineProperty(_LANG$fi, 's_bin195_244Hz', '195-244Hz'), _defineProperty(_LANG$fi, 's_bin244_293Hz', '244-293Hz'), _defineProperty(_LANG$fi, 's_bin293_342Hz', '293-342Hz'), _defineProperty(_LANG$fi, 's_bin342_391Hz', '342-391Hz'), _defineProperty(_LANG$fi, 's_bin391_439Hz', '391-439Hz'), _defineProperty(_LANG$fi, 's_bin439_488Hz', '439-488Hz'), _defineProperty(_LANG$fi, 's_bin488_537Hz', '488-537Hz'), _defineProperty(_LANG$fi, 's_bin537_586Hz', '537-586Hz'), _defineProperty(_LANG$fi, 'icon', 'Kuvake'), _defineProperty(_LANG$fi, 'precipIntensity', 'Sademäärä'), _defineProperty(_LANG$fi, 'precipProbability', 'Sateen todennäköisyys'), _defineProperty(_LANG$fi, 'precipType', 'Sade tyyppi'), _defineProperty(_LANG$fi, "temperature", 'Ulkolämpötila'), _defineProperty(_LANG$fi, 'apparentTemperature', 'Näkyvä lämpötila'), _defineProperty(_LANG$fi, 'dewPoint', 'Kastepiste'), _defineProperty(_LANG$fi, "humidity", 'Kosteus'), _defineProperty(_LANG$fi, 'pressure', 'Ilmanpaine'), _defineProperty(_LANG$fi, 'windSpeed', 'Tuulennopeus'), _defineProperty(_LANG$fi, 'windGust', 'Tuuli puuskissa'), _defineProperty(_LANG$fi, 'windBearing', 'Tuulen suunta'), _defineProperty(_LANG$fi, 'cloudCover', 'Pilvisyys'), _defineProperty(_LANG$fi, 'uvIndex', 'UV indeksi'), _defineProperty(_LANG$fi, 'visibility', 'Näkyvyys'), _defineProperty(_LANG$fi, 'ozone', 'Otsoni'), _defineProperty(_LANG$fi, "hour", 'Tunti'), _defineProperty(_LANG$fi, "day", 'Päivä'), _defineProperty(_LANG$fi, "week", 'Viikko'), _defineProperty(_LANG$fi, "month", 'Kuukausi'), _defineProperty(_LANG$fi, "year", 'Vuosi'), _defineProperty(_LANG$fi, "could_not_load_settings", 'Asetuksia ei voitu ladata'), _defineProperty(_LANG$fi, "offline", 'Ei yhteyttä'), _defineProperty(_LANG$fi, "remote", 'Etä'), _defineProperty(_LANG$fi, "connected", 'Suora'), _defineProperty(_LANG$fi, "yes", 'Kyllä'), _defineProperty(_LANG$fi, "no", 'Ei'), _defineProperty(_LANG$fi, "footer_text", 'Avoimen lähdekoodin mehiläistarhausta'), _defineProperty(_LANG$fi, "beep_foundation", 'BEEP säätiö'), _defineProperty(_LANG$fi, "Checklist", 'Tarkistuslista'), _defineProperty(_LANG$fi, "Checklist_items", 'Tarkistuslistan kohteet'), _defineProperty(_LANG$fi, "edit_hive_checklist", 'Lisää/poista kohteita pesän tarkastuslistalta valitsemalla ruutu/poistamalla valinta. Voit myös järjestää kohteet haluamaasi järjestykseen vetämällä ja pudottamalla. Vinkki: jos kirjoitat termin hakukenttään, kaikki kyseistä termiä sisältävät kohteet muuttuvat punaisiksi.'), _defineProperty(_LANG$fi, "Data_export", 'Vie tiedot'), _defineProperty(_LANG$fi, "Export_your_data", 'Vie kaikki Beep-tililläsi olevat tiedot ja lähetä Excel-tiedostona sähköpostissa. Excel-tiedostossa on oma välilehti henkilökohtaisille, pesän, tarhapaikan ja tarkastusten tiedoille.'), _defineProperty(_LANG$fi, "Terms_of_use", 'Käyttöehdot'), _defineProperty(_LANG$fi, "accept_policy", 'Hyväksyn BEEP-palveluehdot, jotka ovat uuden eurooppalaisen tietosuojalain mukaiset.'), _defineProperty(_LANG$fi, "policy_url", 'https://beep.nl/terms-of-service'), _defineProperty(_LANG$fi, "policy_version", 'beep_terms_2018_05_25_avg_v1'), _defineProperty(_LANG$fi, "approve_policy", 'Et ole vielä hyväksynyt viimeisimpiä käyttöehtoja'), _defineProperty(_LANG$fi, "calibrate_weight", 'Kalibroi paino'), _defineProperty(_LANG$fi, "calibrate_explanation", 'Nollaa anturipaino vähentämällä nykyinen mittausarvo.'), _defineProperty(_LANG$fi, "set_as_zero_value", 'Aseta nämä arvot 0 arvoiksi'), _defineProperty(_LANG$fi, "set_weight_factor", 'Määritä painokerroin'), _defineProperty(_LANG$fi, "own_weight_kg", 'Mikä on oma painosi kiloina?'), _defineProperty(_LANG$fi, "start_calibration", 'Astu nyt vaaalle ja paina alla olevaa nappia määritelläksesi painokertoimen. Jaa painosi tasaisesti.'), _defineProperty(_LANG$fi, "currently_there_is", 'Paino on'), _defineProperty(_LANG$fi, "nothing", 'ei mitään'), _defineProperty(_LANG$fi, "on_the_scale", 'vaaalla'), _defineProperty(_LANG$fi, "calibration_started", 'Kalibrointi aloitettu... Odota kunnes seuraava mittaus tulee voimaan.'), _defineProperty(_LANG$fi, "calibration_ended", 'Kalibrointi onnistui!'), _defineProperty(_LANG$fi, "server_down", 'Sovellus ei ole käytössä huoltotöiden takia. Yritä myöhemmin uudelleen'), _defineProperty(_LANG$fi, "add_to_calendar", 'Lisää kalenteriin'), _defineProperty(_LANG$fi, "sort_on", 'Lajittelu päällä'), _defineProperty(_LANG$fi, "Whats_new", 'Uutta!'), _defineProperty(_LANG$fi, "Manual", 'Ohjeet'), _defineProperty(_LANG$fi, "Site_title", 'BEEP | Mehiläismonitori'), _defineProperty(_LANG$fi, "could_not_create_user", 'Käyttäjää ei voida luoda tällä hetkellä.Pahoittelemme häiriötä, yritä myöhemmin uudelleen.'), _defineProperty(_LANG$fi, "email_verified", 'Your e-mail address has been verified.'), _defineProperty(_LANG$fi, "email_not_verified", 'Sähköpostiosoitettasi ei ole vielä vahvistettu'), _defineProperty(_LANG$fi, "email_new_verification", 'Klikkaa tätä linkkiä lähettääksesi uuden vahvistussähköpostin'), _defineProperty(_LANG$fi, "email_verification_sent", 'Vahvistuslinkillä varustettu viesti on lähetetty sähköpostiosoitteeseesi. Aktivoi tilisi ja kirjaudu sisään napsauttamalla sähköpostissa olevaa linkkiä.'), _defineProperty(_LANG$fi, "not_filled", 'Vaaditaan, mutta ei täytetä'), _defineProperty(_LANG$fi, "cannot_deselect", 'Tätä kohdetta ei voi poistaa, koska se sisältää pakollista tietoa'), _defineProperty(_LANG$fi, "sensor_key", 'Anturi näppäin'), _defineProperty(_LANG$fi, "Undelete", 'älä poista'), _defineProperty(_LANG$fi, "the_field", 'Kenttä'), _defineProperty(_LANG$fi, "is_required", 'on pakollinen'), _defineProperty(_LANG$fi, "No_groups", 'Ryhmiä ei ole käytettävissä'), _defineProperty(_LANG$fi, "not_available_yet", 'Ei vielä käytettävissä. Klikkaa yläkulmassa olevaa painiketta lisätäksesi ryhmän.'), _defineProperty(_LANG$fi, "Users", 'Käyttäjät'), _defineProperty(_LANG$fi, "Member", 'Ryhmän jäsen'), _defineProperty(_LANG$fi, "Members", 'Ryhmän jäsenet'), _defineProperty(_LANG$fi, "Invite", 'Kutsu'), _defineProperty(_LANG$fi, "Invited", 'Kutsuttu'), _defineProperty(_LANG$fi, "invitations", 'Kutsutut'), _defineProperty(_LANG$fi, "Admin", 'Järjestelmänvalvoja'), _defineProperty(_LANG$fi, "Creator", 'Ryhmän omistaja'), _defineProperty(_LANG$fi, "Groups", 'Tee yhteistyötä'), _defineProperty(_LANG$fi, "Group", 'Yhteistyöryhmä'), _defineProperty(_LANG$fi, "group", 'Yhteistyöryhmä'), _defineProperty(_LANG$fi, "to_share", 'Jaa tämän ryhmän kanssa. 1 napsautus = Ryhmän jäsenillä vain lukuoikeus 2 napsautusta = Ryhmän jäsenet voivat muokata'), _defineProperty(_LANG$fi, "Invitation_accepted", 'Kutsu hyväksytty'), _defineProperty(_LANG$fi, "Accept", 'Hyväksy'), _defineProperty(_LANG$fi, "My_shared", 'Jaetut'), _defineProperty(_LANG$fi, "invitee_name", 'Kutsutun nimi'), _defineProperty(_LANG$fi, "Remove_group", 'Oletko varma että haluat poistaa tämän ryhmän kokonaan kaikilta sen jäseniltä?'), _defineProperty(_LANG$fi, "Detach_from_group", 'Poista minut ja pesäni tästä ryhmästä'), _defineProperty(_LANG$fi, "my_hive", 'Minun pesäni'), _defineProperty(_LANG$fi, "created", 'Luotu'), _defineProperty(_LANG$fi, "group_detached", 'Poistuit ryhmästä onnistuneesti'), _defineProperty(_LANG$fi, "group_activated", 'Ryhmäkutsu hyväksytty'), _defineProperty(_LANG$fi, "group_explanation_1", '1. Luo uusi yhteistyöryhmä, jolla on selkeä otsikko ja valinnainen kuvaus'), _defineProperty(_LANG$fi, "group_explanation_2", '2. Kutsu muita Beep käyttäjiä sähköpostilla'), _defineProperty(_LANG$fi, "group_explanation_3", '3. Jaa tietyt pesät, joita muut voivat tarkastella ja tehdä yhteistyötä'), _defineProperty(_LANG$fi, "Filter_and_sort_on", 'Suodata ja lajittele:'), _defineProperty(_LANG$fi, "roofed", 'Onko mehiläistarhalla katos?'), _defineProperty(_LANG$fi, "info", 'Info'), _defineProperty(_LANG$fi, "research", 'Tutkimus'), _defineProperty(_LANG$fi, "research_explanation", 'Tästä näytöstä löydät tutkimukset, joiden kanssa voit jakaa tietosi. Kun annat suostumuksesi BEEB tilisi tietojen käyttöön, osallistut tutkimukseen, joka tukee mehiläisten terveyttä. Ennen kuin annat suostumuksesi, tutustu tutkimuksen kuvaukseen alla olevan linkin kautta ja pyydä tarvittaessa lisätietoja.Voit peruuttaa suostumuksesi milloin tahansa, uusia tietoja ei jaeta siitä hetkestä lähtien. Tiedot, jotka annoit suostumusen aikana, ovat edelleen tutkimuksen käytettävissä. Jos sinulla on kysyttävää, ole hyvä ja ota yhteyttä alla ilmoitettuun yhteyshenkilöön.'), _defineProperty(_LANG$fi, "research_info", 'Jakamalla tietosi tutkijoiden kanssa autat heitä analysoimaan enemmän tietoa ja tekemään parempia johtopäätöksiä tutkimuksessaan.'), _defineProperty(_LANG$fi, "start_date", 'Aloituspäivämäärä'), _defineProperty(_LANG$fi, "end_date", 'Päättymispäivämäärä'), _defineProperty(_LANG$fi, "purpose", 'Tutkimuksen tarkoitus'), _defineProperty(_LANG$fi, "institution", 'Tutkimuslaitos'), _defineProperty(_LANG$fi, "type_of_data_used", 'Datan käyttö'), _defineProperty(_LANG$fi, "link", 'Linkki'), _defineProperty(_LANG$fi, "Consent", 'Suostumus'), _defineProperty(_LANG$fi, "history", 'Historia'), _defineProperty(_LANG$fi, "Current_consent", 'Nykyinen suostumus'), _defineProperty(_LANG$fi, "consent_yes", 'Suostun jakamaan tietoni'), _defineProperty(_LANG$fi, "consent_no", 'EN suostu jakamaan tietojani'), _defineProperty(_LANG$fi, "my_beep_data", 'Oma BEEP datani'), _defineProperty(_LANG$fi, "Consent_can_only_be_set", 'Suostumus voidaan muuttaa vain'), _defineProperty(_LANG$fi, "earlier", 'aiempi'), _defineProperty(_LANG$fi, "later", 'myöhempi'), _defineProperty(_LANG$fi, "new_apiary_explanation", 'Luo uusi mehiläistarha neljässä vaiheessa'), _defineProperty(_LANG$fi, "start_here", 'Aloita tästä'), _defineProperty(_LANG$fi, "optional", 'valinnainen'), _defineProperty(_LANG$fi, "dimensions", 'Mitat'), _defineProperty(_LANG$fi, "details", 'yksityiskohdat'), _defineProperty(_LANG$fi, "configuration", 'konfiguraatio'), _defineProperty(_LANG$fi, "adjustments", 'säädöt'), _defineProperty(_LANG$fi, "changes_queen_color", 'Muokkaus muuttaa värin'), _defineProperty(_LANG$fi, "Brood_box_and_frame", 'Sikiöosasto ja kehä'), _defineProperty(_LANG$fi, "Hive_order", 'Pesien järjestys tarhapaikalla'), _defineProperty(_LANG$fi, "bb_width_cm", 'Sikiöosaston leveys (cm)'), _defineProperty(_LANG$fi, "bb_height_cm", 'Sikiöosaston korkeus (cm)'), _defineProperty(_LANG$fi, "bb_depth_cm", 'Sikiöosaston syvyys (cm)'), _defineProperty(_LANG$fi, "fr_width_cm", 'Kehän leveys (cm)'), _defineProperty(_LANG$fi, "fr_height_cm", 'Kehän korkeus (cm)'), _defineProperty(_LANG$fi, "queen_line", 'linja'), _defineProperty(_LANG$fi, "queen_tree", 'sukupuu'), _defineProperty(_LANG$fi, "queen_description", 'muistiinpanot'), _defineProperty(_LANG$fi, "Hive_short", 'Pesä'), _defineProperty(_LANG$fi, "Images", 'Kuvat'), _defineProperty(_LANG$fi, "Size", 'Koko'), _defineProperty(_LANG$fi, "preview", 'esikatsele'), _defineProperty(_LANG$fi, "Sensor_definitions", 'Anturimääritelmät'), _defineProperty(_LANG$fi, "Inside", 'Mittaa sisällä'), _defineProperty(_LANG$fi, "Offset", 'Offset'), _defineProperty(_LANG$fi, "Multiplier", 'Kerroin'), _defineProperty(_LANG$fi, "Input", 'Input'), _defineProperty(_LANG$fi, "Output", 'Output'), _defineProperty(_LANG$fi, "Last", 'Viimeinen'), _defineProperty(_LANG$fi, "Export_sensor_data", 'Vie kaikki tiedot per laite korkeimmalla mahdollisella resoluutiolla .csv-tiedostona, jonka voit avata Excelissä tai SPSS: ssä. HUOMAUTUS: \'aika \' -sarakkeessa olevat päivämäärän ja kellonajan tiedot ovat GMT-aikaa, muotoillut RFC 3339 -päivämäärä-aika -standardilla.'), _defineProperty(_LANG$fi, "CSV_export_separator", 'CSV-datasarakkeen erotin'), _defineProperty(_LANG$fi, "Selected_date", 'Valittu ajanjakso'), _defineProperty(_LANG$fi, "Sensor_measurements", 'Anturimittaukset'), _defineProperty(_LANG$fi, "too_much_data", 'Liian paljon käsiteltäviä tietoja, valitse vähemmän anturimittauksia tai lyhennä aikajaksoa aloitus- ja lopetuspäivän välillä'), _defineProperty(_LANG$fi, "beep_base_explanation", 'Jos sinulla on BEEP alusta (ks. yllä oleva kuva), käytä natiivisovellusta (iOS ja Android) yhteyden muodostamiseksi tämän sovelluksen kanssa. Jos sinulla ei vielä ole BEEP alustaa, klikkaa valikon kohdasta \'BEEP verkkosivu\' saadaksesi lisätietoja BEEP alustan saamisesta. Jos sinulla on oma mittauslaite ja haluat nähdä sen tiedot BEEP-sovelluksessa, lähetä meille viesti ja pyydä liittymistä Slack-yhteisöömme ja saat pääsyn API-kuvaukseen.'), _defineProperty(_LANG$fi, "sample_code_hive", 'Valitse ensin pesä, jotta voit luoda yksilöllisen näytekoodin'), _defineProperty(_LANG$fi, "sample_code_generate", 'Luo yksilöllinen näytekoodi'), _defineProperty(_LANG$fi, "sample_code_delete", 'Poista yksilöllinen näytekoodi'), _defineProperty(_LANG$fi, "measurement_interval", 'väli'), _defineProperty(_LANG$fi, "from_weather_service", 'sääpalvelusta'), _LANG$fi); //! moment.js locale configuration
 
 ;
 
@@ -3188,6 +3408,125 @@ LANG['it'] = (_LANG$it = {
     }
   });
   return it;
+}); //! moment.js locale configuration
+
+
+;
+
+(function (global, factory) {
+  (typeof exports === "undefined" ? "undefined" : _typeof(exports)) === 'object' && typeof module !== 'undefined' && typeof require === 'function' ? factory(require('../moment')) : typeof define === 'function' && define.amd ? define(['../moment'], factory) : factory(global.moment);
+})(this, function (moment) {
+  'use strict';
+
+  var numbersPast = 'nolla yksi kaksi kolme neljä viisi kuusi seitsemän kahdeksan yhdeksän'.split(' '),
+      numbersFuture = ['nolla', 'yhden', 'kahden', 'kolmen', 'neljän', 'viiden', 'kuuden', numbersPast[7], numbersPast[8], numbersPast[9]];
+
+  function translate(number, withoutSuffix, key, isFuture) {
+    var result = '';
+
+    switch (key) {
+      case 's':
+        return isFuture ? 'muutaman sekunnin' : 'muutama sekunti';
+
+      case 'ss':
+        return isFuture ? 'sekunnin' : 'sekuntia';
+
+      case 'm':
+        return isFuture ? 'minuutin' : 'minuutti';
+
+      case 'mm':
+        result = isFuture ? 'minuutin' : 'minuuttia';
+        break;
+
+      case 'h':
+        return isFuture ? 'tunnin' : 'tunti';
+
+      case 'hh':
+        result = isFuture ? 'tunnin' : 'tuntia';
+        break;
+
+      case 'd':
+        return isFuture ? 'päivän' : 'päivä';
+
+      case 'dd':
+        result = isFuture ? 'päivän' : 'päivää';
+        break;
+
+      case 'M':
+        return isFuture ? 'kuukauden' : 'kuukausi';
+
+      case 'MM':
+        result = isFuture ? 'kuukauden' : 'kuukautta';
+        break;
+
+      case 'y':
+        return isFuture ? 'vuoden' : 'vuosi';
+
+      case 'yy':
+        result = isFuture ? 'vuoden' : 'vuotta';
+        break;
+    }
+
+    result = verbalNumber(number, isFuture) + ' ' + result;
+    return result;
+  }
+
+  function verbalNumber(number, isFuture) {
+    return number < 10 ? isFuture ? numbersFuture[number] : numbersPast[number] : number;
+  }
+
+  var fi = moment.defineLocale('fi', {
+    months: 'tammikuu_helmikuu_maaliskuu_huhtikuu_toukokuu_kesäkuu_heinäkuu_elokuu_syyskuu_lokakuu_marraskuu_joulukuu'.split('_'),
+    monthsShort: 'tammi_helmi_maalis_huhti_touko_kesä_heinä_elo_syys_loka_marras_joulu'.split('_'),
+    weekdays: 'sunnuntai_maanantai_tiistai_keskiviikko_torstai_perjantai_lauantai'.split('_'),
+    weekdaysShort: 'su_ma_ti_ke_to_pe_la'.split('_'),
+    weekdaysMin: 'su_ma_ti_ke_to_pe_la'.split('_'),
+    longDateFormat: {
+      LT: 'HH.mm',
+      LTS: 'HH.mm.ss',
+      L: 'DD.MM.YYYY',
+      LL: 'Do MMMM[ta] YYYY',
+      LLL: 'Do MMMM[ta] YYYY, [klo] HH.mm',
+      LLLL: 'dddd, Do MMMM[ta] YYYY, [klo] HH.mm',
+      l: 'D.M.YYYY',
+      ll: 'Do MMM YYYY',
+      lll: 'Do MMM YYYY, [klo] HH.mm',
+      llll: 'ddd, Do MMM YYYY, [klo] HH.mm'
+    },
+    calendar: {
+      sameDay: '[tänään] [klo] LT',
+      nextDay: '[huomenna] [klo] LT',
+      nextWeek: 'dddd [klo] LT',
+      lastDay: '[eilen] [klo] LT',
+      lastWeek: '[viime] dddd[na] [klo] LT',
+      sameElse: 'L'
+    },
+    relativeTime: {
+      future: '%s päästä',
+      past: '%s sitten',
+      s: translate,
+      ss: translate,
+      m: translate,
+      mm: translate,
+      h: translate,
+      hh: translate,
+      d: translate,
+      dd: translate,
+      M: translate,
+      MM: translate,
+      y: translate,
+      yy: translate
+    },
+    dayOfMonthOrdinalParse: /\d{1,2}\./,
+    ordinal: '%d.',
+    week: {
+      dow: 1,
+      // Monday is the first day of the week.
+      doy: 4 // The week that contains Jan 4th is the first week of the year.
+
+    }
+  });
+  return fi;
 });
 /* ----------------------------------------------------------------------------- 
 

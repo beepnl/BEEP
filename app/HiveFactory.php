@@ -60,12 +60,11 @@ class HiveFactory
 	{
 		
 		// First set inspection because location will be fixed after setting in hive
-		$now = new Moment();
-        $now->setTimezone('UTC');
+		$now = new Moment(date('Y-m-d H:i:s'), $timeZone);
 
 		$inspection_data 		  = [];
 		$inspection_data['notes'] = Translation::translate('hive').' '.strtolower(Translation::translate('action'));
-		$inspection_data['date']  = $now->setTimezone($timeZone)->format('Y-m-d H:i');
+		$inspection_data['date']  = $now->setTimezone('UTC')->format('Y-m-d H:i');
 		$inspection_data['items'] = [];
 		$locationChange 		  = false;
 

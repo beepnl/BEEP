@@ -159,7 +159,7 @@
                                 <input name="date_until" type="hidden" value="{{substr($date_until, 0, 10)}}" >
                             @endif
                             <input type="hidden" name="download" value="1">
-                            <button class="btn btn-default btn-block" type="submit"><i class="fa fa-download" aria-hidden="true"></i> Download selected consent data set</button>
+                            <button class="btn btn-default btn-block loading-spinner" type="submit" data-loading-text="<i class='fa fa-circle-o-notch fa-spin'></i>"><i class="fa fa-download" aria-hidden="true"></i> Download selected consent data set</button>
                         </div>
                     </div>
                 </form>

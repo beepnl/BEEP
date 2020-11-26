@@ -8,6 +8,16 @@ $(function () {
 		theme: "classic"
 	});
 
+	  // loading spinner in btn
+	$('.btn.loading-spinner').on('click', function() 
+	{
+		var $this = $(this);
+		$this.button('loading');
+		setTimeout(function() {
+		    $this.button('reset');
+		}, 60000);
+	});
+
 	// Taxonomy editor
 	$('#category-tree')
 	.on("changed.jstree", function (e, data) 

@@ -61,7 +61,8 @@ class HiveFactory
 		
 		// First set inspection because location will be fixed after setting in hive
 		$now = new Moment();
- 
+        $now->setTimezone('UTC');
+
 		$inspection_data 		  = [];
 		$inspection_data['notes'] = Translation::translate('hive').' '.strtolower(Translation::translate('action'));
 		$inspection_data['date']  = $now->setTimezone($timeZone)->format('Y-m-d H:i');

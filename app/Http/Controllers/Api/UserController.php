@@ -113,7 +113,7 @@ class UserController extends Controller
     Registers a new user and sends an e-mail verification request on succesful save
     @bodyParam email string required Email address of the user. Example: test@test.com
     @bodyParam password string required Password of the user. Example: testtest
-    @bodyParam password_confirm string required Password confirmation of the user. Example: testtest
+    @bodyParam password_confirmation string required Password confirmation of the user. Example: testtest
     @bodyParam policy_accepted string required Name of the privacy policy that has been accepted by the user by ticking the accept terms box. Example: beep_terms_2018_05_25_avg_v1
     */
     public function register(Request $request)

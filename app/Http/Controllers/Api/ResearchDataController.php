@@ -705,7 +705,7 @@ class ResearchDataController extends Controller
         // Get all user data
         $user_apiaries     = Location::where('user_id', $user_id)->where('created_at', '<', $date_until)->orderBy('created_at')->get();
         $user_hives        = Hive::where('user_id', $user_id)->where('created_at', '<', $date_until)->orderBy('created_at')->get();
-        $user_devices      = Device::where('user_id', $user_id)->where('created_at', '<', $date_until)->orderBy('created_at')->get();
+        $user_devices      = Device::with('sensorDefinitions')->where('user_id', $user_id)->where('created_at', '<', $date_until)->orderBy('created_at')->get();
         $user_inspections  = User::findOrFail($user_id)->inspections()->with('items')->where('created_at', '>=', $date_start)->where('created_at', '<', $date_until)->orderBy('created_at')->get();
         $user_measurements = [];
         

@@ -3,6 +3,7 @@
 namespace App;
 
 use Auth;
+use Moment\Moment;
 
 class HiveFactory
 {
@@ -55,13 +56,15 @@ class HiveFactory
 		return $hive;
 	}
 
-	public function updateHive(Hive $hive, Location $location, $name, $hive_type_id, $color, $broodLayerAmount, $honeyLayerAmount, $frameAmount, $bb_width_cm, $bb_depth_cm, $bb_height_cm, $fr_width_cm, $fr_height_cm, $order, $hive_layers)
+	public function updateHive(Hive $hive, Location $location, $name, $hive_type_id, $color, $broodLayerAmount, $honeyLayerAmount, $frameAmount, $bb_width_cm, $bb_depth_cm, $bb_height_cm, $fr_width_cm, $fr_height_cm, $order, $hive_layersm, $timeZone)
 	{
 		
 		// First set inspection because location will be fixed after setting in hive
+		$now = new Moment();
+ 
 		$inspection_data 		  = [];
 		$inspection_data['notes'] = Translation::translate('hive').' '.strtolower(Translation::translate('action'));
-		$inspection_data['date']  = date('Y-m-d H:i');
+		$inspection_data['date']  = $now->setTimezone($timeZone)->format('Y-m-d H:i');
 		$inspection_data['items'] = [];
 		$locationChange 		  = false;
 

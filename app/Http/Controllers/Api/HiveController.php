@@ -181,8 +181,9 @@ class HiveController extends Controller
         $honeyLayerAmount = $request->input('honey_layers', 1);
         $frameAmount      = $request->input('frames', 10);
         $layers           = $request->input('layers', null);
+        $timeZone         = $request->input('timezone','Europe/Amsterdam');
 
-        $hive = $this->hiveFactory->updateHive($hive, $location, $name, $hive_type_id, $color, $broodLayerAmount, $honeyLayerAmount, $frameAmount, $bb_width_cm, $bb_depth_cm, $bb_height_cm, $fr_width_cm, $fr_height_cm, $order, $layers);
+        $hive = $this->hiveFactory->updateHive($hive, $location, $name, $hive_type_id, $color, $broodLayerAmount, $honeyLayerAmount, $frameAmount, $bb_width_cm, $bb_depth_cm, $bb_height_cm, $fr_width_cm, $fr_height_cm, $order, $layers, $timeZone);
         $hive = $this->saveQueen($request, $hive);
 
         return $this->show($request, $hive);

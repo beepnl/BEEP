@@ -60,7 +60,7 @@ class HiveFactory
 	{
 		
 		// First set inspection because location will be fixed after setting in hive
-		$now = new Moment(date('Y-m-d H:i:s'), 'UTC');
+		$now = new Moment();
 
 		$inspection_data 		  		= [];
 		$inspection_data['created_at']  = $now->setTimezone($timeZone)->format('Y-m-d H:i');

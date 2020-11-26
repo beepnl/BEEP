@@ -60,13 +60,13 @@ class HiveFactory
 	{
 		
 		// First set inspection because location will be fixed after setting in hive
-		$now = new Moment(date('Y-m-d H:i:s'), $timeZone);
+		$now = new Moment(date('Y-m-d H:i:s'), 'UTC');
 
-		$inspection_data 		  = [];
-		$inspection_data['notes'] = Translation::translate('hive').' '.strtolower(Translation::translate('action'));
-		$inspection_data['date']  = $now->setTimezone('UTC')->format('Y-m-d H:i');
-		$inspection_data['items'] = [];
-		$locationChange 		  = false;
+		$inspection_data 		  		= [];
+		$inspection_data['created_at']  = $now->setTimezone($timeZone)->format('Y-m-d H:i');
+		$inspection_data['notes'] 		= Translation::translate('hive').' '.strtolower(Translation::translate('action'));
+		$inspection_data['items'] 		= [];
+		$locationChange 		  		= false;
 
 		if ($location->id != $hive->location_id)
 		{

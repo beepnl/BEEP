@@ -266,13 +266,14 @@ class ResearchDataController extends Controller
 
     /**
     api/researchdata/{id}/user/{user_id}/{item} GET
-    List all user 'item' data within the consent=1 periods of a specific user within a Research. The 'item' field indicates the type of user data (apiaries/hives/devices/inspections/measurements) to request within the research (which the user gave consent for to use). Example: inspectionsResponse: api/researchdata/1/user/1/inspections. 
+    List all user 'item' data within the consent=1 periods of a specific user within a Research. The 'item' field indicates the type of user data (apiaries/hives/devices/inspections/measurements/weather) to request within the research (which the user gave consent for to use). Example: inspectionsResponse: api/researchdata/1/user/1/inspections. 
     @authenticated
     @urlParam id required The research ID to request data from. Example: 1
     @urlParam user_id required The user id to request data from. Example: 1
     @urlParam item required The type of user data (apiaries/hives/devices/inspections/measurements) to request within the research (which the user gave consent for to use). Example: inspections
     @bodyParam date_start datetime The date in 'YYYY-MM-DD HH:mm:ss' format (2020-01-01 00:00:00) to request data from (default is beginning of research, or earlier (except inspections and measurements). Example: 2020-01-01 00:00:00
     @bodyParam date_until datetime The date in 'YYYY-MM-DD HH:mm:ss' format (2020-09-29 23:59:59) to request data until (default is until the end of the user consent, or research end). Example: 2020-09-29 23:59:59
+    @bodyParam precision string Specifies the optional format/precision (rfc3339|h|m|s|ms|u) of the timestamp of the measurements and weather data: rfc3339 (YYYY-MM-DDTHH:MM:SS.nnnnnnnnnZ), h (hours), m (minutes), s (seconds), ms (milliseconds), u (microseconds). Precision defaults to rfc3339. Example: rfc3339
     @response [
         {
             "id": 35211,
@@ -674,6 +675,7 @@ class ResearchDataController extends Controller
         $research   = Research::findOrFail($id);
         $date_start = $request->input('date_start', $research->start_date);
         $date_until = $request->input('date_until', $research->end_date);
+        $precision  = $request->input('precision', 'rfc3339');
         $date_format='Y-m-d H:i:s'; // RFC3339 == 'Y-m-d\TH:i:sP'
             
         if ($request->has('date_start'))
@@ -758,9 +760,29 @@ class ResearchDataController extends Controller
                         break;
                     case 'measurements':
                         if ($user_devices->count() > 0)
-                            foreach ($user_devices as $dev)
-                                if ($dev->created_at < $date_next_consent)
-                                    $data = array_merge($data, $this->getArrayFromInflux($dev, $date_curr_consent, $date_next_consent, '*'));
+                        {
+                            foreach ($user_devices as $device)
+                            {
+                                if ($device->created_at < $date_next_consent)
+                                {
+                                    $where= 'WHERE ("key" = \''.$device->key.'\' OR "key" = \''.strtolower($device->key).'\' OR "key" = \''.strtoupper($device->key).'\') AND time >= \''.$date_curr_consent.'\' AND time <= \''.$date_next_consent.'\'';
+                                    $data = array_merge($data, $this->getArrayFromInflux($where, '*', 'sensors', $precision));
+                                }
+                            }
+                        }
+                        break;
+                    case 'weather':
+                        if ($user_apiaries->count() > 0)
+                        {
+                            foreach ($user_apiaries as $apiary)
+                            {
+                                if ($apiary->created_at < $date_next_consent)
+                                {
+                                    $where= 'WHERE "lat" = \''.$apiary->coordinate_lat.'\' AND "lon" = \''.$apiary->coordinate_lon.'\' AND time >= \''.$date_curr_consent.'\' AND time <= \''.$date_next_consent.'\'';
+                                    $data = array_merge($data, $this->getArrayFromInflux($where, '*', 'weather', $precision));
+                                }
+                            }
+                        }
                         break;
                     default:
                         return Response::json('invalid_item', 400);
@@ -776,16 +798,16 @@ class ResearchDataController extends Controller
         return date($format, $unix) === $date ? true : false;
     }
 
-    private function getArrayFromInflux(Device $device, $start, $end, $measurements='*')
+    private function getArrayFromInflux($where, $measurements='*', $database='sensors', $precision='rfc3339')
     {
-        $options = ['precision'=>'rfc3339'];
+        $options = ['precision'=>$precision];
         
         if ($measurements == null || $measurements == '' || $measurements === '*')
             $sensor_measurements = '*';
         else
-            $sensor_measurements = '"'.implode('","',$measurements).'"';
+            $sensor_measurements = $measurements;
 
-        $query = 'SELECT '.$sensor_measurements.' FROM "sensors" WHERE ("key" = \''.$device->key.'\' OR "key" = \''.strtolower($device->key).'\' OR "key" = \''.strtoupper($device->key).'\') AND time >= \''.$start.'\' AND time <= \''.$end.'\'';
+        $query = 'SELECT '.$sensor_measurements.' FROM "'.$database.'" '.$where;
         $data  = [];
         try{
             $client = new \Influx; 

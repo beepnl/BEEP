@@ -51,7 +51,7 @@
     'policy accepted_is_required': 'Trebuie să acceptați termenii și condițiile de înregistrare',
 
     already_registered      : 'Sunt deja înregistrat',
-    invalid_user            : 'Utilizator necunoscut sau parolă greșită',
+    invalid_user            : 'Parolă Invalidă',
     invalid_password        : 'Parola este prea scurtă (min. 8 caractere)',
     no_password_match       : 'Parolele nu se potrivesc',
     invalid_token           : 'Cod invalid',

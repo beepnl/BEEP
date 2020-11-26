@@ -52,7 +52,7 @@
 
     already_registered       : 'Ik heb al een account',
     invalid_user             : 'Gebruikersnaam of wachtwoord incorrect',
-    invalid_password         : 'Wachtwoord te kort (min. 8 tekens)',
+    invalid_password         : 'Wachtwoord incorrect',
     no_password_match        : 'De wachtwoorden komen niet overeen',
     invalid_token            : 'Ongeldige code',
 

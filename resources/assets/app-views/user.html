@@ -50,10 +50,18 @@
 					</dd>
 		    	</dl>
 		    	<dl class="dl-horizontal">
-		    		<dt>{{lang.password_recovery_reset_password}}</dt>
+		    		<dt>{{lang.password}}</dt>
 		    		<dd>
 		    			<div class="form-group has-feedback" ng-class="{'has-error':error.password}">
 							<input type="password" class="form-control" name="password" ng-model="fields.edit.password" placeholder="{{lang.password}}" />
+						</div>
+					</dd>
+		    	</dl>
+		    	<dl class="dl-horizontal">
+		    		<dt>{{lang.password_recovery_reset_password}}</dt>
+		    		<dd>
+		    			<div class="form-group has-feedback" ng-class="{'has-error':error.password_new}">
+							<input type="password" class="form-control" name="password_new" ng-model="fields.edit.password_new" placeholder="{{lang.password_recovery_reset_password}}" />
 						</div>
 					</dd>
 		    	</dl>

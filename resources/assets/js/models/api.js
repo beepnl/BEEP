@@ -74,11 +74,12 @@ app.service('api', ['$http', '$rootScope', function($http, $rootScope)
 		self.token = null;
 	};
 
-	this.registerUser = function(password, email, policy_accepted)
+	this.registerUser = function(password, password_confirmation, email, policy_accepted)
 	{
 		var data = 
 		{
 			password	  : password,
+			password_confirmation: password_confirmation,
 			email		  : email,
 			policy_accepted: policy_accepted
 		};
@@ -114,13 +115,13 @@ app.service('api', ['$http', '$rootScope', function($http, $rootScope)
 	};
 
 
-	this.passwordReset = function(email, password, password_confirm, token)
+	this.passwordReset = function(email, password, password_confirmation, token)
 	{
 		var credentials = 
 		{
 			email 			 : email,
 			password 		 : password,
-			password_confirm : password_confirm,
+			password_confirmation : password_confirmation,
 			token 			 : token
 		};
 

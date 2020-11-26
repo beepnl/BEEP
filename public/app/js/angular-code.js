@@ -68,9 +68,10 @@ app.service('api', ['$http', '$rootScope', function ($http, $rootScope) {
     self.token = null;
   };
 
-  this.registerUser = function (password, email, policy_accepted) {
+  this.registerUser = function (password, password_confirmation, email, policy_accepted) {
     var data = {
       password: password,
+      password_confirmation: password_confirmation,
       email: email,
       policy_accepted: policy_accepted
     };
@@ -98,11 +99,11 @@ app.service('api', ['$http', '$rootScope', function ($http, $rootScope) {
     });
   };
 
-  this.passwordReset = function (email, password, password_confirm, token) {
+  this.passwordReset = function (email, password, password_confirmation, token) {
     var credentials = {
       email: email,
       password: password,
-      password_confirm: password_confirm,
+      password_confirmation: password_confirmation,
       token: token
     };
     self.postApiRequest('passwordReset', 'user/reset', credentials);
@@ -1541,6 +1542,7 @@ app.controller('UserCtrl', function ($scope, $rootScope, $window, $location, $ro
       name: $rootScope.user.name,
       email: $rootScope.user.email,
       password: '',
+      password_new: '',
       password_confirmation: '',
       policy_accepted: $rootScope.user.policy_accepted == $rootScope.lang.policy_version
     };
@@ -1623,7 +1625,7 @@ app.controller('UserCtrl', function ($scope, $rootScope, $window, $location, $ro
       var input = $scope.fields.register;
       $rootScope.user = input;
       $rootScope.user.name = input.email;
-      api.registerUser(input.password, input.email, input.policy_accepted);
+      api.registerUser(input.password, input.password_retype, input.email, input.policy_accepted);
     } else {
       $scope.message = validate;
     }
@@ -1641,25 +1643,27 @@ app.controller('UserCtrl', function ($scope, $rootScope, $window, $location, $ro
 
     if (error.status == 503) {
       $scope.error.password = false;
+      $scope.error.password_new = false;
       $scope.error.password_retype = false;
       $scope.error.email = false;
       msg = 'server_down';
     } // add a link
 
 
-    var transMessage = $rootScope.lang[msg];
+    var transMessage = typeof $rootScope.lang[msg] != 'undefined' ? $rootScope.lang[msg] : msg;
     var verifyOn = false;
     var resultStyle = 'error';
     if (msg.indexOf('email') !== -1) $scope.error.email = true;
 
-    if (msg.indexOf('password') !== -1) {
+    if (msg == 'invalid_password') {
       $scope.error.password = true;
-      $scope.error.password_retype = true;
+      $scope.error.password_new = false;
+      $scope.error.password_retype = false;
     } // check password
 
 
     if (msg == 'no_password_match') {
-      $scope.error.password = false;
+      $scope.error.password_new = false;
       $scope.error.password_retype = true;
     } else if (msg == 'email_not_verified') {
       verifyOn = true;

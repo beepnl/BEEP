@@ -52,7 +52,7 @@
 
     already_registered      : 'Sono già registrato',
     invalid_user            : 'Utente sconosciuto, o password errata',
-    invalid_password        : 'Password troppo corta (min. 8 caratteri)',
+    invalid_password        : 'Password non valida',
     no_password_match       : 'Le passwords non coincidono',
     invalid_token           : 'Codice non valido',
 

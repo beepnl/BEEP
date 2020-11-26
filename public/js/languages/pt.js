@@ -52,7 +52,7 @@
 
     already_registered      : 'Já estou registado',
     invalid_user            : 'Usuário desconhecido ou senha errada',
-    invalid_password        : 'Senha muito curta (min. 8 caracteres)',
+    invalid_password        : 'Senha inválida',
     no_password_match       : 'As senhas não coincidem',
     invalid_token           : 'Código inválido',
 

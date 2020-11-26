@@ -25,7 +25,7 @@ class UserController extends Controller
     /**
     api/authenticate 
     Authorize a user and login with an api_token. Used for persistent login in webapp.
-    Header parameter with Bearer [api_token] from the user object. Example: Bearer 1snu2aRRiwQNl2Tul567hLF0XpKuZO8hqkgXU4GvjzZ3f3pOCiDPFbBDea7W
+    Header parameter with Bearer [api_token] from the user object. Example: Bearer 1snu2aRRiwQNl2Tul5F0XpKuZO8hqkgXU4GvjzZ3f3pOCiDPFbBDea7W
     @authenticated
     @response {
         "id": 1317,
@@ -113,6 +113,7 @@ class UserController extends Controller
     Registers a new user and sends an e-mail verification request on succesful save
     @bodyParam email string required Email address of the user. Example: test@test.com
     @bodyParam password string required Password of the user. Example: testtest
+    @bodyParam password_confirm string required Password confirmation of the user. Example: testtest
     @bodyParam policy_accepted string required Name of the privacy policy that has been accepted by the user by ticking the accept terms box. Example: beep_terms_2018_05_25_avg_v1
     */
     public function register(Request $request)
@@ -124,7 +125,7 @@ class UserController extends Controller
             array
             (
                 'email'         => 'bail|required|email|unique:users',
-                'password'      => 'required|min:8',
+                'password'      => 'required|min:8|confirmed',
                 'policy_accepted'=>'required'
             ),
             array
@@ -132,7 +133,6 @@ class UserController extends Controller
                 'required'      => ':attribute_is_required',
                 'unique'        => ':attribute_already_exists',
                 'email'         => 'no_valid_email',
-                'min'           => 'invalid_password',
             )
         );
 
@@ -214,7 +214,7 @@ class UserController extends Controller
     responses: INVALID_USER, RESET_LINK_SENT, INVALID_PASSWORD, INVALID_TOKEN, PASSWORD_RESET
     @bodyParam email string required Email address of the user. Example: test@test.com
     @bodyParam password string required Password of the user. Example: testtest
-    @bodyParam password_confirm string required Password confirmation of the user. Example: testtest
+    @bodyParam password_confirmation string required Password confirmation of the user. Example: testtest
     @bodyParam token string required Token sent in the reminder e-mail to the email address of the user. Example: z8iQafmgP1
     */
     public function reset(Request $request)
@@ -222,7 +222,7 @@ class UserController extends Controller
         // get the input
         $email            = $request->input('email');
         $password         = $request->input('password');
-        $password_confirm = $request->input('password_confirm');
+        $password_confirm = $request->input('password_confirmation');
         $token            = $request->input('token');
 
         $credentials = array
@@ -292,11 +292,11 @@ class UserController extends Controller
 
     /**
     api/user PATCH
-    Edit the user details
+    Edit the user details, renew API token
     @authenticated
     @bodyParam email string required Email address of the user. Example: test@test.com
-    @bodyParam password string required Password of the user. Example: testtest
-    @bodyParam password_confirm string required Password confirmation of the user. Example: testtest
+    @bodyParam password string required Password of the user with minimum of 8 characters. Example: testtest
+    @bodyParam password_confirmation string required Password confirmation of the user. Example: testtest
     @bodyParam policy_accepted string Name of the privacy policy that has been accepted by the user by ticking the accept terms box. Example: beep_terms_2018_05_25_avg_v1
     */
     public function edit(Request $request)
@@ -315,21 +315,27 @@ class UserController extends Controller
                                         'email',
                                         Rule::unique('users')->ignore($user->id),
                                     ],
-                'password'      => 'nullable|min:8|confirmed',
+                'password'              => 'required|string|min:8',
+                'password_new'          => 'nullable|string|min:8',
+                'password_confirmation' => 'required_with:password_new|same:password_new',
             ),
             array
             (
                 'required'      => ':attribute_is_required',
                 'unique'        => ':attribute_already_exists',
                 'email'         => 'no_valid_email',
-                'min'           => 'invalid_password',
                 'confirmed'     => 'no_password_match',
+                'same'          => 'no_password_match',
             )
         );
 
         if($validator->fails())
         {
-            return Response::json(["message" => $validator->errors()->first()], 400);
+            return Response::json(['message' => $validator->errors()->first()], 400);
+        }
+        else if (Hash::check($request->input('password'), $user->password) == false)
+        {
+            return Response::json(['message' => 'invalid_password'], 400);
         }
         else // save 'm 
         {
@@ -339,9 +345,12 @@ class UserController extends Controller
                 $save = true;
             }
 
-            if($request->filled('email'))
+            $email_changed = false;
+            if($request->filled('email') && $request->input('email') != $user->email)
             {
                 $user->email = $request->input('email');
+                $user->email_verified_at = null;
+                $email_changed = true;
                 $save = true;
             }
 
@@ -357,15 +366,20 @@ class UserController extends Controller
                 $save = true;
             }
 
-            if($request->filled('password') && $request->filled('password_confirmation') && $request->input('password') == $request->input('password_confirmation'))
+            if($request->filled('password_new') && $request->filled('password_confirmation') && $request->input('password_new') == $request->input('password_confirmation'))
             {
-                $user->password = Hash::make($request->input('password'));
+                $user->password = Hash::make($request->input('password_new'));
                 $save = true;
             }
 
             if ($save)
             {
-                $saved = $user->save();
+                $user->api_token = str_random(60);
+                $saved           = $user->save();
+
+                if ($email_changed)
+                    $user->sendApiEmailVerificationNotification();
+
                 if ($saved)
                     return Response::json($user, 200);
             }

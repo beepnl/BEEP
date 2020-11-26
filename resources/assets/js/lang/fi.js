@@ -52,7 +52,7 @@
 
     already_registered      : 'Olen jo rekisteröitynyt',
     invalid_user            : 'Käyttäjätunnus tuntematon tai väärä salasana',
-    invalid_password        : 'Salasana on liian lyhyt (vähintään 8 merkkiä)',
+    invalid_password        : 'Väärä salasana',
     no_password_match       : 'Salasanat eivät täsmää',
     invalid_token           : 'Virheellinen koodi',
 

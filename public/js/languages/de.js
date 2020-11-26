@@ -52,7 +52,7 @@ LANG['de'] =
 
 	already_registered : 'Ich bin bereits registriert', 
 	invalid_user : 'Der Benutzer konnte nicht gefunden werden', 
-	invalid_password : 'Das Passwort ist zu kurz (min. 8 Zeichen)', 
+	invalid_password : 'Ungültiges Passwort', 
 	no_password_match : 'Falsches Passwort', 
 	invalid_token : 'Falscher Code', 
 

@@ -248,6 +248,7 @@ class ExportController extends Controller
         $end          = $request->input('end');
         $separator    = $request->input('separator', ';');
         $measurements = $request->input('measurements', '*');
+        $return_link  = $request->filled('link') ? true : false;
         $device       = $request->user()->allDevices()->find($device_id);
 
 
@@ -295,9 +296,13 @@ class ExportController extends Controller
         }
         $csv_file = $csv_head.implode("\r\n", $csv_body);
 
-        // return the CSV file content in a file on disk
-        // $fileName = $device->name.'_'.$start.'_'.$end.'.csv';
-        // Storage::disk('public')->put('/exports/'.$fileName, $csv_file);
+        if ($return_link)
+        {
+            // return the CSV file content in a file on disk
+            $fileName = $device->name.'_'.$start.'_'.$end.'.csv';
+            $link = Storage::disk('public')->put('/exports/'.$fileName, $csv_file);
+            return $link;
+        }
 
         return response($csv_file)->header('Content-Type', 'text/html; charset=UTF-8');
     }

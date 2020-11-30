@@ -99,11 +99,13 @@ Route::group(['middleware' => \Barryvdh\Cors\HandleCors::class], function()
 		Route::resource('images', 			'Api\ImageController', 					['except'=>['create','edit','destroy']]);
 		Route::resource('sensordefinition', 'Api\SensorDefinitionController', 		['except'=>['create','edit']]);
 		Route::resource('samplecode', 		'Api\SampleCodeController', 			['except'=>['create','edit','destroy']]);
+		
 
 		Route::delete('samplecode', 		'Api\SampleCodeController@destroy');
 		Route::delete('images', 			'Api\ImageController@destroyByUrl');
 		Route::delete('groups/detach/{id}', 'Api\GroupController@detach');
 
+		Route::get('categoryinputs',		'Api\CategoryController@inputs');
 		Route::get('export',				'Api\ExportController@all');
 		Route::post('export/csv',			'Api\ExportController@generate_csv');
 

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Category;
+use App\CategoryInput;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 
@@ -13,6 +14,43 @@ use App\Http\Controllers\Controller;
  */
 class CategoryController extends Controller
 {
+
+    /**
+     * api/categoryinputs
+     * List of all available input types of the inspection categories
+     * @authenticated
+     * @response[
+     {
+        "id": 1,
+        "name": "List",
+        "type": "list",
+        "min": null,
+        "max": null,
+        "decimals": null
+    },
+    {
+        "id": 2,
+        "name": "List item",
+        "type": "list_item",
+        "min": null,
+        "max": null,
+        "decimals": null
+    },
+    {
+        "id": 3,
+        "name": "Boolean (yes = green)",
+        "type": "boolean",
+        "min": null,
+        "max": null,
+        "decimals": null
+    }
+    ]
+     */
+    public function inputs(Request $request)
+    {
+        //die($category);
+        return response()->json(CategoryInput::all());
+    }
 
     /**
      * api/categories/{id}

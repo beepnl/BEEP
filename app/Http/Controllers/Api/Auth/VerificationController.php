@@ -45,6 +45,7 @@ class VerificationController extends Controller
         //$this->middleware('auth');
         $this->middleware('signed')->only('verify');
         $this->middleware('throttle:6,1')->only('verify');
+        $this->redirectTo = env('WEBAPP_URL',"/").env('WEBAPP_EMAIL_VERIFY_URL','login')."?msg=email_verified";
     }
 
 

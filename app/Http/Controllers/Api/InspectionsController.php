@@ -258,7 +258,7 @@ class InspectionsController extends Controller
             else if ($location)
                 $inspection = $location->inspections()->orderBy('created_at','desc')->where('created_at', $date)->first();
             else
-                return response()->json('no_owner_or_edit_rights', 400);
+                return response()->json('no_owner_or_edit_rights', 500);
                 //$inspection = $user->inspections()->orderBy('created_at','desc')->where('created_at', $date)->first();
 
             // filter -1 values for impression and attention

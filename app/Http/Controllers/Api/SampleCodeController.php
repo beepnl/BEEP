@@ -45,7 +45,7 @@ class SampleCodeController extends Controller
             $samplecode          = SampleCode::create($code);
             return response()->json($samplecode, 201);
         }
-        return response()->json(null, 400);
+        return response()->json('no_or_incorrect_hive_id', 500);
     }
 
     /**
@@ -88,6 +88,6 @@ class SampleCodeController extends Controller
                 return response()->json('code_deleted', 200);
             }
         }
-        return response()->json(null, 400);
+        return response()->json('code_not_deleted', 500);
     }
 }

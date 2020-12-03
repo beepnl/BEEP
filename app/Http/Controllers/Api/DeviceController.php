@@ -106,7 +106,7 @@ class DeviceController extends Controller
         if ($devices->count() == 0)
         {
             if ($request->filled('hardware_id') && Device::where('hardware_id', $request->input('hardware_id'))->count() > 0)
-                return Response::json('device_not_yours', 403);
+                return Response::json('device_not_yours', 500);
 
             return Response::json('no_devices_found', 404);
         }
@@ -220,7 +220,7 @@ class DeviceController extends Controller
             {
                 $device_count = Device::where('user_id', $request->user()->id)->count();
                 if ($device_count > 50)
-                    return Response::json("max_ttn_devices_reached_please_request_more", 403);
+                    return Response::json("max_ttn_devices_reached_please_request_more", 500);
             }
 
             $dev_eui = $request->filled('key') ? $request->input('key') : bin2hex(random_bytes(8)); // doubles output length
@@ -260,7 +260,7 @@ class DeviceController extends Controller
             return Response::json($device, $http_response_code);
         }
 
-        return Response::json($device, $device == null || gettype($device) == 'array' ? 400 : 200);
+        return Response::json($device, $device == null || gettype($device) == 'array' ? 500 : 200);
     }
 
     /**
@@ -299,7 +299,7 @@ class DeviceController extends Controller
                     unset($result['http_response_code']);
                     return Response::json($result, $http_response_code);
                 }
-                return Response::json($result, 400);
+                return Response::json($result, 500);
             }
         }
        
@@ -346,7 +346,7 @@ class DeviceController extends Controller
             return Response::json($result, $http_response_code);
         }
 
-        return Response::json($result, $result == null || gettype($result) == 'array' ? 400 : 200);
+        return Response::json($result, $result == null || gettype($result) == 'array' ? 500 : 200);
     }
 
 
@@ -383,7 +383,7 @@ class DeviceController extends Controller
 
         if ($validator->fails())
         {
-            return ['errors'=>$validator->errors().' (KEY: '.$key.', HW ID: '.$hwi.')', 'http_response_code'=>400];
+            return ['errors'=>$validator->errors().' (KEY: '.$key.', HW ID: '.$hwi.')', 'http_response_code'=>500];
         }
         else
         {
@@ -430,10 +430,10 @@ class DeviceController extends Controller
             {
                 // Check if hw id is available
                 if (isset($device['hardware_id']) && Device::where('hardware_id', $device['hardware_id'])->count() > 0)
-                    return ['errors'=>'device_not_yours', 'http_response_code'=>403];
+                    return ['errors'=>'device_not_yours', 'http_response_code'=>500];
 
                 if (isset($device['key']) && Device::where('key', $device['key'])->count() > 0)
-                    return ['errors'=>'device_not_yours', 'http_response_code'=>403];
+                    return ['errors'=>'device_not_yours', 'http_response_code'=>500];
             }
 
             $typename                  = isset($device['type']) ? $device['type'] : 'beep'; 

@@ -313,6 +313,7 @@ class UserController extends Controller
     {
         $user = $request->user();
         $save = false;
+        $newk = true;
 
         $validator = Validator::make
         (
@@ -326,9 +327,11 @@ class UserController extends Controller
                                         Rule::unique('users')->ignore($user->id),
                                     ],
                 'name'                  => 'nullable|string|max:100',
-                'password'              => 'required|string|min:8',
-                'password_new'          => 'nullable|string|min:8',
-                'password_confirmation' => 'required_with:password_new|same:password_new',
+                'password'              => 'nullable|required_with:password_new|string|min:8', # only let locale be editable without password
+                'password_new'          => 'nullable|required_with:password_confirmation|string|min:8',
+                'password_confirmation' => 'nullable|required_with:password_new|same:password_new',
+                'locale'                => 'nullable|string|min:2',
+                'policy_accepted'       => 'nullable',
             ),
             array
             (
@@ -344,13 +347,20 @@ class UserController extends Controller
         {
             return Response::json(['message' => $validator->errors()->first()], 500);
         }
-        else if (Hash::check($request->input('password'), $user->password) == false)
+        else if (($request->filled('password') || $request->input('email') != $user->email || $request->input('name') != $user->name || $request->input('policy_accepted') != $user->policy_accepted) && Hash::check($request->input('password'), $user->password) == false)
         {
             return Response::json(['message' => 'invalid_password'], 500);
         }
         else // save 'm 
         {
-            if($request->filled('name'))
+            if($request->filled('locale') && $request->input('locale') != $user->locale)
+            {
+                $user->locale = $request->input('locale');
+                $save = true;
+                $newk = false;
+            }
+            
+            if($request->filled('name') && $request->input('name') != $user->name)
             {
                 $user->name = $request->input('name');
                 $save = true;
@@ -365,15 +375,14 @@ class UserController extends Controller
                 $save = true;
             }
 
-            if($request->filled('locale'))
-            {
-                $user->locale = $request->input('locale');
-                $save = true;
-            }
-
-            if($request->filled('policy_accepted'))
+            if($request->filled('policy_accepted') && $request->input('policy_accepted') != $user->policy_accepted && $request->input('policy_accepted') != false)
             {
                 $user->policy_accepted = $request->input('policy_accepted');
+                $save = true;
+            }
+            else if ($request->filled('policy_accepted') == false || $request->input('policy_accepted') == false)
+            {
+                $user->policy_accepted = null;
                 $save = true;
             }
 
@@ -385,8 +394,10 @@ class UserController extends Controller
 
             if ($save)
             {
-                $user->api_token = str_random(60);
-                $saved           = $user->save();
+                if ($newk)
+                    $user->api_token = str_random(60);
+                
+                $saved = $user->save();
 
                 if ($email_changed)
                     $user->sendApiEmailVerificationNotification();

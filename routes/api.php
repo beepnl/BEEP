@@ -34,7 +34,6 @@ Route::group(['middleware' => \Barryvdh\Cors\HandleCors::class], function()
 	Route::post('user/reset', 	'Api\UserController@reset')->middleware('throttle:10,1');
 
 	// // Email Verification Routes...
-	Route::get('email/verify', 'Api\Auth\VerificationController@show')->name('apiverification.notice');
 	Route::get('email/verify/{id}', 'Api\Auth\VerificationController@verify')->name('apiverification.verify')->middleware('throttle:6,1');
 	Route::post('email/resend', 'Api\Auth\VerificationController@resend')->name('apiverification.resend')->middleware('throttle:3,1');
 

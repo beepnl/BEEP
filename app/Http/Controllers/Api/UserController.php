@@ -125,6 +125,7 @@ class UserController extends Controller
             array
             (
                 'email'         => 'bail|required|email|unique:users',
+                'name'          => 'nullable|string|max:100',
                 'password'      => 'required|min:8|confirmed',
                 'policy_accepted'=>'required'
             ),
@@ -145,7 +146,7 @@ class UserController extends Controller
         else // save 'm 
         {
             $user_data = [
-                'name'      => $request->input('email'),
+                'name'      => $request->input('name', $request->input('email')),
                 'password'  => Hash::make($request->input('password')),
                 'email'     => $request->input('email'),
                 'api_token' => str_random(60),
@@ -315,6 +316,7 @@ class UserController extends Controller
                                         'email',
                                         Rule::unique('users')->ignore($user->id),
                                     ],
+                'name'                  => 'nullable|string|max:100',
                 'password'              => 'required|string|min:8',
                 'password_new'          => 'nullable|string|min:8',
                 'password_confirmation' => 'required_with:password_new|same:password_new',

@@ -19,6 +19,8 @@ use App\Mail\DataExport;
 use App\Exports\HiveExport;
 use Moment\Moment;
 
+use Validator;
+
 /**
  * @group Api\ExportController
  * Export all data to an Excel file by email (GDPR)
@@ -243,6 +245,15 @@ class ExportController extends Controller
 
     public function generate_csv(Request $request)
     {
+        $validator = Validator::make($request->all(), [
+            'device_id' => 'required|exists:sensors,id',
+            'start'     => 'required|date',
+            'end'       => 'required|date',
+        ]);
+
+        if ($validator->fails())
+            return response()->json(['errors'=>$validator->errors()]);
+        
         $device_id    = $request->input('device_id');
         $start        = $request->input('start');
         $end          = $request->input('end');
@@ -299,9 +310,13 @@ class ExportController extends Controller
         if ($return_link)
         {
             // return the CSV file content in a file on disk
-            $fileName = $device->name.'_'.$start.'_'.$end.'.csv';
-            $link = Storage::disk('public')->put('/exports/'.$fileName, $csv_file);
-            return $link;
+            $disk     = env('EXPORT_STORAGE', 'public');
+            $filePath = 'exports/beep-export-user-'.$request->user()->id.'-device-'.$device->name.'-'.$start.'-'.$end.'-'.str_random(20).'.csv';
+            $filePath = str_replace(' ', '', $filePath);
+            if (Storage::disk($disk)->put($filePath, $csv_file))
+                return Response::json(['link'=>Storage::disk($disk)->url($filePath)]);
+            else
+                return Response::json(['message'=>'export_not_saved'], 500);
         }
 
         return response($csv_file)->header('Content-Type', 'text/html; charset=UTF-8');

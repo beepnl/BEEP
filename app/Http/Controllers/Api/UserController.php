@@ -283,8 +283,17 @@ class UserController extends Controller
     */
     public function destroy(Request $request)
     {
+        $user = $request->user();
+        $validator = Validator::make(
+            $request->all(), ['password' => 'required|string|min:8']
+        );
+
+        if($validator->fails())
+            return Response::json(['message' => $validator->errors()->first()], 500);
+        else if (Hash::check($request->input('password'), $user->password) == false)
+            return Response::json(['message' => 'invalid_password'], 500);
+        
         $del = $request->user()->delete();
-        //$del = true;
         if ($del)
             return Response::json(['message' => 'user_deleted'], 200);
 

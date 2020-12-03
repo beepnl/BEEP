@@ -28,15 +28,15 @@ Route::group(['middleware' => \Barryvdh\Cors\HandleCors::class], function()
 	Route::post('unsecure_sensors', 'Api\MeasurementController@storeMeasurementData');
 	
 	// User functions
-	Route::post('register', 	'Api\UserController@register');
-	Route::post('login', 		'Api\UserController@login');
-	Route::post('user/reminder','Api\UserController@reminder');
-	Route::post('user/reset', 	'Api\UserController@reset');
+	Route::post('register', 	'Api\UserController@register')->middleware('throttle:10,1');
+	Route::post('login', 		'Api\UserController@login')->middleware('throttle:10,1');
+	Route::post('user/reminder','Api\UserController@reminder')->middleware('throttle:10,1');
+	Route::post('user/reset', 	'Api\UserController@reset')->middleware('throttle:10,1');
 
 	// // Email Verification Routes...
 	Route::get('email/verify', 'Api\Auth\VerificationController@show')->name('apiverification.notice');
-	Route::get('email/verify/{id}', 'Api\Auth\VerificationController@verify')->name('apiverification.verify');
-	Route::post('email/resend', 'Api\Auth\VerificationController@resend')->name('apiverification.resend');
+	Route::get('email/verify/{id}', 'Api\Auth\VerificationController@verify')->name('apiverification.verify')->middleware('throttle:6,1');
+	Route::post('email/resend', 'Api\Auth\VerificationController@resend')->name('apiverification.resend')->middleware('throttle:3,1');
 
 	Route::post('groups/checktoken', 'Api\GroupController@checktoken');
 

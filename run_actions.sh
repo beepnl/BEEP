@@ -3,7 +3,8 @@ branch=${1:-master}
 base_dir=$(pwd)
 
 # backup data before update
-read -p "Backup MySQL and Influx database (y/N)? " backup_db
+backup_db="n"
+#read -p "Backup MySQL and Influx database (y/N)? " backup_db
 
 if [ "$backup_db" = "y" ]; then
 	echo "Backing up the databases..."
@@ -13,6 +14,6 @@ fi
 # laravel
 cd $base_dir
 if [ ! -f '.env' ]; then cp .env.example .env && php artisan key:generate; fi
-composer install && sudo chmod -R 777 storage && sudo chmod -R 777 bootstrap/cache && php artisan migrate  && php artisan storage:link
+composer install && sudo chmod -R 777 storage && sudo chmod -R 777 bootstrap/cache && php artisan storage:link && php artisan migrate --force
 
 #npm run dev

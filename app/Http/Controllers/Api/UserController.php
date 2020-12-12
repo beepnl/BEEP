@@ -347,7 +347,7 @@ class UserController extends Controller
         {
             return Response::json(['message' => $validator->errors()->first()], 500);
         }
-        else if (($request->filled('password') || $request->input('email') != $user->email || $request->input('name') != $user->name || $request->input('policy_accepted') != $user->policy_accepted) && Hash::check($request->input('password'), $user->password) == false)
+        else if (($request->filled('password_new') || ($request->filled('email') && $request->input('email') != $user->email) || ($request->filled('name') && $request->input('name') != $user->name) || ($request->filled('policy_accepted') && $request->input('policy_accepted') != $user->policy_accepted)) && Hash::check($request->input('password'), $user->password) == false)
         {
             return Response::json(['message' => 'invalid_password'], 500);
         }

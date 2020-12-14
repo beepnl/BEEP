@@ -85,6 +85,7 @@ Route::group(['middleware' => \Barryvdh\Cors\HandleCors::class], function()
 		
 		Route::delete('user', 				'Api\UserController@destroy');
 		Route::patch('user', 				'Api\UserController@edit');
+		Route::patch('userlocale', 			'Api\UserController@userlocale');
 
 		// Control resources 
 		Route::resource('devices', 			'Api\DeviceController',		 			['except'=>['create','edit']]);

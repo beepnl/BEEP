@@ -305,9 +305,12 @@ class UserController extends Controller
     Edit the user details, renew API token
     @authenticated
     @bodyParam email string required Email address of the user. Example: test@test.com
+    @bodyParam name string Name of the user. Example: Test
     @bodyParam password string required Password of the user with minimum of 8 characters. Example: testtest
-    @bodyParam password_confirmation string required Password confirmation of the user. Example: testtest
+    @bodyParam password_new string New password to set for the user with minimum of 8 characters. Example: testtest1
+    @bodyParam password_confirmation string Password confirmation of the user, required if password_new is filled. Example: testtest1
     @bodyParam policy_accepted string Name of the privacy policy that has been accepted by the user by ticking the accept terms box. Example: beep_terms_2018_05_25_avg_v1
+    @bodyParam locale string Locale string to define locale. Example: en
     */
     public function edit(Request $request)
     {
@@ -401,6 +404,53 @@ class UserController extends Controller
 
                 if ($email_changed)
                     $user->sendApiEmailVerificationNotification();
+
+                if ($saved)
+                    return Response::json($user, 200);
+            }
+        }
+        return Response::json(['message' => 'user_not_edited'], 500);
+    }
+   
+    /**
+    api/userlocale PATCH
+    Edit the user locale only, do not update api_key
+    @authenticated
+    @bodyParam locale string Two digit country string to define locale
+    */
+    public function userlocale(Request $request)
+    {
+        $user = $request->user();
+        $save = false;
+        
+        $validator = Validator::make
+        (
+            $request->all(),
+            array
+            (
+                'locale'   => 'required|string|min:2',
+            ),
+            array
+            (
+                'required' => ':attribute_is_required',
+            )
+        );
+
+        if($validator->fails())
+        {
+            return Response::json(['message' => $validator->errors()->first()], 500);
+        }
+        else // save 'm 
+        {
+            if($request->filled('locale') && $request->input('locale') != $user->locale)
+            {
+                $user->locale = $request->input('locale');
+                $save = true;
+            }
+            
+            if ($save)
+            {
+                $saved = $user->save();
 
                 if ($saved)
                     return Response::json($user, 200);

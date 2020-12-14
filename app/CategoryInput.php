@@ -10,7 +10,7 @@ class CategoryInput extends Model
 
     public $fillable = ['name','type','min','max','decimals','icon'];
 
-    public $hidden = ['name','type','id'];
+    public $hidden = ['icon'];
 
     public $timestamps = false;
 

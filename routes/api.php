@@ -57,6 +57,7 @@ Route::group(['middleware' => \Barryvdh\Cors\HandleCors::class], function()
 		Route::get('sensors/measurement_types', 'Api\MeasurementController@sensor_measurement_types');
 		Route::get('sensors/measurement_types_available', 'Api\MeasurementController@sensor_measurement_types_available');
 		Route::post('lora_sensors_auth',  	'Api\MeasurementController@lora_sensors')->middleware('throttle:500,1');
+		Route::post('sensors/flashlog',  	'Api\MeasurementController@flashlog')->middleware('throttle:500,1');
 
 		Route::post('settings', 			'Api\SettingController@store');
 		Route::get('settings', 				'Api\SettingController@index');
@@ -99,11 +100,13 @@ Route::group(['middleware' => \Barryvdh\Cors\HandleCors::class], function()
 		Route::resource('images', 			'Api\ImageController', 					['except'=>['create','edit','destroy']]);
 		Route::resource('sensordefinition', 'Api\SensorDefinitionController', 		['except'=>['create','edit']]);
 		Route::resource('samplecode', 		'Api\SampleCodeController', 			['except'=>['create','edit','destroy']]);
+		
 
 		Route::delete('samplecode', 		'Api\SampleCodeController@destroy');
 		Route::delete('images', 			'Api\ImageController@destroyByUrl');
 		Route::delete('groups/detach/{id}', 'Api\GroupController@detach');
 
+		Route::get('categoryinputs',		'Api\CategoryController@inputs');
 		Route::get('export',				'Api\ExportController@all');
 		Route::post('export/csv',			'Api\ExportController@generate_csv');
 

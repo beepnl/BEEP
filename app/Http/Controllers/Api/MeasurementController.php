@@ -16,16 +16,17 @@ use Moment\Moment;
 use League\Fractal;
 use App\Http\Requests\PostSensorRequest;
 use App\Http\Controllers\Api\MeasurementLegacyCalculationsTrait;
+use App\Http\Controllers\Api\MeasurementLoRaDecoderTrait;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\ClientException;
 
 /**
  * @group Api\MeasurementController
- * Store and retreive sensor data (both LoRa and direct API POSTs)
+ * Store and retreive sensor data (both LoRa and API POSTs) from a Device
  */
 class MeasurementController extends Controller
 {
-    use MeasurementLegacyCalculationsTrait;
+    use MeasurementLegacyCalculationsTrait, MeasurementLoRaDecoderTrait;
 
     protected $respose;
     protected $valid_sensors  = [];
@@ -407,11 +408,11 @@ class MeasurementController extends Controller
 
     /**
     api/sensors/lastvalues GET
-    Request last measurement values of all sensor measurements from a sensor (Device)
+    Request last measurement values of all sensor measurements from a Device
     @authenticated
-    @bodyParam key string DEV EUI to look up the sensor (Device)
-    @bodyParam id integer ID to look up the sensor (Device)
-    @bodyParam hive_id integer Hive ID to look up the sensor (Device)
+    @bodyParam key string DEV EUI to look up the Device
+    @bodyParam id integer ID to look up the Device
+    @bodyParam hive_id integer Hive ID to look up the Device
     */
     public function lastvalues(Request $request)
     {
@@ -637,7 +638,7 @@ class MeasurementController extends Controller
     When Simpoint payload is supplied, the LoRa HEX to key/value pairs decoding is done within function $this->parse_ttn_payload() 
     When TTN payload is supplied, the TTN HTTP integration decoder/converter is assumed to have already converted the payload from LoRa HEX to key/value conversion
 
-    @bodyParam key string required DEV EUI of the sensor (Device in Domain model) to enable storing sensor data
+    @bodyParam key string required DEV EUI of the Device to enable storing sensor data
     @bodyParam payload_fields array TTN Measurement data
     @bodyParam DevEUI_uplink array KPN Measurement data
     */
@@ -670,7 +671,7 @@ class MeasurementController extends Controller
     api/sensors POST
     Store sensor measurement data (see BEEP sensor data API definition) from API, or TTN. In case of using api/unsecure_sensors, this is used for legacy measurement devices that do not have the means to encrypt HTTPS cypher
 
-    @bodyParam key string required DEV EUI of the sensor (Device in Domain model) to enable storing sensor data
+    @bodyParam key string required DEV EUI of the Device to enable storing sensor data
     @bodyParam data array TTN Measurement data
     @bodyParam payload_fields array TTN Measurement data
     */
@@ -693,6 +694,48 @@ class MeasurementController extends Controller
         
         //die(print_r($data_array));
         return $this->storeMeasurements($data_array);
+    }
+
+    /**
+    * api/flashlog
+    * POST data from BEEP base fw 1.5.0+ FLASH log (with timestamp), interpret data and store in InlfuxDB (overwriting existing data)
+    * @authenticated
+    * @bodyParam key string required DEV EUI of the Device to enable storing sensor data
+    * @bodyParam data binary required Datastream from device
+    */
+    public function flashlog(Request $request)
+    {
+        $out = [];
+        
+        if ($request->filled('key') && $request->filled('data'))
+        {
+            $device = $request->user()->devices->where('key', $request->input('key'))->first();
+            if ($device)
+            {
+                $logFileName = 'lora_sensor_'.$request->input('key').'_flash.log';
+                Storage::disk('local')->put('sensors/'.$logFileName, $request->input('data'));
+
+                // interpret every line as a standard LoRa message (with time (13 characters) cut off at the end)
+                $in  = explode("\n", $request->input('data'));
+                foreach ($in as $line)
+                {
+                    $data_array = $this->decode_flashlog_payload($line);
+                    if (in_array('time', array_keys($data_array)))
+                    {
+                        $unix = $data_array['time'];
+                        unset($data_array['time']);
+                        $out[$unix] = $data_array; 
+                    }
+                }
+                if (count($out) > 0)
+                {
+                    $logFileName = 'lora_sensor_'.$request->input('key').'_flash.json';
+                    Storage::disk('local')->put('sensors/'.$logFileName, json_encode($out));
+                }
+
+            }
+        }
+        return Response::json(['processed_lines'=>count($out)], count($out) > 0 ? 200 : 500);
     }
 
     /**

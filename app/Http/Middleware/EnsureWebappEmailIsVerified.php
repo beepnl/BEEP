@@ -19,10 +19,10 @@ class EnsureWebappEmailIsVerified
     public function handle($request, Closure $next)
     {
         if (! $request->user())
-            return Response::json('invalid_user', 500);
+            return Response::json('invalid_user', 400);
 
         if ($request->user() instanceof MustVerifyEmail && ! $request->user()->hasVerifiedEmail()) {
-            return Response::json('email_not_verified', 500);
+            return Response::json('email_not_verified', 403);
         }
 
         return $next($request);

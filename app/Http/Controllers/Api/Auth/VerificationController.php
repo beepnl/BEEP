@@ -110,12 +110,12 @@ class VerificationController extends Controller
         }
 
         if($user === null)
-            return response()->json('invalid_user', 500);
+            return response()->json('invalid_user', 400);
 
         //die(print_r($user));
 
         if ($user->hasVerifiedEmail()) {
-            return response()->json('email_verified', 500);
+            return response()->json('email_verified', 422);
 //            return redirect($this->redirectPath());
         }
 

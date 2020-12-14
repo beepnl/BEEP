@@ -61,7 +61,7 @@ class SettingController extends Controller
             }
         //}
 
-        return Response::json('no named settings to save', 500);
+        return Response::json('no named settings to save', 400);
     }
     
     public function index(Request $request)

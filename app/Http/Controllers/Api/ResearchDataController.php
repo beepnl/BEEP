@@ -669,7 +669,7 @@ class ResearchDataController extends Controller
 
         // Check if user is present on 
         if (DB::table('research_user')->where('research_id', $id)->where('user_id', $user_id)->where('consent', 1)->count() == 0)
-            return Response::json('user-not-connected-to-research', 500);
+            return Response::json('user-not-connected-to-research', 400);
 
         // Make dates
         $research   = Research::findOrFail($id);
@@ -680,19 +680,19 @@ class ResearchDataController extends Controller
             
         if ($request->has('date_start'))
             if ($this->validateDate($date_start, $date_format) == false)
-                return Response::json(['date_start_invalid'=>$date_start, 'format'=>$date_format], 500);
+                return Response::json(['date_start_invalid'=>$date_start, 'format'=>$date_format], 400);
             else if ($date_start < $research->start_date)
-                return Response::json('date_start_before_research_start', 500);
+                return Response::json('date_start_before_research_start', 400);
 
         if ($request->has('date_until'))
             if ($this->validateDate($date_until, $date_format) == false)
-                return Response::json(['date_until_invalid'=>$date_until, 'format'=>$date_format], 500);
+                return Response::json(['date_until_invalid'=>$date_until, 'format'=>$date_format], 400);
             else if ($date_until > $research->end_date)
-                return Response::json('date_until_after_research_end', 500);
+                return Response::json('date_until_after_research_end', 400);
             else if ($date_until < $date_start)
-                return Response::json('date_until_after_start_date', 500);
+                return Response::json('date_until_after_start_date', 400);
             else if ($date_start > $date_until)
-                return Response::json('date_start_after_until_date', 500);
+                return Response::json('date_start_after_until_date', 400);
 
         // User specific data
         $user_consents     = DB::table('research_user')->where('research_id', $id)->where('user_id', $user_id)->whereDate('updated_at', '<', $date_until)->orderBy('updated_at','asc')->get()->toArray();
@@ -701,7 +701,7 @@ class ResearchDataController extends Controller
         $date_next_consent = $date_until;
 
         if (count($user_consents) == 0 || (count($user_consents) == 1 && $user_consent === 0)) // if only 1 and consent is false, stop
-            return Response::json('user-gave-no-consent', 500);
+            return Response::json('user-gave-no-consent', 400);
         //die(print_r([$user_consents, $date_curr_consent, $date_next_consent, $index]));
 
         // Get all user data
@@ -785,7 +785,7 @@ class ResearchDataController extends Controller
                         }
                         break;
                     default:
-                        return Response::json('invalid_item', 500);
+                        return Response::json('invalid_item', 400);
                 }
             }
         }

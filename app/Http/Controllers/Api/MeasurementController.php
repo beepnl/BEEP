@@ -253,7 +253,7 @@ class MeasurementController extends Controller
         if (!in_array('key', array_keys($data_array)) || $data_array['key'] == '' || $data_array['key'] == null)
         {
             Storage::disk('local')->put('sensors/sensor_no_key.log', json_encode($data_array));
-            return Response::json('No key provided', 500);
+            return Response::json('No key provided', 400);
         }
 
         // Check if key is valid
@@ -267,7 +267,7 @@ class MeasurementController extends Controller
         else
         {
             Storage::disk('local')->put('sensors/sensor_invalid_key.log', json_encode($data_array));
-            return Response::json('No valid key provided', 500);
+            return Response::json('No valid key provided', 401);
         }
 
 

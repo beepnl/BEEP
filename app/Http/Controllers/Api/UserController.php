@@ -95,12 +95,12 @@ class UserController extends Controller
 
     public function notVerified(Request $request) 
     {
-        return Response::json('email_not_verified', 500);
+        return Response::json('email_not_verified', 400);
     }
 
     public function notAuthenticated(Request $request) 
     {
-        return Response::json(["message" => "invalid_user"], 500);
+        return Response::json(["message" => "invalid_user"], 400);
     }
     
     private function returnToken($request)
@@ -141,7 +141,7 @@ class UserController extends Controller
         // check if the data is validated
         if($validator->fails())
         {
-            return Response::json(["message" => $validator->errors()->first()], 500);
+            return Response::json(["message" => $validator->errors()->first()], 400);
         }
         else // save 'm 
         {
@@ -194,7 +194,7 @@ class UserController extends Controller
         switch($remind)
         {
             case Password::INVALID_USER:
-                $code     = 500;
+                $code     = 400;
                 $response = array('message' => 'invalid_user');
               break;
 
@@ -245,17 +245,17 @@ class UserController extends Controller
         switch ($reset)
         {
             case Password::INVALID_PASSWORD:
-                $code     = 500;
+                $code     = 400;
                 $response = array('message' => 'invalid_password');
               break;
 
             case Password::INVALID_TOKEN:
-                $code     = 500;
+                $code     = 400;
                 $response = array('message' => 'invalid_token');
               break;
 
             case Password::INVALID_USER:
-                $code     = 500;
+                $code     = 400;
                 $response = array('message' => 'invalid_user');
               break;
 
@@ -297,7 +297,7 @@ class UserController extends Controller
         if ($del)
             return Response::json(['message' => 'user_deleted'], 200);
 
-        return Response::json(['message' => 'user_not_deleted'], 500);
+        return Response::json(['message' => 'user_not_deleted'], 400);
     }
 
     /**
@@ -348,11 +348,11 @@ class UserController extends Controller
 
         if($validator->fails())
         {
-            return Response::json(['message' => $validator->errors()->first()], 500);
+            return Response::json(['message' => $validator->errors()->first()], 400);
         }
         else if (($request->filled('password_new') || ($request->filled('email') && $request->input('email') != $user->email) || ($request->filled('name') && $request->input('name') != $user->name) || ($request->filled('policy_accepted') && $request->input('policy_accepted') != $user->policy_accepted)) && Hash::check($request->input('password'), $user->password) == false)
         {
-            return Response::json(['message' => 'invalid_password'], 500);
+            return Response::json(['message' => 'invalid_password'], 400);
         }
         else // save 'm 
         {
@@ -409,7 +409,7 @@ class UserController extends Controller
                     return Response::json($user, 200);
             }
         }
-        return Response::json(['message' => 'user_not_edited'], 500);
+        return Response::json(['message' => 'user_not_edited'], 400);
     }
    
     /**

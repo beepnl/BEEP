@@ -25,14 +25,7 @@ class Group extends Model
     // Relations
     public function getHivesAttribute()
     {
-    	return $hives = $this->hives()->with(['layers', 'queen'])->withPivot('edit_hive')->get()->map(function ($itemOriginal, $key)
-        {
-            $item = $itemOriginal->toArray(); // has to be converted to array to override editable state
-            $editable = $item['pivot']['edit_hive'];
-            unset($item['pivot']);
-            $item['editable'] = (bool)$editable;
-            return $item; 
-        });
+    	return $this->hives()->with(['layers', 'queen'])->get();
     }
 
     public function getHiveIdsAttribute()

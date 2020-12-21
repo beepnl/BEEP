@@ -236,54 +236,17 @@ class InspectionsController extends Controller
         {
             $moment       = new Moment($request->input('date'));
             $date         = $moment->format('Y-m-d H:i:s');
-            
             $data         = $request->except(['hive_id','items','date']);
-            $user         = Auth::user();
-            $hive         = $user->allHives(true)->find($request->input('hive_id'));
-            $location     = $user->allLocations(true)->find($request->input('location_id'));
-
             $data['created_at']   = $date;
             $data['checklist_id'] = $request->filled('checklist_id') ? $request->input('checklist_id') : null;
-
             if ($request->filled('reminder_date'))
             {
                 $reminder_moment = new Moment($request->input('reminder_date'));
                 $data['reminder_date'] = $reminder_moment->format('Y-m-d H:i:s');
             }
-
-            // select inspection if exists
-            $inspection = null;
-            if ($hive)
-                $inspection = $hive->inspections()->orderBy('created_at','desc')->where('created_at', $date)->first();
-            else if ($location)
-                $inspection = $location->inspections()->orderBy('created_at','desc')->where('created_at', $date)->first();
-            else
-                return response()->json('no_owner_or_edit_rights', 400);
-                //$inspection = $user->inspections()->orderBy('created_at','desc')->where('created_at', $date)->first();
-
             // filter -1 values for impression and attention
             $data['impression']   = $request->filled('impression') && $request->input('impression') > -1 ? $request->input('impression') : null;
             $data['attention']    = $request->filled('attention')  && $request->input('attention')  > -1 ? $request->input('attention')  : null;
-
-            if (isset($inspection))
-                $inspection->update($data);
-            else
-                $inspection = Inspection::create($data);
-            
-            // link inspection
-            $inspection->users()->syncWithoutDetaching($user->id);
-
-            if (isset($location))
-                $inspection->locations()->syncWithoutDetaching($location->id);
-
-            if (isset($hive))
-                $inspection->hives()->syncWithoutDetaching($hive->id);
-
-
-            // Set inspection items
-            // clear to remove items not in input
-            $inspection->items()->forceDelete();
-            // add items in input
 
             // combine item_ids and item_vals to items
             if (!$request->filled('items') && $request->filled('item_ids') && $request->filled('item_vals'))
@@ -303,30 +266,73 @@ class InspectionsController extends Controller
             {
                 $items = $request->input('items');  
             }
-            
-            if (count($items) > 0)
-            {
-                foreach ($items as $cat_id => $value) 
-                {
-                    $category = Category::find($cat_id);
-                    if (isset($category) && isset($value))
-                    {
-                        $itemData = 
-                        [
-                            'category_id'   => $category->id,
-                            'inspection_id' => $inspection->id,
-                            'value'         => $value,
-                        ];
-                        InspectionItem::create($itemData);
 
-                        // add inspection link to Image
-                        if ($category->inputTypeType() == 'image')
+            $user         = Auth::user();
+            $location     = $user->allLocations(true)->find($request->input('location_id'));
+
+            $hive_ids     = [];
+            if ($request->filled('hive_ids'))
+                $hive_ids = $request->input('hive_ids');
+            else
+                $hive_ids = [$request->input('hive_id')];
+
+            foreach ($hive_ids as $hive_id) 
+            {
+                $hive = $user->allHives(true)->find($hive_id);
+
+                // select inspection if exists
+                $inspection = null;
+                if ($hive)
+                    $inspection = $hive->inspections()->orderBy('created_at','desc')->where('created_at', $date)->first();
+                else if ($location)
+                    $inspection = $location->inspections()->orderBy('created_at','desc')->where('created_at', $date)->first();
+                else
+                    return response()->json('no_owner_or_edit_rights', 400);
+                    //$inspection = $user->inspections()->orderBy('created_at','desc')->where('created_at', $date)->first();
+
+                if (isset($inspection))
+                    $inspection->update($data);
+                else
+                    $inspection = Inspection::create($data);
+                
+                // link inspection
+                $inspection->users()->syncWithoutDetaching($user->id);
+
+                if (isset($location))
+                    $inspection->locations()->syncWithoutDetaching($location->id);
+
+                if (isset($hive))
+                    $inspection->hives()->syncWithoutDetaching($hive->id);
+
+
+                // Set inspection items
+                // clear to remove items not in input
+                $inspection->items()->forceDelete();
+                
+                if (count($items) > 0)
+                {
+                    foreach ($items as $cat_id => $value) 
+                    {
+                        $category = Category::find($cat_id);
+                        if (isset($category) && isset($value))
                         {
-                            $image = Image::where('thumb_url', $value)->first();
-                            if ($image)
+                            $itemData = 
+                            [
+                                'category_id'   => $category->id,
+                                'inspection_id' => $inspection->id,
+                                'value'         => $value,
+                            ];
+                            InspectionItem::create($itemData);
+
+                            // add inspection link to Image
+                            if ($category->inputTypeType() == 'image')
                             {
-                                $image->inspection_id = $inspection->id;
-                                $image->save();
+                                $image = Image::where('thumb_url', $value)->first();
+                                if ($image)
+                                {
+                                    $image->inspection_id = $inspection->id;
+                                    $image->save();
+                                }
                             }
                         }
                     }

@@ -113,6 +113,9 @@ class Hive extends Model
 
     public function getEditableAttribute()
     {
+        if ($this->getOwnerAttribute())
+            return true;
+        
         $user_editable_hive_ids = Auth::user()->groupHives(true)->pluck('id')->toArray();
         return in_array($this->id, $user_editable_hive_ids);
     }

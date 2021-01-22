@@ -701,7 +701,9 @@ class MeasurementController extends Controller
     * POST data from BEEP base fw 1.5.0+ FLASH log (with timestamp), interpret data and store in InlfuxDB (overwriting existing data). BEEP base BLE cmd: when the response is 200 OK and erase_mx_flash > -1, provide the ERASE_MX_FLASH BLE command (0x21) to the BEEP base with the last byte being the HEX value of the erase_mx_flash value (0 = 0x00, 1 = 0x01, i.e.0x2100, or 0x2101)
     * @authenticated
     * @bodyParam key string required DEV EUI of the Device to enable storing sensor data
-    * @bodyParam data binary required Datastream from device
+    * @bodyParam data string required MX_FLASH_LOG Hexadecimal string lines (new line) separated, with many rows of log data. Or text file binary with all data inside.
+    * @queryParam show integer 1 for displaying info in result JSON, 0 for not displaying (default).
+    * @queryParam save integer 1 for saving the data to a file (default), 0 for not save log file.
     * @response{
           "lines_received": 20039,
           "bytes_received": 9872346,
@@ -720,9 +722,9 @@ class MeasurementController extends Controller
         $logtm = false;
         $erase = -1;
         $show  = $request->filled('show') ? $request->input('show') : false;
-        $save  = $request->filled('save') ? $request->input('save') : false;
+        $save  = $request->filled('save') ? $request->input('save') : true;
         
-        if ($request->filled('key') && $request->filled('data'))
+        if ($request->filled('key') && ($request->filled('data') || $request->hasFile('data')))
         {
             $key    = $request->input('key');
             $device = $request->user()->devices->where('key', $key)->first();
@@ -730,14 +732,24 @@ class MeasurementController extends Controller
             {
                 $time = date("Ymdhis");
                 
-                if ($save)
+                if ($request->hasFile('data') && $request->file('data')->isValid())
                 {
-                    $logFileName = "sensor_".$key."_flash_$time.log";
-                    $saved = Storage::disk('local')->put('sensors/'.$logFileName, $request->input('data'));
+                    $file = $request->file('data');
+                    $name = "sensor_".$key."_flash_$time.log";
+                    $saved= Storage::putFileAs('sensors', $file, $name) ? true : false; 
+                    $data = Storage::disk('local')->get('sensors/'.$name);
+                    if ($save == false)
+                        $saved = Storage::disk('local')->delete('sensors/'.$name) ? false : true;
                 }
-
-                // interpret every line as a standard LoRa message (with time (13 characters) cut off at the end)
-                $data= $request->input('data');
+                else
+                {
+                    $data = $request->input('data');
+                    if ($save)
+                    {
+                        $logFileName = "sensor_".$key."_flash_$time.log";
+                        $saved = Storage::disk('local')->put('sensors/'.$logFileName, $data);
+                    }
+                }
                 $data= preg_replace('/[\r\n|\r|\n]+/', ',', $data);
                 $data= preg_replace('/[^A-Fa-f0-9,]/', '', $data);
 
@@ -747,6 +759,7 @@ class MeasurementController extends Controller
                     $saved = Storage::disk('local')->put('sensors/'.$logFileName, $data);
                 }
 
+                // interpret every line as a standard LoRa message (with time (13 characters) cut off at the end)
                 $in    = explode(",", $data);
                 $lines = count($in);
                 foreach ($in as $line)

@@ -697,45 +697,97 @@ class MeasurementController extends Controller
     }
 
     /**
-    * api/flashlog
-    * POST data from BEEP base fw 1.5.0+ FLASH log (with timestamp), interpret data and store in InlfuxDB (overwriting existing data)
+    * api/sensors/flashlog
+    * POST data from BEEP base fw 1.5.0+ FLASH log (with timestamp), interpret data and store in InlfuxDB (overwriting existing data). BEEP base BLE cmd: when the response is 200 OK and erase_mx_flash > -1, provide the ERASE_MX_FLASH BLE command (0x21) to the BEEP base with the last byte being the HEX value of the erase_mx_flash value (0 = 0x00, 1 = 0x01, i.e.0x2100, or 0x2101)
     * @authenticated
     * @bodyParam key string required DEV EUI of the Device to enable storing sensor data
     * @bodyParam data binary required Datastream from device
+    * @response{
+          "lines_received": 20039,
+          "bytes_received": 9872346,
+          "log_saved": true,
+          "log_parsed": false,
+          "erase_mx_flash": -1
+        }
     */
     public function flashlog(Request $request)
     {
-        $out = [];
+        $out   = [];
+        $lines = 0; 
+        $bytes = 0; 
+        $saved = false; 
+        $parsed= false;
+        $logtm = false;
+        $erase = -1;
+        $show  = $request->filled('show') ? $request->input('show') : false;
+        $save  = $request->filled('save') ? $request->input('save') : false;
         
         if ($request->filled('key') && $request->filled('data'))
         {
-            $device = $request->user()->devices->where('key', $request->input('key'))->first();
+            $key    = $request->input('key');
+            $device = $request->user()->devices->where('key', $key)->first();
             if ($device)
             {
-                $logFileName = 'lora_sensor_'.$request->input('key').'_flash.log';
-                Storage::disk('local')->put('sensors/'.$logFileName, $request->input('data'));
+                $time = date("Ymdhis");
+                
+                if ($save)
+                {
+                    $logFileName = "sensor_".$key."_flash_$time.log";
+                    $saved = Storage::disk('local')->put('sensors/'.$logFileName, $request->input('data'));
+                }
 
                 // interpret every line as a standard LoRa message (with time (13 characters) cut off at the end)
-                $in  = explode("\n", $request->input('data'));
+                $data= $request->input('data');
+                $data= preg_replace('/[\r\n|\r|\n]+/', ',', $data);
+                $data= preg_replace('/[^A-Fa-f0-9,]/', '', $data);
+
+                if ($save)
+                {
+                    $logFileName =  "sensor_".$key."_flash_stripped_$time.log";
+                    $saved = Storage::disk('local')->put('sensors/'.$logFileName, $data);
+                }
+
+                $in    = explode(",", $data);
+                $lines = count($in);
                 foreach ($in as $line)
                 {
-                    $data_array = $this->decode_flashlog_payload($line);
+                    $bytes += strlen($line)/2;
+                    $data_array = $this->decode_flashlog_payload($line, $show);
                     if (in_array('time', array_keys($data_array)))
                     {
-                        $unix = $data_array['time'];
+                        $logtm = true;
+                        $unix  = $data_array['time'];
                         unset($data_array['time']);
                         $out[$unix] = $data_array; 
+                    }
+                    else
+                    {
+                        $out[] = $data_array;
                     }
                 }
                 if (count($out) > 0)
                 {
-                    $logFileName = 'lora_sensor_'.$request->input('key').'_flash.json';
-                    Storage::disk('local')->put('sensors/'.$logFileName, json_encode($out));
+                    $parsed = true;
+                    if ($save)
+                    {
+                        $logFileName = "sensor_".$key."_flash_parsed_$time.log";
+                        $saved = Storage::disk('local')->put('sensors/'.$logFileName, json_encode($out));
+                    }
                 }
-
             }
         }
-        return Response::json(['processed_lines'=>count($out)], count($out) > 0 ? 200 : 500);
+        $result = [
+            'lines_received'=>$lines,
+            'bytes_received'=>$bytes,
+            'log_has_timestamps'=>$logtm,
+            'log_saved'=>$saved,
+            'log_parsed'=>$parsed,
+            'erase_mx_flash'=>$saved ? 0 : -1
+        ];
+        if ($show)
+            $result['output'] = $out;
+
+        return Response::json($result, $saved ? 200 : 500);
     }
 
     /**

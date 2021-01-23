@@ -753,18 +753,27 @@ class MeasurementController extends Controller
                 $data= preg_replace('/[\r\n|\r|\n]+/', ',', $data);
                 $data= preg_replace('/[^A-Fa-f0-9,]/', '', $data);
 
+                // interpret every line as a standard LoRa message (with time (13 characters) cut off at the end)
+                $in      = explode(",", $data);
+                $lines   = count($in);
+                $alldata = "";
+
+                foreach ($in as $line)
+                    $alldata .= substr($line,4);
+
+                // Split data by 0A02 and 0A03
+                $data  = preg_replace('/0A02/', "0A\n02", $alldata);
+                $data  = preg_replace('/0A03/', "0A\n03", $data);
+
                 if ($save)
                 {
                     $logFileName =  "sensor_".$key."_flash_stripped_$time.log";
                     $saved = Storage::disk('local')->put('sensors/'.$logFileName, $data);
                 }
 
-                // interpret every line as a standard LoRa message (with time (13 characters) cut off at the end)
-                $in    = explode(",", $data);
-                $lines = count($in);
+                $in = explode("\n", $data);
                 foreach ($in as $line)
                 {
-                    $bytes += strlen($line)/2;
                     $data_array = $this->decode_flashlog_payload($line, $show);
                     if (in_array('time', array_keys($data_array)))
                     {
@@ -778,6 +787,7 @@ class MeasurementController extends Controller
                         $out[] = $data_array;
                     }
                 }
+
                 if (count($out) > 0)
                 {
                     $parsed = true;

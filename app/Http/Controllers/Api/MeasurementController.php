@@ -697,14 +697,16 @@ class MeasurementController extends Controller
     }
 
     /**
-    * api/sensors/flashlog
-    * POST data from BEEP base fw 1.5.0+ FLASH log (with timestamp), interpret data and store in InlfuxDB (overwriting existing data). BEEP base BLE cmd: when the response is 200 OK and erase_mx_flash > -1, provide the ERASE_MX_FLASH BLE command (0x21) to the BEEP base with the last byte being the HEX value of the erase_mx_flash value (0 = 0x00, 1 = 0x01, i.e.0x2100, or 0x2101)
-    * @authenticated
-    * @bodyParam key string required DEV EUI of the Device to enable storing sensor data
-    * @bodyParam data string required MX_FLASH_LOG Hexadecimal string lines (new line) separated, with many rows of log data. Or text file binary with all data inside.
-    * @queryParam show integer 1 for displaying info in result JSON, 0 for not displaying (default).
-    * @queryParam save integer 1 for saving the data to a file (default), 0 for not save log file.
-    * @response{
+    api/sensors/flashlog
+    POST data from BEEP base fw 1.5.0+ FLASH log (with timestamp), interpret data and store in InlfuxDB (overwriting existing data). BEEP base BLE cmd: when the response is 200 OK and erase_mx_flash > -1, provide the ERASE_MX_FLASH BLE command (0x21) to the BEEP base with the last byte being the HEX value of the erase_mx_flash value (0 = 0x00, 1 = 0x01, i.e.0x2100, or 0x2101)
+    @authenticated
+    @bodyParam id integer Device id to update. (Required without key and hardware_id)
+    @bodyParam key string DEV EUI of the sensor to enable storing sensor data incoming on the api/sensors or api/lora_sensors endpoint. (Required without id and hardware_id)
+    @bodyParam hardware_id string Hardware id of the device as device name in TTN. (Required without id and key)
+    @bodyParam data string required MX_FLASH_LOG Hexadecimal string lines (new line) separated, with many rows of log data, or text file binary with all data inside.
+    @queryParam show integer 1 for displaying info in result JSON, 0 for not displaying (default).
+    @queryParam save integer 1 for saving the data to a file (default), 0 for not save log file.
+    @response{
           "lines_received": 20039,
           "bytes_received": 9872346,
           "log_saved": true,
@@ -714,21 +716,53 @@ class MeasurementController extends Controller
     */
     public function flashlog(Request $request)
     {
-        $out   = [];
-        $lines = 0; 
-        $bytes = 0; 
-        $saved = false; 
-        $parsed= false;
-        $logtm = false;
-        $erase = -1;
-        $show  = $request->filled('show') ? $request->input('show') : false;
-        $save  = $request->filled('save') ? $request->input('save') : true;
-        
-        if ($request->filled('key') && ($request->filled('data') || $request->hasFile('data')))
+        $inp = $request->input();
+        $sid = isset($inp['id']) ? $inp['id'] : null;
+        $key = isset($inp['key']) ? strtolower($inp['key']) : null;
+        $hwi = isset($inp['hardware_id']) ? strtolower($inp['hardware_id']) : null;
+
+        $validator = Validator::make($inp, [
+            'key'               => ['required_without_all:id,hardware_id','string','min:4','exists:sensors,key'],
+            'id'                => ['required_without_all:key,hardware_id','integer','exists:sensors,id'],
+            'hardware_id'       => ['required_without_all:key,id','string','exists:sensors,hardware_id'],
+            'data'              => 'filled',
+            'show'              => 'nullable|boolean',
+            'save'              => 'nullable|boolean'
+        ]);
+
+        $result = null;
+        $saved  = false;
+
+        if ($validator->fails())
         {
-            $key    = $request->input('key');
-            $device = $request->user()->devices->where('key', $key)->first();
-            if ($device)
+            return ['errors'=>$validator->errors().' (KEY: '.$key.', HW ID: '.$hwi.')', 'http_response_code'=>400];
+        }
+        else
+        {
+            $device = null;
+
+            if (isset($id))
+                $device = $request->user()->devices->where('id', $sid)->first();
+            else if (isset($key) && !isset($sid) && isset($hwi))
+                $device = $request->user()->devices->where('hardware_id', $hwi)->where('key', $key)->first();
+            else if (isset($hwi))
+                $device = $request->user()->devices->where('hardware_id', $hwi)->first();
+            else if (isset($key) && !isset($id) && !isset($hwi))
+                $device = $request->user()->devices->where('key', $key)->first();
+            
+            if ($device == null)
+                return Response::json('device_not_found', 400);
+
+            $out   = [];
+            $lines = 0; 
+            $bytes = 0; 
+            $parsed= false;
+            $logtm = false;
+            $erase = -1;
+            $show  = $request->filled('show') ? $inp['show'] : false;
+            $save  = $request->filled('save') ? $inp['save'] : true;
+            
+            if ($device && ($request->filled('data') || $request->hasFile('data')))
             {
                 $time = date("Ymdhis");
                 
@@ -798,17 +832,17 @@ class MeasurementController extends Controller
                     }
                 }
             }
+            $result = [
+                'lines_received'=>$lines,
+                'bytes_received'=>$bytes,
+                'log_has_timestamps'=>$logtm,
+                'log_saved'=>$saved,
+                'log_parsed'=>$parsed,
+                'erase_mx_flash'=>$saved ? 0 : -1
+            ];
+            if ($show)
+                $result['output'] = $out;
         }
-        $result = [
-            'lines_received'=>$lines,
-            'bytes_received'=>$bytes,
-            'log_has_timestamps'=>$logtm,
-            'log_saved'=>$saved,
-            'log_parsed'=>$parsed,
-            'erase_mx_flash'=>$saved ? 0 : -1
-        ];
-        if ($show)
-            $result['output'] = $out;
 
         return Response::json($result, $saved ? 200 : 500);
     }

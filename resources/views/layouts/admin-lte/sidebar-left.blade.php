@@ -84,7 +84,7 @@
 
       @role('manager')
         <li class="header">{{ __('general.manager').' '.__('general.menu') }}</li>
-        {{-- <li class="{{ Route::currentRouteNamed('devices.index') ? 'active' : '' }}"><a href="{{ route('devices.index') }}"><i class="fa fa-cube "></i><span>{{ __('general.Sensors') }}</span></a></li> --}}
+        <li class="{{ Route::currentRouteNamed('devices.index') ? 'active' : '' }}"><a href="{{ route('devices.index') }}"><i class="fa fa-cube "></i><span>{{ __('general.Devices') }}</span></a></li>
         
         {{-- <li class="{{ Route::currentRouteNamed('groups.index') ? 'active' : '' }}"><a href="{{ route('groups.index') }}"><i class="fa fa-cubes"></i><span>{{ __('general.Groups') }}</span></a></li> --}}
       @endrole

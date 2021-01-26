@@ -34,16 +34,27 @@ trait MeasurementLoRaDecoderTrait
         return $this->decode_beep_payload($payload, $port);
     }
     
-    // 03   31                1b0bf10bea64 0a01019889 0400 0c0a00ff008e001d0010000f000e000c000b000900090008 070849160703f8 25 5f5b73d2 0a
-    // type length (49 bytes) payload(78)
-    //                        bat          weight     temo fft                                              bme280         time unixts \n
-    private function decode_flashlog_payload($flashlog_line)
+    //  03   31                1b0bf10bea64 0a01019889 0400 0c0a00ff008e001d0010000f000e000c000b000900090008 070849160703f8 25 5f5b73d2 0a
+    //  type length (49 bytes) payload(78)
+    //                         bat          weight     temo fft                                              bme280         time unixts \n
+    private function decode_flashlog_payload($flashlog_line, $show=false)
     {
         $p      = strtolower($flashlog_line);
         $port   = hexdec(substr($p, 0, 2));
+        $length = hexdec(substr($p, 2, 2));
         $payload= substr($flashlog_line, 4);
 
-        return $this->decode_beep_payload($payload, $port);
+        $parsed = $this->decode_beep_payload($payload, $port);
+
+        if ($show)
+        {
+            $parsed['port']    = $port;
+            $parsed['len']     = $length;
+            $parsed['pl']      = $payload;
+            $parsed['pl_bytes']= strlen($payload)/2;
+        }
+
+        return $parsed;
     }
 
 

@@ -742,6 +742,7 @@ class MeasurementController extends Controller
 
         $result = null;
         $parsed = false;
+        $saved  = false;
 
         if ($validator->fails())
         {
@@ -766,7 +767,6 @@ class MeasurementController extends Controller
             $out   = [];
             $lines = 0; 
             $bytes = 0; 
-            $parsed= false;
             $logtm = false;
             $erase = -1;
             $show  = $request->filled('show') ? $inp['show'] : false;

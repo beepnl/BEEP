@@ -718,8 +718,18 @@ class MeasurementController extends Controller
     {
         $inp = $request->input();
         $sid = isset($inp['id']) ? $inp['id'] : null;
-        $key = isset($inp['key']) ? strtolower($inp['key']) : null;
-        $hwi = isset($inp['hardware_id']) ? strtolower($inp['hardware_id']) : null;
+        $key = null;
+        if (isset($inp['key']))
+        {
+            $key = strtolower($inp['key']);
+            $inp['key'] = $key;
+        }
+        $hwi = null;
+        if (isset($inp['hardware_id']))
+        {
+            $hwi = strtolower($inp['hardware_id']);
+            $inp['hardware_id'] = $hwi;
+        }
 
         $validator = Validator::make($inp, [
             'key'               => ['required_without_all:id,hardware_id','string','min:4','exists:sensors,key'],
@@ -735,7 +745,7 @@ class MeasurementController extends Controller
 
         if ($validator->fails())
         {
-            return ['errors'=>$validator->errors().' (KEY: '.$key.', HW ID: '.$hwi.')', 'http_response_code'=>400];
+            return Response::json($validator->errors(), 400);
         }
         else
         {

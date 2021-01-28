@@ -703,7 +703,8 @@ class MeasurementController extends Controller
     @bodyParam id integer Device id to update. (Required without key and hardware_id)
     @bodyParam key string DEV EUI of the sensor to enable storing sensor data incoming on the api/sensors or api/lora_sensors endpoint. (Required without id and hardware_id)
     @bodyParam hardware_id string Hardware id of the device as device name in TTN. (Required without id and key)
-    @bodyParam data string required MX_FLASH_LOG Hexadecimal string lines (new line) separated, with many rows of log data, or text file binary with all data inside.
+    @bodyParam data string MX_FLASH_LOG Hexadecimal string lines (new line) separated, with many rows of log data, or text file binary with all data inside.
+    @bodyParam file binary File with MX_FLASH_LOG Hexadecimal string lines (new line) separated, with many rows of log data, or text file binary with all data inside.
     @queryParam show integer 1 for displaying info in result JSON, 0 for not displaying (default).
     @queryParam save integer 1 for saving the data to a file (default), 0 for not save log file.
     @response{
@@ -716,7 +717,7 @@ class MeasurementController extends Controller
     */
     public function flashlog(Request $request)
     {
-        $inp = $request->input();
+        $inp = $request->all();
         $sid = isset($inp['id']) ? $inp['id'] : null;
         $key = null;
         if (isset($inp['key']))
@@ -735,7 +736,8 @@ class MeasurementController extends Controller
             'key'               => ['required_without_all:id,hardware_id','string','min:4','exists:sensors,key'],
             'id'                => ['required_without_all:key,hardware_id','integer','exists:sensors,id'],
             'hardware_id'       => ['required_without_all:key,id','string','exists:sensors,hardware_id'],
-            'data'              => 'filled',
+            'data'              => 'required_without:file',
+            'file'              => 'required_without:data|file',
             'show'              => 'nullable|boolean',
             'save'              => 'nullable|boolean'
         ]);
@@ -743,6 +745,7 @@ class MeasurementController extends Controller
         $result = null;
         $parsed = false;
         $saved  = false;
+        $files  = false;
 
         if ($validator->fails())
         {
@@ -772,13 +775,14 @@ class MeasurementController extends Controller
             $show  = $request->filled('show') ? $inp['show'] : false;
             $save  = $request->filled('save') ? $inp['save'] : true;
             
-            if ($device && ($request->filled('data') || $request->hasFile('data')))
+            if ($device && ($request->filled('data') || $request->hasFile('file')))
             {
                 $time = date("Ymdhis");
                 
-                if ($request->hasFile('data') && $request->file('data')->isValid())
+                if ($request->hasFile('file') && $request->file('file')->isValid())
                 {
-                    $file = $request->file('data');
+                    $files= true;
+                    $file = $request->file('file');
                     $name = "sensor_".$key."_flash_$time.log";
                     $saved= Storage::putFileAs('sensors', $file, $name) ? true : false; 
                     $data = Storage::disk('local')->get('sensors/'.$name);

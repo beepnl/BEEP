@@ -741,7 +741,7 @@ class MeasurementController extends Controller
         ]);
 
         $result = null;
-        $saved  = false;
+        $parsed = false;
 
         if ($validator->fails())
         {
@@ -854,7 +854,7 @@ class MeasurementController extends Controller
                 $result['output'] = $out;
         }
 
-        return Response::json($result, $saved ? 200 : 500);
+        return Response::json($result, $parsed ? 200 : 500);
     }
 
     /**

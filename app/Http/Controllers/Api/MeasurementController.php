@@ -742,10 +742,11 @@ class MeasurementController extends Controller
             'save'              => 'nullable|boolean'
         ]);
 
-        $result = null;
-        $parsed = false;
-        $saved  = false;
-        $files  = false;
+        $result   = null;
+        $parsed   = false;
+        $saved    = false;
+        $files    = false;
+        $messages = 0;
 
         if ($validator->fails())
         {
@@ -837,7 +838,8 @@ class MeasurementController extends Controller
                     }
                 }
 
-                if (count($out) > 0)
+                $messages = count($out);
+                if ($messages > 0)
                 {
                     $parsed = true;
                     if ($save)
@@ -853,6 +855,7 @@ class MeasurementController extends Controller
                 'log_has_timestamps'=>$logtm,
                 'log_saved'=>$saved,
                 'log_parsed'=>$parsed,
+                'log_messages'=>$messages,
                 'erase_mx_flash'=>$saved ? 0 : -1
             ];
             if ($show)

@@ -855,7 +855,10 @@ class MeasurementController extends Controller
                 'erase_mx_flash'=>$saved ? 0 : -1
             ];
             if ($show)
+            {
+                $result['fields'] = array_keys($inp);
                 $result['output'] = $out;
+            }
         }
 
         return Response::json($result, $parsed ? 200 : 500);

@@ -777,13 +777,14 @@ class MeasurementController extends Controller
             
             if ($device && ($request->filled('data') || $request->hasFile('file')))
             {
+                $sid  = $device->id; 
                 $time = date("Ymdhis");
                 
                 if ($request->hasFile('file') && $request->file('file')->isValid())
                 {
                     $files= true;
                     $file = $request->file('file');
-                    $name = "sensor_".$key."_flash_$time.log";
+                    $name = "sensor_".$sid."_flash_$time.log";
                     $saved= Storage::putFileAs('sensors', $file, $name) ? true : false; 
                     $data = Storage::disk('local')->get('sensors/'.$name);
                     if ($save == false)
@@ -794,7 +795,7 @@ class MeasurementController extends Controller
                     $data = $request->input('data');
                     if ($save)
                     {
-                        $logFileName = "sensor_".$key."_flash_$time.log";
+                        $logFileName = "sensor_".$sid."_flash_$time.log";
                         $saved = Storage::disk('local')->put('sensors/'.$logFileName, $data);
                     }
                 }
@@ -815,7 +816,7 @@ class MeasurementController extends Controller
 
                 if ($save)
                 {
-                    $logFileName =  "sensor_".$key."_flash_stripped_$time.log";
+                    $logFileName =  "sensor_".$sid."_flash_stripped_$time.log";
                     $saved = Storage::disk('local')->put('sensors/'.$logFileName, $data);
                 }
 
@@ -841,7 +842,7 @@ class MeasurementController extends Controller
                     $parsed = true;
                     if ($save)
                     {
-                        $logFileName = "sensor_".$key."_flash_parsed_$time.log";
+                        $logFileName = "sensor_".$sid."_flash_parsed_$time.log";
                         $saved = Storage::disk('local')->put('sensors/'.$logFileName, json_encode($out));
                     }
                 }

@@ -750,7 +750,7 @@ class MeasurementController extends Controller
 
         if ($validator->fails())
         {
-            return Response::json($validator->errors(), 400);
+            return Response::json(['errors'=>$validator->errors()], 400);
         }
         else
         {
@@ -766,7 +766,7 @@ class MeasurementController extends Controller
                 $device = $request->user()->devices->where('key', $key)->first();
             
             if ($device == null)
-                return Response::json('device_not_found', 400);
+                return Response::json(['errors'=>'device_not_found'], 400);
 
             $out   = [];
             $lines = 0; 
@@ -856,7 +856,9 @@ class MeasurementController extends Controller
                 'log_saved'=>$saved,
                 'log_parsed'=>$parsed,
                 'log_messages'=>$messages,
-                'erase_mx_flash'=>$saved ? 0 : -1
+                'erase_mx_flash'=>$saved ? 0 : -1,
+                'erase'=>$saved,
+                'erase_type'=>$saved ? 'fatfs' : null // fatfs, or full
             ];
             if ($show)
             {
@@ -865,6 +867,7 @@ class MeasurementController extends Controller
             }
         }
 
+        if ($parsed)
         return Response::json($result, $parsed ? 200 : 500);
     }
 

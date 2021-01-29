@@ -703,7 +703,8 @@ class MeasurementController extends Controller
     @bodyParam id integer Device id to update. (Required without key and hardware_id)
     @bodyParam key string DEV EUI of the sensor to enable storing sensor data incoming on the api/sensors or api/lora_sensors endpoint. (Required without id and hardware_id)
     @bodyParam hardware_id string Hardware id of the device as device name in TTN. (Required without id and key)
-    @bodyParam data string required MX_FLASH_LOG Hexadecimal string lines (new line) separated, with many rows of log data, or text file binary with all data inside.
+    @bodyParam data string MX_FLASH_LOG Hexadecimal string lines (new line) separated, with many rows of log data, or text file binary with all data inside.
+    @bodyParam file binary File with MX_FLASH_LOG Hexadecimal string lines (new line) separated, with many rows of log data, or text file binary with all data inside.
     @queryParam show integer 1 for displaying info in result JSON, 0 for not displaying (default).
     @queryParam save integer 1 for saving the data to a file (default), 0 for not save log file.
     @response{
@@ -716,26 +717,40 @@ class MeasurementController extends Controller
     */
     public function flashlog(Request $request)
     {
-        $inp = $request->input();
+        $inp = $request->all();
         $sid = isset($inp['id']) ? $inp['id'] : null;
-        $key = isset($inp['key']) ? strtolower($inp['key']) : null;
-        $hwi = isset($inp['hardware_id']) ? strtolower($inp['hardware_id']) : null;
+        $key = null;
+        if (isset($inp['key']))
+        {
+            $key = strtolower($inp['key']);
+            $inp['key'] = $key;
+        }
+        $hwi = null;
+        if (isset($inp['hardware_id']))
+        {
+            $hwi = strtolower($inp['hardware_id']);
+            $inp['hardware_id'] = $hwi;
+        }
 
         $validator = Validator::make($inp, [
             'key'               => ['required_without_all:id,hardware_id','string','min:4','exists:sensors,key'],
             'id'                => ['required_without_all:key,hardware_id','integer','exists:sensors,id'],
             'hardware_id'       => ['required_without_all:key,id','string','exists:sensors,hardware_id'],
-            'data'              => 'filled',
+            'data'              => 'required_without:file',
+            'file'              => 'required_without:data|file',
             'show'              => 'nullable|boolean',
             'save'              => 'nullable|boolean'
         ]);
 
-        $result = null;
-        $saved  = false;
+        $result   = null;
+        $parsed   = false;
+        $saved    = false;
+        $files    = false;
+        $messages = 0;
 
         if ($validator->fails())
         {
-            return ['errors'=>$validator->errors().' (KEY: '.$key.', HW ID: '.$hwi.')', 'http_response_code'=>400];
+            return Response::json($validator->errors(), 400);
         }
         else
         {
@@ -756,20 +771,21 @@ class MeasurementController extends Controller
             $out   = [];
             $lines = 0; 
             $bytes = 0; 
-            $parsed= false;
             $logtm = false;
             $erase = -1;
             $show  = $request->filled('show') ? $inp['show'] : false;
             $save  = $request->filled('save') ? $inp['save'] : true;
             
-            if ($device && ($request->filled('data') || $request->hasFile('data')))
+            if ($device && ($request->filled('data') || $request->hasFile('file')))
             {
+                $sid  = $device->id; 
                 $time = date("Ymdhis");
                 
-                if ($request->hasFile('data') && $request->file('data')->isValid())
+                if ($request->hasFile('file') && $request->file('file')->isValid())
                 {
-                    $file = $request->file('data');
-                    $name = "sensor_".$key."_flash_$time.log";
+                    $files= true;
+                    $file = $request->file('file');
+                    $name = "sensor_".$sid."_flash_$time.log";
                     $saved= Storage::putFileAs('sensors', $file, $name) ? true : false; 
                     $data = Storage::disk('local')->get('sensors/'.$name);
                     if ($save == false)
@@ -780,7 +796,7 @@ class MeasurementController extends Controller
                     $data = $request->input('data');
                     if ($save)
                     {
-                        $logFileName = "sensor_".$key."_flash_$time.log";
+                        $logFileName = "sensor_".$sid."_flash_$time.log";
                         $saved = Storage::disk('local')->put('sensors/'.$logFileName, $data);
                     }
                 }
@@ -801,7 +817,7 @@ class MeasurementController extends Controller
 
                 if ($save)
                 {
-                    $logFileName =  "sensor_".$key."_flash_stripped_$time.log";
+                    $logFileName =  "sensor_".$sid."_flash_stripped_$time.log";
                     $saved = Storage::disk('local')->put('sensors/'.$logFileName, $data);
                 }
 
@@ -822,12 +838,13 @@ class MeasurementController extends Controller
                     }
                 }
 
-                if (count($out) > 0)
+                $messages = count($out);
+                if ($messages > 0)
                 {
                     $parsed = true;
                     if ($save)
                     {
-                        $logFileName = "sensor_".$key."_flash_parsed_$time.log";
+                        $logFileName = "sensor_".$sid."_flash_parsed_$time.log";
                         $saved = Storage::disk('local')->put('sensors/'.$logFileName, json_encode($out));
                     }
                 }
@@ -838,13 +855,17 @@ class MeasurementController extends Controller
                 'log_has_timestamps'=>$logtm,
                 'log_saved'=>$saved,
                 'log_parsed'=>$parsed,
+                'log_messages'=>$messages,
                 'erase_mx_flash'=>$saved ? 0 : -1
             ];
             if ($show)
+            {
+                $result['fields'] = array_keys($inp);
                 $result['output'] = $out;
+            }
         }
 
-        return Response::json($result, $saved ? 200 : 500);
+        return Response::json($result, $parsed ? 200 : 500);
     }
 
     /**

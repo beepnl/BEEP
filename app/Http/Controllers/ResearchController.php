@@ -882,7 +882,7 @@ class ResearchController extends Controller
         foreach ($csv_sens as $sensor_name) 
         {
             $meas       = Measurement::where('abbreviation', $sensor_name)->first();
-            $csv_head[] = $meas ? $meas->pq_name_unit() : $sensor_name;
+            $csv_head[] = $meas ? $meas->pq_name_unit().' ('.$sensor_name.')' : $sensor_name;
         }
         $csv_head = '"'.implode('"'.$separator.'"', $csv_head).'"'."\r\n";
 

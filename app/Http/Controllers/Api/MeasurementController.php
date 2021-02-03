@@ -712,7 +712,10 @@ class MeasurementController extends Controller
           "bytes_received": 9872346,
           "log_saved": true,
           "log_parsed": false,
-          "erase_mx_flash": -1
+          "log_messages":29387823
+          "erase_mx_flash": -1,
+          "erase":false,
+          "erase_type":"fatfs"
         }
     */
     public function flashlog(Request $request)

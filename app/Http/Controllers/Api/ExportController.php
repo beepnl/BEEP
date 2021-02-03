@@ -243,6 +243,17 @@ class ExportController extends Controller
         return $table;
     }
 
+    /**
+    api/export/csv POST
+    Generate a CSV measurement data export from InfluxDB. Make sure not to load a too large timespan (i.e. > 30 days), because the call will not succeed due to memory overload.
+    @authenticated
+    @bodyParam device_id required Device id to download data from
+    @bodyParam start date required Date for start of data export. Example: 2020-05-27 16:16
+    @bodyParam end date required Date for end of data export. Example: 2020-05-30 00:00
+    @bodyParam separator string Symbol that should be used to separate columns in CSV file. Example: ;
+    @bodyParam measurements string Comma separated list of measurement types to load. If you want a lot of data (i.e. > 30 days), make sure not to load more than one measurement. Example: 'am2315_t,am2315_h,mhz_co2'
+    @bodyParam link boolean filled means: save the export to a file and provide the link, not filled means: output a text/html header with text containing the .csv content. Example:
+    **/
     public function generate_csv(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -295,7 +306,7 @@ class ExportController extends Controller
         foreach ($csv_sens as $sensor_name) 
         {
             $meas       = Measurement::where('abbreviation', $sensor_name)->first();
-            $csv_head[] = $meas ? $meas->pq_name_unit() : $sensor_name;
+            $csv_head[] = $meas ? $meas->pq_name_unit().' ('.$sensor_name.')' : $sensor_name;
         }
         $csv_head = '"'.implode('"'.$separator.'"', $csv_head).'"'."\r\n";
 

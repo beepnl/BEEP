@@ -133,6 +133,7 @@ Route::group(
 				Route::resource('permissions', 		'PermissionController');
 				Route::resource('image', 			'ImageController');
 				Route::resource('sample-code', 		'SampleCodeController');
+				Route::resource('alert', 'AlertController');
 
 				Route::delete('checklists/destroy/copies',	['as'=>'checklists.copies','uses'=>'ChecklistController@destroyCopies']);
 				
@@ -152,3 +153,12 @@ Route::group(
 		Route::delete('research/{id}',		['as'=>'research.destroy','uses'=>'ResearchController@destroy']);
 	}
 );
+
+Route::resource('alert', 'AlertController');
+Route::resource('alert', 'AlertController');
+Route::resource('alert', 'AlertController');
+Route::resource('alert', 'AlertController');
+Route::resource('alert', 'AlertController');
+Route::resource('alert-rule', 'AlertRuleController');
+Route::resource('alert-rule', 'AlertRuleController');
+Route::resource('alert', 'AlertController');

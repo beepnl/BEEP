@@ -100,6 +100,9 @@ Route::group(['middleware' => \Barryvdh\Cors\HandleCors::class], function()
 		Route::resource('images', 			'Api\ImageController', 					['except'=>['create','edit','destroy']]);
 		Route::resource('sensordefinition', 'Api\SensorDefinitionController', 		['except'=>['create','edit']]);
 		Route::resource('samplecode', 		'Api\SampleCodeController', 			['except'=>['create','edit','destroy']]);
+		Route::resource('alerts', 			'Api\AlertController', 					['except' => ['create', 'edit']]);
+		Route::resource('alert-rules', 		'Api\AlertRuleController', 				['except' => ['create', 'edit']]);
+		Route::get('alert-rules-default', 	'Api\AlertRuleController@default');
 		
 
 		Route::delete('samplecode', 		'Api\SampleCodeController@destroy');

@@ -10,6 +10,9 @@ use Zizaco\Entrust\Traits\EntrustUserTrait;
 use App\Notifications\VerifyEmail;
 use App\Notifications\ResetPassword;
 
+use App\Models\Alert;
+use App\Models\AlertRule;
+
 use DB;
 
 class User extends Authenticatable
@@ -204,6 +207,16 @@ class User extends Authenticatable
             $invite['usercount'] = $item->users->count();
             return $invite; 
         });
+    }
+
+    public function alert_rules()
+    {
+        return $this->hasMany(AlertRule::class);
+    }
+
+    public function alerts()
+    {
+        return $this->hasMany(Alert::class);
     }
 
     public function inspectionDates()

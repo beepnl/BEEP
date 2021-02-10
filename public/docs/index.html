@@ -48,6 +48,615 @@
 <p>Welcome to the generated API reference.
 <a href="http://api.beep.nl/docs/collection.json">Get Postman Collection</a></p>
 <!-- END_INFO -->
+<h1>Api\AlertController</h1>
+<!-- START_27e60fb6c87430f1ee280ffc44a9fb33 -->
+<h2>api/alerts GET</h2>
+<p>List all user alerts that are not deleted.</p>
+<p><br><small style="padding: 1px 9px 2px;font-weight: bold;white-space: nowrap;color: #ffffff;-webkit-border-radius: 9px;-moz-border-radius: 9px;border-radius: 9px;background-color: #3a87ad;">Requires authentication</small></p>
+<blockquote>
+<p>Example request:</p>
+</blockquote>
+<pre><code class="language-bash">curl -X GET -G "https://api.beep.nl/api/alerts" </code></pre>
+<pre><code class="language-javascript">const url = new URL("https://api.beep.nl/api/alerts");
+
+let headers = {
+    "Accept": "application/json",
+    "Content-Type": "application/json",
+}
+
+fetch(url, {
+    method: "GET",
+    headers: headers,
+})
+    .then(response =&gt; response.json())
+    .then(json =&gt; console.log(json));</code></pre>
+<blockquote>
+<p>Example response (401):</p>
+</blockquote>
+<pre><code class="language-json">{
+    "message": "Unauthenticated."
+}</code></pre>
+<h3>HTTP Request</h3>
+<p><code>GET api/alerts</code></p>
+<!-- END_27e60fb6c87430f1ee280ffc44a9fb33 -->
+<!-- START_ff0acf0994a378184df481412873c9b1 -->
+<h2>api/alerts/{id} POST</h2>
+<p>Create the specified user alert.</p>
+<p><br><small style="padding: 1px 9px 2px;font-weight: bold;white-space: nowrap;color: #ffffff;-webkit-border-radius: 9px;-moz-border-radius: 9px;border-radius: 9px;background-color: #3a87ad;">Requires authentication</small></p>
+<blockquote>
+<p>Example request:</p>
+</blockquote>
+<pre><code class="language-bash">curl -X POST "https://api.beep.nl/api/alerts" \
+    -H "Content-Type: application/json" \
+    -d '{"alert_rule_id":11,"measurement_id":14,"alert_value":"corrupti","show":true}'
+</code></pre>
+<pre><code class="language-javascript">const url = new URL("https://api.beep.nl/api/alerts");
+
+let headers = {
+    "Content-Type": "application/json",
+    "Accept": "application/json",
+}
+
+let body = {
+    "alert_rule_id": 11,
+    "measurement_id": 14,
+    "alert_value": "corrupti",
+    "show": true
+}
+
+fetch(url, {
+    method: "POST",
+    headers: headers,
+    body: body
+})
+    .then(response =&gt; response.json())
+    .then(json =&gt; console.log(json));</code></pre>
+<h3>HTTP Request</h3>
+<p><code>POST api/alerts</code></p>
+<h4>Body Parameters</h4>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Type</th>
+<th>Status</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>alert_rule_id</td>
+<td>integer</td>
+<td>required</td>
+<td>The alert rule that has been alerted for.</td>
+</tr>
+<tr>
+<td>measurement_id</td>
+<td>integer</td>
+<td>required</td>
+<td>The physical quantity / unit to alert for.</td>
+</tr>
+<tr>
+<td>alert_value</td>
+<td>string</td>
+<td>required</td>
+<td>The alert value.</td>
+</tr>
+<tr>
+<td>show</td>
+<td>boolean</td>
+<td>optional</td>
+<td>Set to false (0) if the alert should NOT be shown anymore.</td>
+</tr>
+</tbody>
+</table>
+<!-- END_ff0acf0994a378184df481412873c9b1 -->
+<!-- START_507f78ac919fb619f0c367bc95e11f60 -->
+<h2>api/alerts/{id} GET</h2>
+<p>Display the specified user alert.</p>
+<p><br><small style="padding: 1px 9px 2px;font-weight: bold;white-space: nowrap;color: #ffffff;-webkit-border-radius: 9px;-moz-border-radius: 9px;border-radius: 9px;background-color: #3a87ad;">Requires authentication</small></p>
+<blockquote>
+<p>Example request:</p>
+</blockquote>
+<pre><code class="language-bash">curl -X GET -G "https://api.beep.nl/api/alerts/1" </code></pre>
+<pre><code class="language-javascript">const url = new URL("https://api.beep.nl/api/alerts/1");
+
+let headers = {
+    "Accept": "application/json",
+    "Content-Type": "application/json",
+}
+
+fetch(url, {
+    method: "GET",
+    headers: headers,
+})
+    .then(response =&gt; response.json())
+    .then(json =&gt; console.log(json));</code></pre>
+<blockquote>
+<p>Example response (401):</p>
+</blockquote>
+<pre><code class="language-json">{
+    "message": "Unauthenticated."
+}</code></pre>
+<h3>HTTP Request</h3>
+<p><code>GET api/alerts/{alert}</code></p>
+<!-- END_507f78ac919fb619f0c367bc95e11f60 -->
+<!-- START_b56b064d2a87f2e7b972f94f154f9b65 -->
+<h2>api/alerts/{id} PATCH</h2>
+<p>Update the specified user alert.</p>
+<p><br><small style="padding: 1px 9px 2px;font-weight: bold;white-space: nowrap;color: #ffffff;-webkit-border-radius: 9px;-moz-border-radius: 9px;border-radius: 9px;background-color: #3a87ad;">Requires authentication</small></p>
+<blockquote>
+<p>Example request:</p>
+</blockquote>
+<pre><code class="language-bash">curl -X PUT "https://api.beep.nl/api/alerts/1" \
+    -H "Content-Type: application/json" \
+    -d '{"show":false}'
+</code></pre>
+<pre><code class="language-javascript">const url = new URL("https://api.beep.nl/api/alerts/1");
+
+let headers = {
+    "Content-Type": "application/json",
+    "Accept": "application/json",
+}
+
+let body = {
+    "show": false
+}
+
+fetch(url, {
+    method: "PUT",
+    headers: headers,
+    body: body
+})
+    .then(response =&gt; response.json())
+    .then(json =&gt; console.log(json));</code></pre>
+<h3>HTTP Request</h3>
+<p><code>PUT api/alerts/{alert}</code></p>
+<p><code>PATCH api/alerts/{alert}</code></p>
+<h4>Body Parameters</h4>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Type</th>
+<th>Status</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>show</td>
+<td>boolean</td>
+<td>optional</td>
+<td>Set to false (0) if the alert should NOT be shown anymore.</td>
+</tr>
+</tbody>
+</table>
+<!-- END_b56b064d2a87f2e7b972f94f154f9b65 -->
+<!-- START_a1fc881bc679bc6f057324af55ec6e72 -->
+<h2>api/alerts/{id} DELETE</h2>
+<p>Delete the specified user alert.</p>
+<p><br><small style="padding: 1px 9px 2px;font-weight: bold;white-space: nowrap;color: #ffffff;-webkit-border-radius: 9px;-moz-border-radius: 9px;border-radius: 9px;background-color: #3a87ad;">Requires authentication</small></p>
+<blockquote>
+<p>Example request:</p>
+</blockquote>
+<pre><code class="language-bash">curl -X DELETE "https://api.beep.nl/api/alerts/1" </code></pre>
+<pre><code class="language-javascript">const url = new URL("https://api.beep.nl/api/alerts/1");
+
+let headers = {
+    "Accept": "application/json",
+    "Content-Type": "application/json",
+}
+
+fetch(url, {
+    method: "DELETE",
+    headers: headers,
+})
+    .then(response =&gt; response.json())
+    .then(json =&gt; console.log(json));</code></pre>
+<h3>HTTP Request</h3>
+<p><code>DELETE api/alerts/{alert}</code></p>
+<!-- END_a1fc881bc679bc6f057324af55ec6e72 -->
+<h1>Api\AlertRuleController</h1>
+<!-- START_adb377f80aad712e86ace99583e397b0 -->
+<h2>api/alert-rules GET</h2>
+<p>List all user alert rules that are not deleted.</p>
+<p><br><small style="padding: 1px 9px 2px;font-weight: bold;white-space: nowrap;color: #ffffff;-webkit-border-radius: 9px;-moz-border-radius: 9px;border-radius: 9px;background-color: #3a87ad;">Requires authentication</small></p>
+<blockquote>
+<p>Example request:</p>
+</blockquote>
+<pre><code class="language-bash">curl -X GET -G "https://api.beep.nl/api/alert-rules" </code></pre>
+<pre><code class="language-javascript">const url = new URL("https://api.beep.nl/api/alert-rules");
+
+let headers = {
+    "Accept": "application/json",
+    "Content-Type": "application/json",
+}
+
+fetch(url, {
+    method: "GET",
+    headers: headers,
+})
+    .then(response =&gt; response.json())
+    .then(json =&gt; console.log(json));</code></pre>
+<blockquote>
+<p>Example response (401):</p>
+</blockquote>
+<pre><code class="language-json">{
+    "message": "Unauthenticated."
+}</code></pre>
+<h3>HTTP Request</h3>
+<p><code>GET api/alert-rules</code></p>
+<!-- END_adb377f80aad712e86ace99583e397b0 -->
+<!-- START_9fab7b3346de0166be92e0e195edc7c4 -->
+<h2>api/alert-rules/{id} POST</h2>
+<p>Create the specified user alert rule.</p>
+<p><br><small style="padding: 1px 9px 2px;font-weight: bold;white-space: nowrap;color: #ffffff;-webkit-border-radius: 9px;-moz-border-radius: 9px;border-radius: 9px;background-color: #3a87ad;">Requires authentication</small></p>
+<blockquote>
+<p>Example request:</p>
+</blockquote>
+<pre><code class="language-bash">curl -X POST "https://api.beep.nl/api/alert-rules" \
+    -H "Content-Type: application/json" \
+    -d '{"measurement_id":1,"calculation":"ut","comparator":"quia","comparison":"illum","threshold_value":2.532,"name":"pariatur","description":"vel","calculation_minutes":20,"exclude_months":"[1,2,3,11,12]","exclude_hours":"[0,1,2,3,22,23]","alert_on_occurrences":1,"alert_via_email":true,"webhook_url":"eum","active":true}'
+</code></pre>
+<pre><code class="language-javascript">const url = new URL("https://api.beep.nl/api/alert-rules");
+
+let headers = {
+    "Content-Type": "application/json",
+    "Accept": "application/json",
+}
+
+let body = {
+    "measurement_id": 1,
+    "calculation": "ut",
+    "comparator": "quia",
+    "comparison": "illum",
+    "threshold_value": 2.532,
+    "name": "pariatur",
+    "description": "vel",
+    "calculation_minutes": 20,
+    "exclude_months": "[1,2,3,11,12]",
+    "exclude_hours": "[0,1,2,3,22,23]",
+    "alert_on_occurrences": 1,
+    "alert_via_email": true,
+    "webhook_url": "eum",
+    "active": true
+}
+
+fetch(url, {
+    method: "POST",
+    headers: headers,
+    body: body
+})
+    .then(response =&gt; response.json())
+    .then(json =&gt; console.log(json));</code></pre>
+<h3>HTTP Request</h3>
+<p><code>POST api/alert-rules</code></p>
+<h4>Body Parameters</h4>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Type</th>
+<th>Status</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>measurement_id</td>
+<td>integer</td>
+<td>required</td>
+<td>The physical quantity / unit to alert for.</td>
+</tr>
+<tr>
+<td>calculation</td>
+<td>string</td>
+<td>required</td>
+<td>Calculation to be done with measurement value(s): (min, max, ave, der, cnt) -&gt; Minimum, Maximum, Average (mean), Derivative, Count.</td>
+</tr>
+<tr>
+<td>comparator</td>
+<td>string</td>
+<td>required</td>
+<td>Logical comparator to perform with comparison calculation result and threshold_value (=, &lt;, &gt;, &lt;=, &gt;=).</td>
+</tr>
+<tr>
+<td>comparison</td>
+<td>string</td>
+<td>required</td>
+<td>Comparison function to perform with measurement value(s): (val, dif, abs, abs_dif) -&gt; Value, Difference, Absolute value, Absolute value of the difference.</td>
+</tr>
+<tr>
+<td>threshold_value</td>
+<td>float</td>
+<td>required</td>
+<td>The threshold value beyond which the alert will be sent.</td>
+</tr>
+<tr>
+<td>name</td>
+<td>string</td>
+<td>optional</td>
+<td>The name of the alert rule.</td>
+</tr>
+<tr>
+<td>description</td>
+<td>string</td>
+<td>optional</td>
+<td>The description of the alert rule.</td>
+</tr>
+<tr>
+<td>calculation_minutes</td>
+<td>integer</td>
+<td>optional</td>
+<td>The amount of minutes used for calculating the (min, max, ave, der, cnt) of the measurement value(s). If not provided, the last recorded value is used as a reference.</td>
+</tr>
+<tr>
+<td>exclude_months</td>
+<td>array</td>
+<td>optional</td>
+<td>Array of month indexes (1-12). If not filled the standard alert is 'always on'.</td>
+</tr>
+<tr>
+<td>exclude_hours</td>
+<td>array</td>
+<td>optional</td>
+<td>Array of hour indexes (0-23). If not filled the standard alert is 'always on'.</td>
+</tr>
+<tr>
+<td>alert_on_occurrences</td>
+<td>integer</td>
+<td>optional</td>
+<td>Amount of occurences that a calculated value goed beyond the threshold_value. If not filled the standard is 1 (immediate alert).</td>
+</tr>
+<tr>
+<td>alert_via_email</td>
+<td>boolean</td>
+<td>optional</td>
+<td>Set to false (0) if an e-mail should NOT be sent on alert. Default: true (1).</td>
+</tr>
+<tr>
+<td>webhook_url</td>
+<td>string</td>
+<td>optional</td>
+<td>URL of optional endpoint to call on alert for web hook integration.</td>
+</tr>
+<tr>
+<td>active</td>
+<td>boolean</td>
+<td>optional</td>
+<td>Set to false (0) if the alert should NOT be active. Default: true (1).</td>
+</tr>
+</tbody>
+</table>
+<!-- END_9fab7b3346de0166be92e0e195edc7c4 -->
+<!-- START_9227af5fa7385eb43511954236120933 -->
+<h2>api/alert-rules/{id} GET</h2>
+<p>Display the specified user alert rules.</p>
+<p><br><small style="padding: 1px 9px 2px;font-weight: bold;white-space: nowrap;color: #ffffff;-webkit-border-radius: 9px;-moz-border-radius: 9px;border-radius: 9px;background-color: #3a87ad;">Requires authentication</small></p>
+<blockquote>
+<p>Example request:</p>
+</blockquote>
+<pre><code class="language-bash">curl -X GET -G "https://api.beep.nl/api/alert-rules/1" </code></pre>
+<pre><code class="language-javascript">const url = new URL("https://api.beep.nl/api/alert-rules/1");
+
+let headers = {
+    "Accept": "application/json",
+    "Content-Type": "application/json",
+}
+
+fetch(url, {
+    method: "GET",
+    headers: headers,
+})
+    .then(response =&gt; response.json())
+    .then(json =&gt; console.log(json));</code></pre>
+<blockquote>
+<p>Example response (401):</p>
+</blockquote>
+<pre><code class="language-json">{
+    "message": "Unauthenticated."
+}</code></pre>
+<h3>HTTP Request</h3>
+<p><code>GET api/alert-rules/{alert_rule}</code></p>
+<!-- END_9227af5fa7385eb43511954236120933 -->
+<!-- START_3f4fbed2deb297471666935d99d5c636 -->
+<h2>api/alert-rules/{id} PATCH</h2>
+<p>Update the specified user alert rule.</p>
+<p><br><small style="padding: 1px 9px 2px;font-weight: bold;white-space: nowrap;color: #ffffff;-webkit-border-radius: 9px;-moz-border-radius: 9px;border-radius: 9px;background-color: #3a87ad;">Requires authentication</small></p>
+<blockquote>
+<p>Example request:</p>
+</blockquote>
+<pre><code class="language-bash">curl -X PUT "https://api.beep.nl/api/alert-rules/1" \
+    -H "Content-Type: application/json" \
+    -d '{"measurement_id":4,"calculation":"quibusdam","comparator":"qui","comparison":"dignissimos","threshold_value":45310.36928695,"name":"non","description":"soluta","calculation_minutes":5,"exclude_months":"[1,2,3,11,12]","exclude_hours":"[0,1,2,3,22,23]","alert_on_occurrences":8,"alert_via_email":true,"webhook_url":"ea","active":false}'
+</code></pre>
+<pre><code class="language-javascript">const url = new URL("https://api.beep.nl/api/alert-rules/1");
+
+let headers = {
+    "Content-Type": "application/json",
+    "Accept": "application/json",
+}
+
+let body = {
+    "measurement_id": 4,
+    "calculation": "quibusdam",
+    "comparator": "qui",
+    "comparison": "dignissimos",
+    "threshold_value": 45310.36928695,
+    "name": "non",
+    "description": "soluta",
+    "calculation_minutes": 5,
+    "exclude_months": "[1,2,3,11,12]",
+    "exclude_hours": "[0,1,2,3,22,23]",
+    "alert_on_occurrences": 8,
+    "alert_via_email": true,
+    "webhook_url": "ea",
+    "active": false
+}
+
+fetch(url, {
+    method: "PUT",
+    headers: headers,
+    body: body
+})
+    .then(response =&gt; response.json())
+    .then(json =&gt; console.log(json));</code></pre>
+<h3>HTTP Request</h3>
+<p><code>PUT api/alert-rules/{alert_rule}</code></p>
+<p><code>PATCH api/alert-rules/{alert_rule}</code></p>
+<h4>Body Parameters</h4>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Type</th>
+<th>Status</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>measurement_id</td>
+<td>integer</td>
+<td>required</td>
+<td>The physical quantity / unit to alert for.</td>
+</tr>
+<tr>
+<td>calculation</td>
+<td>string</td>
+<td>required</td>
+<td>Calculation to be done with measurement value(s): (min, max, ave, der, cnt) -&gt; Minimum, Maximum, Average (mean), Derivative, Count.</td>
+</tr>
+<tr>
+<td>comparator</td>
+<td>string</td>
+<td>required</td>
+<td>Logical comparator to perform with comparison calculation result and threshold_value (=, &lt;, &gt;, &lt;=, &gt;=).</td>
+</tr>
+<tr>
+<td>comparison</td>
+<td>string</td>
+<td>required</td>
+<td>Comparison function to perform with measurement value(s): (val, dif, abs, abs_dif) -&gt; Value, Difference, Absolute value, Absolute value of the difference.</td>
+</tr>
+<tr>
+<td>threshold_value</td>
+<td>float</td>
+<td>required</td>
+<td>The threshold value beyond which the alert will be sent.</td>
+</tr>
+<tr>
+<td>name</td>
+<td>string</td>
+<td>optional</td>
+<td>The name of the alert rule.</td>
+</tr>
+<tr>
+<td>description</td>
+<td>string</td>
+<td>optional</td>
+<td>The description of the alert rule.</td>
+</tr>
+<tr>
+<td>calculation_minutes</td>
+<td>integer</td>
+<td>optional</td>
+<td>The amount of minutes used for calculating the (min, max, ave, der, cnt) of the measurement value(s). If not provided, the last recorded value is used as a reference.</td>
+</tr>
+<tr>
+<td>exclude_months</td>
+<td>array</td>
+<td>optional</td>
+<td>Array of month indexes (1-12). If not filled the standard alert is 'always on'.</td>
+</tr>
+<tr>
+<td>exclude_hours</td>
+<td>array</td>
+<td>optional</td>
+<td>Array of hour indexes (0-23). If not filled the standard alert is 'always on'.</td>
+</tr>
+<tr>
+<td>alert_on_occurrences</td>
+<td>integer</td>
+<td>optional</td>
+<td>Amount of occurences that a calculated value goed beyond the threshold_value. If not filled the standard is 1 (immediate alert).</td>
+</tr>
+<tr>
+<td>alert_via_email</td>
+<td>boolean</td>
+<td>optional</td>
+<td>Set to false (0) if an e-mail should NOT be sent on alert. Default: true (1).</td>
+</tr>
+<tr>
+<td>webhook_url</td>
+<td>string</td>
+<td>optional</td>
+<td>URL of optional endpoint to call on alert for web hook integration.</td>
+</tr>
+<tr>
+<td>active</td>
+<td>boolean</td>
+<td>optional</td>
+<td>Set to false (0) if the alert should NOT be active. Default: true (1).</td>
+</tr>
+</tbody>
+</table>
+<!-- END_3f4fbed2deb297471666935d99d5c636 -->
+<!-- START_ffb2ec030fc2118925c07e196067779c -->
+<h2>api/alert-rules/{id} DELETE</h2>
+<p>Delete the specified user alert rule.</p>
+<p><br><small style="padding: 1px 9px 2px;font-weight: bold;white-space: nowrap;color: #ffffff;-webkit-border-radius: 9px;-moz-border-radius: 9px;border-radius: 9px;background-color: #3a87ad;">Requires authentication</small></p>
+<blockquote>
+<p>Example request:</p>
+</blockquote>
+<pre><code class="language-bash">curl -X DELETE "https://api.beep.nl/api/alert-rules/1" </code></pre>
+<pre><code class="language-javascript">const url = new URL("https://api.beep.nl/api/alert-rules/1");
+
+let headers = {
+    "Accept": "application/json",
+    "Content-Type": "application/json",
+}
+
+fetch(url, {
+    method: "DELETE",
+    headers: headers,
+})
+    .then(response =&gt; response.json())
+    .then(json =&gt; console.log(json));</code></pre>
+<h3>HTTP Request</h3>
+<p><code>DELETE api/alert-rules/{alert_rule}</code></p>
+<!-- END_ffb2ec030fc2118925c07e196067779c -->
+<!-- START_ddc4a64a5c81a0933dc450079fcd62ba -->
+<h2>api/alert-rules-default GET</h2>
+<p>List all default alert rules that are available.</p>
+<p><br><small style="padding: 1px 9px 2px;font-weight: bold;white-space: nowrap;color: #ffffff;-webkit-border-radius: 9px;-moz-border-radius: 9px;border-radius: 9px;background-color: #3a87ad;">Requires authentication</small></p>
+<blockquote>
+<p>Example request:</p>
+</blockquote>
+<pre><code class="language-bash">curl -X GET -G "https://api.beep.nl/api/alert-rules-default" </code></pre>
+<pre><code class="language-javascript">const url = new URL("https://api.beep.nl/api/alert-rules-default");
+
+let headers = {
+    "Accept": "application/json",
+    "Content-Type": "application/json",
+}
+
+fetch(url, {
+    method: "GET",
+    headers: headers,
+})
+    .then(response =&gt; response.json())
+    .then(json =&gt; console.log(json));</code></pre>
+<blockquote>
+<p>Example response (401):</p>
+</blockquote>
+<pre><code class="language-json">{
+    "message": "Unauthenticated."
+}</code></pre>
+<h3>HTTP Request</h3>
+<p><code>GET api/alert-rules-default</code></p>
+<!-- END_ddc4a64a5c81a0933dc450079fcd62ba -->
 <h1>Api\CategoryController</h1>
 <p>All categories in the categorization tree used for hive inspections
 Only used to get listing (index) or one category (show)</p>
@@ -1736,7 +2345,7 @@ fetch(url, {
 </blockquote>
 <pre><code class="language-bash">curl -X POST "https://api.beep.nl/api/devices/multiple" \
     -H "Content-Type: application/json" \
-    -d '{"id":5,"key":"fugiat","hardware_id":"eum","name":"perspiciatis","hive_id":17,"type":"vel","last_message_received":"et","firmware_version":"magnam","hardware_version":"alias","boot_count":13,"measurement_interval_min":25.9710169,"measurement_transmission_ratio":28.6,"ble_pin":"et","battery_voltage":2078394.2,"next_downlink_message":"in","last_downlink_result":"suscipit"}'
+    -d '{"id":3,"key":"quia","hardware_id":"reprehenderit","name":"ullam","hive_id":19,"type":"ad","last_message_received":"necessitatibus","firmware_version":"ut","hardware_version":"maiores","boot_count":7,"measurement_interval_min":42.69,"measurement_transmission_ratio":896.0782674,"ble_pin":"sint","battery_voltage":130089785.8096635,"next_downlink_message":"porro","last_downlink_result":"eos"}'
 </code></pre>
 <pre><code class="language-javascript">const url = new URL("https://api.beep.nl/api/devices/multiple");
 
@@ -1746,22 +2355,22 @@ let headers = {
 }
 
 let body = {
-    "id": 5,
-    "key": "fugiat",
-    "hardware_id": "eum",
-    "name": "perspiciatis",
-    "hive_id": 17,
-    "type": "vel",
-    "last_message_received": "et",
-    "firmware_version": "magnam",
-    "hardware_version": "alias",
-    "boot_count": 13,
-    "measurement_interval_min": 25.9710169,
-    "measurement_transmission_ratio": 28.6,
-    "ble_pin": "et",
-    "battery_voltage": 2078394.2,
-    "next_downlink_message": "in",
-    "last_downlink_result": "suscipit"
+    "id": 3,
+    "key": "quia",
+    "hardware_id": "reprehenderit",
+    "name": "ullam",
+    "hive_id": 19,
+    "type": "ad",
+    "last_message_received": "necessitatibus",
+    "firmware_version": "ut",
+    "hardware_version": "maiores",
+    "boot_count": 7,
+    "measurement_interval_min": 42.69,
+    "measurement_transmission_ratio": 896.0782674,
+    "ble_pin": "sint",
+    "battery_voltage": 130089785.8096635,
+    "next_downlink_message": "porro",
+    "last_downlink_result": "eos"
 }
 
 fetch(url, {
@@ -1952,7 +2561,7 @@ fetch(url, {
 </blockquote>
 <pre><code class="language-bash">curl -X GET -G "https://api.beep.nl/api/devices" \
     -H "Content-Type: application/json" \
-    -d '{"hardware_id":"et"}'
+    -d '{"hardware_id":"cum"}'
 </code></pre>
 <pre><code class="language-javascript">const url = new URL("https://api.beep.nl/api/devices");
 
@@ -1962,7 +2571,7 @@ let headers = {
 }
 
 let body = {
-    "hardware_id": "et"
+    "hardware_id": "cum"
 }
 
 fetch(url, {
@@ -2050,7 +2659,7 @@ fetch(url, {
 </blockquote>
 <pre><code class="language-bash">curl -X POST "https://api.beep.nl/api/devices" \
     -H "Content-Type: application/json" \
-    -d '{"id":14,"key":"minima","hardware_id":"ex","name":"id","hive_id":5,"type":"deserunt","last_message_received":"nesciunt","firmware_version":"nulla","hardware_version":"id","boot_count":6,"measurement_interval_min":18809345.8,"measurement_transmission_ratio":349450.27,"ble_pin":"cupiditate","battery_voltage":302765809.63368046,"next_downlink_message":"ullam","last_downlink_result":"corrupti","create_ttn_device":true,"app_key":"non"}'
+    -d '{"id":11,"key":"et","hardware_id":"ducimus","name":"iste","hive_id":8,"type":"quia","last_message_received":"vel","firmware_version":"ut","hardware_version":"neque","boot_count":15,"measurement_interval_min":5714,"measurement_transmission_ratio":47.17,"ble_pin":"voluptate","battery_voltage":3.797813,"next_downlink_message":"autem","last_downlink_result":"eos","create_ttn_device":false,"app_key":"adipisci"}'
 </code></pre>
 <pre><code class="language-javascript">const url = new URL("https://api.beep.nl/api/devices");
 
@@ -2060,24 +2669,24 @@ let headers = {
 }
 
 let body = {
-    "id": 14,
-    "key": "minima",
-    "hardware_id": "ex",
-    "name": "id",
-    "hive_id": 5,
-    "type": "deserunt",
-    "last_message_received": "nesciunt",
-    "firmware_version": "nulla",
-    "hardware_version": "id",
-    "boot_count": 6,
-    "measurement_interval_min": 18809345.8,
-    "measurement_transmission_ratio": 349450.27,
-    "ble_pin": "cupiditate",
-    "battery_voltage": 302765809.63368046,
-    "next_downlink_message": "ullam",
-    "last_downlink_result": "corrupti",
-    "create_ttn_device": true,
-    "app_key": "non"
+    "id": 11,
+    "key": "et",
+    "hardware_id": "ducimus",
+    "name": "iste",
+    "hive_id": 8,
+    "type": "quia",
+    "last_message_received": "vel",
+    "firmware_version": "ut",
+    "hardware_version": "neque",
+    "boot_count": 15,
+    "measurement_interval_min": 5714,
+    "measurement_transmission_ratio": 47.17,
+    "ble_pin": "voluptate",
+    "battery_voltage": 3.797813,
+    "next_downlink_message": "autem",
+    "last_downlink_result": "eos",
+    "create_ttn_device": false,
+    "app_key": "adipisci"
 }
 
 fetch(url, {
@@ -2250,7 +2859,7 @@ fetch(url, {
 </blockquote>
 <pre><code class="language-bash">curl -X PUT "https://api.beep.nl/api/devices/1" \
     -H "Content-Type: application/json" \
-    -d '{"id":9,"key":"fugit","hardware_id":"est","name":"doloribus","hive_id":14,"type":"occaecati","delete":false,"last_message_received":"quod","firmware_version":"expedita","hardware_version":"unde","boot_count":7,"measurement_interval_min":1.82774,"measurement_transmission_ratio":3272.22842557,"ble_pin":"ipsam","battery_voltage":552.8,"next_downlink_message":"voluptatibus","last_downlink_result":"ratione"}'
+    -d '{"id":1,"key":"velit","hardware_id":"iusto","name":"sed","hive_id":7,"type":"explicabo","delete":true,"last_message_received":"est","firmware_version":"ab","hardware_version":"sit","boot_count":12,"measurement_interval_min":52671.56851572,"measurement_transmission_ratio":212.39,"ble_pin":"nihil","battery_voltage":855045.753117,"next_downlink_message":"ut","last_downlink_result":"beatae"}'
 </code></pre>
 <pre><code class="language-javascript">const url = new URL("https://api.beep.nl/api/devices/1");
 
@@ -2260,23 +2869,23 @@ let headers = {
 }
 
 let body = {
-    "id": 9,
-    "key": "fugit",
-    "hardware_id": "est",
-    "name": "doloribus",
-    "hive_id": 14,
-    "type": "occaecati",
-    "delete": false,
-    "last_message_received": "quod",
-    "firmware_version": "expedita",
-    "hardware_version": "unde",
-    "boot_count": 7,
-    "measurement_interval_min": 1.82774,
-    "measurement_transmission_ratio": 3272.22842557,
-    "ble_pin": "ipsam",
-    "battery_voltage": 552.8,
-    "next_downlink_message": "voluptatibus",
-    "last_downlink_result": "ratione"
+    "id": 1,
+    "key": "velit",
+    "hardware_id": "iusto",
+    "name": "sed",
+    "hive_id": 7,
+    "type": "explicabo",
+    "delete": true,
+    "last_message_received": "est",
+    "firmware_version": "ab",
+    "hardware_version": "sit",
+    "boot_count": 12,
+    "measurement_interval_min": 52671.56851572,
+    "measurement_transmission_ratio": 212.39,
+    "ble_pin": "nihil",
+    "battery_voltage": 855045.753117,
+    "next_downlink_message": "ut",
+    "last_downlink_result": "beatae"
 }
 
 fetch(url, {
@@ -2444,7 +3053,7 @@ fetch(url, {
 </blockquote>
 <pre><code class="language-bash">curl -X POST "https://api.beep.nl/api/export/csv" \
     -H "Content-Type: application/json" \
-    -d '{"device_id":"velit","start":"2020-05-27 16:16","end":"2020-05-30 00:00","separator":";","measurements":"'am2315_t,am2315_h,mhz_co2'","link":true}'
+    -d '{"device_id":"explicabo","start":"2020-05-27 16:16","end":"2020-05-30 00:00","separator":";","measurements":"'am2315_t,am2315_h,mhz_co2'","link":false}'
 </code></pre>
 <pre><code class="language-javascript">const url = new URL("https://api.beep.nl/api/export/csv");
 
@@ -2454,12 +3063,12 @@ let headers = {
 }
 
 let body = {
-    "device_id": "velit",
+    "device_id": "explicabo",
     "start": "2020-05-27 16:16",
     "end": "2020-05-30 00:00",
     "separator": ";",
     "measurements": "'am2315_t,am2315_h,mhz_co2'",
-    "link": true
+    "link": false
 }
 
 fetch(url, {
@@ -3039,7 +3648,7 @@ fetch(url, {
 </blockquote>
 <pre><code class="language-bash">curl -X GET -G "https://api.beep.nl/api/inspections/lists" \
     -H "Content-Type: application/json" \
-    -d '{"id":10}'
+    -d '{"id":17}'
 </code></pre>
 <pre><code class="language-javascript">const url = new URL("https://api.beep.nl/api/inspections/lists");
 
@@ -3049,7 +3658,7 @@ let headers = {
 }
 
 let body = {
-    "id": 10
+    "id": 17
 }
 
 fetch(url, {
@@ -3537,7 +4146,7 @@ fetch(url, {
 </blockquote>
 <pre><code class="language-bash">curl -X POST "https://api.beep.nl/api/sensors" \
     -H "Content-Type: application/json" \
-    -d '{"key":"ab","data":[],"payload_fields":[]}'
+    -d '{"key":"sed","data":[],"payload_fields":[]}'
 </code></pre>
 <pre><code class="language-javascript">const url = new URL("https://api.beep.nl/api/sensors");
 
@@ -3547,7 +4156,7 @@ let headers = {
 }
 
 let body = {
-    "key": "ab",
+    "key": "sed",
     "data": [],
     "payload_fields": []
 }
@@ -3603,7 +4212,7 @@ When TTN payload is supplied, the TTN HTTP integration decoder/converter is assu
 </blockquote>
 <pre><code class="language-bash">curl -X POST "https://api.beep.nl/api/lora_sensors" \
     -H "Content-Type: application/json" \
-    -d '{"key":"omnis","payload_fields":[],"DevEUI_uplink":[]}'
+    -d '{"key":"similique","payload_fields":[],"DevEUI_uplink":[]}'
 </code></pre>
 <pre><code class="language-javascript">const url = new URL("https://api.beep.nl/api/lora_sensors");
 
@@ -3613,7 +4222,7 @@ let headers = {
 }
 
 let body = {
-    "key": "omnis",
+    "key": "similique",
     "payload_fields": [],
     "DevEUI_uplink": []
 }
@@ -3667,7 +4276,7 @@ fetch(url, {
 </blockquote>
 <pre><code class="language-bash">curl -X POST "https://api.beep.nl/api/unsecure_sensors" \
     -H "Content-Type: application/json" \
-    -d '{"key":"reprehenderit","data":[],"payload_fields":[]}'
+    -d '{"key":"et","data":[],"payload_fields":[]}'
 </code></pre>
 <pre><code class="language-javascript">const url = new URL("https://api.beep.nl/api/unsecure_sensors");
 
@@ -3677,7 +4286,7 @@ let headers = {
 }
 
 let body = {
-    "key": "reprehenderit",
+    "key": "et",
     "data": [],
     "payload_fields": []
 }
@@ -3732,7 +4341,7 @@ fetch(url, {
 </blockquote>
 <pre><code class="language-bash">curl -X GET -G "https://api.beep.nl/api/sensors/measurements" \
     -H "Content-Type: application/json" \
-    -d '{"key":"vero","id":13,"hive_id":5,"names":"illo","interval":"reiciendis","index":17}'
+    -d '{"key":"doloribus","id":14,"hive_id":19,"names":"et","interval":"sit","index":13}'
 </code></pre>
 <pre><code class="language-javascript">const url = new URL("https://api.beep.nl/api/sensors/measurements");
 
@@ -3742,12 +4351,12 @@ let headers = {
 }
 
 let body = {
-    "key": "vero",
-    "id": 13,
-    "hive_id": 5,
-    "names": "illo",
-    "interval": "reiciendis",
-    "index": 17
+    "key": "doloribus",
+    "id": 14,
+    "hive_id": 19,
+    "names": "et",
+    "interval": "sit",
+    "index": 13
 }
 
 fetch(url, {
@@ -3824,7 +4433,7 @@ fetch(url, {
 </blockquote>
 <pre><code class="language-bash">curl -X GET -G "https://api.beep.nl/api/sensors/lastvalues" \
     -H "Content-Type: application/json" \
-    -d '{"key":"pariatur","id":11,"hive_id":17}'
+    -d '{"key":"pariatur","id":15,"hive_id":14}'
 </code></pre>
 <pre><code class="language-javascript">const url = new URL("https://api.beep.nl/api/sensors/lastvalues");
 
@@ -3835,8 +4444,8 @@ let headers = {
 
 let body = {
     "key": "pariatur",
-    "id": 11,
-    "hive_id": 17
+    "id": 15,
+    "hive_id": 14
 }
 
 fetch(url, {
@@ -3895,7 +4504,7 @@ fetch(url, {
 </blockquote>
 <pre><code class="language-bash">curl -X GET -G "https://api.beep.nl/api/sensors/lastweight" \
     -H "Content-Type: application/json" \
-    -d '{"key":"iusto","id":4,"hive_id":9}'
+    -d '{"key":"modi","id":18,"hive_id":12}'
 </code></pre>
 <pre><code class="language-javascript">const url = new URL("https://api.beep.nl/api/sensors/lastweight");
 
@@ -3905,9 +4514,9 @@ let headers = {
 }
 
 let body = {
-    "key": "iusto",
-    "id": 4,
-    "hive_id": 9
+    "key": "modi",
+    "id": 18,
+    "hive_id": 12
 }
 
 fetch(url, {
@@ -4050,7 +4659,7 @@ When TTN payload is supplied, the TTN HTTP integration decoder/converter is assu
 </blockquote>
 <pre><code class="language-bash">curl -X POST "https://api.beep.nl/api/lora_sensors_auth" \
     -H "Content-Type: application/json" \
-    -d '{"key":"optio","payload_fields":[],"DevEUI_uplink":[]}'
+    -d '{"key":"voluptas","payload_fields":[],"DevEUI_uplink":[]}'
 </code></pre>
 <pre><code class="language-javascript">const url = new URL("https://api.beep.nl/api/lora_sensors_auth");
 
@@ -4060,7 +4669,7 @@ let headers = {
 }
 
 let body = {
-    "key": "optio",
+    "key": "voluptas",
     "payload_fields": [],
     "DevEUI_uplink": []
 }
@@ -4113,14 +4722,14 @@ fetch(url, {
 <blockquote>
 <p>Example request:</p>
 </blockquote>
-<pre><code class="language-bash">curl -X POST "https://api.beep.nl/api/sensors/flashlog?show=rem&amp;save=et" \
+<pre><code class="language-bash">curl -X POST "https://api.beep.nl/api/sensors/flashlog?show=nostrum&amp;save=et" \
     -H "Content-Type: application/json" \
-    -d '{"id":5,"key":"temporibus","hardware_id":"consequatur","data":"nobis","file":"et"}'
+    -d '{"id":18,"key":"consequatur","hardware_id":"tempore","data":"et","file":"vitae"}'
 </code></pre>
 <pre><code class="language-javascript">const url = new URL("https://api.beep.nl/api/sensors/flashlog");
 
     let params = {
-            "show": "rem",
+            "show": "nostrum",
             "save": "et",
         };
     Object.keys(params).forEach(key =&gt; url.searchParams.append(key, params[key]));
@@ -4131,11 +4740,11 @@ let headers = {
 }
 
 let body = {
-    "id": 5,
-    "key": "temporibus",
-    "hardware_id": "consequatur",
-    "data": "nobis",
-    "file": "et"
+    "id": 18,
+    "key": "consequatur",
+    "hardware_id": "tempore",
+    "data": "et",
+    "file": "vitae"
 }
 
 fetch(url, {
@@ -5433,7 +6042,7 @@ fetch(url, {
 </blockquote>
 <pre><code class="language-bash">curl -X GET -G "https://api.beep.nl/api/sensordefinition" \
     -H "Content-Type: application/json" \
-    -d '{"device_id":4,"device_hardware_id":"dolores","input_measurement_abbreviation":"dolores","limit":16}'
+    -d '{"device_id":17,"device_hardware_id":"iusto","input_measurement_abbreviation":"minus","limit":7}'
 </code></pre>
 <pre><code class="language-javascript">const url = new URL("https://api.beep.nl/api/sensordefinition");
 
@@ -5443,10 +6052,10 @@ let headers = {
 }
 
 let body = {
-    "device_id": 4,
-    "device_hardware_id": "dolores",
-    "input_measurement_abbreviation": "dolores",
-    "limit": 16
+    "device_id": 17,
+    "device_hardware_id": "iusto",
+    "input_measurement_abbreviation": "minus",
+    "limit": 7
 }
 
 fetch(url, {
@@ -5511,7 +6120,7 @@ fetch(url, {
 </blockquote>
 <pre><code class="language-bash">curl -X POST "https://api.beep.nl/api/sensordefinition" \
     -H "Content-Type: application/json" \
-    -d '{"name":"laboriosam","inside":false,"offset":614722.67,"multiplier":19447005.9282198,"input_measurement_id":5,"input_measurement_abbreviation":"w_v","output_measurement_id":6,"output_measurement_abbreviation":"t_i","device_id":17,"device_hardware_id":"ipsa"}'
+    -d '{"name":"aspernatur","inside":false,"offset":1,"multiplier":14.6721286,"input_measurement_id":5,"input_measurement_abbreviation":"w_v","output_measurement_id":6,"output_measurement_abbreviation":"t_i","device_id":14,"device_hardware_id":"qui"}'
 </code></pre>
 <pre><code class="language-javascript">const url = new URL("https://api.beep.nl/api/sensordefinition");
 
@@ -5521,16 +6130,16 @@ let headers = {
 }
 
 let body = {
-    "name": "laboriosam",
+    "name": "aspernatur",
     "inside": false,
-    "offset": 614722.67,
-    "multiplier": 19447005.9282198,
+    "offset": 1,
+    "multiplier": 14.6721286,
     "input_measurement_id": 5,
     "input_measurement_abbreviation": "w_v",
     "output_measurement_id": 6,
     "output_measurement_abbreviation": "t_i",
-    "device_id": 17,
-    "device_hardware_id": "ipsa"
+    "device_id": 14,
+    "device_hardware_id": "qui"
 }
 
 fetch(url, {
@@ -6147,7 +6756,7 @@ fetch(url, {
 </blockquote>
 <pre><code class="language-bash">curl -X PATCH "https://api.beep.nl/api/user" \
     -H "Content-Type: application/json" \
-    -d '{"email":"test@test.com","password":"testtest","password_confirmation":"testtest","policy_accepted":"beep_terms_2018_05_25_avg_v1"}'
+    -d '{"email":"test@test.com","name":"Test","password":"testtest","password_new":"testtest1","password_confirmation":"testtest1","policy_accepted":"beep_terms_2018_05_25_avg_v1","locale":"en"}'
 </code></pre>
 <pre><code class="language-javascript">const url = new URL("https://api.beep.nl/api/user");
 
@@ -6158,9 +6767,12 @@ let headers = {
 
 let body = {
     "email": "test@test.com",
+    "name": "Test",
     "password": "testtest",
-    "password_confirmation": "testtest",
-    "policy_accepted": "beep_terms_2018_05_25_avg_v1"
+    "password_new": "testtest1",
+    "password_confirmation": "testtest1",
+    "policy_accepted": "beep_terms_2018_05_25_avg_v1",
+    "locale": "en"
 }
 
 fetch(url, {
@@ -6190,16 +6802,28 @@ fetch(url, {
 <td>Email address of the user.</td>
 </tr>
 <tr>
+<td>name</td>
+<td>string</td>
+<td>optional</td>
+<td>Name of the user.</td>
+</tr>
+<tr>
 <td>password</td>
 <td>string</td>
 <td>required</td>
 <td>Password of the user with minimum of 8 characters.</td>
 </tr>
 <tr>
+<td>password_new</td>
+<td>string</td>
+<td>optional</td>
+<td>New password to set for the user with minimum of 8 characters.</td>
+</tr>
+<tr>
 <td>password_confirmation</td>
 <td>string</td>
-<td>required</td>
-<td>Password confirmation of the user.</td>
+<td>optional</td>
+<td>Password confirmation of the user, required if password_new is filled.</td>
 </tr>
 <tr>
 <td>policy_accepted</td>
@@ -6207,37 +6831,68 @@ fetch(url, {
 <td>optional</td>
 <td>Name of the privacy policy that has been accepted by the user by ticking the accept terms box.</td>
 </tr>
+<tr>
+<td>locale</td>
+<td>string</td>
+<td>optional</td>
+<td>Locale string to define locale.</td>
+</tr>
 </tbody>
 </table>
 <!-- END_e75f2f63a5a2351c4f4d83bc65cefcf8 -->
-<h1>Api\VerificationController</h1>
-<p>User verification functions</p>
-<!-- START_2d698b6d6bc7441f9c1a9cf11aec4059 -->
-<h2>Show the email verification notice.</h2>
+<!-- START_0b8bc7495acb6ee681c29e0334f9787c -->
+<h2>api/userlocale PATCH</h2>
+<p>Edit the user locale only, do not update api_key</p>
+<p><br><small style="padding: 1px 9px 2px;font-weight: bold;white-space: nowrap;color: #ffffff;-webkit-border-radius: 9px;-moz-border-radius: 9px;border-radius: 9px;background-color: #3a87ad;">Requires authentication</small></p>
 <blockquote>
 <p>Example request:</p>
 </blockquote>
-<pre><code class="language-bash">curl -X GET -G "https://api.beep.nl/api/email/verify" </code></pre>
-<pre><code class="language-javascript">const url = new URL("https://api.beep.nl/api/email/verify");
+<pre><code class="language-bash">curl -X PATCH "https://api.beep.nl/api/userlocale" \
+    -H "Content-Type: application/json" \
+    -d '{"locale":"et"}'
+</code></pre>
+<pre><code class="language-javascript">const url = new URL("https://api.beep.nl/api/userlocale");
 
 let headers = {
-    "Accept": "application/json",
     "Content-Type": "application/json",
+    "Accept": "application/json",
+}
+
+let body = {
+    "locale": "et"
 }
 
 fetch(url, {
-    method: "GET",
+    method: "PATCH",
     headers: headers,
+    body: body
 })
     .then(response =&gt; response.json())
     .then(json =&gt; console.log(json));</code></pre>
-<blockquote>
-<p>Example response:</p>
-</blockquote>
-<pre><code class="language-json">null</code></pre>
 <h3>HTTP Request</h3>
-<p><code>GET api/email/verify</code></p>
-<!-- END_2d698b6d6bc7441f9c1a9cf11aec4059 -->
+<p><code>PATCH api/userlocale</code></p>
+<h4>Body Parameters</h4>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Type</th>
+<th>Status</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>locale</td>
+<td>string</td>
+<td>optional</td>
+<td>Two digit country string to define locale</td>
+</tr>
+</tbody>
+</table>
+<!-- END_0b8bc7495acb6ee681c29e0334f9787c -->
+<h1>Api\VerificationController</h1>
+<p>User verification functions</p>
 <!-- START_d83e982c7c8172810ed08568400567aa -->
 <h2>Mark the authenticated user&#039;s email address as verified.</h2>
 <blockquote>

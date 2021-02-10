@@ -112,6 +112,8 @@
             <li class="{{ Route::currentRouteNamed('roles.index') ? 'active' : '' }}"><a href="{{ route('roles.index') }}"><i class="fa fa-address-book-o"></i><span>{{ __('general.Roles') }}</span></a></li>
             <li class="{{ Route::currentRouteNamed('permissions.index') ? 'active' : '' }}"><a href="{{ route('permissions.index') }}"><i class="fa fa-lock"></i><span>{{ __('general.Permissions') }}</span></a></li>
             <li class="{{ Route::currentRouteNamed('image.index') ? 'active' : '' }}"><a href="{{ route('image.index') }}"><i class="fa fa-photo"></i><span>{{ __('general.Images') }}</span></a></li>
+            <li class="{{ Route::currentRouteNamed('alert-rule.index') ? 'active' : '' }}"><a href="{{ route('alert-rule.index') }}"><i class="fa fa-exclamation-circle"></i><span>{{ __('general.AlertRules') }}</span></a></li>
+            <li class="{{ Route::currentRouteNamed('alert.index') ? 'active' : '' }}"><a href="{{ route('alert.index') }}"><i class="fa fa-bell"></i><span>{{ __('general.Alerts') }}</span></a></li>
             <li class="{{ Route::currentRouteNamed('sample-code.index') ? 'active' : '' }}"><a href="{{ route('sample-code.index') }}"><i class="fa fa-qrcode"></i><span>Sample codes</span></a></li>
           </ul>
         </li>

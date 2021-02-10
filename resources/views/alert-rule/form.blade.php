@@ -104,7 +104,7 @@
 	<div class="form-group {{ $errors->has('exclude_hive_ids') ? 'has-error' : ''}}">
 	    <label for="exclude_hive_ids" control-label>{{ 'Exclude Hives' }}</label>
 	    <div>
-	        {!! Form::select('exclude_hive_ids[]', App\Hive::selectList(), $alertrule->exclude_hive_ids, array('placeholder'=>__('crud.select', ['item'=>__('beep.Hives')]),'class' => 'form-control select2', 'multiple')) !!}
+	        {!! Form::select('exclude_hive_ids[]', App\Hive::selectList(), $alertrule->exclude_hive_ids, array('class' => 'form-control select2', 'multiple')) !!}
 	        {!! $errors->first('exclude_hive_ids', '<p class="help-block">:message</p>') !!}
 	    </div>
 	</div>

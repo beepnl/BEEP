@@ -86,7 +86,7 @@
 	<div class="form-group {{ $errors->has('exclude_months') ? 'has-error' : ''}}">
 	    <label for="exclude_months" control-label>{{ 'Exclude Months' }}</label>
 	    <div>
-	        <input class="form-control" name="exclude_months" type="text" id="exclude_months" value="{{ $alertrule->exclude_months ?? ''}}" >
+	        {!! Form::select('exclude_months[]', [1=>"Jan",2=>"Feb",3=>"Mar",4=>"Apr",5=>"May",6=>"Jun",7=>"Jul",8=>"Aug",9=>"Sep",10=>"Oct",11=>"Nov",12=>"Dec"], $alertrule->exclude_months, array('class' => 'form-control select2', 'multiple')) !!}
 	        {!! $errors->first('exclude_months', '<p class="help-block">:message</p>') !!}
 	    </div>
 	</div>
@@ -95,8 +95,17 @@
 	<div class="form-group {{ $errors->has('exclude_hours') ? 'has-error' : ''}}">
 	    <label for="exclude_hours" control-label>{{ 'Exclude Hours' }}</label>
 	    <div>
-	        <input class="form-control" name="exclude_hours" type="text" id="exclude_hours" value="{{ $alertrule->exclude_hours ?? ''}}" >
+	        {!! Form::select('exclude_hours[]', [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23], $alertrule->exclude_hours, array('class' => 'form-control select2', 'multiple')) !!}
 	        {!! $errors->first('exclude_hours', '<p class="help-block">:message</p>') !!}
+	    </div>
+	</div>
+</div>
+<div class="col-xs-12">
+	<div class="form-group {{ $errors->has('exclude_hive_ids') ? 'has-error' : ''}}">
+	    <label for="exclude_hive_ids" control-label>{{ 'Exclude Hives' }}</label>
+	    <div>
+	        {!! Form::select('exclude_hive_ids[]', App\Hive::selectList(), $alertrule->exclude_hive_ids, array('placeholder'=>__('crud.select', ['item'=>__('beep.Hives')]),'class' => 'form-control select2', 'multiple')) !!}
+	        {!! $errors->first('exclude_hive_ids', '<p class="help-block">:message</p>') !!}
 	    </div>
 	</div>
 </div>

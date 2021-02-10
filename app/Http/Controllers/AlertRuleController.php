@@ -72,6 +72,21 @@ class AlertRuleController extends Controller
 			'threshold_value' => 'required'
 		]);
         $requestData = $request->all();
+
+        if ($request->filled('exclude_hive_ids'))
+            $requestData['exclude_hive_ids'] = implode(",", $requestData['exclude_hive_ids']);
+        else
+            $requestData['exclude_hive_ids'] = null;
+
+        if ($request->filled('exclude_months'))
+            $requestData['exclude_months'] = implode(",", $requestData['exclude_months']);
+        else
+            $requestData['exclude_months'] = null;
+
+        if ($request->filled('exclude_hours'))
+            $requestData['exclude_hours'] = implode(",", $requestData['exclude_hours']);
+        else
+            $requestData['exclude_hours'] = null;
         
         AlertRule::create($requestData);
 
@@ -125,6 +140,21 @@ class AlertRuleController extends Controller
 		]);
         $requestData = $request->all();
         
+        if ($request->filled('exclude_hive_ids'))
+            $requestData['exclude_hive_ids'] = implode(",", $requestData['exclude_hive_ids']);
+        else
+            $requestData['exclude_hive_ids'] = null;
+
+        if ($request->filled('exclude_months'))
+            $requestData['exclude_months'] = implode(",", $requestData['exclude_months']);
+        else
+            $requestData['exclude_months'] = null;
+
+        if ($request->filled('exclude_hours'))
+            $requestData['exclude_hours'] = implode(",", $requestData['exclude_hours']);
+        else
+            $requestData['exclude_hours'] = null;
+
         $alertrule = AlertRule::findOrFail($id);
         $alertrule->update($requestData);
 

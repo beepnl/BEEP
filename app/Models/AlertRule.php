@@ -27,7 +27,25 @@ class AlertRule extends Model
      *
      * @var array
      */
-    protected $fillable = ['name', 'description', 'measurement_id', 'calculation', 'calculation_minutes', 'comparator', 'comparison', 'threshold_value', 'exclude_months', 'exclude_hours', 'alert_via_email', 'webhook_url', 'active', 'user_id', 'default_rule'];
+    protected $fillable = ['name', 'description', 'measurement_id', 'calculation', 'calculation_minutes', 'comparator', 'comparison', 'threshold_value', 'exclude_months', 'exclude_hours', 'exclude_hive_ids', 'alert_via_email', 'webhook_url', 'active', 'user_id', 'default_rule'];
+
+    //protected $appends  = ['exclude_months_array'];
+
+
+    public function getExcludeMonthsAttribute()
+    {
+        return explode(",", $this->attributes['exclude_months']);
+    }
+
+    public function getExcludeHoursAttribute()
+    {
+        return explode(",", $this->attributes['exclude_hours']);
+    }
+
+    public function getExcludeHiveIdsAttribute()
+    {
+        return explode(",", $this->attributes['exclude_hive_ids']);
+    }
 
     public function measurement()
     {

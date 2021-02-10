@@ -58,6 +58,7 @@ class AlertRuleController extends Controller
      * @bodyParam calculation_minutes integer The amount of minutes used for calculating the (min, max, ave, der, cnt) of the measurement value(s). If not provided, the last recorded value is used as a reference.
      * @bodyParam exclude_months array Array of month indexes (1-12). If not filled the standard alert is 'always on'. Example: [1,2,3,11,12]
      * @bodyParam exclude_hours array Array of hour indexes (0-23). If not filled the standard alert is 'always on'. Example: [0,1,2,3,22,23]
+     * @bodyParam exclude_hive_ids array Array of Hive ids. If not filled the standard alert is evaluated on 'all hives'.
      * @bodyParam alert_on_occurrences integer Amount of occurences that a calculated value goed beyond the threshold_value. If not filled the standard is 1 (immediate alert).
      * @bodyParam alert_via_email boolean Set to false (0) if an e-mail should NOT be sent on alert. Default: true (1).
      * @bodyParam webhook_url string URL of optional endpoint to call on alert for web hook integration.
@@ -74,8 +75,24 @@ class AlertRuleController extends Controller
 			'threshold_value' => 'required|float'
 		]);
 
-        $data      = $request->except('default_rule'); // never let users create a default rule via the API
-        $alertrule = Auth::user()->alert_rules()->create($data);
+        $requestData = $request->except('default_rule'); // never let users create a default rule via the API
+
+        if ($request->filled('exclude_hive_ids'))
+            $requestData['exclude_hive_ids'] = implode(",", $requestData['exclude_hive_ids']);
+        else
+            $requestData['exclude_hive_ids'] = null;
+
+        if ($request->filled('exclude_months'))
+            $requestData['exclude_months'] = implode(",", $requestData['exclude_months']);
+        else
+            $requestData['exclude_months'] = null;
+
+        if ($request->filled('exclude_hours'))
+            $requestData['exclude_hours'] = implode(",", $requestData['exclude_hours']);
+        else
+            $requestData['exclude_hours'] = null;
+
+        $alertrule = Auth::user()->alert_rules()->create($requestData);
 
         return response()->json($alertrule, 201);
     }
@@ -107,6 +124,7 @@ class AlertRuleController extends Controller
      * @bodyParam calculation_minutes integer The amount of minutes used for calculating the (min, max, ave, der, cnt) of the measurement value(s). If not provided, the last recorded value is used as a reference.
      * @bodyParam exclude_months array Array of month indexes (1-12). If not filled the standard alert is 'always on'. Example: [1,2,3,11,12]
      * @bodyParam exclude_hours array Array of hour indexes (0-23). If not filled the standard alert is 'always on'. Example: [0,1,2,3,22,23]
+     * @bodyParam exclude_hive_ids array Array of Hive ids. If not filled the standard alert is evaluated on 'all hives'.
      * @bodyParam alert_on_occurrences integer Amount of occurences that a calculated value goed beyond the threshold_value. If not filled the standard is 1 (immediate alert).
      * @bodyParam alert_via_email boolean Set to false (0) if an e-mail should NOT be sent on alert. Default: true (1).
      * @bodyParam webhook_url string URL of optional endpoint to call on alert for web hook integration.
@@ -122,9 +140,25 @@ class AlertRuleController extends Controller
 			'comparison' => 'required',
 			'threshold_value' => 'required|float'
 		]);
-        $alertrule = Auth::user()->alert_rules()->findOrFail($id);
-        $data      = $request->except('default_rule'); // never let users create a default rule via the API
-        $alertrule->update($data);
+        $alertrule   = Auth::user()->alert_rules()->findOrFail($id);
+        $requestData = $request->except('default_rule'); // never let users create a default rule via the API
+
+        if ($request->filled('exclude_hive_ids'))
+            $requestData['exclude_hive_ids'] = implode(",", $requestData['exclude_hive_ids']);
+        else
+            $requestData['exclude_hive_ids'] = null;
+
+        if ($request->filled('exclude_months'))
+            $requestData['exclude_months'] = implode(",", $requestData['exclude_months']);
+        else
+            $requestData['exclude_months'] = null;
+
+        if ($request->filled('exclude_hours'))
+            $requestData['exclude_hours'] = implode(",", $requestData['exclude_hours']);
+        else
+            $requestData['exclude_hours'] = null;
+
+        $alertrule->update($requestData);
 
         return response()->json($alertrule, 200);
     }

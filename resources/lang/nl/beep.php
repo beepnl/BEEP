@@ -39,4 +39,8 @@ return [
     'calibration'       => 'calibratie',
     'SensorDefinition'  => 'Sensordefinitie',
     'SampleCode'        => 'Sample code',
+    'Alert'             => 'Alarm',
+    'Alerts'            => 'Alarmen',
+    'AlertRule'         => 'Alarmregel',
+    'AlertRules'        => 'Alarmregels',
 ];

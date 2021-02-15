@@ -99,7 +99,7 @@
 
       @role('superadmin')
       <li class="header">{{ __('general.superadmin').' '.__('general.menu') }} <i class="fa fa-warning" title="NB: ONLY USE IF YOU ARE ABSOLUTELY SURE WHAT YOU ARE DOING!"></i></li>
-      <li class="treeview {{ preg_match('(users|roles|permissions|image)', Request::url()) === 1 ? 'active' : '' }}">
+      <li class="treeview {{ preg_match('(users|roles|permissions|image|alert-rule|alert|sample-code)', Request::url()) === 1 ? 'active' : '' }}">
           <a href="#">
             <span><i class="fa fa-list"></i></span>
             <span>{{ __('general.superadmin').' '.__('general.menu') }}</span>

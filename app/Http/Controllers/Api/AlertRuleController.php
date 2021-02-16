@@ -7,7 +7,10 @@ use App\Http\Controllers\Controller;
 
 use App\Models\AlertRule;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
+
 use Auth;
+use Validator;
 
 /**
  * @group Api\AlertRuleController
@@ -67,13 +70,27 @@ class AlertRuleController extends Controller
      */
     public function store(Request $request)
     {
-        $this->validate($request, [
-			'measurement_id' => 'required|integer|exists:measurements,id',
-			'calculation' => 'required',
-			'comparator' => 'required',
-			'comparison' => 'required',
-			'threshold_value' => 'required|float'
-		]);
+        $validator = Validator::make($request->all(), [
+            'name'                  => 'nullable|string',
+            'description'           => 'nullable|string',
+            'measurement_id'        => 'required|integer|exists:measurements,id',
+            'calculation'           => ['required', Rule::in(array_keys(AlertRule::$calculations))],
+            'comparator'            => ['required', Rule::in(array_keys(AlertRule::$comparators))],
+            'comparison'            => ['required', Rule::in(array_keys(AlertRule::$comparisons))],
+            'threshold_value'       => 'required|numeric',
+            'calculation_minutes'   => 'required|numeric',
+            'exclude_months.*'      => ['nullable', 'integer', Rule::in(array_keys(AlertRule::$exclude_months))],
+            'exclude_hours.*'       => ['nullable', 'integer', Rule::in(array_keys(AlertRule::$exclude_hours))],
+            'exclude_hive_ids.*'    => ['nullable', 'integer', Rule::in($request->user()->allHives()->pluck('id'))],
+            'alert_on_occurrences'  => 'nullable|integer',
+            'alert_via_email'       => 'nullable|boolean',
+            'webhook_url'           => 'nullable|url',
+            'active'                => 'nullable|boolean'
+        ]);
+
+        if ($validator->fails())
+            return response()->json(['errors'=>$validator->errors()]);
+
 
         $requestData = $request->except('default_rule'); // never let users create a default rule via the API
 
@@ -114,13 +131,13 @@ class AlertRuleController extends Controller
      * api/alert-rules/{id} PATCH
      * Update the specified user alert rule.
      * @authenticated
+     * @bodyParam name string The name of the alert rule. 
+     * @bodyParam description string The description of the alert rule. 
      * @bodyParam measurement_id integer required The physical quantity / unit to alert for. 
      * @bodyParam calculation string required Calculation to be done with measurement value(s): (min, max, ave, der, cnt) -> Minimum, Maximum, Average (mean), Derivative, Count.
      * @bodyParam comparator string required Logical comparator to perform with comparison calculation result and threshold_value (=, <, >, <=, >=).
      * @bodyParam comparison string required Comparison function to perform with measurement value(s): (val, dif, abs, abs_dif) -> Value, Difference, Absolute value, Absolute value of the difference.
      * @bodyParam threshold_value float required The threshold value beyond which the alert will be sent. 
-     * @bodyParam name string The name of the alert rule. 
-     * @bodyParam description string The description of the alert rule. 
      * @bodyParam calculation_minutes integer The amount of minutes used for calculating the (min, max, ave, der, cnt) of the measurement value(s). If not provided, the last recorded value is used as a reference.
      * @bodyParam exclude_months array Array of month indexes (1-12). If not filled the standard alert is 'always on'. Example: [1,2,3,11,12]
      * @bodyParam exclude_hours array Array of hour indexes (0-23). If not filled the standard alert is 'always on'. Example: [0,1,2,3,22,23]
@@ -133,13 +150,28 @@ class AlertRuleController extends Controller
      */
     public function update(Request $request, $id)
     {
-        $this->validate($request, [
-			'measurement_id' => 'required|integer|exists:measurements,id',
-			'calculation' => 'required',
-			'comparator' => 'required',
-			'comparison' => 'required',
-			'threshold_value' => 'required|float'
+        $validator = Validator::make($request->all(), [
+			'name'                  => 'nullable|string',
+            'description'           => 'nullable|string',
+            'measurement_id'        => 'required|integer|exists:measurements,id',
+			'calculation'           => ['required', Rule::in(array_keys(AlertRule::$calculations))],
+			'comparator'            => ['required', Rule::in(array_keys(AlertRule::$comparators))],
+			'comparison'            => ['required', Rule::in(array_keys(AlertRule::$comparisons))],
+            'threshold_value'       => 'required|numeric',
+            'calculation_minutes'   => 'required|numeric',
+            'exclude_months.*'      => ['nullable', 'integer', Rule::in(array_keys(AlertRule::$exclude_months))],
+            'exclude_hours.*'       => ['nullable', 'integer', Rule::in(array_keys(AlertRule::$exclude_hours))],
+            'exclude_hive_ids.*'    => ['nullable', 'integer', Rule::in($request->user()->allHives()->pluck('id'))],
+			'alert_on_occurrences'  => 'nullable|integer',
+            'alert_via_email'       => 'nullable|boolean',
+            'webhook_url'           => 'nullable|url',
+            'active'                => 'nullable|boolean'
 		]);
+
+        if ($validator->fails())
+            return response()->json(['errors'=>$validator->errors()]);
+
+
         $alertrule   = Auth::user()->alert_rules()->findOrFail($id);
         $requestData = $request->except('default_rule'); // never let users create a default rule via the API
 

@@ -30,7 +30,7 @@
 	    <label for="calculation" control-label>{{ 'Calculation' }}</label>
 	    <div>
 	        <select name="calculation" class="form-control" id="calculation" required>
-			    @foreach (json_decode('{"min": "Minimum", "max": "Maximum", "ave": "Average", "der": "Derivative", "cnt": "Count"}', true) as $optionKey => $optionValue)
+			    @foreach (App\Models\AlertRule::$calculations as $optionKey => $optionValue)
 			        <option value="{{ $optionKey }}" {{ (isset($alertrule->calculation) && $alertrule->calculation == $optionKey) ? 'selected' : ''}}>{{ $optionValue }}</option>
 			    @endforeach
 			</select>
@@ -52,7 +52,7 @@
 	    <label for="comparator" control-label>{{ 'Comparator' }}</label>
 	    <div>
 	        <select name="comparator" class="form-control" id="comparator" required>
-			    @foreach (json_decode('{"=": "=", "<": "<", ">": ">", "<=": "<=", ">=": ">="}', true) as $optionKey => $optionValue)
+			    @foreach (App\Models\AlertRule::$comparators as $optionKey => $optionValue)
 			        <option value="{{ $optionKey }}" {{ (isset($alertrule->comparator) && $alertrule->comparator == $optionKey) ? 'selected' : ''}}>{{ $optionValue }}</option>
 			    @endforeach
 			</select>
@@ -65,7 +65,7 @@
 	    <label for="comparison" control-label>{{ 'Comparison' }}</label>
 	    <div>
 	        <select name="comparison" class="form-control" id="comparison" required>
-			    @foreach (json_decode('{"val":"Value", "dif":"Difference", "abs":"Absolute value", "abs_dif":"Absolute differerence"}', true) as $optionKey => $optionValue)
+			    @foreach (App\Models\AlertRule::$comparisons as $optionKey => $optionValue)
 			        <option value="{{ $optionKey }}" {{ (isset($alertrule->comparison) && $alertrule->comparison == $optionKey) ? 'selected' : ''}}>{{ $optionValue }}</option>
 			    @endforeach
 			</select>
@@ -86,7 +86,7 @@
 	<div class="form-group {{ $errors->has('exclude_months') ? 'has-error' : ''}}">
 	    <label for="exclude_months" control-label>{{ 'Exclude Months' }}</label>
 	    <div>
-	        {!! Form::select('exclude_months[]', [1=>"Jan",2=>"Feb",3=>"Mar",4=>"Apr",5=>"May",6=>"Jun",7=>"Jul",8=>"Aug",9=>"Sep",10=>"Oct",11=>"Nov",12=>"Dec"], e($alertrule->exclude_months ?? null), array('class' => 'form-control select2', 'multiple')) !!}
+	        {!! Form::select('exclude_months[]', App\Models\AlertRule::$exclude_months, isset($alertrule->exclude_months) ? $alertrule->getExcludeMonthsAttribute() : null, array('class' => 'form-control select2', 'multiple')) !!}
 	        {!! $errors->first('exclude_months', '<p class="help-block">:message</p>') !!}
 	    </div>
 	</div>
@@ -95,7 +95,7 @@
 	<div class="form-group {{ $errors->has('exclude_hours') ? 'has-error' : ''}}">
 	    <label for="exclude_hours" control-label>{{ 'Exclude Hours' }}</label>
 	    <div>
-	        {!! Form::select('exclude_hours[]', [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23], e($alertrule->exclude_hours ?? null), array('class' => 'form-control select2', 'multiple')) !!}
+	        {!! Form::select('exclude_hours[]', App\Models\AlertRule::$exclude_hours, isset($alertrule->exclude_hours) ? $alertrule->getExcludeHoursAttribute() : null, array('class' => 'form-control select2', 'multiple')) !!}
 	        {!! $errors->first('exclude_hours', '<p class="help-block">:message</p>') !!}
 	    </div>
 	</div>
@@ -104,7 +104,7 @@
 	<div class="form-group {{ $errors->has('exclude_hive_ids') ? 'has-error' : ''}}">
 	    <label for="exclude_hive_ids" control-label>{{ 'Exclude Hives' }}</label>
 	    <div>
-	        {!! Form::select('exclude_hive_ids[]', App\Hive::selectList(), e($alertrule->exclude_hive_ids ?? null), array('class' => 'form-control select2', 'multiple')) !!}
+	        {!! Form::select('exclude_hive_ids[]', App\Hive::selectList(), isset($alertrule->exclude_hive_ids) ? $alertrule->getExcludeHiveIdsAttribute() : null, array('class' => 'form-control select2', 'multiple')) !!}
 	        {!! $errors->first('exclude_hive_ids', '<p class="help-block">:message</p>') !!}
 	    </div>
 	</div>

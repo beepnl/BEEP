@@ -14,6 +14,7 @@ use App\Hive;
 use App\Inspection;
 use App\Device;
 use App\Measurement;
+use App\Models\FlashLog;
 
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
@@ -134,9 +135,9 @@ class ResearchController extends Controller
         $dates  = [];
 
         $moment_now   = new Moment();
-        $moment_2wk   = $moment_now->startof('day')->addDays(-14)->format('Y-m-d');
+        $moment_2wk   = $moment_now->startof('day')->addDays(-13)->format('Y-m-d');
         $moment_now   = new Moment();
-        $moment_ytd   = $moment_now->endof('day')->addDays(-1)->format('Y-m-d');
+        $moment_ytd   = $moment_now->endof('day')->addDays(0)->format('Y-m-d');
 
         $date_start   = $request->input('date_start', $moment_2wk);
         $date_until   = $request->input('date_until', $moment_ytd);
@@ -183,7 +184,7 @@ class ResearchController extends Controller
 
         //die(print_r([$request->input('user_ids'), $consent_users_selected, $users]));
         // Fill dates array
-        $assets = ["users"=>0, "apiaries"=>0, "hives"=>0, "inspections"=>0, "devices"=>0, "measurements"=>0, "weather"=>0];
+        $assets = ["users"=>0, "apiaries"=>0, "hives"=>0, "inspections"=>0, "devices"=>0, "measurements"=>0, "weather"=>0, "flashlogs"=>0];
 
         $moment = $moment_start;
         while($moment < $moment_end)
@@ -316,6 +317,23 @@ class ResearchController extends Controller
                             'Data file']
                         ];
 
+            if ($sensordata)
+                $spreadsheet_array['Sensor Flashlogs'] = [
+                            ['User_id',
+                            'Device_id',
+                            'Hive_id',
+                            'Number of messages in file',
+                            'Log saved to disk',
+                            'Log parsed correctly',
+                            'Log has timestamps',
+                            'Bytes received',
+                            'Raw log file',
+                            'Stripped log file',
+                            'Parsed log file',
+                            __('export.created_at'),
+                            __('export.deleted_at')]
+                        ];
+
             $spreadsheet_array['Weather data'] = [
                             ['User_id',
                             'Device_id',
@@ -375,10 +393,11 @@ class ResearchController extends Controller
             $user_hives        = Hive::where('user_id', $user_id)->where('created_at', '<', $date_until)->orderBy('created_at')->get();
             $user_devices      = Device::where('user_id', $user_id)->where('created_at', '<', $date_until)->orderBy('created_at')->get();
             $user_inspections  = User::find($user_id)->inspections()->with('items')->where('created_at', '>=', $date_start)->where('created_at', '<', $date_until)->orderBy('created_at')->get();
+            $user_flashlogs    = FlashLog::where('user_id', $user_id)->where('created_at', '>=', $date_start)->where('created_at', '<', $date_until)->orderBy('created_at')->get();
             $user_measurements = [];
             $user_weather_data = [];
 
-            //die(print_r([$user_apiaries->toArray(), $user_hives->toArray()]));
+            //die(print_r([$date_until, $user_flashlogs->toArray(), $user_hives->toArray()]));
 
             if ($user_devices->count() > 0)
             {
@@ -460,6 +479,7 @@ class ResearchController extends Controller
                     $user_data_counts['apiaries'] = $user_apiaries->where('created_at', '<=', $date_next_consent)->count();
                     $user_data_counts['hives']    = $user_hives->where('created_at', '<=', $date_next_consent)->count();
                     $user_data_counts['devices']  = $user_devices->where('created_at', '<=', $date_next_consent)->count();
+                    $user_data_counts['flashlogs']= $user_flashlogs->where('created_at', '<=', $date_next_consent)->count();
 
                     if ($download)
                     {
@@ -475,6 +495,10 @@ class ResearchController extends Controller
                         $insps = $this->getInspections($user_id, $user_inspections, $item_ancs, $date_curr_consent, $date_next_consent);
                         foreach ($insps as $insp)
                             $spreadsheet_array[__('export.inspections')][] = $insp;
+
+                        $flash = $this->getFlashlogs($user_id, $user_flashlogs, $date_curr_consent, $date_next_consent);
+                        foreach ($flash as $fla)
+                            $spreadsheet_array['Sensor Flashlogs'][] = $fla;
                         
 
                         if ($sensordata && $user_devices->count() > 0)
@@ -527,6 +551,9 @@ class ResearchController extends Controller
 
                     $inspections_today        = $user_inspections->where('created_at', '>=', $d_start)->where('created_at', '<=', $d_end)->count();
                     $dates[$d]['inspections'] = $v['inspections'] + $inspections_today;
+                    
+                    $flashlogs_today          = $user_flashlogs->where('created_at', '>=', $d_start)->where('created_at', '<=', $d_end)->count();
+                    $dates[$d]['flashlogs']   = $v['flashlogs'] + $flashlogs_today;
                     
                     if (in_array($d, array_keys($user_measurements)))
                         $dates[$d]['measurements']= $v['measurements'] + $user_measurements[$d];
@@ -799,6 +826,28 @@ class ResearchController extends Controller
             $item->created_at,
             $item->deleted_at
         ];
+    }
+
+    private function getFlashlogs($user_id, $flashlogs, $date_start=null, $date_until=null)
+    {
+        return $flashlogs->where('created_at', '<=', $date_until)->sortBy('name')->map(function($item) use ($user_id)
+        {
+            return [
+                $user_id,
+                $item->device_id, 
+                $item->hive_id,
+                $item->log_messages,
+                $item->log_saved,
+                $item->log_parsed,
+                $item->log_has_timestamps,
+                $item->bytes_received,
+                $item->log_file,
+                $item->log_file_stripped,
+                $item->log_file_parsed,
+                $item->created_at,
+                $item->deleted_at,
+            ];
+        });
     }
 
     private function getInspections($user_id, $inspections, $item_names, $date_start=null, $date_until=null)

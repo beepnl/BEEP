@@ -870,7 +870,7 @@ class MeasurementController extends Controller
                     $parsed = true;
                     if ($save)
                     {
-                        $logFileName = $f_dir."/sensor_".$sid."_flash_parsed_$time.log";
+                        $logFileName = $f_dir."/sensor_".$sid."_flash_parsed_$time.json";
                         $saved = Storage::disk($disk)->put($logFileName, json_encode($out));
                         $f_par = Storage::disk($disk)->url($logFileName); 
                     }

@@ -27,9 +27,9 @@ class AlertRule extends Model
      *
      * @var array
      */
-    protected $fillable = ['name', 'description', 'measurement_id', 'calculation', 'calculation_minutes', 'comparator', 'comparison', 'threshold_value', 'exclude_months', 'exclude_hours', 'exclude_hive_ids', 'alert_via_email', 'webhook_url', 'active', 'user_id', 'default_rule'];
+    protected $fillable = ['name', 'description', 'measurement_id', 'calculation', 'calculation_minutes', 'comparator', 'comparison', 'threshold_value', 'exclude_months', 'exclude_hours', 'exclude_hive_ids', 'alert_via_email', 'webhook_url', 'active', 'user_id', 'default_rule', 'timezone'];
 
-    //protected $appends  = ['exclude_months_array'];
+    protected $hidden   = ['last_calculated_at'];
 
     public static $calculations   = ["min"=>"Minimum", "max"=>"Maximum", "ave"=>"Average", "der"=>"Derivative", "cnt"=>"Count"];
     public static $comparators    = ["="=>"=", "<"=>"<", ">"=>">", "<="=>"<=", ">="=>">="];
@@ -65,5 +65,29 @@ class AlertRule extends Model
     public static function selectList()
     {
         return AlertRule::orderBy('name')->pluck('name','id');
+    }
+
+    public static function parseRules()
+    {
+        $alertRules = AlertRule::where('active', 1)->where('default_rule', 0)->orderByAsc('last_calculated_at');
+
+        foreach ($alertRules as $ar) 
+        {
+            /*
+            1. define gmt_time based of timezone
+            2. if filled exclude_months, define current local time (timezone) month and exclude rule if in current local time month
+            3. if filled exclude_hours, define current local time (timezone) hour and exclude rule if in current local time hour
+            4. check minute diff of rule compared to calculation_minutes
+            5. get comparison data from influx for all (except exclude_hive_ids) sensor keys
+            6. compare result via comparator with threshold_value
+            7. if result is true, create alert and check if e-mail needs to be sent
+            8. set last_calculated_at to current time
+            */
+            
+            if ($ar->last_calculated_at)
+            {
+
+            }
+        }
     }
 }

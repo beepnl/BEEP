@@ -84,6 +84,9 @@
                             <th class="row-header"><span><i class="fa fa-2x fa-line-chart"></i> Measurements ({{ $totals['measurements'] }})</span></th> 
                         </tr>
                         <tr>
+                            <th class="row-header"><span><i class="fa fa-2x fa-list"></i> Flash logs ({{ $totals['flashlogs'] }})</span></th> 
+                        </tr>
+                        <tr>
                             <th class="row-header"><span><i class="fa fa-2x fa-thermometer"></i> Weather data ({{ $totals['weather'] }})</span></th> 
                         </tr>
                     </tbody>
@@ -127,6 +130,11 @@
                         <tr>
                             @foreach($dates as $date => $d)
                                 <td>{{ $d['measurements'] > 0 ? $d['measurements'] : '' }}</td>
+                            @endforeach
+                        </tr>
+                        <tr>
+                            @foreach($dates as $date => $d)
+                                <td>{{ $d['flashlogs'] > 0 ? $d['flashlogs'] : '' }}</td>
                             @endforeach
                         </tr>
                         <tr>

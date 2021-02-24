@@ -100,6 +100,7 @@ Route::group(
 				Route::resource('inspection-items', 'InspectionItemsController');
 				Route::resource('measurement', 		'MeasurementController');
 				Route::resource('sensordefinition' ,'SensorDefinitionController');
+				Route::resource('flash-log', 		'FlashLogController');
 
 				// Create new research
 				Route::get('research/create',		['as'=>'research.create','uses'=>'ResearchController@create']);
@@ -152,3 +153,4 @@ Route::group(
 		Route::delete('research/{id}',		['as'=>'research.destroy','uses'=>'ResearchController@destroy']);
 	}
 );
+

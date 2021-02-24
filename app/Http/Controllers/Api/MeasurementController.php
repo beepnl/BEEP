@@ -8,6 +8,8 @@ use App\User;
 use App\Device;
 use App\Category;
 use App\Measurement;
+use App\Models\FlashLog;
+use App\Models\Webhook;
 // use App\Transformer\SensorTransformer;
 use Validator;
 use InfluxDB;
@@ -757,27 +759,34 @@ class MeasurementController extends Controller
         }
         else
         {
+            $user   = $request->user();
             $device = null;
 
             if (isset($id))
-                $device = $request->user()->devices->where('id', $sid)->first();
+                $device = $user->devices->where('id', $sid)->first();
             else if (isset($key) && !isset($sid) && isset($hwi))
-                $device = $request->user()->devices->where('hardware_id', $hwi)->where('key', $key)->first();
+                $device = $user->devices->where('hardware_id', $hwi)->where('key', $key)->first();
             else if (isset($hwi))
-                $device = $request->user()->devices->where('hardware_id', $hwi)->first();
+                $device = $user->devices->where('hardware_id', $hwi)->first();
             else if (isset($key) && !isset($id) && !isset($hwi))
-                $device = $request->user()->devices->where('key', $key)->first();
+                $device = $user->devices->where('key', $key)->first();
             
             if ($device == null)
                 return Response::json(['errors'=>'device_not_found'], 400);
 
             $out   = [];
+            $disk  = 's3';
+            $f_dir = 'flashlog';
+            $data  = '';
             $lines = 0; 
             $bytes = 0; 
             $logtm = false;
             $erase = -1;
             $show  = $request->filled('show') ? $inp['show'] : false;
             $save  = $request->filled('save') ? $inp['save'] : true;
+            $f_log = null;
+            $f_str = null;
+            $f_par = null;
             
             if ($device && ($request->filled('data') || $request->hasFile('file')))
             {
@@ -789,20 +798,26 @@ class MeasurementController extends Controller
                     $files= true;
                     $file = $request->file('file');
                     $name = "sensor_".$sid."_flash_$time.log";
-                    $saved= Storage::putFileAs('sensors', $file, $name) ? true : false; 
-                    $data = Storage::disk('local')->get('sensors/'.$name);
-                    if ($save == false)
-                        $saved = Storage::disk('local')->delete('sensors/'.$name) ? false : true;
+                    $f_log= Storage::disk($disk)->putFileAs($f_dir, $file, $name); 
+                    $saved= $f_log ? true : false; 
+                    $data = Storage::disk($disk)->get($f_dir.'/'.$name);
+                    if ($save == false) // check if file needs to be saved
+                    {
+                        $saved = Storage::disk($disk)->delete($f_dir.'/'.$name) ? false : true;
+                        $f_log = null;
+                    }
                 }
                 else
                 {
                     $data = $request->input('data');
                     if ($save)
                     {
-                        $logFileName = "sensor_".$sid."_flash_$time.log";
-                        $saved = Storage::disk('local')->put('sensors/'.$logFileName, $data);
+                        $logFileName = $f_dir."/sensor_".$sid."_flash_$time.log";
+                        $saved = Storage::disk($disk)->put($logFileName, $data);
+                        $f_log = Storage::disk($disk)->url($logFileName); 
                     }
                 }
+
                 $data= preg_replace('/[\r\n|\r|\n]+/', ',', $data);
                 $data= preg_replace('/[^A-Fa-f0-9,]/', '', $data);
 
@@ -820,8 +835,9 @@ class MeasurementController extends Controller
 
                 if ($save)
                 {
-                    $logFileName =  "sensor_".$sid."_flash_stripped_$time.log";
-                    $saved = Storage::disk('local')->put('sensors/'.$logFileName, $data);
+                    $logFileName =  $f_dir."/sensor_".$sid."_flash_stripped_$time.log";
+                    $saved = Storage::disk($disk)->put($logFileName, $data);
+                    $f_str = Storage::disk($disk)->url($logFileName); 
                 }
 
                 $in = explode("\n", $data);
@@ -847,8 +863,9 @@ class MeasurementController extends Controller
                     $parsed = true;
                     if ($save)
                     {
-                        $logFileName = "sensor_".$sid."_flash_parsed_$time.log";
-                        $saved = Storage::disk('local')->put('sensors/'.$logFileName, json_encode($out));
+                        $logFileName = $f_dir."/sensor_".$sid."_flash_parsed_$time.log";
+                        $saved = Storage::disk($disk)->put($logFileName, json_encode($out));
+                        $f_par = Storage::disk($disk)->url($logFileName); 
                     }
                 }
             }
@@ -863,6 +880,24 @@ class MeasurementController extends Controller
                 'erase'=>$saved,
                 'erase_type'=>$saved ? 'fatfs' : null // fatfs, or full
             ];
+
+            // create Flashlog entity
+            $flashlog = [
+                'user_id'=>$user->id,
+                'device_id'=>$device->id,
+                'hive_id'=>$device->hive_id,
+                'bytes_received'=>$bytes,
+                'log_has_timestamps'=>$logtm,
+                'log_saved'=>$saved,
+                'log_parsed'=>$parsed,
+                'log_messages'=>$messages,
+                'log_file'=>$f_log,
+                'log_file_stripped'=>$f_str,
+                'log_file_parsed'=>$f_par
+            ];
+            FlashLog::create($flashlog);
+            Webhook::sendNotification("Flashlog from ".$user->name." device: ".$device->name." parsed:".$parsed." messages:".$messages);
+
             if ($show)
             {
                 $result['fields'] = array_keys($inp);

@@ -64,3 +64,6 @@ php artisan crud:view permissions --fields="name#string; display_name#string; de
 
 # LabCode
 php artisan crud:generate SampleCode --fields="sample_code#string#unique; sample_note#text; sample_date#timestamp; test_result#text; test#text; test_date#timestamp; test_lab_name#text; hive_id#integer#unsigned; queen_id#integer#unsigned; user_id#integer#unsigned;" --relationships='hive#belongsTo#Hive::class; queen#belongsTo#Queen::class; user#belongsTo#User::class;' --form-helper=html --validations="sample_code#required; hive_id#required"
+
+# FlashLog
+php artisan crud:generate FlashLog --fields="user_id#integer#unsigned; device_id#integer#unsigned; hive_id#integer#unsigned#nullable; log_messages#integer#unsigned#nullable; log_saved#boolean; log_parsed#boolean; log_has_timestamps#boolean; bytes_received#integer#unsigned#nullable; log_file#string#nullable; log_file_stripped#string#nullable; log_file_parsed#string#nullable" --relationships='hive#belongsTo#Hive::class; device#belongsTo#Device::class; user#belongsTo#User::class;' --form-helper=html

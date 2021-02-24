@@ -63,6 +63,7 @@
           </a>
           <ul class="treeview-menu">
             <li class="{{ Route::currentRouteNamed('devices.index') ? 'active' : '' }}"><a href="{{ route('devices.index') }}"><i class="fa fa-wifi"></i><span>{{ __('general.Devices') }}</span></a></li>
+            <li class="{{ Route::currentRouteNamed('flash-log.index') ? 'active' : '' }}"><a href="{{ route('flash-log.index') }}"><i class="fa fa-line-chart"></i><span>Flash log</span></a></li>
             <li class="{{ Route::currentRouteNamed('measurement.index') ? 'active' : '' }}"><a href="{{ route('measurement.index') }}"><i class="fa fa-circle"></i><span>{{ __('general.Measurements') }}</span></a></li>
             <li class="{{ Route::currentRouteNamed('sensordefinition.index') ? 'active' : '' }}"><a href="{{ route('sensordefinition.index') }}"><i class="fa fa-cog"></i><span>{{ __('general.SensorDefinitions') }}</span></a></li>
           </ul>

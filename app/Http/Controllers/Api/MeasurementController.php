@@ -722,14 +722,22 @@ class MeasurementController extends Controller
     */
     public function flashlog(Request $request)
     {
+        $user= $request->user();
         $inp = $request->all();
         $sid = isset($inp['id']) ? $inp['id'] : null;
         $key = null;
-        if (isset($inp['key']))
+        
+        if (isset($inp['key']) && !isset($inp['hardware_id']) && !isset($inp['id']) )
         {
             $key = strtolower($inp['key']);
-            $inp['key'] = $key;
+            $dev = $user->devices()->whereRaw('lower(`key`) = \''.$key.'\'')->first(); // check for case insensitive device key before validation
+            if ($dev)
+            {
+                $inp['id'] = $dev->id;
+                $sid       = $inp['id'];
+            }
         }
+        
         $hwi = null;
         if (isset($inp['hardware_id']))
         {
@@ -738,9 +746,9 @@ class MeasurementController extends Controller
         }
 
         $validator = Validator::make($inp, [
-            'key'               => ['required_without_all:id,hardware_id','string','min:4','exists:sensors,key'],
             'id'                => ['required_without_all:key,hardware_id','integer','exists:sensors,id'],
             'hardware_id'       => ['required_without_all:key,id','string','exists:sensors,hardware_id'],
+            'key'               => ['required_without_all:id,hardware_id','string','min:4','exists:sensors,key'],
             'data'              => 'required_without:file',
             'file'              => 'required_without:data|file',
             'show'              => 'nullable|boolean',
@@ -759,17 +767,16 @@ class MeasurementController extends Controller
         }
         else
         {
-            $user   = $request->user();
             $device = null;
 
-            if (isset($id))
-                $device = $user->devices->where('id', $sid)->first();
+            if (isset($sid))
+                $device = $user->devices()->where('id', $sid)->first();
             else if (isset($key) && !isset($sid) && isset($hwi))
-                $device = $user->devices->where('hardware_id', $hwi)->where('key', $key)->first();
+                $device = $user->devices()->where('hardware_id', $hwi)->where('key', $key)->first();
             else if (isset($hwi))
-                $device = $user->devices->where('hardware_id', $hwi)->first();
-            else if (isset($key) && !isset($id) && !isset($hwi))
-                $device = $user->devices->where('key', $key)->first();
+                $device = $user->devices()->where('hardware_id', $hwi)->first();
+            else if (isset($key) && !isset($sid) && !isset($hwi))
+                $device = $user->devices()->where('key', $key)->first();
             
             if ($device == null)
                 return Response::json(['errors'=>'device_not_found'], 400);

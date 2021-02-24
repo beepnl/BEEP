@@ -775,7 +775,7 @@ class MeasurementController extends Controller
                 return Response::json(['errors'=>'device_not_found'], 400);
 
             $out   = [];
-            $disk  = 's3';
+            $disk  = env('FLASHLOG_STORAGE', 'public');
             $f_dir = 'flashlog';
             $data  = '';
             $lines = 0; 
@@ -896,7 +896,7 @@ class MeasurementController extends Controller
                 'log_file_parsed'=>$f_par
             ];
             FlashLog::create($flashlog);
-            Webhook::sendNotification("Flashlog from ".$user->name." device: ".$device->name." parsed:".$parsed." messages:".$messages);
+            Webhook::sendNotification("Flashlog from ".$user->name." device: ".$device->name." parsed:".$parsed." messages:".$messages." saved:".$saved." to disk:".$disk.'/'.$f_dir);
 
             if ($show)
             {

@@ -825,17 +825,16 @@ class MeasurementController extends Controller
                     }
                 }
 
-                $data= preg_replace('/[\r\n|\r|\n|)(]+/', ',', $data);
-                $data= preg_replace('/[^A-Fa-f0-9]/', '', $data);
+                $data    = preg_replace('/[\r\n|\r|\n|)(]+/', ',', $data);
 
-                // interpret every line as a standard LoRa message (with time (13 characters) cut off at the end)
+                // interpret every line as a standard LoRa message
                 $in      = explode(",", $data);
                 $lines   = count($in);
                 $bytes   = 244 * $lines;
-                $alldata = "";
 
+                $alldata = "";
                 foreach ($in as $line)
-                    $alldata .= substr($line,4);
+                    $alldata .= substr(preg_replace('/[^A-Fa-f0-9]/', '', $line),4);
 
                 // Split data by 0A02 and 0A03 (0A03 30 1B) 0A0330
                 $data  = preg_replace('/0A022([A-Fa-f0-9]{1})0100/', "0A\n022\${1}0100", $alldata);
@@ -873,6 +872,7 @@ class MeasurementController extends Controller
 
                 $counter = 0;
                 $in      = explode("\n", $data);
+                $log_min = 0;
                 foreach ($in as $line)
                 {
                     $counter++;
@@ -926,7 +926,7 @@ class MeasurementController extends Controller
                     'log_file_parsed'=>$f_par
                 ];
                 FlashLog::create($flashlog);
-                Webhook::sendNotification("Flashlog from ".$user->name." device: ".$device->name." parsed:".$parsed." messages:".$messages." saved:".$saved." to disk:".$disk.'/'.$f_dir);
+                Webhook::sendNotification("Flashlog from ".$user->name." device: ".$device->name." parsed:".$parsed." MB: ".$bytes*0.00000095367432." messages:".$messages." saved:".$saved." to disk:".$disk.'/'.$f_dir);
             }
 
             if ($show)
@@ -938,6 +938,11 @@ class MeasurementController extends Controller
 
         if ($parsed)
         return Response::json($result, $parsed ? 200 : 500);
+    }
+
+    public function decode_beep_lora_payload(Request $request, $port, $payload)
+    {
+        return Response::json($this->decode_beep_payload($payload, $port));
     }
 
     /**

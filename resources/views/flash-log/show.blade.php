@@ -22,7 +22,17 @@
                     <tr>
                         <th>ID</th><td>{{ $flashlog->id }}</td>
                     </tr>
-                    <tr><th> User Id </th><td> {{ $flashlog->user_id }} </td></tr><tr><th> Device Id </th><td> {{ $flashlog->device_id }} </td></tr><tr><th> Hive Id </th><td> {{ $flashlog->hive_id }} </td></tr><tr><th> Log Messages </th><td> {{ $flashlog->log_messages }} </td></tr><tr><th> Log Saved </th><td> {{ $flashlog->log_saved }} </td></tr><tr><th> Log Parsed </th><td> {{ $flashlog->log_parsed }} </td></tr><tr><th> Log Has Timestamps </th><td> {{ $flashlog->log_has_timestamps }} </td></tr><tr><th> Bytes Received </th><td> {{ $flashlog->bytes_received }} </td></tr>
+                    <tr><th> User Id </th><td> {{ $flashlog->user_id }} </td></tr>
+                    <tr><th> Device Id </th><td> {{ $flashlog->device_id }} </td></tr>
+                    <tr><th> Hive Id </th><td> {{ $flashlog->hive_id }} </td></tr>
+                    <tr><th> Log Messages </th><td> {{ $flashlog->log_messages }} </td></tr>
+                    <tr><th> Log Saved </th><td> {{ $flashlog->log_saved }} </td></tr>
+                    <tr><th> Log Parsed </th><td> {{ $flashlog->log_parsed }} </td></tr>
+                    <tr><th> Log Has Timestamps </th><td> {{ $flashlog->log_has_timestamps }} </td></tr>
+                    <tr><th> Bytes Received </th><td> {{ $flashlog->bytes_received }} </td></tr>
+                    <tr><th> Log file raw </th><td> <a href="{{ $flashlog->log_file }}">{{ $flashlog->log_file }}</a> </td></tr>
+                    <tr><th> Log file stripped </th><td> <a href="{{ $flashlog->log_file_stripped }}">{{ $flashlog->log_file_stripped }}</a> </td></tr>
+                    <tr><th> Log file parsed </th><td> <a href="{{ $flashlog->log_file_parsed }}">{{ $flashlog->log_file_parsed }}</a> </td></tr>
                 </tbody>
             </table>
 

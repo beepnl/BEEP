@@ -33,7 +33,7 @@
                     ,
                     "order": 
                     [
-                        [ 1, "asc" ]
+                        [ 0, "desc" ]
                     ],
                 });
             });
@@ -49,7 +49,7 @@
             <tbody>
             @foreach($flashlog as $item)
                 <tr>
-                    <td>{{ $loop->iteration or $item->id }}</td>
+                    <td>{{ $item->id }}</td>
                     <td>{{ isset($item->user) ? $item->user->name : '' }}</td>
                     <td>{{ isset($item->device) ? $item->device->name.' ('.$item->device->id.')' : '' }}</td>
                     <td>{{ isset($item->hive) ? $item->hive->name : '' }}</td>

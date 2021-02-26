@@ -787,7 +787,7 @@ class MeasurementController extends Controller
             $data  = '';
             $lines = 0; 
             $bytes = 0; 
-            $logtm = false;
+            $logtm = 0;
             $erase = -1;
             $show  = $request->filled('show') ? $inp['show'] : false;
             $save  = $request->filled('save') ? $inp['save'] : true;
@@ -798,7 +798,7 @@ class MeasurementController extends Controller
             if ($device && ($request->filled('data') || $request->hasFile('file')))
             {
                 $sid  = $device->id; 
-                $time = date("Ymdhis");
+                $time = date("YmdHis");
                 
                 if ($request->hasFile('file') && $request->file('file')->isValid())
                 {
@@ -825,20 +825,44 @@ class MeasurementController extends Controller
                     }
                 }
 
-                $data= preg_replace('/[\r\n|\r|\n]+/', ',', $data);
-                $data= preg_replace('/[^A-Fa-f0-9,]/', '', $data);
+                $data= preg_replace('/[\r\n|\r|\n|)(]+/', ',', $data);
+                $data= preg_replace('/[^A-Fa-f0-9]/', '', $data);
 
                 // interpret every line as a standard LoRa message (with time (13 characters) cut off at the end)
                 $in      = explode(",", $data);
                 $lines   = count($in);
+                $bytes   = 244 * $lines;
                 $alldata = "";
 
                 foreach ($in as $line)
                     $alldata .= substr($line,4);
 
-                // Split data by 0A02 and 0A03
-                $data  = preg_replace('/0A02/', "0A\n02", $alldata);
-                $data  = preg_replace('/0A03/', "0A\n03", $data);
+                // Split data by 0A02 and 0A03 (0A03 30 1B) 0A0330
+                $data  = preg_replace('/0A022([A-Fa-f0-9]{1})0100/', "0A\n022\${1}0100", $alldata);
+
+                // Calculate from payload parts
+                //            port pl_len     |bat 5 bytes value |weight (1/2)  3/6 bytes value  |ds18b20 (0-9) 0-20 bytes value |audio (0-12 bins)   sta/sto bin     0-12 x 2 bytes   |bme280 3x 2b values|time             |delimiter
+                // $payload = '/0([0|3]{1})([A-Fa-f0-9]{2})1B([A-Fa-f0-9]{10})0A0([1-2]{1})([A-Fa-f0-9]{6,12})040([0-9]{1})([A-Fa-f0-9]{0,40})0C0([A-Ca-c0-9]{1})([A-Fa-f0-9]{4})([A-Fa-f0-9]{0,48})07([A-Fa-f0-9]{12})([A-Fa-f0-9]{0,12})0A/';
+                // $replace = "\n0\${1}\${2}1B\${3}0A0\${4}\${5}040\${6}\${7}0C0\${8}\${9}\${10}07\${11}\${12}0A";
+
+                // Calculate from payload parts
+                // $payload = '/([A-Fa-f0-9]{4})1B([A-Fa-f0-9]{10})0A0([1-2]{1})([A-Fa-f0-9]{6,12})040([0-9]{1})([A-Fa-f0-9]{0,40})0C0([A-Ca-c0-9]{1})([A-Fa-f0-9]{4})([A-Fa-f0-9]{0,48})07([A-Fa-f0-9]{12})([A-Fa-f0-9]{0,12})0A/';
+                // $replace = "\n\${1}1B\${2}0A0\${3}\${4}040\${5}\${6}0C0\${7}\${8}\${9}07\${10}\${11}0A";
+
+                // Calculate from payload min/max length
+                $payload = '/([A-Fa-f0-9]{4})1B([A-Fa-f0-9]{10,14})0A([A-Fa-f0-9]{77,90})0A/';
+                
+                $replace = "\n\${1}1B\${2}0A0\${3}0A";
+                
+                $data    = preg_replace($payload, $replace, $data);
+
+                // fix missing battery hex code
+                $data  = preg_replace('/0A03([A-Fa-f0-9]{2})([A-Fa-f0-9]{2})0D/', "0A\n03\${1}1B0D\${2}0D", $data);
+                // split error lines
+                $data  = preg_replace('/03([A-Fa-f0-9]{90,120})0A([A-Fa-f0-9]{0,4})03([A-Fa-f0-9]{90,120})0A/', "03\${1}0A\${2}\n03\${3}0A", $data);
+                $data  = preg_replace('/03([A-Fa-f0-9]{90,120})0A1B([A-Fa-f0-9]{90,120})0A/', "03\${1}0A\n031E1B\${2}0A", $data); // missing 031E
+                $data  = preg_replace('/02([A-Fa-f0-9]{76})0A03([A-Fa-f0-9]{90,120})0A/', "02\${1}0A\n03\${2}0A", $data);
+
 
                 if ($save)
                 {
@@ -847,21 +871,18 @@ class MeasurementController extends Controller
                     $f_str = Storage::disk($disk)->url($logFileName); 
                 }
 
-                $in = explode("\n", $data);
+                $counter = 0;
+                $in      = explode("\n", $data);
                 foreach ($in as $line)
                 {
+                    $counter++;
                     $data_array = $this->decode_flashlog_payload($line, $show);
+                    $data_array['i'] = $counter;
+                    
                     if (in_array('time', array_keys($data_array)))
-                    {
-                        $logtm = true;
-                        $unix  = $data_array['time'];
-                        unset($data_array['time']);
-                        $out[$unix] = $data_array; 
-                    }
-                    else
-                    {
-                        $out[] = $data_array;
-                    }
+                        $logtm++;
+
+                    $out[] = $data_array;
                 }
 
                 $messages = count($out);
@@ -889,21 +910,24 @@ class MeasurementController extends Controller
             ];
 
             // create Flashlog entity
-            $flashlog = [
-                'user_id'=>$user->id,
-                'device_id'=>$device->id,
-                'hive_id'=>$device->hive_id,
-                'bytes_received'=>$bytes,
-                'log_has_timestamps'=>$logtm,
-                'log_saved'=>$saved,
-                'log_parsed'=>$parsed,
-                'log_messages'=>$messages,
-                'log_file'=>$f_log,
-                'log_file_stripped'=>$f_str,
-                'log_file_parsed'=>$f_par
-            ];
-            FlashLog::create($flashlog);
-            Webhook::sendNotification("Flashlog from ".$user->name." device: ".$device->name." parsed:".$parsed." messages:".$messages." saved:".$saved." to disk:".$disk.'/'.$f_dir);
+            if ($save)
+            {
+                $flashlog = [
+                    'user_id'=>$user->id,
+                    'device_id'=>$device->id,
+                    'hive_id'=>$device->hive_id,
+                    'bytes_received'=>$bytes,
+                    'log_has_timestamps'=>$logtm,
+                    'log_saved'=>$saved,
+                    'log_parsed'=>$parsed,
+                    'log_messages'=>$messages,
+                    'log_file'=>$f_log,
+                    'log_file_stripped'=>$f_str,
+                    'log_file_parsed'=>$f_par
+                ];
+                FlashLog::create($flashlog);
+                Webhook::sendNotification("Flashlog from ".$user->name." device: ".$device->name." parsed:".$parsed." messages:".$messages." saved:".$saved." to disk:".$disk.'/'.$f_dir);
+            }
 
             if ($show)
             {

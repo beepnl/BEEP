@@ -69,15 +69,16 @@ class Measurement extends Model
         // add sensor name (temporarily)
         
         $name = $this->physical_quantity()->value('name');
-        if (($name != '' && $name != '-') && isset($this->abbreviation))
-        {
-            $abbr = '';
-            $mabb = $this->abbreviation;
-            $aind = strpos($mabb, '_'); 
-            $abbr = ' - '.($aind ? substr($mabb, 0, $aind) : $mabb);
-            $name .= $abbr;
-        }
-        else if ($name == '-' && isset($this->abbreviation))
+        // if (($name != '' && $name != '-') && isset($this->abbreviation))
+        // {
+        //     $abbr = '';
+        //     $mabb = $this->abbreviation;
+        //     $aind = strpos($mabb, '_'); 
+        //     $abbr = ' - '.($aind ? substr($mabb, 0, $aind) : $mabb);
+        //     $name .= $abbr;
+        // }
+        // else 
+        if ($name == '-' && isset($this->abbreviation))
         {
             $name = str_replace('_', ' ', $this->abbreviation);
         }

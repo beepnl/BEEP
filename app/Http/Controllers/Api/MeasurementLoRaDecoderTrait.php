@@ -91,11 +91,13 @@ trait MeasurementLoRaDecoderTrait
 
             if ($port == 2)
             {
-                if (substr($p, 0, 2) == '01' && (strlen($p) == 52 || strlen($p) == 60)) // BEEP base fw 1.3.3+ start-up message)
+                if (substr($p, 0, 2) == '01' && (strlen($p) == 52 || strlen($p) == 60 || strlen($p) == 76)) // BEEP base fw 1.3.3+ start-up message)
                 {
                     $out['beep_base'] = true;
-                    // 0100010003000502935cbdd3ffff94540e0123af9aed3527beee1d000001
-                    // 0100010003000402935685E6FFFF94540E01237A26A67D24D8EE1D000001
+                    // 0100010003000502935cbdd3ffff94540e0123af9aed3527beee1d000001 (60)
+                    // 0100010003000402935685E6FFFF94540E01237A26A67D24D8EE1D000001 (60)
+                    // 010001000300050293569434FFFF94540E012385039722D342EE1F0000000803091D0000010A (76)
+                    //
                     //                                                 0e01236dada5c40a28ee
                     // 01 00 01 00 03 00 04 02 93 56 85 E6 FF FF 94 54 0E 01 23 7A 26 A6 7D 24 D8 EE 1D 00 00 01 
                     // 0  1  2  3  4  5  6  7  8  9  10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 
@@ -105,10 +107,27 @@ trait MeasurementLoRaDecoderTrait
                     // $out['hardware_version'] = hexdec(substr($p, 16, 16)); // 14-31
                     $out['hardware_id']      = substr($p, 34, 18); // 34-51
                     
-                    if (strlen($p) > 52)
+                    if (strlen($p) > 60)
                     {
-                        $out['measurement_transmission_ratio'] = hexdec(substr($p, 54, 2)); 
-                        $out['measurement_interval_min']       = hexdec(substr($p, 56, 4)); 
+                        if (substr($p, 52, 2) == "1f")
+                            $out['boot_count'] = hexdec(substr($p, 54, 8)); 
+
+                        if (substr($p, 62, 2) == "03")
+                            $out['ds18b20_state'] = hexdec(substr($p, 64, 2)); 
+
+                        if (substr($p, 66, 2) == "1d")
+                        {
+                            $out['measurement_transmission_ratio'] = hexdec(substr($p, 68, 2)); 
+                            $out['measurement_interval_min']       = hexdec(substr($p, 70, 4));
+                        }
+                    }
+                    else if (strlen($p) > 52)
+                    {
+                        if (substr($p, 52, 2) == "1d")
+                        {
+                            $out['measurement_transmission_ratio'] = hexdec(substr($p, 54, 2)); 
+                            $out['measurement_interval_min']       = hexdec(substr($p, 56, 4)); 
+                        }
                     }
                 }
             }
@@ -133,28 +152,36 @@ trait MeasurementLoRaDecoderTrait
                     $out['bv']       = hexdec(substr($p, $sb+6, 4))/1000;
                     $out['bat_perc'] = hexdec(substr($p, $sb+10, 2));
 
-                    // Weight (1 or 2): 0x0A
+                    // Weight (0 - 2): 0x0A
                     $sb = $sb+12;
                     $weight_amount   = hexdec(substr($p, $sb+2, 2));
                     $out['weight_sensor_amount'] = $weight_amount;
+                    $weight_val_len  = $weight_amount * 6;
                     
-                    if (substr($pu, $sb, 2) == '0A' && $weight_amount > 0)
+                    if (substr($pu, $sb, 2) == '0A')
                     {
-                        if ($weight_amount == 1)
+                        if ($weight_amount > 0 && $weight_amount < 3)
                         {
-                            $out['w_v'] = hexdec(substr($p, $sb+4, 6));
-                        }
-                        else if ($weight_amount > 1)
-                        {
-                            for ($i=0; $i < $weight_amount; $i++)
-                            { 
-                                $out['w_v_'.$i] = hexdec(substr($p, $sb+4+($i*6), 6));
+                            if ($weight_amount == 1)
+                            {
+                                $out['w_v'] = hexdec(substr($p, $sb+4, 6));
                             }
+                            else if ($weight_amount > 1)
+                            {
+                                for ($i=0; $i < $weight_amount; $i++)
+                                { 
+                                    $out['w_v_'.$i] = hexdec(substr($p, $sb+4+($i*6), 6));
+                                }
+                            }
+                        }
+                        else
+                        {
+                            $weight_val_len = 7;
                         }
                     }
 
-                    // Temperature 1-5x DS18b20: 0x04
-                    $sb            = $sb + 4 + $weight_amount * 6;
+                    // Temperature 1-10x DS18b20: 0x04
+                    $sb            = $sb + 4 + $weight_val_len;
                     $temp_amount   = hexdec(substr($p, $sb+2, 2));
                     $out['ds18b20_sensor_amount'] = $temp_amount;
                     
@@ -164,7 +191,7 @@ trait MeasurementLoRaDecoderTrait
                         {
                             $out['t_i'] = $this->hexdecs(substr($p, $sb+4, 4))/100;
                         }
-                        else if ($temp_amount > 1)
+                        else if ($temp_amount > 1 && $temp_amount < 11)
                         {
                             for ($i=0; $i < $temp_amount; $i++)
                             { 
@@ -186,7 +213,7 @@ trait MeasurementLoRaDecoderTrait
                     $out['fft_stop_bin']    = $fft_stop_bin;
                     $fft_sb                 = $sb + 8;
                     
-                    if (substr($pu, $sb, 2) == '0C' && $fft_bin_amount > 0 && $fft_bin_total)
+                    if (substr($pu, $sb, 2) == '0C' && $fft_bin_amount > 0 && $fft_bin_amount < 13 && $fft_bin_total)
                     {
                         $summed_bins = ceil($fft_bin_total * 2 / $fft_bin_amount) ;
                         

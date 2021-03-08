@@ -85,7 +85,7 @@
         <input id="payload-input" type="text" name="payload" max="100" style="width: 70%;" value="1B0C100C03640A01FFF55A04020AE90AF00C0A00FF004D00100010000D000C000B0009000A0007000707000000000000" onchange="test()">
         <input id="payload-port" type="number" name="port" min="0" max="9" value="3" onchange="test()">
         <button onclick="test()">TEST</button>
-        <h3>Payload HEX:</h3>
+        <h3>Payload HEX: <span id="byte_len"></span> bytes, <span id="char_len"></span> characters</h3>
         <textarea id="payload-spaced" cols="140" rows="2"></textarea>
 
         <h3>ByteArray HEX:</h3>
@@ -135,6 +135,8 @@
 
                 var decoded   = Decoder(byteArray, port);
                 console.log('decoded', decoded);
+                document.getElementById("byte_len").innerHTML = byteArray.length;
+                document.getElementById("char_len").innerHTML = byteArray.length * 2;
                 document.getElementById("bytearray").innerHTML = byteArray;
                 document.getElementById("payload-spaced").innerHTML = payload_spaced;
                 document.getElementById("decoder-result").innerHTML = JSON.stringify(decoded);

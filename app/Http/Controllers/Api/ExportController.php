@@ -306,7 +306,11 @@ class ExportController extends Controller
         foreach ($csv_sens as $sensor_name) 
         {
             $meas       = Measurement::where('abbreviation', $sensor_name)->first();
-            $csv_head[] = $meas ? $meas->pq_name_unit().' ('.$sensor_name.')' : $sensor_name;
+            $col_head   = $meas ? $meas->pq_name_unit() : $sensor_name;
+            if (in_array($col_head, $csv_head) && $col_head != $sensor_name) // two similar heads, so add $sensor_name
+                $col_head .= ' - '.$sensor_name;
+
+            $csv_head[] = $col_head;
         }
         $csv_head = '"'.implode('"'.$separator.'"', $csv_head).'"'."\r\n";
 

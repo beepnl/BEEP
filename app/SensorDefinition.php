@@ -69,7 +69,7 @@ class SensorDefinition extends Model
 
     public function calibrated_measurement_value($inputValue)
     {
-        $outputValue = $inputValue;
+        $outputValue = floatval($inputValue);
 
         if( (isset($this->offset) || isset($this->multiplier)) && isset($this->input_measurement_id) && isset($this->output_measurement_id))
         {

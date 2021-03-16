@@ -929,7 +929,7 @@ class MeasurementController extends Controller
                     'device_id'=>$device->id,
                     'hive_id'=>$device->hive_id,
                     'bytes_received'=>$bytes,
-                    'log_has_timestamps'=>$logtm,
+                    'log_has_timestamps'=>$logtm > 0 ? true : false,
                     'log_saved'=>$saved,
                     'log_parsed'=>$parsed,
                     'log_messages'=>$messages,

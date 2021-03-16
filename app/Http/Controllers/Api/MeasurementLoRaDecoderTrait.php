@@ -179,6 +179,10 @@ trait MeasurementLoRaDecoderTrait
                             $weight_val_len = 7;
                         }
                     }
+                    else
+                    {
+                        unset($out['weight_sensor_amount']);
+                    }
 
                     // Temperature 1-10x DS18b20: 0x04
                     $sb            = $sb + 4 + $weight_val_len;

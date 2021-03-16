@@ -873,12 +873,24 @@ class MeasurementController extends Controller
                 $counter = 0;
                 $in      = explode("\n", $data);
                 $log_min = 0;
+                $minute  = 0;
                 foreach ($in as $line)
                 {
                     $counter++;
                     $data_array = $this->decode_flashlog_payload($line, $show);
                     $data_array['i'] = $counter;
                     
+                    if (isset($data_array['measurement_interval_min']))
+                    {
+                        $log_min = $data_array['measurement_interval_min'];
+                    }
+                    else
+                    {
+                        $minute += $log_min;
+                        $data_array['minute'] = $minute;
+                        $data_array['minute_interval'] = $log_min;
+                    }
+
                     if (in_array('time', array_keys($data_array)))
                         $logtm++;
 
@@ -936,7 +948,6 @@ class MeasurementController extends Controller
             }
         }
 
-        if ($parsed)
         return Response::json($result, $parsed ? 200 : 500);
     }
 

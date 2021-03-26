@@ -27,9 +27,11 @@
                     <tr><th> Hive Id </th><td> {{ $flashlog->hive_id }} </td></tr>
                     <tr><th> Log Messages </th><td> {{ $flashlog->log_messages }} </td></tr>
                     <tr><th> Log Saved </th><td> {{ $flashlog->log_saved }} </td></tr>
+                    <tr><th> Log erased </th><td> {{ $flashlog->log_erased }} </td></tr>
                     <tr><th> Log Parsed </th><td> {{ $flashlog->log_parsed }} </td></tr>
                     <tr><th> Log Has Timestamps </th><td> {{ $flashlog->log_has_timestamps }} </td></tr>
                     <tr><th> Bytes Received </th><td> {{ $flashlog->bytes_received }} </td></tr>
+                    <tr><th> Bytes at BEEP base </th><td> {{ $flashlog->log_size_bytes }} </td></tr>
                     <tr><th> Log file raw </th><td> <a href="{{ $flashlog->log_file }}">{{ $flashlog->log_file }}</a> </td></tr>
                     <tr><th> Log file stripped </th><td> <a href="{{ $flashlog->log_file_stripped }}">{{ $flashlog->log_file_stripped }}</a> </td></tr>
                     <tr><th> Log file parsed </th><td> <a href="{{ $flashlog->log_file_parsed }}">{{ $flashlog->log_file_parsed }}</a> </td></tr>

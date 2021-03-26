@@ -939,10 +939,12 @@ class MeasurementController extends Controller
                     'log_has_timestamps'=>$logtm > 0 ? true : false,
                     'log_saved'=>$saved,
                     'log_parsed'=>$parsed,
+                    'log_size_bytes'=>$log_bytes,
                     'log_messages'=>$messages,
                     'log_file'=>$f_log,
                     'log_file_stripped'=>$f_str,
-                    'log_file_parsed'=>$f_par
+                    'log_file_parsed'=>$f_par,
+                    'log_erased'=>$erase
                 ];
                 FlashLog::create($flashlog);
                 Webhook::sendNotification("Flashlog from ".$user->name.", device: ".$device->name.", parsed:".$parsed.", size: ".round($bytes/1024/1024, 2)."MB, messages:".$messages.", saved:".$saved.", to disk:".$disk.'/'.$f_dir);

@@ -635,50 +635,6 @@ class MeasurementController extends Controller
     }
 
 
-    /* Flashlog data correction algorithm
-    1. Searchi for start and end dates of the gaps in the database of the WUR BEEP bases
-    2. Matchi 3 measurements before and after the gap with data in the log file
-    3. Check if the logfile contains about the same timespan as the gap
-    4. Fill the missing values in the database
-    */
-    public function fillDataGaps($id)
-    {
-        $device      = Device::find($id);
-        $sensorQuery = 'SELECT COUNT(bv) FROM "sensors" WHERE ("key" = \''.$device->key.'\' OR "key" = \''.strtolower($device->key).'\' OR "key" = \''.strtoupper($device->key).'\') GROUP BY time(1d)';
-        $result      = $this->client::query($sensorQuery, ['precision'=>'s']);
-        $sensors_out = $result->getPoints();
-
-        //die(print_r($sensors_out));
-        $gaps = [];
-        $i    = 0;
-        foreach ($sensors_out as $val_counts) 
-        {
-            if (!isset($gaps[$i]))
-                $gaps[$i] = ['start'=>null, 'end'=>null];
-
-            if ($val_counts['count'] > 0) // fill start
-            {
-                if ($gaps[$i]['end'] == null)
-                {
-                    $gaps[$i]['start'] = $val_counts['time'];
-                }
-                else // close gap, start new gap 
-                {
-                    $i++;
-                    continue;
-                }
-            }
-            else
-            {
-                $gaps[$i]['end'] = $val_counts['time'];
-            }
-        }
-        // request last 3 and next 3 items of gap date
-
-        die(print_r($gaps));
-    }
-
-
     /**
     api/lora_sensors POST
     Store sensor measurement data (see BEEP sensor data API definition) from TTN or KPN (Simpoint)
@@ -742,6 +698,66 @@ class MeasurementController extends Controller
         //die(print_r($data_array));
         return $this->storeMeasurements($data_array);
     }
+
+
+    private function getInfluxQuery($query)
+    {
+        $result = $this->client::query($query, ['precision'=>'s']);
+        return $result->getPoints();
+    }
+
+
+    /* Flashlog data correction algorithm
+    1. Searchi for start and end dates of the gaps in the database of the WUR BEEP bases
+    2. Matchi 3 measurements before and after the gap with data in the log file
+    3. Check if the logfile contains about the same timespan as the gap
+    4. Fill the missing values in the database
+    */
+    public function fillDataGaps($id)
+    {
+        $device      = Device::find($id);
+        $sensors_out = $this->getInfluxQuery('SELECT COUNT(bv) FROM "sensors" WHERE ("key" = \''.$device->key.'\' OR "key" = \''.strtolower($device->key).'\' OR "key" = \''.strtoupper($device->key).'\') GROUP BY time(1d)');
+
+        //die(print_r($sensors_out));
+        $gaps = [];
+        $i    = 0;
+        foreach ($sensors_out as $val_counts) 
+        {
+            if (!isset($gaps[$i]))
+                $gaps[$i] = ['start'=>null, 'end'=>null];
+
+            if ($val_counts['count'] > 0) // fill start
+            {
+                if ($gaps[$i]['end'] == null)
+                {
+                    $gaps[$i]['start'] = $val_counts['time'];
+                }
+                else // close gap, start new gap 
+                {
+                    $i++;
+                    continue;
+                }
+            }
+            else
+            {
+                $gaps[$i]['end'] = $val_counts['time'];
+            }
+        }
+        // request last 3 and next 3 items of gap date
+        foreach ($gaps as $i => $gap)
+        {
+            if (isset($gap['start']) && isset($gap['end']))
+            {
+                $before_gap = $this->getInfluxQuery('SELECT * FROM "sensors" WHERE ("key" = \''.$device->key.'\' OR "key" = \''.strtolower($device->key).'\' OR "key" = \''.strtoupper($device->key).'\') AND time < \''.$gap['start'].'\' ORDER BY time DESC LIMIT 3');
+                $after_gap  = $this->getInfluxQuery('SELECT * FROM "sensors" WHERE ("key" = \''.$device->key.'\' OR "key" = \''.strtolower($device->key).'\' OR "key" = \''.strtoupper($device->key).'\') AND time > \''.$gap['end'].'\' ORDER BY time ASC LIMIT 3');
+
+                $gaps[$i]['before_gap'] = $before_gap;
+                $gaps[$i]['after_gap']  = $after_gap;
+            }
+        }
+        die(print_r($gaps));
+    }
+
 
     /**
     api/sensors/flashlog

@@ -833,7 +833,7 @@ class MeasurementController extends Controller
                 // interpret every line as a standard LoRa message
                 $in      = explode(",", $data);
                 $lines   = count($in);
-                $bytes   = 244 * $lines;
+                $bytes   = (strlen($data) - $lines)/2;
 
                 $alldata = "";
                 foreach ($in as $line)
@@ -916,6 +916,7 @@ class MeasurementController extends Controller
             $result = [
                 'lines_received'=>$lines,
                 'bytes_received'=>$bytes,
+                'log_size_bytes'=>$log_size_bytes,
                 'log_has_timestamps'=>$logtm,
                 'log_saved'=>$saved,
                 'log_parsed'=>$parsed,

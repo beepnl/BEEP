@@ -709,6 +709,7 @@ class MeasurementController extends Controller
     @bodyParam file binary File with MX_FLASH_LOG Hexadecimal string lines (new line) separated, with many rows of log data, or text file binary with all data inside.
     @queryParam show integer 1 for displaying info in result JSON, 0 for not displaying (default).
     @queryParam save integer 1 for saving the data to a file (default), 0 for not save log file.
+    @queryParam log_size_bytes integer 0x22 decimal result of log size requested from BEEP base.
     @response{
           "lines_received": 20039,
           "bytes_received": 9872346,
@@ -752,7 +753,8 @@ class MeasurementController extends Controller
             'data'              => 'required_without:file',
             'file'              => 'required_without:data|file',
             'show'              => 'nullable|boolean',
-            'save'              => 'nullable|boolean'
+            'save'              => 'nullable|boolean',
+            'log_size_bytes'    => 'nullable|integer'
         ]);
 
         $result   = null;
@@ -767,7 +769,8 @@ class MeasurementController extends Controller
         }
         else
         {
-            $device = null;
+            $device    = null;
+            $log_bytes = $request->filled('log_size_bytes') ? intval($inp['log_size_bytes']) : null;
 
             if (isset($sid))
                 $device = $user->devices()->where('id', $sid)->first();
@@ -825,7 +828,7 @@ class MeasurementController extends Controller
                     }
                 }
 
-                $data    = preg_replace('/[\r\n|\r|\n|)(]+/', ',', $data);
+                $data    = preg_replace('/[\r\n|\r|\n|)(|FEFEFEFE]+/i', ',', $data);
 
                 // interpret every line as a standard LoRa message
                 $in      = explode(",", $data);
@@ -909,6 +912,7 @@ class MeasurementController extends Controller
                     }
                 }
             }
+            $erase = $log_bytes != null && $log_bytes == $bytes ? true : false;
             $result = [
                 'lines_received'=>$lines,
                 'bytes_received'=>$bytes,
@@ -916,8 +920,8 @@ class MeasurementController extends Controller
                 'log_saved'=>$saved,
                 'log_parsed'=>$parsed,
                 'log_messages'=>$messages,
-                'erase_mx_flash'=>$saved ? 0 : -1,
-                'erase'=>$saved,
+                'erase_mx_flash'=>$erase ? 0 : -1,
+                'erase'=>$erase,
                 'erase_type'=>$saved ? 'fatfs' : null // fatfs, or full
             ];
 
@@ -938,7 +942,7 @@ class MeasurementController extends Controller
                     'log_file_parsed'=>$f_par
                 ];
                 FlashLog::create($flashlog);
-                Webhook::sendNotification("Flashlog from ".$user->name.", device: ".$device->name.", parsed:".$parsed.", size: ".round($bytes*0.00000095367432, 2)."MB, messages:".$messages.", saved:".$saved.", to disk:".$disk.'/'.$f_dir);
+                Webhook::sendNotification("Flashlog from ".$user->name.", device: ".$device->name.", parsed:".$parsed.", size: ".round($bytes/1024/1024, 2)."MB, messages:".$messages.", saved:".$saved.", to disk:".$disk.'/'.$f_dir);
             }
 
             if ($show)

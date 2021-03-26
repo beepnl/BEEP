@@ -947,7 +947,7 @@ class MeasurementController extends Controller
                     'log_erased'=>$erase
                 ];
                 FlashLog::create($flashlog);
-                Webhook::sendNotification("Flashlog from ".$user->name.", device: ".$device->name.", parsed:".$parsed.", size: ".round($bytes/1024/1024, 2)."MB, messages:".$messages.", saved:".$saved.", erased:".$erase.", to disk:".$disk.'/'.$f_dir);
+                Webhook::sendNotification("Flashlog from ".$user->name.", device: ".$device->name.", parsed:".$parsed.", size: ".round($bytes/1024/1024, 2)."MB (".($log_bytes != null && $log_bytes > 0 ? round(100*$bytes/$log_bytes, 1) : '?')."%), messages:".$messages.", saved:".$saved.", erased:".$erase.", to disk:".$disk.'/'.$f_dir);
             }
 
             if ($show)

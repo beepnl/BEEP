@@ -634,6 +634,51 @@ class MeasurementController extends Controller
         return $data_array;
     }
 
+
+    /* Flashlog data correction algorithm
+    1. Searchi for start and end dates of the gaps in the database of the WUR BEEP bases
+    2. Matchi 3 measurements before and after the gap with data in the log file
+    3. Check if the logfile contains about the same timespan as the gap
+    4. Fill the missing values in the database
+    */
+    public function fillDataGaps($id)
+    {
+        $device      = Device::find($id);
+        $sensorQuery = 'SELECT COUNT(bv) FROM "sensors" WHERE ("key" = \''.$device->key.'\' OR "key" = \''.strtolower($device->key).'\' OR "key" = \''.strtoupper($device->key).'\') GROUP BY time(1d)';
+        $result      = $this->client::query($sensorQuery, ['precision'=>'s']);
+        $sensors_out = $result->getPoints();
+
+        //die(print_r($sensors_out));
+        $gaps = [];
+        $i    = 0;
+        foreach ($sensors_out as $val_counts) 
+        {
+            if (!isset($gaps[$i]))
+                $gaps[$i] = ['start'=>null, 'end'=>null];
+
+            if ($val_counts['count'] > 0) // fill start
+            {
+                if ($gaps[$i]['end'] == null)
+                {
+                    $gaps[$i]['start'] = $val_counts['time'];
+                }
+                else // close gap, start new gap 
+                {
+                    $i++;
+                    continue;
+                }
+            }
+            else
+            {
+                $gaps[$i]['end'] = $val_counts['time'];
+            }
+        }
+        // request last 3 and next 3 items of gap date
+
+        die(print_r($gaps));
+    }
+
+
     /**
     api/lora_sensors POST
     Store sensor measurement data (see BEEP sensor data API definition) from TTN or KPN (Simpoint)

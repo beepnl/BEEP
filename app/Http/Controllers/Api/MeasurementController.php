@@ -916,7 +916,7 @@ class MeasurementController extends Controller
             $result = [
                 'lines_received'=>$lines,
                 'bytes_received'=>$bytes,
-                'log_size_bytes'=>$log_size_bytes,
+                'log_size_bytes'=>$log_bytes,
                 'log_has_timestamps'=>$logtm,
                 'log_saved'=>$saved,
                 'log_parsed'=>$parsed,

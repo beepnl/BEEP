@@ -222,7 +222,9 @@ class InspectionsController extends Controller
     @authenticated
     @bodyParam date date required The date of the inspection. Example: 2020-05-18 16:16
     @bodyParam items object required An object of category id's containing their inspected values (id's in case of lists, otherwise numeric/textual values). Example: {"547":0,"595":1,"845":"814"}
-    @bodyParam hive_id integer required Hive id for which this inspection has been carried out. Example: 42
+    @bodyParam hive_ids array required Array of Hive ids to which this inspection should be linked. Example: 42
+    @bodyParam location_id Location id to which this inspection should be linked. Example: 2
+    @bodyParam id integer If provided, edit and do not create inspection. Required to edit the inspection. Example: 15
     @bodyParam impression integer Numeric impression value -1 (unfilled) to 1-3 (smileys). Example: -1
     @bodyParam attention integer Numeric impression value -1 (unfilled) to 0-1 (needs attention). Example: 1
     @bodyParam reminder string Textual value of the reminder fields. Example: This is an inspection reminder
@@ -234,16 +236,18 @@ class InspectionsController extends Controller
     {
         if ($request->filled('date') && ( $request->filled('items') || ($request->filled('item_ids') && $request->filled('item_vals')) ) )
         {
-            $moment       = new Moment($request->input('date'));
-            $date         = $moment->format('Y-m-d H:i:s');
-            $data         = $request->except(['hive_id','items','date']);
+            $moment               = new Moment($request->input('date'));
+            $date                 = $moment->format('Y-m-d H:i:s');
+            $data                 = $request->except(['hive_id','items','date']);
             $data['created_at']   = $date;
             $data['checklist_id'] = $request->filled('checklist_id') ? $request->input('checklist_id') : null;
+
             if ($request->filled('reminder_date'))
             {
                 $reminder_moment = new Moment($request->input('reminder_date'));
                 $data['reminder_date'] = $reminder_moment->format('Y-m-d H:i:s');
             }
+            
             // filter -1 values for impression and attention
             $data['impression']   = $request->filled('impression') && $request->input('impression') > -1 ? $request->input('impression') : null;
             $data['attention']    = $request->filled('attention')  && $request->input('attention')  > -1 ? $request->input('attention')  : null;
@@ -276,21 +280,28 @@ class InspectionsController extends Controller
             else
                 $hive_ids = [$request->input('hive_id')];
 
+
+            $inspection = $user->inspections()->find($request->input('id'));
+
             foreach ($hive_ids as $hive_id) 
             {
                 $hive = $user->allHives(true)->find($hive_id);
 
-                // select inspection if exists
-                $inspection = null;
-                if ($hive)
-                    $inspection = $hive->inspections()->orderBy('created_at','desc')->where('created_at', $date)->first();
-                else if ($location)
-                    $inspection = $location->inspections()->orderBy('created_at','desc')->where('created_at', $date)->first();
-                else
-                    return response()->json('no_owner_or_edit_rights', 400);
-                    //$inspection = $user->inspections()->orderBy('created_at','desc')->where('created_at', $date)->first();
+                if (!isset($hive))
+                    continue;
+                
+                // if (!isset($inspection)) // if no inspection id 
+                // {
+                //     if ($hive)
+                //         $inspection = $hive->inspections()->orderBy('created_at','desc')->where('created_at', $date)->first();
+                //     else if ($location)
+                //         $inspection = $location->inspections()->orderBy('created_at','desc')->where('created_at', $date)->first();
+                //     else
+                //         return response()->json('no_owner_or_edit_rights', 400);
+                //         //$inspection = $user->inspections()->orderBy('created_at','desc')->where('created_at', $date)->first();
+                // }
 
-                if (isset($inspection))
+                if (isset($inspection) && $inspection->hive_id == $hive_id)
                     $inspection->update($data);
                 else
                     $inspection = Inspection::create($data);

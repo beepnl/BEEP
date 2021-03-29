@@ -94,6 +94,8 @@ class AlertRuleController extends Controller
 
         $requestData = $request->except('default_rule'); // never let users create a default rule via the API
 
+        $requestData['alert_on_occurrences'] = $request->input('alert_on_occurrences', 1);
+
         if ($request->filled('exclude_hive_ids'))
             $requestData['exclude_hive_ids'] = implode(",", $requestData['exclude_hive_ids']);
         else

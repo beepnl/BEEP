@@ -713,7 +713,7 @@ class MeasurementController extends Controller
     3. Check if the logfile contains about the same timespan as the gap
     4. Fill the missing values in the database
     */
-    public function fillDataGaps($id)
+    public function fillDataGaps($id, $flashlog=null)
     {
         $device      = Device::find($id);
         $sensors_out = $this->getInfluxQuery('SELECT COUNT(bv) FROM "sensors" WHERE ("key" = \''.$device->key.'\' OR "key" = \''.strtolower($device->key).'\' OR "key" = \''.strtoupper($device->key).'\') GROUP BY time(1d)');
@@ -751,8 +751,43 @@ class MeasurementController extends Controller
                 $before_gap = $this->getInfluxQuery('SELECT * FROM "sensors" WHERE ("key" = \''.$device->key.'\' OR "key" = \''.strtolower($device->key).'\' OR "key" = \''.strtoupper($device->key).'\') AND time < \''.$gap['start'].'\' ORDER BY time DESC LIMIT 3');
                 $after_gap  = $this->getInfluxQuery('SELECT * FROM "sensors" WHERE ("key" = \''.$device->key.'\' OR "key" = \''.strtolower($device->key).'\' OR "key" = \''.strtoupper($device->key).'\') AND time > \''.$gap['end'].'\' ORDER BY time ASC LIMIT 3');
 
-                $gaps[$i]['before_gap'] = $before_gap;
-                $gaps[$i]['after_gap']  = $after_gap;
+                // $gaps[$i]['before_gap'] = $before_gap;
+                // $gaps[$i]['after_gap']  = $after_gap;
+
+                // compare db gap flanks with flashlog
+                if ($flashlog != null && count($flashlog) > 0 && count($before_gap) > 0)
+                {
+                    $gaps[$i]['intersection_before'] = [];
+                    $gaps[$i]['intersection_after']  = [];
+                    foreach ($before_gap as $g) 
+                    {
+                        foreach ($flashlog as $f) 
+                        {
+                            $match = array_intersect_assoc($g, $f);
+                            if ($match != null && count($match) > 8)
+                            {
+                                $match['time'] = $g['time'];
+                                $gaps[$i]['intersection_before'][] = $match;
+                            }
+                            
+                        }
+                    }
+                    foreach ($after_gap as $g) 
+                    {
+                        foreach ($flashlog as $f) 
+                        {
+                            $match = array_intersect_assoc($g, $f);
+                            if ($match != null && count($match) > 8)
+                            {
+                                $match['time'] = $g['time'];
+                                $gaps[$i]['intersection_after'][] = $match;
+                            }
+                            
+                        }
+                    }
+                }
+                // if (count($gaps[$i]['intersection_after']) > 0 || count($gaps[$i]['intersection_before']) > 0)
+                //     die(print_r($gaps));
             }
         }
         die(print_r($gaps));
@@ -834,7 +869,12 @@ class MeasurementController extends Controller
             $log_bytes = $request->filled('log_size_bytes') ? intval($inp['log_size_bytes']) : null;
 
             if (isset($sid))
-                $device = $user->devices()->where('id', $sid)->first();
+            {
+                if (Auth::user()->hasRole('superadmin'))
+                    $device = Device::find($sid);
+                else
+                    $device = $user->devices()->where('id', $sid)->first();
+            }
             else if (isset($key) && !isset($sid) && isset($hwi))
                 $device = $user->devices()->where('hardware_id', $hwi)->where('key', $key)->first();
             else if (isset($hwi))
@@ -1015,6 +1055,12 @@ class MeasurementController extends Controller
             {
                 $result['fields'] = array_keys($inp);
                 $result['output'] = $out;
+            }
+
+            if (count($out) > 0)
+            {
+                $gapsFilled = $this->fillDataGaps($device->id, $out);
+                $result['gaps_filled'] = $gapsFilled;
             }
         }
 

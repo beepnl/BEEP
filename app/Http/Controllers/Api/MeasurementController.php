@@ -744,12 +744,14 @@ class MeasurementController extends Controller
             }
         }
         // request last 3 and next 3 items of gap date
+        $checks  = 3; // minimum amount of inline measurements that should be matched 
+        $matches = 9; // minimum amount of measurements that should match 
         foreach ($gaps as $i => $gap)
         {
             if (isset($gap['start']) && isset($gap['end']))
             {
-                $before_gap = $this->getInfluxQuery('SELECT * FROM "sensors" WHERE ("key" = \''.$device->key.'\' OR "key" = \''.strtolower($device->key).'\' OR "key" = \''.strtoupper($device->key).'\') AND time < \''.$gap['start'].'\' ORDER BY time DESC LIMIT 3');
-                $after_gap  = $this->getInfluxQuery('SELECT * FROM "sensors" WHERE ("key" = \''.$device->key.'\' OR "key" = \''.strtolower($device->key).'\' OR "key" = \''.strtoupper($device->key).'\') AND time > \''.$gap['end'].'\' ORDER BY time ASC LIMIT 3');
+                $before_gap = $this->getInfluxQuery('SELECT * FROM "sensors" WHERE ("key" = \''.$device->key.'\' OR "key" = \''.strtolower($device->key).'\' OR "key" = \''.strtoupper($device->key).'\') AND time < \''.$gap['start'].'\' ORDER BY time DESC LIMIT '.$checks);
+                $after_gap  = $this->getInfluxQuery('SELECT * FROM "sensors" WHERE ("key" = \''.$device->key.'\' OR "key" = \''.strtolower($device->key).'\' OR "key" = \''.strtoupper($device->key).'\') AND time > \''.$gap['end'].'\' ORDER BY time ASC LIMIT '.$checks);
 
                 // $gaps[$i]['before_gap'] = $before_gap;
                 // $gaps[$i]['after_gap']  = $after_gap;
@@ -758,33 +760,75 @@ class MeasurementController extends Controller
                 if ($flashlog != null && count($flashlog) > 0 && count($before_gap) > 0)
                 {
                     $gaps[$i]['intersection_before'] = [];
+                    $gaps[$i]['intersection_before']['matches'] = [];
+                    $gaps[$i]['intersection_before']['flashlog_index'] = null;
                     $gaps[$i]['intersection_after']  = [];
+                    $gaps[$i]['intersection_after']['matches'] = [];
+                    $gaps[$i]['intersection_after']['onoff'] = [];
+                    $gaps[$i]['intersection_after']['flashlog_index'] = null;
                     foreach ($before_gap as $g) 
                     {
-                        foreach ($flashlog as $f) 
+                        foreach ($flashlog as $fib => $f) 
                         {
-                            $match = array_intersect_assoc($g, $f);
-                            if ($match != null && count($match) > 8)
+                            if (count($gaps[$i]['intersection_before']['matches']) < $matches)
                             {
-                                $match['time'] = $g['time'];
-                                $gaps[$i]['intersection_before'][] = $match;
+                                $match = array_intersect_assoc($g, $f);
+                                if ($match != null && count($match) >= $matches)
+                                {
+                                    $gaps[$i]['intersection_before']['flashlog_index'] = $fib;
+                                    $match['time']            = $g['time'];
+                                    $match['minute']          = $f['minute'];
+                                    $match['minute_interval'] = $f['minute_interval'];
+                                    $gaps[$i]['intersection_before']['matches'][] = $match;
+                                }
                             }
-                            
+
                         }
                     }
-                    foreach ($after_gap as $g) 
+
+                    if (count($gaps[$i]['intersection_before']['matches']) == $checks)
                     {
-                        foreach ($flashlog as $f) 
+                        foreach ($after_gap as $g) 
                         {
-                            $match = array_intersect_assoc($g, $f);
-                            if ($match != null && count($match) > 8)
+                            foreach ($flashlog as $fia => $f)
                             {
-                                $match['time'] = $g['time'];
-                                $gaps[$i]['intersection_after'][] = $match;
+                                if ($fia > $gaps[$i]['intersection_before']['flashlog_index'])
+                                {
+                                    if (count($gaps[$i]['intersection_after']['matches']) < $matches)
+                                    {
+                                        $match = array_intersect_assoc($g, $f);
+                                        if ($match != null && count($match) >= $matches)
+                                        {
+                                            $match['time']            = $g['time'];
+                                            $match['minute']          = $f['minute'];
+                                            $match['minute_interval'] = $f['minute_interval'];
+                                            $gaps[$i]['intersection_after']['flashlog_index'] = $fia;
+                                            $gaps[$i]['intersection_after']['matches'][] = $match;
+                                        }
+                                    }
+                                    elseif ($f['port'] == 2 && count($gaps[$i]['intersection_after']['matches']) == 0)
+                                    {
+                                        // check for port 2 messages (switch on/off) and if 1, put extra time ($gaps[$i]['minutes_diff']) in between there
+                                        $gaps[$i]['intersection_after']['onoff'][] = $f;
+                                    }
+                                }
                             }
-                            
                         }
                     }
+                    // check if matches are inline
+                    if (count($gaps[$i]['intersection_before']['matches']) == $checks && count($gaps[$i]['intersection_after']['matches']) == $checks && $gaps[$i]['intersection_before']['matches'][0]['minute_interval'] == $gaps[$i]['intersection_after']['matches'][0]['minute_interval'])
+                    {
+                        $mom_start = new Moment($gap['start']);
+                        $mom_end   = new Moment($gap['end']);
+                        $minutes_in_gap   = $mom_start->from($mom_end)->getMinutes();
+                        $minutes_in_flash = $gaps[$i]['intersection_after']['matches'][0]['minute'] - $gaps[$i]['intersection_before']['matches'][0]['minute'];
+                        $gaps[$i]['minutes_in_flash'] = $minutes_in_flash;
+                        $gaps[$i]['minutes_in_gap']   = $minutes_in_gap;
+                        $gaps[$i]['minutes_diff']     = abs($minutes_in_flash-$minutes_in_gap);
+                        $gaps[$i]['full_match']       = $gaps[$i]['minutes_diff'] < $gaps[$i]['intersection_after']['matches'][0]['minute_interval'] ? true : false;
+                    }
+
+
                 }
                 // if (count($gaps[$i]['intersection_after']) > 0 || count($gaps[$i]['intersection_before']) > 0)
                 //     die(print_r($gaps));

@@ -673,9 +673,8 @@ class MeasurementController extends Controller
    /**
     api/sensors POST
     Store sensor measurement data (see BEEP sensor data API definition) from API, or TTN. In case of using api/unsecure_sensors, this is used for legacy measurement devices that do not have the means to encrypt HTTPS cypher
-
     @bodyParam key string required DEV EUI of the Device to enable storing sensor data
-    @bodyParam data array TTN Measurement data
+    @bodyParam data array Measurement data
     @bodyParam payload_fields array TTN Measurement data
     */
     public function storeMeasurementData(Request $request)
@@ -713,7 +712,7 @@ class MeasurementController extends Controller
     3. Check if the logfile contains about the same timespan as the gap
     4. Fill the missing values in the database
     */
-    public function fillDataGaps($id, $flashlog=null)
+    public function fillDataGaps($id, $flashlog=null, $save=false)
     {
         $device      = Device::find($id);
         $sensors_out = $this->getInfluxQuery('SELECT COUNT(bv) FROM "sensors" WHERE ("key" = \''.$device->key.'\' OR "key" = \''.strtolower($device->key).'\' OR "key" = \''.strtoupper($device->key).'\') GROUP BY time(1d)');
@@ -753,19 +752,18 @@ class MeasurementController extends Controller
                 $before_gap = $this->getInfluxQuery('SELECT * FROM "sensors" WHERE ("key" = \''.$device->key.'\' OR "key" = \''.strtolower($device->key).'\' OR "key" = \''.strtoupper($device->key).'\') AND time < \''.$gap['start'].'\' ORDER BY time DESC LIMIT '.$checks);
                 $after_gap  = $this->getInfluxQuery('SELECT * FROM "sensors" WHERE ("key" = \''.$device->key.'\' OR "key" = \''.strtolower($device->key).'\' OR "key" = \''.strtoupper($device->key).'\') AND time > \''.$gap['end'].'\' ORDER BY time ASC LIMIT '.$checks);
 
-                // $gaps[$i]['before_gap'] = $before_gap;
-                // $gaps[$i]['after_gap']  = $after_gap;
-
                 // compare db gap flanks with flashlog
                 if ($flashlog != null && count($flashlog) > 0 && count($before_gap) > 0)
                 {
-                    $gaps[$i]['intersection_before'] = [];
-                    $gaps[$i]['intersection_before']['matches'] = [];
-                    $gaps[$i]['intersection_before']['flashlog_index'] = null;
-                    $gaps[$i]['intersection_after']  = [];
-                    $gaps[$i]['intersection_after']['matches'] = [];
-                    $gaps[$i]['intersection_after']['onoff'] = [];
-                    $gaps[$i]['intersection_after']['flashlog_index'] = null;
+                    $gaps[$i]['saved_datapoints']                       = 0;
+                    $gaps[$i]['intersection_before']                    = [];
+                    $gaps[$i]['intersection_before']['matches']         = [];
+                    $gaps[$i]['intersection_before']['flashlog_index']  = null;
+                    $gaps[$i]['intersection_after']                     = [];
+                    $gaps[$i]['intersection_after']['matches']          = [];
+                    $gaps[$i]['intersection_after']['onoff']            = [];
+                    $gaps[$i]['intersection_after']['flashlog_index']   = null;
+
                     foreach ($before_gap as $g) 
                     {
                         foreach ($flashlog as $fib => $f) 
@@ -806,9 +804,8 @@ class MeasurementController extends Controller
                                             $gaps[$i]['intersection_after']['matches'][] = $match;
                                         }
                                     }
-                                    elseif ($f['port'] == 2 && count($gaps[$i]['intersection_after']['matches']) == 0)
+                                    elseif ($f['port'] == 2 && count($gaps[$i]['intersection_after']['matches']) == 0) // check for port 2 messages (switch on/off) in between 'before' and 'after' matches
                                     {
-                                        // check for port 2 messages (switch on/off) and if 1, put extra time ($gaps[$i]['minutes_diff']) in between there
                                         $gaps[$i]['intersection_after']['onoff'][] = $f;
                                     }
                                 }
@@ -816,25 +813,54 @@ class MeasurementController extends Controller
                         }
                     }
                     // check if matches are inline
-                    if (count($gaps[$i]['intersection_before']['matches']) == $checks && count($gaps[$i]['intersection_after']['matches']) == $checks && $gaps[$i]['intersection_before']['matches'][0]['minute_interval'] == $gaps[$i]['intersection_after']['matches'][0]['minute_interval'])
+                    $i_before = $gaps[$i]['intersection_before'];
+                    $i_after  = $gaps[$i]['intersection_after'];
+                    $m_before = $i_before['matches'];
+                    $m_after  = $i_after['matches'];
+
+                    // if matches == checks, no on/off gaps, and same interval, then fill gap
+                    if (count($m_before) == $checks && count($m_after) == $checks && count($i_after['onoff']) == 0 && $m_before[0]['minute_interval'] == $m_after[0]['minute_interval'])
                     {
-                        $mom_start = new Moment($gap['start']);
-                        $mom_end   = new Moment($gap['end']);
+                        $mom_start = new Moment($m_before[0]['time']);
+                        $mom_end   = new Moment($m_after[0]['time']);
                         $minutes_in_gap   = $mom_start->from($mom_end)->getMinutes();
-                        $minutes_in_flash = $gaps[$i]['intersection_after']['matches'][0]['minute'] - $gaps[$i]['intersection_before']['matches'][0]['minute'];
+                        $minutes_in_flash = $m_after[0]['minute'] - $m_before[0]['minute'];
                         $gaps[$i]['minutes_in_flash'] = $minutes_in_flash;
                         $gaps[$i]['minutes_in_gap']   = $minutes_in_gap;
                         $gaps[$i]['minutes_diff']     = abs($minutes_in_flash-$minutes_in_gap);
-                        $gaps[$i]['full_match']       = $gaps[$i]['minutes_diff'] < $gaps[$i]['intersection_after']['matches'][0]['minute_interval'] ? true : false;
+                        $full_match                   = $gaps[$i]['minutes_diff'] < intval($m_after[0]['minute_interval'])/10 ? true : false;
+                        $gaps[$i]['full_match']       = $full_match;
+                        
+                        // if full match, insert all flashlog indexes between matches in Influx db
+                        if ($full_match)
+                        {
+                            $flashlog_sec_int    = intval($m_before[0]['minute_interval']) * 60;
+                            $flashlog_sec_index  = 0;
+                            $timestamp_start     = $mom_start->addSeconds($flashlog_sec_int)->format('U');
+
+                            for ($fi=$i_before['flashlog_index']+1; $fi < $i_after['flashlog_index']; $fi++) 
+                            { 
+                                $timestamp = $timestamp_start + $flashlog_sec_index * $flashlog_sec_int;
+                                $flashlog_sec_index++;
+                                
+                                if ($save)
+                                    $stored = $this->storeInfluxData($flashlog[$fi], strtoupper($device->key), $timestamp);
+                                else
+                                    $stored = true;
+
+                                if ($stored)
+                                    $gaps[$i]['saved_datapoints']++;
+
+                            }
+                        }
+
                     }
 
 
                 }
-                // if (count($gaps[$i]['intersection_after']) > 0 || count($gaps[$i]['intersection_before']) > 0)
-                //     die(print_r($gaps));
             }
         }
-        die(print_r($gaps));
+        return $gaps;
     }
 
 
@@ -849,6 +875,7 @@ class MeasurementController extends Controller
     @bodyParam file binary File with MX_FLASH_LOG Hexadecimal string lines (new line) separated, with many rows of log data, or text file binary with all data inside.
     @queryParam show integer 1 for displaying info in result JSON, 0 for not displaying (default).
     @queryParam save integer 1 for saving the data to a file (default), 0 for not save log file.
+    @queryParam fill integer 1 for filling data gaps in the database, 0 for not filling gaps (default).
     @queryParam log_size_bytes integer 0x22 decimal result of log size requested from BEEP base.
     @response{
           "lines_received": 20039,
@@ -894,6 +921,7 @@ class MeasurementController extends Controller
             'file'              => 'required_without:data|file',
             'show'              => 'nullable|boolean',
             'save'              => 'nullable|boolean',
+            'fill'              => 'nullable|boolean',
             'log_size_bytes'    => 'nullable|integer'
         ]);
 
@@ -937,6 +965,7 @@ class MeasurementController extends Controller
             $bytes = 0; 
             $logtm = 0;
             $erase = -1;
+            $fill  = $request->filled('fill') ? $inp['fill'] : false;
             $show  = $request->filled('show') ? $inp['show'] : false;
             $save  = $request->filled('save') ? $inp['save'] : true;
             $f_log = null;
@@ -1055,10 +1084,11 @@ class MeasurementController extends Controller
                     {
                         $logFileName = $f_dir."/sensor_".$sid."_flash_parsed_$time.json";
                         $saved = Storage::disk($disk)->put($logFileName, json_encode($out));
-                        $f_par = Storage::disk($disk)->url($logFileName); 
+                        $f_par = Storage::disk($disk)->url($logFileName);
                     }
                 }
             }
+
             $erase = $log_bytes != null && $log_bytes == $bytes ? true : false;
             $result = [
                 'lines_received'=>$lines,
@@ -1072,6 +1102,26 @@ class MeasurementController extends Controller
                 'erase'=>$erase,
                 'erase_type'=>$saved ? 'fatfs' : null // fatfs, or full
             ];
+
+            // fill data gaps
+            if ($fill && count($out) > 0)
+            {
+                $gaps = $this->fillDataGaps($device->id, $out, $save);
+                $storedData = 0;
+                foreach ($gaps as $gap) 
+                {
+                    if (isset($gap['saved_datapoints']))
+                        $storedData += $gap['saved_datapoints'];
+                }
+                if ($save && $storedData > 0)
+                {
+                    $logFileName = $f_dir."/sensor_".$sid."_flash_filled_$time.json";
+                    $saved = Storage::disk($disk)->put($logFileName, json_encode($gaps));
+                    $f_par = Storage::disk($disk)->url($logFileName);
+                }
+                $result['gaps']              = $gaps;
+                $result['filled_datapoints'] = $storedData;
+            }
 
             // create Flashlog entity
             if ($save)
@@ -1098,13 +1148,7 @@ class MeasurementController extends Controller
             if ($show)
             {
                 $result['fields'] = array_keys($inp);
-                $result['output'] = $out;
-            }
-
-            if (count($out) > 0)
-            {
-                $gapsFilled = $this->fillDataGaps($device->id, $out);
-                $result['gaps_filled'] = $gapsFilled;
+                //$result['output'] = $out;
             }
         }
 

@@ -153,7 +153,7 @@ trait MeasurementLoRaDecoderTrait
                     $out['bat_perc'] = hexdec(substr($p, $sb+10, 2));
 
                     // Weight (0 - 2): 0x0A
-                    $sb = $sb+12;
+                    $sb              = $sb+12;
                     $weight_amount   = hexdec(substr($p, $sb+2, 2));
                     $out['weight_sensor_amount'] = $weight_amount;
                     $weight_val_len  = $weight_amount * 6;
@@ -174,10 +174,9 @@ trait MeasurementLoRaDecoderTrait
                                 }
                             }
                         }
-                        else
+                        else if ($weight_amount == 0)
                         {
                             $weight_val_len = 7;
-                            die(print_r($out));
                         }
                     }
                     else

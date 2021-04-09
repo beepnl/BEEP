@@ -896,7 +896,7 @@ class MeasurementController extends Controller
                         $data_array['minute_interval'] = $log_min;
                     }
 
-                    if (in_array('time', array_keys($data_array)))
+                    if (in_array('time_device', array_keys($data_array)))
                         $logtm++;
 
                     $out[] = $data_array;

@@ -174,7 +174,7 @@ trait MeasurementLoRaDecoderTrait
                                 }
                             }
                         }
-                        else
+                        else if ($weight_amount == 0)
                         {
                             $weight_val_len = 7;
                         }

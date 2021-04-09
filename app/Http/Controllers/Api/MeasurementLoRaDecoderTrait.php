@@ -261,7 +261,7 @@ trait MeasurementLoRaDecoderTrait
                         $unixts = hexdec(substr($p, $time_start, 8));
                         if ($unixts)
                         {
-                            $out['time'] = $unixts;
+                            $out['time_device'] = $unixts;
                         }
                     }
                 }

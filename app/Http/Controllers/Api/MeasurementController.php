@@ -529,6 +529,9 @@ class MeasurementController extends Controller
                         else
                             $device->hardware_id = $value;
                         break;
+                    case 'time_device':
+                        $device->datetime = date("Y-m-d H:i:s", $value);
+                        break;
                     default:
                         $device->{$field} = $value;
                         break;
@@ -615,6 +618,8 @@ class MeasurementController extends Controller
                 $this->storeDeviceMeta($data_array['key'], 'firmware_version', $data_array['firmware_version']);
             if (isset($data_array['bootcount']))
                 $this->storeDeviceMeta($data_array['key'], 'bootcount', $data_array['bootcount']);
+            if (isset($data_array['time_device']))
+                $this->storeDeviceMeta($data_array['key'], 'time_device', $data_array['time_device']);
         }
 
         // process downlink

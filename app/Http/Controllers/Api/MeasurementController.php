@@ -531,6 +531,8 @@ class MeasurementController extends Controller
                         break;
                     case 'time_device':
                         $device->datetime = date("Y-m-d H:i:s", $value);
+                        $time = time();
+                        $device->datetime_offset_sec = round($value - $time, 2);
                         break;
                     default:
                         $device->{$field} = $value;

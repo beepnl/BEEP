@@ -98,7 +98,7 @@
 						<td>{{ $device->last_message_received }}</td>
 						<td>{{ isset($device->battery_voltage) ? $device->battery_voltage.' V' : '' }}</td>
 						<td>{{ $device->hardware_version }}</td>
-						<td>{{ $device->firmware_version }}<br>{{ $device->datetime }}</td>
+						<td>{{ $device->firmware_version }} @if(isset($device->datetime)) ({{ $device->datetime_offset_sec > 0 ? '+'.$device->datetime_offset_sec : $device->datetime_offset_sec }} sec)<br>{{ $device->datetime }}@endif</td>
 						<td>{{ $device->measurement_interval_min }} / {{ $device->measurement_transmission_ratio }} @if(isset($device->measurement_interval_min)) (=send 1x/{{ $device->measurement_interval_min * max(1,$device->measurement_transmission_ratio) }}min) @endif</td>
 						<td>{{ $device->user->name }} / {{ isset($device->hive) ? $device->hive->name : '' }}</td>
 						<td style="max-width: 200px; max-height: 60px; overflow: hidden;" title="{{ $device->last_downlink_result }}">{{ $device->last_downlink_result }}</td>

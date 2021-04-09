@@ -81,14 +81,14 @@ trait MeasurementLoRaDecoderTrait
     private function decode_beep_payload($payload, $port)
     {
         $out = [];
-        
+        $out['payload_hex'] = $payload;
         // distighuish BEEP base v2 and v3 payload
         
         if ($port != 1) // BEEP base v3 firmware
         {
             $p  = strtolower($payload);
             $pu = strtoupper($payload);
-
+            
             if ($port == 2)
             {
                 if (substr($p, 0, 2) == '01' && (strlen($p) == 52 || strlen($p) == 60 || strlen($p) == 76)) // BEEP base fw 1.3.3+ start-up message)
@@ -262,7 +262,7 @@ trait MeasurementLoRaDecoderTrait
                         $unixts = hexdec(substr($p, $time_start, 8));
                         if ($unixts)
                         {
-                            $out['time'] = $unixts;
+                            $out['time_device'] = $unixts;
                         }
                     }
                 }

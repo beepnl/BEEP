@@ -177,6 +177,7 @@ trait MeasurementLoRaDecoderTrait
                         else
                         {
                             $weight_val_len = 7;
+                            die(print_r($out));
                         }
                     }
                     else

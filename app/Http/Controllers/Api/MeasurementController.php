@@ -529,6 +529,11 @@ class MeasurementController extends Controller
                         else
                             $device->hardware_id = $value;
                         break;
+                    case 'time_device':
+                        $device->datetime = date("Y-m-d H:i:s", $value);
+                        $time = time();
+                        $device->datetime_offset_sec = round($value - $time, 2);
+                        break;
                     default:
                         $device->{$field} = $value;
                         break;
@@ -615,6 +620,8 @@ class MeasurementController extends Controller
                 $this->storeDeviceMeta($data_array['key'], 'firmware_version', $data_array['firmware_version']);
             if (isset($data_array['bootcount']))
                 $this->storeDeviceMeta($data_array['key'], 'bootcount', $data_array['bootcount']);
+            if (isset($data_array['time_device']))
+                $this->storeDeviceMeta($data_array['key'], 'time_device', $data_array['time_device']);
         }
 
         // process downlink
@@ -700,7 +707,7 @@ class MeasurementController extends Controller
 
     /**
     api/sensors/flashlog
-    POST data from BEEP base fw 1.5.0+ FLASH log (with timestamp), interpret data and store in InlfuxDB (overwriting existing data). BEEP base BLE cmd: when the response is 200 OK and erase_mx_flash > -1, provide the ERASE_MX_FLASH BLE command (0x21) to the BEEP base with the last byte being the HEX value of the erase_mx_flash value (0 = 0x00, 1 = 0x01, i.e.0x2100, or 0x2101)
+    POST data from BEEP base fw 1.5.0+ FLASH log (with timestamp), interpret data and store in InlfuxDB (overwriting existing data). BEEP base BLE cmd: when the response is 200 OK and erase_mx_flash > -1, provide the ERASE_MX_FLASH BLE command (0x21) to the BEEP base with the last byte being the HEX value of the erase_mx_flash value (0 = 0x00, 1 = 0x01, i.e.0x2100, or 0x2101, i.e. erase_type:"fatfs", or erase_type:"full")
     @authenticated
     @bodyParam id integer Device id to update. (Required without key and hardware_id)
     @bodyParam key string DEV EUI of the sensor to enable storing sensor data incoming on the api/sensors or api/lora_sensors endpoint. (Required without id and hardware_id)
@@ -709,6 +716,7 @@ class MeasurementController extends Controller
     @bodyParam file binary File with MX_FLASH_LOG Hexadecimal string lines (new line) separated, with many rows of log data, or text file binary with all data inside.
     @queryParam show integer 1 for displaying info in result JSON, 0 for not displaying (default).
     @queryParam save integer 1 for saving the data to a file (default), 0 for not save log file.
+    @queryParam log_size_bytes integer 0x22 decimal result of log size requested from BEEP base.
     @response{
           "lines_received": 20039,
           "bytes_received": 9872346,
@@ -752,7 +760,8 @@ class MeasurementController extends Controller
             'data'              => 'required_without:file',
             'file'              => 'required_without:data|file',
             'show'              => 'nullable|boolean',
-            'save'              => 'nullable|boolean'
+            'save'              => 'nullable|boolean',
+            'log_size_bytes'    => 'nullable|integer'
         ]);
 
         $result   = null;
@@ -767,7 +776,8 @@ class MeasurementController extends Controller
         }
         else
         {
-            $device = null;
+            $device    = null;
+            $log_bytes = $request->filled('log_size_bytes') ? intval($inp['log_size_bytes']) : null;
 
             if (isset($sid))
                 $device = $user->devices()->where('id', $sid)->first();
@@ -825,17 +835,19 @@ class MeasurementController extends Controller
                     }
                 }
 
-                $data    = preg_replace('/[\r\n|\r|\n|)(]+/', ',', $data);
-
+                $data    = preg_replace('/[\r\n|\r|\n]+|\)\(|FEFEFEFE/i', "\n", $data);
                 // interpret every line as a standard LoRa message
-                $in      = explode(",", $data);
+                $in      = explode("\n", $data);
                 $lines   = count($in);
-                $bytes   = 244 * $lines;
-
+                $bytes   = 0;
                 $alldata = "";
                 foreach ($in as $line)
-                    $alldata .= substr(preg_replace('/[^A-Fa-f0-9]/', '', $line),4);
-
+                {
+                    $lineData = substr(preg_replace('/[^A-Fa-f0-9]/', '', $line),4);
+                    $alldata .= $lineData;
+                    $bytes   += mb_strlen($lineData, 'utf-8')/2;
+                }
+                
                 // Split data by 0A02 and 0A03 (0A03 30 1B) 0A0330
                 $data  = preg_replace('/0A022([A-Fa-f0-9]{1})0100/', "0A\n022\${1}0100", $alldata);
 
@@ -891,7 +903,7 @@ class MeasurementController extends Controller
                         $data_array['minute_interval'] = $log_min;
                     }
 
-                    if (in_array('time', array_keys($data_array)))
+                    if (in_array('time_device', array_keys($data_array)))
                         $logtm++;
 
                     $out[] = $data_array;
@@ -909,15 +921,17 @@ class MeasurementController extends Controller
                     }
                 }
             }
+            $erase = $log_bytes != null && $log_bytes == $bytes ? true : false;
             $result = [
                 'lines_received'=>$lines,
                 'bytes_received'=>$bytes,
+                'log_size_bytes'=>$log_bytes,
                 'log_has_timestamps'=>$logtm,
                 'log_saved'=>$saved,
                 'log_parsed'=>$parsed,
                 'log_messages'=>$messages,
-                'erase_mx_flash'=>$saved ? 0 : -1,
-                'erase'=>$saved,
+                'erase_mx_flash'=>$erase ? 0 : -1,
+                'erase'=>$erase,
                 'erase_type'=>$saved ? 'fatfs' : null // fatfs, or full
             ];
 
@@ -932,13 +946,15 @@ class MeasurementController extends Controller
                     'log_has_timestamps'=>$logtm > 0 ? true : false,
                     'log_saved'=>$saved,
                     'log_parsed'=>$parsed,
+                    'log_size_bytes'=>$log_bytes,
                     'log_messages'=>$messages,
                     'log_file'=>$f_log,
                     'log_file_stripped'=>$f_str,
-                    'log_file_parsed'=>$f_par
+                    'log_file_parsed'=>$f_par,
+                    'log_erased'=>$erase
                 ];
                 FlashLog::create($flashlog);
-                Webhook::sendNotification("Flashlog from ".$user->name." device: ".$device->name." parsed:".$parsed." MB: ".$bytes*0.00000095367432." messages:".$messages." saved:".$saved." to disk:".$disk.'/'.$f_dir);
+                Webhook::sendNotification("Flashlog from ".$user->name.", device: ".$device->name.", parsed:".$parsed.", size: ".round($bytes/1024/1024, 2)."MB (".($log_bytes != null && $log_bytes > 0 ? round(100*$bytes/$log_bytes, 1) : '?')."%), messages:".$messages.", saved:".$saved.", erased:".$erase.", to disk:".$disk.'/'.$f_dir);
             }
 
             if ($show)

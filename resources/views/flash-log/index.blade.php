@@ -43,7 +43,7 @@
         <table id="table-flash-log" class="table table-responsive table-striped">
             <thead>
                 <tr>
-                    <th>#</th><th>User</th><th>Device</th><th>Hive</th><th>Log Messages</th><th>Log Saved</th><th>Log Parsed</th><th>Log Has Timestamps</th><th>Bytes Received</th><th>Actions</th>
+                    <th>#</th><th>User</th><th>Device</th><th>Hive</th><th>Log Messages</th><th>Log Erased on BEEP base</th><th>Log Parsed</th><th>Log Has Timestamps</th><th>Bytes Received</th><th>Actions</th>
                 </tr>
             </thead>
             <tbody>
@@ -54,10 +54,10 @@
                     <td>{{ isset($item->device) ? $item->device->name.' ('.$item->device->id.')' : '' }}</td>
                     <td>{{ isset($item->hive) ? $item->hive->name : '' }}</td>
                     <td>{{ $item->log_messages }}</td>
-                    <td>{{ $item->log_saved }}</td>
+                    <td>{{ $item->log_erased }}</td>
                     <td>{{ $item->log_parsed }}</td>
                     <td>{{ $item->log_has_timestamps }}</td>
-                    <td>{{ $item->bytes_received }}</td>
+                    <td>{{ round($item->bytes_received/1024/1024,3) }}MB @if(isset($item->log_size_bytes) && $item->log_size_bytes > 0) ({{ round(100*($item->bytes_received / $item->log_size_bytes),1) }}%) @endif </td>
                     <td col-sm-1>
                         <a href="{{ route('flash-log.show', $item->id) }}" title="{{ __('crud.show') }}"><button class="btn btn-default"><i class="fa fa-eye" aria-hidden="true"></i></button></a>
 

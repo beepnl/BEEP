@@ -529,6 +529,11 @@ class MeasurementController extends Controller
                         else
                             $device->hardware_id = $value;
                         break;
+                    case 'time_device':
+                        $device->datetime = date("Y-m-d H:i:s", $value);
+                        $time = time();
+                        $device->datetime_offset_sec = round($value - $time, 2);
+                        break;
                     default:
                         $device->{$field} = $value;
                         break;
@@ -615,6 +620,8 @@ class MeasurementController extends Controller
                 $this->storeDeviceMeta($data_array['key'], 'firmware_version', $data_array['firmware_version']);
             if (isset($data_array['bootcount']))
                 $this->storeDeviceMeta($data_array['key'], 'bootcount', $data_array['bootcount']);
+            if (isset($data_array['time_device']))
+                $this->storeDeviceMeta($data_array['key'], 'time_device', $data_array['time_device']);
         }
 
         // process downlink
@@ -1070,7 +1077,7 @@ class MeasurementController extends Controller
                         $data_array['minute_interval'] = $log_min;
                     }
 
-                    if (in_array('time', array_keys($data_array)))
+                    if (in_array('time_device', array_keys($data_array)))
                         $logtm++;
 
                     $out[] = $data_array;

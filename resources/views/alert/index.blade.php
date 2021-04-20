@@ -50,7 +50,7 @@
             @foreach($alert as $item)
                 <tr>
                     <td>{{ $loop->iteration or $item->id }}</td>
-                    <td>{{ $item->alert_rule->name }}</td><td>{{ $item->alert_function }}</td><td>{{ $item->alert_value }}</td><td>{{ $item->measurement->pq_name_unit }} ({{ $item->measurement->id }})</td><td>{{ $item->show }}</td><td>{{ $item->location_name }}</td><td>{{ $item->hive_name }}</td><td>{{ $item->device_name }}</td>
+                    <td>{{ $item->getAlertRuleNameAttribute() }}</td><td>{{ $item->alert_function }}</td><td>{{ $item->alert_value }}</td><td>{{ $item->measurement->pq_name_unit }} ({{ $item->measurement->id }})</td><td>{{ $item->show }}</td><td>{{ $item->location_name }}</td><td>{{ $item->hive_name }}</td><td>{{ $item->device_name }}</td>
                     <td col-sm-1>
                         <a href="{{ route('alert.show', $item->id) }}" title="{{ __('crud.show') }}"><button class="btn btn-default"><i class="fa fa-eye" aria-hidden="true"></i></button></a>
 

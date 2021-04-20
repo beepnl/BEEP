@@ -38,7 +38,7 @@ class Alert extends Model
     // Relations
     public function getAlertRuleNameAttribute()
     {
-        if ($this->alert_rule_id != null)
+        if ($this->alert_rule_id != null && $this->alert_rule)
             return $this->alert_rule->name;
 
         return null;

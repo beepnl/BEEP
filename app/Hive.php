@@ -211,4 +211,5 @@ class Hive extends Model
     {
         return Hive::orderBy('name')->pluck('name','id');
     }
+
 }

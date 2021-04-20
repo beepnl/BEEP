@@ -408,16 +408,16 @@ class DeviceController extends Controller
                 // delete
                 if (isset($valid_data['delete']) && boolval($valid_data['delete']) === true)
                 {
-                    try
-                    {
-                        $client = new \Influx;
-                        $query  = 'DELETE from "sensors" WHERE "key" = \''.$device_obj->key.'\'';
-                        $result = $client::query($query);
-                    }
-                    catch(\Exception $e)
-                    {
-                        return ['errors'=>'Data values of device with key '.$device_obj->key.' cannot be deleted, try again later...', 'http_response_code'=>500];
-                    }
+                    // try
+                    // {
+                    //     $client = new \Influx;
+                    //     $query  = 'DELETE from "sensors" WHERE "key" = \''.$device_obj->key.'\'';
+                    //     $result = $client::query($query);
+                    // }
+                    // catch(\Exception $e)
+                    // {
+                    //     return ['errors'=>'Data values of device with key '.$device_obj->key.' cannot be deleted, try again later...', 'http_response_code'=>500];
+                    // }
                     $device_obj->delete();
                     return 'device_deleted';
                 }

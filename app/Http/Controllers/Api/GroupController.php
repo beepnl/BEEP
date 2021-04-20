@@ -217,7 +217,7 @@ class GroupController extends Controller
 
         if (count($error_msg) > 0)
         {
-            return ['error'=>__('group.email_na').implode($error_msg, ', ')];
+            return ['error'=>__('group.email_na').implode(', ', $error_msg)];
         }
         return true;
     }
@@ -313,19 +313,19 @@ class GroupController extends Controller
                 Mail::to($email)->send(new GroupInvitation($group, $name, $admin, $user['token'], $invited_by));
                 $emails[] = $email;
             }
-            return ['message'=>__('group.Invited').implode($emails, ', ')];
+            return ['message'=>__('group.Invited').implode(', ', $emails)];
         }
         else if (count($invite_new) > 0)
         {
-            return ['error'=>__('group.email_na').implode($invite_new, ', ')];
+            return ['error'=>__('group.email_na').implode(', ', $invite_new)];
         }
         else if (count($updated_msg) > 0)
         {
-            return ['message'=>__('group.Updated').implode($updated_msg, ', ')];
+            return ['message'=>__('group.Updated').implode(', ', $updated_msg)];
         }
         else if (count($error_msg) > 0)
         {
-            return ['error'=>implode($error_msg, ', ')];
+            return ['error'=>implode(', ', $error_msg)];
         }
         return $group->users();
     }

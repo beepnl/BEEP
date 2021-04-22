@@ -235,13 +235,12 @@ class User extends Authenticatable
 
     public function delete()
     {
-        // delete all related photos 
+        // delete all related items 
+        $this->settings()->delete();
         $this->images()->delete();
-        $this->inspections()->delete();
+        $this->devices()->delete();
+        $this->locations()->delete(); //including $cascadeDeletes = ['hives', 'inspections']; // including $cascadeDeletes = ['queen','inspections','layers','frames','productions'];
         $this->checklists()->delete();
-        $this->queens()->delete();
-        $this->hives()->delete();
-        $this->locations()->delete();
 
         // delete the user
         return parent::delete();

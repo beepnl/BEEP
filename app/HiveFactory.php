@@ -60,13 +60,8 @@ class HiveFactory
 	{
 		
 		// First set inspection because location will be fixed after setting in hive
-		$now = new Moment();
-
-		$inspection_data 		  		= [];
-		$inspection_data['created_at']  = $now->setTimezone($timeZone)->format('Y-m-d H:i');
-		$inspection_data['notes'] 		= Translation::translate('hive').' '.strtolower(Translation::translate('action'));
-		$inspection_data['items'] 		= [];
-		$locationChange 		  		= false;
+		$inspection_items = [];
+		$locationChange   = false;
 
 		if ($location->id != $hive->location_id)
 		{
@@ -74,11 +69,11 @@ class HiveFactory
 
 			$from_apiary_id = Category::findCategoryIdByRootParentAndName('hive', 'relocation', 'previous_apiary', ['system','checklist']);
 			if ($from_apiary_id)
-				$inspection_data['items'][$from_apiary_id] = $hive->getLocationAttribute();
+				$inspection_items[$from_apiary_id] = $hive->getLocationAttribute();
 
 			$to_apiary_id   = Category::findCategoryIdByRootParentAndName('hive', 'location', 'apiary', ['system','checklist']);
 			if ($to_apiary_id)
-				$inspection_data['items'][$to_apiary_id] = $location->name;
+				$inspection_items[$to_apiary_id] = $location->name;
 		}
 
 		// Edit hive
@@ -214,35 +209,18 @@ class HiveFactory
 			// Inspection items to add 
 			$brood_layers_id = Category::findCategoryIdByRootParentAndName('hive', 'configuration', 'brood_layers', ['system','checklist']);
 			if ($brood_layers_id)
-				$inspection_data['items'][$brood_layers_id] = $broodLayerAmount;
+				$inspection_items[$brood_layers_id] = $broodLayerAmount;
 
 			$honey_layers_id = Category::findCategoryIdByRootParentAndName('hive', 'configuration', 'supers', ['system','checklist']);
 			if ($honey_layers_id)
-				$inspection_data['items'][$honey_layers_id] = $honeyLayerAmount;
+				$inspection_items[$honey_layers_id] = $honeyLayerAmount;
 
 			$frames_per_layer_id = Category::findCategoryIdByRootParentAndName('hive', 'configuration', 'frames_per_layer', ['system','checklist']);
 			if ($frames_per_layer_id)
-				$inspection_data['items'][$frames_per_layer_id] = $frameAmount;
+				$inspection_items[$frames_per_layer_id] = $frameAmount;
 
-			$inspection = Inspection::create($inspection_data);
-			foreach ($inspection_data['items'] as $cat_id => $value) 
-	        {
-	            $itemData = 
-	            [
-	                'category_id'   => $cat_id,
-	                'inspection_id' => $inspection->id,
-	                'value'         => $value,
-	            ];
-	            InspectionItem::create($itemData);
-	        }
-
-			$inspection->users()->sync(Auth::user()->id);
-
-	        if (isset($location))
-	            $inspection->locations()->sync($location->id);
-
-	        if (isset($hive))
-	            $inspection->hives()->sync($hive->id);
+			$notes = Translation::translate('hive').' '.strtolower(Translation::translate('action'));
+			Inspection::createInspection($inspection_items, $hive->id, $location->id, $notes, $timeZone);
 	    }
 
 		return $hive;

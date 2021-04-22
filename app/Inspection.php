@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use LaravelLocalization;
 
 use Auth;
+use Moment\Moment;
 
 class Inspection extends Model
 {
@@ -107,7 +108,36 @@ class Inspection extends Model
         return parent::delete();
     }
 
+    public static function createInspection($items=[], $hive_ids=null, $location_ids=null, $notes='', $timeZone="Europe/Amsterdam")
+    {
+        $now                            = new Moment();
+        $inspection_data                = [];
+        $inspection_data['created_at']  = $now->setTimezone($timeZone)->format('Y-m-d H:i');
+        $inspection_data['notes']       = $notes;
+        $inspection_data['items']       = $items;
 
+        $inspection = Inspection::create($inspection_data);
+        foreach ($inspection_data['items'] as $cat_id => $value) 
+        {
+            $itemData = 
+            [
+                'category_id'   => $cat_id,
+                'inspection_id' => $inspection->id,
+                'value'         => $value,
+            ];
+            InspectionItem::create($itemData);
+        }
+
+        $inspection->users()->sync(Auth::user()->id);
+
+        if (isset($hive_ids))
+            $inspection->hives()->sync($hive_ids);
+
+        if (isset($location_ids))
+            $inspection->locations()->sync($location_ids);
+
+        return $inspection;
+    }
 
     public static function item_names($inspections, $include_inspection_items=false) // get a locale ordered list of InspectionItem names
     {

@@ -12,6 +12,10 @@ use Response;
 use GuzzleHttp\Client;
 use GuzzleHttp\Psr7;
 use GuzzleHttp\Exception\RequestException;
+use Moment\Moment;
+use App\Translation;
+use App\Inspection;
+use App\InspectionItem;
 
 /**
  * @group Api\DeviceController
@@ -240,7 +244,8 @@ class DeviceController extends Controller
             }
         }
 
-        $result = $this->updateOrCreateDevice($device_array);
+        $timeZone  = $request->input('timezone','Europe/Amsterdam');
+        $result    = $this->updateOrCreateDevice($device_array, $timeZone);
 
         if (gettype($result) == 'object' && $request->filled('create_ttn_device') && isset($device_array['app_key']))
         {
@@ -287,9 +292,11 @@ class DeviceController extends Controller
     public function storeMultiple(Request $request)
     {
         //die(print_r($request->input()));
+        $timeZone   = $request->input('timezone','Europe/Amsterdam');
+
         foreach ($request->input() as $device) 
         {
-            $result = $this->updateOrCreateDevice($device);
+            $result = $this->updateOrCreateDevice($device, $timeZone);
 
             if ($result == null || gettype($result) == 'array')
             {
@@ -330,13 +337,14 @@ class DeviceController extends Controller
     */
     public function update(Request $request, $id)
     {
-        $result = null;
+        $result     = null;
+        $timeZone   = $request->input('timezone','Europe/Amsterdam');
 
         if ($id)
         {
             $device       = $request->input();
             $device['id'] = $id;
-            $result       = $this->updateOrCreateDevice($device);
+            $result       = $this->updateOrCreateDevice($device, $timeZone);
         }
 
         if (gettype($result) == 'array' && isset($result['http_response_code']))
@@ -349,8 +357,7 @@ class DeviceController extends Controller
         return Response::json($result, $result == null || gettype($result) == 'array' ? 400 : 200);
     }
 
-
-    public function updateOrCreateDevice($device)
+    public function updateOrCreateDevice($device, $timeZone)
     {
         $sid = isset($device['id']) ? $device['id'] : null;
         $key = isset($device['key']) ? strtolower($device['key']) : null;
@@ -408,16 +415,16 @@ class DeviceController extends Controller
                 // delete
                 if (isset($valid_data['delete']) && boolval($valid_data['delete']) === true)
                 {
-                    try
-                    {
-                        $client = new \Influx;
-                        $query  = 'DELETE from "sensors" WHERE "key" = \''.$device_obj->key.'\'';
-                        $result = $client::query($query);
-                    }
-                    catch(\Exception $e)
-                    {
-                        return ['errors'=>'Data values of device with key '.$device_obj->key.' cannot be deleted, try again later...', 'http_response_code'=>500];
-                    }
+                    // try
+                    // {
+                    //     $client = new \Influx;
+                    //     $query  = 'DELETE from "sensors" WHERE "key" = \''.$device_obj->key.'\'';
+                    //     $result = $client::query($query);
+                    // }
+                    // catch(\Exception $e)
+                    // {
+                    //     return ['errors'=>'Data values of device with key '.$device_obj->key.' cannot be deleted, try again later...', 'http_response_code'=>500];
+                    // }
                     $device_obj->delete();
                     return 'device_deleted';
                 }
@@ -455,7 +462,41 @@ class DeviceController extends Controller
                 $device_new['key'] = $device['key'];
             
             if (isset($device['hive_id']))
+            {
+                $device_change = false;
+
+                if ($device['hive_id'] != $device_new['hive_id'])
+                    $device_change = true;
+
+                // Create auto inspection
+                if ($device_change)
+                {
+                    // First set inspection because location will be fixed after setting in hive
+
+                    // Inspection items to add 
+                    $device_added   = Category::findCategoryByRootParentAndName('hive', 'device', 'id_added', ['system']);
+                    $device_removed = Category::findCategoryByRootParentAndName('hive', 'device', 'id_removed', ['system']);
+
+                    if (isset($device_removed) && ($device['hive_id'] == null || ($device['hive_id'] != null && $device_new['hive_id'] != null))) // removed, or hive_id changed
+                    {
+                        $notes                      = $device_removed->transName().': '.$device_new['name'];
+                        $items                      = [];
+                        $items[$device_removed->id] = $sid;
+                        Inspection::createInspection($items, $device_new['hive_id'], null, $notes, $timeZone); // set inspection to old hive id (from unchanged device object)
+                    }
+
+                    if (isset($device_added) && $device['hive_id'] != null) // device added, or changed to new id
+                    {
+                        $notes                    = $device_added->transName().': '.$device_new['name'];
+                        $items                    = [];
+                        $items[$device_added->id] = $sid;
+                        Inspection::createInspection($items, $device['hive_id'], null, $notes, $timeZone); 
+                    }
+                }
+
+                // change hive
                 $device_new['hive_id'] = $device['hive_id'];
+            }
             
             if (isset($device['last_message_received']))
                 $device_new['last_message_received'] = $device['last_message_received'];

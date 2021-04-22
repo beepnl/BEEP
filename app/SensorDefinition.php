@@ -3,9 +3,12 @@
 namespace App;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class SensorDefinition extends Model
 {
+    use SoftDeletes;
+
     /**
      * The database table used by the model.
      *
@@ -27,7 +30,7 @@ class SensorDefinition extends Model
      */
     protected $fillable = ['name', 'inside', 'offset', 'multiplier', 'input_measurement_id', 'output_measurement_id', 'device_id'];
     protected $appends  = ['input_abbr', 'output_abbr'];
-    protected $hidden   = ['input_measurement', 'output_measurement'];
+    protected $hidden   = ['input_measurement', 'output_measurement', 'deleted_at'];
 
     public function getInputAbbrAttribute()
     {

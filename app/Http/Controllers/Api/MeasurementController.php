@@ -713,161 +713,124 @@ class MeasurementController extends Controller
     }
 
 
+    private function matchFlashLogTime($id, $flashlog, $matches_min=3, $match_props=9, $start_index=0, $start_time='2018-01-01 00:00:00')
+    {
+        $matches     = [];
+        $onoffs      = [];
+        $device      = Device::find($id);
+        $database_log= $this->getInfluxQuery('SELECT * FROM "sensors" WHERE ("key" = \''.$device->key.'\' OR "key" = \''.strtolower($device->key).'\' OR "key" = \''.strtoupper($device->key).'\') AND time > \''.$start_time.'\' ORDER BY time ASC LIMIT '.$matches_min); 
+
+        //die(print_r($sensors_out));
+        if ($flashlog == null || count($flashlog) < $matches_min)
+            return $matches;
+
+        $fl_index    = $start_index;
+        $fl_index_end= count($flashlog) - 1;
+
+        foreach ($database_log as $d)
+        {
+            for ($i=$fl_index; $i < $fl_index_end; $i++) 
+            {
+                $f = $flashlog[$i];
+
+                if ($f['port'] == 2 && isset($f['beep_base'])) // check for port 2 messages (switch on/off) in between 'before' and 'after' matches
+                {
+                    $onoffs[$i] = $f;
+                }
+
+                if ($f['port'] == 3 && count($matches) < $matches_min)
+                {
+                    $match = array_intersect_assoc($d, $f);
+                    if ($match != null && count($match) >= $match_props)
+                    {
+                        if ($fl_index == 0 || $i == $fl_index+1)
+                        {
+                            $fl_index                 = $i;
+                            $match['time']            = $d['time'];
+                            $match['minute']          = $f['minute'];
+                            $match['minute_interval'] = $f['minute_interval'];  
+                            $match['flashlog_index']  = $i;
+                            $matches[$i]              = $match;
+                        }
+                    }
+                }
+
+                if (count($matches) >= $matches_min)
+                {
+                    return ['matches'=>$matches, 'onoffs'=>$onoffs];
+                }
+
+            }
+        }
+
+    }
+
     /* Flashlog data correction algorithm
-    1. Searchi for start and end dates of the gaps in the database of the WUR BEEP bases
-    2. Matchi 3 measurements before and after the gap with data in the log file
-    3. Check if the logfile contains about the same timespan as the gap
+    1. Match time ascending database data to Flash log data of BEEP bases
+    2. Match 3 measurements in a row with multiple exact matches to find the correct time of the log data
+    3. Align the Flash log time for all 'blocks' of port 3 (measurements) between port 2 (on/off) records  
     4. Fill the missing values in the database
     */
     public function fillDataGaps($id, $flashlog=null, $save=false)
     {
-        $device      = Device::find($id);
-        $sensors_out = $this->getInfluxQuery('SELECT COUNT(bv) FROM "sensors" WHERE ("key" = \''.$device->key.'\' OR "key" = \''.strtolower($device->key).'\' OR "key" = \''.strtoupper($device->key).'\') GROUP BY time(1d)');
+        $matches_min = 3; // minimum amount of inline measurements that should be matched 
+        $match_props = 9; // minimum amount of measurements that should match 
 
-        //die(print_r($sensors_out));
-        $gaps = [];
-        $i    = 0;
-        foreach ($sensors_out as $val_counts) 
-        {
-            if (!isset($gaps[$i]))
-                $gaps[$i] = ['start'=>null, 'end'=>null];
+        if ($flashlog == null || count($flashlog) < $matches_min)
+            return $matches;
 
-            if ($val_counts['count'] > 0) // fill start
-            {
-                if ($gaps[$i]['end'] == null)
-                {
-                    $gaps[$i]['start'] = $val_counts['time'];
-                }
-                else // close gap, start new gap 
-                {
-                    $i++;
-                    continue;
-                }
-            }
-            else
-            {
-                $gaps[$i]['end'] = $val_counts['time'];
-            }
-        }
-        // request last 3 and next 3 items of gap date
-        $checks  = 3; // minimum amount of inline measurements that should be matched 
-        $matches = 9; // minimum amount of measurements that should match 
-        foreach ($gaps as $i => $gap)
-        {
-            if (isset($gap['start']) && isset($gap['end']))
-            {
-                $before_gap = $this->getInfluxQuery('SELECT * FROM "sensors" WHERE ("key" = \''.$device->key.'\' OR "key" = \''.strtolower($device->key).'\' OR "key" = \''.strtoupper($device->key).'\') AND time < \''.$gap['start'].'\' ORDER BY time DESC LIMIT '.$checks);
-                $after_gap  = $this->getInfluxQuery('SELECT * FROM "sensors" WHERE ("key" = \''.$device->key.'\' OR "key" = \''.strtolower($device->key).'\' OR "key" = \''.strtoupper($device->key).'\') AND time > \''.$gap['end'].'\' ORDER BY time ASC LIMIT '.$checks);
+        $fl_index = 0;
+        $db_time  = '2018-01-01 00:00:00';
+        $matches  = $this->matchFlashLogTime($id, $flashlog, $matches_min, $match_props, $fl_index, $db_time);
 
-                // compare db gap flanks with flashlog
-                if ($flashlog != null && count($flashlog) > 0 && count($before_gap) > 0)
-                {
-                    $gaps[$i]['saved_datapoints']                       = 0;
-                    $gaps[$i]['intersection_before']                    = [];
-                    $gaps[$i]['intersection_before']['matches']         = [];
-                    $gaps[$i]['intersection_before']['flashlog_index']  = null;
-                    $gaps[$i]['intersection_after']                     = [];
-                    $gaps[$i]['intersection_after']['matches']          = [];
-                    $gaps[$i]['intersection_after']['onoff']            = [];
-                    $gaps[$i]['intersection_after']['flashlog_index']   = null;
+        die(print_r($matches));
 
-                    foreach ($before_gap as $g) 
-                    {
-                        foreach ($flashlog as $fib => $f) 
-                        {
-                            if (count($gaps[$i]['intersection_before']['matches']) < $matches)
-                            {
-                                $match = array_intersect_assoc($g, $f);
-                                if ($match != null && count($match) >= $matches)
-                                {
-                                    $gaps[$i]['intersection_before']['flashlog_index'] = $fib;
-                                    $match['time']            = $g['time'];
-                                    $match['minute']          = $f['minute'];
-                                    $match['minute_interval'] = $f['minute_interval'];
-                                    $gaps[$i]['intersection_before']['matches'][] = $match;
-                                }
-                            }
+//     // check if matches are inline
+//     $i_before = $gaps[$i]['intersection_before'];
+//     $i_after  = $gaps[$i]['intersection_after'];
+//     $m_before = $i_before['matches'];
+//     $m_after  = $i_after['matches'];
 
-                        }
-                    }
+//     // if matches == checks, no on/off gaps, and same interval, then fill gap
+//     if (count($m_before) == $checks && count($m_after) == $checks && count($i_after['onoff']) == 0 && $m_before[0]['minute_interval'] == $m_after[0]['minute_interval'])
+//     {
+//         $mom_start = new Moment($m_before[0]['time']);
+//         $mom_end   = new Moment($m_after[0]['time']);
+//         $minutes_in_gap   = $mom_start->from($mom_end)->getMinutes();
+//         $minutes_in_flash = $m_after[0]['minute'] - $m_before[0]['minute'];
+//         $gaps[$i]['minutes_in_flash'] = $minutes_in_flash;
+//         $gaps[$i]['minutes_in_gap']   = $minutes_in_gap;
+//         $gaps[$i]['minutes_diff']     = abs($minutes_in_flash-$minutes_in_gap);
+//         $full_match                   = $gaps[$i]['minutes_diff'] < intval($m_after[0]['minute_interval'])/10 ? true : false;
+//         $gaps[$i]['full_match']       = $full_match;
+        
+//         // if full match, insert all flashlog indexes between matches in Influx db
+//         if ($full_match)
+//         {
+//             $flashlog_sec_int    = intval($m_before[0]['minute_interval']) * 60;
+//             $flashlog_sec_index  = 0;
+//             $timestamp_start     = $mom_start->addSeconds($flashlog_sec_int)->format('U');
 
-                    if (count($gaps[$i]['intersection_before']['matches']) == $checks)
-                    {
-                        foreach ($after_gap as $g) 
-                        {
-                            foreach ($flashlog as $fia => $f)
-                            {
-                                if ($fia > $gaps[$i]['intersection_before']['flashlog_index'])
-                                {
-                                    if (count($gaps[$i]['intersection_after']['matches']) < $matches)
-                                    {
-                                        $match = array_intersect_assoc($g, $f);
-                                        if ($match != null && count($match) >= $matches)
-                                        {
-                                            $match['time']            = $g['time'];
-                                            $match['minute']          = $f['minute'];
-                                            $match['minute_interval'] = $f['minute_interval'];
-                                            $gaps[$i]['intersection_after']['flashlog_index'] = $fia;
-                                            $gaps[$i]['intersection_after']['matches'][] = $match;
-                                        }
-                                    }
-                                    elseif ($f['port'] == 2 && count($gaps[$i]['intersection_after']['matches']) == 0) // check for port 2 messages (switch on/off) in between 'before' and 'after' matches
-                                    {
-                                        $gaps[$i]['intersection_after']['onoff'][] = $f;
-                                    }
-                                }
-                            }
-                        }
-                    }
-                    // check if matches are inline
-                    $i_before = $gaps[$i]['intersection_before'];
-                    $i_after  = $gaps[$i]['intersection_after'];
-                    $m_before = $i_before['matches'];
-                    $m_after  = $i_after['matches'];
+//             for ($fi=$i_before['flashlog_index']+1; $fi < $i_after['flashlog_index']; $fi++) 
+//             { 
+//                 $timestamp = $timestamp_start + $flashlog_sec_index * $flashlog_sec_int;
+//                 $flashlog_sec_index++;
+                
+//                 if ($save)
+//                     $stored = $this->storeInfluxData($flashlog[$fi], strtoupper($device->key), $timestamp);
+//                 else
+//                     $stored = true;
 
-                    // if matches == checks, no on/off gaps, and same interval, then fill gap
-                    if (count($m_before) == $checks && count($m_after) == $checks && count($i_after['onoff']) == 0 && $m_before[0]['minute_interval'] == $m_after[0]['minute_interval'])
-                    {
-                        $mom_start = new Moment($m_before[0]['time']);
-                        $mom_end   = new Moment($m_after[0]['time']);
-                        $minutes_in_gap   = $mom_start->from($mom_end)->getMinutes();
-                        $minutes_in_flash = $m_after[0]['minute'] - $m_before[0]['minute'];
-                        $gaps[$i]['minutes_in_flash'] = $minutes_in_flash;
-                        $gaps[$i]['minutes_in_gap']   = $minutes_in_gap;
-                        $gaps[$i]['minutes_diff']     = abs($minutes_in_flash-$minutes_in_gap);
-                        $full_match                   = $gaps[$i]['minutes_diff'] < intval($m_after[0]['minute_interval'])/10 ? true : false;
-                        $gaps[$i]['full_match']       = $full_match;
-                        
-                        // if full match, insert all flashlog indexes between matches in Influx db
-                        if ($full_match)
-                        {
-                            $flashlog_sec_int    = intval($m_before[0]['minute_interval']) * 60;
-                            $flashlog_sec_index  = 0;
-                            $timestamp_start     = $mom_start->addSeconds($flashlog_sec_int)->format('U');
+//                 if ($stored)
+//                     $gaps[$i]['saved_datapoints']++;
 
-                            for ($fi=$i_before['flashlog_index']+1; $fi < $i_after['flashlog_index']; $fi++) 
-                            { 
-                                $timestamp = $timestamp_start + $flashlog_sec_index * $flashlog_sec_int;
-                                $flashlog_sec_index++;
-                                
-                                if ($save)
-                                    $stored = $this->storeInfluxData($flashlog[$fi], strtoupper($device->key), $timestamp);
-                                else
-                                    $stored = true;
+//             }
+//         }
 
-                                if ($stored)
-                                    $gaps[$i]['saved_datapoints']++;
+//     }
 
-                            }
-                        }
-
-                    }
-
-
-                }
-            }
-        }
-        return $gaps;
+           
+        return $matches;
     }
 
 

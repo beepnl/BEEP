@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use App\Measurement;
 use App\User;
+use Moment\Moment;
 
 class AlertRule extends Model
 {
@@ -70,7 +71,7 @@ class AlertRule extends Model
     public static function parseRules()
     {
         $alertRules = AlertRule::where('active', 1)->where('default_rule', 0)->orderByAsc('last_calculated_at');
-
+        $now = new Moment();
         foreach ($alertRules as $ar) 
         {
             /*

@@ -127,7 +127,7 @@ class DeviceController extends Controller
     {
         
         $response = $this->doTTNRequest($dev_id);
-        return Response::json($response->getData(), $response->status());
+        return Response::json($response->getData(), $response->code());
     }
     /**
     api/devices/ttn/{dev_id} POST
@@ -154,7 +154,7 @@ class DeviceController extends Controller
         $app_key = $request->input('lorawan_device.app_key');
 
         $response = $this->createTTNDevice($dev_id, $dev_eui, $app_key);
-        return Response::json($response->getData(), $response->status());
+        return Response::json($response->getData(), $response->code());
     }
 
     private function createTTNDevice($dev_id, $dev_eui, $app_key)
@@ -232,7 +232,7 @@ class DeviceController extends Controller
             $dev_id  = strtolower($request->input('hardware_id'));
 
             $response = $this->createTTNDevice($dev_id, $dev_eui, $app_key);
-            if ($response->status() == 200 || $response->status() == 201)
+            if ($response->code() == 200 || $response->code() == 201)
             {
                 $device_array['hardware_id']= $dev_id;
                 $device_array['key']        = $dev_eui;
@@ -240,7 +240,7 @@ class DeviceController extends Controller
             }
             else
             {
-                return Response::json($response->getData(), $response->status());
+                return Response::json($response->getData(), $response->code());
             }
         }
 

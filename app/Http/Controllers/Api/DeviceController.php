@@ -465,7 +465,10 @@ class DeviceController extends Controller
             {
                 $device_change = false;
 
-                if ($device['hive_id'] != $device_new['hive_id'])
+                if (!isset($device_new['hive_id']))
+                    $device_new['hive_id'] = null;
+
+                if (($device['hive_id'] != null && $device_new['hive_id'] == null) || $device['hive_id'] != $device_new['hive_id'])
                     $device_change = true;
 
                 // Create auto inspection

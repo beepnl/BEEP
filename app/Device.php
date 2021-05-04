@@ -4,8 +4,9 @@ namespace App;
 
 use Iatstuti\Database\Support\CascadeSoftDeletes;
 use Illuminate\Database\Eloquent\Model;
-use Auth;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Auth;
+use InfluxDB;
 
 class Device extends Model
 {
@@ -94,5 +95,37 @@ class Device extends Model
 
         }
         return $list_out;
+    }
+
+    public static function getAvailableSensorNamesFromData($names, $table, $where, $limit='', $output_sensors_only=true)
+    {
+        //die(print_r([$names, $valid_sensors]));
+        $client         = new \Influx;
+        $valid_sensors  = Measurement::all()->pluck('pq', 'abbreviation')->toArray();
+        $output_sensors = Measurement::where('show_in_charts', '=', 1)->pluck('abbreviation')->toArray();
+
+        $out           = [];
+        $valid_sensors = $output_sensors_only ? $output_sensors : array_keys($valid_sensors);
+        $options       = ['precision'=> 's'];
+        
+        for ($i = 0; $i < count($names); $i++) 
+        {
+            $name = $names[$i];
+            if (in_array($name, $valid_sensors))
+            {
+                $sensors = [];
+                $query = 'SELECT COUNT("'.$name.'") AS "count" FROM "'.$table.'" WHERE '.$where.' '.$limit;
+                try{
+                    $result  = $client::query($query, $options);
+                    $sensors = $result->getPoints();
+                } catch (InfluxDB\Exception $e) {
+                    // return Response::json('influx-group-by-query-error', 500);
+                }
+                if (count($sensors) > 0 && $sensors[0]['count'] > 0)
+                    $out[] = $name;
+            }
+        }
+
+        return $out;
     }
 }

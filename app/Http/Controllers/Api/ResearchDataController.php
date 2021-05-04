@@ -22,6 +22,17 @@ use DB;
 class ResearchDataController extends Controller
 {
     
+    protected $valid_sensors  = [];
+    protected $output_sensors = [];
+
+    public function __construct()
+    {
+        $this->valid_sensors  = Measurement::all()->pluck('pq', 'abbreviation')->toArray();
+        $this->output_sensors = Measurement::where('show_in_charts', '=', 1)->pluck('abbreviation')->toArray();
+        $this->client         = new \Influx;
+        //die(print_r($this->valid_sensors));
+    }
+
     // Research API for researchers
     private function checkAuthorization(Request $request, $id=null)
     {
@@ -765,8 +776,8 @@ class ResearchDataController extends Controller
                             {
                                 if ($device->created_at < $date_next_consent)
                                 {
-                                    $where= 'WHERE ("key" = \''.$device->key.'\' OR "key" = \''.strtolower($device->key).'\' OR "key" = \''.strtoupper($device->key).'\') AND time >= \''.$date_curr_consent.'\' AND time <= \''.$date_next_consent.'\'';
-                                    $data = array_merge($data, $this->getArrayFromInflux($where, '*', 'sensors', $precision));
+                                    $where= '("key" = \''.$device->key.'\' OR "key" = \''.strtolower($device->key).'\' OR "key" = \''.strtoupper($device->key).'\') AND time >= \''.$date_curr_consent.'\' AND time <= \''.$date_next_consent.'\'';
+                                    $data = array_merge($data, $this->getArrayFromInflux($where, $device, '*', 'sensors', $precision));
                                 }
                             }
                         }
@@ -778,8 +789,8 @@ class ResearchDataController extends Controller
                             {
                                 if ($apiary->created_at < $date_next_consent)
                                 {
-                                    $where= 'WHERE "lat" = \''.$apiary->coordinate_lat.'\' AND "lon" = \''.$apiary->coordinate_lon.'\' AND time >= \''.$date_curr_consent.'\' AND time <= \''.$date_next_consent.'\'';
-                                    $data = array_merge($data, $this->getArrayFromInflux($where, '*', 'weather', $precision));
+                                    $where= '"lat" = \''.$apiary->coordinate_lat.'\' AND "lon" = \''.$apiary->coordinate_lon.'\' AND time >= \''.$date_curr_consent.'\' AND time <= \''.$date_next_consent.'\'';
+                                    $data = array_merge($data, $this->getArrayFromInflux($where, null, '*', 'weather', $precision));
                                 }
                             }
                         }
@@ -798,20 +809,52 @@ class ResearchDataController extends Controller
         return date($format, $unix) === $date ? true : false;
     }
 
-    private function getArrayFromInflux($where, $measurements='*', $database='sensors', $precision='rfc3339')
+    private function getArrayFromInflux($where, $device=null, $measurements='*', $database='sensors', $precision='rfc3339')
     {
         $options = ['precision'=>$precision];
         
-        if ($measurements == null || $measurements == '' || $measurements === '*')
-            $sensor_measurements = '*';
-        else
-            $sensor_measurements = $measurements;
+        if (isset($device))
+        {
+            if (isset($measurements) && gettype($measurements) == 'array' && count($measurements) > 0)
+                $names = $measurements;
+            else
+                $names = $this->output_sensors;
+            
+            $groupBySelect        = '*';
+            $groupByResolution    = '';
+            $whereDeviceTime      = '("key" = \''.$device->key.'\' OR "key" = \''.strtolower($device->key).'\' OR "key" = \''.strtoupper($device->key).'\') AND time >= \''.$start.'\' AND time < \''.$end.'\'';
 
-        $query = 'SELECT '.$sensor_measurements.' FROM "'.$database.'" '.$where;
+            if(isset($device->measurement_interval_min))
+            {
+                $groupByResolution = 'GROUP BY time('.$device->measurement_interval_min.'m) fill(none)';
+                $queryList         = Device::getAvailableSensorNamesFromData($names, $database, $whereDeviceTime, '', true, true); // ($names, $table, $where, $limit='', $output_sensors_only=true, $output_group_by=false)
+
+                foreach ($queryList as $i => $name) 
+                    $queryList[$i] = 'MEAN("'.$name.'") AS "'.$name.'"';
+                
+                $groupBySelect = implode(', ', $queryList);
+            }
+            else if (gettype($names) == 'array' && count($names) > 0)
+            {
+                $groupBySelect = '"'.implode('","',$names).'"';
+            }
+
+            $query = 'SELECT '.$groupBySelect.' FROM "'.$database.'" WHERE '.$whereDeviceTime.' '.$groupByResolution;
+        }
+        else
+        {
+            if ($measurements == null || $measurements == '' || $measurements === '*')
+                $sensor_measurements = '*';
+            else
+                $sensor_measurements = $measurements;
+
+            $query = 'SELECT '.$sensor_measurements.' FROM "'.$database.'" WHERE '.$where;
+        }
+
         $data  = [];
+
         try{
-            $client = new \Influx; 
-            $data   = $client::query($query, $options)->getPoints(); // get first sensor date
+            $data = $this->client::query($query, $options)->getPoints(); // get first sensor date
         } catch (InfluxDB\Exception $e) {
             // do nothing
         }

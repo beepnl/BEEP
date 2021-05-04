@@ -690,12 +690,15 @@ class ResearchDataController extends Controller
         $date_format='Y-m-d H:i:s'; // RFC3339 == 'Y-m-d\TH:i:sP'
             
         if ($request->has('date_start'))
+        {
             if ($this->validateDate($date_start, $date_format) == false)
                 return Response::json(['date_start_invalid'=>$date_start, 'format'=>$date_format], 400);
             else if ($date_start < $research->start_date)
                 return Response::json('date_start_before_research_start', 400);
+        }
 
         if ($request->has('date_until'))
+        {
             if ($this->validateDate($date_until, $date_format) == false)
                 return Response::json(['date_until_invalid'=>$date_until, 'format'=>$date_format], 400);
             else if ($date_until > $research->end_date)
@@ -704,6 +707,7 @@ class ResearchDataController extends Controller
                 return Response::json('date_until_after_start_date', 400);
             else if ($date_start > $date_until)
                 return Response::json('date_start_after_until_date', 400);
+        }
 
         // User specific data
         $user_consents     = DB::table('research_user')->where('research_id', $id)->where('user_id', $user_id)->whereDate('updated_at', '<', $date_until)->orderBy('updated_at','asc')->get()->toArray();
@@ -740,16 +744,22 @@ class ResearchDataController extends Controller
                 $next_consent      = $user_consent;
             }
 
-            //print_r([$i, $user_consent, $date_curr_consent, $date_next_consent]);
+            // Minimize data to requested dates
             if ($request->has('date_start') && $date_start > $date_curr_consent)
+            {
                 if ($date_start < $date_next_consent)
                     $date_curr_consent = $date_start;
                 else
-                    continue;
+                    continue; // start >= next_consent, so hide this data from dataset, because earlier than requested
+            }
                         
             if ($request->has('date_until') && $date_until < $date_next_consent)
+            {
                 if ($date_until > $date_curr_consent)
                     $date_next_consent = $date_until;
+                else
+                    continue; // until <= curr_consent, so hide this data from dataset, because later than requested
+            }
 
             // Fill objects for consent period
             if ($user_consent && ($next_consent || $i == 0))
@@ -777,7 +787,7 @@ class ResearchDataController extends Controller
                                 if ($device->created_at < $date_next_consent)
                                 {
                                     $where= '("key" = \''.$device->key.'\' OR "key" = \''.strtolower($device->key).'\' OR "key" = \''.strtoupper($device->key).'\') AND time >= \''.$date_curr_consent.'\' AND time <= \''.$date_next_consent.'\'';
-                                    $data = array_merge($data, $this->getArrayFromInflux($where, $device, '*', 'sensors', $precision));
+                                    $data = array_merge($data, $this->getArrayFromInflux($where, '*', 'sensors', $precision));
                                 }
                             }
                         }
@@ -790,7 +800,7 @@ class ResearchDataController extends Controller
                                 if ($apiary->created_at < $date_next_consent)
                                 {
                                     $where= '"lat" = \''.$apiary->coordinate_lat.'\' AND "lon" = \''.$apiary->coordinate_lon.'\' AND time >= \''.$date_curr_consent.'\' AND time <= \''.$date_next_consent.'\'';
-                                    $data = array_merge($data, $this->getArrayFromInflux($where, null, '*', 'weather', $precision));
+                                    $data = array_merge($data, $this->getArrayFromInflux($where, '*', 'weather', $precision));
                                 }
                             }
                         }
@@ -809,39 +819,27 @@ class ResearchDataController extends Controller
         return date($format, $unix) === $date ? true : false;
     }
 
-    private function getArrayFromInflux($where, $device=null, $measurements='*', $database='sensors', $precision='rfc3339')
+    private function getArrayFromInflux($where, $measurements='*', $database='sensors', $precision='rfc3339')
     {
         $options = ['precision'=>$precision];
         
-        if (isset($device))
+        if ($database == 'sensors')
         {
             if (isset($measurements) && gettype($measurements) == 'array' && count($measurements) > 0)
                 $names = $measurements;
             else
                 $names = $this->output_sensors;
             
-            $groupBySelect        = '*';
-            $groupByResolution    = '';
-            $whereDeviceTime      = '("key" = \''.$device->key.'\' OR "key" = \''.strtolower($device->key).'\' OR "key" = \''.strtoupper($device->key).'\') AND time >= \''.$start.'\' AND time < \''.$end.'\'';
-
-            if(isset($device->measurement_interval_min))
-            {
-                $groupByResolution = 'GROUP BY time('.$device->measurement_interval_min.'m) fill(none)';
-                $queryList         = Device::getAvailableSensorNamesFromData($names, $database, $whereDeviceTime, '', true, true); // ($names, $table, $where, $limit='', $output_sensors_only=true, $output_group_by=false)
-
-                foreach ($queryList as $i => $name) 
-                    $queryList[$i] = 'MEAN("'.$name.'") AS "'.$name.'"';
-                
+            $queryList = Device::getAvailableSensorNamesFromData($names, $database, $where); // ($names, $table, $where, $limit='', $output_sensors_only=true)
+            
+            if (isset($queryList) && gettype($queryList) == 'array' && count($queryList) > 0)
                 $groupBySelect = implode(', ', $queryList);
-            }
-            else if (gettype($names) == 'array' && count($names) > 0)
-            {
+            else 
                 $groupBySelect = '"'.implode('","',$names).'"';
-            }
 
-            $query = 'SELECT '.$groupBySelect.' FROM "'.$database.'" WHERE '.$whereDeviceTime.' '.$groupByResolution;
+            $query = 'SELECT '.$groupBySelect.' FROM "'.$database.'" WHERE '.$where;
         }
-        else
+        else // i.e. weather data
         {
             if ($measurements == null || $measurements == '' || $measurements === '*')
                 $sensor_measurements = '*';

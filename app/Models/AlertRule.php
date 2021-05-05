@@ -85,7 +85,7 @@ class AlertRule extends Model
         $m_abbr      = $r->measurement->abbreviation;
         $influx_comp = AlertRule::$influx_calc[$r->calculation];
         $limit       = $diff_comp ? $r->alert_on_occurences + 1 : $r->alert_on_occurences; // one extra for diff calculation
-        $last_values = $d->getSensorValues($m_abbr, $influx_comp, $r->calculation_minutes, $limit, $r->last_calculated_at);
+        $last_values = $d->getSensorValues($m_abbr, $influx_comp, $r->calculation_minutes, $limit);
 
         $alert_count      = 0;
         $evaluation_count = 0;
@@ -174,13 +174,13 @@ class AlertRule extends Model
                     $a->save();
 
                     $alert_count++;
-                    // save last evaluated date
-                    $r->last_calculated_at = $alert_rule_calc_date;
-                    $r->save();
 
                     // Todo: send e-mail
                 }
             }
+            // save last evaluated date
+            $r->last_calculated_at = $alert_rule_calc_date;
+            $r->save();
         }
 
         return $alert_count;

@@ -111,10 +111,11 @@ class Device extends Model
         $where_limit   = isset($limit) ? 'LIMIT '.$limit : '';
         $where         = '("key" = \''.$this->key.'\' OR "key" = \''.strtolower($this->key).'\' OR "key" = \''.strtoupper($this->key).'\')';
         $where_time    = isset($start) ? 'AND time >= \''.$start.'\'' : '';
-        $time_interval = isset($interval_min) ? $interval_min.'m' : ($this->measurement_interval_min ? $this->measurement_interval_min.'m' : '15m');
+        $device_int_min= isset($this->measurement_interval_min) ? $this->measurement_interval_min : 15;
+        $time_interval = isset($interval_min) && $interval_min > $device_int_min ? $interval_min.'m' : $device_int_min.'m';
         $group_by_time = 'GROUP BY time('.$time_interval.')';
         
-        $query   = 'SELECT '.$comparison.'("'.$measurement_abbr.'") AS "'.$measurement_abbr.'" FROM "'.$table.'" WHERE '.$where.' '.$where_time.' '.$group_by_time.' ORDER BY time DESC '.$where_limit.' fill(none)';
+        $query   = 'SELECT '.$comparison.'("'.$measurement_abbr.'") AS "'.$measurement_abbr.'" FROM "'.$table.'" WHERE '.$where.' '.$where_time.' '.$group_by_time.' ORDER BY time DESC '.$where_limit;
 
         if (in_array($measurement_abbr, $valid_sensors))
         {

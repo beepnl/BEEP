@@ -81,9 +81,10 @@ class AlertRule extends Model
         if (!isset($d->hive_id) || in_array($d->hive_id, $r->exclude_hive_ids)) // only parse existing hives that are not excluded
             return 0;
 
+        $diff_comp   = $r->comparison == 'dif' || $r->comparison == 'abs_dif' ? true : false;
         $m_abbr      = $r->measurement->abbreviation;
         $influx_comp = AlertRule::$influx_calc[$r->calculation];
-        $limit       = $r->comparison == 'dif' || $r->comparison == 'abs_dif' ? $r->alert_on_occurences + 1 : $r->alert_on_occurences; // one extra for diff calculation
+        $limit       = $diff_comp ? $r->alert_on_occurences + 1 : $r->alert_on_occurences; // one extra for diff calculation
         $last_values = $d->getSensorValues($m_abbr, $influx_comp, $r->calculation_minutes, $r->last_calculated_at, $limit);
 
         $alert_count      = 0;
@@ -91,7 +92,7 @@ class AlertRule extends Model
         $alert_function   = '';
         $alert_values     = [];
             
-        $max_value_eval   = $r->comparison == 'dif' || $r->comparison == 'abs_dif' ? count($last_values) - 1 : count($last_values);
+        $max_value_eval   = $diff_comp ? count($last_values) - 1 : count($last_values);
 
         Log::debug(['d'=>$d->name, 'lv'=>$last_values, 'mve'=>$max_value_eval]);
 
@@ -108,11 +109,11 @@ class AlertRule extends Model
                 continue;
 
             //$time  = $last_values[$i]['time'];
-            if ($r->comparison == 'dif')
+            if ($diff_comp)
                 $value = $last_values[$i] - $last_values[$i+1];
 
             if ($r->comparison == 'abs_dif')
-                $value = abs($last_values[$i] - $last_values[$i+1]);
+                $value = abs($value);
 
             $evaluation = false;
             switch($r->comparator)

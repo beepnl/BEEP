@@ -58,7 +58,7 @@ class ResetPassword extends NotificationBase
         }
 
         // special route for API
-        $webappResetUrl = config('webapp.url').config('webapp.password_reset_url').$this->token.'/?email='.$notifiable->email;
+        $webappResetUrl = config('webapp.url').config('webapp.password_reset_url').'?code='.$this->token.'&email='.$notifiable->email;
 
         return (new MailMessage)
             ->subject(Lang::getFromJson('Reset Password Notification'))

@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Log;
 use App\Measurement;
 use App\User;
 use App\Models\Alert;
@@ -92,6 +93,8 @@ class AlertRule extends Model
             
         $max_value_eval   = $r->comparison == 'dif' || $r->comparison == 'abs_dif' ? count($last_values) - 1 : count($last_values);
 
+        Log::debug(['d'=>$d->name, 'lv'=>$last_values, 'mve'=>$max_value_eval]);
+
         // evaluate measurement values
         for ($i=0; $i < $max_value_eval; $i++) 
         {  
@@ -147,7 +150,7 @@ class AlertRule extends Model
             $alert_value= implode(', ', $alert_values);
             $alert_func = $r->measurement->pq.' '.$r->comparator.' '.$threshold_value.' '.$r->measurement->unit;
             
-            print_r(['a'=>$max_value_eval, 'cd'=>$check_date, 'av'=>$alert_value, 'af'=>$alert_func, 'ec'=>$evaluation_count]);
+            Log::debug(['d'=>$alert_rule_calc_date, 'cd'=>$check_date, 'ca'=>$check_alert, 'av'=>$alert_value, 'af'=>$alert_func, 'ec'=>$evaluation_count]);
 
             if ($check_alert == 0) // no previous alerts, so create
             {

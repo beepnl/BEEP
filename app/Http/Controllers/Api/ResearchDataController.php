@@ -723,8 +723,19 @@ class ResearchDataController extends Controller
         $user_apiaries     = Location::where('user_id', $user_id)->where('created_at', '<', $date_until)->orderBy('created_at')->get();
         $user_hives        = Hive::where('user_id', $user_id)->where('created_at', '<', $date_until)->orderBy('created_at')->get();
         $user_devices      = Device::with('sensorDefinitions')->where('user_id', $user_id)->where('created_at', '<', $date_until)->orderBy('created_at')->get();
-        $user_inspections  = User::findOrFail($user_id)->inspections()->with('items')->where('created_at', '>=', $date_start)->where('created_at', '<', $date_until)->orderBy('created_at')->get();
         $user_measurements = [];
+
+        // add hive inspections (also from collaborators)
+        $hive_inspection_ids = [];
+        foreach ($user_hives as $hive)
+        {
+            $hive_inspections = $hive->inspections()->where('created_at', '>=', $date_start)->where('created_at', '<', $date_until)->get();
+            foreach ($hive_inspections as $ins) 
+                $hive_inspection_ids[] = $ins->id;
+            
+        }
+        $hive_inspections = Inspection::whereIn('id', $hive_inspection_ids)->with('items')->where('created_at', '>=', $date_start)->where('created_at', '<', $date_until)->orderBy('created_at')->get();
+
         
         $data = [];
 
@@ -777,7 +788,7 @@ class ResearchDataController extends Controller
                         $data = array_merge($data, $user_devices->where('created_at', '<=', $date_next_consent)->toArray());
                         break;
                     case 'inspections':
-                        $data = array_merge($data, $user_inspections->where('created_at', '>', $date_curr_consent)->where('created_at', '<=', $date_next_consent)->toArray());
+                        $data = array_merge($data, $hive_inspections->where('created_at', '>', $date_curr_consent)->where('created_at', '<=', $date_next_consent)->toArray());
                         break;
                     case 'measurements':
                         if ($user_devices->count() > 0)

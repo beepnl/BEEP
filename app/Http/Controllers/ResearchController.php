@@ -359,7 +359,7 @@ class ResearchController extends Controller
             $item_names = [];
             foreach ($users as $user) 
             {
-                $ins = Inspection::item_names($user->inspections()->get());
+                $ins = Inspection::item_names($user->allInspections()->get());
                 foreach ($ins as $in) 
                 {
                     $name = $in['anc'].$in['name'];
@@ -381,9 +381,10 @@ class ResearchController extends Controller
         foreach ($users as $u) 
         {
             $user_id       = $u->id;
+            $user          = User::find($user_id);
             $user_consents = DB::table('research_user')->where('research_id', $id)->where('user_id', $user_id)->whereDate('updated_at', '<', $date_until)->orderBy('updated_at','asc')->get()->toArray();
             
-            if (!isset($user_consents) || count($user_consents) == 0)
+            if (!isset($user) || !isset($user_consents) || count($user_consents) == 0)
                 continue;
 
             $user_consent      = $user_consents[0]->consent;
@@ -405,15 +406,25 @@ class ResearchController extends Controller
             //die(print_r([$user_consents, $date_curr_consent, $date_next_consent, $index]));
 
             // add user data
-            $user_apiaries     = Location::where('user_id', $user_id)->where('created_at', '<', $date_until)->orderBy('created_at')->get();
-            $user_hives        = Hive::where('user_id', $user_id)->where('created_at', '<', $date_until)->orderBy('created_at')->get();
-            $user_devices      = Device::where('user_id', $user_id)->where('created_at', '<', $date_until)->orderBy('created_at')->get();
-            $user_inspections  = User::find($user_id)->inspections()->with('items')->where('created_at', '>=', $date_start)->where('created_at', '<', $date_until)->orderBy('created_at')->get();
+            $user_apiaries     = $user->locations()->where('created_at', '<', $date_until)->orderBy('created_at')->get();
+            $user_hives        = $user->hives()->where('created_at', '<', $date_until)->orderBy('created_at')->get();
+            $user_devices      = $user->devices()->where('created_at', '<', $date_until)->orderBy('created_at')->get();
             $user_flashlogs    = FlashLog::where('user_id', $user_id)->where('created_at', '>=', $date_start)->where('created_at', '<', $date_until)->orderBy('created_at')->get();
             $user_measurements = [];
             $user_weather_data = [];
+            
+            // add hive inspections (also from collaborators)
+            $hive_inspection_ids = [];
+            foreach ($user_hives as $hive)
+            {
+                $hive_inspections = $hive->inspections()->where('created_at', '>=', $date_start)->where('created_at', '<', $date_until)->get();
+                foreach ($hive_inspections as $ins) 
+                    $hive_inspection_ids[] = $ins->id;
+                
+            }
+            $hive_inspections  = Inspection::whereIn('id', $hive_inspection_ids)->with('items')->where('created_at', '>=', $date_start)->where('created_at', '<', $date_until)->orderBy('created_at')->get();
 
-            //die(print_r([$date_until, $user_flashlogs->toArray(), $user_hives->toArray()]));
+            //die(print_r([$date_until, $hive_inspections->toArray(), $user_hives->toArray()]));
 
             if ($user_devices->count() > 0)
             {
@@ -523,7 +534,7 @@ class ResearchController extends Controller
                         foreach ($hives as $hive)
                             $spreadsheet_array[__('export.hives')][] = $hive;
 
-                        $insps = $this->getInspections($user_id, $user_inspections, $item_ancs, $date_curr_consent, $date_next_consent);
+                        $insps = $this->getInspections($user_id, $hive_inspections, $item_ancs, $date_curr_consent, $date_next_consent);
                         foreach ($insps as $insp)
                             $spreadsheet_array[__('export.inspections')][] = $insp;
 
@@ -551,7 +562,7 @@ class ResearchController extends Controller
                                         $sensor_urls[$fileName] = $filePath;
                                     }
 
-                                    // Export data to file per device / period
+                                    // Export data to file per device location / period
                                     $loc = $device->location();
                                     if ($loc && isset($loc->coordinate_lat) && isset($loc->coordinate_lon)) 
                                     {
@@ -580,7 +591,7 @@ class ResearchController extends Controller
                     $dates[$d]['hives']      += $user_data_counts['hives'];
                     $dates[$d]['devices']    += $user_data_counts['devices'];
 
-                    $inspections_today        = $user_inspections->where('created_at', '>=', $d_start)->where('created_at', '<=', $d_end)->count();
+                    $inspections_today        = $hive_inspections->where('created_at', '>=', $d_start)->where('created_at', '<=', $d_end)->count();
                     $dates[$d]['inspections'] = $v['inspections'] + $inspections_today;
                     
                     $flashlogs_today          = $user_flashlogs->where('created_at', '>=', $d_start)->where('created_at', '<=', $d_end)->count();

@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Auth;
 use InfluxDB;
+use App\Models\Alert;
 
 class Device extends Model
 {

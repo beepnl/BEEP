@@ -112,7 +112,7 @@ class AlertRule extends Model
 
                 //$time  = $last_values[$i]['time'];
                 if ($diff_comp)
-                    $value = $last_values[$i] - $last_values[$i+1];
+                    $value = float($last_values[$i]) - float($last_values[$i+1]);
 
                 if ($r->comparison == 'abs_dif')
                     $value = abs($value);

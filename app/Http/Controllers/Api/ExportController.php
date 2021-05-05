@@ -273,7 +273,6 @@ class ExportController extends Controller
         $measurements = $request->input('measurements', null);
         $device       = $request->user()->allDevices()->find($device_id);
 
-
         if ($device == null)
             return Response::json('invalid-user-device', 500);
 
@@ -286,24 +285,13 @@ class ExportController extends Controller
         else
             $names = $this->output_sensors;
         
-        $groupBySelect        = '*';
-        $groupByResolution    = '';
-        $whereDeviceTime      = '("key" = \''.$device->key.'\' OR "key" = \''.strtolower($device->key).'\' OR "key" = \''.strtoupper($device->key).'\') AND time >= \''.$start.'\' AND time < \''.$end.'\'';
+        $whereDeviceTime = '("key" = \''.$device->key.'\' OR "key" = \''.strtolower($device->key).'\' OR "key" = \''.strtoupper($device->key).'\') AND time >= \''.$start.'\' AND time < \''.$end.'\'';
+        $queryList       = Device::getAvailableSensorNamesFromData($names, 'sensors', $whereDeviceTime, '', true); // ($names, $table, $where, $limit='', $output_sensors_only=true)
 
-        if(isset($device->measurement_interval_min))
-        {
-            $groupByResolution = 'GROUP BY time('.$device->measurement_interval_min.'m) fill(none)';
-            $queryList         = Device::getAvailableSensorNamesFromData($names, 'sensors', $whereDeviceTime, '', true, true); // ($names, $table, $where, $limit='', $output_sensors_only=true, $output_group_by=false)
-
-            foreach ($queryList as $i => $name) 
-                $queryList[$i] = 'MEAN("'.$name.'") AS "'.$name.'"';
-            
-            $groupBySelect = implode(', ', $queryList);
-        }
-        else if (gettype($names) == 'array' && count($names) > 0)
-        {
-            $groupBySelect = '"'.implode('","',$names).'"';
-        }
+        if (isset($queryList) && gettype($queryList) == 'array' && count($queryList) > 0)
+                $groupBySelect = implode(', ', $queryList);
+            else 
+                $groupBySelect = '"'.implode('","',$names).'"';
 
         $query = 'SELECT '.$groupBySelect.' FROM "sensors" WHERE '.$whereDeviceTime.' '.$groupByResolution;
         
@@ -318,7 +306,7 @@ class ExportController extends Controller
 
         // format CSV header row: time, sensor1 (unit2), sensor2 (unit2), etc. Excluse the 'sensor' and 'key' columns
         $csv_file = "";
-        $csv_sens = array_diff(array_keys($data[0]),["sensor","key"]);
+        $csv_sens = array_keys($data[0]);
         $csv_head = [];
         foreach ($csv_sens as $sensor_name) 
         {
@@ -331,7 +319,7 @@ class ExportController extends Controller
         $csv_body = [];
         foreach ($data as $sensor_values) 
         {
-            $csv_body[] = implode($separator, array_diff_key($sensor_values,["sensor"=>0,"key"=>0]));
+            $csv_body[] = implode($separator, $sensor_values);
         }
         $csv_file = $csv_head.implode("\r\n", $csv_body);
 

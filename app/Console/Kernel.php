@@ -6,6 +6,7 @@ use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
 
 use App\Weather;
+use App\Models\AlertRule;
 
 class Kernel extends ConsoleKernel
 {

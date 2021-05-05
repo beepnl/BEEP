@@ -241,6 +241,8 @@ class User extends Authenticatable
         $this->devices()->delete();
         $this->locations()->delete(); //including $cascadeDeletes = ['hives', 'inspections']; // including $cascadeDeletes = ['queen','inspections','layers','frames','productions'];
         $this->checklists()->delete();
+        $this->alert_rules()->delete();
+        $this->alerts()->delete();
 
         // delete the user
         return parent::delete();

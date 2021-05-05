@@ -207,9 +207,12 @@ class Hive extends Model
         return $items_by_date;
     }
 
-    public static function selectList()
+    public static function selectList($onlyMine=false)
     {
-        return Hive::orderBy('name')->pluck('name','id');
+        if ($onlyMine)
+            return Auth::user()->hives()->orderBy('name')->pluck('name','id');
+        else
+            return Hive::orderBy('name')->pluck('name','id');
     }
 
 }

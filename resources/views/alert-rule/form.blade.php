@@ -1,4 +1,41 @@
 <div class="col-xs-12">
+	<div class="form-group {{ $errors->has('active') ? 'has-error' : ''}}">
+	    <label for="active" control-label>{{ 'Active' }}</label>
+	    <div>
+	        <div class="radio">
+			    <label><input name="active" type="radio" value="1" {{ (isset($alertrule) && 1 == $alertrule->active) ? 'checked' : '' }}> Yes</label>
+			</div>
+			<div class="radio">
+			    <label><input name="active" type="radio" value="0" @if (isset($alertrule)) {{ (0 == $alertrule->active) ? 'checked' : '' }} @else {{ 'checked' }} @endif> No</label>
+			</div>
+	        {!! $errors->first('active', '<p class="help-block">:message</p>') !!}
+	    </div>
+	</div>
+</div>
+<div class="col-xs-12">
+	<div class="form-group {{ $errors->has('default_rule') ? 'has-error' : ''}}">
+	    <label for="default_rule" control-label>{{ 'Default Rule' }}</label>
+	    <div>
+	        <div class="radio">
+		    <label><input name="default_rule" type="radio" value="1" {{ (isset($alertrule) && 1 == $alertrule->default_rule) ? 'checked' : '' }}> Yes</label>
+		</div>
+		<div class="radio">
+		    <label><input name="default_rule" type="radio" value="0" @if (isset($alertrule)) {{ (0 == $alertrule->default_rule) ? 'checked' : '' }} @else {{ 'checked' }} @endif> No</label>
+		</div>
+	        {!! $errors->first('default_rule', '<p class="help-block">:message</p>') !!}
+	    </div>
+	</div>
+</div>
+<div class="col-xs-12">
+	<div class="form-group {{ $errors->has('last_calculated_at') ? 'has-error' : ''}}">
+	    <label for="last_calculated_at" control-label>{{ 'Name' }}</label>
+	    <div>
+	        <input class="form-control" name="last_calculated_at" type="text" id="last_calculated_at" value="{{ $alertrule->last_calculated_at ?? ''}}" >
+	        {!! $errors->first('last_calculated_at', '<p class="help-block">:message</p>') !!}
+	    </div>
+	</div>
+</div>
+<div class="col-xs-12">
 	<div class="form-group {{ $errors->has('name') ? 'has-error' : ''}}">
 	    <label for="name" control-label>{{ 'Name' }}</label>
 	    <div>
@@ -42,21 +79,8 @@
 	<div class="form-group {{ $errors->has('calculation_minutes') ? 'has-error' : ''}}">
 	    <label for="calculation_minutes" control-label>{{ 'Calculation Minutes' }}</label>
 	    <div>
-	        <input class="form-control" name="calculation_minutes" type="number" id="calculation_minutes" value="{{ $alertrule->calculation_minutes ?? ''}}" >
+	        <input class="form-control" name="calculation_minutes" type="number" id="calculation_minutes" value="{{ $alertrule->calculation_minutes ?? '60'}}" >
 	        {!! $errors->first('calculation_minutes', '<p class="help-block">:message</p>') !!}
-	    </div>
-	</div>
-</div>
-<div class="col-xs-12">
-	<div class="form-group {{ $errors->has('comparator') ? 'has-error' : ''}}">
-	    <label for="comparator" control-label>{{ 'Comparator' }}</label>
-	    <div>
-	        <select name="comparator" class="form-control" id="comparator" required>
-			    @foreach (App\Models\AlertRule::$comparators as $optionKey => $optionValue)
-			        <option value="{{ $optionKey }}" {{ (isset($alertrule->comparator) && $alertrule->comparator == $optionKey) ? 'selected' : ''}}>{{ $optionValue }}</option>
-			    @endforeach
-			</select>
-	        {!! $errors->first('comparator', '<p class="help-block">:message</p>') !!}
 	    </div>
 	</div>
 </div>
@@ -74,11 +98,33 @@
 	</div>
 </div>
 <div class="col-xs-12">
+	<div class="form-group {{ $errors->has('comparator') ? 'has-error' : ''}}">
+	    <label for="comparator" control-label>{{ 'Comparator' }}</label>
+	    <div>
+	        <select name="comparator" class="form-control" id="comparator" required>
+			    @foreach (App\Models\AlertRule::$comparators as $optionKey => $optionValue)
+			        <option value="{{ $optionKey }}" {{ (isset($alertrule->comparator) && $alertrule->comparator == $optionKey) ? 'selected' : ''}}>{{ $optionValue }}</option>
+			    @endforeach
+			</select>
+	        {!! $errors->first('comparator', '<p class="help-block">:message</p>') !!}
+	    </div>
+	</div>
+</div>
+<div class="col-xs-12">
 	<div class="form-group {{ $errors->has('threshold_value') ? 'has-error' : ''}}">
 	    <label for="threshold_value" control-label>{{ 'Threshold Value' }}</label>
 	    <div>
 	        <input class="form-control" name="threshold_value" type="text" id="threshold_value" value="{{ $alertrule->threshold_value ?? ''}}" required>
 	        {!! $errors->first('threshold_value', '<p class="help-block">:message</p>') !!}
+	    </div>
+	</div>
+</div>
+<div class="col-xs-12">
+	<div class="form-group {{ $errors->has('alert_on_occurrences') ? 'has-error' : ''}}">
+	    <label for="alert_on_occurrences" control-label>{{ 'Alert on occurences' }}</label>
+	    <div>
+	        <input class="form-control" name="alert_on_occurrences" type="number" id="alert_on_occurrences" value="{{ $alertrule->alert_on_occurrences ?? '1'}}">
+	        {!! $errors->first('alert_on_occurrences', '<p class="help-block">:message</p>') !!}
 	    </div>
 	</div>
 </div>
@@ -104,7 +150,7 @@
 	<div class="form-group {{ $errors->has('exclude_hive_ids') ? 'has-error' : ''}}">
 	    <label for="exclude_hive_ids" control-label>{{ 'Exclude Hives' }}</label>
 	    <div>
-	        {!! Form::select('exclude_hive_ids[]', App\Hive::selectList(), isset($alertrule->exclude_hive_ids) ? $alertrule->getExcludeHiveIdsAttribute() : null, array('class' => 'form-control select2', 'multiple')) !!}
+	        {!! Form::select('exclude_hive_ids[]', App\Hive::selectList(true), isset($alertrule->exclude_hive_ids) ? $alertrule->getExcludeHiveIdsAttribute() : null, array('class' => 'form-control select2', 'multiple')) !!}
 	        {!! $errors->first('exclude_hive_ids', '<p class="help-block">:message</p>') !!}
 	    </div>
 	</div>
@@ -132,20 +178,7 @@
 	    </div>
 	</div>
 </div>
-<div class="col-xs-12">
-	<div class="form-group {{ $errors->has('active') ? 'has-error' : ''}}">
-	    <label for="active" control-label>{{ 'Active' }}</label>
-	    <div>
-	        <div class="radio">
-			    <label><input name="active" type="radio" value="1" {{ (isset($alertrule) && 1 == $alertrule->active) ? 'checked' : '' }}> Yes</label>
-			</div>
-			<div class="radio">
-			    <label><input name="active" type="radio" value="0" @if (isset($alertrule)) {{ (0 == $alertrule->active) ? 'checked' : '' }} @else {{ 'checked' }} @endif> No</label>
-			</div>
-	        {!! $errors->first('active', '<p class="help-block">:message</p>') !!}
-	    </div>
-	</div>
-</div>
+
 <div class="col-xs-12">
 	<div class="form-group {{ $errors->has('user_id') ? 'has-error' : ''}}">
 	    <label for="user_id" control-label>{{ 'User Id' }}</label>
@@ -155,20 +188,8 @@
 	    </div>
 	</div>
 </div>
-<div class="col-xs-12">
-	<div class="form-group {{ $errors->has('default_rule') ? 'has-error' : ''}}">
-	    <label for="default_rule" control-label>{{ 'Default Rule' }}</label>
-	    <div>
-	        <div class="radio">
-		    <label><input name="default_rule" type="radio" value="1" {{ (isset($alertrule) && 1 == $alertrule->default_rule) ? 'checked' : '' }}> Yes</label>
-		</div>
-		<div class="radio">
-		    <label><input name="default_rule" type="radio" value="0" @if (isset($alertrule)) {{ (0 == $alertrule->default_rule) ? 'checked' : '' }} @else {{ 'checked' }} @endif> No</label>
-		</div>
-	        {!! $errors->first('default_rule', '<p class="help-block">:message</p>') !!}
-	    </div>
-	</div>
-</div>
+
+
 
 
 <div class="col-xs-12" style="margin-top: 20px;">

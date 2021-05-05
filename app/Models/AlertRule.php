@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use App\Measurement;
 use App\User;
+use App\Models\Alert;
 use Moment\Moment;
 
 class AlertRule extends Model
@@ -28,11 +29,11 @@ class AlertRule extends Model
      *
      * @var array
      */
-    protected $fillable = ['name', 'description', 'measurement_id', 'calculation', 'calculation_minutes', 'comparator', 'comparison', 'threshold_value', 'exclude_months', 'exclude_hours', 'exclude_hive_ids', 'alert_via_email', 'webhook_url', 'active', 'user_id', 'default_rule', 'timezone'];
-
+    protected $fillable = ['name', 'description', 'measurement_id', 'calculation', 'calculation_minutes', 'comparator', 'comparison', 'threshold_value', 'exclude_months', 'exclude_hours', 'exclude_hive_ids', 'alert_via_email', 'webhook_url', 'active', 'user_id', 'default_rule', 'timezone', 'alert_on_occurences', 'last_calculated_at'];
     protected $hidden   = ['last_calculated_at'];
 
     public static $calculations   = ["min"=>"Minimum", "max"=>"Maximum", "ave"=>"Average", "der"=>"Derivative", "cnt"=>"Count"];
+    public static $influx_calc    = ["min"=>"MIN", "max"=>"MAX", "ave"=>"MEAN", "der"=>"DERIVATIVE", "cnt"=>"COUNT"];
     public static $comparators    = ["="=>"=", "<"=>"<", ">"=>">", "<="=>"<=", ">="=>">="];
     public static $comparisons    = ["val"=>"Value", "dif"=>"Difference", "abs"=>"Absolute value", "abs_dif"=>"Absolute differerence"];
     public static $exclude_months = [1=>"Jan",2=>"Feb",3=>"Mar",4=>"Apr",5=>"May",6=>"Jun",7=>"Jul",8=>"Aug",9=>"Sep",10=>"Oct",11=>"Nov",12=>"Dec"];
@@ -41,17 +42,17 @@ class AlertRule extends Model
 
     public function getExcludeMonthsAttribute()
     {
-        return !empty($this->attributes['exclude_months']) ? array_map(function($value){ return intval($value); }, explode(",", $this->attributes['exclude_months'])) : null;
+        return !empty($this->attributes['exclude_months']) ? array_map(function($value){ return intval($value); }, explode(",", $this->attributes['exclude_months'])) : [];
     }
 
     public function getExcludeHoursAttribute()
     {
-        return !empty($this->attributes['exclude_hours']) ? array_map(function($value){ return intval($value); }, explode(",", $this->attributes['exclude_hours'])) : null;
+        return !empty($this->attributes['exclude_hours']) ? array_map(function($value){ return intval($value); }, explode(",", $this->attributes['exclude_hours'])) : [];
     }
 
     public function getExcludeHiveIdsAttribute()
     {
-        return !empty($this->attributes['exclude_hive_ids']) ? array_map(function($value){ return intval($value); }, explode(",", $this->attributes['exclude_hive_ids'])) : null;
+        return !empty($this->attributes['exclude_hive_ids']) ? array_map(function($value){ return intval($value); }, explode(",", $this->attributes['exclude_hive_ids'])) : [];
     }
 
     public function measurement()
@@ -68,11 +69,117 @@ class AlertRule extends Model
         return AlertRule::orderBy('name')->pluck('name','id');
     }
 
+    public function evaluateDeviceAlerts($device)
+    {
+        $r = $this;
+        $d = $device;
+
+        if (!isset($d))
+            return 0;
+
+        if (!isset($d->hive_id) || in_array($d->hive_id, $r->exclude_hive_ids)) // only parse existing hives that are not excluded
+            return 0;
+
+        $m_abbr      = $r->measurement->abbreviation;
+        $influx_comp = AlertRule::$influx_calc[$r->calculation];
+        $limit       = $r->comparison == 'dif' || $r->comparison == 'abs_dif' ? $r->alert_on_occurences + 1 : $r->alert_on_occurences; // one extra for diff calculation
+        $last_values = $d->getSensorValues($m_abbr, $influx_comp, $r->calculation_minutes, $r->last_calculated_at, $limit);
+
+        $evaluation_count = 0;
+        $alert_function   = '';
+        $alert_values     = [];
+            
+        $max_value_eval   = $r->comparison == 'dif' || $r->comparison == 'abs_dif' ? count($last_values) - 1 : count($last_values);
+
+        // evaluate measurement values
+        for ($i=0; $i < $max_value_eval; $i++) 
+        {  
+            if (!isset($last_values[$i][$m_abbr]))
+                continue;
+
+            $value = $last_values[$i][$m_abbr];
+
+            if (!isset($value) || $value == '')
+                continue;
+
+            //$time  = $last_values[$i]['time'];
+            if ($r->comparison == 'dif')
+                $value = $last_values[$i] - $last_values[$i+1];
+
+            if ($r->comparison == 'abs_dif')
+                $value = abs($last_values[$i] - $last_values[$i+1]);
+
+            $evaluation = false;
+            switch($r->comparator)
+            {
+                case "=":
+                    $evaluation = $value == $r->threshold_value ? true : false;
+                    break;
+                case "<":
+                    $evaluation = $value < $r->threshold_value ? true : false;
+                    break; 
+                case ">":
+                    $evaluation = $value > $r->threshold_value ? true : false;
+                    break; 
+                case "<=":
+                    $evaluation = $value <= $r->threshold_value ? true : false;
+                    break; 
+                case ">=":
+                    $evaluation = $value >= $r->threshold_value ? true : false;
+                    break; 
+            }
+            if ($evaluation)
+            {
+                $evaluation_count++;
+                $alert_values[] = $value;
+            }
+        }
+        $alert_rule_calc_date = date('Y-m-d H:i:s');
+
+        // check if alert should be made
+        if ($evaluation_count >= $r->alert_on_occurences)
+        {
+            // check if same alert was created at last evaluation of this alert_rule
+            $check_date = $r->last_calculated_at;
+            $check_alert= $d->alerts()->where('alert_rule_id', $r->id)->where('created_at', $check_date)->count();
+
+            if ($check_alert == 0) // no previous alerts, so create
+            {
+                $a = new Alert();
+                $a->created_at     = $alert_rule_calc_date;
+                $a->updated_at     = $alert_rule_calc_date;
+                $a->alert_rule_id  = $r->id;
+                $a->alert_function = $r->measurement->pq.' '.$r->comparator.' '.$threshold_value.' '.$r->measurement->unit;
+                $a->alert_value    = implode(', ', $alert_values);
+                $a->measurement_id = $r->measurement_id;
+                $a->location_id    = $d->hive ? $d->hive->location_id : null;
+                $a->location_name  = $d->location_name;
+                $a->device_id      = $d->id;
+                $a->device_name    = $d->name;
+                $a->hive_id        = $d->hive_id;
+                $a->hive_name      = $d->hive_name;
+                $a->user_id        = $d->user_id;
+                $a->save();
+
+                // Todo: send e-mail
+            }
+        }
+
+        $r->last_calculated_at = $alert_rule_calc_date;
+        $r->save();
+
+        return $evaluation_count;
+    }
+
     public static function parseRules()
     {
-        $alertRules = AlertRule::where('active', 1)->where('default_rule', 0)->orderByAsc('last_calculated_at');
-        $now = new Moment();
-        foreach ($alertRules as $ar) 
+        $alertCount = 0;
+        $now        = new Moment(); // UTC
+        $now_month  = $now->getMonth();
+        $now_hour   = $now->getHour();
+        $alertRules = AlertRule::where('active', 1)->where('default_rule', 0)->where('user_id', '!=', null)->orderBy('last_calculated_at')->get();
+
+        foreach ($alertRules as $r) 
         {
             /*
             1. define gmt_time based of timezone
@@ -85,10 +192,32 @@ class AlertRule extends Model
             8. set last_calculated_at to current time
             */
             
-            if ($ar->last_calculated_at)
+            // exclude parsing of rules
+            if (isset($r->last_calculated_at))
             {
-
+                $min_ago = -1 * $now->from($r->last_calculated_at)->getMinutes();
+                if ($min_ago < $r->calculation_minutes)
+                    continue;
             }
+
+            if (isset($r->exclude_months) && in_array($now_month, $r->exclude_months))
+                continue;
+
+            if (isset($r->exclude_hours) && in_array($now_hour, $r->exclude_hours))
+                continue;
+
+            // define calculation
+            $user_id     = $r->user_id;
+            $user        = User::find($user_id);
+            if (!isset($user))
+                continue;
+
+            $user_devices= $user->allDevices()->get();
+
+            foreach ($user_devices as $d) 
+                $alertCount += $r->evaluateDeviceAlerts($d);
+            
         }
+        return $alertCount;
     }
 }

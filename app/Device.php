@@ -75,6 +75,66 @@ class Device extends Model
         return $this->belongsTo(User::class);
     }
 
+    public function alerts()
+    {
+        return $this->hasMany(Alert::class);
+    }
+
+    /* returns most recent Influx sensor values:
+    Array
+    (
+        [0] => Array
+            (
+                [time] => 2021-05-05T14:30:00Z
+                [t_i] => 
+            )
+
+        [1] => Array
+            (
+                [time] => 2021-05-05T14:00:00Z
+                [t_i] => 
+            )
+
+    )
+    */
+    public function getSensorValues($measurement_abbr, $comparison='MEAN', $interval_min=null, $start=null, $limit=null, $table='sensors', $output_sensors_only=false)
+    {
+        //die(print_r([$names, $valid_sensors]));
+        $client         = new \Influx;
+        $valid_sensors  = Measurement::all()->pluck('pq', 'abbreviation')->toArray();
+        $output_sensors = Measurement::where('show_in_charts', '=', 1)->pluck('abbreviation')->toArray();
+
+        $out           = [];
+        $valid_sensors = $output_sensors_only ? $output_sensors : array_keys($valid_sensors);
+        $options       = ['precision'=> 's'];
+
+        $where_limit   = isset($limit) ? 'LIMIT '.$limit : '';
+        $where         = '("key" = \''.$this->key.'\' OR "key" = \''.strtolower($this->key).'\' OR "key" = \''.strtoupper($this->key).'\')';
+        $where_time    = isset($start) ? 'AND time >= \''.$start.'\'' : '';
+        $time_interval = isset($interval_min) ? $interval_min.'m' : ($this->measurement_interval_min ? $this->measurement_interval_min.'m' : '15m');
+        $group_by_time = 'GROUP BY time('.$time_interval.')';
+        
+        $query   = 'SELECT '.$comparison.'("'.$measurement_abbr.'") AS "'.$measurement_abbr.'" FROM "'.$table.'" WHERE '.$where.' '.$where_time.' '.$group_by_time.' ORDER BY time DESC '.$where_limit;
+
+        if (in_array($measurement_abbr, $valid_sensors))
+        {
+            $sensors = [];
+
+            try{
+                $result  = $client::query($query, $options);
+                $sensors = $result->getPoints();
+            } catch (InfluxDB\Exception $e) {
+                // return Response::json('influx-group-by-query-error', 500);
+            }
+            if (count($sensors) > 0)
+            {
+                return $sensors;
+            }
+        }
+        
+        return $out;
+    }
+
     public static function selectList()
     {
         $list = [];

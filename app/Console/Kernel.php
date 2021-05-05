@@ -30,6 +30,7 @@ class Kernel extends ConsoleKernel
             function () 
             {
                 Weather::updateLocations();
+                AlertRule::parseRules();
             }
         )->everyMinute();
     }

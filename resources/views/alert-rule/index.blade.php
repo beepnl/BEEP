@@ -49,7 +49,7 @@
             <tbody>
             @foreach($alertrule as $item)
                 <tr>
-                    <td>{{ $loop->iteration or $item->id }}</td>
+                    <td>{{ $item->id }}</td>
                     <td>{{ $item->name }}</td><td>{{ $item->description }}</td><td>{{ $item->measurement->pq_name_unit }}</td><td>{{ $item->calculation }}</td><td>{{ $item->calculation_minutes }}</td><td>{{ $item->comparator }}</td><td>{{ $item->comparison }}</td><td>{{ $item->threshold_value }}</td>
                     <td col-sm-1>
                         <a href="{{ route('alert-rule.show', $item->id) }}" title="{{ __('crud.show') }}"><button class="btn btn-default"><i class="fa fa-eye" aria-hidden="true"></i></button></a>

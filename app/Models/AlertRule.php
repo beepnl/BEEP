@@ -85,6 +85,7 @@ class AlertRule extends Model
         $limit       = $r->comparison == 'dif' || $r->comparison == 'abs_dif' ? $r->alert_on_occurences + 1 : $r->alert_on_occurences; // one extra for diff calculation
         $last_values = $d->getSensorValues($m_abbr, $influx_comp, $r->calculation_minutes, $r->last_calculated_at, $limit);
 
+        $alert_count      = 0;
         $evaluation_count = 0;
         $alert_function   = '';
         $alert_values     = [];
@@ -94,6 +95,7 @@ class AlertRule extends Model
         // evaluate measurement values
         for ($i=0; $i < $max_value_eval; $i++) 
         {  
+
             if (!isset($last_values[$i][$m_abbr]))
                 continue;
 
@@ -141,7 +143,11 @@ class AlertRule extends Model
         {
             // check if same alert was created at last evaluation of this alert_rule
             $check_date = $r->last_calculated_at;
-            $check_alert= $d->alerts()->where('alert_rule_id', $r->id)->where('created_at', $check_date)->count();
+            $check_alert= $d->alerts()->where('alert_rule_id', $r->id)->whereDate('created_at', $check_date)->count();
+            $alert_value= implode(', ', $alert_values);
+            $alert_func = $r->measurement->pq.' '.$r->comparator.' '.$threshold_value.' '.$r->measurement->unit;
+            
+            print_r(['a'=>$max_value_eval, 'cd'=>$check_date, 'av'=>$alert_value, 'af'=>$alert_func, 'ec'=>$evaluation_count]);
 
             if ($check_alert == 0) // no previous alerts, so create
             {
@@ -149,8 +155,8 @@ class AlertRule extends Model
                 $a->created_at     = $alert_rule_calc_date;
                 $a->updated_at     = $alert_rule_calc_date;
                 $a->alert_rule_id  = $r->id;
-                $a->alert_function = $r->measurement->pq.' '.$r->comparator.' '.$threshold_value.' '.$r->measurement->unit;
-                $a->alert_value    = implode(', ', $alert_values);
+                $a->alert_function = $alert_func;
+                $a->alert_value    = $alert_value;
                 $a->measurement_id = $r->measurement_id;
                 $a->location_id    = $d->hive ? $d->hive->location_id : null;
                 $a->location_name  = $d->location_name;
@@ -161,14 +167,16 @@ class AlertRule extends Model
                 $a->user_id        = $d->user_id;
                 $a->save();
 
+                $alert_count++;
+                // save last evaluated date
+                $r->last_calculated_at = $alert_rule_calc_date;
+                $r->save();
+
                 // Todo: send e-mail
             }
         }
 
-        $r->last_calculated_at = $alert_rule_calc_date;
-        $r->save();
-
-        return $evaluation_count;
+        return $alert_count;
     }
 
     public static function parseRules()

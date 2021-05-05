@@ -85,7 +85,7 @@ class AlertRule extends Model
         $m_abbr      = $r->measurement->abbreviation;
         $influx_comp = AlertRule::$influx_calc[$r->calculation];
         $limit       = $diff_comp ? $r->alert_on_occurences + 1 : $r->alert_on_occurences; // one extra for diff calculation
-        $last_values = $d->getSensorValues($m_abbr, $influx_comp, $r->calculation_minutes, $r->last_calculated_at, $limit);
+        $last_values = $d->getSensorValues($m_abbr, $influx_comp, $r->calculation_minutes, $limit, $r->last_calculated_at);
 
         $alert_count      = 0;
         $evaluation_count = 0;
@@ -94,89 +94,92 @@ class AlertRule extends Model
             
         $max_value_eval   = $diff_comp ? count($last_values) - 1 : count($last_values);
 
-        Log::debug(['d'=>$d->name, 'lv'=>$last_values, 'mve'=>$max_value_eval]);
-
-        // evaluate measurement values
-        for ($i=0; $i < $max_value_eval; $i++) 
-        {  
-
-            if (!isset($last_values[$i][$m_abbr]))
-                continue;
-
-            $value = $last_values[$i][$m_abbr];
-
-            if (!isset($value) || $value == '')
-                continue;
-
-            //$time  = $last_values[$i]['time'];
-            if ($diff_comp)
-                $value = $last_values[$i] - $last_values[$i+1];
-
-            if ($r->comparison == 'abs_dif')
-                $value = abs($value);
-
-            $evaluation = false;
-            switch($r->comparator)
-            {
-                case "=":
-                    $evaluation = $value == $r->threshold_value ? true : false;
-                    break;
-                case "<":
-                    $evaluation = $value < $r->threshold_value ? true : false;
-                    break; 
-                case ">":
-                    $evaluation = $value > $r->threshold_value ? true : false;
-                    break; 
-                case "<=":
-                    $evaluation = $value <= $r->threshold_value ? true : false;
-                    break; 
-                case ">=":
-                    $evaluation = $value >= $r->threshold_value ? true : false;
-                    break; 
-            }
-            if ($evaluation)
-            {
-                $evaluation_count++;
-                $alert_values[] = $value;
-            }
-        }
-        $alert_rule_calc_date = date('Y-m-d H:i:s');
-
-        // check if alert should be made
-        if ($evaluation_count >= $r->alert_on_occurences)
+        if ($max_value_eval > 0)
         {
-            // check if same alert was created at last evaluation of this alert_rule
-            $check_date = $r->last_calculated_at;
-            $check_alert= $d->alerts()->where('alert_rule_id', $r->id)->whereDate('created_at', $check_date)->count();
-            $alert_value= implode(', ', $alert_values);
-            $alert_func = $r->measurement->pq.' '.$r->comparator.' '.$threshold_value.' '.$r->measurement->unit;
-            
-            Log::debug(['d'=>$alert_rule_calc_date, 'cd'=>$check_date, 'ca'=>$check_alert, 'av'=>$alert_value, 'af'=>$alert_func, 'ec'=>$evaluation_count]);
+            Log::debug(['r'=>$r->name, 'd'=>$d->name, 'lv'=>$last_values, 'mve'=>$max_value_eval]);
 
-            if ($check_alert == 0) // no previous alerts, so create
+            // evaluate measurement values
+            for ($i=0; $i < $max_value_eval; $i++) 
+            {  
+
+                if (!isset($last_values[$i][$m_abbr]))
+                    continue;
+
+                $value = $last_values[$i][$m_abbr];
+
+                if (!isset($value) || $value == '')
+                    continue;
+
+                //$time  = $last_values[$i]['time'];
+                if ($diff_comp)
+                    $value = $last_values[$i] - $last_values[$i+1];
+
+                if ($r->comparison == 'abs_dif')
+                    $value = abs($value);
+
+                $evaluation = false;
+                switch($r->comparator)
+                {
+                    case "=":
+                        $evaluation = $value == $r->threshold_value ? true : false;
+                        break;
+                    case "<":
+                        $evaluation = $value < $r->threshold_value ? true : false;
+                        break; 
+                    case ">":
+                        $evaluation = $value > $r->threshold_value ? true : false;
+                        break; 
+                    case "<=":
+                        $evaluation = $value <= $r->threshold_value ? true : false;
+                        break; 
+                    case ">=":
+                        $evaluation = $value >= $r->threshold_value ? true : false;
+                        break; 
+                }
+                if ($evaluation)
+                {
+                    $evaluation_count++;
+                    $alert_values[] = $value;
+                }
+            }
+            $alert_rule_calc_date = date('Y-m-d H:i:s');
+
+            // check if alert should be made
+            if ($evaluation_count >= $r->alert_on_occurences)
             {
-                $a = new Alert();
-                $a->created_at     = $alert_rule_calc_date;
-                $a->updated_at     = $alert_rule_calc_date;
-                $a->alert_rule_id  = $r->id;
-                $a->alert_function = $alert_func;
-                $a->alert_value    = $alert_value;
-                $a->measurement_id = $r->measurement_id;
-                $a->location_id    = $d->hive ? $d->hive->location_id : null;
-                $a->location_name  = $d->location_name;
-                $a->device_id      = $d->id;
-                $a->device_name    = $d->name;
-                $a->hive_id        = $d->hive_id;
-                $a->hive_name      = $d->hive_name;
-                $a->user_id        = $d->user_id;
-                $a->save();
+                // check if same alert was created at last evaluation of this alert_rule
+                $check_date = $r->last_calculated_at;
+                $check_alert= $d->alerts()->where('alert_rule_id', $r->id)->whereDate('created_at', $check_date)->count();
+                $alert_value= implode(', ', $alert_values);
+                $alert_func = $r->measurement->pq.' '.$r->comparator.' '.$threshold_value.' '.$r->measurement->unit;
+                
+                Log::debug(['r'=>$r->name, 'd'=>$alert_rule_calc_date, 'cd'=>$check_date, 'ca'=>$check_alert, 'av'=>$alert_value, 'af'=>$alert_func, 'ec'=>$evaluation_count]);
 
-                $alert_count++;
-                // save last evaluated date
-                $r->last_calculated_at = $alert_rule_calc_date;
-                $r->save();
+                if ($check_alert == 0) // no previous alerts, so create
+                {
+                    $a = new Alert();
+                    $a->created_at     = $alert_rule_calc_date;
+                    $a->updated_at     = $alert_rule_calc_date;
+                    $a->alert_rule_id  = $r->id;
+                    $a->alert_function = $alert_func;
+                    $a->alert_value    = $alert_value;
+                    $a->measurement_id = $r->measurement_id;
+                    $a->location_id    = $d->hive ? $d->hive->location_id : null;
+                    $a->location_name  = $d->location_name;
+                    $a->device_id      = $d->id;
+                    $a->device_name    = $d->name;
+                    $a->hive_id        = $d->hive_id;
+                    $a->hive_name      = $d->hive_name;
+                    $a->user_id        = $d->user_id;
+                    $a->save();
 
-                // Todo: send e-mail
+                    $alert_count++;
+                    // save last evaluated date
+                    $r->last_calculated_at = $alert_rule_calc_date;
+                    $r->save();
+
+                    // Todo: send e-mail
+                }
             }
         }
 
@@ -205,6 +208,7 @@ class AlertRule extends Model
             */
             
             // exclude parsing of rules
+            $min_ago = 0;
             if (isset($r->last_calculated_at))
             {
                 $min_ago = -1 * $now->from($r->last_calculated_at)->getMinutes();
@@ -217,6 +221,8 @@ class AlertRule extends Model
 
             if (isset($r->exclude_hours) && in_array($now_hour, $r->exclude_hours))
                 continue;
+
+            Log::debug('evaluating AlertRule '.$r->name.', last calculated '.$min_ago.' min ago');
 
             // define calculation
             $user_id     = $r->user_id;

@@ -97,7 +97,7 @@ class Device extends Model
 
     )
     */
-    public function getSensorValues($measurement_abbr, $comparison='MEAN', $interval_min=null, $start=null, $limit=null, $table='sensors', $output_sensors_only=false)
+    public function getSensorValues($measurement_abbr, $comparison='MEAN', $interval_min=null, $limit=null, $start=null, $table='sensors', $output_sensors_only=false)
     {
         //die(print_r([$names, $valid_sensors]));
         $client         = new \Influx;
@@ -114,7 +114,7 @@ class Device extends Model
         $time_interval = isset($interval_min) ? $interval_min.'m' : ($this->measurement_interval_min ? $this->measurement_interval_min.'m' : '15m');
         $group_by_time = 'GROUP BY time('.$time_interval.')';
         
-        $query   = 'SELECT '.$comparison.'("'.$measurement_abbr.'") AS "'.$measurement_abbr.'" FROM "'.$table.'" WHERE '.$where.' '.$where_time.' '.$group_by_time.' ORDER BY time DESC '.$where_limit;
+        $query   = 'SELECT '.$comparison.'("'.$measurement_abbr.'") AS "'.$measurement_abbr.'" FROM "'.$table.'" WHERE '.$where.' '.$where_time.' '.$group_by_time.' ORDER BY time DESC '.$where_limit.' fill(none)';
 
         if (in_array($measurement_abbr, $valid_sensors))
         {

@@ -55,7 +55,7 @@ class Device extends Model
 
     public function sensorDefinitions()
     {
-        return $this->hasMany(SensorDefinition::class)->orderByDesc('updated_at');
+        return $this->hasMany(SensorDefinition::class);
     }
 
 	public function hive()

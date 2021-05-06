@@ -11,6 +11,7 @@ use App\Location;
 use App\Hive;
 use App\Device;
 use App\Inspection;
+use App\Measurement;
 use Moment\Moment;
 use Response;
 use DB;

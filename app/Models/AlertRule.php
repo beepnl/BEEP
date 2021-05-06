@@ -47,24 +47,23 @@ class AlertRule extends Model
 
         AlertRule::created(function($r)
         {
-            $alert_func = $r->measurement->pq.' '.$r->comparator.' '.$r->threshold_value.' '.$r->measurement->unit;
             $activated  = $r->active ? 'activated' : 'deactivated';
-            $a = new Alert(['alert_rule_id'=>$r->id, 'alert_function'=>$alert_func, 'alert_value'=>'AlertRule created and '.$activated, 'measurement_id'=>$r->measurement_id, 'user_id'=>$r->user_id]);
+            $a = new Alert(['alert_rule_id'=>$r->id, 'alert_function'=>$r->readableFunction(), 'alert_value'=>'AlertRule created', 'measurement_id'=>$r->measurement_id, 'user_id'=>$r->user_id]);
             $a->save();
         });
 
-        AlertRule::updated(function($r)
-        {
-            $alert_func = $r->measurement->pq.' '.$r->comparator.' '.$r->threshold_value.' '.$r->measurement->unit;
-            $activated  = $r->active ? 'activated' : 'deactivated';
-            $a = new Alert(['alert_rule_id'=>$r->id, 'alert_function'=>$alert_func, 'alert_value'=>'AlertRule updated and '.$activated, 'measurement_id'=>$r->measurement_id, 'user_id'=>$r->user_id]);
-            $a->save();
-        });
+        // AlertRule::updated(function($r)
+        // {
+        //     $alert_func = $r->measurement->pq.' '.$r->comparator.' '.$r->threshold_value.' '.$r->measurement->unit;
+        //     $activated  = $r->active ? 'activated' : 'deactivated';
+        //     $a = new Alert(['alert_rule_id'=>$r->id, 'alert_function'=>$r->readableFunction(), 'alert_value'=>'AlertRule updated and '.$activated, 'measurement_id'=>$r->measurement_id, 'user_id'=>$r->user_id]);
+        //     $a->save();
+        // });
 
         AlertRule::deleting(function($r)
         {
             $alert_func = $r->measurement->pq.' '.$r->comparator.' '.$r->threshold_value.' '.$r->measurement->unit;
-            $a = new Alert(['alert_rule_id'=>$r->id, 'alert_function'=>$alert_func, 'alert_value'=>'AlertRule deleted', 'measurement_id'=>$r->measurement_id, 'user_id'=>$r->user_id]);
+            $a = new Alert(['alert_rule_id'=>$r->id, 'alert_function'=>$r->readableFunction(), 'alert_value'=>'AlertRule deleted', 'measurement_id'=>$r->measurement_id, 'user_id'=>$r->user_id]);
             $a->save();
         });
     }
@@ -99,6 +98,12 @@ class AlertRule extends Model
         return AlertRule::orderBy('name')->pluck('name','id');
     }
 
+    public function readableFunction()
+    {
+        $r = $this;
+        return $r->measurement->pq.' '.AlertRule::$comparisons[$r->comparison].' '.$r->comparator.' '.AlertRule::$calculations[$r->calculation].'('.$r->threshold_value.') '.$r->measurement->unit;
+    }
+
     public function evaluateDeviceAlerts($device)
     {
         $r = $this;
@@ -125,7 +130,7 @@ class AlertRule extends Model
 
         if ($max_value_eval > 0)
         {
-            Log::debug(['r'=>$r->name, 'd'=>$d->name, 'lv'=>$last_values, 'mve'=>$max_value_eval]);
+            //Log::debug(['r'=>$r->name, 'd'=>$d->name, 'lv'=>$last_values, 'mve'=>$max_value_eval]);
 
             // evaluate measurement values
             for ($i=0; $i < $max_value_eval; $i++) 
@@ -180,12 +185,14 @@ class AlertRule extends Model
                 $check_date = $r->last_calculated_at;
                 $check_alert= $d->alerts()->where('alert_rule_id', $r->id)->whereDate('created_at', $check_date)->count();
                 $alert_value= implode(', ', $alert_values);
-                $alert_func = $r->measurement->pq.' '.$r->comparator.' '.$r->threshold_value.' '.$r->measurement->unit;
+                $alert_func = $r->readableFunction();
                 
-                Log::debug(['r'=>$r->name, 'd'=>$alert_rule_calc_date, 'cd'=>$check_date, 'ca'=>$check_alert, 'av'=>$alert_value, 'af'=>$alert_func, 'ec'=>$evaluation_count]);
+                Log::debug($r->name.' Alert create='.($check_alert == 0 ? 'yes' : 'no').', v='.$alert_value.', f='.$alert_func.', count='.$evaluation_count);
+
 
                 if ($check_alert == 0) // no previous alerts, so create
                 {
+
                     $a = new Alert();
                     $a->created_at     = $alert_rule_calc_date;
                     $a->updated_at     = $alert_rule_calc_date;
@@ -200,11 +207,20 @@ class AlertRule extends Model
                     $a->hive_id        = $d->hive_id;
                     $a->hive_name      = $d->hive_name;
                     $a->user_id        = $d->user_id;
+                    die(print_r($a->toArray()));
                     $a->save();
 
                     $alert_count++;
 
-                    // Todo: send e-mail
+                    if ($r->alert_via_email)
+                    {
+                        // Todo: send e-mail
+                        Log::debug($r->name.' Alert created, ToDo: send e-mail');
+                    }
+                }
+                else
+                {
+
                 }
             }
             // save last evaluated date
@@ -251,7 +267,7 @@ class AlertRule extends Model
             if (isset($r->exclude_hours) && in_array($now_hour, $r->exclude_hours))
                 continue;
 
-            Log::debug('evaluating AlertRule '.$r->name.', last calculated '.$min_ago.' min ago');
+            Log::debug($r->name.' parsing, last calculated '.$min_ago.' min ago');
 
             // define calculation
             $user_id     = $r->user_id;

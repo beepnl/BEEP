@@ -105,7 +105,7 @@ class SensorDefinitionController extends Controller
             }
             else
             {
-                $sensordefinitions = $device->sensorDefinitions->sortByDesc('updated_at')->values();
+                $sensordefinitions = $device->sensorDefinitions->sortByAsc('updated_at')->values(); // Bugfix iOS app: sort by Asc to get last in iOS app. 
             }
 
             if ($sensordefinitions)

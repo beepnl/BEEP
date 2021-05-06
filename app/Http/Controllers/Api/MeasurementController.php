@@ -282,7 +282,7 @@ class MeasurementController extends Controller
             $measurement = Measurement::where('abbreviation',$abbr)->first();
             if ($measurement)
             {
-                $sensor_def = $device->sensorDefinitions->where('input_measurement_id', $measurement->id)->last();
+                $sensor_def = $device->sensorDefinitions->where('input_measurement_id', $measurement->id)->last(); // be aware that last() gets the last value of the ASCENDING list
 
                 if ($sensor_def)
                 {

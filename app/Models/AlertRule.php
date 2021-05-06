@@ -207,7 +207,6 @@ class AlertRule extends Model
                     $a->hive_id        = $d->hive_id;
                     $a->hive_name      = $d->hive_name;
                     $a->user_id        = $d->user_id;
-                    die(print_r($a->toArray()));
                     $a->save();
 
                     $alert_count++;
@@ -217,10 +216,6 @@ class AlertRule extends Model
                         // Todo: send e-mail
                         Log::debug($r->name.' Alert created, ToDo: send e-mail');
                     }
-                }
-                else
-                {
-
                 }
             }
             // save last evaluated date

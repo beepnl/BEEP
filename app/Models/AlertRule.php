@@ -126,8 +126,9 @@ class AlertRule extends Model
         $alert_function   = '';
         $alert_values     = [];
             
-        $max_value_eval   = $diff_comp ? count($last_values) - 1 : count($last_values);
-
+        $alert_rule_calc_date = date('Y-m-d H:i:s');
+        $max_value_eval       = $diff_comp ? count($last_values) - 1 : count($last_values);
+        
         if ($max_value_eval > 0)
         {
             //Log::debug(['r'=>$r->name, 'd'=>$d->name, 'lv'=>$last_values, 'mve'=>$max_value_eval]);
@@ -176,8 +177,7 @@ class AlertRule extends Model
                     $alert_values[] = $value;
                 }
             }
-            $alert_rule_calc_date = date('Y-m-d H:i:s');
-
+            
             // check if alert should be made
             if ($evaluation_count >= $r->alert_on_occurences)
             {
@@ -218,10 +218,10 @@ class AlertRule extends Model
                     }
                 }
             }
-            // save last evaluated date
-            $r->last_calculated_at = $alert_rule_calc_date;
-            $r->save();
         }
+        // save last evaluated date
+        $r->last_calculated_at = $alert_rule_calc_date;
+        $r->save();
 
         return $alert_count;
     }

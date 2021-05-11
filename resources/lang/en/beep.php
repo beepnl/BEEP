@@ -39,8 +39,20 @@ return [
     'calibration'       => 'calibration',
     'SensorDefinition'  => 'Sensor definition',
     'SampleCode'        => 'Sample code',
+
     'Alert'             => 'Alert',
     'Alerts'            => 'Alerts',
     'AlertRule'         => 'Alert rule',
     'AlertRules'        => 'Alert rules',
+
+    'min'               => 'minimum',
+    'max'               => 'maximum',
+    'ave'               => 'average',
+    'der'               => 'derivative',
+    'cnt'               => 'count',
+    'val'               => 'value',
+    'dif'               => 'difference',
+    'abs'               => 'absolute value',
+    'abs_dif'           => 'absolute difference',
+
 ];

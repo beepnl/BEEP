@@ -9,6 +9,9 @@ use App\User;
 use App\Models\Alert;
 use Moment\Moment;
 
+use Mail;
+use App\Mail\Alert as AlertMail;
+
 class AlertRule extends Model
 {
     /**
@@ -213,7 +216,12 @@ class AlertRule extends Model
                     if ($r->alert_via_email)
                     {
                         // Todo: send e-mail
-                        Log::debug($r->name.' Alert created, ToDo: send e-mail');
+                        $user = User::find($d->user_id);
+                        if ($user)
+                        {
+                            Log::debug($r->name.' Alert created, sending email');
+                            Mail::to($user->email)->send(new AlertMail($a, $user->name));
+                        }
                     }
                 }
             }

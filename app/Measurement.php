@@ -74,7 +74,7 @@ class Measurement extends Model
     {
         // add sensor name (temporarily)
         $trans = $translate ? Translation::translate($this->abbreviation, null, false, 'measurement') : null;
-        $name  = isset($trans) ? $trans : $this->physical_quantity()->value('name');
+        $name  = isset($trans) && strtolower($trans) != $this->abbreviation ? $trans : $this->physical_quantity()->value('name');
         // if (($name != '' && $name != '-') && isset($this->abbreviation))
         // {
         //     $abbr = '';

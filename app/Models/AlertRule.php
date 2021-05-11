@@ -100,7 +100,6 @@ class AlertRule extends Model
     {
         $r = $this;
         $f = $r->measurement->pq.' '.__('beep.'.$r->calculation).' '.__('beep.'.$r->comparison).' '.AlertRule::$comparators[$r->comparator].' '.$r->threshold_value.' '.$r->measurement->unit;
-        die($f);
         return $f;
     }
 

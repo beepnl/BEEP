@@ -4,6 +4,7 @@ namespace App;
 
 use Illuminate\Database\Eloquent\Model;
 use App\PhysicalQuantity;
+use App\Translation;
 
 class Measurement extends Model
 {
@@ -63,21 +64,27 @@ class Measurement extends Model
         return $this->hasOne(PhysicalQuantity::class, 'id', 'physical_quantity_id');
     }
 
+    public function transName($locale = null)
+    {
+        $trans = Translation::translate($this->abbreviation, null, false, 'measurement');
+        return isset($trans) ? $trans : $this->name;
+    }
 
-    public function pq_name()
+    public function pq_name($translate = true)
     {
         // add sensor name (temporarily)
-        
-        $name = $this->physical_quantity()->value('name');
-        if (($name != '' && $name != '-') && isset($this->abbreviation))
-        {
-            $abbr = '';
-            $mabb = $this->abbreviation;
-            $aind = strpos($mabb, '_'); 
-            $abbr = ' - '.($aind ? substr($mabb, 0, $aind) : $mabb);
-            $name .= $abbr;
-        }
-        else if ($name == '-' && isset($this->abbreviation))
+        $trans = $translate ? Translation::translate($this->abbreviation, null, false, 'measurement') : null;
+        $name  = isset($trans) ? $trans : $this->physical_quantity()->value('name');
+        // if (($name != '' && $name != '-') && isset($this->abbreviation))
+        // {
+        //     $abbr = '';
+        //     $mabb = $this->abbreviation;
+        //     $aind = strpos($mabb, '_'); 
+        //     $abbr = ' - '.($aind ? substr($mabb, 0, $aind) : $mabb);
+        //     $name .= $abbr;
+        // }
+        // else 
+        if ($name == '-' && isset($this->abbreviation))
         {
             $name = str_replace('_', ' ', $this->abbreviation);
         }
@@ -89,12 +96,12 @@ class Measurement extends Model
         return $this->physical_quantity()->value('unit');
     }
     
-    public function pq_name_unit()
+    public function pq_name_unit($translate = true)
     {
         if ($this->physical_quantity_id != null)
         {
             $unit = $this->unit() != null && $this->unit() != '' && $this->unit() != '-' ? ' ('.$this->unit().')' : '';
-            $name = $this->pq_name().$unit;
+            $name = $this->pq_name($translate).$unit;
             if ($name)
                 return $name;
         }

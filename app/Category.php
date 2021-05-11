@@ -160,14 +160,14 @@ class Category extends Model
     {
         $lang_id = Language::where('abbreviation', $language_abbr)->pluck('id');
         if ($lang_id)
-            return Translation::where('language_id', $lang_id)->where('name', $this->name)->value('translation');
+            return Translation::where('type', 'category')->where('language_id', $lang_id)->where('name', $this->name)->value('translation');
         
         return $this->name;
     }
 
     public function translations()
     {
-        $trans = Translation::where('name', $this->name)->pluck('translation','language_id');
+        $trans = Translation::where('type', 'category')->where('name', $this->name)->pluck('translation','language_id');
         if ($trans)
             return $trans;
         

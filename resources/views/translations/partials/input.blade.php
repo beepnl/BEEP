@@ -18,7 +18,7 @@
 
             @php
                 $m     = App\Measurement::find($m_id);
-                $name  = isset($m) ? $abbr.': '.$m->pq_name_unit : '-';
+                $name  = isset($m) ? $abbr.': '.$m->pq_name_unit(false) : '-';
                 $depth = 0;
             @endphp
             

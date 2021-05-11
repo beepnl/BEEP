@@ -47,8 +47,7 @@ class AlertRule extends Model
 
         AlertRule::created(function($r)
         {
-            $activated  = $r->active ? 'activated' : 'deactivated';
-            $a = new Alert(['alert_rule_id'=>$r->id, 'alert_function'=>$r->readableFunction(), 'alert_value'=>'AlertRule created', 'measurement_id'=>$r->measurement_id, 'user_id'=>$r->user_id]);
+            $a = new Alert(['alert_rule_id'=>$r->id, 'alert_function'=>$r->readableFunction(), 'alert_value'=>__('beep.AlertRule').__('crud.created'), 'measurement_id'=>$r->measurement_id, 'user_id'=>$r->user_id]);
             $a->save();
         });
 
@@ -62,8 +61,7 @@ class AlertRule extends Model
 
         AlertRule::deleting(function($r)
         {
-            $alert_func = $r->measurement->pq.' '.$r->comparator.' '.$r->threshold_value.' '.$r->measurement->unit;
-            $a = new Alert(['alert_rule_id'=>$r->id, 'alert_function'=>$r->readableFunction(), 'alert_value'=>'AlertRule deleted', 'measurement_id'=>$r->measurement_id, 'user_id'=>$r->user_id]);
+            $a = new Alert(['alert_rule_id'=>$r->id, 'alert_function'=>$r->readableFunction(), 'alert_value'=>__('beep.AlertRule').__('crud.deleted'), 'measurement_id'=>$r->measurement_id, 'user_id'=>$r->user_id]);
             $a->save();
         });
     }
@@ -101,7 +99,9 @@ class AlertRule extends Model
     public function readableFunction()
     {
         $r = $this;
-        return $r->measurement->pq.' '.AlertRule::$comparisons[$r->comparison].' '.$r->comparator.' '.AlertRule::$calculations[$r->calculation].'('.$r->threshold_value.') '.$r->measurement->unit;
+        $f = $r->measurement->pq.' '.__('beep.'.$r->calculation).' '.__('beep.'.$r->comparison).' '.AlertRule::$comparators[$r->comparator].' '.$r->threshold_value.' '.$r->measurement->unit;
+        die($f);
+        return $f;
     }
 
     public function evaluateDeviceAlerts($device)

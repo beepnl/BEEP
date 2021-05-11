@@ -21,13 +21,14 @@ class Translation extends Model
 
 
     // static functions
-    public static function translate($name, $locale=null, $array=false)
+    public static function translate($name, $locale=null, $array=false, $type='category')
     {
         if ($locale == null && $array == false)
             $locale = LaravelLocalization::getCurrentLocale();
 
         $trans = DB::table('translations')
                     ->join('languages', 'translations.language_id', '=', 'languages.id')
+                    ->where('translations.type', $type)
                     ->where('translations.name', $name)
                     ->select('translations.translation', 'languages.twochar')
                     ->get();

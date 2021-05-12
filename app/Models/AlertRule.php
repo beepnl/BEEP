@@ -280,10 +280,18 @@ class AlertRule extends Model
 
             $user_devices= $user->allDevices()->get();
 
-            Log::debug($r->id.' '.$r->name.' last evaluated '.$min_ago.' min ago, parsing user '.$user_id.': '.count($user_devices).' devices');
+            if (count($user_devices) > 0)
+            {
+                Log::debug($r->id.' '.$r->name.' last evaluated '.$min_ago.' min ago, parsing user '.$user_id.': '.count($user_devices).' devices');
 
-            foreach ($user_devices as $d) 
-                $alertCount += $r->evaluateDeviceAlerts($d);
+                foreach ($user_devices as $d) 
+                    $alertCount += $r->evaluateDeviceAlerts($d);
+            }
+            else
+            {
+                $r->last_evaluated_at = date('Y-m-d H:i:s');
+                $r->save();
+            }
             
         }
         return $alertCount;

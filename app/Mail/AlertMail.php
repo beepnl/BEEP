@@ -19,7 +19,7 @@ class AlertMail extends Mailable
      *
      * @return void
      */
-    public function __construct(Group $alert, $name)
+    public function __construct(Alert $alert, $name)
     {
         $this->alert = $alert;
         $this->name  = $name; 

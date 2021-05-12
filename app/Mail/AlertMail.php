@@ -8,7 +8,7 @@ use Illuminate\Queue\SerializesModels;
 use Illuminate\Contracts\Queue\ShouldQueue;
 
 use Auth;
-use App\Alert;
+use App\Models\Alert;
 
 class AlertMail extends Mailable
 {

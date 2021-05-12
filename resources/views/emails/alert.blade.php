@@ -11,7 +11,7 @@
 
 {{ __('alert.alert_value', ['value' => $alert->alert_value]) }}
 
-@component('mail::button', ['url' => $alertsUrl])
+@component('mail::button', ['url' => $url])
 {{ __('alert.View_alerts') }}
 @endcomponent
 

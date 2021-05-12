@@ -33,7 +33,7 @@ class AlertRule extends Model
      *
      * @var array
      */
-    protected $fillable = ['name', 'description', 'measurement_id', 'calculation', 'calculation_minutes', 'comparator', 'comparison', 'threshold_value', 'exclude_months', 'exclude_hours', 'exclude_hive_ids', 'alert_via_email', 'webhook_url', 'active', 'user_id', 'default_rule', 'timezone', 'alert_on_occurences', 'last_calculated_at'];
+    protected $fillable = ['name', 'description', 'measurement_id', 'calculation', 'calculation_minutes', 'comparator', 'comparison', 'threshold_value', 'exclude_months', 'exclude_hours', 'exclude_hive_ids', 'alert_via_email', 'webhook_url', 'active', 'user_id', 'default_rule', 'timezone', 'alert_on_occurences', 'last_calculated_at', 'last_evaluated_at'];
     protected $hidden   = ['last_calculated_at'];
 
     public static $calculations   = ["min"=>"Minimum", "max"=>"Maximum", "ave"=>"Average", "der"=>"Derivative", "cnt"=>"Count"];
@@ -131,6 +131,9 @@ class AlertRule extends Model
         $alert_rule_calc_date = date('Y-m-d H:i:s');
         $max_value_eval       = $diff_comp ? count($last_values) - 1 : count($last_values);
         
+        $r->last_evaluated_at = $alert_rule_calc_date;
+        $r->save();
+
         if ($max_value_eval > 0)
         {
             //Log::debug(['r'=>$r->name, 'd'=>$d->name, 'lv'=>$last_values, 'mve'=>$max_value_eval]);
@@ -189,7 +192,7 @@ class AlertRule extends Model
                 $alert_value= implode(', ', $alert_values);
                 $alert_func = $r->readableFunction();
                 
-                Log::debug($r->name.' Alert create='.($check_alert == 0 ? 'yes' : 'no').', v='.$alert_value.', f='.$alert_func.', count='.$evaluation_count);
+                Log::debug(' |-- '.$r->name.' Alert create='.($check_alert == 0 ? 'yes' : 'no').', v='.$alert_value.', f='.$alert_func.', count='.$evaluation_count);
 
 
                 if ($check_alert == 0) // no previous alerts, so create
@@ -219,16 +222,16 @@ class AlertRule extends Model
                         $user = User::find($d->user_id);
                         if ($user)
                         {
-                            Log::debug($r->name.' Alert created, sending email');
+                            Log::debug(' |-- '.$r->name.' Alert created, sending email to '.$user->email);
                             Mail::to($user->email)->send(new AlertMail($a, $user->name));
                         }
                     }
                 }
             }
+            // save last evaluated date
+            $r->last_calculated_at = $alert_rule_calc_date;
+            $r->save();
         }
-        // save last evaluated date
-        $r->last_calculated_at = $alert_rule_calc_date;
-        $r->save();
 
         return $alert_count;
     }
@@ -239,7 +242,7 @@ class AlertRule extends Model
         $now        = new Moment(); // UTC
         $now_month  = $now->getMonth();
         $now_hour   = $now->getHour();
-        $alertRules = AlertRule::where('active', 1)->where('default_rule', 0)->where('user_id', '!=', null)->orderBy('last_calculated_at')->get();
+        $alertRules = AlertRule::where('active', 1)->where('default_rule', 0)->where('user_id', '!=', null)->orderBy('last_evaluated_at')->get();
 
         foreach ($alertRules as $r) 
         {
@@ -256,9 +259,9 @@ class AlertRule extends Model
             
             // exclude parsing of rules
             $min_ago = 0;
-            if (isset($r->last_calculated_at))
+            if (isset($r->last_evaluated_at))
             {
-                $min_ago = -1 * $now->from($r->last_calculated_at)->getMinutes();
+                $min_ago = -1 * $now->from($r->last_evaluated_at)->getMinutes();
                 if ($min_ago < $r->calculation_minutes)
                     continue;
             }
@@ -269,8 +272,6 @@ class AlertRule extends Model
             if (isset($r->exclude_hours) && in_array($now_hour, $r->exclude_hours))
                 continue;
 
-            Log::debug($r->name.' parsing, last calculated '.$min_ago.' min ago');
-
             // define calculation
             $user_id     = $r->user_id;
             $user        = User::find($user_id);
@@ -278,6 +279,8 @@ class AlertRule extends Model
                 continue;
 
             $user_devices= $user->allDevices()->get();
+
+            Log::debug($r->id.' '.$r->name.' last evaluated '.$min_ago.' min ago, parsing user '.$user_id.': '.count($user_devices).' devices');
 
             foreach ($user_devices as $d) 
                 $alertCount += $r->evaluateDeviceAlerts($d);

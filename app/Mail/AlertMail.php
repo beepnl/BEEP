@@ -10,7 +10,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Auth;
 use App\Alert;
 
-class Alert extends Mailable
+class AlertMail extends Mailable
 {
     use Queueable, SerializesModels;
 

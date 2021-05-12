@@ -10,7 +10,7 @@ use App\Models\Alert;
 use Moment\Moment;
 
 use Mail;
-use App\Mail\Alert as AlertMail;
+use App\Mail\AlertMail;
 
 class AlertRule extends Model
 {

@@ -125,6 +125,24 @@ influx
 **NB: Make sure to pass the user and credentials to the .env file that has been created in step 3.**
 **NB: If your Influx version was < 1.1.x (no TSI support), when using backups to transfer data: first install the old version that you are currently using on a new server, import the backups, then update to the newest Influx version!**
 
+### Upgrade v1.7.3 db to InfluxDB Cloud
+
+- https://docs.influxdata.com/influxdb/cloud/upgrade/v1-to-cloud/
+- NB: If you have inlfux already installed, use ```./influx``` for the commands from inside the installation folder
+
+```
+wget https://dl.influxdata.com/influxdb/releases/influxdb2-client-2.0.6-linux-amd64.tar.gz
+tar xvfz influxdb2-client-2.0.6-linux-amd64.tar.gz
+cd influxdb2-client-2.0.6-linux-amd64
+./influx config create --config-name beep-cloud-test --host-url https://eu-central-1-1.aws.cloud2.influxdata.com --org [your-email] --token [copy-from-influx-cloud] --active
+./influx v1 dbrp create --db [influx-v1-db-name] --rp autogen --bucket-id [copy-from-influx-cloud] --default
+sudo influx_inspect export -datadir /var/lib/influxdb/data -waldir /var/lib/influxdb/wal -database test_beep_nl -retention autogen -start 2021-01-01T00:00:00Z -end 2022-01-01T00:00:00Z -out test_beep_nl_temp.lp
+tail -n +4 test_beep_nl_temp.lp > test_beep_nl.lp
+./influx write --bucket [copy-from-influx-cloud] --file test_beep_nl.lp --rate-limit "300 MB / 5 min" --skipRowOnError
+```
+
+
+
 ## 6. If you would like to easily deploy your fork (or this repo), 
 
 a. Make sure to add your repo to git remote: ```git remote set url https://github.com/beepnl/BEEP.git```

@@ -191,13 +191,9 @@ class AlertRule extends Model
             // check if alert should be made
             if ($evaluation_count >= $r->alert_on_occurences)
             {
-                // check if same alert was created at last evaluation of this alert_rule
-                $check_date = $r->last_calculated_at;
-                $check_alert= $u->alerts()->where('alert_rule_id', $r->id)->whereDate('created_at', $check_date)->first();
-                $alert_value= implode(', ', $alert_values);
-                $alert_func = $r->readableFunction();
-                
-
+                // check if same alert was created at last alert of this alert_rule
+                $check_date   = $r->last_calculated_at;
+                $check_alert  = $d->alerts()->where('user_id', $u->id)->where('alert_rule_id', $r->id)->whereDate('created_at', $check_date)->first();
                 $create_alert = true;
 
                 if ($check_alert) // check if user already has this alert, if so, remove it if diff value if bigger
@@ -210,16 +206,23 @@ class AlertRule extends Model
                         $value_diff_old_max = max($value_diff_old_max, abs($v - $r->threshold_value));
 
                     if ($value_diff_new > $value_diff_old_max) // remove the old alert and create a new one
+                    {
+                        Log::debug(' |-- '.$r->name.' Delete previous Alert ('.$check_alert->created_at.'), v='.$check_alert->alert_value.' has lower diff: '.$value_diff_old_max.' than new ('.$value.'): '.$value_diff_new);
                         $check_alert->delete();
+                    }
                     else
+                    {
+                        Log::debug(' |-- '.$r->name.' Maintain previous Alert ('.$check_alert->created_at.'), v='.$check_alert->alert_value.' has higher diff: '.$value_diff_old_max.' than new ('.$value.'): '.$value_diff_new);
                         $create_alert = false;
+                    }
 
                 }
                 
-                Log::debug(' |-- '.$r->name.' Alert create='.($create_alert ? 'yes' : 'no').', v='.$alert_value.', f='.$alert_func.', count='.$evaluation_count);
-
                 if ($create_alert) // no previous alerts, so create
                 {
+                    $alert_value = implode(', ', $alert_values);
+                    $alert_func  = $r->readableFunction();
+                    Log::debug(' |-- '.$r->name.' Create new Alert, v='.$alert_value.', f='.$alert_func.', count='.$evaluation_count);
 
                     $a = new Alert();
                     $a->created_at     = $alert_rule_calc_date;

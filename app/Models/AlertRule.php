@@ -200,7 +200,7 @@ class AlertRule extends Model
 
                 $create_alert = true;
 
-                if ($check_alert->count() > 0) // check if user already has this alert, if so, remove it if diff value if bigger
+                if ($check_alert) // check if user already has this alert, if so, remove it if diff value if bigger
                 {
                     $value_diff_new     = abs($value - $r->threshold_value);
                     $value_diff_old_max = 0;

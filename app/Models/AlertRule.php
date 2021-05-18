@@ -111,6 +111,10 @@ class AlertRule extends Model
         $r = $this;
         $d = $device;
 
+        $alert_rule_calc_date = date('Y-m-d H:i:s');
+        $r->last_evaluated_at = $alert_rule_calc_date;
+        $r->save();
+
         if (!isset($d))
             return 0;
 
@@ -128,11 +132,8 @@ class AlertRule extends Model
         $alert_function   = '';
         $alert_values     = [];
             
-        $alert_rule_calc_date = date('Y-m-d H:i:s');
         $max_value_eval       = $diff_comp ? count($last_values) - 1 : count($last_values);
         
-        $r->last_evaluated_at = $alert_rule_calc_date;
-        $r->save();
 
         if ($max_value_eval > 0)
         {
@@ -211,7 +212,7 @@ class AlertRule extends Model
                     $a->device_name    = $d->name;
                     $a->hive_id        = $d->hive_id;
                     $a->hive_name      = $d->hive_name;
-                    $a->user_id        = $d->user_id;
+                    $a->user_id        = $r->user_id;
                     $a->save();
 
                     $alert_count++;
@@ -219,7 +220,7 @@ class AlertRule extends Model
                     if ($r->alert_via_email)
                     {
                         // Todo: send e-mail
-                        $user = User::find($d->user_id);
+                        $user = User::find($r->user_id);
                         if ($user)
                         {
                             Log::debug(' |-- '.$r->name.' Alert created, sending email to '.$user->email);
@@ -227,10 +228,10 @@ class AlertRule extends Model
                         }
                     }
                 }
+                // save last evaluated date
+                $r->last_calculated_at = $alert_rule_calc_date;
+                $r->save();
             }
-            // save last evaluated date
-            $r->last_calculated_at = $alert_rule_calc_date;
-            $r->save();
         }
 
         return $alert_count;

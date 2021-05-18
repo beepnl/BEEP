@@ -299,7 +299,7 @@ class ExportController extends Controller
             $names = $this->output_sensors;
         
         $whereDeviceTime = '("key" = \''.$device->key.'\' OR "key" = \''.strtolower($device->key).'\' OR "key" = \''.strtoupper($device->key).'\') AND time >= \''.$start.'\' AND time < \''.$end.'\'';
-        $queryList       = Device::getAvailableSensorNamesFromData($names, 'sensors', $whereDeviceTime, '', true); // ($names, $table, $where, $limit='', $output_sensors_only=true)
+        $queryList       = Device::getAvailableSensorNamesFromData($names, 'sensors', $whereDeviceTime, true); // ($names, $table, $where, $limit='', $output_sensors_only=true)
 
         if (isset($queryList) && gettype($queryList) == 'array' && count($queryList) > 0)
                 $groupBySelect = implode(', ', $queryList);

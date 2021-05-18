@@ -110,6 +110,10 @@ class AlertRule extends Model
     {
         $r = $this;
         $d = $device;
+        $u = User::find($r->user_id);
+
+        if (!isset($u))
+            return 0;
 
         $alert_rule_calc_date = date('Y-m-d H:i:s');
         $r->last_evaluated_at = $alert_rule_calc_date;
@@ -189,14 +193,32 @@ class AlertRule extends Model
             {
                 // check if same alert was created at last evaluation of this alert_rule
                 $check_date = $r->last_calculated_at;
-                $check_alert= $d->alerts()->where('alert_rule_id', $r->id)->whereDate('created_at', $check_date)->count();
+                $check_alert= $u->alerts()->where('alert_rule_id', $r->id)->whereDate('created_at', $check_date)->first();
                 $alert_value= implode(', ', $alert_values);
                 $alert_func = $r->readableFunction();
                 
-                Log::debug(' |-- '.$r->name.' Alert create='.($check_alert == 0 ? 'yes' : 'no').', v='.$alert_value.', f='.$alert_func.', count='.$evaluation_count);
 
+                $create_alert = true;
 
-                if ($check_alert == 0) // no previous alerts, so create
+                if ($check_alert->count() > 0) // check if user already has this alert, if so, remove it if diff value if bigger
+                {
+                    $value_diff_new     = abs($value - $r->threshold_value);
+                    $value_diff_old_max = 0;
+                    
+                    $check_alert_values = explode(', ', $check_alert->alert_value);
+                    foreach ($check_alert_values as $v)
+                        $value_diff_old_max = max($value_diff_old_max, abs($v - $r->threshold_value);
+
+                    if ($value_diff_new > $value_diff_old_max) // remove the old alert and create a new one
+                        $check_alert->delete();
+                    else
+                        $create_alert = false;
+
+                }
+                
+                Log::debug(' |-- '.$r->name.' Alert create='.($create_alert ? 'yes' : 'no').', v='.$alert_value.', f='.$alert_func.', count='.$evaluation_count);
+
+                if ($create_alert) // no previous alerts, so create
                 {
 
                     $a = new Alert();
@@ -212,7 +234,7 @@ class AlertRule extends Model
                     $a->device_name    = $d->name;
                     $a->hive_id        = $d->hive_id;
                     $a->hive_name      = $d->hive_name;
-                    $a->user_id        = $r->user_id;
+                    $a->user_id        = $u->id;
                     $a->save();
 
                     $alert_count++;
@@ -220,12 +242,8 @@ class AlertRule extends Model
                     if ($r->alert_via_email)
                     {
                         // Todo: send e-mail
-                        $user = User::find($r->user_id);
-                        if ($user)
-                        {
-                            Log::debug(' |-- '.$r->name.' Alert created, sending email to '.$user->email);
-                            Mail::to($user->email)->send(new AlertMail($a, $user->name));
-                        }
+                        Log::debug(' |-- '.$r->name.' Alert created, sending email to '.$u->email);
+                        Mail::to($u->email)->send(new AlertMail($a, $u->name));
                     }
                 }
                 // save last evaluated date

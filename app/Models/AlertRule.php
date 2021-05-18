@@ -207,7 +207,7 @@ class AlertRule extends Model
                     
                     $check_alert_values = explode(', ', $check_alert->alert_value);
                     foreach ($check_alert_values as $v)
-                        $value_diff_old_max = max($value_diff_old_max, abs($v - $r->threshold_value);
+                        $value_diff_old_max = max($value_diff_old_max, abs($v - $r->threshold_value));
 
                     if ($value_diff_new > $value_diff_old_max) // remove the old alert and create a new one
                         $check_alert->delete();

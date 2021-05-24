@@ -125,7 +125,7 @@ influx
 **NB: Make sure to pass the user and credentials to the .env file that has been created in step 3.**
 **NB: If your Influx version was < 1.1.x (no TSI support), when using backups to transfer data: first install the old version that you are currently using on a new server, import the backups, then update to the newest Influx version!**
 
-### Upgrade v1.7.3 db to InfluxDB Cloud
+### Upgrade Influx v1.7.3 db to managed InfluxDB Cloud
 
 - https://docs.influxdata.com/influxdb/cloud/upgrade/v1-to-cloud/
 - NB: If you have inlfux already installed, use ```./influx``` for the commands from inside the installation folder

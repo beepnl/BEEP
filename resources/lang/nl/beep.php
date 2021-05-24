@@ -39,4 +39,20 @@ return [
     'calibration'       => 'calibratie',
     'SensorDefinition'  => 'Sensordefinitie',
     'SampleCode'        => 'Sample code',
+
+    'Alert'             => 'Alarm',
+    'Alerts'            => 'Alarmen',
+    'AlertRule'         => 'Alarmregel',
+    'AlertRules'        => 'Alarmregels',
+
+    'min'               => 'minimum',
+    'max'               => 'maximum',
+    'ave'               => 'gemiddelde',
+    'der'               => 'afgeleide',
+    'cnt'               => 'aantal',
+    'val'               => 'waarde',
+    'dif'               => 'verschil',
+    'abs'               => 'absolute waarde',
+    'abs_dif'           => 'absoluut verschil',
+
 ];

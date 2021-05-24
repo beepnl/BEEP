@@ -22,6 +22,10 @@ class SensorDefinitionController extends Controller
         {
             return $request->user()->devices()->findOrFail($request->input('device_id'));
         }
+        else if ($request->filled('hardware_id'))
+        {
+            return $request->user()->devices()->where('hardware_id', strtolower($request->input('hardware_id')))->first();
+        }
         else if ($request->filled('device_hardware_id'))
         {
             return $request->user()->devices()->where('hardware_id', strtolower($request->input('device_hardware_id')))->first();
@@ -101,7 +105,7 @@ class SensorDefinitionController extends Controller
             }
             else
             {
-                $sensordefinitions = $device->sensorDefinitions->sortByDesc('updated_at')->values();
+                $sensordefinitions = $device->sensorDefinitions->sortBy('updated_at')->values(); // Bugfix iOS app: sort by Asc to get last in iOS app. 
             }
 
             if ($sensordefinitions)

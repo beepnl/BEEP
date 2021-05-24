@@ -8,6 +8,7 @@ use Excel;
 use Response;
 use Storage;
 use Mail;
+use App\Device;
 use App\Setting;
 use App\Hive;
 use App\User;
@@ -25,6 +26,17 @@ use Moment\Moment;
  */
 class ExportController extends Controller
 {
+    protected $valid_sensors  = [];
+    protected $output_sensors = [];
+
+    public function __construct()
+    {
+        $this->valid_sensors  = Measurement::all()->pluck('pq', 'abbreviation')->toArray();
+        $this->output_sensors = Measurement::where('show_in_charts', '=', 1)->pluck('abbreviation')->toArray();
+        $this->client         = new \Influx;
+        //die(print_r($this->valid_sensors));
+    }
+
     public function all(Request $request)
     {
         $fileType = $request->filled('fileFormat') ? $request->input('fileFormat') : 'xlsx';
@@ -258,9 +270,8 @@ class ExportController extends Controller
         $start        = $request->input('start');
         $end          = $request->input('end');
         $separator    = $request->input('separator', ';');
-        $measurements = $request->input('measurements', '*');
+        $measurements = $request->input('measurements', null);
         $device       = $request->user()->allDevices()->find($device_id);
-
 
         if ($device == null)
             return Response::json('invalid-user-device', 500);
@@ -269,16 +280,23 @@ class ExportController extends Controller
 
         $options= ['precision'=>'rfc3339', 'format'=>'csv'];
         
-        if ($measurements == null || $measurements == '' || $measurements === '*')
-            $sensor_measurements = '*';
+        if (isset($measurements) && gettype($measurements) == 'array' && count($measurements) > 0)
+            $names = $measurements;
         else
-            $sensor_measurements = '"'.implode('","',$measurements).'"';
+            $names = $this->output_sensors;
+        
+        $whereDeviceTime = '("key" = \''.$device->key.'\' OR "key" = \''.strtolower($device->key).'\' OR "key" = \''.strtoupper($device->key).'\') AND time >= \''.$start.'\' AND time < \''.$end.'\'';
+        $queryList       = Device::getAvailableSensorNamesFromData($names, 'sensors', $whereDeviceTime, true); // ($names, $table, $where, $limit='', $output_sensors_only=true)
 
-        $query = 'SELECT '.$sensor_measurements.' FROM "sensors" WHERE ("key" = \''.$device->key.'\' OR "key" = \''.strtolower($device->key).'\' OR "key" = \''.strtoupper($device->key).'\') AND time >= \''.$start.'\' AND time < \''.$end.'\'';
+        if (isset($queryList) && gettype($queryList) == 'array' && count($queryList) > 0)
+                $groupBySelect = implode(', ', $queryList);
+            else 
+                $groupBySelect = '"'.implode('","',$names).'"';
+
+        $query = 'SELECT '.$groupBySelect.' FROM "sensors" WHERE '.$whereDeviceTime.' '.$groupByResolution;
         
         try{
-            $client = new \Influx; 
-            $data   = $client::query($query, $options)->getPoints(); // get first sensor date
+            $data   = $this->client::query($query, $options)->getPoints(); // get first sensor date
         } catch (InfluxDB\Exception $e) {
             return Response::json('influx-query-error: '.$query, 500);
         }
@@ -288,8 +306,7 @@ class ExportController extends Controller
 
         // format CSV header row: time, sensor1 (unit2), sensor2 (unit2), etc. Excluse the 'sensor' and 'key' columns
         $csv_file = "";
-
-        $csv_sens = array_diff(array_keys($data[0]),["sensor","key"]);
+        $csv_sens = array_keys($data[0]);
         $csv_head = [];
         foreach ($csv_sens as $sensor_name) 
         {
@@ -302,7 +319,7 @@ class ExportController extends Controller
         $csv_body = [];
         foreach ($data as $sensor_values) 
         {
-            $csv_body[] = implode($separator, array_diff_key($sensor_values,["sensor"=>0,"key"=>0]));
+            $csv_body[] = implode($separator, $sensor_values);
         }
         $csv_file = $csv_head.implode("\r\n", $csv_body);
 

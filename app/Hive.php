@@ -113,8 +113,9 @@ class Hive extends Model
 
     public function getEditableAttribute()
     {
-        if ($this->getOwnerAttribute())
-            return true;
+        // removed editable for owner, because this is already implied in ownership
+        // if ($this->getOwnerAttribute())
+        //     return true;
         
         $user_editable_hive_ids = Auth::user()->groupHives(true)->pluck('id')->toArray();
         return in_array($this->id, $user_editable_hive_ids);
@@ -210,4 +211,5 @@ class Hive extends Model
     {
         return Hive::orderBy('name')->pluck('name','id');
     }
+
 }

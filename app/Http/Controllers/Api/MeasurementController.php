@@ -121,6 +121,7 @@ class MeasurementController extends Controller
             $values = $result->getPoints();
             //die(print_r($values));
             $output = $limit == 1 ? $values[0] : $values;
+            $output = array_filter($output, function($value) { return !is_null($value) && $value !== ''; });
         }
         catch(\Exception $e)
         {
@@ -281,7 +282,7 @@ class MeasurementController extends Controller
             $measurement = Measurement::where('abbreviation',$abbr)->first();
             if ($measurement)
             {
-                $sensor_def = $device->sensorDefinitions->where('input_measurement_id', $measurement->id)->last();
+                $sensor_def = $device->sensorDefinitions->where('input_measurement_id', $measurement->id)->last(); // be aware that last() gets the last value of the ASCENDING list
 
                 if ($sensor_def)
                 {
@@ -336,44 +337,7 @@ class MeasurementController extends Controller
         }
     }
 
-    private function getAvailableSensorNamesFromData($names, $table, $where, $limit='', $output_sensors_only=true, $output_group_by=false)
-    {
-        $out           = [];
-        $valid_sensors = $output_sensors_only ? $this->output_sensors : array_keys($this->valid_sensors);
-        $options       = ['precision'=> $this->precision];
-        
-        //die(print_r([$names, $valid_sensors]));
-
-        for ($i = 0; $i < count($names); $i++) 
-        {
-            $name = $names[$i];
-            if (in_array($name, $valid_sensors))
-            {
-                $sensors = [];
-                $query = 'SELECT COUNT("'.$name.'") AS "count" FROM "'.$table.'" WHERE '.$where.' '.$limit;
-                try{
-                    $result  = $this->client::query($query, $options);
-                    $sensors = $result->getPoints();
-                } catch (InfluxDB\Exception $e) {
-                    // return Response::json('influx-group-by-query-error', 500);
-                }
-                if (count($sensors) > 0 && $sensors[0]['count'] > 0)
-                    $out[] = $name;
-            }
-        }
-
-        if ($output_group_by)
-        {
-            foreach ($out as $i => $name) 
-                $out[$i] = 'MEAN("'.$name.'") AS "'.$name.'"';
-                
-            $out = implode(', ', $queryList);
-        }
-
-        return $out;
-    }
-
-
+    
     public function sensor_measurement_types_available(Request $request)
     {
         $device_id           = $request->input('device_id');
@@ -393,7 +357,7 @@ class MeasurementController extends Controller
             $sensors             = $request->input('sensors', $this->output_sensors);
             $where               = '("key" = \''.$device->key.'\' OR "key" = \''.strtolower($device->key).'\' OR "key" = \''.strtoupper($device->key).'\') AND time >= \''.$startString.'\' AND time <= \''.$endString.'\'';
 
-            $sensor_measurements = $this->getAvailableSensorNamesFromData($sensors, 'sensors', $where, '', false);
+            $sensor_measurements = Device::getAvailableSensorNamesFromData($sensors, 'sensors', $where, false);
             //die(print_r([$device->name, $device->key]));
             if ($sensor_measurements)
             {
@@ -1369,7 +1333,7 @@ class MeasurementController extends Controller
             if ($device)
             {
                 $groupByResolution = 'GROUP BY time('.$resolution.') fill(null)';
-                $queryList         = $this->getAvailableSensorNamesFromData($names, 'sensors', '("key" = \''.$device->key.'\' OR "key" = \''.strtolower($device->key).'\' OR "key" = \''.strtoupper($device->key).'\') AND time >= \''.$staTimestampString.'\' AND time <= \''.$endTimestampString.'\'', $limit, true);
+                $queryList         = Device::getAvailableSensorNamesFromData($names, 'sensors', '("key" = \''.$device->key.'\' OR "key" = \''.strtolower($device->key).'\' OR "key" = \''.strtoupper($device->key).'\') AND time >= \''.$staTimestampString.'\' AND time <= \''.$endTimestampString.'\'', true);
 
                 foreach ($queryList as $i => $name) 
                     $queryList[$i] = 'MEAN("'.$name.'") AS "'.$name.'"';
@@ -1379,7 +1343,7 @@ class MeasurementController extends Controller
             // Add weather
             if ($location && isset($location->coordinate_lat) && isset($location->coordinate_lon))
             {
-                $queryListWeather     = $this->getAvailableSensorNamesFromData($names, 'weather', '"lat" = \''.$location->coordinate_lat.'\' AND "lon" = \''.$location->coordinate_lon.'\' AND time >= \''.$staTimestampString.'\' AND time <= \''.$endTimestampString.'\'', $limit, true);
+                $queryListWeather   = Device::getAvailableSensorNamesFromData($names, 'weather', '"lat" = \''.$location->coordinate_lat.'\' AND "lon" = \''.$location->coordinate_lon.'\' AND time >= \''.$staTimestampString.'\' AND time <= \''.$endTimestampString.'\'', true);
                 
                 foreach ($queryListWeather as $i => $name) 
                     $queryListWeather[$i] = 'MEAN("'.$name.'") AS "'.$name.'"';

@@ -181,7 +181,7 @@ d. Go to ```api.[your_domain]/admin``` to log in with the same credentials that 
 e. You should see the back-end dashboard, looking like this:
 
 ## Management interface
-![BEEP Management interface](https://github.com/beepnl/BEEP/blob/bob-additions/BEEP-management-interface.png)
+![BEEP Management interface](https://github.com/beepnl/BEEP/raw/master/BEEP-management-interface.png)
 
 
 # Installation using docker compose
@@ -214,17 +214,17 @@ As the setup is based on docker containers, code changes inside the repository w
 
 Thank you for considering contributing to the BEEP framework! If you would like to contribute, please fork this repository, edit on your Github account, and finally send Pull Requests to this repository to include new features.
 
+Please request access to our slack community at https://beep-global.slack.com if you would like to know more, or cooperate.
+
 ## Adding a language
 
 1. Create a Beep user account at https://app.beep.nl/#!/login/create
 2. Fork this repo
-3. Send an e-mail to info@beep.nl with you user e-mail address, asking to become a translator for a certain language
+3. Send an e-mail to support@beep.nl with you user e-mail address, asking to become a translator for a certain language
 4. Log into the backend to start translating
 
 
 # Roadmap
-
-Please request access to https://trello.com/b/Eb3CcKES/beep-hive-check-app if you would like to see the roadmap and cooperate.
 
 ### In short on our roadmap:
 Upcoming:
@@ -266,10 +266,12 @@ History:
 
 Documentation and manual of the app can be found at https://beep.nl/beep-app. 
 
+API documentation of the BEEP API can be found at https://api.beep.nl/docs/.
+
 
 # Security Vulnerabilities
 
-If you discover a security vulnerability within BEEP, please send an e-mail to beep@iconize.nl.
+If you discover a security vulnerability within BEEP, please send an e-mail to support@beep.nl.
 
 # License
 

@@ -125,6 +125,23 @@ influx
 **NB: Make sure to pass the user and credentials to the .env file that has been created in step 3.**
 **NB: If your Influx version was < 1.1.x (no TSI support), when using backups to transfer data: first install the old version that you are currently using on a new server, import the backups, then update to the newest Influx version!**
 
+### Upgrade Influx v1.7.3 db to managed InfluxDB Cloud
+
+- https://docs.influxdata.com/influxdb/cloud/upgrade/v1-to-cloud/
+- NB: If you have inlfux already installed, use ```./influx``` for the commands from inside the installation folder
+
+```
+wget https://dl.influxdata.com/influxdb/releases/influxdb2-client-2.0.6-linux-amd64.tar.gz
+tar xvfz influxdb2-client-2.0.6-linux-amd64.tar.gz
+cd influxdb2-client-2.0.6-linux-amd64
+./influx config create --config-name beep-cloud-test --host-url https://eu-central-1-1.aws.cloud2.influxdata.com --org [your-email] --token [copy-from-influx-cloud] --active
+./influx v1 dbrp create --db [influx-v1-db-name] --rp autogen --bucket-id [copy-from-influx-cloud] --default
+sudo influx_inspect export -datadir /var/lib/influxdb/data -waldir /var/lib/influxdb/wal -database test_beep_nl -retention autogen -start 2021-01-01T00:00:00Z -end 2022-01-01T00:00:00Z -out test_beep_nl_temp.lp
+tail -n +4 test_beep_nl_temp.lp > test_beep_nl.lp
+./influx write --bucket [copy-from-influx-cloud] --file test_beep_nl.lp --rate-limit "300 MB / 5 min" --skipRowOnError
+```
+
+
 ## 6. If you would like to easily deploy your fork (or this repo), 
 
 a. Make sure to add your repo to git remote: ```git remote set url https://github.com/beepnl/BEEP.git```
@@ -212,15 +229,18 @@ Please request access to https://trello.com/b/Eb3CcKES/beep-hive-check-app if yo
 ### In short on our roadmap:
 Upcoming:
 
-* Many new features for health checking and sensor (2019 Q3 - 2023 Q3)
+* Many new features for health checking and sensor measurements (2019 Q3 - 2023 Q3)
 
 History:
-* App v3 - January 2020
+* App v3 (VUEjs) development - 2020-2021
+* BEEP base v3.2 - April 2021
+* App v2.2.1 - Continuous App improvements - 2020-2021
+* App v2.2 - January 2020
   * Photo addition
   * Weather data
   * Research
   * Helpdesk integration
-* BEEP base v3 (2019 Q3-Q4)
+* BEEP base v3.1 (2019 Q3-Q4)
   * See https://www.openhardware.io/view/739/BEEP-base-v3
 * App v2.1.0 - May 29 2019
   * Collaborate: Hive, data and inspection list sharing (2019 Q2)

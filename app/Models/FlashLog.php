@@ -206,17 +206,21 @@ class FlashLog extends Model
         // create Flashlog entity
         if ($save)
         {
-            if (isset($this->log_erased) == false) // first upload 
-            {
+            if (isset($this->log_size_bytes) == false) // first upload 
+                $this->log_size_bytes = $log_bytes;
+
+            if (isset($this->hive_id) == false) // first upload 
                 $this->hive_id = $device->hive_id;
+
+            if (isset($this->log_erased) == false) // first upload 
                 $this->log_erased = $erase;
+
+            if (isset($this->log_saved) == false) // first upload 
                 $this->log_saved = $saved;
-                
-            }
+            
             $this->bytes_received = $bytes;
             $this->log_has_timestamps = $logtm > 0 ? true : false;
             $this->log_parsed = $parsed;
-            $this->log_size_bytes = $log_bytes;
             $this->log_messages = $messages;
             $this->log_file_stripped = $f_str;
             $this->log_file_parsed = $f_par;

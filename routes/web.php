@@ -101,6 +101,7 @@ Route::group(
 				Route::resource('measurement', 		'MeasurementController');
 				Route::resource('sensordefinition' ,'SensorDefinitionController');
 				Route::resource('flash-log', 		'FlashLogController');
+				Route::get('flash-log/parse/{id}',		['as'=>'flash-log.parse','uses'=>'FlashLogController@parse']);
 
 				// Create new research
 				Route::get('research/create',		['as'=>'research.create','uses'=>'ResearchController@create']);

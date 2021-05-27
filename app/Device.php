@@ -97,6 +97,20 @@ class Device extends Model
         return $list_out;
     }
 
+    public static function getInfluxQuery($query)
+    {
+        $client  = new \Influx;
+        $options = ['precision'=> 's'];
+        $values  = [];
+        try{
+            $result  = $client::query($query, $options);
+            $values  = $result->getPoints();
+        } catch (InfluxDB\Exception $e) {
+            // return Response::json('influx-group-by-query-error', 500);
+        }
+        return $values;
+    }
+
     public static function getAvailableSensorNamesFromData($names, $table, $where, $output_sensors_only=true)
     {
         //die(print_r([$names, $valid_sensors]));
@@ -107,16 +121,7 @@ class Device extends Model
         $out           = [];
         $valid_sensors = $output_sensors_only ? $output_sensors : array_keys($valid_sensors);
         $valid_sensors = array_intersect($valid_sensors, $names);
-        $options       = ['precision'=> 's'];
-        
-        $query         = 'SELECT * FROM "'.$table.'" WHERE '.$where.' GROUP BY "name,time" ORDER BY time DESC LIMIT 1';
-
-        try{
-            $result  = $client::query($query, $options);
-            $values  = $result->getPoints();
-        } catch (InfluxDB\Exception $e) {
-            // return Response::json('influx-group-by-query-error', 500);
-        }
+        $values        = Device::getInfluxQuery('SELECT * FROM "'.$table.'" WHERE '.$where.' GROUP BY "name,time" ORDER BY time DESC LIMIT 1');
 
         if (count($values) > 0)
             $sensors = $values[0];

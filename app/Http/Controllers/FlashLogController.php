@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 
 use App\Models\FlashLog;
 use Illuminate\Http\Request;
+use Storage;
 
 class FlashLogController extends Controller
 {
@@ -18,7 +19,7 @@ class FlashLogController extends Controller
     public function index(Request $request)
     {
         $keyword = $request->get('search');
-        $perPage = 25;
+        $perPage = 500;
 
         if (!empty($keyword)) {
             $flashlog = FlashLog::where('user_id', 'LIKE', "%$keyword%")
@@ -80,6 +81,42 @@ class FlashLogController extends Controller
         $flashlog = FlashLog::findOrFail($id);
 
         return view('flash-log.show', compact('flashlog'));
+    }
+
+    /**
+     * Re-parse the specified flashlog.
+     *
+     * @param  int  $id
+     *
+     * @return \Illuminate\View\View
+     */
+    public function parse($id)
+    {
+        $flashlog = FlashLog::findOrFail($id);
+        $disk     = env('FLASHLOG_STORAGE', 'public');
+        $out      = [];
+        if(isset($flashlog->log_file))
+        {
+            $file = 'flashlog/'.last(explode('/',$flashlog->log_file));
+            //die(print_r($file));
+            if (Storage::disk($disk)->exists($file))
+            {
+                $data = Storage::disk($disk)->get($file);
+                $res  = $flashlog->log($data, null, true, true);
+                foreach ($res as $key => $value) {
+                    $out[] = $key.'='.$value; 
+                }
+            }
+            else
+            {
+                return redirect('flash-log')->with('error', 'Flashlog file \''.$flashlog->log_file.'\' not found');
+            }
+        }
+        else
+        {
+            return redirect('flash-log')->with('error', 'No flashlog file present, nothing to parse');
+        }
+        return redirect('flash-log')->with('success', 'FlashLog parsed again: '.implode(', ',$out));
     }
 
     /**

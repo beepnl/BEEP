@@ -1,5 +1,5 @@
 <?php
-namespace App\Http\Controllers\Api;
+namespace App\Traits;
 
 /**
  * @group Api\MeasurementLoRaDecoderTrait
@@ -45,10 +45,10 @@ trait MeasurementLoRaDecoderTrait
         $payload= substr($flashlog_line, 4);
 
         $parsed = $this->decode_beep_payload($payload, $port);
-
+        $parsed['port'] = $port;
+        
         if ($show)
         {
-            $parsed['port']    = $port;
             $parsed['len']     = $length;
             $parsed['pl']      = $payload;
             $parsed['pl_bytes']= strlen($payload)/2;

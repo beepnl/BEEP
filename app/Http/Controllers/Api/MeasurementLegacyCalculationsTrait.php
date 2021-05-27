@@ -11,9 +11,6 @@ use App\Measurement;
 use Validator;
 use InfluxDB;
 use Response;
-use Moment\Moment;
-use League\Fractal;
-use App\Http\Requests\PostSensorRequest;
 
 /**
  * @group Api\MeasurementLegacyCalculationsTrait

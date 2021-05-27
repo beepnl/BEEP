@@ -157,8 +157,14 @@ trait MeasurementLoRaDecoderTrait
                 if (($port == 3 && substr($pu, 0, 2) == '1B') || ($port == 4 && substr($pu, 2, 2) == '1B'))  // BEEP base fw 1.2.0+ measurement message, and alarm message
                 {
                     $out['beep_base'] = true;
-                    //              1B 0C 1B 0C 0E 64  0A 01 FF F6 98  04 02 0A D7 0A DD  0C 0A 00 FF 00 58 00 12 00 10 00 0C 00 0D 00 0A 00 0A 00 09 00 08 00 07  07 00 00 00 00 00 00
-                    // pl incl fft: 1B 0D 15 0D 0A 64  0A 01 00 00 93  04 00              0C 0A 00 FF 00 20 00 05 00 0C 00 03 00 05 00 09 00 04 00 11 00 06 00 02  07 00 00 00 00 00 00
+
+                    // Flashlog:    1B 0D 2D 0D 2F 64  0A001 0F D2 1D 04 02 07 7E 06 2D  0C 0A 00 FF 00 6C 00 18 00 28 00 0E 00 0B 00 0A 00 0B 00 1B 00 0A 00 07  07 00 00 00 00 00 00 0A
+                    // Flashlog:    1B 0D 2A 0D 1C 64  0A001 13 8A CB 04 02 0D 99 06 07  0C 0A 09 46 00 C9 01 67 00 30 00 6F 00 87 00 49 00 67 00 2C 00 23 00 0C  07 00 00 00 00 00 00 0A
+                    // Flashlog:    1B 0D 21 0D 1B 64  0A001 13 8B 09 04 02 0D 93 05 EE  
+                    // Flashlog:    1B 0D 67 0D 59 64  0A001 FF FB EB 04 01 08 34        0C 0A 09 46 00 0C 00 07 00 06 00 04 00 02 00 03 00 03 00 02 00 03 00 00  07 00 00 00 00 00 00 25 60 AD 41 03 0A
+                    
+                    // LoRa:        1B 0C 1B 0C 0E 64  0A 01 FF F6 98  04 02 0A D7 0A DD  0C 0A 00 FF 00 58 00 12 00 10 00 0C 00 0D 00 0A 00 0A 00 09 00 08 00 07  07 00 00 00 00 00 00
+                    // pl incl fft: 1B 0D 15 0D 0A 64  0A 01 00 00 93  04 00              0C 0A 00 FF 00 20 00 05 00 0C 00 03 00 05 00 09 00 04 00 11 00 06 00 02  07 00 00 00 00 00 00
                     //              0  1  2  3  4  5   6  7  8  9  10  11 12              13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36  37 38 39 40 41 42 43
                     //              0  2  4  6  8  10  12 14 16 18 20  22 24              26 28 30 32 34 36 38 40 42 44 46 48 50 52 54 56 58 60 62 64 66 68 70 72  74 76 78 80 82 84 86
                     //                 Batt            Weight          Temp               FFT                                                                      BME280
@@ -179,6 +185,20 @@ trait MeasurementLoRaDecoderTrait
                     $out['weight_sensor_amount'] = $weight_amount;
                     $weight_val_len  = $weight_amount * 6;
                     
+                    // fix Flashlog extra 0 error by removing it from the payload: 0A001 -> 0A01
+                    if ($weight_amount == 0 && substr($pu, $sb, 5) == '0A001')
+                    {
+                        $replace_index      = $sb+3; // 0A 0 01 -> 0A 01
+                        $p                  = substr_replace($p,                  '', $replace_index, 1);
+                        $pu                 = substr_replace($pu,                 '', $replace_index, 1);
+                        $payload            = substr_replace($payload,            '', $replace_index, 1);
+                        $out['payload_hex'] = substr_replace($out['payload_hex'], '', $replace_index, 1);
+                        // update weight amount
+                        $weight_amount   = hexdec(substr($p, $sb+2, 2));
+                        $out['weight_sensor_amount'] = $weight_amount;
+                        $weight_val_len  = $weight_amount * 6;
+                    }
+
                     if (substr($pu, $sb, 2) == '0A')
                     {
                         if ($weight_amount > 0 && $weight_amount < 3)
@@ -194,10 +214,6 @@ trait MeasurementLoRaDecoderTrait
                                     $out['w_v_'.$i] = hexdec(substr($p, $sb+4+($i*6), 6));
                                 }
                             }
-                        }
-                        else if ($weight_amount == 0)
-                        {
-                            $weight_val_len = 7;
                         }
                     }
                     else

@@ -293,7 +293,7 @@ class ExportController extends Controller
             else 
                 $groupBySelect = '"'.implode('","',$names).'"';
 
-        $query = 'SELECT '.$groupBySelect.' FROM "sensors" WHERE '.$whereDeviceTime.' '.$groupByResolution;
+        $query = 'SELECT '.$groupBySelect.' FROM "sensors" WHERE '.$whereDeviceTime;
         
         try{
             $data   = $this->client::query($query, $options)->getPoints(); // get first sensor date

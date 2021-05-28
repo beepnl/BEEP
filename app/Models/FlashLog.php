@@ -265,7 +265,7 @@ class FlashLog extends Model
     {
         $matches     = [];
         $device      = Device::find($device_id);
-        $query       = 'SELECT * FROM "sensors" WHERE ("key" = \''.$device->key.'\' OR "key" = \''.strtolower($device->key).'\' OR "key" = \''.strtoupper($device->key).'\') AND time > \''.$start_time.'\' ORDER BY time ASC LIMIT '.max(1, $db_records);
+        $query       = 'SELECT * FROM "sensors" WHERE ("key" = \''.$device->key.'\' OR "key" = \''.strtolower($device->key).'\' OR "key" = \''.strtoupper($device->key).'\') AND time > \''.$start_time.'\' ORDER BY time ASC LIMIT '.min(100, max(1, $db_records));
         $db_data     = Device::getInfluxQuery($query);
         $fl_index    = $start_index;
         $fl_index_end= $end_index;
@@ -440,7 +440,7 @@ class FlashLog extends Model
                     $db_time   = $db_moment->addMinutes(round($duration_min/2))->format($this->timeFormat);
                 }
 
-                $db_max  = max($db_records, $indexes, 1);
+                $db_max  = max(1, min($db_records, $indexes));
                 $matches = $this->matchFlashLogTime($device_id, $flashlog, $matches_min, $match_props, $start_index, $end_index, $db_time, $db_max);
                 
                 if (count($matches) > 0)

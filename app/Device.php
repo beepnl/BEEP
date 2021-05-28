@@ -97,7 +97,7 @@ class Device extends Model
         return $list_out;
     }
 
-    public static function getAvailableSensorNamesFromData($names, $table, $where, $output_sensors_only=true)
+    public static function getAvailableSensorNamesFromData($names, $where, $table='sensors', $output_sensors_only=true)
     {
         //die(print_r([$names, $valid_sensors]));
         $client         = new \Influx;
@@ -109,7 +109,14 @@ class Device extends Model
         $valid_sensors = array_intersect($valid_sensors, $names);
         $options       = ['precision'=> 's'];
         
-        $query         = 'SELECT * FROM "'.$table.'" WHERE '.$where.' GROUP BY "name,time" ORDER BY time DESC LIMIT 1';
+        $fields = [];
+        foreach ($valid_sensors as $field)
+        {
+            $fields[] = 'count("'.$field.'") as "'.$field.'"';
+        }
+        $valid_fields = implode(', ', $fields);
+
+        $query         = 'SELECT '.$valid_fields.' FROM "'.$table.'" WHERE '.$where.' GROUP BY "name,time" ORDER BY time DESC LIMIT 1';
 
         try{
             $result  = $client::query($query, $options);
@@ -123,12 +130,13 @@ class Device extends Model
         else
             return $out;
 
-        $sensors = array_filter($sensors, function($value) { return !is_null($value) && $value !== ''; });
+        $sensors = array_filter($sensors, function($value) { return !is_null($value) && $value !== '' && $value > 0; });
 
         $out = array_keys($sensors);
         $out = array_intersect($out, $valid_sensors);
         $out = array_values($out);
 
+        //die(print_r($out));
         return $out;
     }
 }

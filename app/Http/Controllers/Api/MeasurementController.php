@@ -357,7 +357,7 @@ class MeasurementController extends Controller
             $sensors     = $request->input('sensors', $this->output_sensors);
             $where       = '("key" = \''.$device->key.'\' OR "key" = \''.strtolower($device->key).'\' OR "key" = \''.strtoupper($device->key).'\') AND time >= \''.$startString.'\' AND time <= \''.$endString.'\'';
 
-            $sensor_measurements = Device::getAvailableSensorNamesFromData($sensors, 'sensors', $where, false);
+            $sensor_measurements = Device::getAvailableSensorNamesFromData($sensors, $where, 'sensors', false);
             //die(print_r([$device->name, $device->key]));
             if ($sensor_measurements)
             {
@@ -949,7 +949,7 @@ class MeasurementController extends Controller
             if ($device)
             {
                 $groupByResolution = 'GROUP BY time('.$resolution.') fill(null)';
-                $queryList         = Device::getAvailableSensorNamesFromData($names, 'sensors', '("key" = \''.$device->key.'\' OR "key" = \''.strtolower($device->key).'\' OR "key" = \''.strtoupper($device->key).'\') AND time >= \''.$staTimestampString.'\' AND time <= \''.$endTimestampString.'\'', true);
+                $queryList         = Device::getAvailableSensorNamesFromData($names, '("key" = \''.$device->key.'\' OR "key" = \''.strtolower($device->key).'\' OR "key" = \''.strtoupper($device->key).'\') AND time >= \''.$staTimestampString.'\' AND time <= \''.$endTimestampString.'\'');
 
                 foreach ($queryList as $i => $name) 
                     $queryList[$i] = 'MEAN("'.$name.'") AS "'.$name.'"';
@@ -959,7 +959,7 @@ class MeasurementController extends Controller
             // Add weather
             if ($location && isset($location->coordinate_lat) && isset($location->coordinate_lon))
             {
-                $queryListWeather   = Device::getAvailableSensorNamesFromData($names, 'weather', '"lat" = \''.$location->coordinate_lat.'\' AND "lon" = \''.$location->coordinate_lon.'\' AND time >= \''.$staTimestampString.'\' AND time <= \''.$endTimestampString.'\'', true);
+                $queryListWeather   = Device::getAvailableSensorNamesFromData($names, '"lat" = \''.$location->coordinate_lat.'\' AND "lon" = \''.$location->coordinate_lon.'\' AND time >= \''.$staTimestampString.'\' AND time <= \''.$endTimestampString.'\'', 'weather');
                 
                 foreach ($queryListWeather as $i => $name) 
                     $queryListWeather[$i] = 'MEAN("'.$name.'") AS "'.$name.'"';

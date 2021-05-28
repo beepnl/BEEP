@@ -286,14 +286,14 @@ class ExportController extends Controller
             $names = $this->output_sensors;
         
         $whereDeviceTime = '("key" = \''.$device->key.'\' OR "key" = \''.strtolower($device->key).'\' OR "key" = \''.strtoupper($device->key).'\') AND time >= \''.$start.'\' AND time < \''.$end.'\'';
-        $queryList       = Device::getAvailableSensorNamesFromData($names, 'sensors', $whereDeviceTime, true); // ($names, $table, $where, $limit='', $output_sensors_only=true)
+        $queryList       = Device::getAvailableSensorNamesFromData($names, $whereDeviceTime); // ($names, $table, $where, $limit='', $output_sensors_only=true)
 
         if (isset($queryList) && gettype($queryList) == 'array' && count($queryList) > 0)
                 $groupBySelect = implode(', ', $queryList);
             else 
                 $groupBySelect = '"'.implode('","',$names).'"';
 
-        $query = 'SELECT '.$groupBySelect.' FROM "sensors" WHERE '.$whereDeviceTime.' '.$groupByResolution;
+        $query = 'SELECT '.$groupBySelect.' FROM "sensors" WHERE '.$whereDeviceTime;
         
         try{
             $data   = $this->client::query($query, $options)->getPoints(); // get first sensor date

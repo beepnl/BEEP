@@ -107,85 +107,7 @@ class MeasurementController extends Controller
     }
 
     
-    private function last_sensor_values_array($device, $fields='*', $limit=1)
-    {
-        $fields = $fields != '*' ? '"'.$fields.'"' : '*';
-        $groupby= $fields == '*' || strpos(',' ,$fields) ? 'GROUP BY "name,time"' : '';
-        $output = null;
-        try
-        {
-            $client = $this->client;
-            $query  = 'SELECT '.$fields.' from "sensors" WHERE ("key" = \''.$device->key.'\' OR "key" = \''.strtolower($device->key).'\' OR "key" = \''.strtoupper($device->key).'\') AND time > now() - 365d '.$groupby.' ORDER BY time DESC LIMIT '.$limit;
-            //die(print_r($query));
-            $result = $client::query($query);
-            $values = $result->getPoints();
-            //die(print_r($values));
-            $output = $limit == 1 ? $values[0] : $values;
-            $output = array_filter($output, function($value) { return !is_null($value) && $value !== ''; });
-        }
-        catch(\Exception $e)
-        {
-            return false;
-        }
-        return $output;
-    }
-
-    private function last_sensor_measurement_time_value($device, $name)
-    {
-        $arr = $this->last_sensor_values_array($device, $name);
-
-        if ($arr && count($arr) > 0 && in_array($name, array_keys($arr)))
-            return $arr[$name];
-
-        return null;
-    }
-
-    private function last_sensor_increment_values($device, $data_array=null)
-    {
-        $output = [];
-        $limit  = 2;
-
-        if ($data_array != null)
-        {
-            $output[0] = $data_array;
-            $output[1] = $this->last_sensor_values_array($device, implode('","',array_keys($data_array)), 1);
-        }
-        else
-        {
-            $output = $this->last_sensor_values_array($device, implode('","',$this->output_sensors), $limit);
-        }
-        $out_arr= [];
-
-        if (count($output) < $limit)
-            return null;
-
-        for ($i=0; $i < $limit; $i++) 
-        { 
-            if (isset($output[$i]) && gettype($output[$i]) == 'array')
-            {
-                foreach ($output[$i] as $key => $val) 
-                {
-                    if ($val != null)
-                    {
-                        $value = $key == 'time' ? strtotime($val) : floatval($val);
-
-                        if ($i == 0) // desc array, so most recent value: $i == 0
-                        {
-                            $out_arr[$key] = $value; 
-                        }
-                        else if (isset($out_arr[$key]))
-                        {
-                            $out_arr[$key] = $out_arr[$key] - $value;
-                        }
-                    }
-                }
-            }
-        }
-        //die(print_r($out_arr));
-
-        return $out_arr; 
-    }
-
+    
 
     // requires at least ['name'=>value] to be set
     private function storeInfluxData($data_array, $dev_eui, $unix_timestamp)
@@ -226,31 +148,6 @@ class MeasurementController extends Controller
         return $stored;
     }
 
-    private function createOrUpdateDefinition($device, $abbr_in, $abbr_out, $offset=null, $multiplier=null)
-    {
-        $measurement_in  = Measurement::where('abbreviation',$abbr_in)->first();
-        $measurement_out = Measurement::where('abbreviation',$abbr_out)->first();
-
-        if ($measurement_in && $measurement_out)
-        {
-            $def = $device->sensorDefinitions->where('input_measurement_id', $measurement_in->id)->where('output_measurement_id', $measurement_out->id)->last();
-            if ($def && (isset($offset) || isset($multiplier)) ) 
-            {
-                if (isset($offset))
-                    $def->offset = $offset;
-
-                if (isset($multiplier))
-                    $def->multiplier = $multiplier;
-
-                $def->save();
-            }
-            else
-            {
-                $device->sensorDefinitions()->create(['input_measurement_id'=>$measurement_in->id, 'output_measurement_id'=>$measurement_out->id, 'offset'=>$offset, 'multiplier'=>$multiplier]);
-            }
-        }
-    }
-
     private function storeMeasurements($data_array)
     {
         if (!in_array('key', array_keys($data_array)) || $data_array['key'] == '' || $data_array['key'] == null)
@@ -276,36 +173,23 @@ class MeasurementController extends Controller
 
         unset($data_array['key']);
 
-        // New sensor data calculations
+        $time = time();
+        if (isset($data_array['time']))
+            $time = intVal($data_array['time']);
+
+        $date = date($this->timeFormat, $time); 
+
+        // New sensor data calculations based on sensor definitions
         foreach ($data_array as $abbr => $val) 
         {
-            $measurement = Measurement::where('abbreviation',$abbr)->first();
-            if ($measurement)
-            {
-                $sensor_def = $device->sensorDefinitions->where('input_measurement_id', $measurement->id)->last(); // be aware that last() gets the last value of the ASCENDING list
-
-                if ($sensor_def)
-                {
-                    $abbr_o = $sensor_def->output_abbr;
-                    $data_array[$abbr_o] = $sensor_def->calibrated_measurement_value($val);
-                }
-                else if ($abbr == 'w_v') // make new calibration values based on stored ones
-                {
-                    $influx_offset = floatval($this->last_sensor_measurement_time_value($device, $abbr.'_offset'));
-                    $influx_multi  = floatval($this->last_sensor_measurement_time_value($device, $abbr.'_kg_per_val'));
-
-                    if ($influx_offset != 0 || $influx_multi != 0)
-                        $this->createOrUpdateDefinition($device, 'w_v', 'weight_kg', $influx_offset, $influx_multi);
-                }
-            }
-            
+            $data_array = $this->addSensorDefinitionMeasurements($data_array, $val, $abbr, $device, $date);
         }
 
         // Legacy weight calculation from 2-4 load cells
         if (isset($data_array['w_fl']) || isset($data_array['w_fr']) || isset($data_array['w_bl']) || isset($data_array['w_br']) || isset($data_array['w_v'])) 
         {
             // check if calibration is required
-            $calibrate = $this->last_sensor_measurement_time_value($device, 'calibrating_weight');
+            $calibrate = $device->last_sensor_measurement_time_value('calibrating_weight');
             if (floatval($calibrate) > 0)
                 $this->calibrate_weight_sensors($device, $calibrate, false, $data_array);
 
@@ -319,11 +203,7 @@ class MeasurementController extends Controller
                 //$data_array = $this->add_weight_kg_corrected_with_temperature($device, $data_array);
             }
         }
-
-        $time = time();
-        if (isset($data_array['time']))
-            $time = intVal($data_array['time']);
-
+        
         $stored = $this->storeInfluxData($data_array, $dev_eui, $time);
         if($stored) 
         {
@@ -382,8 +262,8 @@ class MeasurementController extends Controller
     */
     public function lastvalues(Request $request)
     {
-        $sensor = $this->get_user_device($request);
-        $output = $this->last_sensor_values_array($sensor, implode('","',$this->output_sensors));
+        $device = $this->get_user_device($request);
+        $output = $device->last_sensor_values_array(implode('","',$this->output_sensors));
 
         if ($output === false)
             return Response::json('sensor-get-error', 500);

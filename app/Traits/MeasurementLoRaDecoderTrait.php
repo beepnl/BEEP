@@ -1,6 +1,7 @@
 <?php
 namespace App\Traits;
 
+use App\Measurement;
 /**
  * @group Api\MeasurementLoRaDecoderTrait
  * Measurement device LoRa payload decoding
@@ -76,6 +77,59 @@ trait MeasurementLoRaDecoderTrait
        
         // if dec value is larger than its complement we have a negative value (first bit is set)
         return $dec > $_dec ? -$_dec : $dec;
+    }
+
+    private function createOrUpdateDefinition($device, $abbr_in, $abbr_out, $offset=null, $multiplier=null)
+    {
+        $measurement_in  = Measurement::where('abbreviation',$abbr_in)->first();
+        $measurement_out = Measurement::where('abbreviation',$abbr_out)->first();
+
+        if ($measurement_in && $measurement_out)
+        {
+            $def = $device->sensorDefinitions->where('input_measurement_id', $measurement_in->id)->where('output_measurement_id', $measurement_out->id)->last();
+            if ($def && (isset($offset) || isset($multiplier)) ) 
+            {
+                if (isset($offset))
+                    $def->offset = $offset;
+
+                if (isset($multiplier))
+                    $def->multiplier = $multiplier;
+
+                $def->save();
+            }
+            else
+            {
+                $device->sensorDefinitions()->create(['input_measurement_id'=>$measurement_in->id, 'output_measurement_id'=>$measurement_out->id, 'offset'=>$offset, 'multiplier'=>$multiplier]);
+            }
+        }
+    }
+
+    private function addSensorDefinitionMeasurements($data_array, $value, $measurement_abbr, $device, $date=null)
+    {
+        $before_date = isset($date) ? $date : date('Y-m-d H:i:s'); 
+        
+        $measurement = Measurement::where('abbreviation',$measurement_abbr)->first();
+        
+        if ($measurement && $device)
+        {
+            $sensor_def = $device->sensorDefinitions->where('updated_at', '<=', $before_date)->where('input_measurement_id', $measurement->id)->last(); // be aware that last() gets the last value of the ASCENDING list
+
+            if ($sensor_def)
+            {
+                $measurement_abbr_o = $sensor_def->output_abbr;
+                $data_array[$measurement_abbr_o] = $sensor_def->calibrated_measurement_value($value);
+                //die(print_r([$date, $sensor_def->toArray(), $data_array] ));
+            }
+            else if ($measurement_abbr == 'w_v') // make new calibration values based on stored ones
+            {
+                $influx_offset = floatval($device->last_sensor_measurement_time_value($measurement_abbr.'_offset'));
+                $influx_multi  = floatval($device->last_sensor_measurement_time_value($measurement_abbr.'_kg_per_val'));
+
+                if ($influx_offset != 0 || $influx_multi != 0)
+                    $this->createOrUpdateDefinition($device, 'w_v', 'weight_kg', $influx_offset, $influx_multi);
+            }
+        }
+        return $data_array;
     }
 
     private function decode_beep_payload($payload, $port)
@@ -188,7 +242,7 @@ trait MeasurementLoRaDecoderTrait
                     // fix Flashlog extra 0 error by removing it from the payload: 0A001 -> 0A01
                     if ($weight_amount == 0 && substr($pu, $sb, 5) == '0A001')
                     {
-                        $replace_index      = $sb+3; // 0A 0 01 -> 0A 01
+                        $replace_index      = $sb+2; // 0A 0 01 -> 0A 01
                         $p                  = substr_replace($p,                  '', $replace_index, 1);
                         $pu                 = substr_replace($pu,                 '', $replace_index, 1);
                         $payload            = substr_replace($payload,            '', $replace_index, 1);

@@ -73,7 +73,7 @@ class FlashLog extends Model
         $f_par = null;
         
         $device = $this->device;
-        $sid    = $device->id; 
+        $sid    = $this->device_id; 
         $time   = date("YmdHis");
 
         if ($data)
@@ -265,7 +265,7 @@ class FlashLog extends Model
     {
         $matches     = [];
         $device      = Device::find($device_id);
-        $query       = 'SELECT * FROM "sensors" WHERE ("key" = \''.$device->key.'\' OR "key" = \''.strtolower($device->key).'\' OR "key" = \''.strtoupper($device->key).'\') AND time > \''.$start_time.'\' ORDER BY time ASC LIMIT '.min(100, max(1, $db_records));
+        $query       = 'SELECT * FROM "sensors" WHERE ("key" = \''.$device->key.'\' OR "key" = \''.strtolower($device->key).'\' OR "key" = \''.strtoupper($device->key).'\') AND time > \''.$start_time.'\' ORDER BY time ASC LIMIT '.min(100, max(10, $db_records));
         $db_data     = Device::getInfluxQuery($query);
         $fl_index    = $start_index;
         $fl_index_end= $end_index;
@@ -409,7 +409,7 @@ class FlashLog extends Model
         $out         = [];
         $matches_min = 2; // minimum amount of inline measurements that should be matched 
         $match_props = 9; // minimum amount of measurement properties that should match 
-        $db_records  = 10;
+        $db_records  = 20;
 
         if ($flashlog == null || count($flashlog) < $matches_min)
             return null;
@@ -440,8 +440,7 @@ class FlashLog extends Model
                     $db_time   = $db_moment->addMinutes(round($duration_min/2))->format($this->timeFormat);
                 }
 
-                $db_max  = max(1, min($db_records, $indexes));
-                $matches = $this->matchFlashLogTime($device_id, $flashlog, $matches_min, $match_props, $start_index, $end_index, $db_time, $db_max);
+                $matches = $this->matchFlashLogTime($device_id, $flashlog, $matches_min, $match_props, $start_index, $end_index, $db_time, $db_records);
                 
                 if (count($matches) > 0)
                 {

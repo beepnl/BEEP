@@ -74,7 +74,7 @@
                     <td col-sm-1>
                         <a href="{{ route('flash-log.show', $item->id) }}" title="{{ __('crud.show') }}"><button class="btn btn-default"><i class="fa fa-eye" aria-hidden="true"></i></button></a>
 
-                        <a href="{{ route('flash-log.parse', $item->id) }}" title="{{ __('crud.parse') }}"><button class="btn btn-info"><i class="fa fa-refresh" aria-hidden="true"></i></button></a>
+                        <a href="{{ route('flash-log.parse', $item->id) }}" title="{{ __('crud.parse') }}"><button class="btn btn-info loading-spinner" data-loading-text="<i class='fa fa-refresh fa-spin'></i>"><i class="fa fa-refresh" aria-hidden="true"></i></button></a>
                         
                         <a href="{{ route('flash-log.edit', $item->id) }}" title="{{ __('crud.edit') }}"><button class="btn btn-primary"><i class="fa fa-pencil" aria-hidden="true"></i></button></a>
 

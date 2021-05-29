@@ -94,8 +94,14 @@ class FlashLog extends Model
                 $bytes   += mb_strlen($lineData, 'utf-8')/2;
             }
             
+            // fw 1.5.9 1st port 2 log entry
+            // 0100010005000902935D7C83FFFF94540E0123A76E05A5161AEE1F0000002A03091D01000F256079A4250A 03351B0CF10CEA640A0116539504020D8C081B0C0A094600140010002C0049001A0014005A001A0033002A07000000000000256079A6270A
+            // 01000100050009029356BAA6FFFF94540E0123FA62FD38425EEE1F0000001A03091D01000F256079A25D0A 03351B0CBF0CB5640A011386550402059D0C600C0A0946005B002E0067003C0016001000160015000F000507000000000000256079A3E00A
+
+
             // Split data by 0A02 and 0A03 (0A03 30 1B) 0A0330
             $data  = preg_replace('/0A022([A-Fa-f0-9]{1})0100/', "0A\n022\${1}0100", $alldata);
+            $data  = preg_replace('/0A03351B/', "0A\n03351B", $data);
 
             // Calculate from payload parts
             //            port pl_len     |bat 5 bytes value |weight (1/2)  3/6 bytes value  |ds18b20 (0-9) 0-20 bytes value |audio (0-12 bins)   sta/sto bin     0-12 x 2 bytes   |bme280 3x 2b values|time             |delimiter
@@ -132,6 +138,7 @@ class FlashLog extends Model
             $in      = explode("\n", $data);
             $log_min = 0;
             $minute  = 0;
+            $max_time= time();
             foreach ($in as $line)
             {
                 $counter++;
@@ -153,7 +160,16 @@ class FlashLog extends Model
                 }
 
                 if (in_array('time_device', array_keys($data_array)))
+                {
                     $logtm++;
+                    $ts = intval($data_array['time_device']);
+
+                    if ($ts > 1546297200 && $ts < $max_time) // > 2019-01-01 00:00:00
+                    {
+                        $device_time = new Moment($ts);
+                        $data_array['time'] = $device_time->format($this->timeFormat);
+                    }
+                }
 
                 $out[] = $data_array;
             }
@@ -268,7 +284,7 @@ class FlashLog extends Model
     {
         $matches     = [];
         $device      = Device::find($device_id);
-        $query       = 'SELECT * FROM "sensors" WHERE ("key" = \''.$device->key.'\' OR "key" = \''.strtolower($device->key).'\' OR "key" = \''.strtoupper($device->key).'\') AND time > \''.$start_time.'\' ORDER BY time ASC LIMIT '.min(100, max(10, $db_records));
+        $query       = 'SELECT * FROM "sensors" WHERE ("key" = \''.$device->key.'\' OR "key" = \''.strtolower($device->key).'\' OR "key" = \''.strtoupper($device->key).'\') AND time >= \''.$start_time.'\' ORDER BY time ASC LIMIT '.min(100, max($matches_min, $db_records));
         $db_data     = Device::getInfluxQuery($query);
         $fl_index    = $start_index;
         $fl_index_end= $end_index;
@@ -411,8 +427,8 @@ class FlashLog extends Model
     {
         $out         = [];
         $matches_min = 2; // minimum amount of inline measurements that should be matched 
-        $match_props = 9; // minimum amount of measurement properties that should match 
-        $db_records  = 20;
+        $match_props = 7; // minimum amount of measurement properties that should match 
+        $db_records  = 15;
 
         if ($flashlog == null || count($flashlog) < $matches_min)
             return null;
@@ -443,7 +459,8 @@ class FlashLog extends Model
                     $db_time   = $db_moment->addMinutes(round($duration_min/2))->format($this->timeFormat);
                 }
 
-                $matches = $this->matchFlashLogTime($device_id, $flashlog, $matches_min, $match_props, $start_index, $end_index, $db_time, $db_records);
+                $db_max  = max($matches_min, min($db_records, $indexes));
+                $matches = $this->matchFlashLogTime($device_id, $flashlog, $matches_min, $match_props, $start_index, $end_index, $db_time, $db_max);
                 
                 if (count($matches) > 0)
                 {

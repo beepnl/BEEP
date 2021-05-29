@@ -55,6 +55,9 @@ class FlashLog extends Model
     
     public function log($data='', $log_bytes=null, $save=true, $fill=false, $show=false)
     {
+        if (!isset($this->device_id))
+            return ['error'=>'No device set, cannot parse Flashlog because need device key to get data from database'];
+
         $result   = null;
         $parsed   = false;
         $saved    = false;
@@ -71,12 +74,12 @@ class FlashLog extends Model
         $f_log = null;
         $f_str = null;
         $f_par = null;
-        
+
         $device = $this->device;
         $sid    = $this->device_id; 
         $time   = date("YmdHis");
 
-        if ($data)
+        if ($data && $sid)
         {
             $data    = preg_replace('/[\r\n|\r|\n]+|\)\(|FEFEFEFE/i', "\n", $data);
             // interpret every line as a standard LoRa message
@@ -197,11 +200,11 @@ class FlashLog extends Model
                     $f_par = Storage::disk($disk)->url($logFileName);
                 }
                 $result['records_flashlog']  = $flashlog_filled['records_flashlog'];
-                $result['time_percentage']   = $flashlog_filled['time_percentage'];
                 $result['time_insert_count'] = $flashlog_filled['time_insert_count'];
                 $result['records_timed']     = $flashlog_filled['records_timed'];
                 $result['time_insert_count'] = $flashlog_filled['time_insert_count'];
-                $time_percentage             = $result['time_percentage'];
+                $time_percentage             = $flashlog_filled['time_percentage'];
+                $result['time_percentage']   = round($time_percentage, 2).'%';
 
                 if (isset($flashlog_filled['log']))
                     $result['log']               = $flashlog_filled['log'];

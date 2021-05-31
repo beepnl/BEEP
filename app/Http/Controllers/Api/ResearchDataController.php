@@ -12,6 +12,7 @@ use App\Hive;
 use App\Device;
 use App\Inspection;
 use App\Measurement;
+use App\Models\Flashlog;
 use Moment\Moment;
 use Response;
 use DB;
@@ -278,7 +279,7 @@ class ResearchDataController extends Controller
 
     /**
     api/researchdata/{id}/user/{user_id}/{item} GET
-    List all user 'item' data within the consent=1 periods of a specific user within a Research. The 'item' field indicates the type of user data (apiaries/hives/devices/inspections/measurements/weather) to request within the research (which the user gave consent for to use). Example: inspectionsResponse: api/researchdata/1/user/1/inspections. 
+    List all user 'item' data within the consent=1 periods of a specific user within a Research. The 'item' field indicates the type of user data (apiaries/hives/devices/flashlogs/inspections/measurements/weather) to request within the research (which the user gave consent for to use). Example: inspectionsResponse: api/researchdata/1/user/1/inspections. 
     @authenticated
     @urlParam id required The research ID to request data from. Example: 1
     @urlParam user_id required The user id to request data from. Example: 1
@@ -724,6 +725,7 @@ class ResearchDataController extends Controller
         $user_apiaries     = Location::where('user_id', $user_id)->where('created_at', '<', $date_until)->orderBy('created_at')->get();
         $user_hives        = Hive::where('user_id', $user_id)->where('created_at', '<', $date_until)->orderBy('created_at')->get();
         $user_devices      = Device::with('sensorDefinitions')->where('user_id', $user_id)->where('created_at', '<', $date_until)->orderBy('created_at')->get();
+        $user_flashlogs    = FlashLog::where('user_id', $user_id)->where('created_at', '<', $date_until)->orderBy('created_at')->get();
         $user_measurements = [];
 
         // add hive inspections (also from collaborators)
@@ -790,6 +792,9 @@ class ResearchDataController extends Controller
                         break;
                     case 'inspections':
                         $data = array_merge($data, $hive_inspections->where('created_at', '>', $date_curr_consent)->where('created_at', '<=', $date_next_consent)->toArray());
+                        break;
+                    case 'flashlogs':
+                        $data = array_merge($data, $user_flashlogs->where('created_at', '<=', $date_next_consent)->toArray());
                         break;
                     case 'measurements':
                         if ($user_devices->count() > 0)

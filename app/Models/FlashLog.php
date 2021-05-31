@@ -55,7 +55,7 @@ class FlashLog extends Model
     
     public function log($data='', $log_bytes=null, $save=true, $fill=false, $show=false)
     {
-        if (!isset($this->device_id))
+        if (!isset($this->device_id) || !isset($this->device))
             return ['error'=>'No device set, cannot parse Flashlog because need device key to get data from database'];
 
         $result   = null;
@@ -209,21 +209,32 @@ class FlashLog extends Model
             
             if ($flashlog_filled)
             {
-                if ($save && isset($flashlog_filled['flashlog']) && count($flashlog_filled['flashlog']) > 0 && $flashlog_filled['time_insert_count'] > 0)
-                {
-                    $logFileName = $f_dir."/sensor_".$sid."_flash_filled_$time.json";
-                    $saved = Storage::disk($disk)->put($logFileName, json_encode($flashlog_filled['flashlog']));
-                    $f_par = Storage::disk($disk)->url($logFileName);
-                }
+                if (isset($flashlog_filled['log']))
+                    $result['log'] = $flashlog_filled['log'];
+
                 $result['records_flashlog']  = $flashlog_filled['records_flashlog'];
                 $result['time_insert_count'] = $flashlog_filled['time_insert_count'];
                 $result['records_timed']     = $flashlog_filled['records_timed'];
                 $result['time_insert_count'] = $flashlog_filled['time_insert_count'];
-                $time_percentage             = $flashlog_filled['time_percentage'];
-                $result['time_percentage']   = round($time_percentage, 2).'%';
+                $time_percentage             = round($flashlog_filled['time_percentage'], 2);
+                $result['time_percentage']   = $time_percentage.'%';
 
-                if (isset($flashlog_filled['log']))
-                    $result['log']               = $flashlog_filled['log'];
+                if (isset($this->time_percentage) == false || $this->time_percentage <= $time_percentage)
+                {
+                    if ($save && isset($flashlog_filled['flashlog']) && count($flashlog_filled['flashlog']) > 0 && $flashlog_filled['time_insert_count'] > 0)
+                    {
+                        $logFileName = $f_dir."/sensor_".$sid."_flash_filled_$time.json";
+                        $saved = Storage::disk($disk)->put($logFileName, json_encode($flashlog_filled['flashlog']));
+                        $f_par = Storage::disk($disk)->url($logFileName);
+                    }
+                }
+                else
+                {
+                    $result['time_percentage'] .= ', previous time percentage ('.$this->time_percentage.'%) > new ('.$time_percentage.'%), so filled file not saved.';
+                    $time_percentage = $this->time_percentage;
+                    $f_par           = $this->log_file_parsed;
+                }
+
             }
         }
 

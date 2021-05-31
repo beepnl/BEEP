@@ -11,9 +11,6 @@ use App\Measurement;
 use Validator;
 use InfluxDB;
 use Response;
-use Moment\Moment;
-use League\Fractal;
-use App\Http\Requests\PostSensorRequest;
 
 /**
  * @group Api\MeasurementLegacyCalculationsTrait
@@ -54,8 +51,8 @@ trait MeasurementLegacyCalculationsTrait
             {
                 // TODO: Make dependent of SensorDefinition
 
-                $name_offset = $this->last_sensor_measurement_time_value($device, $name.'_offset');
-                $name_factor = $this->last_sensor_measurement_time_value($device, $name.'_kg_per_val');
+                $name_offset = $device->last_sensor_measurement_time_value($name.'_offset');
+                $name_factor = $device->last_sensor_measurement_time_value($name.'_kg_per_val');
                 
                 if ($name_factor === 0)
                 {
@@ -148,9 +145,9 @@ trait MeasurementLegacyCalculationsTrait
                 if (isset($data_array[$sens]))
                     $last_value = $data_array[$sens];
                 else
-                    $last_value = $this->last_sensor_measurement_time_value($device, $sens);
+                    $last_value = $device->last_sensor_measurement_time_value($sens);
                 
-                $sens_offset = floatval($this->last_sensor_measurement_time_value($device, $sens.'_offset'));
+                $sens_offset = floatval($device->last_sensor_measurement_time_value($sens.'_offset'));
                 $last_value = $last_value - $sens_offset;
 
                 if (isset($last_value) && $last_value > 1)
@@ -179,7 +176,7 @@ trait MeasurementLegacyCalculationsTrait
             if (isset($data_array['w_v']))
                 $combined_value = $data_array['w_v'];
             else
-                $combined_value = $this->last_sensor_measurement_time_value($device, 'w_v');
+                $combined_value = $device->last_sensor_measurement_time_value('w_v');
 
             if ($combined_value > 0)
             {
@@ -209,7 +206,7 @@ trait MeasurementLegacyCalculationsTrait
         
         foreach ($search_for as $key) 
         {
-            $value = $this->last_sensor_measurement_time_value($device, $key);
+            $value = $device->last_sensor_measurement_time_value($key);
             if ($value != null)
                 $offset[$key.'_offset'] = $value;
         }
@@ -310,7 +307,7 @@ trait MeasurementLegacyCalculationsTrait
 
         $device           = $this->get_user_device($request, true); // requires id, key, hive_id, or nothing (if only one sensor) to be set
         $next_measurement = $request->filled('next_measurement') ? $request->input('next_measurement') : true;
-        $weight_kg        = floatval($request->filled('weight_kg') ? $request->input('weight_kg') : $this->last_sensor_measurement_time_value($device, 'calibrating_weight'));
+        $weight_kg        = floatval($request->filled('weight_kg') ? $request->input('weight_kg') : $device->last_sensor_measurement_time_value('calibrating_weight'));
         $calibrated       = $this->calibrate_weight_sensors($device, $weight_kg, $next_measurement);
 
         if($calibrated === true)

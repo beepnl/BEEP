@@ -1736,7 +1736,7 @@ fetch(url, {
 </blockquote>
 <pre><code class="language-bash">curl -X POST "https://api.beep.nl/api/devices/multiple" \
     -H "Content-Type: application/json" \
-    -d '{"id":5,"key":"fugiat","hardware_id":"eum","name":"perspiciatis","hive_id":17,"type":"vel","last_message_received":"et","firmware_version":"magnam","hardware_version":"alias","boot_count":13,"measurement_interval_min":25.9710169,"measurement_transmission_ratio":28.6,"ble_pin":"et","battery_voltage":2078394.2,"next_downlink_message":"in","last_downlink_result":"suscipit"}'
+    -d '{"id":1,"key":"nulla","hardware_id":"dicta","name":"qui","hive_id":6,"type":"nobis","last_message_received":"qui","firmware_version":"hic","hardware_version":"eum","boot_count":6,"measurement_interval_min":7398806.43,"measurement_transmission_ratio":38.9,"ble_pin":"voluptatem","battery_voltage":14.223394,"next_downlink_message":"soluta","last_downlink_result":"sit"}'
 </code></pre>
 <pre><code class="language-javascript">const url = new URL("https://api.beep.nl/api/devices/multiple");
 
@@ -1746,22 +1746,22 @@ let headers = {
 }
 
 let body = {
-    "id": 5,
-    "key": "fugiat",
-    "hardware_id": "eum",
-    "name": "perspiciatis",
-    "hive_id": 17,
-    "type": "vel",
-    "last_message_received": "et",
-    "firmware_version": "magnam",
-    "hardware_version": "alias",
-    "boot_count": 13,
-    "measurement_interval_min": 25.9710169,
-    "measurement_transmission_ratio": 28.6,
-    "ble_pin": "et",
-    "battery_voltage": 2078394.2,
-    "next_downlink_message": "in",
-    "last_downlink_result": "suscipit"
+    "id": 1,
+    "key": "nulla",
+    "hardware_id": "dicta",
+    "name": "qui",
+    "hive_id": 6,
+    "type": "nobis",
+    "last_message_received": "qui",
+    "firmware_version": "hic",
+    "hardware_version": "eum",
+    "boot_count": 6,
+    "measurement_interval_min": 7398806.43,
+    "measurement_transmission_ratio": 38.9,
+    "ble_pin": "voluptatem",
+    "battery_voltage": 14.223394,
+    "next_downlink_message": "soluta",
+    "last_downlink_result": "sit"
 }
 
 fetch(url, {
@@ -1952,7 +1952,7 @@ fetch(url, {
 </blockquote>
 <pre><code class="language-bash">curl -X GET -G "https://api.beep.nl/api/devices" \
     -H "Content-Type: application/json" \
-    -d '{"hardware_id":"et"}'
+    -d '{"hardware_id":"ratione"}'
 </code></pre>
 <pre><code class="language-javascript">const url = new URL("https://api.beep.nl/api/devices");
 
@@ -1962,7 +1962,7 @@ let headers = {
 }
 
 let body = {
-    "hardware_id": "et"
+    "hardware_id": "ratione"
 }
 
 fetch(url, {
@@ -2050,7 +2050,7 @@ fetch(url, {
 </blockquote>
 <pre><code class="language-bash">curl -X POST "https://api.beep.nl/api/devices" \
     -H "Content-Type: application/json" \
-    -d '{"id":14,"key":"minima","hardware_id":"ex","name":"id","hive_id":5,"type":"deserunt","last_message_received":"nesciunt","firmware_version":"nulla","hardware_version":"id","boot_count":6,"measurement_interval_min":18809345.8,"measurement_transmission_ratio":349450.27,"ble_pin":"cupiditate","battery_voltage":302765809.63368046,"next_downlink_message":"ullam","last_downlink_result":"corrupti","create_ttn_device":true,"app_key":"non"}'
+    -d '{"id":8,"key":"possimus","hardware_id":"reiciendis","name":"aspernatur","hive_id":3,"type":"voluptas","last_message_received":"magni","firmware_version":"eius","hardware_version":"eum","boot_count":6,"measurement_interval_min":8363809.8,"measurement_transmission_ratio":66898.0519,"ble_pin":"aliquid","battery_voltage":175.689902932,"next_downlink_message":"excepturi","last_downlink_result":"numquam","create_ttn_device":true,"app_key":"quibusdam"}'
 </code></pre>
 <pre><code class="language-javascript">const url = new URL("https://api.beep.nl/api/devices");
 
@@ -2060,24 +2060,24 @@ let headers = {
 }
 
 let body = {
-    "id": 14,
-    "key": "minima",
-    "hardware_id": "ex",
-    "name": "id",
-    "hive_id": 5,
-    "type": "deserunt",
-    "last_message_received": "nesciunt",
-    "firmware_version": "nulla",
-    "hardware_version": "id",
+    "id": 8,
+    "key": "possimus",
+    "hardware_id": "reiciendis",
+    "name": "aspernatur",
+    "hive_id": 3,
+    "type": "voluptas",
+    "last_message_received": "magni",
+    "firmware_version": "eius",
+    "hardware_version": "eum",
     "boot_count": 6,
-    "measurement_interval_min": 18809345.8,
-    "measurement_transmission_ratio": 349450.27,
-    "ble_pin": "cupiditate",
-    "battery_voltage": 302765809.63368046,
-    "next_downlink_message": "ullam",
-    "last_downlink_result": "corrupti",
+    "measurement_interval_min": 8363809.8,
+    "measurement_transmission_ratio": 66898.0519,
+    "ble_pin": "aliquid",
+    "battery_voltage": 175.689902932,
+    "next_downlink_message": "excepturi",
+    "last_downlink_result": "numquam",
     "create_ttn_device": true,
-    "app_key": "non"
+    "app_key": "quibusdam"
 }
 
 fetch(url, {
@@ -2250,7 +2250,7 @@ fetch(url, {
 </blockquote>
 <pre><code class="language-bash">curl -X PUT "https://api.beep.nl/api/devices/1" \
     -H "Content-Type: application/json" \
-    -d '{"id":9,"key":"fugit","hardware_id":"est","name":"doloribus","hive_id":14,"type":"occaecati","delete":false,"last_message_received":"quod","firmware_version":"expedita","hardware_version":"unde","boot_count":7,"measurement_interval_min":1.82774,"measurement_transmission_ratio":3272.22842557,"ble_pin":"ipsam","battery_voltage":552.8,"next_downlink_message":"voluptatibus","last_downlink_result":"ratione"}'
+    -d '{"id":20,"key":"eum","hardware_id":"eaque","name":"sint","hive_id":3,"type":"minima","delete":true,"last_message_received":"eum","firmware_version":"quo","hardware_version":"cumque","boot_count":1,"measurement_interval_min":11133.3399,"measurement_transmission_ratio":321.963,"ble_pin":"rerum","battery_voltage":31339.26342461,"next_downlink_message":"nostrum","last_downlink_result":"sit"}'
 </code></pre>
 <pre><code class="language-javascript">const url = new URL("https://api.beep.nl/api/devices/1");
 
@@ -2260,23 +2260,23 @@ let headers = {
 }
 
 let body = {
-    "id": 9,
-    "key": "fugit",
-    "hardware_id": "est",
-    "name": "doloribus",
-    "hive_id": 14,
-    "type": "occaecati",
-    "delete": false,
-    "last_message_received": "quod",
-    "firmware_version": "expedita",
-    "hardware_version": "unde",
-    "boot_count": 7,
-    "measurement_interval_min": 1.82774,
-    "measurement_transmission_ratio": 3272.22842557,
-    "ble_pin": "ipsam",
-    "battery_voltage": 552.8,
-    "next_downlink_message": "voluptatibus",
-    "last_downlink_result": "ratione"
+    "id": 20,
+    "key": "eum",
+    "hardware_id": "eaque",
+    "name": "sint",
+    "hive_id": 3,
+    "type": "minima",
+    "delete": true,
+    "last_message_received": "eum",
+    "firmware_version": "quo",
+    "hardware_version": "cumque",
+    "boot_count": 1,
+    "measurement_interval_min": 11133.3399,
+    "measurement_transmission_ratio": 321.963,
+    "ble_pin": "rerum",
+    "battery_voltage": 31339.26342461,
+    "next_downlink_message": "nostrum",
+    "last_downlink_result": "sit"
 }
 
 fetch(url, {
@@ -2444,7 +2444,7 @@ fetch(url, {
 </blockquote>
 <pre><code class="language-bash">curl -X POST "https://api.beep.nl/api/export/csv" \
     -H "Content-Type: application/json" \
-    -d '{"device_id":"velit","start":"2020-05-27 16:16","end":"2020-05-30 00:00","separator":";","measurements":"'am2315_t,am2315_h,mhz_co2'","link":true}'
+    -d '{"device_id":"ipsam","start":"2020-05-27 16:16","end":"2020-05-30 00:00","separator":";","measurements":"'am2315_t,am2315_h,mhz_co2'","link":true}'
 </code></pre>
 <pre><code class="language-javascript">const url = new URL("https://api.beep.nl/api/export/csv");
 
@@ -2454,7 +2454,7 @@ let headers = {
 }
 
 let body = {
-    "device_id": "velit",
+    "device_id": "ipsam",
     "start": "2020-05-27 16:16",
     "end": "2020-05-30 00:00",
     "separator": ";",
@@ -3039,7 +3039,7 @@ fetch(url, {
 </blockquote>
 <pre><code class="language-bash">curl -X GET -G "https://api.beep.nl/api/inspections/lists" \
     -H "Content-Type: application/json" \
-    -d '{"id":10}'
+    -d '{"id":15}'
 </code></pre>
 <pre><code class="language-javascript">const url = new URL("https://api.beep.nl/api/inspections/lists");
 
@@ -3049,7 +3049,7 @@ let headers = {
 }
 
 let body = {
-    "id": 10
+    "id": 15
 }
 
 fetch(url, {
@@ -3537,7 +3537,7 @@ fetch(url, {
 </blockquote>
 <pre><code class="language-bash">curl -X POST "https://api.beep.nl/api/sensors" \
     -H "Content-Type: application/json" \
-    -d '{"key":"ab","data":[],"payload_fields":[]}'
+    -d '{"key":"maxime","data":[],"payload_fields":[]}'
 </code></pre>
 <pre><code class="language-javascript">const url = new URL("https://api.beep.nl/api/sensors");
 
@@ -3547,7 +3547,7 @@ let headers = {
 }
 
 let body = {
-    "key": "ab",
+    "key": "maxime",
     "data": [],
     "payload_fields": []
 }
@@ -3582,7 +3582,7 @@ fetch(url, {
 <td>data</td>
 <td>array</td>
 <td>optional</td>
-<td>TTN Measurement data</td>
+<td>Measurement data</td>
 </tr>
 <tr>
 <td>payload_fields</td>
@@ -3603,7 +3603,7 @@ When TTN payload is supplied, the TTN HTTP integration decoder/converter is assu
 </blockquote>
 <pre><code class="language-bash">curl -X POST "https://api.beep.nl/api/lora_sensors" \
     -H "Content-Type: application/json" \
-    -d '{"key":"omnis","payload_fields":[],"DevEUI_uplink":[]}'
+    -d '{"key":"explicabo","payload_fields":[],"DevEUI_uplink":[]}'
 </code></pre>
 <pre><code class="language-javascript">const url = new URL("https://api.beep.nl/api/lora_sensors");
 
@@ -3613,7 +3613,7 @@ let headers = {
 }
 
 let body = {
-    "key": "omnis",
+    "key": "explicabo",
     "payload_fields": [],
     "DevEUI_uplink": []
 }
@@ -3667,7 +3667,7 @@ fetch(url, {
 </blockquote>
 <pre><code class="language-bash">curl -X POST "https://api.beep.nl/api/unsecure_sensors" \
     -H "Content-Type: application/json" \
-    -d '{"key":"reprehenderit","data":[],"payload_fields":[]}'
+    -d '{"key":"ipsum","data":[],"payload_fields":[]}'
 </code></pre>
 <pre><code class="language-javascript">const url = new URL("https://api.beep.nl/api/unsecure_sensors");
 
@@ -3677,7 +3677,7 @@ let headers = {
 }
 
 let body = {
-    "key": "reprehenderit",
+    "key": "ipsum",
     "data": [],
     "payload_fields": []
 }
@@ -3712,7 +3712,7 @@ fetch(url, {
 <td>data</td>
 <td>array</td>
 <td>optional</td>
-<td>TTN Measurement data</td>
+<td>Measurement data</td>
 </tr>
 <tr>
 <td>payload_fields</td>
@@ -3732,7 +3732,7 @@ fetch(url, {
 </blockquote>
 <pre><code class="language-bash">curl -X GET -G "https://api.beep.nl/api/sensors/measurements" \
     -H "Content-Type: application/json" \
-    -d '{"key":"vero","id":13,"hive_id":5,"names":"illo","interval":"reiciendis","index":17}'
+    -d '{"key":"eaque","id":9,"hive_id":16,"names":"dicta","interval":"temporibus","index":11}'
 </code></pre>
 <pre><code class="language-javascript">const url = new URL("https://api.beep.nl/api/sensors/measurements");
 
@@ -3742,12 +3742,12 @@ let headers = {
 }
 
 let body = {
-    "key": "vero",
-    "id": 13,
-    "hive_id": 5,
-    "names": "illo",
-    "interval": "reiciendis",
-    "index": 17
+    "key": "eaque",
+    "id": 9,
+    "hive_id": 16,
+    "names": "dicta",
+    "interval": "temporibus",
+    "index": 11
 }
 
 fetch(url, {
@@ -3824,7 +3824,7 @@ fetch(url, {
 </blockquote>
 <pre><code class="language-bash">curl -X GET -G "https://api.beep.nl/api/sensors/lastvalues" \
     -H "Content-Type: application/json" \
-    -d '{"key":"pariatur","id":11,"hive_id":17}'
+    -d '{"key":"non","id":18,"hive_id":13}'
 </code></pre>
 <pre><code class="language-javascript">const url = new URL("https://api.beep.nl/api/sensors/lastvalues");
 
@@ -3834,9 +3834,9 @@ let headers = {
 }
 
 let body = {
-    "key": "pariatur",
-    "id": 11,
-    "hive_id": 17
+    "key": "non",
+    "id": 18,
+    "hive_id": 13
 }
 
 fetch(url, {
@@ -3895,7 +3895,7 @@ fetch(url, {
 </blockquote>
 <pre><code class="language-bash">curl -X GET -G "https://api.beep.nl/api/sensors/lastweight" \
     -H "Content-Type: application/json" \
-    -d '{"key":"iusto","id":4,"hive_id":9}'
+    -d '{"key":"pariatur","id":11,"hive_id":9}'
 </code></pre>
 <pre><code class="language-javascript">const url = new URL("https://api.beep.nl/api/sensors/lastweight");
 
@@ -3905,8 +3905,8 @@ let headers = {
 }
 
 let body = {
-    "key": "iusto",
-    "id": 4,
+    "key": "pariatur",
+    "id": 11,
     "hive_id": 9
 }
 
@@ -4050,7 +4050,7 @@ When TTN payload is supplied, the TTN HTTP integration decoder/converter is assu
 </blockquote>
 <pre><code class="language-bash">curl -X POST "https://api.beep.nl/api/lora_sensors_auth" \
     -H "Content-Type: application/json" \
-    -d '{"key":"optio","payload_fields":[],"DevEUI_uplink":[]}'
+    -d '{"key":"non","payload_fields":[],"DevEUI_uplink":[]}'
 </code></pre>
 <pre><code class="language-javascript">const url = new URL("https://api.beep.nl/api/lora_sensors_auth");
 
@@ -4060,7 +4060,7 @@ let headers = {
 }
 
 let body = {
-    "key": "optio",
+    "key": "non",
     "payload_fields": [],
     "DevEUI_uplink": []
 }
@@ -4108,20 +4108,22 @@ fetch(url, {
 <!-- END_4f42521a60d8bb82d22897367044bff3 -->
 <!-- START_868e5915a367c3c473a7713a339e7863 -->
 <h2>api/sensors/flashlog</h2>
-<p>POST data from BEEP base fw 1.5.0+ FLASH log (with timestamp), interpret data and store in InlfuxDB (overwriting existing data). BEEP base BLE cmd: when the response is 200 OK and erase_mx_flash &gt; -1, provide the ERASE_MX_FLASH BLE command (0x21) to the BEEP base with the last byte being the HEX value of the erase_mx_flash value (0 = 0x00, 1 = 0x01, i.e.0x2100, or 0x2101)</p>
+<p>POST data from BEEP base fw 1.5.0+ FLASH log (with timestamp), interpret data and store in InlfuxDB (overwriting existing data). BEEP base BLE cmd: when the response is 200 OK and erase_mx_flash &gt; -1, provide the ERASE_MX_FLASH BLE command (0x21) to the BEEP base with the last byte being the HEX value of the erase_mx_flash value (0 = 0x00, 1 = 0x01, i.e.0x2100, or 0x2101, i.e. erase_type:&quot;fatfs&quot;, or erase_type:&quot;full&quot;)</p>
 <p><br><small style="padding: 1px 9px 2px;font-weight: bold;white-space: nowrap;color: #ffffff;-webkit-border-radius: 9px;-moz-border-radius: 9px;border-radius: 9px;background-color: #3a87ad;">Requires authentication</small></p>
 <blockquote>
 <p>Example request:</p>
 </blockquote>
-<pre><code class="language-bash">curl -X POST "https://api.beep.nl/api/sensors/flashlog?show=rem&amp;save=et" \
+<pre><code class="language-bash">curl -X POST "https://api.beep.nl/api/sensors/flashlog?show=aut&amp;save=dolore&amp;fill=cumque&amp;log_size_bytes=minima" \
     -H "Content-Type: application/json" \
-    -d '{"id":5,"key":"temporibus","hardware_id":"consequatur","data":"nobis","file":"et"}'
+    -d '{"id":16,"key":"ut","hardware_id":"excepturi","data":"qui","file":"laboriosam"}'
 </code></pre>
 <pre><code class="language-javascript">const url = new URL("https://api.beep.nl/api/sensors/flashlog");
 
     let params = {
-            "show": "rem",
-            "save": "et",
+            "show": "aut",
+            "save": "dolore",
+            "fill": "cumque",
+            "log_size_bytes": "minima",
         };
     Object.keys(params).forEach(key =&gt; url.searchParams.append(key, params[key]));
 
@@ -4131,11 +4133,11 @@ let headers = {
 }
 
 let body = {
-    "id": 5,
-    "key": "temporibus",
-    "hardware_id": "consequatur",
-    "data": "nobis",
-    "file": "et"
+    "id": 16,
+    "key": "ut",
+    "hardware_id": "excepturi",
+    "data": "qui",
+    "file": "laboriosam"
 }
 
 fetch(url, {
@@ -4214,9 +4216,69 @@ fetch(url, {
 <td>optional</td>
 <td>integer 1 for saving the data to a file (default), 0 for not save log file.</td>
 </tr>
+<tr>
+<td>fill</td>
+<td>optional</td>
+<td>integer 1 for filling data gaps in the database, 0 for not filling gaps (default).</td>
+</tr>
+<tr>
+<td>log_size_bytes</td>
+<td>optional</td>
+<td>integer 0x22 decimal result of log size requested from BEEP base.</td>
+</tr>
 </tbody>
 </table>
 <!-- END_868e5915a367c3c473a7713a339e7863 -->
+<!-- START_1ec0a48e047c332815d356c9d3fe41cd -->
+<h2>api/sensors/fillgaps/{id}</h2>
+<blockquote>
+<p>Example request:</p>
+</blockquote>
+<pre><code class="language-bash">curl -X POST "https://api.beep.nl/api/sensors/fillgaps/1" </code></pre>
+<pre><code class="language-javascript">const url = new URL("https://api.beep.nl/api/sensors/fillgaps/1");
+
+let headers = {
+    "Accept": "application/json",
+    "Content-Type": "application/json",
+}
+
+fetch(url, {
+    method: "POST",
+    headers: headers,
+})
+    .then(response =&gt; response.json())
+    .then(json =&gt; console.log(json));</code></pre>
+<h3>HTTP Request</h3>
+<p><code>POST api/sensors/fillgaps/{id}</code></p>
+<!-- END_1ec0a48e047c332815d356c9d3fe41cd -->
+<!-- START_98b04e5250f0142e7dff795ddfc22fb2 -->
+<h2>api/sensors/decode/p/{port}/pl/{payload}</h2>
+<blockquote>
+<p>Example request:</p>
+</blockquote>
+<pre><code class="language-bash">curl -X GET -G "https://api.beep.nl/api/sensors/decode/p/1/pl/1" </code></pre>
+<pre><code class="language-javascript">const url = new URL("https://api.beep.nl/api/sensors/decode/p/1/pl/1");
+
+let headers = {
+    "Accept": "application/json",
+    "Content-Type": "application/json",
+}
+
+fetch(url, {
+    method: "GET",
+    headers: headers,
+})
+    .then(response =&gt; response.json())
+    .then(json =&gt; console.log(json));</code></pre>
+<blockquote>
+<p>Example response (401):</p>
+</blockquote>
+<pre><code class="language-json">{
+    "message": "Unauthenticated."
+}</code></pre>
+<h3>HTTP Request</h3>
+<p><code>GET api/sensors/decode/p/{port}/pl/{payload}</code></p>
+<!-- END_98b04e5250f0142e7dff795ddfc22fb2 -->
 <h1>Api\ProductionController</h1>
 <p>Not used</p>
 <!-- START_3dd824ece488b084ec5fce9c8c42eb30 -->
@@ -5433,7 +5495,7 @@ fetch(url, {
 </blockquote>
 <pre><code class="language-bash">curl -X GET -G "https://api.beep.nl/api/sensordefinition" \
     -H "Content-Type: application/json" \
-    -d '{"device_id":4,"device_hardware_id":"dolores","input_measurement_abbreviation":"dolores","limit":16}'
+    -d '{"device_id":8,"device_hardware_id":"quisquam","input_measurement_abbreviation":"modi","limit":5}'
 </code></pre>
 <pre><code class="language-javascript">const url = new URL("https://api.beep.nl/api/sensordefinition");
 
@@ -5443,10 +5505,10 @@ let headers = {
 }
 
 let body = {
-    "device_id": 4,
-    "device_hardware_id": "dolores",
-    "input_measurement_abbreviation": "dolores",
-    "limit": 16
+    "device_id": 8,
+    "device_hardware_id": "quisquam",
+    "input_measurement_abbreviation": "modi",
+    "limit": 5
 }
 
 fetch(url, {
@@ -5511,7 +5573,7 @@ fetch(url, {
 </blockquote>
 <pre><code class="language-bash">curl -X POST "https://api.beep.nl/api/sensordefinition" \
     -H "Content-Type: application/json" \
-    -d '{"name":"laboriosam","inside":false,"offset":614722.67,"multiplier":19447005.9282198,"input_measurement_id":5,"input_measurement_abbreviation":"w_v","output_measurement_id":6,"output_measurement_abbreviation":"t_i","device_id":17,"device_hardware_id":"ipsa"}'
+    -d '{"name":"voluptatum","inside":false,"offset":51.05,"multiplier":2074820.2594131,"input_measurement_id":5,"input_measurement_abbreviation":"w_v","output_measurement_id":6,"output_measurement_abbreviation":"t_i","device_id":1,"device_hardware_id":"ut"}'
 </code></pre>
 <pre><code class="language-javascript">const url = new URL("https://api.beep.nl/api/sensordefinition");
 
@@ -5521,16 +5583,16 @@ let headers = {
 }
 
 let body = {
-    "name": "laboriosam",
+    "name": "voluptatum",
     "inside": false,
-    "offset": 614722.67,
-    "multiplier": 19447005.9282198,
+    "offset": 51.05,
+    "multiplier": 2074820.2594131,
     "input_measurement_id": 5,
     "input_measurement_abbreviation": "w_v",
     "output_measurement_id": 6,
     "output_measurement_abbreviation": "t_i",
-    "device_id": 17,
-    "device_hardware_id": "ipsa"
+    "device_id": 1,
+    "device_hardware_id": "ut"
 }
 
 fetch(url, {

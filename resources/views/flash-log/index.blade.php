@@ -43,17 +43,30 @@
         <table id="table-flash-log" class="table table-responsive table-striped">
             <thead>
                 <tr>
-                    <th>#</th><th>User</th><th>Device</th><th>Hive</th><th>Log Messages</th><th>Log Erased on BEEP base</th><th>Log Parsed</th><th>Log Has Timestamps</th><th>Bytes Received</th><th>Actions</th>
+                    <th>#</th>
+                    <th>Upload date</th>
+                    <th>User</th>
+                    <th>Device</th>
+                    <th>Hive</th>
+                    <th>Messages</th>
+                    <th>Time %</th>
+                    <th>Log erased</th>
+                    <th>Log parsed</th>
+                    <th>Log time</th>
+                    <th>Log size</th>
+                    <th style="width: 150px;">Actions</th>
                 </tr>
             </thead>
             <tbody>
             @foreach($flashlog as $item)
                 <tr>
                     <td>{{ $item->id }}</td>
+                    <td>{{ $item->created_at }}</td>
                     <td>{{ isset($item->user) ? $item->user->name : '' }}</td>
                     <td>{{ isset($item->device) ? $item->device->name.' ('.$item->device->id.')' : '' }}</td>
                     <td>{{ isset($item->hive) ? $item->hive->name : '' }}</td>
                     <td>{{ $item->log_messages }}</td>
+                    <td>{{ $item->time_percentage }}%</td>
                     <td>{{ $item->log_erased }}</td>
                     <td>{{ $item->log_parsed }}</td>
                     <td>{{ $item->log_has_timestamps }}</td>
@@ -61,6 +74,8 @@
                     <td col-sm-1>
                         <a href="{{ route('flash-log.show', $item->id) }}" title="{{ __('crud.show') }}"><button class="btn btn-default"><i class="fa fa-eye" aria-hidden="true"></i></button></a>
 
+                        <a href="{{ route('flash-log.parse', $item->id) }}" title="{{ __('crud.parse') }}"><button class="btn btn-info loading-spinner" data-loading-text="<i class='fa fa-refresh fa-spin'></i>"><i class="fa fa-refresh" aria-hidden="true"></i></button></a>
+                        
                         <a href="{{ route('flash-log.edit', $item->id) }}" title="{{ __('crud.edit') }}"><button class="btn btn-primary"><i class="fa fa-pencil" aria-hidden="true"></i></button></a>
 
                         <form method="POST" action="{{ route('flash-log.destroy', $item->id) }}" accept-charset="UTF-8" style="display:inline">

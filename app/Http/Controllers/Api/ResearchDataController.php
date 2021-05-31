@@ -12,7 +12,7 @@ use App\Hive;
 use App\Device;
 use App\Inspection;
 use App\Measurement;
-use App\Models\Flashlog;
+use App\Models\FlashLog;
 use Moment\Moment;
 use Response;
 use DB;

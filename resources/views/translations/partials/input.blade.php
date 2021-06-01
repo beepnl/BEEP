@@ -54,20 +54,20 @@
 <hr>
 </div>
 
-        <h3>Sensor measurement names</h3>
-        <p>Sensor measurement names are the names of sensor measurements in the Measurements tab of the BEEP app. They are shown if a user owns a BEEP base or other measurement device.</p>
-        <h4>How to translate Sensor measurement names?</h4>
+        <h3>Physical quantities</h3>
+        <p>Physical quantities are names of sensor measurements in the Measurements tab of the BEEP app. They are shown if a user owns a BEEP base or other measurement device.</p>
+        <h4>How to translate Physical quantities?</h4>
         <p>Just enter the correct <span class="text-success"><strong>{{ $language->name_english }} translations</strong></span> in the input fields of the '<span class="text-success"><strong>{{$language->name_english}} translation</strong></span>' colomn below.<br>
-        NB: Only translate the Measurement name, not the abbreviation, or unit</p>
+        NB: Only translate the Physical quantity, not the abbreviation, or unit</p>
         <br>
-        <h4>{{ count($measurements) }} Measurement names</h4>
+        <h4>{{ count($measurements) }} Physical quantities</h4>
         
 <div class="row">
         <table class="table table-striped">
             <thead>
                 <tr>
                     <th class="col-xs-1" >ID</th>
-                    <th class="col-xs-3" >abbreviation: Measurement name (unit)</th>
+                    <th class="col-xs-3" >abbreviation: Physical quantity (unit)</th>
                     <th class="col-xs-3" >English translation (reference)</th>
                     <th class="col-xs-5 text-success" >{{$language->name_english}} translation</th>
                 </tr>

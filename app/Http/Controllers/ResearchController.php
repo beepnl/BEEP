@@ -955,7 +955,7 @@ class ResearchController extends Controller
             else
                 $names = $this->output_sensors;
             
-            $queryList = Device::getAvailableSensorNamesFromData($names, $database, $where); // ($names, $table, $where, $limit='', $output_sensors_only=true)
+            $queryList = Device::getAvailableSensorNamesFromData($names, $where, $database);
             
             if (isset($queryList) && gettype($queryList) == 'array' && count($queryList) > 0)
                 $groupBySelect = implode(', ', $queryList);

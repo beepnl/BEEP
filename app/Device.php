@@ -159,11 +159,24 @@ class Device extends Model
         return $list_out;
     }
 
+
+    public function last_sensor_measurement_time_value($name)
+    {
+        $arr = $this->last_sensor_values_array($name);
+
+        if ($arr && count($arr) > 0 && in_array($name, array_keys($arr)))
+            return $arr[$name];
+
+        return null;
+    }
+    
+
     public static function getInfluxQuery($query)
     {
         $client  = new \Influx;
         $options = ['precision'=> 's'];
         $values  = [];
+
         try{
             $result  = $client::query($query, $options);
             $values  = $result->getPoints();
@@ -173,7 +186,7 @@ class Device extends Model
         return $values;
     }
 
-    public static function getAvailableSensorNamesFromData($names, $table, $where, $output_sensors_only=true)
+    public static function getAvailableSensorNamesFromData($names, $where, $table='sensors', $output_sensors_only=true)
     {
         //die(print_r([$names, $valid_sensors]));
         $client         = new \Influx;
@@ -184,18 +197,109 @@ class Device extends Model
         $valid_sensors = $output_sensors_only ? $output_sensors : array_keys($valid_sensors);
         $valid_sensors = array_intersect($valid_sensors, $names);
         $values        = Device::getInfluxQuery('SELECT * FROM "'.$table.'" WHERE '.$where.' GROUP BY "name,time" ORDER BY time DESC LIMIT 1');
+        
+        $fields = [];
+        foreach ($valid_sensors as $field)
+        {
+            $fields[] = 'count("'.$field.'") as "'.$field.'"';
+        }
+        $valid_fields = implode(', ', $fields);
+
+        $query         = 'SELECT '.$valid_fields.' FROM "'.$table.'" WHERE '.$where.' GROUP BY "name,time" ORDER BY time DESC LIMIT 1';
+        $options       = ['precision'=> 's'];
+
+        try{
+            $result  = $client::query($query, $options);
+            $values  = $result->getPoints();
+        } catch (InfluxDB\Exception $e) {
+            // return Response::json('influx-group-by-query-error', 500);
+        }
 
         if (count($values) > 0)
             $sensors = $values[0];
         else
             return $out;
 
-        $sensors = array_filter($sensors, function($value) { return !is_null($value) && $value !== ''; });
+        $sensors = array_filter($sensors, function($value) { return !is_null($value) && $value !== '' && $value > 0; });
 
         $out = array_keys($sensors);
         $out = array_intersect($out, $valid_sensors);
         $out = array_values($out);
 
+        //die(print_r($out));
         return $out;
     }
+
+    
+    public function last_sensor_values_array($fields='*', $limit=1)
+    {
+        $fields = $fields != '*' ? '"'.$fields.'"' : '*';
+        $groupby= $fields == '*' || strpos(',' ,$fields) ? 'GROUP BY "name,time"' : '';
+        $output = null;
+        try
+        {
+            $client = new \Influx;
+            $query  = 'SELECT '.$fields.' from "sensors" WHERE ("key" = \''.$this->key.'\' OR "key" = \''.strtolower($this->key).'\' OR "key" = \''.strtoupper($this->key).'\') AND time > now() - 365d '.$groupby.' ORDER BY time DESC LIMIT '.$limit;
+            //die(print_r($query));
+            $result = $client::query($query);
+            $values = $result->getPoints();
+            //die(print_r($values));
+            $output = $limit == 1 ? $values[0] : $values;
+            $output = array_filter($output, function($value) { return !is_null($value) && $value !== ''; });
+        }
+        catch(\Exception $e)
+        {
+            return false;
+        }
+        return $output;
+    }
+
+
+    private function last_sensor_increment_values($data_array=null)
+    {
+        $output = [];
+        $limit  = 2;
+
+        if ($data_array != null)
+        {
+            $output[0] = $data_array;
+            $output[1] = $this->last_sensor_values_array(implode('","',array_keys($data_array)), 1);
+        }
+        else
+        {
+            $output_sensors = Measurement::where('show_in_charts', '=', 1)->pluck('abbreviation')->toArray();
+            $output = $this->last_sensor_values_array(implode('","',$output_sensors), $limit);
+        }
+        $out_arr= [];
+
+        if (count($output) < $limit)
+            return null;
+
+        for ($i=0; $i < $limit; $i++) 
+        { 
+            if (isset($output[$i]) && gettype($output[$i]) == 'array')
+            {
+                foreach ($output[$i] as $key => $val) 
+                {
+                    if ($val != null)
+                    {
+                        $value = $key == 'time' ? strtotime($val) : floatval($val);
+
+                        if ($i == 0) // desc array, so most recent value: $i == 0
+                        {
+                            $out_arr[$key] = $value; 
+                        }
+                        else if (isset($out_arr[$key]))
+                        {
+                            $out_arr[$key] = $out_arr[$key] - $value;
+                        }
+                    }
+                }
+            }
+        }
+        //die(print_r($out_arr));
+
+        return $out_arr; 
+    }
+
 }

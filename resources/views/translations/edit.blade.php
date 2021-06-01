@@ -34,7 +34,7 @@
 
     @component('components/box')
         @slot('title')
-            <img src="/img/{{ $language->icon }}" style="width: 30px;"> {{ __('beep.Checklist') }} {{ __('general.translations') }} {{ $language->name_english }}
+            <img src="/img/{{ $language->icon }}" style="width: 30px;"> {{ __('beep.Checklist') }} / {{ __('beep.measurement') }} {{ __('general.translations') }} {{ $language->name_english }}
         @endslot
 
         @slot('action')
@@ -43,14 +43,7 @@
 
         @slot('body')
 
-            <div class="col-xs-12">
-                <h4>How to translate checklist texts?</h4>
-                <p>Just enter the correct <span class="text-success"><strong>{{ $language->name_english }} translations</strong></span> in the input fields of the third colomn below.<br>
-                The translations below are for the hive checklist / taxonomy that is available in the app through editing your hive checklist. It contains all the available options in the taxonomy.</p>
-            </div>
-
-
-			@if (isset($language) && isset($categories))
+            @if (isset($language) && isset($categories))
 
                 @include('translations.partials.input', ['categories'=>$categories, 'language'=>$language])
 
@@ -59,7 +52,6 @@
             <div class="form-group">
                 {!! Form::submit('Update translations', [ 'class' => 'btn btn-primary btn-block' ]) !!}
             </div>
-
 
         @endslot
     @endcomponent

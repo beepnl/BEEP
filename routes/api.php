@@ -21,8 +21,8 @@ Route::group(['middleware' => \Barryvdh\Cors\HandleCors::class], function()
 	});
 
 	// save sensor data of multiple sensors
-	Route::post('sensors', 		'Api\MeasurementController@storeMeasurementData')->middleware('throttle:100,1');
-	Route::post('lora_sensors', 'Api\MeasurementController@lora_sensors')->middleware('throttle:500,1');
+	Route::post('sensors', 		'Api\MeasurementController@storeMeasurementData')->middleware('throttle:10,1');
+	Route::post('lora_sensors', 'Api\MeasurementController@lora_sensors')->middleware('throttle:100,1');
 
 	// save sensor data of multiple sensors (unsecure)
 	Route::post('unsecure_sensors', 'Api\MeasurementController@storeMeasurementData');
@@ -56,7 +56,7 @@ Route::group(['middleware' => \Barryvdh\Cors\HandleCors::class], function()
 		Route::post('sensors/offsetweight' ,'Api\MeasurementController@offsetweight');
 		Route::get('sensors/measurement_types', 'Api\MeasurementController@sensor_measurement_types');
 		Route::get('sensors/measurement_types_available', 'Api\MeasurementController@sensor_measurement_types_available');
-		Route::post('lora_sensors_auth',  	'Api\MeasurementController@lora_sensors')->middleware('throttle:500,1');
+		Route::post('lora_sensors_auth',  	'Api\MeasurementController@lora_sensors')->middleware('throttle:1000,1');
 		Route::post('sensors/flashlog',  	'Api\MeasurementController@flashlog')->middleware('throttle:500,1');
 		Route::post('sensors/fillgaps/{id}','Api\MeasurementController@fillDataGaps');
 		Route::get('sensors/decode/p/{port}/pl/{payload}', 'Api\MeasurementController@decode_beep_lora_payload');

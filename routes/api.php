@@ -21,22 +21,21 @@ Route::group(['middleware' => \Barryvdh\Cors\HandleCors::class], function()
 	});
 
 	// save sensor data of multiple sensors
-	Route::post('sensors', 		'Api\MeasurementController@storeMeasurementData');
-	Route::post('lora_sensors', 'Api\MeasurementController@lora_sensors');
+	Route::post('sensors', 		'Api\MeasurementController@storeMeasurementData')->middleware('throttle:100,1');
+	Route::post('lora_sensors', 'Api\MeasurementController@lora_sensors')->middleware('throttle:500,1');
 
 	// save sensor data of multiple sensors (unsecure)
 	Route::post('unsecure_sensors', 'Api\MeasurementController@storeMeasurementData');
 	
 	// User functions
-	Route::post('register', 	'Api\UserController@register');
-	Route::post('login', 		'Api\UserController@login');
-	Route::post('user/reminder','Api\UserController@reminder');
-	Route::post('user/reset', 	'Api\UserController@reset');
+	Route::post('register', 	'Api\UserController@register')->middleware('throttle:10,1');
+	Route::post('login', 		'Api\UserController@login')->middleware('throttle:10,1');
+	Route::post('user/reminder','Api\UserController@reminder')->middleware('throttle:10,1');
+	Route::post('user/reset', 	'Api\UserController@reset')->middleware('throttle:10,1');
 
 	// // Email Verification Routes...
-	Route::get('email/verify', 'Api\Auth\VerificationController@show')->name('apiverification.notice');
-	Route::get('email/verify/{id}', 'Api\Auth\VerificationController@verify')->name('apiverification.verify');
-	Route::post('email/resend', 'Api\Auth\VerificationController@resend')->name('apiverification.resend');
+	Route::get('email/verify/{id}', 'Api\Auth\VerificationController@verify')->name('apiverification.verify')->middleware('throttle:6,1');
+	Route::post('email/resend', 'Api\Auth\VerificationController@resend')->name('apiverification.resend')->middleware('throttle:3,1');
 
 	Route::post('groups/checktoken', 'Api\GroupController@checktoken');
 
@@ -89,6 +88,7 @@ Route::group(['middleware' => \Barryvdh\Cors\HandleCors::class], function()
 		
 		Route::delete('user', 				'Api\UserController@destroy');
 		Route::patch('user', 				'Api\UserController@edit');
+		Route::patch('userlocale', 			'Api\UserController@userlocale');
 
 		// Control resources 
 		Route::resource('devices', 			'Api\DeviceController',		 			['except'=>['create','edit']]);
@@ -102,6 +102,9 @@ Route::group(['middleware' => \Barryvdh\Cors\HandleCors::class], function()
 		Route::resource('images', 			'Api\ImageController', 					['except'=>['create','edit','destroy']]);
 		Route::resource('sensordefinition', 'Api\SensorDefinitionController', 		['except'=>['create','edit']]);
 		Route::resource('samplecode', 		'Api\SampleCodeController', 			['except'=>['create','edit','destroy']]);
+		Route::resource('alerts', 			'Api\AlertController', 					['except' => ['create', 'edit']]);
+		Route::resource('alert-rules', 		'Api\AlertRuleController', 				['except' => ['create', 'edit']]);
+		Route::get('alert-rules-default', 	'Api\AlertRuleController@default');
 		
 
 		Route::delete('samplecode', 		'Api\SampleCodeController@destroy');

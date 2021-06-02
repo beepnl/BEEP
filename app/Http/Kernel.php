@@ -37,6 +37,8 @@ class Kernel extends HttpKernel
             \Illuminate\Routing\Middleware\SubstituteBindings::class,
         ],
 
+        'throttle' => ['throttle:100,1'], // for requesting tokens in Laravel\Passport\RouteRegistrar
+
         'api' => [
             'throttle:60,1',
             'bindings',

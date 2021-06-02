@@ -34,7 +34,7 @@ class DashboardController extends Controller
         if (Cache::has($name.'-time') && Cache::has($name.'-count'))
         {
             $sec_ago     = time() - Cache::get($name.'-time');
-            $req_per_min = round(Cache::get($name.'-count') * 600 / $sec_ago, 1);
+            $req_per_min = round(Cache::get($name.'-count') * 60 / $sec_ago, 1);
             return $req_per_min;
         }
         else

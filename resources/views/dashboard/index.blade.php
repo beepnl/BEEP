@@ -18,7 +18,7 @@
 			<div class="small-box bg-green">
 				<div class="inner">
 					<h3>{{ $data['store-measurements-201'] }}</h3>
-					<p>Data storage OK (201) req/min<br>TTN: {{ $data['store-lora-sensors-kpn'] }} | KPN: {{ $data['store-lora-sensors-kpn'] }} | ?: {{ $data['store-lora-sensors-'] }}</p>
+					<p>Data storage OK (201) req/min<br>TTN: {{ $data['store-lora-sensors-ttn'] }} | KPN: {{ $data['store-lora-sensors-kpn'] }} | ?: {{ $data['store-lora-sensors-'] }}</p>
 				</div>
 				<div class="icon">
 					<i class="fa fa-database"></i>

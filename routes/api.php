@@ -21,8 +21,8 @@ Route::group(['middleware' => \Barryvdh\Cors\HandleCors::class], function()
 	});
 
 	// save sensor data of multiple sensors
-	Route::post('sensors', 		'Api\MeasurementController@storeMeasurementData');
-	Route::post('lora_sensors', 'Api\MeasurementController@lora_sensors');
+	Route::post('sensors', 		'Api\MeasurementController@storeMeasurementData')->middleware('throttle:100,1');
+	Route::post('lora_sensors', 'Api\MeasurementController@lora_sensors')->middleware('throttle:500,1');
 
 	// save sensor data of multiple sensors (unsecure)
 	Route::post('unsecure_sensors', 'Api\MeasurementController@storeMeasurementData');

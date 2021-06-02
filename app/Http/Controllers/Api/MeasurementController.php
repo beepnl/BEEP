@@ -152,7 +152,7 @@ class MeasurementController extends Controller
 
     private function cacheRequestRate($name)
     {
-        Cache::remember($name.'-time', 60, function () use ($name)
+        Cache::remember($name.'-time', 600, function () use ($name)
         { 
             Cache::forget($name.'-count'); 
             return time(); 

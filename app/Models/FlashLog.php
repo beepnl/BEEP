@@ -385,9 +385,9 @@ class FlashLog extends Model
                 for ($i=$startInd; $i <= $endInd; $i++) 
                 { 
                     $fl = $flashlog[$i];
-                    if (isset($fl['time']) === false)
+                    if (!isset($fl['time']))
                     {
-                        $startMoment          = new Moment($blockStaDate);
+                        $startMoment= new Moment($blockStaDate);
                         $fl['time'] = $startMoment->addMinutes($addCounter * $matchMinInt)->format($this->timeFormat);
 
                         // check for device_time, set device time if less than 30 seconds off
@@ -400,27 +400,26 @@ class FlashLog extends Model
                                 $fl['time']  = $device_time->format($this->timeFormat);
                             }
                         }
-
-                        // add missing sensordefinition measurements (i.e. weight_kg by the sensor definition that was active at that time)
-                        if (count($sensor_defs) > 0 && isset($fl['w_v']))
+                    }
+                    // add missing sensordefinition measurements (i.e. weight_kg by the sensor definition that was active at that time)
+                    if (isset($sensor_defs) && isset($fl['w_v']))
+                    {
+                        $sensor_def = $sensor_defs->where('updated_at', '<=', $fl['time'])->last(); // ascending list
+                        if ($sensor_def)
                         {
-                            $sensor_def = $sensor_defs->where('updated_at', '<=', $fl['time'])->last(); // ascending list
-                            if ($sensor_def)
+                            $calibrated_weight = $sensor_def->calibrated_measurement_value($fl['w_v']);
+                            if (isset($calibrated_weight))
                             {
-                                $calibrated_weight = $sensor_def->calibrated_measurement_value($fl['w_v']);
-                                if (isset($calibrated_weight))
-                                {
-                                    $fl[$sensor_def->output_abbr] = $calibrated_weight;
-                                }
+                                $fl[$sensor_def->output_abbr] = $calibrated_weight;
                             }
                         }
-                        
-                        if ($fl['port'] == 3)
-                            $setCount++;
-
-                        $flashlog[$i] = $fl;
-
                     }
+                    
+                    if ($fl['port'] == 3)
+                        $setCount++;
+
+                    $flashlog[$i] = $fl;
+
                     $addCounter++;
                 }
 

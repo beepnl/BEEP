@@ -45,6 +45,7 @@
                 <tr>
                     <th>#</th>
                     <th>Upload date</th>
+                    <th>Last update</th>
                     <th>User</th>
                     <th>Device</th>
                     <th>Hive</th>
@@ -62,6 +63,7 @@
                 <tr>
                     <td>{{ $item->id }}</td>
                     <td>{{ $item->created_at }}</td>
+                    <td>{{ $item->updated_at }}</td>
                     <td>{{ isset($item->user) ? $item->user->name : '' }}</td>
                     <td>{{ isset($item->device) ? $item->device->name.' ('.$item->device->id.')' : '' }}</td>
                     <td>{{ isset($item->hive) ? $item->hive->name : '' }}</td>

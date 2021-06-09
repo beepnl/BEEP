@@ -691,7 +691,7 @@ class ResearchDataController extends Controller
         $precision  = $request->input('precision', 'rfc3339');
         $date_format='Y-m-d H:i:s'; // RFC3339 == 'Y-m-d\TH:i:sP'
             
-        if ($request->has('date_start'))
+        if ($request->filled('date_start'))
         {
             if ($this->validateDate($date_start, $date_format) == false)
                 return Response::json(['date_start_invalid'=>$date_start, 'format'=>$date_format], 400);
@@ -699,7 +699,7 @@ class ResearchDataController extends Controller
                 return Response::json('date_start_before_research_start', 400);
         }
 
-        if ($request->has('date_until'))
+        if ($request->filled('date_until'))
         {
             if ($this->validateDate($date_until, $date_format) == false)
                 return Response::json(['date_until_invalid'=>$date_until, 'format'=>$date_format], 400);
@@ -759,7 +759,7 @@ class ResearchDataController extends Controller
             }
 
             // Minimize data to requested dates
-            if ($request->has('date_start') && $date_start > $date_curr_consent)
+            if ($request->filled('date_start') && $date_start > $date_curr_consent)
             {
                 if ($date_start < $date_next_consent)
                     $date_curr_consent = $date_start;
@@ -767,7 +767,7 @@ class ResearchDataController extends Controller
                     continue; // start >= next_consent, so hide this data from dataset, because earlier than requested
             }
                         
-            if ($request->has('date_until') && $date_until < $date_next_consent)
+            if ($request->filled('date_until') && $date_until < $date_next_consent)
             {
                 if ($date_until > $date_curr_consent)
                     $date_next_consent = $date_until;
@@ -801,10 +801,13 @@ class ResearchDataController extends Controller
                         {
                             foreach ($user_devices as $device)
                             {
-                                if ($device->created_at < $date_next_consent)
-                                {
-                                    $where= '("key" = \''.$device->key.'\' OR "key" = \''.strtolower($device->key).'\' OR "key" = \''.strtoupper($device->key).'\') AND time >= \''.$date_curr_consent.'\' AND time <= \''.$date_next_consent.'\'';
-                                    $data = array_merge($data, $this->getArrayFromInflux($where, '*', 'sensors', $precision));
+                                if (($request->filled('device_id') && $request->input('device_id') == $device->id) || $request->missing('device_id'))
+                                {   
+                                    if ($device->created_at < $date_next_consent)
+                                    {
+                                        $where= '("key" = \''.$device->key.'\' OR "key" = \''.strtolower($device->key).'\' OR "key" = \''.strtoupper($device->key).'\') AND time >= \''.$date_curr_consent.'\' AND time <= \''.$date_next_consent.'\'';
+                                        $data = array_merge($data, $this->getArrayFromInflux($where, '*', 'sensors', $precision));
+                                    }
                                 }
                             }
                         }

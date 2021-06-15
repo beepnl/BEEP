@@ -79,7 +79,7 @@ class FlashLog extends Model
         $sid    = $this->device_id; 
         $time   = date("YmdHis");
 
-        if ($data && $sid)
+        if ($data && isset($sid))
         {
             $data    = preg_replace('/[\r\n|\r|\n]+|\)\(|FEFEFEFE/i', "\n", $data);
             // interpret every line as a standard LoRa message
@@ -245,6 +245,7 @@ class FlashLog extends Model
                 if (isset($flashlog_filled['log']))
                     $result['log'] = $flashlog_filled['log'];
 
+                $result['device']            = $device->name.' ('.$sid.')';
                 $result['records_flashlog']  = $flashlog_filled['records_flashlog'];
                 $result['time_insert_count'] = $flashlog_filled['time_insert_count'];
                 $result['records_timed']     = $flashlog_filled['records_timed'];

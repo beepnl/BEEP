@@ -112,8 +112,27 @@ trait MeasurementLoRaDecoderTrait
         
         if ($measurement && $device)
         {
-            $sensor_def = $device->sensorDefinitions->where('updated_at', '<=', $before_date)->where('input_measurement_id', $measurement->id)->last(); // be aware that last() gets the last value of the ASCENDING list
+            // Get the right sensordefinition
+            $sensor_def = null;
+            $sensorDefs = $device->sensorDefinitions->where('input_measurement_id', $measurement->id); // get appropriate sensor definitions
 
+            if ($sensorDefs->count() == 0)
+            {
+                // add nothing to $data_array
+            }
+            else if ($sensorDefs->count() == 1)
+            {
+                $sensor_def = $sensorDefs->last(); // get the only sensor definition, before or after setting
+            }
+            else // there are multiple, so get the one appropriate for the $date
+            {
+                if ($sensorDefs->where('updated_at', '<=', $before_date)->count() == 0) // not found before $date, but there are after, so get the first
+                    $sensor_def = $sensorDefs->first();
+                else
+                    $sensor_def = $sensorDefs->where('updated_at', '<=', $before_date)->last(); // be aware that last() gets the last value of the ASCENDING list
+            }
+
+            // Calculate the extra value based on the sensor definition
             if ($sensor_def)
             {
                 $measurement_abbr_o              = $sensor_def->output_abbr;

@@ -552,19 +552,26 @@ class MeasurementController extends Controller
     {
         $request_data = $request->input();
         // Check for valid data 
-        if ($request->filled('payload_fields')) // TTN HTTP POST
+        if (($request->filled('payload_fields') || $request->filled('payload_raw')) && $request->filled('hardware_serial')) // TTN HTTP POST
         {
             $data_array = $this->parse_ttn_payload($request_data);
+            $this->cacheRequestRate('store-lora-sensors-ttn');
+        }
+        else if ($request->filled('LrnDevEui') && $request->filled('DevEUI_uplink.payload_hex')) // KPN/Simpoint
+        {
+            $data_array = $this->parse_kpn_payload($request_data);
+            $this->cacheRequestRate('store-lora-sensors-kpn');
         }
         else if ($request->filled('data')) // Check for sensor string (colon and pipe devided) fw v1-3
         {
             $data_array = $this->convertSensorStringToArray($request_data['data']);
+            $this->cacheRequestRate('store-sensors');
         }
         else // Assume post data input
         {
             $data_array = $request_data;
+            $this->cacheRequestRate('store-sensors');
         }
-        $this->cacheRequestRate('store-sensors');
         
         //die(print_r($data_array));
         return $this->storeMeasurements($data_array);

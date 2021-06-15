@@ -113,23 +113,23 @@ trait MeasurementLoRaDecoderTrait
         if ($measurement && $device)
         {
             // Get the right sensordefinition
-            $sensor_def = null;
-            $sensorDefs = $device->sensorDefinitions->where('input_measurement_id', $measurement->id); // get appropriate sensor definitions
+            $sensor_def  = null;
+            $sensor_defs = $device->sensorDefinitions->where('input_measurement_id', $measurement->id); // get appropriate sensor definitions
 
-            if ($sensorDefs->count() == 0)
+            if ($sensor_defs->count() == 0)
             {
                 // add nothing to $data_array
             }
-            else if ($sensorDefs->count() == 1)
+            else if ($sensor_defs->count() == 1)
             {
-                $sensor_def = $sensorDefs->last(); // get the only sensor definition, before or after setting
+                $sensor_def = $sensor_defs->last(); // get the only sensor definition, before or after setting
             }
             else // there are multiple, so get the one appropriate for the $date
             {
-                if ($sensorDefs->where('updated_at', '<=', $before_date)->count() == 0) // not found before $date, but there are after, so get the first
-                    $sensor_def = $sensorDefs->first();
+                if ($sensor_defs->where('updated_at', '<=', $before_date)->count() == 0) // not found before $date, but there are after, so get the first
+                    $sensor_def = $sensor_defs->first();
                 else
-                    $sensor_def = $sensorDefs->where('updated_at', '<=', $before_date)->last(); // be aware that last() gets the last value of the ASCENDING list
+                    $sensor_def = $sensor_defs->where('updated_at', '<=', $before_date)->last(); // be aware that last() gets the last value of the ASCENDING list
             }
 
             // Calculate the extra value based on the sensor definition

@@ -31,7 +31,7 @@ class Kernel extends ConsoleKernel
             {
                 Weather::updateLocations();
             }
-        )->everyMinute();
+        )->everyFiveMinutes();
     }
 
     /**

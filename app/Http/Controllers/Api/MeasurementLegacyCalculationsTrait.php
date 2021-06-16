@@ -344,7 +344,7 @@ trait MeasurementLegacyCalculationsTrait
     {
         $weight = ['w_fl', 'w_fr', 'w_bl', 'w_br', 'w_v', 'weight_kg', 'weight_kg_corrected', 'calibrating_weight', 'w_v_offset', 'w_v_kg_per_val', 'w_fl_offset', 'w_fr_offset', 'w_bl_offset', 'w_br_offset'];
         $device = $this->get_user_device($request);
-        $output = $this->last_sensor_values_array($device, implode('","',$weight));
+        $output = $device->last_sensor_values_array(implode('","',$weight));
 
         if ($output === false)
             return Response::json('sensor-get-error', 500);

@@ -18,6 +18,8 @@ use App\Measurement;
 use App\Research;
 use DB;
 
+use Illuminate\Support\Facades\Cache;
+
 use Moment\Moment;
 
 class DashboardController extends Controller
@@ -26,6 +28,21 @@ class DashboardController extends Controller
     {
         
     }
+
+    private function cacheRequestGetRate($name)
+    {
+        if (Cache::has($name.'-time') && Cache::has($name.'-count'))
+        {
+            $sec_ago     = time() - Cache::get($name.'-time');
+            $req_per_min = round(Cache::get($name.'-count') * 60 / $sec_ago, 1);
+            return $req_per_min;
+        }
+        else
+        {
+            return 0;
+        }
+    }
+
 
     /**
      * Display a listing of the resource.
@@ -62,6 +79,14 @@ class DashboardController extends Controller
         $data['checklists_edited'] = Checklist::whereRaw('updated_at - created_at > 60')->count();
         $data['sensors']    = Device::count();
         $data['researches'] = [];
+        $data['store-measurements-201'] = $this->cacheRequestGetRate('store-measurements-201');
+        $data['store-measurements-400'] = $this->cacheRequestGetRate('store-measurements-400');
+        $data['store-measurements-401'] = $this->cacheRequestGetRate('store-measurements-401');
+        $data['store-measurements-500'] = $this->cacheRequestGetRate('store-measurements-500');
+        $data['store-lora-sensors-']    = $this->cacheRequestGetRate('store-lora-sensors-');
+        $data['store-lora-sensors-kpn'] = $this->cacheRequestGetRate('store-lora-sensors-kpn');
+        $data['store-lora-sensors-ttn'] = $this->cacheRequestGetRate('store-lora-sensors-ttn');
+        $data['get-measurements']       = $this->cacheRequestGetRate('get-measurements');
 
         foreach (Research::all() as $key => $r)
         {

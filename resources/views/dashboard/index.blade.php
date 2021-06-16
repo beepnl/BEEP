@@ -15,17 +15,71 @@
 
 		<div class="col-lg-3 col-xs-6">
 		<!-- small box -->
+			<div class="small-box bg-green">
+				<div class="inner">
+					<h3>{{ $data['store-measurements-201'] }}</h3>
+					<p>Data storage OK (201) req/min<br>TTN: {{ $data['store-lora-sensors-ttn'] }} | KPN: {{ $data['store-lora-sensors-kpn'] }} | ?: {{ $data['store-lora-sensors-'] }}</p>
+				</div>
+				<div class="icon">
+					<i class="fa fa-database"></i>
+				</div>
+			</div>
+		</div>
+
+		<div class="col-lg-3 col-xs-6">
+		<!-- small box -->
+			<div class="small-box bg-primary">
+				<div class="inner">
+					<h3>{{ $data['get-measurements'] }}</h3>
+					<p>Get data measurement <br>requests/min</p>
+				</div>
+				<div class="icon">
+					<i class="fa fa-database"></i>
+				</div>
+			</div>
+		</div>
+
+		<div class="col-lg-3 col-xs-6">
+		<!-- small box -->
+			<div class="small-box bg-orange">
+				<div class="inner">
+					<h3>{{ $data['store-measurements-400'] + $data['store-measurements-401'] }}</h3>
+					<p>Data storage <br>no/unexisting key (400/401) req/min</p>
+				</div>
+				<div class="icon">
+					<i class="fa fa-database"></i>
+				</div>
+			</div>
+		</div>
+
+
+		<div class="col-lg-3 col-xs-6">
+		<!-- small box -->
+			<div class="small-box bg-red">
+				<div class="inner">
+					<h3>{{ $data['store-measurements-500'] }}</h3>
+					<p>Data storage <br>save error (500) req/min</p>
+				</div>
+				<div class="icon">
+					<i class="fa fa-database"></i>
+				</div>
+			</div>
+		</div>
+
+	</div>
+
+	<div class="row">
+
+		<div class="col-lg-3 col-xs-6">
+		<!-- small box -->
 			<div class="small-box bg-primary">
 				<div class="inner">
 					<h3>{{ $data['users'] }} / {{ $data['newusers'] }}</h3>
-					<p>Total users / new last 7 days</p>
+					<p>Total users <br>New last 7 days</p>
 				</div>
 				<div class="icon">
 					<i class="fa fa-user-circle-o"></i>
 				</div>
-				<a href="/users" class="small-box-footer">
-	              Users <i class="fa fa-arrow-circle-right"></i>
-	            </a>
 			</div>
 		</div>
 
@@ -34,14 +88,11 @@
 			<div class="small-box bg-primary">
 				<div class="inner">
 					<h3>{{ $data['hourusers'] }} / {{ $data['dayusers'] }}</h3>
-					<p>Active users last hour / since yesterday</p>
+					<p>Active users <br>Last hour / since yesterday</p>
 				</div>
 				<div class="icon">
 					<i class="fa fa-user-circle-o"></i>
 				</div>
-				<a href="/users" class="small-box-footer">
-	              Users <i class="fa fa-arrow-circle-right"></i>
-	            </a>
 			</div>
 		</div>
 
@@ -50,14 +101,11 @@
 			<div class="small-box bg-primary">
 				<div class="inner">
 					<h3>{{ $data['activeusers'] }} / {{ $data['qrtusers'] }}</h3>
-					<p>Active users last month / 3 months</p>
+					<p>Active users <br>Last month / 3 months</p>
 				</div>
 				<div class="icon">
 					<i class="fa fa-user-circle-o"></i>
 				</div>
-				<a href="/users" class="small-box-footer">
-	              Users <i class="fa fa-arrow-circle-right"></i>
-	            </a>
 			</div>
 		</div>
 
@@ -66,14 +114,11 @@
 			<div class="small-box bg-primary">
 				<div class="inner">
 					<h3>{{ $data['yearusers'] }}</h3>
-					<p>Active users last 365 days</p>
+					<p>Active users <br>Last 365 days</p>
 				</div>
 				<div class="icon">
 					<i class="fa fa-user-circle-o"></i>
 				</div>
-				<a href="/users" class="small-box-footer">
-	              Users <i class="fa fa-arrow-circle-right"></i>
-	            </a>
 			</div>
 		</div>
 
@@ -90,9 +135,6 @@
 				<div class="icon">
 					<i class="fa fa-map-marker"></i>
 				</div>
-				<a href="#" class="small-box-footer">
-	              No extra info
-	            </a>
 			</div>
 		</div>
 
@@ -106,9 +148,6 @@
 				<div class="icon">
 					<i class="fa fa-archive"></i>
 				</div>
-				<a href="#" class="small-box-footer">
-	               No extra info
-	            </a>
 			</div>
 		</div>
 
@@ -122,9 +161,6 @@
 				<div class="icon">
 					<i class="fa fa-forumbee"></i>
 				</div>
-				<a href="#" class="small-box-footer">
-	               No extra info
-	            </a>
 			</div>
 		</div>
 
@@ -138,9 +174,6 @@
 				<div class="icon">
 					<i class="fa fa-align-justify fa-rotate-90"></i>
 				</div>
-				<a href="#" class="small-box-footer">
-	               No extra info
-	            </a>
 			</div>
 		</div>
 
@@ -233,9 +266,6 @@
 				<div class="icon">
 					<i class="fa fa-wifi"></i>
 				</div>
-				<a href="#" class="small-box-footer">
-	              No extra info
-	            </a>
 			</div>
 		</div>
 
@@ -257,9 +287,6 @@
 				<div class="icon">
 					<i class="fa fa-search"></i>
 				</div>
-				<a href="#" class="small-box-footer">
-	              No extra info
-	            </a>
 			</div>
 		</div>
 		
@@ -338,9 +365,6 @@
 				<div class="icon">
 					<i class="fa fa-wifi"></i>
 				</div>
-				<a href="#" class="small-box-footer">
-	               No extra info
-	            </a>
 			</div>
 		</div>
 

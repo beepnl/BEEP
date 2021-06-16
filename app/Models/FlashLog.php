@@ -79,7 +79,7 @@ class FlashLog extends Model
         $sid    = $this->device_id; 
         $time   = date("YmdHis");
 
-        if ($data && $sid)
+        if ($data && isset($sid))
         {
             $data    = preg_replace('/[\r\n|\r|\n]+|\)\(|FEFEFEFE/i', "\n", $data);
             // interpret every line as a standard LoRa message
@@ -139,6 +139,13 @@ class FlashLog extends Model
             $log_min = 0;
             $minute  = 0;
             $max_time= time();
+
+            // load weight sensor definitions
+            $weight_in   = Measurement::where('abbreviation','w_v')->first();
+            $weight_out  = Measurement::where('abbreviation','weight_kg')->first();
+            $sensor_defs = $device->sensorDefinitions->where('input_measurement_id', $weight_in->id)->where('output_measurement_id', $weight_out->id); // be aware that last() gets the last value of the ASCENDING list
+            $weight_sd_c = $sensor_defs->count();
+
             foreach ($in as $line)
             {
                 $counter++;
@@ -159,15 +166,41 @@ class FlashLog extends Model
                     $data_array['minute_interval'] = $log_min;
                 }
 
-                if (in_array('time_device', array_keys($data_array)))
+                // Add time if not present
+                if (!isset($data_array['time']) && isset($data_array['time_device']))
                 {
                     $logtm++;
                     $ts = intval($data_array['time_device']);
 
-                    if ($ts > 1546297200 && $ts < $max_time) // > 2019-01-01 00:00:00
+                    if ($ts > 1546297200 && $ts < $max_time) // > 2019-01-01 00:00:00 < now
                     {
-                        $device_time = new Moment($ts);
-                        $data_array['time'] = $device_time->format($this->timeFormat);
+                        $time_device = new Moment($ts);
+                        $data_array['time'] = $time_device->format($this->timeFormat);
+                    }
+                }
+
+                // Add weight_kg if not present 
+                $sensor_def = null;
+                if (!isset($data_array['weight_kg']) && $weight_sd_c > 0 && isset($data_array['w_v']) && isset($data_array['time']))
+                {
+                    if ($weight_sd_c == 1)
+                    {
+                        $sensor_def = $sensor_defs->last(); // get the only sensor definition, before or after setting
+                    }
+                    else // there are multiple, so get the one appropriate for the $date
+                    {
+                        if ($sensor_defs->where('updated_at', '<=', $data_array['time'])->count() == 0) // not found before $date, but there are after, so get the first
+                            $sensor_def = $sensor_defs->first();
+                        else
+                            $sensor_def = $sensor_defs->where('updated_at', '<=', $data_array['time'])->last(); // be aware that last() gets the last value of the ASCENDING list
+                    }
+
+                    if ($sensor_def)
+                    {
+                        $calibrated_weight = $sensor_def->calibrated_measurement_value($data_array['w_v']);
+                        if (isset($calibrated_weight))
+                            $data_array['weight_kg'] = $calibrated_weight;
+
                     }
                 }
 
@@ -212,14 +245,17 @@ class FlashLog extends Model
                 if (isset($flashlog_filled['log']))
                     $result['log'] = $flashlog_filled['log'];
 
+                $result['device']            = $device->name.' ('.$sid.')';
                 $result['records_flashlog']  = $flashlog_filled['records_flashlog'];
                 $result['time_insert_count'] = $flashlog_filled['time_insert_count'];
                 $result['records_timed']     = $flashlog_filled['records_timed'];
+                $weight_percentage           = round($flashlog_filled['weight_percentage'], 2);
+                $result['weight_percentage'] = $weight_percentage.'%';
                 $result['time_insert_count'] = $flashlog_filled['time_insert_count'];
                 $time_percentage             = round($flashlog_filled['time_percentage'], 2);
                 $result['time_percentage']   = $time_percentage.'%';
 
-                if (isset($this->time_percentage) == false || $this->time_percentage <= $time_percentage)
+                if (isset($this->time_percentage) == false || min(100, $this->time_percentage) <= $time_percentage || $this->time_percentage > 100)
                 {
                     if ($save && isset($flashlog_filled['flashlog']) && count($flashlog_filled['flashlog']) > 0 && $flashlog_filled['time_insert_count'] > 0)
                     {
@@ -375,9 +411,11 @@ class FlashLog extends Model
                 $blockEndDate= $blockStart->format($this->timeFormat);
 
                 // load weight sensor definitions
-                $measurement = Measurement::where('abbreviation','w_v')->first();
-                $sensor_defs = $device->sensorDefinitions->where('input_measurement_id', $measurement->id); // be aware that last() gets the last value of the ASCENDING list
-                
+                $weight_in   = Measurement::where('abbreviation','w_v')->first();
+                $weight_out  = Measurement::where('abbreviation','weight_kg')->first();
+                $sensor_defs = $device->sensorDefinitions->where('input_measurement_id', $weight_in->id)->where('output_measurement_id', $weight_out->id); // be aware that last() gets the last value of the ASCENDING list
+                $weight_sd_c = $sensor_defs->count();
+
                 // add time to flashlog block
                 $setTimeStart = '';
                 $setTimeEnd   = '';
@@ -385,36 +423,55 @@ class FlashLog extends Model
                 for ($i=$startInd; $i <= $endInd; $i++) 
                 { 
                     $fl = $flashlog[$i];
-                    if (isset($fl['time']) === false)
+
+                    // Add time if not present
+                    if (!isset($fl['time']))
                     {
-                        $startMoment          = new Moment($blockStaDate);
+                        $startMoment= new Moment($blockStaDate);
                         $fl['time'] = $startMoment->addMinutes($addCounter * $matchMinInt)->format($this->timeFormat);
 
-                        // check for device_time, set device time if less than 30 seconds off
-                        if (isset($fl['device_time']))
+                        // check for time_device, set device time if less than 60 seconds off
+                        if (isset($fl['time_device']))
                         {
-                            $second_deviation = abs($startMoment->from($fl['device_time'])->getSeconds());
-                            if ($second_deviation < 30)
+                            $second_deviation = abs($startMoment->from($fl['time_device'])->getSeconds());
+                            if ($second_deviation < 60)
                             {
-                                $device_time = new Moment($fl['device_time']);
-                                $fl['time']  = $device_time->format($this->timeFormat);
+                                $time_device = new Moment($fl['time_device']);
+                                $fl['time']  = $time_device->format($this->timeFormat);
                             }
                         }
-
-                        // add missing sensordefinition measurements (i.e. weight_kg by the sensor definition that was active at that time)
-                        if (count($sensor_defs) > 0 && isset($fl['w_v']))
-                        {
-                            $sensor_def = $sensor_defs->where('updated_at', '<=', $fl['time'])->last(); 
-                            if ($sensor_def)
-                                $fl[$sensor_def->output_abbr] = $sensor_def->calibrated_measurement_value($fl['w_v']);
-                        }
-                        
-                        if ($fl['port'] == 3)
-                            $setCount++;
-
-                        $flashlog[$i] = $fl;
-
                     }
+
+                    // Add weight_kg if not present 
+                    if (!isset($fl['weight_kg']) && $weight_sd_c > 0 && isset($fl['w_v']))
+                    {
+                        $sensor_def = null;
+                        if ($weight_sd_c == 1)
+                        {
+                            $sensor_def = $sensor_defs->last(); // get the only sensor definition, before or after setting
+                        }
+                        else // there are multiple, so get the one appropriate for the $date
+                        {
+                            if ($sensor_defs->where('updated_at', '<=', $fl['time'])->count() == 0) // not found before $date, but there are after, so get the first
+                                $sensor_def = $sensor_defs->first();
+                            else
+                                $sensor_def = $sensor_defs->where('updated_at', '<=', $fl['time'])->last(); // be aware that last() gets the last value of the ASCENDING list
+                        }
+
+                        if ($sensor_def)
+                        {
+                            $calibrated_weight = $sensor_def->calibrated_measurement_value($fl['w_v']);
+                            if (isset($calibrated_weight))
+                                $fl['weight_kg'] = $calibrated_weight;
+
+                        }
+                    }
+                    
+                    if ($fl['port'] == 3)
+                        $setCount++;
+
+                    $flashlog[$i] = $fl;
+
                     $addCounter++;
                 }
 
@@ -522,6 +579,7 @@ class FlashLog extends Model
 
         $records_flashlog = 0;
         $records_timed    = 0;
+        $records_weight   = 0;
         foreach ($flashlog as $f) 
         {
             if ($f['port'] == 3)
@@ -530,11 +588,15 @@ class FlashLog extends Model
                 
                 if (isset($f['time']))
                     $records_timed++;
+
+                if (isset($f['weight_kg']))
+                    $records_weight++;
             }
 
         }
-        $time_percentage = $records_flashlog > 0 ? 100 * ($records_timed/$records_flashlog) : 0;
-        $out = ['time_percentage'=>$time_percentage, 'records_timed'=>$records_timed, 'records_flashlog'=>$records_flashlog, 'time_insert_count'=>$setCount, 'flashlog'=>$flashlog];
+        $time_percentage = $records_flashlog > 0 ? min(100, 100*($records_timed/$records_flashlog)) : 0;
+        $weight_percentage = $records_flashlog > 0 ? min(100, 100*($records_weight/$records_flashlog)) : 0;
+        $out = ['time_percentage'=>$time_percentage, 'records_timed'=>$records_timed, 'weight_percentage'=>$weight_percentage, 'records_flashlog'=>$records_flashlog, 'time_insert_count'=>$setCount, 'flashlog'=>$flashlog];
 
         if ($show)
             $out['log'] = $log;

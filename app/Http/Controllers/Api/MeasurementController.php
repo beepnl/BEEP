@@ -22,6 +22,8 @@ use App\Traits\MeasurementLoRaDecoderTrait;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\ClientException;
 
+use Illuminate\Support\Facades\Cache;
+
 /**
  * @group Api\MeasurementController
  * Store and retreive sensor data (both LoRa and API POSTs) from a Device
@@ -148,11 +150,27 @@ class MeasurementController extends Controller
         return $stored;
     }
 
+    private function cacheRequestRate($name)
+    {
+        Cache::remember($name.'-time', 600, function () use ($name)
+        { 
+            Cache::forget($name.'-count'); 
+            return time(); 
+        });
+
+        if (Cache::has($name.'-count'))
+            Cache::increment($name.'-count');
+        else
+            Cache::put($name.'-count', 1);
+
+    }
+
     private function storeMeasurements($data_array)
     {
         if (!in_array('key', array_keys($data_array)) || $data_array['key'] == '' || $data_array['key'] == null)
         {
             Storage::disk('local')->put('sensors/sensor_no_key.log', json_encode($data_array));
+            $this->cacheRequestRate('store-measurements-400');
             return Response::json('No key provided', 400);
         }
 
@@ -167,9 +185,9 @@ class MeasurementController extends Controller
         else
         {
             Storage::disk('local')->put('sensors/sensor_invalid_key.log', json_encode($data_array));
+            $this->cacheRequestRate('store-measurements-401');
             return Response::json('No valid key provided', 401);
         }
-
 
         unset($data_array['key']);
 
@@ -207,12 +225,14 @@ class MeasurementController extends Controller
         $stored = $this->storeInfluxData($data_array, $dev_eui, $time);
         if($stored) 
         {
+            $this->cacheRequestRate('store-measurements-201');
             return Response::json("saved", 201);
         } 
         else
         {
             //die(print_r($data_array));
             Storage::disk('local')->put('sensors/sensor_write_error.log', json_encode($data_array));
+            $this->cacheRequestRate('store-measurements-500');
             return Response::json('sensor-write-error', 500);
         }
     }
@@ -513,7 +533,7 @@ class MeasurementController extends Controller
             $data_array = $this->parse_ttn_payload($request_data);
             $payload_type = 'ttn';
         }
-
+        $this->cacheRequestRate('store-lora-sensors-'.$payload_type);
         //die(print_r($data_array));
         //$logFileName = isset($data_array['key']) ? 'lora_sensor_'.$data_array['key'].'.json' : 'lora_sensor_no_key.json';
         //Storage::disk('local')->put('sensors/'.$logFileName, '[{"payload_type":"'.$payload_type.'"},{"request_input":'.json_encode($request_data).'},{"data_array":'.json_encode($data_array).'}]');
@@ -532,17 +552,25 @@ class MeasurementController extends Controller
     {
         $request_data = $request->input();
         // Check for valid data 
-        if ($request->filled('payload_fields')) // TTN HTTP POST
+        if (($request->filled('payload_fields') || $request->filled('payload_raw')) && $request->filled('hardware_serial')) // TTN HTTP POST
         {
             $data_array = $this->parse_ttn_payload($request_data);
+            $this->cacheRequestRate('store-lora-sensors-ttn');
+        }
+        else if ($request->filled('LrnDevEui') && $request->filled('DevEUI_uplink.payload_hex')) // KPN/Simpoint
+        {
+            $data_array = $this->parse_kpn_payload($request_data);
+            $this->cacheRequestRate('store-lora-sensors-kpn');
         }
         else if ($request->filled('data')) // Check for sensor string (colon and pipe devided) fw v1-3
         {
             $data_array = $this->convertSensorStringToArray($request_data['data']);
+            $this->cacheRequestRate('store-sensors');
         }
         else // Assume post data input
         {
             $data_array = $request_data;
+            $this->cacheRequestRate('store-sensors');
         }
         
         //die(print_r($data_array));
@@ -736,6 +764,8 @@ class MeasurementController extends Controller
     */
     public function data(Request $request)
     {
+        $this->cacheRequestRate('get-measurements');
+
         //Get the sensor
         $device  = $this->get_user_device($request);
         $location= $device->location();

@@ -286,6 +286,7 @@ class ResearchDataController extends Controller
     @urlParam item required The type of user data (apiaries/hives/devices/inspections/measurements) to request within the research (which the user gave consent for to use). Example: inspections
     @bodyParam date_start datetime The date in 'YYYY-MM-DD HH:mm:ss' format (2020-01-01 00:00:00) to request data from (default is beginning of research, or earlier (except inspections and measurements). Example: 2020-01-01 00:00:00
     @bodyParam date_until datetime The date in 'YYYY-MM-DD HH:mm:ss' format (2020-09-29 23:59:59) to request data until (default is until the end of the user consent, or research end). Example: 2020-09-29 23:59:59
+    @bodyParam device_id integer The device_id to filter the measurements on (next to date_start and date_until). Example: 1
     @bodyParam precision string Specifies the optional InfluxDB format/precision (rfc3339/h/m/s/ms/u) of the timestamp of the measurements and weather data: rfc3339 (YYYY-MM-DDTHH:MM:SS.nnnnnnnnnZ), h (hours), m (minutes), s (seconds), ms (milliseconds), u (microseconds). Precision defaults to rfc3339. Example: rfc3339
     @response [
         {
@@ -691,7 +692,7 @@ class ResearchDataController extends Controller
         $precision  = $request->input('precision', 'rfc3339');
         $date_format='Y-m-d H:i:s'; // RFC3339 == 'Y-m-d\TH:i:sP'
             
-        if ($request->has('date_start'))
+        if ($request->filled('date_start'))
         {
             if ($this->validateDate($date_start, $date_format) == false)
                 return Response::json(['date_start_invalid'=>$date_start, 'format'=>$date_format], 400);
@@ -699,7 +700,7 @@ class ResearchDataController extends Controller
                 return Response::json('date_start_before_research_start', 400);
         }
 
-        if ($request->has('date_until'))
+        if ($request->filled('date_until'))
         {
             if ($this->validateDate($date_until, $date_format) == false)
                 return Response::json(['date_until_invalid'=>$date_until, 'format'=>$date_format], 400);
@@ -759,7 +760,7 @@ class ResearchDataController extends Controller
             }
 
             // Minimize data to requested dates
-            if ($request->has('date_start') && $date_start > $date_curr_consent)
+            if ($request->filled('date_start') && $date_start > $date_curr_consent)
             {
                 if ($date_start < $date_next_consent)
                     $date_curr_consent = $date_start;
@@ -767,7 +768,7 @@ class ResearchDataController extends Controller
                     continue; // start >= next_consent, so hide this data from dataset, because earlier than requested
             }
                         
-            if ($request->has('date_until') && $date_until < $date_next_consent)
+            if ($request->filled('date_until') && $date_until < $date_next_consent)
             {
                 if ($date_until > $date_curr_consent)
                     $date_next_consent = $date_until;
@@ -801,10 +802,13 @@ class ResearchDataController extends Controller
                         {
                             foreach ($user_devices as $device)
                             {
-                                if ($device->created_at < $date_next_consent)
-                                {
-                                    $where= '("key" = \''.$device->key.'\' OR "key" = \''.strtolower($device->key).'\' OR "key" = \''.strtoupper($device->key).'\') AND time >= \''.$date_curr_consent.'\' AND time <= \''.$date_next_consent.'\'';
-                                    $data = array_merge($data, $this->getArrayFromInflux($where, '*', 'sensors', $precision));
+                                if (($request->filled('device_id') && $request->input('device_id') == $device->id) || $request->missing('device_id'))
+                                {   
+                                    if ($device->created_at < $date_next_consent)
+                                    {
+                                        $where= '("key" = \''.$device->key.'\' OR "key" = \''.strtolower($device->key).'\' OR "key" = \''.strtoupper($device->key).'\') AND time >= \''.$date_curr_consent.'\' AND time <= \''.$date_next_consent.'\'';
+                                        $data = array_merge($data, $this->getArrayFromInflux($where, '*', 'sensors', $precision));
+                                    }
                                 }
                             }
                         }

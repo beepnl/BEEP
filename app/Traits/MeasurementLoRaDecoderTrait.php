@@ -137,7 +137,7 @@ trait MeasurementLoRaDecoderTrait
             {
                 $measurement_abbr_o              = $sensor_def->output_abbr;
                 $calibrated_measurement_val      = $sensor_def->calibrated_measurement_value($value);
-                if (isset($calibrated_measurement_val)) // do not add sensor measurement is outside measurement min/max value
+                if ($calibrated_measurement_val !== null) // do not add sensor measurement is outside measurement min/max value
                     $data_array[$measurement_abbr_o] = $calibrated_measurement_val;
 
                 //die(print_r([$date, $sensor_def->toArray(), $data_array] ));

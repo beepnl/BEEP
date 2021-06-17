@@ -80,12 +80,17 @@ class SensorDefinition extends Model
             $multi  = isset($this->multiplier) ? floatval($this->multiplier) : 1;
 
             $outputValue = (floatval($inputValue) - $offset) * $multi;
-            
-            if (isset($this->output_measurement->min_value) && $outputValue < $this->output_measurement->min_value)
-                return null;
+            $om          = $this->output_measurement;
 
-            if (isset($this->output_measurement->max_value) && $outputValue > $this->output_measurement->max_value)
+            if (isset($om) && isset($om->min_value) && ($outputValue < $om->min_value)
+            {
                 return null;
+            }
+
+            if (isset($om) && isset($om->max_value) && $outputValue > $om->max_value)
+            {
+                return null;
+            }
         }
 
         return $outputValue;

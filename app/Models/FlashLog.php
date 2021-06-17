@@ -448,6 +448,7 @@ class FlashLog extends Model
                         $sensor_def = null;
                         if ($weight_sd_c == 1)
                         {
+
                             $sensor_def = $sensor_defs->last(); // get the only sensor definition, before or after setting
                         }
                         else // there are multiple, so get the one appropriate for the $date

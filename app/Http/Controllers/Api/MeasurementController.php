@@ -202,9 +202,12 @@ class MeasurementController extends Controller
         {
             $data_array = $this->addSensorDefinitionMeasurements($data_array, $val, $abbr, $device, $date);
         }
+        // temp logging of error values
+        // if (isset($data_array['weight_kg']) && $data_array['weight_kg'] > 200)
+        //     Storage::disk('local')->put('sensors/_device_'.$device->id.'_weight_error.json', json_encode(['time'=>$time, 'date'=>$date, 'data'=>$data_array, 'sensor_defs'=>$device->sensorDefinitions->toArray()]));
 
         // Legacy weight calculation from 2-4 load cells
-        if (isset($data_array['w_fl']) || isset($data_array['w_fr']) || isset($data_array['w_bl']) || isset($data_array['w_br']) || isset($data_array['w_v'])) 
+        if (!isset($data_array['weight_kg']) && (isset($data_array['w_fl']) || isset($data_array['w_fr']) || isset($data_array['w_bl']) || isset($data_array['w_br']) || isset($data_array['w_v']))) 
         {
             // check if calibration is required
             $calibrate = $device->last_sensor_measurement_time_value('calibrating_weight');

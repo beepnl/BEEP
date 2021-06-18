@@ -214,7 +214,7 @@ class MeasurementController extends Controller
             if (floatval($calibrate) > 0)
                 $this->calibrate_weight_sensors($device, $calibrate, false, $data_array);
 
-            if (isset($data_array['weight_kg']) == false)
+            if (!isset($data_array['weight_kg']))
             {
                 // take into account offset and multi
                 $weight_kg = $this->calculateWeightKg($device, $data_array);

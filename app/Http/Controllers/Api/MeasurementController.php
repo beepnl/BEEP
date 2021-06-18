@@ -202,10 +202,7 @@ class MeasurementController extends Controller
         {
             $data_array = $this->addSensorDefinitionMeasurements($data_array, $val, $abbr, $device, $date);
         }
-        // temp logging of error values
-        if (isset($data_array['weight_kg']) && $data_array['weight_kg'] > 200)
-            Storage::disk('local')->put('sensors/_device_'.$device->id.'_weight_error.json', json_encode(['time'=>$time, 'date'=>$date, 'data'=>$data_array, 'sensor_defs'=>$device->sensorDefinitions->toArray()]));
-
+        
         // Legacy weight calculation from 2-4 load cells
         if (!isset($data_array['weight_kg']) && (isset($data_array['w_fl']) || isset($data_array['w_fr']) || isset($data_array['w_bl']) || isset($data_array['w_br']) || isset($data_array['w_v']))) 
         {
@@ -218,13 +215,14 @@ class MeasurementController extends Controller
             {
                 // take into account offset and multi
                 $weight_kg = $this->calculateWeightKg($device, $data_array);
-                $data_array['weight_kg'] = $weight_kg;
+                if (!isset($data_array['w_v']) || $data_array['w_v'] != $weight_kg) // do not save too big value
+                    $data_array['weight_kg'] = $weight_kg;
 
                 // check if we need to compensate weight for temp (legacy)
                 //$data_array = $this->add_weight_kg_corrected_with_temperature($device, $data_array);
             }
         }
-        
+
         $stored = $this->storeInfluxData($data_array, $dev_eui, $time);
         if($stored) 
         {

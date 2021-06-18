@@ -2,6 +2,8 @@
 namespace App\Traits;
 
 use App\Measurement;
+use Cache;
+
 /**
  * @group Api\MeasurementLoRaDecoderTrait
  * Measurement device LoRa payload decoding
@@ -108,13 +110,20 @@ trait MeasurementLoRaDecoderTrait
     {
         $before_date = isset($date) ? $date : date('Y-m-d H:i:s'); 
         
-        $measurement = Measurement::where('abbreviation',$measurement_abbr)->first();
+        $measurement_id = Cache::remember('measurement-abbr-id-'.$measurement_abbr, env('CACHE_TIMEOUT_LONG'), function () use ($measurement_abbr){
+            $m = Measurement::where('abbreviation',$measurement_abbr)->first();
+            if ($m)
+                return $m->id;
+            else
+                return null;
+        });
+
         
-        if ($measurement && $device)
+        if ($measurement_id && $device)
         {
             // Get the right sensordefinition
             $sensor_def  = null;
-            $sensor_defs = $device->sensorDefinitions->where('input_measurement_id', $measurement->id); // get appropriate sensor definitions
+            $sensor_defs = $device->sensorDefinitions->where('input_measurement_id', $measurement_id); // get appropriate sensor definitions
 
             if ($sensor_defs->count() == 0)
             {
@@ -133,14 +142,13 @@ trait MeasurementLoRaDecoderTrait
             }
 
             // Calculate the extra value based on the sensor definition
-            if ($sensor_def)
+            if (isset($sensor_def))
             {
                 $measurement_abbr_o              = $sensor_def->output_abbr;
                 $calibrated_measurement_val      = $sensor_def->calibrated_measurement_value($value);
                 if ($calibrated_measurement_val !== null) // do not add sensor measurement is outside measurement min/max value
                     $data_array[$measurement_abbr_o] = $calibrated_measurement_val;
 
-                //die(print_r([$date, $sensor_def->toArray(), $data_array] ));
             }
             else if ($measurement_abbr == 'w_v') // make new calibration values based on stored ones
             {

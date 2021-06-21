@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Auth;
 use InfluxDB;
+use Cache;
 
 class Device extends Model
 {
@@ -192,6 +193,61 @@ class Device extends Model
         return $output;
     }
 
+    public function addSensorDefinitionMeasurements($data_array, $value, $measurement_abbr, $date=null)
+    {
+        $before_date = isset($date) ? $date : date('Y-m-d H:i:s'); 
+        
+        $measurement_id = Cache::remember('measurement-abbr-id-'.$measurement_abbr, env('CACHE_TIMEOUT_LONG'), function () use ($measurement_abbr){
+            $m = Measurement::where('abbreviation',$measurement_abbr)->first();
+            if ($m)
+                return $m->id;
+            else
+                return null;
+        });
+
+        if ($measurement_id != null)
+        {
+            // Get the right sensordefinition
+            $sensor_def  = null;
+            $sensor_defs = $this->sensorDefinitions->where('input_measurement_id', $measurement_id); // get appropriate sensor definitions
+
+            if ($sensor_defs->count() == 0)
+            {
+                // add nothing to $data_array
+            }
+            else if ($sensor_defs->count() == 1)
+            {
+                $sensor_def = $sensor_defs->last(); // get the only sensor definition, before or after setting
+            }
+            else // there are multiple, so get the one appropriate for the $date
+            {
+                if ($sensor_defs->where('updated_at', '<=', $before_date)->count() == 0) // not found before $date, but there are after, so get the first
+                    $sensor_def = $sensor_defs->first();
+                else
+                    $sensor_def = $sensor_defs->where('updated_at', '<=', $before_date)->last(); // be aware that last() gets the last value of the ASCENDING list
+            }
+
+            // Calculate the extra value based on the sensor definition
+            if (isset($sensor_def))
+            {
+                $measurement_abbr_o              = $sensor_def->output_abbr;
+                $calibrated_measurement_val      = $sensor_def->calibrated_measurement_value($value);
+                if ($calibrated_measurement_val !== null) // do not add sensor measurement is outside measurement min/max value
+                    $data_array[$measurement_abbr_o] = $calibrated_measurement_val;
+
+                //die(print_r([$calibrated_measurement_val, $data_array, $sensor_def->toArray()]));
+            }
+            // else if ($measurement_abbr == 'w_v') // Legacy app: make new calibration values based on stored ones
+            // {
+            //     $influx_offset = floatval($device->last_sensor_measurement_time_value($measurement_abbr.'_offset'));
+            //     $influx_multi  = floatval($device->last_sensor_measurement_time_value($measurement_abbr.'_kg_per_val'));
+
+            //     if ($influx_offset != 0 || $influx_multi != 0)
+            //         $this->createOrUpdateDefinition($device, 'w_v', 'weight_kg', $influx_offset, $influx_multi);
+            // }
+        }
+        return $data_array;
+    }
 
     private function last_sensor_increment_values($data_array=null)
     {

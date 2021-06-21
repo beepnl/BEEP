@@ -1,5 +1,5 @@
 <?php
-namespace App\Http\Controllers\Api;
+namespace App\Traits;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -13,7 +13,7 @@ use InfluxDB;
 use Response;
 
 /**
- * @group Api\MeasurementLegacyCalculationsTrait
+ * @group Traits\MeasurementLegacyCalculationsTrait
  * Legacy weight sensor calculations
  */
 trait MeasurementLegacyCalculationsTrait

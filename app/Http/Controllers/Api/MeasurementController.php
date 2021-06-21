@@ -17,7 +17,7 @@ use Response;
 use Moment\Moment;
 use League\Fractal;
 use App\Http\Requests\PostSensorRequest;
-use App\Http\Controllers\Api\MeasurementLegacyCalculationsTrait;
+use App\Traits\MeasurementLegacyCalculationsTrait;
 use App\Traits\MeasurementLoRaDecoderTrait;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\ClientException;
@@ -119,9 +119,11 @@ class MeasurementController extends Controller
         $points    = [];
         $unix_time = isset($unix_timestamp) ? $unix_timestamp : time();
 
+        $valid_sensor_keys = array_keys($this->valid_sensors);
+
         foreach ($data_array as $key => $value) 
         {
-            if (in_array($key, array_keys($this->valid_sensors)) )
+            if (in_array($key, $valid_sensor_keys) )
             {
                 array_push($points, 
                     new InfluxDB\Point(
@@ -195,12 +197,11 @@ class MeasurementController extends Controller
         if (isset($data_array['time']))
             $time = intVal($data_array['time']);
 
-        $date = date($this->timeFormat, $time); 
-
-        // New sensor data calculations based on sensor definitions
-        foreach ($data_array as $abbr => $val) 
+        // New weight sensor data calculations based on sensor definitions
+        if (!isset($data_array['weight_kg']) && isset($data_array['w_v']))
         {
-            $data_array = $this->addSensorDefinitionMeasurements($data_array, $val, $abbr, $device, $date);
+            $date = date($this->timeFormat, $time); 
+            $data_array = $device->addSensorDefinitionMeasurements($data_array, $data_array['w_v'], 'w_v', $date);
         }
         
         // Legacy weight calculation from 2-4 load cells

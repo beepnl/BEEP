@@ -50,7 +50,7 @@ class HighWeightFix {
         return $stored;
     }
 
-    public static function fix($sensor_id=null)
+    public static function fix($values_per_device=100)
     {
 
         //$device = Device::findOrFail($sensor_id); 
@@ -58,7 +58,7 @@ class HighWeightFix {
         $start  = '2021-06-02 09:00:00';
         $end    = '2021-06-18 18:00:00';
         $where  = '"w_v" = "weight_kg" AND "w_v" > 0';
-        $limit  = '';
+        $limit  = $values_per_device != null ? ' LIMIT '.$values_per_device : '';
         $query  = 'SELECT * FROM "sensors" WHERE '.$where.' AND time >= \''.$start.'\' AND time < \''.$end.'\' GROUP BY "key" ORDER BY time ASC'.$limit;
         $options= ['precision'=>'s', 'epoch'=>'s']; // get 
 

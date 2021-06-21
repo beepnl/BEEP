@@ -50,68 +50,88 @@ class HighWeightFix {
         return $stored;
     }
 
+    public static function getInfluxQuery($query)
+    {
+        $client  = new \Influx;
+        $options = ['precision'=> 's', 'epoch'=>'s'];
+        $values  = [];
+
+        try{
+            $result  = $client::query($query, $options);
+            $values  = $result->getPoints();
+        } catch (InfluxDB\Exception $e) {
+            // return Response::json('influx-group-by-query-error', 500);
+        }
+        return $values;
+    }
+
     public static function fix($device_key=null, $values_per_device=10)
     {
+        $cor_cnt= 0;
+        date_default_timezone_set('UTC');
 
-        //$device = Device::findOrFail($sensor_id); 
-        //$key    = 
         $start  = '2021-06-02 00:00:00';
         $end    = '2021-06-18 18:00:00';
-        $where  = '"w_v" = "weight_kg" AND "w_v" > 200';
+        $where  = '"w_v" = "weight_kg" AND "w_v" > 0';
         $where .= $device_key != null ? ' AND ("key" = \''.$device_key.'\' OR "key" = \''.strtolower($device_key).'\' OR "key" = \''.strtoupper($device_key).'\')' : '';
-        $limit  = $values_per_device != null ? ' LIMIT '.$values_per_device : '';
+        $limit  = ' LIMIT 1';
         $query  = 'SELECT * FROM "sensors" WHERE '.$where.' AND time >= \''.$start.'\' AND time < \''.$end.'\' GROUP BY "key" ORDER BY time ASC'.$limit;
-        $options= ['precision'=>'s', 'epoch'=>'s']; // get 
 
-        $valid_sensors  = Measurement::all()->pluck('pq', 'abbreviation')->toArray();
-
-        $data   = [];
-        try{
-            $client = new \Influx; 
-            $data   = $client::query($query, $options)->getPoints(); // get first sensor date
-        } catch (InfluxDB\Exception $e) {
-            return 'influx-query-error: '.$query;
-        }
-
-        $key    = null;
-        $device = null;
-        $cor_cnt= 0;
-
-        date_default_timezone_set('UTC');
+        $result = HighWeightFix::getInfluxQuery($query);
+        $keys   = [];
         
-        foreach ($data as $v) 
+        foreach ($result as $values)
         {
+            if(isset($values['key']))
+                $keys[] = strtolower($values['key']);
+        }        
 
-            $v = array_filter($v, function($value) { return !is_null($value) && $value !== ''; }); // filter out empty values
+        $all_devices = Device::whereIn('key',$keys)->get();
 
-            if ($v['key'] != $key)
+        foreach ($all_devices as $d)
+        {
+            $key = $d->key;
+            if ($device_key == null || strtolower($device_key) == strtolower($key))
             {
-                $key    = $v['key'];
-                $device = Device::where('key', $key)->orderBy('created_at', 'desc')->first();
-            }
+                if ($d->sensorDefinitions->where('input_measurement_id', 7)->where('output_measurement_id', 20)->where('updated_at', '<', $end)->count() > 0)
+                {
+                    $where  = '"w_v" = "weight_kg" AND "w_v" > 0';
+                    $where .= ' AND ("key" = \''.$key.'\' OR "key" = \''.strtolower($key).'\' OR "key" = \''.strtoupper($key).'\')';
+                    $limit  = $values_per_device != null ? ' LIMIT '.$values_per_device : '';
+                    $query  = 'SELECT * FROM "sensors" WHERE '.$where.' AND time >= \''.$start.'\' AND time < \''.$end.'\' GROUP BY "key" ORDER BY time ASC'.$limit;
 
-            if ($device)
+                    $valid_sensors = Measurement::all()->pluck('pq', 'abbreviation')->toArray();
+
+                    $data = HighWeightFix::getInfluxQuery($query);
+
+                    foreach ($data as $v) 
+                    {
+                        $v = array_filter($v, function($value) { return !is_null($value) && $value !== ''; }); // filter out empty values
+                        
+                        $time = $v['time'];
+                        $date = date('Y-m-d H:i:s', $time);
+                        $v    = $d->addSensorDefinitionMeasurements($v, $v['w_v'], 'w_v', $date);
+
+                        // store corrected value (+ other unchanged values)
+                        if (isset($v['weight_kg']) && $v['weight_kg'] != null && $v['w_v'] != $v['weight_kg'])
+                        {
+                            print_r('device '.$key.' corrected weight_kg from '.$v['w_v'].' to '.$v['weight_kg']." @ $date ($time) \n");
+                            $stored = HighWeightFix::storeInfluxData($v, $key, $time, $valid_sensors);
+
+                            if ($stored)
+                                $cor_cnt++;
+                        }
+                        else
+                        {
+                            print_r('device '.$key." Not saving weight_kg value: ".(isset($v['weight_kg']) ? $v['weight_kg'] : 'null')." \n");
+                        }
+                    }
+                }
+            }
+            else
             {
-                $time = $v['time'];
-                $date = date('Y-m-d H:i:s', $time);
-                $v    = $device->addSensorDefinitionMeasurements($v, $v['w_v'], 'w_v', $date);
-
-                // store corrected value (+ other unchanged values)
-                if (isset($v['weight_kg']) && $v['weight_kg'] != null && $v['w_v'] != $v['weight_kg'])
-                {
-                    print_r('device '.$key.' corrected weight_kg from '.$v['w_v'].' to '.$v['weight_kg']." @ $date ($time) \n");
-                    $stored = HighWeightFix::storeInfluxData($v, $key, $time, $valid_sensors);
-
-                    if ($stored)
-                        $cor_cnt++;
-                }
-                else
-                {
-                    print_r('device '.$key.' has '.$device->sensorDefinitions->where('output_measurement_id', 20)->where('updated_at', '<', $date)->count()." sensorDefinitions < $date. Not saving weight_kg value: ".(isset($v['weight_kg']) ? $v['weight_kg'] : 'null')." \n");
-                }
-
+                print_r('device '.$key." has 0 weight sensorDefinitions < $date. \n");
             }
-            //die(print_r($v));
 
         }
         return "Corrected $cor_cnt weight_kg values";

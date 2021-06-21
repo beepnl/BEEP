@@ -93,7 +93,8 @@ class HighWeightFix {
             $key = $d->key;
             if ($device_key == null || strtolower($device_key) == strtolower($key))
             {
-                if ($d->sensorDefinitions->where('input_measurement_id', 7)->where('output_measurement_id', 20)->where('updated_at', '<', $end)->count() > 0)
+                $sensor_def_count = $d->sensorDefinitions->where('input_measurement_id', 7)->where('output_measurement_id', 20)->count();
+                if ($sensor_def_count > 0)
                 {
                     $where  = '"w_v" = "weight_kg" AND "w_v" > 0';
                     $where .= ' AND ("key" = \''.$key.'\' OR "key" = \''.strtolower($key).'\' OR "key" = \''.strtoupper($key).'\')';
@@ -123,14 +124,14 @@ class HighWeightFix {
                         }
                         else
                         {
-                            print_r('device '.$key." Not saving weight_kg value: ".(isset($v['weight_kg']) ? $v['weight_kg'] : 'null')." \n");
+                            print_r('device '.$key." Not saving weight_kg value: ".(isset($v['weight_kg']) ? $v['weight_kg'] : 'null')."\n");
                         }
                     }
                 }
-            }
-            else
-            {
-                print_r('device '.$key." has 0 weight sensorDefinitions < $date. \n");
+                else
+                {
+                    print_r('device '.$key." has $sensor_def_count weight sensorDefinitions.\n");
+                }
             }
 
         }

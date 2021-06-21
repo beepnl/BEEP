@@ -73,8 +73,6 @@ class HighWeightFix {
             return 'influx-query-error: '.$query;
         }
 
-        //die(print_r($data));
-
         $key    = null;
         $device = null;
         $cor_cnt= 0;
@@ -83,6 +81,8 @@ class HighWeightFix {
         
         foreach ($data as $v) 
         {
+
+            $v = array_filter($v, function($value) { return !is_null($value) && $value !== ''; }); // filter out empty values
 
             if ($v['key'] != $key)
             {
@@ -111,6 +111,7 @@ class HighWeightFix {
                 }
 
             }
+            //die(print_r($v));
 
         }
         return "Corrected $cor_cnt weight_kg values";

@@ -97,7 +97,7 @@ class HighWeightFix {
                 $v    = $device->addSensorDefinitionMeasurements($v, $v['w_v'], 'w_v', $date);
 
                 // store corrected value (+ other unchanged values)
-                if (isset($v['weight_kg']) && $v['w_v'] != $v['weight_kg'])
+                if (isset($v['weight_kg']) && $v['weight_kg'] != null && $v['w_v'] != $v['weight_kg'])
                 {
                     print_r('device '.$key.' corrected weight_kg from '.$v['w_v'].' to '.$v['weight_kg']." @ $date ($time) \n");
                     $stored = HighWeightFix::storeInfluxData($v, $key, $time, $valid_sensors);
@@ -107,7 +107,7 @@ class HighWeightFix {
                 }
                 else
                 {
-                    print_r('device '.$key.' has '.$device->sensorDefinitions->where('output_measurement_id', 20)->where('updated_at', '<', $date)->count()." sensorDefinitions < $date \n");
+                    print_r('device '.$key.' has '.$device->sensorDefinitions->where('output_measurement_id', 20)->where('updated_at', '<', $date)->count()." sensorDefinitions < $date. Not saving weight_kg value: ".(isset($v['weight_kg']) ? $v['weight_kg'] : 'null')." \n");
                 }
 
             }

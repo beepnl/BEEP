@@ -55,9 +55,9 @@ class HighWeightFix {
 
         //$device = Device::findOrFail($sensor_id); 
         //$key    = 
-        $start  = '2021-06-02 09:00:00';
+        $start  = '2021-05-01 00:00:00';
         $end    = '2021-06-18 18:00:00';
-        $where  = '"w_v" = "weight_kg" AND "w_v" > 0';
+        $where  = '"w_v" = "weight_kg" AND "w_v" > 200';
         $where .= $device_key != null ? ' AND ("key" = \''.$device_key.'\' OR "key" = \''.strtolower($device_key).'\' OR "key" = \''.strtoupper($device_key).'\')' : '';
         $limit  = $values_per_device != null ? ' LIMIT '.$values_per_device : '';
         $query  = 'SELECT * FROM "sensors" WHERE '.$where.' AND time >= \''.$start.'\' AND time < \''.$end.'\' GROUP BY "key" ORDER BY time ASC'.$limit;

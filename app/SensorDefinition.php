@@ -4,6 +4,7 @@ namespace App;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Cache;
 
 class SensorDefinition extends Model
 {
@@ -35,7 +36,9 @@ class SensorDefinition extends Model
     public function getInputAbbrAttribute()
     {
         if ($this->input_measurement_id != null)
-            return $this->input_measurement->abbreviation;
+            return Cache::remember('meas-id-'.$this->input_measurement_id.'-abbr', env('CACHE_TIMEOUT_LONG'), function (){
+                return $this->input_measurement->abbreviation;
+            });
 
         return null;
     }
@@ -43,7 +46,9 @@ class SensorDefinition extends Model
     public function getOutputAbbrAttribute()
     {
         if ($this->output_measurement_id != null)
-            return $this->output_measurement->abbreviation;
+            return Cache::remember('meas-id-'.$this->output_measurement_id.'-abbr', env('CACHE_TIMEOUT_LONG'), function (){
+                return $this->output_measurement->abbreviation;
+            });
 
         return null;
     }
@@ -80,16 +85,36 @@ class SensorDefinition extends Model
             $multi  = isset($this->multiplier) ? floatval($this->multiplier) : 1;
 
             $outputValue = (floatval($inputValue) - $offset) * $multi;
-            $om          = $this->output_measurement;
 
-            if (isset($om) && isset($om->min_value) && $outputValue < $om->min_value)
+            $this_om = $this->output_measurement;
+            if (isset($this_om))
             {
-                return null;
-            }
+                $oid    = $this->output_measurement_id;
+                $iid    = $this->input_measurement_id;
+                $om_min = Cache::remember('meas-id-'.$oid.'-min', env('CACHE_TIMEOUT_LONG'), function () use ($this_om){
+                    if (isset($this_om->min_value))
+                        return $m = $this_om->min_value;
+                    else
+                        return null;
+                });
+                $om_max = Cache::remember('meas-id-'.$oid.'-max', env('CACHE_TIMEOUT_LONG'), function () use ($this_om){
+                    if (isset($this_om->max_value))
+                        return $m = $this_om->max_value;
+                    else
+                        return null;
+                });
 
-            if (isset($om) && isset($om->max_value) && $outputValue > $om->max_value)
-            {
-                return null;
+                //die(print_r(['in'=>$inputValue, 'out'=>$outputValue, 'min'=>$om_min, 'max'=>$om_max]));
+
+                if (isset($om_min) && $outputValue < $om_min)
+                {
+                    return null;
+                }
+
+                if (isset($om_max) && $outputValue > $om_max)
+                {
+                    return null;
+                }
             }
         }
 

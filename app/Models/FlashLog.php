@@ -495,9 +495,9 @@ class FlashLog extends Model
     private function fillDataGaps($device, $flashlog=null, $save=false, $show=false)
     {
         $out         = [];
-        $matches_min = 2; // minimum amount of inline measurements that should be matched 
-        $match_props = 7; // minimum amount of measurement properties that should match 
-        $db_records  = 15;
+        $matches_min = env('FLASHLOG_MIN_MATCHES', 2); // minimum amount of inline measurements that should be matched 
+        $match_props = env('FLASHLOG_MATCH_PROPS', 7); // minimum amount of measurement properties that should match 
+        $db_records  = env('FLASHLOG_DB_RECORDS', 15);// amount of DB records to fetch to match each block
 
         if ($flashlog == null || count($flashlog) < $matches_min)
             return null;

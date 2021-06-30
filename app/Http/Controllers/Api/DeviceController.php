@@ -330,6 +330,14 @@ class DeviceController extends Controller
         $dev_id  = strtolower($dev_id);
         $dev_eui = strtolower($dev_eui);
 
+        $device_check = $this->doTTNRequest($dev_id);
+        if ($device_check->getStatusCode() == 200) // if device exists, delete device to renew settings
+        {
+            $delete = $this->doTTNRequest($dev_id, 'DELETE');
+            if ($delete->getStatusCode() != 200) // if 200 ok (deleted) go on re-creating the device with other settings
+                return $delete;
+        }
+
         $step1 = $this->createApplicationDevice($dev_id, $dev_eui);
         if ($step1->getStatusCode() == 200 || $step1->getStatusCode() == 201)
         {

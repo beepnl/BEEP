@@ -44,16 +44,18 @@ trait MeasurementLoRaDecoderTrait
             $port       = $data['uplink_message']['f_port'];
             $data_array = $this->decode_beep_payload($payload, $port);
 
-            $data_array['port']= $port;
-            $data_array['key'] = $data['end_device_ids']['dev_eui'];
+            $data_array['port']   = $port;
+            $data_array['key']    = $data['end_device_ids']['dev_eui'];
 
             // add meta data
             if (isset($data['end_device_ids']['device_id']) && !isset($data_array['key']))
                 $data_array['key'] = $data['end_device_ids']['device_id']; // LoRa WAN == Device EUI
-            if (isset($data['rx_metadata']['rssi']))
-                $data_array['rssi'] = $data['rx_metadata']['rssi'];
-            if (isset($data['rx_metadata']['snr']))
-                $data_array['snr'] = $data['rx_metadata']['snr'];
+            if (isset($data['uplink_message']['f_cnt']))
+                $data_array['f_cnt'] = $data['uplink_message']['f_cnt'];
+            if (isset($data['rx_metadata'][0]['rssi']))
+                $data_array['rssi'] = $data['rx_metadata'][0]['rssi'];
+            if (isset($data['rx_metadata'][0]['snr']))
+                $data_array['snr'] = $data['rx_metadata'][0]['snr'];
             if (isset($data['settings']['data_rate']['lora']['bandwidth']))
                 $data_array['lora_bandwidth'] = $data['settings']['data_rate']['lora']['bandwidth'];
             if (isset($data['settings']['data_rate']['lora']['spreading_factor']))

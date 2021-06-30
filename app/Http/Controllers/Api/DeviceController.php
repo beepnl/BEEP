@@ -23,15 +23,18 @@ use App\InspectionItem;
  */
 class DeviceController extends Controller
 {
-    private function doTTNRequest($deviceId, $type='GET', $data=null)
+    private function doTTNRequest($deviceId=null, $type='GET', $data=null, $server=null)
     {
         $guzzle   = new Client();
-        $url      = env('TTN_API_URL').'/applications/'.env('TTN_APP_NAME').'/devices/'.$deviceId;
+        $server   = $server == null ? '' : '/'.$server;
+        $deviceId = $deviceId == null ? '' : '/'.$deviceId;
+        $url      = env('TTN_API_URL').$server.'/applications/'.env('TTN_APP_NAME').'/devices'.$deviceId;
         $response = null;
 
+        //die(print_r([$url, $type, $server, json_encode($data)]));
         try
         {
-            $response = $guzzle->request($type, $url, ['headers'=>['Authorization'=>'Key '.env('TTN_APP_KEY')], 'json' => $data]);
+            $response = $guzzle->request($type, $url, ['headers'=>['Authorization'=>'Bearer '.env('TTN_API_KEY')], 'json' => $data]);
         }
         catch(RequestException $e)
         {
@@ -131,12 +134,52 @@ class DeviceController extends Controller
     }
     /**
     api/devices/ttn/{dev_id} POST
+    
+    STEP 1. POST
+    https://beep.eu1.cloud.thethings.industries/api/v3/applications/beep-base-test/devices
+
+    Authorization:
+    Bearer Token
+
+    Use generated API key via https://beep.eu1.cloud.thethings.industries/console/applications/beep-base-test/api-keys
+
+    Headers:
+    Content-type: application/json
+
+    Body:
+    raw data in JSON format
+    join_eui is same as app_eui in V2
+
+    V2:
     Create an OTAA LoRaWAN Device in the BEEP TTN Console by dev_id (dev_id (= BEEP hardware_id) a unique identifier for the device. It can contain lowercase letters, numbers, - and _) and this payload:
     {
       "lorawan_device": {
         "dev_eui": "<8 byte identifier for the device>", 
         "app_key": "<16 byte static key that is known by the device and the application. It is used for negotiating session keys (OTAA)>"
       }
+    }
+
+    V3:
+    {
+        "end_device": {
+            "ids": {
+                "device_id": "test-device-postman",
+                "dev_eui": "12B845D2459E34C2",
+                "join_eui": "81B3D57ED002EE76"
+            },
+            "join_server_address": "beep.eu1.cloud.thethings.industries",
+            "network_server_address": "beep.eu1.cloud.thethings.industries",
+            "application_server_address": "beep.eu1.cloud.thethings.industries"
+        },
+        "field_mask": {
+            "paths": [
+                "join_server_address",
+                "network_server_address",
+                "application_server_address",
+                "ids.dev_eui",
+                "ids.join_eui"
+            ]
+        }
     }
     @authenticated
     */
@@ -157,22 +200,161 @@ class DeviceController extends Controller
         return Response::json(json_decode($response->getBody()), $response->getStatusCode());
     }
 
-    private function createTTNDevice($dev_id, $dev_eui, $app_key)
+    private function createApplicationDevice($dev_id, $dev_eui)
     {
-        $dev_id = strtolower($dev_id);
-
         $data = [
-            "dev_id" => $dev_id,
-            "lorawan_device"=>[
-                "activation_constraints"=>"otaa",
-                "app_id"=>env('TTN_APP_NAME'),
-                "dev_eui"=>strtolower($dev_eui),
-                "dev_id"=>$dev_id,
-                "app_key"=>strtolower($app_key),
-                "app_eui"=>env('TTN_APP_EUI')
-            ]
-        ];
-        return $this->doTTNRequest($dev_id, 'POST', $data);
+            "end_device" => [
+                "ids" => [
+                    "device_id" => $dev_id,
+                    "dev_eui"   => $dev_eui,
+                    "join_eui"  => env('TTN_APP_EUI')
+                ],
+                "join_server_address"       => env('TTN_APP_URL'),
+                "network_server_address"    => env('TTN_APP_URL'),
+                "application_server_address"=> env('TTN_APP_URL')
+            ],
+            "field_mask" => [
+                    "paths" => [
+                        "join_server_address",
+                        "network_server_address",
+                        "application_server_address",
+                        "ids.dev_eui",
+                        "ids.join_eui"
+                    ]
+                ]
+            ];
+
+        return $this->doTTNRequest(null, 'POST', $data);
+    }
+
+    private function linkDeviceToNetworkServer($dev_id, $dev_eui)
+    {
+        $data = [
+            "end_device" => [
+                "multicast" => false,
+                "supports_join" => true,
+                "lorawan_version" => "MAC_V1_0_2",
+                "ids" => [
+                    "device_id" => $dev_id,
+                    "dev_eui"   => $dev_eui,
+                    "join_eui"  => env('TTN_APP_EUI')
+                ],
+                "mac_settings" => [
+                    "supports_32_bit_f_cnt" => true,
+                    "rx2_data_rate_index" => 0,
+                    "rx2_frequency" => 869525000
+                ],
+                "supports_class_c" => false,
+                "supports_class_b" => false,
+                "lorawan_phy_version" => "PHY_V1_0_2_REV_A",
+                "frequency_plan_id" => "EU_863_870_TTN"
+            ],
+            "field_mask" => [
+                    "paths" => [
+                        "multicast",
+                        "supports_join",
+                        "lorawan_version",
+                        "ids.device_id",
+                        "ids.dev_eui",
+                        "ids.join_eui",
+                        "mac_settings.supports_32_bit_f_cnt",
+                        "mac_settings.rx2_data_rate_index",
+                        "mac_settings.rx2_frequency",
+                        "supports_class_c",
+                        "supports_class_b",
+                        "lorawan_phy_version",
+                        "frequency_plan_id"
+                    ]
+                ]
+            ];
+
+        return $this->doTTNRequest($dev_id, 'PUT', $data, 'ns');
+    }
+
+    private function linkDeviceToApplicationServer($dev_id, $dev_eui)
+    {
+        $data = [
+            "end_device" => [
+                "ids" => [
+                    "device_id" => $dev_id,
+                    "dev_eui"   => $dev_eui,
+                    "join_eui"  => env('TTN_APP_EUI')
+                ]
+            ],
+            "field_mask" => [
+                    "paths" => [
+                        "ids.device_id",
+                        "ids.dev_eui",
+                        "ids.join_eui"
+                    ]
+                ]
+            ];
+
+        return $this->doTTNRequest($dev_id, 'PUT', $data, 'as');
+    }
+
+    private function linkDeviceToJoinServer($dev_id, $dev_eui, $app_key)
+    {
+        $data = [
+            "end_device" => [
+                "ids" => [
+                    "device_id" => $dev_id,
+                    "dev_eui"   => $dev_eui,
+                    "join_eui"  => env('TTN_APP_EUI')
+                ],
+                "network_server_address" => env('TTN_APP_URL'),
+                "application_server_address" => env('TTN_APP_URL'),
+                "root_keys" => [
+                    "app_key" => [
+                        "key" => $app_key
+                    ]
+                ]
+            ],
+            "field_mask" => [
+                    "paths" => [
+                        "network_server_address",
+                        "application_server_address",
+                        "ids.device_id",
+                        "ids.dev_eui",
+                        "ids.join_eui",
+                        "root_keys.app_key.key"
+                    ]
+                ]
+            ];
+
+        return $this->doTTNRequest($dev_id, 'PUT', $data, 'js');
+    }
+
+    private function createTTNDevice($dev_id, $dev_eui, $app_key, $server='')
+    {
+        $dev_id  = strtolower($dev_id);
+        $dev_eui = strtolower($dev_eui);
+
+        $step1 = $this->createApplicationDevice($dev_id, $dev_eui);
+        if ($step1->getStatusCode() == 200 || $step1->getStatusCode() == 201)
+        {
+            $step2 = $this->linkDeviceToNetworkServer($dev_id, $dev_eui);
+            if ($step2->getStatusCode() == 200 || $step2->getStatusCode() == 201)
+            {
+                $step3 = $this->linkDeviceToApplicationServer($dev_id, $dev_eui);
+                if ($step3->getStatusCode() == 200 || $step3->getStatusCode() == 201)
+                {
+                    return $this->linkDeviceToJoinServer($dev_id, $dev_eui, $app_key);
+                }
+                else
+                {
+                    return $step3;
+                }   
+            }
+            else
+            {
+                return $step2;
+            }   
+        }
+        else
+        {
+            return $step1;
+        }
     }
 
     /**

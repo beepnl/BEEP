@@ -66,7 +66,7 @@ class DeviceCorrectionSeeder extends Seeder
 
         try
         {
-            $response = $guzzle->request($type, $url, ['headers'=>['Authorization'=>'Key '.env('TTN_APP_KEY')], 'json' => $data]);
+            $response = $guzzle->request($type, $url, ['headers'=>['Authorization'=>'Bearer '.env('TTN_API_KEY')], 'json' => $data]);
         }
         catch(RequestException $e)
         {

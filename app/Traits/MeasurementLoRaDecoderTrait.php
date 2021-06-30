@@ -184,9 +184,15 @@ trait MeasurementLoRaDecoderTrait
                     // 0  1  2  3  4  5  6  7  8  9  10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 (length == 35 bytes = 70 char)
                     //    pl fw version     hw version                 ATTEC ID (14)                 app config  Time
 
-                    $out['firmware_version'] = hexdec(substr($p, 2, 4)).'.'.hexdec(substr($p, 6, 4)).'.'.hexdec(substr($p, 10, 4)); // 2-13
-                    // $out['hardware_version'] = hexdec(substr($p, 16, 16)); // 14-31
-                    $out['hardware_id']      = substr($p, 34, 18); // 34-51
+
+                    if (substr($p, 0, 2) == '01')
+                        $out['firmware_version'] = hexdec(substr($p, 2, 4)).'.'.hexdec(substr($p, 6, 4)).'.'.hexdec(substr($p, 10, 4)); // 2-13
+
+                    if (substr($p, 14, 2) == '02')
+                        $out['hardware_version'] = hexdec(substr($p, 16, 4)).'.'.hexdec(substr($p, 20, 4)).' ID:'.hexdec(substr($p, 24, 8)); // 16-32
+                    
+                    if (substr($p, 32, 2) == '0e')
+                        $out['hardware_id'] = substr($p, 34, 18); // 34-51
                     
                     
                     if (strlen($p) == 60 || strlen($p) == 70)

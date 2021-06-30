@@ -197,11 +197,16 @@ class MeasurementController extends Controller
         if (isset($data_array['time']))
             $time = intVal($data_array['time']);
 
-        // New weight sensor data calculations based on sensor definitions
+        // New weight sensor data calculations based on sensor definitions for weight and internal temperature
         if (!isset($data_array['weight_kg']) && isset($data_array['w_v']))
         {
             $date = date($this->timeFormat, $time); 
             $data_array = $device->addSensorDefinitionMeasurements($data_array, $data_array['w_v'], 'w_v', $date);
+        }
+        if (isset($data_array['t_i']))
+        {
+            $date = date($this->timeFormat, $time); 
+            $data_array = $device->addSensorDefinitionMeasurements($data_array, $data_array['t_i'], 't_i', $date);
         }
         
         // Legacy weight calculation from 2-4 load cells

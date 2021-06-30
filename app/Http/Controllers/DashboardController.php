@@ -29,12 +29,12 @@ class DashboardController extends Controller
         
     }
 
-    private function cacheRequestGetRate($name)
+    private function cacheRequestGetRate($name, $decimals=0)
     {
         if (Cache::has($name.'-time') && Cache::has($name.'-count'))
         {
             $sec_ago     = time() - Cache::get($name.'-time');
-            $req_per_min = round(Cache::get($name.'-count') * 60 / $sec_ago, 1);
+            $req_per_min = round(Cache::get($name.'-count') * 60 / $sec_ago, $decimals);
             return $req_per_min;
         }
         else
@@ -83,9 +83,13 @@ class DashboardController extends Controller
         $data['store-measurements-400'] = $this->cacheRequestGetRate('store-measurements-400');
         $data['store-measurements-401'] = $this->cacheRequestGetRate('store-measurements-401');
         $data['store-measurements-500'] = $this->cacheRequestGetRate('store-measurements-500');
-        $data['store-lora-sensors-']    = $this->cacheRequestGetRate('store-lora-sensors-');
-        $data['store-lora-sensors-kpn'] = $this->cacheRequestGetRate('store-lora-sensors-kpn');
-        $data['store-lora-sensors-ttn'] = $this->cacheRequestGetRate('store-lora-sensors-ttn');
+        $data['store-sensors']                = $this->cacheRequestGetRate('store-sensors');
+        $data['store-lora-sensors-']          = $this->cacheRequestGetRate('store-lora-sensors-');
+        $data['store-lora-sensors-kpn']       = $this->cacheRequestGetRate('store-lora-sensors-kpn');
+        $data['store-lora-sensors-ttn-v2']    = $this->cacheRequestGetRate('store-lora-sensors-ttn-v2');
+        $data['store-lora-sensors-ttn-v3-pb'] = $this->cacheRequestGetRate('store-lora-sensors-ttn-v3-pb');
+        $data['store-lora-sensors-ttn-v3']    = $this->cacheRequestGetRate('store-lora-sensors-ttn-v3');
+        $data['store-measurements-total']     = $data['store-sensors'] + $data['store-lora-sensors-'] + $data['store-lora-sensors-kpn'] + $data['store-lora-sensors-ttn-v2'] + $data['store-lora-sensors-ttn-v3-pb'] + $data['store-lora-sensors-ttn-v3'];
         $data['get-measurements']       = $this->cacheRequestGetRate('get-measurements');
 
         foreach (Research::all() as $key => $r)

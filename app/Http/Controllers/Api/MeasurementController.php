@@ -460,22 +460,12 @@ class MeasurementController extends Controller
         $data_array = [];
 
         // parse payload
-        if (isset($request_data['payload_fields']))
+        if (isset($request_data['payload_fields'])) // TTN v2 with decoder installed
             $data_array = $request_data['payload_fields'];
-        else if (isset($request_data['payload_raw']))
+        else if (isset($request_data['payload_raw'])) // TTN v2
             $data_array = $this->decode_ttn_payload($request_data);
-
-        if (isset($request_data['hardware_serial']) && !isset($data_array['key']))
-            $data_array['key'] = $request_data['hardware_serial']; // LoRa WAN = Device EUI
-        if (isset($request_data['metadata']['gateways'][0]['rssi']))
-            $data_array['rssi'] = $request_data['metadata']['gateways'][0]['rssi'];
-        if (isset($request_data['metadata']['gateways'][0]['snr']))
-            $data_array['snr']  = $request_data['metadata']['gateways'][0]['snr'];
-        if (isset($request_data['metadata']['gateways'][0]['channel']))
-            $data_array['lora_channel']  = $request_data['metadata']['gateways'][0]['channel'];
-        if (isset($request_data['metadata']['data_rate']))
-            $data_array['data_rate']  = $request_data['metadata']['data_rate'];
-
+        else if (isset($request_data['uplink_message']) && isset($request_data['end_device_ids'])) // TTN v3 (Things cloud)
+            $data_array = $this->decode_ttn_payload($request_data);
 
         // store device metadata
         if (isset($data_array['beep_base']) && boolval($data_array['beep_base']) && isset($data_array['key']) && isset($data_array['hardware_id'])) // store hardware id
@@ -496,10 +486,10 @@ class MeasurementController extends Controller
         }
 
         // process downlink
-        if (isset($data_array['key']) && isset($request_data['downlink_url']))
-            $this->sendDeviceDownlink($data_array['key'], $request_data['downlink_url']);
+        if (isset($data_array['key']) && isset($data['downlink_url']))
+            $this->sendDeviceDownlink($data_array['key'], $data['downlink_url']);
 
-        if (isset($data_array['key']) && isset($data_array['beep_base']) && boolval($data_array['beep_base']) && isset($request_data['port']) && $request_data['port'] == 6) // downlink response
+        if (isset($data_array['key']) && isset($data_array['beep_base']) && boolval($data_array['beep_base']) && isset($data['port']) && $data['port'] == 6) // downlink response
         {
             $device = Device::where('key', $data_array['key'])->first();
             if($device) // && Auth::user()->hasRole('sensor-data')
@@ -530,15 +520,25 @@ class MeasurementController extends Controller
         $payload_type = '';
 
         // distinguish type of data
-        if ($request->filled('LrnDevEui') && $request->filled('DevEUI_uplink.payload_hex')) // KPN/Simpoint
+        if ($request->filled('LrnDevEui') && $request->filled('DevEUI_uplink.payload_hex')) // KPN/Simpoint HTTPS POST
         {
             $data_array = $this->parse_kpn_payload($request_data);
             $payload_type = 'kpn';
         }
-        else if (($request->filled('payload_fields') || $request->filled('payload_raw')) && $request->filled('hardware_serial')) // TTN HTTP POST
+        else if (($request->filled('payload_fields') || $request->filled('payload_raw')) && $request->filled('hardware_serial')) // TTN V2 HTTPS POST
         {
             $data_array = $this->parse_ttn_payload($request_data);
-            $payload_type = 'ttn';
+            $payload_type = 'ttn-v2';
+        }
+        else if (($request->filled('data') || $request->filled('identifiers'))) // TTN V3 Packet broker HTTPS POST
+        {
+            $data_array = $this->parse_ttn_payload($request_data['data']);
+            $payload_type = 'ttn-v3-pb';
+        }
+        else if (($request->filled('end_device_ids') || $request->filled('uplink_message'))) // TTN V3 HTTPS POST
+        {
+            $data_array = $this->parse_ttn_payload($request_data);
+            $payload_type = 'ttn-v3';
         }
         $this->cacheRequestRate('store-lora-sensors-'.$payload_type);
         //die(print_r($data_array));

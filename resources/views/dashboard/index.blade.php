@@ -17,8 +17,8 @@
 		<!-- small box -->
 			<div class="small-box bg-green">
 				<div class="inner">
-					<h3>{{ $data['store-measurements-201'] }}</h3>
-					<p>Data storage OK (201) req/min<br>TTN: {{ $data['store-lora-sensors-ttn'] }} | KPN: {{ $data['store-lora-sensors-kpn'] }} | ?: {{ $data['store-lora-sensors-'] }}</p>
+					<h3>{{ $data['store-measurements-total'] }} / {{ $data['store-measurements-201'] }}</h3>
+					<p>Data storage req Total / OK (201) req/min<br>TTNv2: {{ $data['store-lora-sensors-ttn-v2'] }} | v3: {{ $data['store-lora-sensors-ttn-v3'] }} | v3pb: {{ $data['store-lora-sensors-ttn-v3-pb'] }} | KPN: {{ $data['store-lora-sensors-kpn'] }} | ?: {{ $data['store-lora-sensors-'] }} | API: {{ $data['store-sensors'] }}</p>
 				</div>
 				<div class="icon">
 					<i class="fa fa-database"></i>
@@ -26,24 +26,12 @@
 			</div>
 		</div>
 
-		<div class="col-lg-3 col-xs-6">
-		<!-- small box -->
-			<div class="small-box bg-primary">
-				<div class="inner">
-					<h3>{{ $data['get-measurements'] }}</h3>
-					<p>Get data measurement <br>requests/min</p>
-				</div>
-				<div class="icon">
-					<i class="fa fa-database"></i>
-				</div>
-			</div>
-		</div>
 
 		<div class="col-lg-3 col-xs-6">
 		<!-- small box -->
 			<div class="small-box bg-orange">
 				<div class="inner">
-					<h3>{{ $data['store-measurements-400'] + $data['store-measurements-401'] }}</h3>
+					<h3>{{ $data['store-measurements-400'] }} / {{ $data['store-measurements-401'] }}</h3>
 					<p>Data storage <br>no/unexisting key (400/401) req/min</p>
 				</div>
 				<div class="icon">
@@ -66,6 +54,18 @@
 			</div>
 		</div>
 
+		<div class="col-lg-3 col-xs-6">
+		<!-- small box -->
+			<div class="small-box bg-primary">
+				<div class="inner">
+					<h3>{{ $data['get-measurements'] }}</h3>
+					<p>Get data measurement <br>requests/min</p>
+				</div>
+				<div class="icon">
+					<i class="fa fa-database"></i>
+				</div>
+			</div>
+		</div>
 	</div>
 
 	<div class="row">

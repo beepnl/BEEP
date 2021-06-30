@@ -52,24 +52,24 @@ trait MeasurementLoRaDecoderTrait
                 $data_array['key'] = $data['end_device_ids']['device_id']; // LoRa WAN == Device EUI
             if (isset($data['uplink_message']['f_cnt']))
                 $data_array['f_cnt'] = $data['uplink_message']['f_cnt'];
-            if (isset($data['rx_metadata'][0]['rssi']))
-                $data_array['rssi'] = $data['rx_metadata'][0]['rssi'];
-            if (isset($data['rx_metadata'][0]['snr']))
-                $data_array['snr'] = $data['rx_metadata'][0]['snr'];
-            if (isset($data['settings']['data_rate']['lora']['bandwidth']))
-                $data_array['lora_bandwidth'] = $data['settings']['data_rate']['lora']['bandwidth'];
-            if (isset($data['settings']['data_rate']['lora']['spreading_factor']))
-                $data_array['lora_spf'] = $data['settings']['data_rate']['lora']['spreading_factor'];
-            if (isset($data['settings']['data_rate_index']))
-                $data_array['lora_data_rate'] = $data['settings']['data_rate_index'];
-            if (isset($data['settings']['frequency']))
-                $data_array['lora_frequency'] = $data['settings']['frequency'];
-            if (isset($data['locations']['user']['latitude']))
-                $data_array['lat'] = $data['locations']['user']['latitude'];
-            if (isset($data['locations']['user']['longitude']))
-                $data_array['lon'] = $data['locations']['user']['longitude'];
-            if (isset($data['locations']['user']['altitude']))
-                $data_array['alt'] = $data['locations']['user']['altitude'];
+            if (isset($data['uplink_message']['rx_metadata'][0]['rssi']))
+                $data_array['rssi'] = $data['uplink_message']['rx_metadata'][0]['rssi'];
+            if (isset($data['uplink_message']['rx_metadata'][0]['snr']))
+                $data_array['snr'] = $data['uplink_message']['rx_metadata'][0]['snr'];
+            if (isset($data['uplink_message']['settings']['data_rate']['lora']['bandwidth']))
+                $data_array['lora_bandwidth'] = $data['uplink_message']['settings']['data_rate']['lora']['bandwidth'];
+            if (isset($data['uplink_message']['settings']['data_rate']['lora']['spreading_factor']))
+                $data_array['lora_spf'] = $data['uplink_message']['settings']['data_rate']['lora']['spreading_factor'];
+            if (isset($data['uplink_message']['settings']['data_rate_index']))
+                $data_array['lora_data_rate'] = $data['uplink_message']['settings']['data_rate_index'];
+            if (isset($data['uplink_message']['settings']['frequency']))
+                $data_array['lora_frequency'] = $data['uplink_message']['settings']['frequency'];
+            if (isset($data['uplink_message']['locations']['user']['latitude']))
+                $data_array['lat'] = $data['uplink_message']['locations']['user']['latitude'];
+            if (isset($data['uplink_message']['locations']['user']['longitude']))
+                $data_array['lon'] = $data['uplink_message']['locations']['user']['longitude'];
+            if (isset($data['uplink_message']['locations']['user']['altitude']))
+                $data_array['alt'] = $data['uplink_message']['locations']['user']['altitude'];
 
         }
 

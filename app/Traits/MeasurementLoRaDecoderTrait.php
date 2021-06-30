@@ -13,23 +13,73 @@ trait MeasurementLoRaDecoderTrait
 
     private function decode_ttn_payload($data)
     {
-        $out = [];
+        $data_array = [];
         
-        if (isset($data['payload_raw']) == false)
-            return $out;
+        if (isset($data['payload_raw']) && isset($data['port'])) // ttn v2 uplink
+        {
+            $payload    = bin2hex(base64_decode($data['payload_raw']));
+            $port       = $data['port'];
+            $data_array = $this->decode_beep_payload($payload, $port);
 
-        $payload = bin2hex(base64_decode($data['payload_raw']));
-        $port    = $data['port'];
+            // add meta data
+            $data_array['port'] = $port;
+            if (isset($data['hardware_serial']) && !isset($data_array['key']))
+                $data_array['key'] = $data['hardware_serial']; // LoRa WAN == Device EUI
+            if (isset($data['metadata']['gateways'][0]['rssi']))
+                $data_array['rssi'] = $data['metadata']['gateways'][0]['rssi'];
+            if (isset($data['metadata']['gateways'][0]['snr']))
+                $data_array['snr'] = $data['metadata']['gateways'][0]['snr'];
+            if (isset($data['metadata']['gateways'][0]['channel']))
+                $data_array['lora_channel'] = $data['metadata']['gateways'][0]['channel'];
+            if (isset($data['metadata']['data_rate']))
+                $data_array['data_rate'] = $data['metadata']['data_rate'];
+            if (isset($data['downlink_url']))
+                $data_array['downlink_url'] = $data['downlink_url'];
 
-        return $this->decode_beep_payload($payload, $port);
+
+        }
+        else if (isset($data['end_device_ids']['dev_eui']) && isset($data['uplink_message']['frm_payload']) && isset($data['uplink_message']['f_port'])) // ttn v3 uplink
+        {
+            $payload    = bin2hex(base64_decode($data['uplink_message']['frm_payload']));
+            $port       = $data['uplink_message']['f_port'];
+            $data_array = $this->decode_beep_payload($payload, $port);
+
+            $data_array['port']= $port;
+            $data_array['key'] = $data['end_device_ids']['dev_eui'];
+
+            // add meta data
+            if (isset($data['end_device_ids']['device_id']) && !isset($data_array['key']))
+                $data_array['key'] = $data['end_device_ids']['device_id']; // LoRa WAN == Device EUI
+            if (isset($data['rx_metadata']['rssi']))
+                $data_array['rssi'] = $data['rx_metadata']['rssi'];
+            if (isset($data['rx_metadata']['snr']))
+                $data_array['snr'] = $data['rx_metadata']['snr'];
+            if (isset($data['settings']['data_rate']['lora']['bandwidth']))
+                $data_array['lora_bandwidth'] = $data['settings']['data_rate']['lora']['bandwidth'];
+            if (isset($data['settings']['data_rate']['lora']['spreading_factor']))
+                $data_array['lora_spf'] = $data['settings']['data_rate']['lora']['spreading_factor'];
+            if (isset($data['settings']['data_rate_index']))
+                $data_array['lora_data_rate'] = $data['settings']['data_rate_index'];
+            if (isset($data['settings']['frequency']))
+                $data_array['lora_frequency'] = $data['settings']['frequency'];
+            if (isset($data['locations']['user']['latitude']))
+                $data_array['lat'] = $data['locations']['user']['latitude'];
+            if (isset($data['locations']['user']['longitude']))
+                $data_array['lon'] = $data['locations']['user']['longitude'];
+            if (isset($data['locations']['user']['altitude']))
+                $data_array['alt'] = $data['locations']['user']['altitude'];
+
+        }
+
+        return $data_array;
     }
 
     private function decode_simpoint_payload($data)
     {
-        $out = [];
+        $data_array = [];
         
         if (isset($data['payload_hex']) == false)
-            return $out;
+            return $data_array;
 
         $payload = $data['payload_hex'];
         $port    = $data['FPort'];
@@ -104,62 +154,6 @@ trait MeasurementLoRaDecoderTrait
                 $device->sensorDefinitions()->create(['input_measurement_id'=>$measurement_in->id, 'output_measurement_id'=>$measurement_out->id, 'offset'=>$offset, 'multiplier'=>$multiplier]);
             }
         }
-    }
-
-    private function addSensorDefinitionMeasurements($data_array, $value, $measurement_abbr, $device, $date=null)
-    {
-        $before_date = isset($date) ? $date : date('Y-m-d H:i:s'); 
-        
-        $measurement_id = Cache::remember('measurement-abbr-id-'.$measurement_abbr, env('CACHE_TIMEOUT_LONG'), function () use ($measurement_abbr){
-            $m = Measurement::where('abbreviation',$measurement_abbr)->first();
-            if ($m)
-                return $m->id;
-            else
-                return null;
-        });
-
-        
-        if ($measurement_id && $device)
-        {
-            // Get the right sensordefinition
-            $sensor_def  = null;
-            $sensor_defs = $device->sensorDefinitions->where('input_measurement_id', $measurement_id); // get appropriate sensor definitions
-
-            if ($sensor_defs->count() == 0)
-            {
-                // add nothing to $data_array
-            }
-            else if ($sensor_defs->count() == 1)
-            {
-                $sensor_def = $sensor_defs->last(); // get the only sensor definition, before or after setting
-            }
-            else // there are multiple, so get the one appropriate for the $date
-            {
-                if ($sensor_defs->where('updated_at', '<=', $before_date)->count() == 0) // not found before $date, but there are after, so get the first
-                    $sensor_def = $sensor_defs->first();
-                else
-                    $sensor_def = $sensor_defs->where('updated_at', '<=', $before_date)->last(); // be aware that last() gets the last value of the ASCENDING list
-            }
-
-            // Calculate the extra value based on the sensor definition
-            if (isset($sensor_def))
-            {
-                $measurement_abbr_o              = $sensor_def->output_abbr;
-                $calibrated_measurement_val      = $sensor_def->calibrated_measurement_value($value);
-                if ($calibrated_measurement_val !== null) // do not add sensor measurement is outside measurement min/max value
-                    $data_array[$measurement_abbr_o] = $calibrated_measurement_val;
-
-            }
-            else if ($measurement_abbr == 'w_v') // make new calibration values based on stored ones
-            {
-                $influx_offset = floatval($device->last_sensor_measurement_time_value($measurement_abbr.'_offset'));
-                $influx_multi  = floatval($device->last_sensor_measurement_time_value($measurement_abbr.'_kg_per_val'));
-
-                if ($influx_offset != 0 || $influx_multi != 0)
-                    $this->createOrUpdateDefinition($device, 'w_v', 'weight_kg', $influx_offset, $influx_multi);
-            }
-        }
-        return $data_array;
     }
 
     private function decode_beep_payload($payload, $port)

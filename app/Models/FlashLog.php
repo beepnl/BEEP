@@ -428,12 +428,13 @@ class FlashLog extends Model
                     if (!isset($fl['time']))
                     {
                         $startMoment= new Moment($blockStaDate);
-                        $fl['time'] = $startMoment->addMinutes($addCounter * $matchMinInt)->format($this->timeFormat);
+                        $indexMoment= $startMoment->addMinutes($addCounter * $matchMinInt);
+                        $fl['time'] = $indexMoment->format($this->timeFormat);
 
-                        // check for time_device, set device time if less than 60 seconds off
-                        if (isset($fl['time_device']))
+                        // check for time_device, replace time with device time if less than 60 seconds off
+                        if (isset($fl['time_device']) && $fl['time_device'] > 1546300800) // unix timestamp > Tue Jan 01 2019 00:00:00 GMT+0000
                         {
-                            $second_deviation = abs($startMoment->from($fl['time_device'])->getSeconds());
+                            $second_deviation = abs($indexMoment->getSeconds() - $fl['time_device']);
                             if ($second_deviation < 60)
                             {
                                 $time_device = new Moment($fl['time_device']);
@@ -495,9 +496,9 @@ class FlashLog extends Model
     private function fillDataGaps($device, $flashlog=null, $save=false, $show=false)
     {
         $out         = [];
-        $matches_min = 2; // minimum amount of inline measurements that should be matched 
-        $match_props = 7; // minimum amount of measurement properties that should match 
-        $db_records  = 15;
+        $matches_min = env('FLASHLOG_MIN_MATCHES', 2); // minimum amount of inline measurements that should be matched 
+        $match_props = env('FLASHLOG_MATCH_PROPS', 7); // minimum amount of measurement properties that should match 
+        $db_records  = env('FLASHLOG_DB_RECORDS', 15);// amount of DB records to fetch to match each block
 
         if ($flashlog == null || count($flashlog) < $matches_min)
             return null;

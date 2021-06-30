@@ -802,7 +802,7 @@ class ResearchDataController extends Controller
                         {
                             foreach ($user_devices as $device)
                             {
-                                if (($request->filled('device_id') && $request->input('device_id') == $device->id) || $request->missing('device_id'))
+                                if (($request->filled('device_id') && $request->input('device_id') == $device->id) || !$request->filled('device_id'))
                                 {   
                                     if ($device->created_at < $date_next_consent)
                                     {

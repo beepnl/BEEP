@@ -128,59 +128,15 @@ class DeviceController extends Controller
     */
     public function getTTNDevice(Request $request, $dev_id)
     {
-        
+        if ($this->canUserClaimDeviceFromRequest($request) === false)
+            return Response::json("device_not_yours", 403);
+
         $response = $this->doTTNRequest($dev_id);
         return Response::json(json_decode($response->getBody()), $response->getStatusCode());
     }
     /**
     api/devices/ttn/{dev_id} POST
-    
-    STEP 1. POST
-    https://beep.eu1.cloud.thethings.industries/api/v3/applications/beep-base-test/devices
-
-    Authorization:
-    Bearer Token
-
-    Use generated API key via https://beep.eu1.cloud.thethings.industries/console/applications/beep-base-test/api-keys
-
-    Headers:
-    Content-type: application/json
-
-    Body:
-    raw data in JSON format
-    join_eui is same as app_eui in V2
-
-    V2:
-    Create an OTAA LoRaWAN Device in the BEEP TTN Console by dev_id (dev_id (= BEEP hardware_id) a unique identifier for the device. It can contain lowercase letters, numbers, - and _) and this payload:
-    {
-      "lorawan_device": {
-        "dev_eui": "<8 byte identifier for the device>", 
-        "app_key": "<16 byte static key that is known by the device and the application. It is used for negotiating session keys (OTAA)>"
-      }
-    }
-
-    V3:
-    {
-        "end_device": {
-            "ids": {
-                "device_id": "test-device-postman",
-                "dev_eui": "12B845D2459E34C2",
-                "join_eui": "81B3D57ED002EE76"
-            },
-            "join_server_address": "beep.eu1.cloud.thethings.industries",
-            "network_server_address": "beep.eu1.cloud.thethings.industries",
-            "application_server_address": "beep.eu1.cloud.thethings.industries"
-        },
-        "field_mask": {
-            "paths": [
-                "join_server_address",
-                "network_server_address",
-                "application_server_address",
-                "ids.dev_eui",
-                "ids.join_eui"
-            ]
-        }
-    }
+    Create a TTN Device by Device ID, lorawan_device.dev_eui, and lorawan_device.app_key
     @authenticated
     */
     public function postTTNDevice(Request $request, $dev_id)
@@ -196,7 +152,10 @@ class DeviceController extends Controller
         $dev_eui = $request->input('lorawan_device.dev_eui');
         $app_key = $request->input('lorawan_device.app_key');
 
-        $response = $this->createTTNDevice($dev_id, $dev_eui, $app_key);
+        if ($this->canUserClaimDevice(null, $dev_eui, $dev_id) === false)
+            return Response::json("device_not_yours", 403);
+
+        $response = $this->updateOrCreateTTNDevice($dev_id, $dev_eui, $app_key);
         return Response::json(json_decode($response->getBody()), $response->getStatusCode());
     }
 
@@ -325,7 +284,7 @@ class DeviceController extends Controller
         return $this->doTTNRequest($dev_id, 'PUT', $data, 'js');
     }
 
-    private function createTTNDevice($dev_id, $dev_eui, $app_key, $server='')
+    private function updateOrCreateTTNDevice($dev_id, $dev_eui, $app_key, $server='')
     {
         $dev_id  = strtolower($dev_id);
         $dev_eui = strtolower($dev_eui);
@@ -364,6 +323,56 @@ class DeviceController extends Controller
             return $step1;
         }
     }
+
+    private function canUserClaimDevice($id=null, $key=null, $hwi=null)
+    {
+        $claim = 0;
+        
+        if (isset($id))
+        {
+            $claim += Auth::user()->devices->where('id', $id)->count();
+        }
+        
+        if (isset($key))
+        {
+            $claim += Auth::user()->devices->where('key', $key)->count();
+
+        }
+        
+        if (isset($hwi))
+        {
+            $claim_hw = Auth::user()->devices->where('hardware_id', $hwi)->count();
+            if ($claim_hw > 0) // device does not (yet) belong to user
+            {
+                $claim += $claim_hw;
+            }
+            else
+            {
+                $already_exists = Device::where('hardware_id', $hwi)->count(); 
+                if ($already_exists == 0)
+                {
+                    if ($this->doTTNRequest($hwi)->getStatusCode() == 404)
+                        $claim += 1; // if hardware_id does not exist yet, user can claim it
+                }
+            }
+        }
+
+        if ($claim > 0)
+            return true;
+        
+        return false;
+    }
+
+    private function canUserClaimDeviceFromRequest(Request $request)
+    {
+        $id  = $request->filled('id') ? $request->input('id') : null;
+        $key = $request->filled('key') ? strtolower($request->input('key')) : null;
+        $hwi = $request->filled('hardware_id') ? strtolower($request->input('hardware_id')) : null;
+        
+        return $this->canUserClaimDevice($id, $key, $hwi);
+    }
+
+
 
     /**
     api/devices/{id} GET
@@ -406,22 +415,28 @@ class DeviceController extends Controller
 
     public function store(Request $request)
     {
-        $device_array = $request->input();
 
+        $device_array = $request->input();
+        
         if ($request->filled('create_ttn_device') && $request->input('create_ttn_device') == true && $request->filled('hardware_id'))
         {
+
             if ($request->user()->hasRole(['superadmin', 'admin']) == false)
             {
+                if ($this->canUserClaimDeviceFromRequest($request) === false)
+                    return Response::json("device_not_yours", 403);
+
                 $device_count = Device::where('user_id', $request->user()->id)->count();
                 if ($device_count > 50)
                     return Response::json("max_ttn_devices_reached_please_request_more", 403);
+
             }
 
+            $dev_id  = strtolower($request->input('hardware_id'));
             $dev_eui = $request->filled('key') ? $request->input('key') : bin2hex(random_bytes(8)); // doubles output length
             $app_key = $request->filled('app_key') ? $request->input('app_key') : bin2hex(random_bytes(16)); // doubles output length
-            $dev_id  = strtolower($request->input('hardware_id'));
 
-            $response = $this->createTTNDevice($dev_id, $dev_eui, $app_key);
+            $response = $this->updateOrCreateTTNDevice($dev_id, $dev_eui, $app_key);
             if ($response->getStatusCode() == 200 || $response->getStatusCode() == 201)
             {
                 $device_array['hardware_id']= $dev_id;

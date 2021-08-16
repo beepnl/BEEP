@@ -1,5 +1,21 @@
 [
    {
+    "version": "1.5.11",
+    "release_date": "2021-08-10T13:19:00Z",
+    "release_notes": "BEEP base 1.5.11 offers the ability to program it's hardware (ATECC) id by cable, if the BEEP base PCB (v3.3) does not contain the (currently unavailable) ATECC chip. This is a new firmware version for BEEP base v3.3 or higher, but will also run normally on older versions of the BEEP base.",
+    "stability": "test",
+    "size": 348200,
+    "download_url": "https://assets.beep.nl/firmware/basev3/1.5.11/Beepbase_sd_boot_app.zip"
+   },
+   {
+    "version": "1.5.10",
+    "release_date": "2021-06-03T11:30:00Z",
+    "release_notes": "BEEP base 1.5.10 offers log rotation reading functionality (for both Android and iOS) and the ability to disable the tilt sensor and power the BEEP base with the magnet: on (3s) / off (10s). It also adds correct time based logging in its flash memory, and sends its time via LoRa at each restart. This is an update for firmware 1.4.2 or higher.",
+    "stability": "test",
+    "size": 348200,
+    "download_url": "https://assets.beep.nl/firmware/basev3/1.5.10/Beepbase_sd_boot_app.zip"
+   },
+   {
     "version": "1.5.9",
     "release_date": "2021-04-09T15:30:00Z",
     "release_notes": "BEEP base 1.5.9 offers stabilized full log reading functionality (for both Android and iOS) and the ability to disable the tilt sensor and power the BEEP base with the magnet: on (3s) / off (10s). It also adds correct time based logging in its flash memory, and sends its time via LoRa at each restart. This is an update for firmware 1.4.2 or higher.",

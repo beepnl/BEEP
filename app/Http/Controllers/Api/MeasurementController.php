@@ -179,10 +179,18 @@ class MeasurementController extends Controller
         // Check if key is valid
         $dev_eui = $data_array['key']; // save sensor data under sensor key
         $device  = Device::where('key', $dev_eui)->first();
+
         if($device)
         {
-            $battery_voltage = isset($data_array['bv']) ? floatval($data_array['bv']) : null;
-            $this->storeDeviceMeta($dev_eui, 'battery_voltage', $battery_voltage);
+            if (isset($data_array['bv']))
+            {
+                $battery_voltage = floatval($data_array['bv']);
+                if ($battery_voltage > 100)
+                    $battery_voltage = $battery_voltage / 1000;
+                
+                $this->storeDeviceMeta($dev_eui, 'battery_voltage', $battery_voltage);
+            } 
+
         }
         else
         {
@@ -466,6 +474,8 @@ class MeasurementController extends Controller
             $data_array = $this->decode_ttn_payload($request_data);
         else if (isset($request_data['uplink_message']) && isset($request_data['end_device_ids'])) // TTN v3 (Things cloud)
             $data_array = $this->decode_ttn_payload($request_data);
+        else if (isset($request_data['uplink_message']) && isset($request_data['end_device_ids'])) // TTN v3 (Things cloud)
+            $data_array = $this->decode_ttn_payload($request_data);
 
         // store device metadata
         if (isset($data_array['beep_base']) && boolval($data_array['beep_base']) && isset($data_array['key']) && isset($data_array['hardware_id'])) // store hardware id
@@ -563,7 +573,17 @@ class MeasurementController extends Controller
         if (($request->filled('payload_fields') || $request->filled('payload_raw')) && $request->filled('hardware_serial')) // TTN HTTP POST
         {
             $data_array = $this->parse_ttn_payload($request_data);
-            $this->cacheRequestRate('store-lora-sensors-ttn');
+            $this->cacheRequestRate('store-lora-sensors-ttn-v2');
+        }
+        else if (($request->filled('data') && $request->filled('identifiers'))) // TTN V3 Packet broker HTTPS POST
+        {
+            $data_array = $this->parse_ttn_payload($request_data['data']);
+            $this->cacheRequestRate('store-lora-sensors-ttn-v3-pb');
+        }
+        else if (($request->filled('end_device_ids') || $request->filled('uplink_message'))) // TTN V3 HTTPS POST
+        {
+            $data_array = $this->parse_ttn_payload($request_data);
+            $this->cacheRequestRate('store-lora-sensors-ttn-v3');
         }
         else if ($request->filled('LrnDevEui') && $request->filled('DevEUI_uplink.payload_hex')) // KPN/Simpoint
         {
@@ -572,7 +592,11 @@ class MeasurementController extends Controller
         }
         else if ($request->filled('data')) // Check for sensor string (colon and pipe devided) fw v1-3
         {
-            $data_array = $this->convertSensorStringToArray($request_data['data']);
+            if (gettype($request_data['data']) == 'array')
+                $data_array = $request_data['data'];
+            else
+                $data_array = $this->convertSensorStringToArray($request_data['data']);
+            
             $this->cacheRequestRate('store-sensors');
         }
         else // Assume post data input

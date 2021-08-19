@@ -42,9 +42,12 @@ trait MeasurementLoRaDecoderTrait
         {
             $port = $data['uplink_message']['f_port'];
             
-            if (isset($data['uplink_message']['decoded_payload']) && isset($data['uplink_message']['decoded_payload']['payload_fields']))
+            if (isset($data['uplink_message']['decoded_payload']))
             {
-                $data_array = $data['uplink_message']['decoded_payload']['payload_fields']; // TTN v3 with defined payload_fields
+                if (isset($data['uplink_message']['decoded_payload']['payload_fields']))
+                    $data_array = $data['uplink_message']['decoded_payload']['payload_fields']; // TTN v3 with defined payload_fields
+                else
+                    $data_array = $data['uplink_message']['decoded_payload'];
             }
             else
             {
@@ -54,6 +57,8 @@ trait MeasurementLoRaDecoderTrait
 
             $data_array['port']   = $port;
             $data_array['key']    = $data['end_device_ids']['dev_eui'];
+
+            //die(print_r($data_array));
 
             // add meta data
             if (isset($data['end_device_ids']['device_id']) && !isset($data_array['key']))

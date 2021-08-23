@@ -21,17 +21,17 @@ Route::group(['middleware' => \Barryvdh\Cors\HandleCors::class], function()
 	});
 
 	// save sensor data of multiple sensors
-	Route::post('sensors', 		'Api\MeasurementController@storeMeasurementData')->middleware('throttle:10,1');
-	Route::post('lora_sensors', 'Api\MeasurementController@lora_sensors')->middleware('throttle:100,1');
+	Route::post('sensors', 		'Api\MeasurementController@storeMeasurementData')->middleware('throttle:20,1');
+	Route::post('lora_sensors', 'Api\MeasurementController@lora_sensors')->middleware('throttle:20,1');
 
 	// save sensor data of multiple sensors (unsecure)
 	Route::post('unsecure_sensors', 'Api\MeasurementController@storeMeasurementData');
 	
 	// User functions
-	Route::post('register', 	'Api\UserController@register')->middleware('throttle:10,1');
-	Route::post('login', 		'Api\UserController@login')->middleware('throttle:10,1');
-	Route::post('user/reminder','Api\UserController@reminder')->middleware('throttle:10,1');
-	Route::post('user/reset', 	'Api\UserController@reset')->middleware('throttle:10,1');
+	Route::post('register', 	'Api\UserController@register')->middleware('throttle:3,1');
+	Route::post('login', 		'Api\UserController@login')->middleware('throttle:20,1');
+	Route::post('user/reminder','Api\UserController@reminder')->middleware('throttle:3,1');
+	Route::post('user/reset', 	'Api\UserController@reset')->middleware('throttle:3,1');
 
 	// // Email Verification Routes...
 	Route::get('email/verify/{id}', 'Api\Auth\VerificationController@verify')->name('apiverification.verify')->middleware('throttle:6,1');

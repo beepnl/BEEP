@@ -138,7 +138,7 @@ cd influxdb2-client-2.0.6-linux-amd64
 ./influx v1 dbrp create --db [influx-v1-db-name] --rp autogen --bucket-id [copy-from-influx-cloud] --default
 sudo influx_inspect export -datadir /var/lib/influxdb/data -waldir /var/lib/influxdb/wal -database test_beep_nl -retention autogen -start 2021-01-01T00:00:00Z -end 2022-01-01T00:00:00Z -out test_beep_nl_temp.lp
 sudo tail -n +4 test_beep_nl_temp.lp > test_beep_nl.lp
-./influx write --bucket [copy-from-influx-cloud] --file test_beep_nl.lp --rate-limit "300 MB / 5 min" --skipRowOnError
+./influx write --bucket-id [copy-from-influx-cloud] --file test_beep_nl.lp --rate-limit "300 MB / 5 min" --skipRowOnError
 ```
 
 

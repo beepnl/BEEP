@@ -136,7 +136,6 @@ class ResearchController extends Controller
         else
             $research = $request->user()->allResearches()->find($id);
 
-        $influx       = new \Influx;
         $download_url = null;
         $sensor_urls  = [];
         $download     = $request->has('download');
@@ -446,7 +445,7 @@ class ResearchController extends Controller
                 $user_device_keys = '('.implode(' OR ', $user_device_keys).')';
 
                 try{
-                    $points = $influx::query('SELECT COUNT("bv") as "count" FROM "sensors" WHERE '.$user_device_keys.' AND time >= \''.$date_curr_consent.'\' AND time <= \''.$moment_end->format('Y-m-d H:i:s').'\' GROUP BY time(1d)')->getPoints();
+                    $points = $this->client::query('SELECT COUNT("bv") as "count" FROM "sensors" WHERE '.$user_device_keys.' AND time >= \''.$date_curr_consent.'\' AND time <= \''.$moment_end->format('Y-m-d H:i:s').'\' GROUP BY time(1d)')->getPoints();
                 } catch (InfluxDB\Exception $e) {
                     // return Response::json('influx-group-by-query-error', 500);
                 }
@@ -459,7 +458,7 @@ class ResearchController extends Controller
                 // Add weather data
                 $user_location_coord_where = '('.implode(' OR ', $user_dloc_coords).')';
                 try{
-                    $weather = $influx::query('SELECT COUNT("temperature") as "count" FROM "weather" WHERE '.$user_location_coord_where.' AND time >= \''.$date_curr_consent.'\' AND time <= \''.$moment_end->format('Y-m-d H:i:s').'\' GROUP BY time(1d)')->getPoints(); // get first weather date
+                    $weather = $this->client::query('SELECT COUNT("temperature") as "count" FROM "weather" WHERE '.$user_location_coord_where.' AND time >= \''.$date_curr_consent.'\' AND time <= \''.$moment_end->format('Y-m-d H:i:s').'\' GROUP BY time(1d)')->getPoints(); // get first weather date
                 } catch (InfluxDB\Exception $e) {
                     // return Response::json('influx-group-by-query-error', 500);
                 }

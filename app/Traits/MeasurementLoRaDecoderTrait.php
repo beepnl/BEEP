@@ -40,12 +40,25 @@ trait MeasurementLoRaDecoderTrait
         }
         else if (isset($data['end_device_ids']['dev_eui']) && isset($data['uplink_message']['frm_payload']) && isset($data['uplink_message']['f_port'])) // ttn v3 uplink
         {
-            $payload    = bin2hex(base64_decode($data['uplink_message']['frm_payload']));
-            $port       = $data['uplink_message']['f_port'];
-            $data_array = $this->decode_beep_payload($payload, $port);
+            $port = $data['uplink_message']['f_port'];
+            
+            if (isset($data['uplink_message']['decoded_payload']))
+            {
+                if (isset($data['uplink_message']['decoded_payload']['payload_fields']))
+                    $data_array = $data['uplink_message']['decoded_payload']['payload_fields']; // TTN v3 with defined payload_fields
+                else
+                    $data_array = $data['uplink_message']['decoded_payload'];
+            }
+            else
+            {
+                $payload    = bin2hex(base64_decode($data['uplink_message']['frm_payload'])); // TTN v3 with BEEP base payload 
+                $data_array = $this->decode_beep_payload($payload, $port);
+            }
 
             $data_array['port']   = $port;
             $data_array['key']    = $data['end_device_ids']['dev_eui'];
+
+            //die(print_r($data_array));
 
             // add meta data
             if (isset($data['end_device_ids']['device_id']) && !isset($data_array['key']))

@@ -23,12 +23,15 @@ trait MeasurementLegacyCalculationsTrait
     protected function convertSensorStringToArray($data_string)
     {
         $out = [];
-        $arr = explode("|", $data_string);
-        foreach ($arr as $str) 
+        if (strpos($data_string, "|") !== false)
         {
-            $str_arr = explode(":",$str);
-            if (count($str_arr) > 1)
-                $out[$str_arr[0]] = $str_arr[1];
+            $arr = explode("|", $data_string);
+            foreach ($arr as $str) 
+            {
+                $str_arr = explode(":",$str);
+                if (count($str_arr) > 1)
+                    $out[$str_arr[0]] = $str_arr[1];
+            }
         }
         return $out;
     }

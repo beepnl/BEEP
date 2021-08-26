@@ -86,10 +86,18 @@ class Weather extends Model
         $lang     = LaravelLocalization::getCurrentLocale();
         $units    = env('OPENWEATHER_API_UNITS', 'metric');
         $url      = env('OPENWEATHER_API_URL').'&lat='.$lat.'&lon='.$lon.'&units='.$units; 
-        $guzzle   = new Client();
-        $response = $guzzle->request('GET', $url, ['verify' => true, 'http_errors' => false]);
-        if ($response->getStatusCode() == 200)
-            $result = json_decode($response->getBody());
+        
+        try
+        {
+            $guzzle   = new Client();
+            $response = $guzzle->request('GET', $url, ['verify' => true, 'http_errors' => false]);
+            if ($response->getStatusCode() == 200)
+                $result = json_decode($response->getBody());  
+        }
+        catch(\Exception $e)
+        {
+            // gracefully do nothing
+        }
        
         if ($result)
         {

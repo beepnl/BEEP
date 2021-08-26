@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "5a2e4a75e3d29b8d2cbb35a12cf2802b",
+    "content-hash": "caa3bc09556e210306fb8b9602d5280c",
     "packages": [
         {
             "name": "asm89/stack-cors",
@@ -1495,26 +1495,28 @@
         },
         {
             "name": "influxdb/influxdb-php",
-            "version": "1.14.8",
+            "version": "1.15.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/influxdata/influxdb-php.git",
-                "reference": "e2c94cc7402d892185b3833f9627d67b6379e3d8"
+                "reference": "d6e59f4f04ab9107574fda69c2cbe36671253d03"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/influxdata/influxdb-php/zipball/e2c94cc7402d892185b3833f9627d67b6379e3d8",
-                "reference": "e2c94cc7402d892185b3833f9627d67b6379e3d8",
+                "url": "https://api.github.com/repos/influxdata/influxdb-php/zipball/d6e59f4f04ab9107574fda69c2cbe36671253d03",
+                "reference": "d6e59f4f04ab9107574fda69c2cbe36671253d03",
                 "shasum": ""
             },
             "require": {
-                "guzzlehttp/guzzle": "^6.0",
-                "php": "^5.5 || ^7.0"
+                "guzzlehttp/guzzle": "^6.0|^7.0",
+                "php": "^5.5 || ^7.0 || ^8.0"
             },
             "require-dev": {
-                "phpunit/phpunit": "^5.7"
+                "dms/phpunit-arraysubset-asserts": "^0.2.1",
+                "phpunit/phpunit": "^9.5"
             },
             "suggest": {
+                "ext-curl": "Curl extension, needed for Curl driver",
                 "stefanotorresi/influxdb-php-async": "An asyncronous client for InfluxDB, implemented via ReactPHP."
             },
             "type": "library",
@@ -1529,16 +1531,16 @@
             ],
             "authors": [
                 {
-                    "name": "Gianluca Arbezzano",
-                    "email": "gianarb92@gmail.com"
+                    "name": "Stephen Hoogendijk",
+                    "email": "stephen@tca0.nl"
                 },
                 {
                     "name": "Daniel Martinez",
                     "email": "danimartcas@hotmail.com"
                 },
                 {
-                    "name": "Stephen Hoogendijk",
-                    "email": "stephen@tca0.nl"
+                    "name": "Gianluca Arbezzano",
+                    "email": "gianarb92@gmail.com"
                 }
             ],
             "description": "InfluxDB client library for PHP",
@@ -1553,9 +1555,9 @@
             ],
             "support": {
                 "issues": "https://github.com/influxdata/influxdb-php/issues",
-                "source": "https://github.com/influxdata/influxdb-php/tree/1.14.8"
+                "source": "https://github.com/influxdata/influxdb-php/tree/1.15.2"
             },
-            "time": "2019-05-30T00:05:10+00:00"
+            "time": "2020-12-26T17:45:17+00:00"
         },
         {
             "name": "intervention/image",
@@ -3701,68 +3703,6 @@
                 "source": "https://github.com/paragonie/random_compat"
             },
             "time": "2020-10-15T08:29:30+00:00"
-        },
-        {
-            "name": "pdffiller/laravel-influx-provider",
-            "version": "v1.6.6",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/pdffiller/laravel-influx-provider.git",
-                "reference": "ffe8ed386fca952972d9b0b67cfa9533f812ee9c"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/pdffiller/laravel-influx-provider/zipball/ffe8ed386fca952972d9b0b67cfa9533f812ee9c",
-                "reference": "ffe8ed386fca952972d9b0b67cfa9533f812ee9c",
-                "shasum": ""
-            },
-            "require": {
-                "illuminate/log": "5.2.*|5.3.*|5.4.*|5.5.*|5.6.*|5.7.*|5.8.*|^6.0",
-                "illuminate/support": "5.2.*|5.3.*|5.4.*|5.5.*|5.6.*|5.7.*|5.8.*|^6.0",
-                "influxdb/influxdb-php": "1.14.*",
-                "monolog/monolog": "^1.19",
-                "php": "^5.6 || ^7.0 || ^7.1.3"
-            },
-            "require-dev": {
-                "mockery/mockery": "0.9.*",
-                "phpunit/phpunit": "~4.0"
-            },
-            "type": "library",
-            "extra": {
-                "laravel": {
-                    "providers": [
-                        "Pdffiller\\LaravelInfluxProvider\\InfluxDBServiceProvider"
-                    ],
-                    "aliases": {
-                        "Influx": "Pdffiller\\LaravelInfluxProvider\\InfluxDBFacade"
-                    }
-                }
-            },
-            "autoload": {
-                "psr-4": {
-                    "Pdffiller\\LaravelInfluxProvider\\": "src/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Anton Balandin",
-                    "email": "anbalandin@gmail.com"
-                }
-            ],
-            "description": "Service provider to set up and use InfluxDB SDK in Laravel 5",
-            "keywords": [
-                "influx-db",
-                "laravel"
-            ],
-            "support": {
-                "issues": "https://github.com/pdffiller/laravel-influx-provider/issues",
-                "source": "https://github.com/pdffiller/laravel-influx-provider/tree/master"
-            },
-            "time": "2019-12-03T17:09:55+00:00"
         },
         {
             "name": "php-di/invoker",
@@ -7029,6 +6969,57 @@
                 "source": "https://github.com/tijsverkoyen/CssToInlineStyles/tree/2.2.3"
             },
             "time": "2020-07-13T06:12:54+00:00"
+        },
+        {
+            "name": "tray-labs/laravel-influxdb",
+            "version": "1.0.7",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/tray-labs/laravel-influxdb.git",
+                "reference": "6832474bd5c73fd9ddb0229d165b397ceee87c8f"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/tray-labs/laravel-influxdb/zipball/6832474bd5c73fd9ddb0229d165b397ceee87c8f",
+                "reference": "6832474bd5c73fd9ddb0229d165b397ceee87c8f",
+                "shasum": ""
+            },
+            "require": {
+                "illuminate/support": "^5.0|^6.0|^7.0|^8.0",
+                "influxdb/influxdb-php": "^1.15"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "TrayLabs\\InfluxDB\\Providers\\ServiceProvider"
+                    ],
+                    "aliases": {
+                        "InfluxDB": "TrayLabs\\InfluxDB\\Facades\\InfluxDB"
+                    }
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "TrayLabs\\InfluxDB\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Tray Labs",
+                    "email": "dev@traylabs.com.br"
+                }
+            ],
+            "description": "A service made to provide, set up and use the library from influxdata influxphp in Laravel.",
+            "support": {
+                "issues": "https://github.com/tray-labs/laravel-influxdb/issues",
+                "source": "https://github.com/tray-labs/laravel-influxdb/tree/1.0.7"
+            },
+            "time": "2021-06-07T13:30:27+00:00"
         },
         {
             "name": "vlucas/phpdotenv",

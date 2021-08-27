@@ -125,17 +125,16 @@ class Device extends Model
         return $values;
     }
 
+    // Provide a list of sensor names that exist within the $where clase and $table
     public static function getAvailableSensorNamesFromData($names, $where, $table='sensors', $output_sensors_only=true)
     {
         //die(print_r([$names, $valid_sensors]));
-        $client         = new \Influx;
         $valid_sensors  = Measurement::all()->pluck('pq', 'abbreviation')->toArray();
         $output_sensors = Measurement::where('show_in_charts', '=', 1)->pluck('abbreviation')->toArray();
 
         $out           = [];
         $valid_sensors = $output_sensors_only ? $output_sensors : array_keys($valid_sensors);
         $valid_sensors = array_intersect($valid_sensors, $names);
-        $values        = Device::getInfluxQuery('SELECT * FROM "'.$table.'" WHERE '.$where.' GROUP BY "name,time" ORDER BY time DESC LIMIT 1');
         
         $fields = [];
         foreach ($valid_sensors as $field)
@@ -144,15 +143,8 @@ class Device extends Model
         }
         $valid_fields = implode(', ', $fields);
 
-        $query         = 'SELECT '.$valid_fields.' FROM "'.$table.'" WHERE '.$where.' GROUP BY "name,time" ORDER BY time DESC LIMIT 1';
-        $options       = ['precision'=> 's'];
-
-        try{
-            $result  = $client::query($query, $options);
-            $values  = $result->getPoints();
-        } catch (InfluxDB\Exception $e) {
-            // return Response::json('influx-group-by-query-error', 500);
-        }
+        $query  = 'SELECT '.$valid_fields.' FROM "'.$table.'" WHERE '.$where.' GROUP BY "name,time" ORDER BY time DESC LIMIT 1';
+        $values = Device::getInfluxQuery($query);
 
         if (count($values) > 0)
             $sensors = $values[0];
@@ -165,7 +157,6 @@ class Device extends Model
         $out = array_intersect($out, $valid_sensors);
         $out = array_values($out);
 
-        //die(print_r($out));
         return $out;
     }
 

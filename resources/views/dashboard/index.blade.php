@@ -59,7 +59,7 @@
 			<div class="small-box bg-primary">
 				<div class="inner">
 					<h3>{{ $data['get-measurements'] }} / {{ $data['get-measurements-last'] }} / {{ $data['get-measurements-research'] }}</h3>
-					<p>Get data charts / last values / research<br>reqeuests/min</p>
+					<p>Get data charts / last values / research<br>requests/min</p>
 				</div>
 				<div class="icon">
 					<i class="fa fa-database"></i>

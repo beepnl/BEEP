@@ -297,6 +297,8 @@ class MeasurementController extends Controller
     */
     public function lastvalues(Request $request)
     {
+        $this->cacheRequestRate('get-measurements-last');
+
         $device = $this->get_user_device($request);
         $output = $device->last_sensor_values_array(implode('","',$this->output_sensors));
 

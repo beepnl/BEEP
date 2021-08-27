@@ -90,7 +90,9 @@ class DashboardController extends Controller
         $data['store-lora-sensors-ttn-v3-pb'] = $this->cacheRequestGetRate('store-lora-sensors-ttn-v3-pb');
         $data['store-lora-sensors-ttn-v3']    = $this->cacheRequestGetRate('store-lora-sensors-ttn-v3');
         $data['store-measurements-total']     = $data['store-sensors'] + $data['store-lora-sensors-'] + $data['store-lora-sensors-kpn'] + $data['store-lora-sensors-ttn-v2'] + $data['store-lora-sensors-ttn-v3-pb'] + $data['store-lora-sensors-ttn-v3'];
-        $data['get-measurements']       = $this->cacheRequestGetRate('get-measurements');
+        $data['get-measurements']             = $this->cacheRequestGetRate('get-measurements');
+        $data['get-measurements-last']        = $this->cacheRequestGetRate('get-measurements-last');
+        $data['get-measurements-research']    = $this->cacheRequestGetRate('get-measurements-research');
 
         foreach (Research::all() as $key => $r)
         {

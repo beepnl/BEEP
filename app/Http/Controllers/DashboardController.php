@@ -80,9 +80,9 @@ class DashboardController extends Controller
         $data['sensors']    = Device::count();
         $data['researches'] = [];
         $data['store-measurements-201'] = $this->cacheRequestGetRate('store-measurements-201');
-        $data['store-measurements-400'] = $this->cacheRequestGetRate('store-measurements-400');
-        $data['store-measurements-401'] = $this->cacheRequestGetRate('store-measurements-401');
-        $data['store-measurements-500'] = $this->cacheRequestGetRate('store-measurements-500');
+        $data['store-measurements-400'] = $this->cacheRequestGetRate('store-measurements-400', 3600);
+        $data['store-measurements-401'] = $this->cacheRequestGetRate('store-measurements-401', 3600);
+        $data['store-measurements-500'] = $this->cacheRequestGetRate('store-measurements-500', 3600);
         $data['store-sensors']                = $this->cacheRequestGetRate('store-sensors');
         $data['store-lora-sensors-']          = $this->cacheRequestGetRate('store-lora-sensors-');
         $data['store-lora-sensors-kpn']       = $this->cacheRequestGetRate('store-lora-sensors-kpn');

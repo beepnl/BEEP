@@ -8,7 +8,20 @@ use InfluxDB;
 
 class HighWeightFix {
  
-    
+    public static function cacheRequestRate($name)
+    {
+        Cache::remember($name.'-time', 86400, function () use ($name)
+        { 
+            Cache::forget($name.'-count'); 
+            return time(); 
+        });
+
+        if (Cache::has($name.'-count'))
+            Cache::increment($name.'-count');
+        else
+            Cache::put($name.'-count', 1);
+
+    }
 
     private static function storeInfluxData($data_array, $dev_eui, $unix_timestamp, $valid_sensors)
     {
@@ -40,6 +53,7 @@ class HighWeightFix {
         {
             try
             {
+                HighWeightFix::cacheRequestRate('influx-write');
                 $stored = $client::writePoints($points, InfluxDB\Database::PRECISION_SECONDS);
             }
             catch(\Exception $e)
@@ -57,6 +71,8 @@ class HighWeightFix {
         $values  = [];
 
         try{
+            HighWeightFixcacheRequestRate('influx-get');
+            HighWeightFixcacheRequestRate('influx-weight');
             $result  = $client::query($query, $options);
             $values  = $result->getPoints();
         } catch (InfluxDB\Exception $e) {

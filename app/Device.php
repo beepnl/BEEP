@@ -23,6 +23,21 @@ class Device extends Model
 
     public $timestamps  = false;
 
+    public static function cacheRequestRate($name)
+    {
+        Cache::remember($name.'-time', 86400, function () use ($name)
+        { 
+            Cache::forget($name.'-count'); 
+            return time(); 
+        });
+
+        if (Cache::has($name.'-count'))
+            Cache::increment($name.'-count');
+        else
+            Cache::put($name.'-count', 1);
+
+    }
+
     // Relations
     public function getTypeAttribute()
     {
@@ -112,6 +127,9 @@ class Device extends Model
 
     public static function getInfluxQuery($query)
     {
+        Device::cacheRequestRate('influx-get');
+        Device::cacheRequestRate('influx-device');
+
         $client  = new \Influx;
         $options = ['precision'=> 's'];
         $values  = [];

@@ -29,10 +29,10 @@
 
 		<div class="col-lg-3 col-xs-6">
 		<!-- small box -->
-			<div class="small-box bg-orange">
+			<div class="small-box bg-red">
 				<div class="inner">
-					<h3>{{ $data['store-measurements-400'] }} / {{ $data['store-measurements-401'] }}</h3>
-					<p>Data storage <br>no/unexisting key (400/401) req/min</p>
+					<h3>{{ $data['store-measurements-400'] }} / {{ $data['store-measurements-401'] }} / {{ $data['store-measurements-500'] }}</h3>
+					<p>Data storage <br>no/unexisting key/error (400/401/500) req/min</p>
 				</div>
 				<div class="icon">
 					<i class="fa fa-database"></i>
@@ -43,13 +43,15 @@
 
 		<div class="col-lg-3 col-xs-6">
 		<!-- small box -->
-			<div class="small-box bg-red">
+			<div class="small-box bg-blue">
 				<div class="inner">
-					<h3>{{ $data['store-measurements-500'] }}</h3>
-					<p>Data storage <br>save error (500) req/min</p>
+					<h3>{{ $data['influx-get'] }} / {{ $data['influx-write'] }}</h3>
+					<p>Influx read / write
+						<br>d:{{$data['influx-data']}} wea:{{$data['influx-weather']}} wfix:{{$data['influx-weight']}} r:{{$data['influx-research']}} r-api:{{$data['influx-research-api']}} csv:{{$data['influx-csv']}} req/hr
+					</p>
 				</div>
 				<div class="icon">
-					<i class="fa fa-database"></i>
+					<i class="fa fa-line-chart"></i>
 				</div>
 			</div>
 		</div>
@@ -59,7 +61,7 @@
 			<div class="small-box bg-primary">
 				<div class="inner">
 					<h3>{{ $data['get-measurements'] }} / {{ $data['get-measurements-last'] }} / {{ $data['get-measurements-research'] }}</h3>
-					<p>Get data charts / last values / research<br>requests/min</p>
+					<p>Get data charts / last values / research<br>req/hr</p>
 				</div>
 				<div class="icon">
 					<i class="fa fa-database"></i>

@@ -38,6 +38,21 @@ class ResearchController extends Controller
         //die(print_r($this->valid_sensors));
     }
 
+    private function cacheRequestRate($name)
+    {
+        Cache::remember($name.'-time', 86400, function () use ($name)
+        { 
+            Cache::forget($name.'-count'); 
+            return time(); 
+        });
+
+        if (Cache::has($name.'-count'))
+            Cache::increment($name.'-count');
+        else
+            Cache::put($name.'-count', 1);
+
+    }
+
     private function checkAuthorization(Request $request)
     {
         if ($request->user()->researchMenuOption() == false)
@@ -445,6 +460,8 @@ class ResearchController extends Controller
                 $user_device_keys = '('.implode(' OR ', $user_device_keys).')';
 
                 try{
+                    $this->cacheRequestRate('influx-get');
+                    $this->cacheRequestRate('influx-research');
                     $points = $this->client::query('SELECT COUNT("bv") as "count" FROM "sensors" WHERE '.$user_device_keys.' AND time >= \''.$date_curr_consent.'\' AND time <= \''.$moment_end->format('Y-m-d H:i:s').'\' GROUP BY time(1d)')->getPoints();
                 } catch (InfluxDB\Exception $e) {
                     // return Response::json('influx-group-by-query-error', 500);

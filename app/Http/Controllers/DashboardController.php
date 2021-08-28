@@ -29,12 +29,12 @@ class DashboardController extends Controller
         
     }
 
-    private function cacheRequestGetRate($name, $decimals=0)
+    private function cacheRequestGetRate($name, $average_sec=60, $decimals=0)
     {
         if (Cache::has($name.'-time') && Cache::has($name.'-count'))
         {
             $sec_ago     = time() - Cache::get($name.'-time');
-            $req_per_min = round(Cache::get($name.'-count') * 60 / $sec_ago, $decimals);
+            $req_per_min = round(Cache::get($name.'-count') * $average_sec / $sec_ago, $decimals);
             return $req_per_min;
         }
         else
@@ -90,9 +90,18 @@ class DashboardController extends Controller
         $data['store-lora-sensors-ttn-v3-pb'] = $this->cacheRequestGetRate('store-lora-sensors-ttn-v3-pb');
         $data['store-lora-sensors-ttn-v3']    = $this->cacheRequestGetRate('store-lora-sensors-ttn-v3');
         $data['store-measurements-total']     = $data['store-sensors'] + $data['store-lora-sensors-'] + $data['store-lora-sensors-kpn'] + $data['store-lora-sensors-ttn-v2'] + $data['store-lora-sensors-ttn-v3-pb'] + $data['store-lora-sensors-ttn-v3'];
-        $data['get-measurements']             = $this->cacheRequestGetRate('get-measurements');
-        $data['get-measurements-last']        = $this->cacheRequestGetRate('get-measurements-last');
-        $data['get-measurements-research']    = $this->cacheRequestGetRate('get-measurements-research');
+        $data['get-measurements']             = $this->cacheRequestGetRate('get-measurements', 3600);
+        $data['get-measurements-last']        = $this->cacheRequestGetRate('get-measurements-last', 3600);
+        $data['get-measurements-research']    = $this->cacheRequestGetRate('get-measurements-research', 3600);
+
+        $data['influx-write']                 = $this->cacheRequestGetRate('influx-write', 3600);
+        $data['influx-get']                   = $this->cacheRequestGetRate('influx-get', 3600);
+        $data['influx-data']                  = $this->cacheRequestGetRate('influx-data', 3600);
+        $data['influx-weather']               = $this->cacheRequestGetRate('influx-weather', 3600);
+        $data['influx-research']              = $this->cacheRequestGetRate('influx-research', 3600);
+        $data['influx-research-api']          = $this->cacheRequestGetRate('influx-research-api', 3600);
+        $data['influx-weight']                = $this->cacheRequestGetRate('influx-weight', 3600);
+        $data['influx-csv']                   = $this->cacheRequestGetRate('influx-csv', 3600);
 
         foreach (Research::all() as $key => $r)
         {

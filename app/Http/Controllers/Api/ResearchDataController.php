@@ -52,7 +52,7 @@ class ResearchDataController extends Controller
 
     private function cacheRequestRate($name)
     {
-        Cache::remember($name.'-time', 600, function () use ($name)
+        Cache::remember($name.'-time', 86400, function () use ($name)
         { 
             Cache::forget($name.'-count'); 
             return time(); 
@@ -894,6 +894,8 @@ class ResearchDataController extends Controller
         $data  = [];
 
         try{
+            $this->cacheRequestRate('influx-get');
+            $this->cacheRequestRate('influx-research-api');
             $data = $this->client::query($query, $options)->getPoints(); // get first sensor date
         } catch (InfluxDB\Exception $e) {
             // do nothing

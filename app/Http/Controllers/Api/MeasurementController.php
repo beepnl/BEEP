@@ -142,6 +142,7 @@ class MeasurementController extends Controller
         {
             try
             {
+                $this->cacheRequestRate('influx-write');
                 $stored = $client::writePoints($points, InfluxDB\Database::PRECISION_SECONDS);
             }
             catch(\Exception $e)
@@ -154,7 +155,7 @@ class MeasurementController extends Controller
 
     private function cacheRequestRate($name)
     {
-        Cache::remember($name.'-time', 600, function () use ($name)
+        Cache::remember($name.'-time', 86400, function () use ($name)
         { 
             Cache::forget($name.'-count'); 
             return time(); 
@@ -805,10 +806,17 @@ class MeasurementController extends Controller
         $location= $device->location();
         
         $client = $this->client;
+        
+        $this->cacheRequestRate('influx-get');
+        $this->cacheRequestRate('influx-data');
         $first  = $client::query('SELECT * FROM "sensors" WHERE ("key" = \''.$device->key.'\' OR "key" = \''.strtolower($device->key).'\' OR "key" = \''.strtoupper($device->key).'\') ORDER BY time ASC LIMIT 1')->getPoints(); // get first sensor date
         $first_w= [];
         if ($location && isset($location->coordinate_lat) && isset($location->coordinate_lon))
+        {
+            $this->cacheRequestRate('influx-get');
+            $this->cacheRequestRate('influx-weather');
             $first_w = $client::query('SELECT * FROM "weather" WHERE "lat" = \''.$location->coordinate_lat.'\' AND "lon" = \''.$location->coordinate_lon.'\' ORDER BY time ASC LIMIT 1')->getPoints(); // get first weather date
+        }
         
         if (count($first) == 0 && count($first_w) == 0)
             return Response::json('sensor-none-error', 500);
@@ -919,6 +927,8 @@ class MeasurementController extends Controller
         if ($groupBySelect != null) 
         {
             $sensorQuery = 'SELECT '.$groupBySelect.' FROM "sensors" WHERE ("key" = \''.$device->key.'\' OR "key" = \''.strtolower($device->key).'\' OR "key" = \''.strtoupper($device->key).'\') AND time >= \''.$staTimestampString.'\' AND time <= \''.$endTimestampString.'\' '.$groupByResolution.' '.$limit;
+            $this->cacheRequestRate('influx-get');
+            $this->cacheRequestRate('influx-data');
             $result      = $client::query($sensorQuery, $options);
             $sensors_out = $result->getPoints();
         }
@@ -927,6 +937,8 @@ class MeasurementController extends Controller
         if ($groupBySelectWeather != null && $location && isset($location->coordinate_lat) && isset($location->coordinate_lon))
         {
             $weatherQuery = 'SELECT '.$groupBySelectWeather.' FROM "weather" WHERE "lat" = \''.$location->coordinate_lat.'\' AND "lon" = \''.$location->coordinate_lon.'\' AND time >= \''.$staTimestampString.'\' AND time <= \''.$endTimestampString.'\' '.$groupByResolution.' '.$limit;
+            $this->cacheRequestRate('influx-get');
+            $this->cacheRequestRate('influx-weather');
             $result       = $client::query($weatherQuery, $options);
             $weather_out  = $result->getPoints();
 

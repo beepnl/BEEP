@@ -23,9 +23,9 @@ class Device extends Model
 
     public $timestamps  = false;
 
-    public static function cacheRequestRate($name)
+    public static function cacheRequestRate($name, $retention_sec=86400)
     {
-        Cache::remember($name.'-time', 86400, function () use ($name)
+        Cache::remember($name.'-time', $retention_sec, function () use ($name)
         { 
             Cache::forget($name.'-count'); 
             return time(); 
@@ -181,6 +181,9 @@ class Device extends Model
     
     public function last_sensor_values_array($fields='*', $limit=1)
     {
+        Device::cacheRequestRate('influx-get');
+        Device::cacheRequestRate('influx-last');
+
         $fields = $fields != '*' ? '"'.$fields.'"' : '*';
         $groupby= $fields == '*' || strpos(',' ,$fields) ? 'GROUP BY "name,time"' : '';
         $output = null;

@@ -181,9 +181,6 @@ class Device extends Model
     
     public function last_sensor_values_array($fields='*', $limit=1)
     {
-        Device::cacheRequestRate('influx-get');
-        Device::cacheRequestRate('influx-last');
-
         $last_set_time = Cache::get('set-measurements-device-'.$this->id.'-time');
         $last_req_time = Cache::get('last-values-device-'.$this->id.'-request-time');
         $last_req_vals = Cache::get('last-values-device-'.$this->id);
@@ -196,6 +193,8 @@ class Device extends Model
         $output = null;
         try
         {
+            Device::cacheRequestRate('influx-get');
+            Device::cacheRequestRate('influx-last');
             $client = new \Influx;
             $query  = 'SELECT '.$fields.' from "sensors" WHERE ("key" = \''.$this->key.'\' OR "key" = \''.strtolower($this->key).'\' OR "key" = \''.strtoupper($this->key).'\') AND time > now() - 365d '.$groupby.' ORDER BY time DESC LIMIT '.$limit;
             //die(print_r($query));

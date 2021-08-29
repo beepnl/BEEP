@@ -184,6 +184,13 @@ class Device extends Model
         Device::cacheRequestRate('influx-get');
         Device::cacheRequestRate('influx-last');
 
+        $last_set_time = Cache::get('set-measurements-device-'.$this->id.'-time');
+        $last_req_time = Cache::get('last-values-device-'.$this->id.'-request-time');
+        $last_req_vals = Cache::get('last-values-device-'.$this->id);
+
+        if ($last_req_vals != null && $last_set_time < $last_req_time) // only request Influx if newer data is available
+            return $last_req_vals;
+
         $fields = $fields != '*' ? '"'.$fields.'"' : '*';
         $groupby= $fields == '*' || strpos(',' ,$fields) ? 'GROUP BY "name,time"' : '';
         $output = null;
@@ -202,6 +209,10 @@ class Device extends Model
         {
             return false;
         }
+
+        Cache::put('last-values-device-'.$this->id.'-request-time', time(), 86400);
+        Cache::put('last-values-device-'.$this->id, $output, 86400);
+
         return $output;
     }
 
@@ -251,11 +262,11 @@ class Device extends Model
             }
             // else if ($measurement_abbr == 'w_v') // Legacy app: make new calibration values based on stored ones
             // {
-            //     $influx_offset = floatval($device->last_sensor_measurement_time_value($measurement_abbr.'_offset'));
-            //     $influx_multi  = floatval($device->last_sensor_measurement_time_value($measurement_abbr.'_kg_per_val'));
+            //     $influx_offset = floatval($this->last_sensor_measurement_time_value($measurement_abbr.'_offset'));
+            //     $influx_multi  = floatval($this->last_sensor_measurement_time_value($measurement_abbr.'_kg_per_val'));
 
             //     if ($influx_offset != 0 || $influx_multi != 0)
-            //         $this->createOrUpdateDefinition($device, 'w_v', 'weight_kg', $influx_offset, $influx_multi);
+            //         $this->createOrUpdateDefinition($this, 'w_v', 'weight_kg', $influx_offset, $influx_multi);
             // }
         }
         return $data_array;

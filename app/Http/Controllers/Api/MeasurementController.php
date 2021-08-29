@@ -200,11 +200,15 @@ class MeasurementController extends Controller
             return Response::json('No valid key provided', 401);
         }
 
+        
         unset($data_array['key']);
 
         $time = time();
         if (isset($data_array['time']))
             $time = intVal($data_array['time']);
+
+        // remember the last date that this device stored measurements from
+        Cache::put('set-measurements-device-'.$this->id.'-time', $time);
 
         // New weight sensor data calculations based on sensor definitions for weight and internal temperature
         if (!isset($data_array['weight_kg']) && isset($data_array['w_v']))
@@ -301,13 +305,15 @@ class MeasurementController extends Controller
         $this->cacheRequestRate('get-measurements-last');
 
         $device = $this->get_user_device($request);
-        $output = $device->last_sensor_values_array(implode('","',$this->output_sensors));
+        if ($device)
+        {
+            $output = $device->last_sensor_values_array(implode('","',$this->output_sensors));
 
-        if ($output === false)
-            return Response::json('sensor-get-error', 500);
-        else if ($output !== null)
-            return Response::json($output);
-
+            if ($output === false)
+                return Response::json('sensor-get-error', 500);
+            else if ($output !== null)
+                return Response::json($output);
+        }
         return Response::json('error', 404);
     }
 

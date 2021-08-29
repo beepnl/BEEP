@@ -208,7 +208,7 @@ class MeasurementController extends Controller
             $time = intVal($data_array['time']);
 
         // remember the last date that this device stored measurements from
-        Cache::put('set-measurements-device-'.$this->id.'-time', $time);
+        Cache::put('set-measurements-device-'.$device->id.'-time', $time);
 
         // New weight sensor data calculations based on sensor definitions for weight and internal temperature
         if (!isset($data_array['weight_kg']) && isset($data_array['w_v']))

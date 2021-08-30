@@ -159,6 +159,53 @@ class DeviceController extends Controller
         return Response::json(json_decode($response->getBody()), $response->getStatusCode());
     }
 
+    /**
+    api/devices/tts/{step}/{dev_id}/{dev_eui} POST
+    Debug BEEP TTS Cloud Device by lorawan_device.device_id, and lorawan_device.dev_eui
+    @authenticated
+    */
+    public function debugTtsDevice(Request $request, $step, $dev_id, $dev_eui, $app_key=null)
+    {
+        if ($request->user()->hasRole('superadmin'))
+        {
+            $response = null;
+            
+            switch ($step) {
+                case 'get':
+                    $response = $this->doTTNRequest($dev_id);
+                    break;
+                case 'delete_ns':
+                    $response = $this->doTTNRequest($dev_id, 'DELETE', null, 'ns');
+                    break;
+                case 'delete_as':
+                    $response = $this->doTTNRequest($dev_id, 'DELETE', null, 'as');
+                    break;
+                case 'delete_js':
+                    $response = $this->doTTNRequest($dev_id, 'DELETE', null, 'js');
+                    break;
+                case 'delete':
+                    $response = $this->doTTNRequest($dev_id, 'DELETE');
+                    break;
+                case 'create':
+                    $response = $this->createApplicationDevice($dev_id, $dev_eui);
+                    break;
+                case 'network':
+                    $response = $this->linkDeviceToNetworkServer($dev_id, $dev_eui);
+                    break;
+                case 'application':
+                    $response = $this->linkDeviceToApplicationServer($dev_id, $dev_eui);
+                    break;
+                case 'join':
+                    $response = $this->linkDeviceToJoinServer($dev_id, $dev_eui, $app_key);
+                    break;
+            }
+
+            if ($response)
+                return Response::json(json_decode($response->getBody()), $response->getStatusCode());
+        }
+        return Response::json('debug_error', 500);
+    }
+
     private function createApplicationDevice($dev_id, $dev_eui)
     {
         $data = [
@@ -292,6 +339,10 @@ class DeviceController extends Controller
         $device_check = $this->doTTNRequest($dev_id);
         if ($device_check->getStatusCode() == 200) // if device exists, delete device to renew settings
         {
+            // Delete js, as, ns, and device first
+            $this->doTTNRequest($dev_id, 'DELETE', null, 'js');
+            $this->doTTNRequest($dev_id, 'DELETE', null, 'as');
+            $this->doTTNRequest($dev_id, 'DELETE', null, 'ns');
             $delete = $this->doTTNRequest($dev_id, 'DELETE');
             if ($delete->getStatusCode() != 200) // if 200 ok (deleted) go on re-creating the device with other settings
                 return $delete;

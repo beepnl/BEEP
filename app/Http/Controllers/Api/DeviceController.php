@@ -123,7 +123,7 @@ class DeviceController extends Controller
 
     /**
     api/devices/ttn/{dev_id} GET
-    Get a TTN Device by Device ID (BEEP hardware_id)
+    Get a BEEP TTS Cloud Device by Device ID (BEEP hardware_id)
     @authenticated
     */
     public function getTTNDevice(Request $request, $dev_id)
@@ -136,7 +136,7 @@ class DeviceController extends Controller
     }
     /**
     api/devices/ttn/{dev_id} POST
-    Create a TTN Device by Device ID, lorawan_device.dev_eui, and lorawan_device.app_key
+    Create a BEEP TTS Cloud Device by Device ID, lorawan_device.dev_eui, and lorawan_device.app_key
     @authenticated
     */
     public function postTTNDevice(Request $request, $dev_id)
@@ -157,6 +157,53 @@ class DeviceController extends Controller
 
         $response = $this->updateOrCreateTTNDevice($dev_id, $dev_eui, $app_key);
         return Response::json(json_decode($response->getBody()), $response->getStatusCode());
+    }
+
+    /**
+    api/devices/tts/{step}/{dev_id}/{dev_eui} POST
+    Debug BEEP TTS Cloud Device by lorawan_device.device_id, and lorawan_device.dev_eui
+    @authenticated
+    */
+    public function debugTtsDevice(Request $request, $step, $dev_id, $dev_eui, $app_key=null)
+    {
+        if ($request->user()->hasRole('superadmin'))
+        {
+            $response = null;
+            
+            switch ($step) {
+                case 'get':
+                    $response = $this->doTTNRequest($dev_id);
+                    break;
+                case 'delete_ns':
+                    $response = $this->doTTNRequest($dev_id, 'DELETE', null, 'ns');
+                    break;
+                case 'delete_as':
+                    $response = $this->doTTNRequest($dev_id, 'DELETE', null, 'as');
+                    break;
+                case 'delete_js':
+                    $response = $this->doTTNRequest($dev_id, 'DELETE', null, 'js');
+                    break;
+                case 'delete':
+                    $response = $this->doTTNRequest($dev_id, 'DELETE');
+                    break;
+                case 'create':
+                    $response = $this->createApplicationDevice($dev_id, $dev_eui);
+                    break;
+                case 'network':
+                    $response = $this->linkDeviceToNetworkServer($dev_id, $dev_eui);
+                    break;
+                case 'application':
+                    $response = $this->linkDeviceToApplicationServer($dev_id, $dev_eui);
+                    break;
+                case 'join':
+                    $response = $this->linkDeviceToJoinServer($dev_id, $dev_eui, $app_key);
+                    break;
+            }
+
+            if ($response)
+                return Response::json(json_decode($response->getBody()), $response->getStatusCode());
+        }
+        return Response::json('debug_error', 500);
     }
 
     private function createApplicationDevice($dev_id, $dev_eui)
@@ -292,6 +339,10 @@ class DeviceController extends Controller
         $device_check = $this->doTTNRequest($dev_id);
         if ($device_check->getStatusCode() == 200) // if device exists, delete device to renew settings
         {
+            // Delete js, as, ns, and device first
+            $this->doTTNRequest($dev_id, 'DELETE', null, 'js');
+            $this->doTTNRequest($dev_id, 'DELETE', null, 'as');
+            $this->doTTNRequest($dev_id, 'DELETE', null, 'ns');
             $delete = $this->doTTNRequest($dev_id, 'DELETE');
             if ($delete->getStatusCode() != 200) // if 200 ok (deleted) go on re-creating the device with other settings
                 return $delete;
@@ -326,38 +377,43 @@ class DeviceController extends Controller
 
     private function canUserClaimDevice($id=null, $key=null, $hwi=null)
     {
-        $claim = 0;
-        
+        $can_claim         = 0;
+        $device_exists = 0;
+
         if (isset($id))
         {
-            $claim += Auth::user()->devices->where('id', $id)->count();
+            $device_exists += Device::where('id', $id)->count();
+            $can_claim += Auth::user()->devices->where('id', $id)->count();
         }
         
         if (isset($key))
         {
-            $claim += Auth::user()->devices->where('key', $key)->count();
+            $device_exists += Device::where('key', $key)->count();
+            $can_claim += Auth::user()->devices->where('key', $key)->count();
 
         }
         
         if (isset($hwi))
         {
-            $claim_hw = Auth::user()->devices->where('hardware_id', $hwi)->count();
-            if ($claim_hw > 0) // device does not (yet) belong to user
+            $hwid_exists    = Device::where('hardware_id', $hwi)->count();
+            $device_exists += $hwid_exists;
+
+            $can_claim_hw    = Auth::user()->devices->where('hardware_id', $hwi)->count();
+            if ($can_claim_hw > 0) // device does not (yet) belong to user
             {
-                $claim += $claim_hw;
+                $can_claim += $can_claim_hw;
             }
             else
             {
-                $already_exists = Device::where('hardware_id', $hwi)->count(); 
-                if ($already_exists == 0)
+                if ($hwid_exists == 0)
                 {
                     if ($this->doTTNRequest($hwi)->getStatusCode() == 404)
-                        $claim += 1; // if hardware_id does not exist yet, user can claim it
+                        $can_claim += 1; // if hardware_id does not exist yet, user can claim it
                 }
             }
         }
 
-        if ($claim > 0)
+        if ($can_claim > 0 || $device_exists == 0)
             return true;
         
         return false;

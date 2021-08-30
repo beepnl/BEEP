@@ -16,6 +16,7 @@ use App\Models\FlashLog;
 use Moment\Moment;
 use Response;
 use DB;
+use Cache;
 
 /**
  * @group Api\ResearchDataController
@@ -47,6 +48,21 @@ class ResearchDataController extends Controller
                 return false;
         
         return true;
+    }
+
+    private function cacheRequestRate($name)
+    {
+        Cache::remember($name.'-time', 86400, function () use ($name)
+        { 
+            Cache::forget($name.'-count'); 
+            return time(); 
+        });
+
+        if (Cache::has($name.'-count'))
+            Cache::increment($name.'-count');
+        else
+            Cache::put($name.'-count', 1);
+
     }
 
     /**
@@ -677,6 +693,7 @@ class ResearchDataController extends Controller
     */
     public function user_data(Request $request, $id, $user_id, $item)
     {
+
         $auth = $this->checkAuthorization($request, $id);
         if ($auth == false)
             return Response::json('unauthorized-for-research', 405);
@@ -684,6 +701,7 @@ class ResearchDataController extends Controller
         // Check if user is present on 
         if (DB::table('research_user')->where('research_id', $id)->where('user_id', $user_id)->where('consent', 1)->count() == 0)
             return Response::json('user-not-connected-to-research', 400);
+
 
         // Make dates
         $research   = Research::findOrFail($id);
@@ -722,6 +740,9 @@ class ResearchDataController extends Controller
             return Response::json('user-gave-no-consent', 400);
         //die(print_r([$user_consents, $date_curr_consent, $date_next_consent, $index]));
 
+        if ($item == 'measurements' || $item == 'weather')
+            $this->cacheRequestRate('get-measurements-research');
+        
         // Get all user data
         $user_apiaries     = Location::where('user_id', $user_id)->where('created_at', '<', $date_until)->orderBy('created_at')->get();
         $user_hives        = Hive::where('user_id', $user_id)->where('created_at', '<', $date_until)->orderBy('created_at')->get();
@@ -873,6 +894,8 @@ class ResearchDataController extends Controller
         $data  = [];
 
         try{
+            $this->cacheRequestRate('influx-get');
+            $this->cacheRequestRate('influx-research-api');
             $data = $this->client::query($query, $options)->getPoints(); // get first sensor date
         } catch (InfluxDB\Exception $e) {
             // do nothing

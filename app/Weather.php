@@ -13,6 +13,21 @@ use GuzzleHttp\Client;
 
 class Weather extends Model
 {
+    public static function cacheRequestRate($name)
+    {
+        Cache::remember($name.'-time', 86400, function () use ($name)
+        { 
+            Cache::forget($name.'-count'); 
+            return time(); 
+        });
+
+        if (Cache::has($name.'-count'))
+            Cache::increment($name.'-count');
+        else
+            Cache::put($name.'-count', 1);
+
+    }
+
     /*
     SI units are as follows:
 
@@ -281,6 +296,7 @@ class Weather extends Model
         $stored = false;
         if (count($points) > 0)
         {
+            Weather::cacheRequestRate('influx-write');
             try
             {
                 $stored = $client::writePoints($points, InfluxDB\Database::PRECISION_SECONDS);

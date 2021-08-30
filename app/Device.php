@@ -25,6 +25,21 @@ class Device extends Model
 
     public $timestamps  = false;
 
+    public static function cacheRequestRate($name, $retention_sec=86400)
+    {
+        Cache::remember($name.'-time', $retention_sec, function () use ($name)
+        { 
+            Cache::forget($name.'-count'); 
+            return time(); 
+        });
+
+        if (Cache::has($name.'-count'))
+            Cache::increment($name.'-count');
+        else
+            Cache::put($name.'-count', 1);
+
+    }
+
     // Relations
     public function getTypeAttribute()
     {
@@ -175,6 +190,9 @@ class Device extends Model
 
     public static function getInfluxQuery($query)
     {
+        Device::cacheRequestRate('influx-get');
+        Device::cacheRequestRate('influx-device');
+
         $client  = new \Influx;
         $options = ['precision'=> 's'];
         $values  = [];
@@ -188,17 +206,16 @@ class Device extends Model
         return $values;
     }
 
+    // Provide a list of sensor names that exist within the $where clase and $table
     public static function getAvailableSensorNamesFromData($names, $where, $table='sensors', $output_sensors_only=true)
     {
         //die(print_r([$names, $valid_sensors]));
-        $client         = new \Influx;
         $valid_sensors  = Measurement::all()->pluck('pq', 'abbreviation')->toArray();
         $output_sensors = Measurement::where('show_in_charts', '=', 1)->pluck('abbreviation')->toArray();
 
         $out           = [];
         $valid_sensors = $output_sensors_only ? $output_sensors : array_keys($valid_sensors);
         $valid_sensors = array_intersect($valid_sensors, $names);
-        $values        = Device::getInfluxQuery('SELECT * FROM "'.$table.'" WHERE '.$where.' GROUP BY "name,time" ORDER BY time DESC LIMIT 1');
         
         $fields = [];
         foreach ($valid_sensors as $field)
@@ -207,15 +224,8 @@ class Device extends Model
         }
         $valid_fields = implode(', ', $fields);
 
-        $query         = 'SELECT '.$valid_fields.' FROM "'.$table.'" WHERE '.$where.' GROUP BY "name,time" ORDER BY time DESC LIMIT 1';
-        $options       = ['precision'=> 's'];
-
-        try{
-            $result  = $client::query($query, $options);
-            $values  = $result->getPoints();
-        } catch (InfluxDB\Exception $e) {
-            // return Response::json('influx-group-by-query-error', 500);
-        }
+        $query  = 'SELECT '.$valid_fields.' FROM "'.$table.'" WHERE '.$where.' GROUP BY "name,time" ORDER BY time DESC LIMIT 1';
+        $values = Device::getInfluxQuery($query);
 
         if (count($values) > 0)
             $sensors = $values[0];
@@ -228,18 +238,26 @@ class Device extends Model
         $out = array_intersect($out, $valid_sensors);
         $out = array_values($out);
 
-        //die(print_r($out));
         return $out;
     }
 
     
     public function last_sensor_values_array($fields='*', $limit=1)
     {
+        $last_set_time = Cache::get('set-measurements-device-'.$this->id.'-time');
+        $last_req_time = Cache::get('last-values-device-'.$this->id.'-request-time');
+        $last_req_vals = Cache::get('last-values-device-'.$this->id);
+
+        if ($last_req_vals != null && $last_set_time < $last_req_time) // only request Influx if newer data is available
+            return $last_req_vals;
+
         $fields = $fields != '*' ? '"'.$fields.'"' : '*';
         $groupby= $fields == '*' || strpos(',' ,$fields) ? 'GROUP BY "name,time"' : '';
         $output = null;
         try
         {
+            Device::cacheRequestRate('influx-get');
+            Device::cacheRequestRate('influx-last');
             $client = new \Influx;
             $query  = 'SELECT '.$fields.' from "sensors" WHERE ("key" = \''.$this->key.'\' OR "key" = \''.strtolower($this->key).'\' OR "key" = \''.strtoupper($this->key).'\') AND time > now() - 365d '.$groupby.' ORDER BY time DESC LIMIT '.$limit;
             //die(print_r($query));
@@ -253,6 +271,10 @@ class Device extends Model
         {
             return false;
         }
+
+        Cache::put('last-values-device-'.$this->id.'-request-time', time(), 86400);
+        Cache::put('last-values-device-'.$this->id, $output, 86400);
+
         return $output;
     }
 
@@ -302,11 +324,11 @@ class Device extends Model
             }
             // else if ($measurement_abbr == 'w_v') // Legacy app: make new calibration values based on stored ones
             // {
-            //     $influx_offset = floatval($device->last_sensor_measurement_time_value($measurement_abbr.'_offset'));
-            //     $influx_multi  = floatval($device->last_sensor_measurement_time_value($measurement_abbr.'_kg_per_val'));
+            //     $influx_offset = floatval($this->last_sensor_measurement_time_value($measurement_abbr.'_offset'));
+            //     $influx_multi  = floatval($this->last_sensor_measurement_time_value($measurement_abbr.'_kg_per_val'));
 
             //     if ($influx_offset != 0 || $influx_multi != 0)
-            //         $this->createOrUpdateDefinition($device, 'w_v', 'weight_kg', $influx_offset, $influx_multi);
+            //         $this->createOrUpdateDefinition($this, 'w_v', 'weight_kg', $influx_offset, $influx_multi);
             // }
         }
         return $data_array;

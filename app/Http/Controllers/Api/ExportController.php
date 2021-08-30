@@ -39,6 +39,21 @@ class ExportController extends Controller
         //die(print_r($this->valid_sensors));
     }
 
+    private function cacheRequestRate($name)
+    {
+        Cache::remember($name.'-time', 86400, function () use ($name)
+        { 
+            Cache::forget($name.'-count'); 
+            return time(); 
+        });
+
+        if (Cache::has($name.'-count'))
+            Cache::increment($name.'-count');
+        else
+            Cache::put($name.'-count', 1);
+
+    }
+
     public function all(Request $request)
     {
         $fileType = $request->filled('fileFormat') ? $request->input('fileFormat') : 'xlsx';
@@ -309,6 +324,8 @@ class ExportController extends Controller
         $query = 'SELECT '.$groupBySelect.' FROM "sensors" WHERE '.$whereDeviceTime;
         
         try{
+            $this->cacheRequestRate('influx-get');
+            $this->cacheRequestRate('influx-csv');
             $data   = $this->client::query($query, $options)->getPoints(); // get first sensor date
         } catch (InfluxDB\Exception $e) {
             return Response::json('influx-query-error: '.$query, 500);

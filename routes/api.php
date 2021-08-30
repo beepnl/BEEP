@@ -49,6 +49,7 @@ Route::group(['middleware' => \Barryvdh\Cors\HandleCors::class], function()
 		Route::post('devices/multiple',		'Api\DeviceController@storeMultiple');
 		Route::get('devices/ttn/{dev_id}',  'Api\DeviceController@getTTNDevice');
 		Route::post('devices/ttn/{dev_id}', 'Api\DeviceController@postTTNDevice');
+		Route::post('devices/tts/{step}/{dev_id}/{dev_eui}/{app_key}', 'Api\DeviceController@debugTtsDevice');
 		Route::get('sensors/measurements', 	'Api\MeasurementController@data')->middleware('throttle:120,1');;
 		Route::get('sensors/lastvalues', 	'Api\MeasurementController@lastvalues')->middleware('throttle:120,1');
 		Route::get('sensors/lastweight', 	'Api\MeasurementController@lastweight');

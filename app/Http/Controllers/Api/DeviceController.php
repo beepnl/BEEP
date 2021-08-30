@@ -123,7 +123,7 @@ class DeviceController extends Controller
 
     /**
     api/devices/ttn/{dev_id} GET
-    Get a TTN Device by Device ID (BEEP hardware_id)
+    Get a BEEP TTS Cloud Device by Device ID (BEEP hardware_id)
     @authenticated
     */
     public function getTTNDevice(Request $request, $dev_id)
@@ -136,7 +136,7 @@ class DeviceController extends Controller
     }
     /**
     api/devices/ttn/{dev_id} POST
-    Create a TTN Device by Device ID, lorawan_device.dev_eui, and lorawan_device.app_key
+    Create a BEEP TTS Cloud Device by Device ID, lorawan_device.dev_eui, and lorawan_device.app_key
     @authenticated
     */
     public function postTTNDevice(Request $request, $dev_id)
@@ -326,38 +326,43 @@ class DeviceController extends Controller
 
     private function canUserClaimDevice($id=null, $key=null, $hwi=null)
     {
-        $claim = 0;
-        
+        $can_claim         = 0;
+        $device_exists = 0;
+
         if (isset($id))
         {
-            $claim += Auth::user()->devices->where('id', $id)->count();
+            $device_exists += Device::where('id', $id)->count();
+            $can_claim += Auth::user()->devices->where('id', $id)->count();
         }
         
         if (isset($key))
         {
-            $claim += Auth::user()->devices->where('key', $key)->count();
+            $device_exists += Device::where('key', $key)->count();
+            $can_claim += Auth::user()->devices->where('key', $key)->count();
 
         }
         
         if (isset($hwi))
         {
-            $claim_hw = Auth::user()->devices->where('hardware_id', $hwi)->count();
-            if ($claim_hw > 0) // device does not (yet) belong to user
+            $hwid_exists    = Device::where('hardware_id', $hwi)->count();
+            $device_exists += $hwid_exists;
+
+            $can_claim_hw    = Auth::user()->devices->where('hardware_id', $hwi)->count();
+            if ($can_claim_hw > 0) // device does not (yet) belong to user
             {
-                $claim += $claim_hw;
+                $can_claim += $can_claim_hw;
             }
             else
             {
-                $already_exists = Device::where('hardware_id', $hwi)->count(); 
-                if ($already_exists == 0)
+                if ($hwid_exists == 0)
                 {
                     if ($this->doTTNRequest($hwi)->getStatusCode() == 404)
-                        $claim += 1; // if hardware_id does not exist yet, user can claim it
+                        $can_claim += 1; // if hardware_id does not exist yet, user can claim it
                 }
             }
         }
 
-        if ($claim > 0)
+        if ($can_claim > 0 || $device_exists == 0)
             return true;
         
         return false;

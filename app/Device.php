@@ -249,7 +249,10 @@ class Device extends Model
         $last_req_vals = Cache::get('last-values-device-'.$this->id);
 
         if ($last_req_vals != null && $last_set_time < $last_req_time) // only request Influx if newer data is available
+        {
+            $last_req_vals['from_cache'] = true;
             return $last_req_vals;
+        }
 
         $fields = $fields != '*' ? '"'.$fields.'"' : '*';
         $groupby= $fields == '*' || strpos(',' ,$fields) ? 'GROUP BY "name,time"' : '';

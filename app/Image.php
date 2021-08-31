@@ -63,13 +63,22 @@ class Image extends Model
     public static function imageUrl($filename, $type)
     {
         $storage      = env('IMAGE_STORAGE', Image::$storage);
-        return Storage::disk($storage)->url(Image::getImagePath($filename, $type));
+        $url          = Storage::disk($storage)->url(Image::getImagePath($filename, $type));
+        if ($storage == 'public')
+            $url = env('APP_URL').$url;
+
+        return $url;
     }
 
     public static function imageThumbUrl($filename, $type)
     {
         $storage      = env('IMAGE_STORAGE', Image::$storage);
-        return Storage::disk($storage)->url(Image::getImagePath($filename, $type, true));
+        $url          = Storage::disk($storage)->url(Image::getImagePath($filename, $type, true));
+        
+        if ($storage == 'public')
+            $url = env('APP_URL').$url;
+
+        return $url;
     }
 
     public static function getImagePath($fileName, $type='inspection', $thumb=false)

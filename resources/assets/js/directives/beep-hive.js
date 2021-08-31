@@ -20,8 +20,8 @@ app.directive('beepHive', ['$rootScope', function($rootScope) {
             '</div>'+
             '<a ng-if="hive.id" href="#!/hives/{{hive.id}}/edit" title="{{lang.edit}}">'+
               '<p class="lid" style="width: {{hive.width}}px;"></p>'+
-              '<p ng-repeat="(key, layer) in hive.layers | orderBy : \'-type\' " class="layer" ng-class="layer.type" style="background-color: {{hive.color}}; width: {{hive.width}}px;">'+
-                '<span ng-repeat="(key, frame) in layer.frames track by $index" class="frame" ng-class="layer.type" ng-if="layer.type == \'brood\' || layer.type == \'honey\'"></span>'+
+              '<p ng-repeat="(key, layer) in hive.layers | orderBy : \'-type\' " class="layer" ng-class="layer.type" ng-show="layer.type == \'brood\' || layer.type == \'honey\'" style="background-color: {{hive.color}}; width: {{hive.width}}px;">'+
+                '<span ng-repeat="(key, frame) in layer.frames track by $index" class="frame" ng-class="layer.type"></span>'+
               '</p>'+
               '<p class="bottom" style="width: {{hive.width}}px;"></p>'+
             '</a>'+
@@ -57,7 +57,7 @@ app.directive('beepHive', ['$rootScope', function($rootScope) {
                 '<a href="#!/hives/{{hive.id}}/edit" title="{{lang.edit}}">'+
                   '<div class="hive small">'+
                     '<p class="lid" style="width: {{hive.width}}px;"></p>'+
-                    '<p ng-repeat="(key, layer) in hive.layers | orderBy : \'-type\' " class="layer" ng-class="layer.type" style="background-color: {{hive.color}}; width: {{hive.width}}px;" ng-if="layer.type == \'brood\' || layer.type == \'honey\'"></p>'+
+                    '<p ng-repeat="(key, layer) in hive.layers | orderBy : \'-type\' " class="layer" ng-class="layer.type" style="background-color: {{hive.color}}; width: {{hive.width}}px;" ng-show="layer.type == \'brood\' || layer.type == \'honey\'"></p>'+
                     '<p class="bottom" style="width: {{hive.width}}px;"></p>'+
                   '</div>'+
                 '</a>'+

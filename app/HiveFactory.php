@@ -89,23 +89,27 @@ class HiveFactory
 		$hive->hive_type_id = $hive_type_id;
 		$hive->save();
 
-		$layers 		= collect();
-		$broodLayerDiff = 0;
-		$honeyLayerDiff = 0;
-		$frameDiff 		= 0; 
+		$layers 			= collect();
+		$broodLayerDiff 	= 0;
+		$honeyLayerDiff 	= 0;
+		$feedingBoxDiff		= 0;
+		$queenExcluderDiff 	= 0;
+		$frameDiff 			= 0; 
+
+		$feedingBoxAmount 	= 0;
+		$queenExcluderAmount= 0;
 
 		if (isset($hive_layers)) // edit by layers object
 		{
-			$broodLayerAmount = 0;
-			$honeyLayerAmount = 0;
-			$feedingBoxAmount = 0;
-			$queenExcluderAmount = 0;
 
-			$broodLayerDiff   = -1 * $hive->getBroodlayersAttribute();
-			$honeyLayerDiff   = -1 * $hive->getHoneylayersAttribute();
-			$feedingBoxDiff   = -1 * $hive->getFeedingBoxAttribute();
-			$queenExcluderDiff= -1 * $hive->getQueenExcluderAttribute();
-			$foundLayerIds    = [];
+			$broodLayerAmount 	= 0;
+			$honeyLayerAmount 	= 0;
+
+			$broodLayerDiff   	= -1 * $hive->getBroodlayersAttribute();
+			$honeyLayerDiff   	= -1 * $hive->getHoneylayersAttribute();
+			$feedingBoxDiff   	= -1 * $hive->getFeedingBoxAttribute();
+			$queenExcluderDiff	= -1 * $hive->getQueenExcluderAttribute();
+			$foundLayerIds    	= [];
 			foreach ($hive_layers as $layer)
 			{
 				if ($layer['type'] == 'brood')

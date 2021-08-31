@@ -77,6 +77,16 @@ class Hive extends Model
         return $this->layers()->where('category_id', Category::findCategoryIdByParentAndName('hive_layer','brood'))->count();
     }
 
+    public function getFeedingBoxAttribute()
+    {
+        return $this->layers()->where('category_id', Category::findCategoryIdByParentAndName('hive_layer','feeding_box'))->count();
+    }
+
+    public function getQueenExcluderAttribute()
+    {
+        return $this->layers()->where('category_id', Category::findCategoryIdByParentAndName('hive_layer','queen_excluder'))->count();
+    }
+
     public function getSensorsAttribute()
     {
         return $this->devices()->pluck('id')->toArray();

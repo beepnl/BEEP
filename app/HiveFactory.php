@@ -98,8 +98,13 @@ class HiveFactory
 		{
 			$broodLayerAmount = 0;
 			$honeyLayerAmount = 0;
+			$feedingBoxAmount = 0;
+			$queenExcluderAmount = 0;
+
 			$broodLayerDiff   = -1 * $hive->getBroodlayersAttribute();
 			$honeyLayerDiff   = -1 * $hive->getHoneylayersAttribute();
+			$feedingBoxDiff   = -1 * $hive->getFeedingBoxAttribute();
+			$queenExcluderDiff= -1 * $hive->getQueenExcluderAttribute();
 			$foundLayerIds    = [];
 			foreach ($hive_layers as $layer)
 			{
@@ -108,11 +113,20 @@ class HiveFactory
 					$broodLayerDiff++;
 					$broodLayerAmount++;
 				}
-
-				if ($layer['type'] == 'honey')
+				else if ($layer['type'] == 'honey')
 				{
 					$honeyLayerDiff++;
 					$honeyLayerAmount++;
+				}
+				else if ($layer['type'] == 'feeding_box')
+				{
+					$feedingBoxDiff++;
+					$feedingBoxAmount++;
+				}
+				else if ($layer['type'] == 'queen_excluder')
+				{
+					$queenExcluderDiff++;
+					$queenExcluderAmount++;
 				}
 
 				if (!isset($layer['id'])) // create new layer
@@ -140,7 +154,7 @@ class HiveFactory
 					$hive->layers()->find($layer['id'])->delete();
 			}
 		}
-		else // edit by $broodLayerAmount and $honeyLayerAmount
+		else // edit by $broodLayerAmount and $honeyLayerAmount (v2)
 		{
 
 			$layersBrood = collect();
@@ -204,7 +218,7 @@ class HiveFactory
 		}
 
 		// Create auto inspection
-		if ($broodLayerDiff != 0 || $honeyLayerDiff != 0 || $frameDiff != 0 || $locationChange)
+		if ($broodLayerDiff != 0 || $honeyLayerDiff != 0 || $frameDiff != 0 || $feedingBoxDiff != 0 || $queenExcluderDiff != 0 || $locationChange)
 		{
 			// Inspection items to add 
 			$brood_layers_id = Category::findCategoryIdByRootParentAndName('hive', 'configuration', 'brood_layers', ['system','checklist']);
@@ -218,6 +232,14 @@ class HiveFactory
 			$frames_per_layer_id = Category::findCategoryIdByRootParentAndName('hive', 'configuration', 'frames_per_layer', ['system','checklist']);
 			if ($frames_per_layer_id)
 				$inspection_items[$frames_per_layer_id] = $frameAmount;
+
+			$feeding_box_id = Category::findCategoryIdByRootParentAndName('hive', 'configuration', 'feeding_box', ['system','checklist']);
+			if ($feeding_box_id)
+				$inspection_items[$feeding_box_id] = $feedingBoxAmount;
+
+			$queen_exluder_id = Category::findCategoryIdByRootParentAndName('hive', 'configuration', 'queen_excluder', ['system','checklist']);
+			if ($queen_exluder_id)
+				$inspection_items[$queen_exluder_id] = $queenExcluderAmount;
 
 			$notes = Translation::translate('hive').' '.strtolower(Translation::translate('action'));
 			Inspection::createInspection($inspection_items, $hive->id, $location->id, $notes, $timeZone);

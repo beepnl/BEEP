@@ -708,9 +708,19 @@ class DeviceController extends Controller
             $device_new['category_id'] = Category::findCategoryIdByParentAndName('sensor', $typename);
 
             // $device_new['id'] = $device_id; 
+            //die(print_r([$device_obj, $device]));
 
             // Update devicename if BEEPBASE-[####] and not a new name is being set
-            if ($typename == 'beep' && isset($device['key']) && isset($device['app_key']) && (!isset($device['name']) || ($device_obj['name'] == $device['name'])) && substr($device_obj['name'], 0, 9) == 'BEEPBASE-')
+            $reset_device_name = false;
+            if ($typename == 'beep' && isset($device['key']) && isset($device['app_key']))
+            {
+                if (!isset($device['name']))
+                    $reset_device_name = true;
+                else if (isset($device) && isset($device_obj) && $device['name'] == $device_obj['name'] && substr($device_obj['name'], 0, 9) == 'BEEPBASE-')
+                    $reset_device_name = true;
+            }
+                
+            if ($reset_device_name)
             {
                 $device_new['name'] = 'BEEPBASE-'.strtoupper(substr($device['key'], -4, 4));
             }

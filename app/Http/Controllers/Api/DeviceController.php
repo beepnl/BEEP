@@ -115,7 +115,7 @@ class DeviceController extends Controller
             if ($request->filled('hardware_id') && Device::where('hardware_id', $request->input('hardware_id'))->count() > 0)
                 return Response::json('device_not_yours', 403);
             else if ($request->filled('hardware_id')) // Provide less confusing message to Android App listing of unexisting BEEP base 
-                return Response::json('new_beep_base_found', 404);
+                return Response::json('New BEEP base found', 404);
 
             return Response::json('no_devices_found', 404);
         }

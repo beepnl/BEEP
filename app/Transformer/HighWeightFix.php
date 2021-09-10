@@ -127,7 +127,7 @@ class HighWeightFix {
                         
                         $time = $v['time'];
                         $date = date('Y-m-d H:i:s', $time);
-                        $v    = $d->addSensorDefinitionMeasurements($v, $v['w_v'], 'w_v', $date);
+                        $v    = $d->addSensorDefinitionMeasurements($v, $v['w_v'], 7, $date);
 
                         // store corrected value (+ other unchanged values)
                         if (isset($v['weight_kg']) && $v['weight_kg'] != null && $v['w_v'] != $v['weight_kg'])

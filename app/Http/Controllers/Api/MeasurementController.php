@@ -210,16 +210,15 @@ class MeasurementController extends Controller
         // remember the last date that this device stored measurements from
         Cache::put('set-measurements-device-'.$device->id.'-time', $time);
 
-        // New weight sensor data calculations based on sensor definitions for weight and internal temperature
-        if (!isset($data_array['weight_kg']) && isset($data_array['w_v']))
+        
+        $date = date($this->timeFormat, $time); 
+
+        // Add senaor data based on available device sensorDefinitions
+        $sensor_defs = $device->activeSensorDefinitions();
+        foreach ($sensor_defs as $sd) 
         {
-            $date = date($this->timeFormat, $time); 
-            $data_array = $device->addSensorDefinitionMeasurements($data_array, $data_array['w_v'], 'w_v', $date);
-        }
-        if (isset($data_array['t_i']))
-        {
-            $date = date($this->timeFormat, $time); 
-            $data_array = $device->addSensorDefinitionMeasurements($data_array, $data_array['t_i'], 't_i', $date);
+            if (isset($sd->output_abbr) && isset($data_array[$sd->input_abbr]))
+                $data_array = $device->addSensorDefinitionMeasurements($data_array, $data_array[$sd->input_abbr], $sd->input_measurement_id, $date);
         }
         
         // Legacy weight calculation from 2-4 load cells
@@ -241,7 +240,7 @@ class MeasurementController extends Controller
                 //$data_array = $this->add_weight_kg_corrected_with_temperature($device, $data_array);
             }
         }
-
+        
         $stored = $this->storeInfluxData($data_array, $dev_eui, $time);
         if($stored) 
         {

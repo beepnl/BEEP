@@ -10,6 +10,7 @@ use InfluxDB;
 use LaravelLocalization;
 use GuzzleHttp\Exception\GuzzleException;
 use GuzzleHttp\Client;
+use Cache;
 
 class Weather extends Model
 {

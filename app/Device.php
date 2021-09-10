@@ -73,6 +73,11 @@ class Device extends Model
         return $this->hasMany(SensorDefinition::class);
     }
 
+    public function activeSensorDefinitions()
+    {
+        return $this->hasMany(SensorDefinition::class)->orderBy('updated_at', 'desc')->get()->unique('input_measurement_id', 'output_measurement_id');
+    }
+
 	public function hive()
     {
         return $this->belongsTo(Hive::class);
@@ -215,23 +220,14 @@ class Device extends Model
         return $output;
     }
 
-    public function addSensorDefinitionMeasurements($data_array, $value, $measurement_abbr, $date=null)
+    public function addSensorDefinitionMeasurements($data_array, $value, $input_measurement_id=null, $date=null)
     {
-        $before_date = isset($date) ? $date : date('Y-m-d H:i:s'); 
         
-        $measurement_id = Cache::remember('measurement-abbr-id-'.$measurement_abbr, env('CACHE_TIMEOUT_LONG'), function () use ($measurement_abbr){
-            $m = Measurement::where('abbreviation',$measurement_abbr)->first();
-            if ($m)
-                return $m->id;
-            else
-                return null;
-        });
-
-        if ($measurement_id != null)
+        if ($input_measurement_id != null)
         {
             // Get the right sensordefinition
             $sensor_def  = null;
-            $sensor_defs = $this->sensorDefinitions->where('input_measurement_id', $measurement_id); // get appropriate sensor definitions
+            $sensor_defs = $this->sensorDefinitions->where('input_measurement_id', $input_measurement_id); // get appropriate sensor definitions
 
             if ($sensor_defs->count() == 0)
             {
@@ -243,30 +239,24 @@ class Device extends Model
             }
             else // there are multiple, so get the one appropriate for the $date
             {
-                if ($sensor_defs->where('updated_at', '<=', $before_date)->count() == 0) // not found before $date, but there are after, so get the first
+                $before_date = isset($date) ? $date : date('Y-m-d H:i:s'); 
+                if ($sensor_defs->where('updated_at', '<=', $before_date)->count() == 0) // not found before $date, but there are after, so get the first (earliest)
                     $sensor_def = $sensor_defs->first();
                 else
-                    $sensor_def = $sensor_defs->where('updated_at', '<=', $before_date)->last(); // be aware that last() gets the last value of the ASCENDING list
+                    $sensor_def = $sensor_defs->where('updated_at', '<=', $before_date)->last(); // be aware that last() gets the last value of the ASCENDING list (so most recent)
             }
 
             // Calculate the extra value based on the sensor definition
             if (isset($sensor_def))
             {
-                $measurement_abbr_o              = $sensor_def->output_abbr;
-                $calibrated_measurement_val      = $sensor_def->calibrated_measurement_value($value);
-                if ($calibrated_measurement_val !== null) // do not add sensor measurement is outside measurement min/max value
-                    $data_array[$measurement_abbr_o] = $calibrated_measurement_val;
-
-                //die(print_r([$calibrated_measurement_val, $data_array, $sensor_def->toArray()]));
+                $measurement_abbr_o = $sensor_def->output_abbr;
+                if (!in_array($measurement_abbr_o, array_keys($data_array)) || $sensor_def->input_measurement_id == $sensor_def->output_measurement_id) // only add value to $data_array if it does not yet exist, or input and output are the same
+                {
+                    $calibrated_measurement_val = $sensor_def->calibrated_measurement_value($value);
+                    if ($calibrated_measurement_val !== null) // do not add sensor measurement is outside measurement min/max value
+                        $data_array[$measurement_abbr_o] = $calibrated_measurement_val;
+                }
             }
-            // else if ($measurement_abbr == 'w_v') // Legacy app: make new calibration values based on stored ones
-            // {
-            //     $influx_offset = floatval($this->last_sensor_measurement_time_value($measurement_abbr.'_offset'));
-            //     $influx_multi  = floatval($this->last_sensor_measurement_time_value($measurement_abbr.'_kg_per_val'));
-
-            //     if ($influx_offset != 0 || $influx_multi != 0)
-            //         $this->createOrUpdateDefinition($this, 'w_v', 'weight_kg', $influx_offset, $influx_multi);
-            // }
         }
         return $data_array;
     }

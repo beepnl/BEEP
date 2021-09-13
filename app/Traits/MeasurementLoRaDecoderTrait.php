@@ -42,10 +42,10 @@ trait MeasurementLoRaDecoderTrait
         {
             $port = $data['uplink_message']['f_port'];
             
-            if (isset($data['uplink_message']['decoded_payload']))
+            if (isset($data['uplink_message']['decoded_payload']) && (isset($data['uplink_message']['decoded_payload']['payload_fields']) || count($data['uplink_message']['decoded_payload']) > 2)) // at least has payload fields, or 3 decoded payload fields (not only ['bytes'])
             {
                 if (isset($data['uplink_message']['decoded_payload']['payload_fields']))
-                    $data_array = $data['uplink_message']['decoded_payload']['payload_fields']; // TTN v3 with defined payload_fields
+                    $data_array = $data['uplink_message']['decoded_payload']['payload_fields']; // TTN v3 with defined payload_fields (using decoder)
                 else
                     $data_array = $data['uplink_message']['decoded_payload'];
             }

@@ -222,23 +222,20 @@ class MeasurementController extends Controller
         }
         
         // Legacy weight calculation from 2-4 load cells
-        if (!isset($data_array['weight_kg']) && (isset($data_array['w_fl']) || isset($data_array['w_fr']) || isset($data_array['w_bl']) || isset($data_array['w_br']) || isset($data_array['w_v']))) 
+        if (!isset($data_array['weight_kg']) && (isset($data_array['w_fl']) || isset($data_array['w_fr']) || isset($data_array['w_bl']) || isset($data_array['w_br'])) ) 
         {
             // check if calibration is required
             $calibrate = $device->last_sensor_measurement_time_value('calibrating_weight');
             if (floatval($calibrate) > 0)
                 $this->calibrate_weight_sensors($device, $calibrate, false, $data_array);
 
-            if (!isset($data_array['weight_kg']))
-            {
-                // take into account offset and multi
-                $weight_kg = $this->calculateWeightKg($device, $data_array);
-                if (!isset($data_array['w_v']) || $data_array['w_v'] != $weight_kg) // do not save too big value
-                    $data_array['weight_kg'] = $weight_kg;
+            // take into account offset and multi
+            $weight_kg = $this->calculateWeightKg($device, $data_array);
+            if (!isset($data_array['w_v']) || $data_array['w_v'] != $weight_kg) // do not save too big value
+                $data_array['weight_kg'] = $weight_kg;
 
-                // check if we need to compensate weight for temp (legacy)
-                //$data_array = $this->add_weight_kg_corrected_with_temperature($device, $data_array);
-            }
+            // check if we need to compensate weight for temp (legacy)
+            //$data_array = $this->add_weight_kg_corrected_with_temperature($device, $data_array);
         }
         
         $stored = $this->storeInfluxData($data_array, $dev_eui, $time);

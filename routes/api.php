@@ -115,6 +115,10 @@ Route::group(['middleware' => \Barryvdh\Cors\HandleCors::class], function()
 		Route::get('export',				'Api\ExportController@all');
 		Route::post('export/csv',			'Api\ExportController@generate_csv');
 
+		Route::get('flashlogs',				'Api\FlashLogController@index');
+		Route::post('flashlogs/{id}/try',	'Api\FlashLogController@try');
+		Route::post('flashlogs/{id}/commit','Api\FlashLogController@commit');
+		Route::delete('flashlogs/{id}',		'Api\FlashLogController@destroy');
 	});
 
 });

@@ -10,6 +10,7 @@ use Zizaco\Entrust\Traits\EntrustUserTrait;
 use App\Notifications\VerifyEmail;
 use App\Notifications\ResetPassword;
 
+use App\Models\FlashLog;
 use App\Models\Alert;
 use App\Models\AlertRule;
 
@@ -65,6 +66,11 @@ class User extends Authenticatable
     public function researchesOwned()
     {
         return $this->hasMany(Research::class);
+    }
+
+    public function flashlogs()
+    {
+        return $this->hasMany(FlashLog::class);
     }
 
     public function researchesVisible()

@@ -8,6 +8,7 @@ use Excel;
 use Response;
 use Storage;
 use Mail;
+use Cache;
 use App\Device;
 use App\Setting;
 use App\Hive;

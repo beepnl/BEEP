@@ -115,7 +115,7 @@ class AlertRule extends Model
         if (!isset($u))
             return 0;
 
-        $alert_rule_calc_date = date('Y-m-d H:i:s');
+        $alert_rule_calc_date = date('Y-m-d H:i:s'); // PGe 2021-09-17: was local, now UTC (since config/app.php has UTC as default timezone)
         $r->last_evaluated_at = $alert_rule_calc_date;
         $r->save();
 
@@ -263,7 +263,6 @@ class AlertRule extends Model
         $alertCount = 0;
         $now        = new Moment(); // UTC
         $now_month  = $now->getMonth();
-        $now_hour   = $now->getHour();
         $alertRules = AlertRule::where('active', 1)->where('default_rule', 0)->where('user_id', '!=', null)->orderBy('last_evaluated_at')->get();
 
         foreach ($alertRules as $r) 
@@ -279,17 +278,21 @@ class AlertRule extends Model
             8. set last_calculated_at to current time
             */
             
+
             // exclude parsing of rules
             $min_ago = 0;
             if (isset($r->last_evaluated_at))
             {
                 $min_ago = -1 * $now->from($r->last_evaluated_at)->getMinutes();
-                if ($min_ago < $r->calculation_minutes)
+                if ($min_ago < $r->calculation_minutes) // do not parse too often
                     continue;
             }
 
             if (isset($r->exclude_months) && in_array($now_month, $r->exclude_months))
                 continue;
+
+            $now_local = new Moment('now', $r->timezone);  // Timezone of user that set alert rule (default: Europe/Amsterdam)
+            $now_hour  = $now_local->getHour();
 
             if (isset($r->exclude_hours) && in_array($now_hour, $r->exclude_hours))
                 continue;
@@ -304,7 +307,7 @@ class AlertRule extends Model
 
             if (count($user_devices) > 0)
             {
-                Log::debug($r->id.' '.$r->name.' last evaluated '.$min_ago.' min ago, parsing user '.$user_id.': '.count($user_devices).' devices');
+                Log::debug($r->id.' last evaluated '.$min_ago.' min ago, user_id='.$user_id.' devices='.count($user_devices).' for rule: '.$r->name);
 
                 foreach ($user_devices as $d) 
                     $alertCount += $r->evaluateDeviceAlerts($d);

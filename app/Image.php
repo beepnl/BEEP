@@ -100,7 +100,7 @@ class Image extends Model
         {
             $dateString = implode('-', $dateArray);        // 2020-01-04
             $dateTime   = $dateString.'T'.$dateTimeArray[1];
-            $m = new Moment($dateTime, 'Europe/Amsterdam');
+            $m = new Moment($dateTime, 'UTC');
             return $m->setTimezone('UTC')->format('Y-m-d H:i:s');
         }
         return null;

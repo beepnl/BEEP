@@ -264,7 +264,7 @@ class MeasurementController extends Controller
             $start       = $request->input('start');
             $end         = $request->input('end');
             
-            $tz          = $request->input('timezone', 'Europe/Amsterdam');
+            $tz          = $request->input('timezone', 'UTC');
             $startMoment = new Moment($start, 'UTC');
             $startString = $startMoment->setTimezone($tz)->format($this->timeFormat); 
             $endMoment   = new Moment($end, 'UTC');
@@ -849,7 +849,7 @@ class MeasurementController extends Controller
         $interval  = $request->input('interval','day');
         $index     = $request->input('index',0);
         $timeGroup = $request->input('timeGroup','day');
-        $timeZone  = $request->input('timezone','Europe/Amsterdam');
+        $timeZone  = $request->input('timezone','UTC');
         
         $durationInterval = $interval.'s';
         $requestInterval  = $interval;

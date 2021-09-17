@@ -507,7 +507,7 @@ class DeviceController extends Controller
             }
         }
 
-        $timeZone  = $request->input('timezone','Europe/Amsterdam');
+        $timeZone  = $request->input('timezone','UTC');
         $result    = $this->updateOrCreateDevice($device_array, $timeZone);
 
         if (gettype($result) == 'object' && $request->filled('create_ttn_device') && isset($device_array['app_key']))
@@ -555,7 +555,7 @@ class DeviceController extends Controller
     public function storeMultiple(Request $request)
     {
         //die(print_r($request->input()));
-        $timeZone   = $request->input('timezone','Europe/Amsterdam');
+        $timeZone   = $request->input('timezone','UTC');
 
         foreach ($request->input() as $device) 
         {
@@ -601,7 +601,7 @@ class DeviceController extends Controller
     public function update(Request $request, $id)
     {
         $result     = null;
-        $timeZone   = $request->input('timezone','Europe/Amsterdam');
+        $timeZone   = $request->input('timezone','UTC');
 
         if ($id)
         {

@@ -193,10 +193,11 @@ class AlertRule extends Model
             {
                 // check if same alert was created at last alert of this alert_rule
                 $check_date   = $r->last_calculated_at;
-                $check_alert  = $d->alerts()->where('user_id', $u->id)->where('alert_rule_id', $r->id)->whereDate('created_at', $check_date)->first();
+                $check_alert  = $d->alerts()->where('user_id', $u->id)->where('alert_rule_id', $r->id)->where('created_at', '=', $check_date)->first();
                 $create_alert = true;
+                $alert_counter= 1;  // # of occurrences in a row
 
-                if ($check_alert) // check if user already has this alert, if so, remove it if diff value if bigger
+                if ($check_alert) // check if user already has this alert, if so, remove it if diff value is bigger
                 {
                     $value_diff_new     = abs($value - $r->threshold_value);
                     $value_diff_old_max = 0;
@@ -207,13 +208,17 @@ class AlertRule extends Model
 
                     if ($value_diff_new > $value_diff_old_max) // remove the old alert and create a new one
                     {
+                        $alert_counter = $check_alert->count + 1;
                         Log::debug(' |-- '.$r->name.' Delete previous Alert ('.$check_alert->created_at.'), v='.$check_alert->alert_value.' has lower diff: '.$value_diff_old_max.' than new ('.$value.'): '.$value_diff_new);
                         $check_alert->delete();
                     }
                     else
                     {
-                        Log::debug(' |-- '.$r->name.' Maintain previous Alert ('.$check_alert->created_at.'), v='.$check_alert->alert_value.' has higher diff: '.$value_diff_old_max.' than new ('.$value.'): '.$value_diff_new);
                         $create_alert = false;
+                        $check_alert->count      = $check_alert->count + 1;
+                        $check_alert->updated_at = $alert_rule_calc_date;
+                        $check_alert->save();
+                        Log::debug(' |-- '.$r->name.' Maintain previous Alert ('.$check_alert->created_at.'), v='.$check_alert->alert_value.' has higher diff: '.$value_diff_old_max.' than new ('.$value.'): '.$value_diff_new);
                     }
 
                 }
@@ -222,7 +227,7 @@ class AlertRule extends Model
                 {
                     $alert_value = implode(', ', $alert_values);
                     $alert_func  = $r->readableFunction();
-                    Log::debug(' |-- '.$r->name.' Create new Alert, v='.$alert_value.', f='.$alert_func.', count='.$evaluation_count);
+                    Log::debug(' |-- '.$r->name.' Create new Alert, v='.$alert_value.', eval_count='.$evaluation_count.' alert_count='.$alert_counter.' f='.$alert_func);
 
                     $a = new Alert();
                     $a->created_at     = $alert_rule_calc_date;
@@ -238,6 +243,7 @@ class AlertRule extends Model
                     $a->hive_id        = $d->hive_id;
                     $a->hive_name      = $d->hive_name;
                     $a->user_id        = $u->id;
+                    $a->count          = $alert_counter;
                     $a->save();
 
                     $alert_count++;
@@ -307,7 +313,7 @@ class AlertRule extends Model
 
             if (count($user_devices) > 0)
             {
-                Log::debug($r->id.' last evaluated '.$min_ago.' min ago, user_id='.$user_id.' devices='.count($user_devices).' for rule: '.$r->name);
+                Log::debug($r->id.' last evaluated @ '.$r->last_evaluated_at.' ('.$min_ago.' min ago), user_id='.$user_id.' devices='.count($user_devices).' for rule: '.$r->name);
 
                 foreach ($user_devices as $d) 
                     $alertCount += $r->evaluateDeviceAlerts($d);

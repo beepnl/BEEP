@@ -31,7 +31,7 @@ class Alert extends Model
      *
      * @var array
      */
-    protected $fillable = ['alert_rule_id', 'alert_function', 'alert_value', 'measurement_id', 'show', 'location_name', 'hive_name', 'device_name', 'location_id', 'hive_id', 'device_id', 'user_id'];
+    protected $fillable = ['alert_rule_id', 'alert_function', 'alert_value', 'measurement_id', 'show', 'location_name', 'hive_name', 'device_name', 'location_id', 'hive_id', 'device_id', 'user_id', 'count'];
     protected $hidden   = ['show', 'alert_rule', 'updated_at']; // 2021-03-09: not (yet) required in front-end, alerts will be deleted
     protected $appends  = ['alert_rule_name'];
 

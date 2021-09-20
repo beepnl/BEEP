@@ -62,9 +62,9 @@ class Kernel extends HttpKernel
         'verified' => \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
         'verifiedApi' => \App\Http\Middleware\EnsureWebappEmailIsVerified::class,
         // Entrust
-        'role' => \Zizaco\Entrust\Middleware\EntrustRole::class,
-        'permission' => \Zizaco\Entrust\Middleware\EntrustPermission::class,
-        'ability' => \Zizaco\Entrust\Middleware\EntrustAbility::class,
+        'role' => \Trebol\Entrust\Middleware\EntrustRole::class,
+        'permission' => \Trebol\Entrust\Middleware\EntrustPermission::class,
+        'ability' => \Trebol\Entrust\Middleware\EntrustAbility::class,
         // Laravellocalization
         'localize' => \Mcamara\LaravelLocalization\Middleware\LaravelLocalizationRoutes::class,
         'localizationRedirect' => \Mcamara\LaravelLocalization\Middleware\LaravelLocalizationRedirectFilter::class,

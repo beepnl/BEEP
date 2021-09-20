@@ -2,7 +2,7 @@
 
 namespace App;
 
-use Zizaco\Entrust\EntrustRole;
+use Trebol\Entrust\EntrustRole;
 
 class Role extends EntrustRole
 {

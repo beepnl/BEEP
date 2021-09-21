@@ -50,7 +50,7 @@ class AlertRule extends Model
 
         AlertRule::created(function($r)
         {
-            $a = new Alert(['alert_rule_id'=>$r->id, 'alert_function'=>$r->readableFunction(), 'alert_value'=>__('beep.AlertRule').__('crud.created'), 'measurement_id'=>$r->measurement_id, 'user_id'=>$r->user_id]);
+            $a = new Alert(['alert_rule_id'=>$r->id, 'alert_function'=>$r->readableFunction(), 'alert_value'=>'alert_rule_created', 'measurement_id'=>$r->measurement_id, 'user_id'=>$r->user_id]);
             $a->save();
         });
 
@@ -64,7 +64,7 @@ class AlertRule extends Model
 
         AlertRule::deleting(function($r)
         {
-            $a = new Alert(['alert_rule_id'=>$r->id, 'alert_function'=>$r->readableFunction(), 'alert_value'=>__('beep.AlertRule').__('crud.deleted'), 'measurement_id'=>$r->measurement_id, 'user_id'=>$r->user_id]);
+            $a = new Alert(['alert_rule_id'=>$r->id, 'alert_function'=>$r->readableFunction(), 'alert_value'=>'alert_rule_deleted', 'measurement_id'=>$r->measurement_id, 'user_id'=>$r->user_id]);
             $a->save();
         });
     }

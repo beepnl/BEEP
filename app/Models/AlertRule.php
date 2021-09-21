@@ -135,9 +135,7 @@ class AlertRule extends Model
         $evaluation_count = 0;
         $alert_function   = '';
         $alert_values     = [];
-            
-        $max_value_eval       = $diff_comp ? count($last_values) - 1 : count($last_values);
-        
+        $max_value_eval   = $diff_comp ? count($last_values) - 1 : count($last_values);
 
         if ($max_value_eval > 0)
         {
@@ -162,23 +160,26 @@ class AlertRule extends Model
                 if ($r->comparison == 'abs_dif')
                     $value = abs($value);
 
+                $value = round($value, 1); // round to 1 decimal, just like the threshold_value
+                $thres = round($r->threshold_value, 1);
+
                 $evaluation = false;
                 switch($r->comparator)
                 {
                     case "=":
-                        $evaluation = $value == $r->threshold_value ? true : false;
+                        $evaluation = $value == $thres ? true : false;
                         break;
                     case "<":
-                        $evaluation = $value < $r->threshold_value ? true : false;
+                        $evaluation = $value < $thres ? true : false;
                         break; 
                     case ">":
-                        $evaluation = $value > $r->threshold_value ? true : false;
+                        $evaluation = $value > $thres ? true : false;
                         break; 
                     case "<=":
-                        $evaluation = $value <= $r->threshold_value ? true : false;
+                        $evaluation = $value <= $thres ? true : false;
                         break; 
                     case ">=":
-                        $evaluation = $value >= $r->threshold_value ? true : false;
+                        $evaluation = $value >= $thres ? true : false;
                         break; 
                 }
                 if ($evaluation)
@@ -269,12 +270,17 @@ class AlertRule extends Model
         $alertCount = 0;
         $now        = new Moment(); // UTC
         $now_month  = $now->getMonth();
-        $alertRules = AlertRule::where('active', 1)->where('default_rule', 0)->where('user_id', '!=', null)->orderBy('last_evaluated_at')->get();
+        $min_ago_15 = date('Y-m-d H:i:s', time()-900); // 15 min ago
+
+        $alertRules = AlertRule::where('active', 1)->where('default_rule', 0)->where('user_id', '!=', null)->where('last_evaluated_at', '<=', $min_ago_15)->orderBy('last_evaluated_at')->get();
+
+        Log::debug('Parsing '.count($alertRules).' active alert rules last evaluated before '.$min_ago_15);
 
         foreach ($alertRules as $r) 
         {
             /*
-            1. define gmt_time based of timezone
+            0. define UTC timezone
+            1. evaluate only if >= 15 min ago
             2. if filled exclude_months, define current local time (timezone) month and exclude rule if in current local time month
             3. if filled exclude_hours, define current local time (timezone) hour and exclude rule if in current local time hour
             4. check minute diff of rule compared to calculation_minutes
@@ -289,7 +295,7 @@ class AlertRule extends Model
             $min_ago = 0;
             if (isset($r->last_evaluated_at))
             {
-                $min_ago = -1 * $now->from($r->last_evaluated_at)->getMinutes();
+                $min_ago = -1 * round($now->from($r->last_evaluated_at)->getMinutes()); // round to whole value
                 if ($min_ago < $r->calculation_minutes) // do not parse too often
                     continue;
             }

@@ -207,10 +207,11 @@ class AlertRule extends Model
                     foreach ($check_alert_values as $v)
                         $value_diff_old_max = max($value_diff_old_max, abs($v - $r->threshold_value));
 
-                    if ($value_diff_new > $value_diff_old_max) // remove the old alert and create a new one
+                    if ($value_diff_new > $value_diff_old_max || $r->comparator == '=') // remove the old alert and create a new one
                     {
                         $alert_counter = $check_alert->count + 1;
-                        Log::debug(' |-- '.$r->name.' Delete previous Alert ('.$check_alert->created_at.'), v='.$check_alert->alert_value.' has lower diff: '.$value_diff_old_max.' than new ('.$value.'): '.$value_diff_new);
+                        $alert_comp    = $r->comparator == '=' ? 'is also equal' : 'has smaller diff';
+                        Log::debug(' |-- '.$r->name.' Delete previous Alert ('.$check_alert->created_at.'), v='.$check_alert->alert_value.' '.$alert_comp.': '.$value_diff_old_max.' vs new ('.$value.'): '.$value_diff_new);
                         $check_alert->delete();
                     }
                     else
@@ -219,7 +220,7 @@ class AlertRule extends Model
                         $check_alert->count      = $check_alert->count + 1;
                         $check_alert->updated_at = $alert_rule_calc_date;
                         $check_alert->save();
-                        Log::debug(' |-- '.$r->name.' Maintain previous Alert ('.$check_alert->created_at.'), v='.$check_alert->alert_value.' has higher diff: '.$value_diff_old_max.' than new ('.$value.'): '.$value_diff_new);
+                        Log::debug(' |-- '.$r->name.' Maintain previous Alert ('.$check_alert->created_at.'), v='.$check_alert->alert_value.' has equal, or bigger diff: '.$value_diff_old_max.' vs new ('.$value.'): '.$value_diff_new);
                     }
 
                 }

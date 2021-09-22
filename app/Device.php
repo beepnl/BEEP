@@ -286,14 +286,18 @@ class Device extends Model
         return $output;
     }
 
-    public function addSensorDefinitionMeasurements($data_array, $value, $input_measurement_id=null, $date=null)
+    public function addSensorDefinitionMeasurements($data_array, $value, $input_measurement_id=null, $date=null, $sensor_defs=null)
     {
         
         if ($input_measurement_id != null)
         {
             // Get the right sensordefinition
             $sensor_def  = null;
-            $sensor_defs = $this->sensorDefinitions->where('input_measurement_id', $input_measurement_id); // get appropriate sensor definitions
+
+            if ($sensor_defs == null)
+                $sensor_defs = $this->sensorDefinitions->where('input_measurement_id', $input_measurement_id); // get appropriate sensor definitions
+            else
+                $sensor_defs = $sensor_defs->where('input_measurement_id', $input_measurement_id); // get appropriate sensor definitions
 
             if ($sensor_defs->count() == 0)
             {
@@ -316,7 +320,7 @@ class Device extends Model
             if (isset($sensor_def))
             {
                 $measurement_abbr_o = $sensor_def->output_abbr;
-                if (!in_array($measurement_abbr_o, array_keys($data_array)) || $sensor_def->input_measurement_id == $sensor_def->output_measurement_id) // only add value to $data_array if it does not yet exist, or input and output are the same
+                if (!isset($data_array[$measurement_abbr_o]) || $sensor_def->input_measurement_id == $sensor_def->output_measurement_id) // only add value to $data_array if it does not yet exist, or input and output are the same
                 {
                     $calibrated_measurement_val = $sensor_def->calibrated_measurement_value($value);
                     if ($calibrated_measurement_val !== null) // do not add sensor measurement is outside measurement min/max value

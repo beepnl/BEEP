@@ -140,11 +140,9 @@ class FlashLog extends Model
             $minute  = 0;
             $max_time= time();
 
-            // load weight sensor definitions
-            $weight_in   = Measurement::where('abbreviation','w_v')->first();
-            $weight_out  = Measurement::where('abbreviation','weight_kg')->first();
-            $sensor_defs = $device->sensorDefinitions->where('input_measurement_id', $weight_in->id)->where('output_measurement_id', $weight_out->id); // be aware that last() gets the last value of the ASCENDING list
-            $weight_sd_c = $sensor_defs->count();
+            // load device sensor definitions
+            $sensor_defs     = $device->activeSensorDefinitions();
+            $sensor_defs_all = $device->sensorDefinitions;
 
             foreach ($in as $line)
             {
@@ -179,29 +177,11 @@ class FlashLog extends Model
                     }
                 }
 
-                // Add weight_kg if not present 
-                $sensor_def = null;
-                if (!isset($data_array['weight_kg']) && $weight_sd_c > 0 && isset($data_array['w_v']) && isset($data_array['time']))
+                // Add sensor definition measurement if not yet present (or if input_measurement_id == output_measurement_id) 
+                foreach ($sensor_defs as $sd) 
                 {
-                    if ($weight_sd_c == 1)
-                    {
-                        $sensor_def = $sensor_defs->last(); // get the only sensor definition, before or after setting
-                    }
-                    else // there are multiple, so get the one appropriate for the $date
-                    {
-                        if ($sensor_defs->where('updated_at', '<=', $data_array['time'])->count() == 0) // not found before $date, but there are after, so get the first
-                            $sensor_def = $sensor_defs->first();
-                        else
-                            $sensor_def = $sensor_defs->where('updated_at', '<=', $data_array['time'])->last(); // be aware that last() gets the last value of the ASCENDING list
-                    }
-
-                    if ($sensor_def)
-                    {
-                        $calibrated_weight = $sensor_def->calibrated_measurement_value($data_array['w_v']);
-                        if (isset($calibrated_weight))
-                            $data_array['weight_kg'] = $calibrated_weight;
-
-                    }
+                    if (isset($sd->output_abbr) && isset($data_array[$sd->input_abbr]) && (!isset($data_array[$sd->output_abbr]) || $sd->input_measurement_id == $sd->output_measurement_id))
+                        $data_array = $device->addSensorDefinitionMeasurements($data_array, $data_array[$sd->input_abbr], $sd->input_measurement_id, $data_array['time'], $sensor_defs_all);
                 }
 
                 $out[] = $data_array;
@@ -410,11 +390,9 @@ class FlashLog extends Model
                 $blockEnd    = $matchMoment->addMinutes($blockEndOff * $matchMinInt);
                 $blockEndDate= $blockStart->format($this->timeFormat);
 
-                // load weight sensor definitions
-                $weight_in   = Measurement::where('abbreviation','w_v')->first();
-                $weight_out  = Measurement::where('abbreviation','weight_kg')->first();
-                $sensor_defs = $device->sensorDefinitions->where('input_measurement_id', $weight_in->id)->where('output_measurement_id', $weight_out->id); // be aware that last() gets the last value of the ASCENDING list
-                $weight_sd_c = $sensor_defs->count();
+                // load device sensor definitions
+                $sensor_defs     = $device->activeSensorDefinitions();
+                $sensor_defs_all = $device->sensorDefinitions;
 
                 // add time to flashlog block
                 $setTimeStart = '';
@@ -443,30 +421,11 @@ class FlashLog extends Model
                         }
                     }
 
-                    // Add weight_kg if not present 
-                    if (!isset($fl['weight_kg']) && $weight_sd_c > 0 && isset($fl['w_v']))
+                    // Add sensor definition measurement if not yet present (or if input_measurement_id == output_measurement_id) 
+                    foreach ($sensor_defs as $sd) 
                     {
-                        $sensor_def = null;
-                        if ($weight_sd_c == 1)
-                        {
-
-                            $sensor_def = $sensor_defs->last(); // get the only sensor definition, before or after setting
-                        }
-                        else // there are multiple, so get the one appropriate for the $date
-                        {
-                            if ($sensor_defs->where('updated_at', '<=', $fl['time'])->count() == 0) // not found before $date, but there are after, so get the first
-                                $sensor_def = $sensor_defs->first();
-                            else
-                                $sensor_def = $sensor_defs->where('updated_at', '<=', $fl['time'])->last(); // be aware that last() gets the last value of the ASCENDING list
-                        }
-
-                        if ($sensor_def)
-                        {
-                            $calibrated_weight = $sensor_def->calibrated_measurement_value($fl['w_v']);
-                            if (isset($calibrated_weight))
-                                $fl['weight_kg'] = $calibrated_weight;
-
-                        }
+                        if (isset($sd->output_abbr) && isset($fl[$sd->input_abbr]) && (!isset($fl[$sd->output_abbr]) || $sd->input_measurement_id == $sd->output_measurement_id))
+                            $fl = $device->addSensorDefinitionMeasurements($fl, $fl[$sd->input_abbr], $sd->input_measurement_id, $fl['time'], $sensor_defs_all);
                     }
                     
                     if ($fl['port'] == 3)

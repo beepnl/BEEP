@@ -214,11 +214,12 @@ class MeasurementController extends Controller
         $date = date($this->timeFormat, $time); 
 
         // Add senaor data based on available device sensorDefinitions
-        $sensor_defs = $device->activeSensorDefinitions();
+        $sensor_defs     = $device->activeSensorDefinitions();
+        $sensor_defs_all = $device->sensorDefinitions;
         foreach ($sensor_defs as $sd) 
         {
             if (isset($sd->output_abbr) && isset($data_array[$sd->input_abbr]))
-                $data_array = $device->addSensorDefinitionMeasurements($data_array, $data_array[$sd->input_abbr], $sd->input_measurement_id, $date);
+                $data_array = $device->addSensorDefinitionMeasurements($data_array, $data_array[$sd->input_abbr], $sd->input_measurement_id, $date, $sensor_defs_all);
         }
         
         // Legacy weight calculation from 2-4 load cells
@@ -238,6 +239,8 @@ class MeasurementController extends Controller
             //$data_array = $this->add_weight_kg_corrected_with_temperature($device, $data_array);
         }
         
+        //die(print_r($data_array));
+
         $stored = $this->storeInfluxData($data_array, $dev_eui, $time);
         if($stored) 
         {
@@ -558,8 +561,12 @@ class MeasurementController extends Controller
         $this->cacheRequestRate('store-lora-sensors-'.$payload_type);
         
         //die(print_r([$payload_type, $data_array]));
-        //$logFileName = isset($data_array['key']) ? 'lora_sensor_'.$data_array['key'].'.json' : 'lora_sensor_no_key.json';
-        //Storage::disk('local')->put('sensors/'.$logFileName, '[{"payload_type":"'.$payload_type.'"},{"request_input":'.json_encode($request_data).'},{"data_array":'.json_encode($data_array).'}]');
+        if (env('APP_ENV') == 'test')
+        {
+            $port        = isset($data_array['port']) ? '_port'.$data_array['port'] : '';
+            $logFileName = isset($data_array['key'])  ? 'lora_sensor_'.$data_array['key'].$port.'.json' : 'lora_sensor_no_key.json';
+            Storage::disk('local')->put('sensors/'.$logFileName, '[{"payload_type":"'.$payload_type.'"},{"request_input":'.json_encode($request_data).'},{"data_array":'.json_encode($data_array).'}]');
+        }
 
         return $this->storeMeasurements($data_array);
     }

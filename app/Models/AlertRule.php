@@ -197,9 +197,10 @@ class AlertRule extends Model
                 $check_alert  = $d->alerts()->where('user_id', $u->id)->where('alert_rule_id', $r->id)->where('device_id', $d->id)->where('updated_at', '=', $check_date)->first();
                 $create_alert = true;
                 $alert_counter= 1;  // # of occurrences in a row
-
-                if ($check_alert) // check if user already has this alert, if so, remove it if diff value is bigger
+                
+                if ($check_alert) // check if user already has this alert, if so, update it if diff value is bigger
                 {
+                    $create_alert       = false;
                     $value_diff_new     = abs($value - $r->threshold_value);
                     $value_diff_old_max = 0;
                     
@@ -207,22 +208,31 @@ class AlertRule extends Model
                     foreach ($check_alert_values as $v)
                         $value_diff_old_max = max($value_diff_old_max, abs($v - $r->threshold_value));
 
-                    if ($value_diff_new > $value_diff_old_max || $r->comparator == '=') // remove the old alert and create a new one
+                    $alert_counter = $check_alert->count + 1;
+
+                    // update attributes that could be changed over time
+                    $check_alert->updated_at     = $alert_rule_calc_date;
+                    $check_alert->alert_function = $r->readableFunction();
+                    $check_alert->measurement_id = $r->measurement_id;
+                    $check_alert->location_id    = $d->hive ? $d->hive->location_id : null;
+                    $check_alert->location_name  = $d->location_name;
+                    $check_alert->device_name    = $d->name;
+                    $check_alert->hive_id        = $d->hive_id;
+                    $check_alert->hive_name      = $d->hive_name;
+                    $check_alert->count          = $alert_counter;
+                        
+                    if ($value_diff_new > $value_diff_old_max || $r->comparator == '=') // update the old alert with 
                     {
-                        $alert_counter = $check_alert->count + 1;
+                        $check_alert->alert_value = implode(', ', $alert_values);
+                        $a             = $check_alert;
                         $alert_comp    = $r->comparator == '=' ? 'is also equal' : 'has smaller diff';
-                        Log::debug(' |-- D='.$d->id.' Delete previous Alert ('.$check_alert->created_at.'), v='.$check_alert->alert_value.' '.$alert_comp.': '.$value_diff_old_max.' vs new ('.$value.'): '.$value_diff_new);
-                        $check_alert->delete();
+                        Log::debug(' |-- D='.$d->id.' Update Alert id='.$check_alert->id.' count='.$alert_counter.', v='.$check_alert->alert_value.' '.$alert_comp.': '.$value_diff_old_max.' vs new ('.$value.'): '.$value_diff_new);
                     }
                     else
                     {
-                        $create_alert = false;
-                        $check_alert->count      = $check_alert->count + 1;
-                        $check_alert->updated_at = $alert_rule_calc_date;
-                        $check_alert->save();
-                        Log::debug(' |-- D='.$d->id.' Maintain previous Alert ('.$check_alert->created_at.'), count='.$check_alert->count.', v='.$check_alert->alert_value.' has equal, or bigger diff: '.$value_diff_old_max.' vs new ('.$value.'): '.$value_diff_new);
+                        Log::debug(' |-- D='.$d->id.' Maintain Alert id='.$check_alert->id.' count='.$alert_counter.', v='.$check_alert->alert_value.' has equal, or bigger diff: '.$value_diff_old_max.' vs new ('.$value.'): '.$value_diff_new);
                     }
-
+                    $check_alert->save();
                 }
                 
                 if ($create_alert) // no previous alerts, so create
@@ -250,12 +260,13 @@ class AlertRule extends Model
 
                     $alert_count++;
 
-                    if ($r->alert_via_email)
-                    {
-                        // Todo: send e-mail
-                        Log::debug(' |-- D='.$d->id.' Alert created, sending email to '.$u->email);
-                        Mail::to($u->email)->send(new AlertMail($a, $u->name));
-                    }
+                }
+
+
+                if ($a && $r->alert_via_email)
+                {
+                    Log::debug(' |-- D='.$d->id.' Updated or created Alert, sending email to '.$u->email);
+                    Mail::to($u->email)->send(new AlertMail($a, $u->name));
                 }
                 // save last evaluated date
                 $r->last_calculated_at = $alert_rule_calc_date;

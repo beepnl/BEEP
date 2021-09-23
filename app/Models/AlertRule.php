@@ -194,7 +194,7 @@ class AlertRule extends Model
             {
                 // check if same alert was created at last alert of this alert_rule
                 $check_date   = $r->last_calculated_at;
-                $check_alert  = $d->alerts()->where('user_id', $u->id)->where('alert_rule_id', $r->id)->where('updated_at', '=', $check_date)->first();
+                $check_alert  = $d->alerts()->where('user_id', $u->id)->where('alert_rule_id', $r->id)->where('device_id', $d->id)->where('updated_at', '=', $check_date)->first();
                 $create_alert = true;
                 $alert_counter= 1;  // # of occurrences in a row
 
@@ -211,7 +211,7 @@ class AlertRule extends Model
                     {
                         $alert_counter = $check_alert->count + 1;
                         $alert_comp    = $r->comparator == '=' ? 'is also equal' : 'has smaller diff';
-                        Log::debug(' |-- '.$r->name.' Delete previous Alert ('.$check_alert->created_at.'), v='.$check_alert->alert_value.' '.$alert_comp.': '.$value_diff_old_max.' vs new ('.$value.'): '.$value_diff_new);
+                        Log::debug(' |-- D='.$d->id.' Delete previous Alert ('.$check_alert->created_at.'), v='.$check_alert->alert_value.' '.$alert_comp.': '.$value_diff_old_max.' vs new ('.$value.'): '.$value_diff_new);
                         $check_alert->delete();
                     }
                     else
@@ -220,7 +220,7 @@ class AlertRule extends Model
                         $check_alert->count      = $check_alert->count + 1;
                         $check_alert->updated_at = $alert_rule_calc_date;
                         $check_alert->save();
-                        Log::debug(' |-- '.$r->name.' Maintain previous Alert ('.$check_alert->created_at.'), count='.$check_alert->count.', v='.$check_alert->alert_value.' has equal, or bigger diff: '.$value_diff_old_max.' vs new ('.$value.'): '.$value_diff_new);
+                        Log::debug(' |-- D='.$d->id.' Maintain previous Alert ('.$check_alert->created_at.'), count='.$check_alert->count.', v='.$check_alert->alert_value.' has equal, or bigger diff: '.$value_diff_old_max.' vs new ('.$value.'): '.$value_diff_new);
                     }
 
                 }
@@ -229,7 +229,7 @@ class AlertRule extends Model
                 {
                     $alert_value = implode(', ', $alert_values);
                     $alert_func  = $r->readableFunction();
-                    Log::debug(' |-- '.$r->name.' Create new Alert, v='.$alert_value.', eval_count='.$evaluation_count.' alert_count='.$alert_counter.' f='.$alert_func);
+                    Log::debug(' |-- D='.$d->id.' Create new Alert, v='.$alert_value.', eval_count='.$evaluation_count.' alert_count='.$alert_counter.' f='.$alert_func);
 
                     $a = new Alert();
                     $a->created_at     = $alert_rule_calc_date;
@@ -253,7 +253,7 @@ class AlertRule extends Model
                     if ($r->alert_via_email)
                     {
                         // Todo: send e-mail
-                        Log::debug(' |-- '.$r->name.' Alert created, sending email to '.$u->email);
+                        Log::debug(' |-- D='.$d->id.' Alert created, sending email to '.$u->email);
                         Mail::to($u->email)->send(new AlertMail($a, $u->name));
                     }
                 }
@@ -316,11 +316,11 @@ class AlertRule extends Model
             if (!isset($user))
                 continue;
 
-            $user_devices= $user->allDevices()->get();
+            $user_devices= $user->allDevices()->where('hive_id', '!=', null)->get();
 
             if (count($user_devices) > 0)
             {
-                Log::debug($r->id.' last evaluated @ '.$r->last_evaluated_at.' ('.$min_ago.' min ago), user_id='.$user_id.' devices='.count($user_devices).' for rule: '.$r->name);
+                Log::debug('R='.$r->id.' ('.$r->name.') last evaluated @ '.$r->last_evaluated_at.' ('.$min_ago.' min ago), user_id='.$user_id.' devices_with_hive='.count($user_devices));
 
                 foreach ($user_devices as $d) 
                     $alertCount += $r->evaluateDeviceAlerts($d);

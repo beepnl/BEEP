@@ -18,7 +18,7 @@ class AlertController extends Controller
     public function index(Request $request)
     {
         $keyword = $request->get('search');
-        $perPage = 25;
+        $perPage = 100;
 
         if (!empty($keyword)) {
             $alert = Alert::where('alert_rule_id', 'LIKE', "%$keyword%")
@@ -35,7 +35,7 @@ class AlertController extends Controller
                 ->orWhere('user_id', 'LIKE', "%$keyword%")
                 ->paginate($perPage);
         } else {
-            $alert = Alert::paginate($perPage);
+            $alert = Alert::orderByDesc('created_at')->paginate($perPage);
         }
 
         return view('alert.index', compact('alert'));

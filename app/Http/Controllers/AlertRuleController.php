@@ -18,7 +18,7 @@ class AlertRuleController extends Controller
     public function index(Request $request)
     {
         $keyword = $request->get('search');
-        $perPage = 25;
+        $perPage = 100;
 
         if (!empty($keyword)) {
             $alertrule = AlertRule::where('name', 'LIKE', "%$keyword%")

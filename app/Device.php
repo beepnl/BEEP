@@ -186,7 +186,12 @@ class Device extends Model
     
     public function last_sensor_values_array($fields='*', $limit=1)
     {
-        $cache_name    = 'device-'.$this->id.'-fields-'.implode('-', $fields).'-limit-'.$limit;
+        if (gettype($fields) == 'array')
+            $cache_fields = implode('-', $fields);
+        else
+            $cache_fields = $fields;
+
+        $cache_name    = 'device-'.$this->id.'-fields-'.$cache_fields.'-limit-'.$limit;
         $last_set_time = Cache::get('set-measurements-'.$cache_name.'-time');
         $last_req_time = Cache::get('last-values-'.$cache_name.'-request-time');
         $last_req_vals = Cache::get('last-values-'.$cache_name);

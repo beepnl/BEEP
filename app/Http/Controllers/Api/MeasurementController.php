@@ -813,24 +813,7 @@ class MeasurementController extends Controller
         //Get the sensor
         $device  = $this->get_user_device($request);
         $location= $device->location();
-        
-        $client = $this->client;
-        
-        $this->cacheRequestRate('influx-get');
-        $this->cacheRequestRate('influx-data');
-        $first  = $client::query('SELECT * FROM "sensors" WHERE ("key" = \''.$device->key.'\' OR "key" = \''.strtolower($device->key).'\' OR "key" = \''.strtoupper($device->key).'\') ORDER BY time ASC LIMIT 1')->getPoints(); // get first sensor date
-        $first_w= [];
-        if ($location && isset($location->coordinate_lat) && isset($location->coordinate_lon))
-        {
-            $this->cacheRequestRate('influx-get');
-            $this->cacheRequestRate('influx-weather');
-            $first_w = $client::query('SELECT * FROM "weather" WHERE "lat" = \''.$location->coordinate_lat.'\' AND "lon" = \''.$location->coordinate_lon.'\' ORDER BY time ASC LIMIT 1')->getPoints(); // get first weather date
-        }
-        
-        if (count($first) == 0 && count($first_w) == 0)
-            return Response::json('sensor-none-error', 500);
-        
-        $names = array_keys($this->valid_sensors);
+        $names   = array_keys($this->valid_sensors);
 
         if ($request->filled('names'))
             $names = explode(",", $request->input('names'));
@@ -903,14 +886,15 @@ class MeasurementController extends Controller
         $groupBySelectWeather = null;
         $groupByResolution  = '';
         $limit              = 'LIMIT '.$this->maxDataPoints;
-        $options            = ['precision'=> $this->precision];
-        
+        $whereKeyAndTime    = '("key" = \''.$device->key.'\' OR "key" = \''.strtolower($device->key).'\' OR "key" = \''.strtoupper($device->key).'\') AND time >= \''.$staTimestampString.'\' AND time <= \''.$endTimestampString.'\'';
+
+
         if($resolution != null)
         {
             if ($device)
             {
                 $groupByResolution = 'GROUP BY time('.$resolution.') fill(null)';
-                $queryList         = Device::getAvailableSensorNamesFromData($names, '("key" = \''.$device->key.'\' OR "key" = \''.strtolower($device->key).'\' OR "key" = \''.strtoupper($device->key).'\') AND time >= \''.$staTimestampString.'\' AND time <= \''.$endTimestampString.'\'');
+                $queryList         = Device::getAvailableSensorNamesFromData($names, $whereKeyAndTime);
 
                 foreach ($queryList as $i => $name) 
                     $queryList[$i] = 'MEAN("'.$name.'") AS "'.$name.'"';
@@ -931,25 +915,19 @@ class MeasurementController extends Controller
         
         $sensors_out = [];
         $weather_out = [];
-        $old_values  = false;
         
         if ($groupBySelect != null) 
         {
-            $sensorQuery = 'SELECT '.$groupBySelect.' FROM "sensors" WHERE ("key" = \''.$device->key.'\' OR "key" = \''.strtolower($device->key).'\' OR "key" = \''.strtoupper($device->key).'\') AND time >= \''.$staTimestampString.'\' AND time <= \''.$endTimestampString.'\' '.$groupByResolution.' '.$limit;
-            $this->cacheRequestRate('influx-get');
-            $this->cacheRequestRate('influx-data');
-            $result      = $client::query($sensorQuery, $options);
-            $sensors_out = $result->getPoints();
+            $sensorQuery = 'SELECT '.$groupBySelect.' FROM "sensors" WHERE '.$whereKeyAndTime.' '.$groupByResolution.' '.$limit;
+            $sensors_out = Device::getInfluxQuery($sensorQuery, 'data');
         }
 
         // Add weather data
         if ($groupBySelectWeather != null && $location && isset($location->coordinate_lat) && isset($location->coordinate_lon))
         {
             $weatherQuery = 'SELECT '.$groupBySelectWeather.' FROM "weather" WHERE "lat" = \''.$location->coordinate_lat.'\' AND "lon" = \''.$location->coordinate_lon.'\' AND time >= \''.$staTimestampString.'\' AND time <= \''.$endTimestampString.'\' '.$groupByResolution.' '.$limit;
-            $this->cacheRequestRate('influx-get');
-            $this->cacheRequestRate('influx-weather');
-            $result       = $client::query($weatherQuery, $options);
-            $weather_out  = $result->getPoints();
+
+            $weather_out = Device::getInfluxQuery($weatherQuery, 'weather');
 
             if ($groupBySelect == null)
             {
@@ -968,6 +946,9 @@ class MeasurementController extends Controller
             }
         }
 
-        return Response::json( ['id'=>$device->id, 'interval'=>$interval, 'index'=>$index, 'timeGroup'=>$timeGroup, 'resolution'=>$resolution, 'measurements'=>$sensors_out, 'old_values'=>$old_values, 'sensorDefinitions'=>$sensorDefinitions] );
+        if (count($sensors_out) == 0 && count($weather_out) == 0)
+            return Response::json('sensor-none-error', 500);
+
+        return Response::json( ['id'=>$device->id, 'interval'=>$interval, 'index'=>$index, 'timeGroup'=>$timeGroup, 'resolution'=>$resolution, 'measurements'=>$sensors_out, 'sensorDefinitions'=>$sensorDefinitions] );
     }
 }

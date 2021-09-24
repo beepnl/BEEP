@@ -142,7 +142,7 @@ class AlertRule extends Model
             //Log::debug(['r'=>$r->name, 'd'=>$d->name, 'lv'=>$last_values, 'mve'=>$max_value_eval]);
 
             // evaluate measurement values
-            for ($i=0; $i < $max_value_eval; $i++) 
+            for ($i=$max_value_eval; $i > 0; $i--) // start with oldest value, so in the end $value contains newest value
             {  
 
                 if (!isset($last_values[$i][$m_abbr]))
@@ -194,19 +194,17 @@ class AlertRule extends Model
             {
                 // check if same alert was created at last alert of this alert_rule
                 $check_date   = $r->last_calculated_at;
-                $check_alert  = $d->alerts()->where('user_id', $u->id)->where('alert_rule_id', $r->id)->where('device_id', $d->id)->where('updated_at', '=', $check_date)->first();
-                $create_alert = true;
+                $check_alert  = $d->alerts()->where('user_id', $u->id)->where('alert_rule_id', $r->id)->where('device_id', $d->id)->where('updated_at', '>=', $check_date)->first();
                 $alert_counter= 1;  // # of occurrences in a row
                 $a            = null;
                 
                 if ($check_alert) // check if user already has this alert, if so, update it if diff value is bigger
                 {
-                    $create_alert       = false;
                     $value_diff_new     = abs($value - $r->threshold_value);
                     $value_diff_old_max = 0;
                     
-                    $check_alert_values = explode(', ', $check_alert->alert_value);
-                    foreach ($check_alert_values as $v)
+                    $old_alert_values = explode(', ', $check_alert->alert_value);
+                    foreach ($old_alert_values as $v)
                         $value_diff_old_max = max($value_diff_old_max, abs($v - $r->threshold_value));
 
                     $alert_counter = $check_alert->count + 1;
@@ -222,7 +220,7 @@ class AlertRule extends Model
                     $check_alert->hive_name      = $d->hive_name;
                     $check_alert->count          = $alert_counter;
                         
-                    if ($value_diff_new > $value_diff_old_max || $r->comparator == '=') // update the old alert with 
+                    if ($value_diff_new > $value_diff_old_max || ($value_diff_new == $value_diff_old_max && $r->comparator == '=')) // update the existing alert with new (higher diff) value and trigger e-mail
                     {
                         $check_alert->alert_value = implode(', ', $alert_values);
                         $a             = $check_alert;
@@ -235,8 +233,7 @@ class AlertRule extends Model
                     }
                     $check_alert->save();
                 }
-                
-                if ($create_alert) // no previous alerts, so create
+                else // no previous alerts, so create
                 {
                     $alert_value = implode(', ', $alert_values);
                     $alert_func  = $r->readableFunction();

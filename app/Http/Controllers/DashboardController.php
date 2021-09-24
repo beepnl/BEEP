@@ -99,6 +99,8 @@ class DashboardController extends Controller
         $data['influx-data']                  = $this->cacheRequestGetRate('influx-data', 3600);
         $data['influx-last']                  = $this->cacheRequestGetRate('influx-last', 3600);
         $data['influx-device']                = $this->cacheRequestGetRate('influx-device', 3600);
+        $data['influx-names']                 = $this->cacheRequestGetRate('influx-names', 3600);
+        $data['influx-flashlog']              = $this->cacheRequestGetRate('influx-flashlog', 3600);
         $data['influx-weather']               = $this->cacheRequestGetRate('influx-weather', 3600);
         $data['influx-research']              = $this->cacheRequestGetRate('influx-research', 3600);
         $data['influx-research-api']          = $this->cacheRequestGetRate('influx-research-api', 3600);

@@ -130,10 +130,10 @@ class Device extends Model
     }
     
 
-    public static function getInfluxQuery($query)
+    public static function getInfluxQuery($query, $from='device')
     {
         Device::cacheRequestRate('influx-get');
-        Device::cacheRequestRate('influx-device');
+        Device::cacheRequestRate('influx-'.$from);
 
         $client  = new \Influx;
         $options = ['precision'=> 's'];
@@ -167,7 +167,7 @@ class Device extends Model
         $valid_fields = implode(', ', $fields);
 
         $query  = 'SELECT '.$valid_fields.' FROM "'.$table.'" WHERE '.$where.' GROUP BY "name,time" ORDER BY time DESC LIMIT 1';
-        $values = Device::getInfluxQuery($query);
+        $values = Device::getInfluxQuery($query, 'names');
 
         if (count($values) > 0)
             $sensors = $values[0];
@@ -198,13 +198,9 @@ class Device extends Model
         $output = null;
         try
         {
-            Device::cacheRequestRate('influx-get');
-            Device::cacheRequestRate('influx-last');
-            $client = new \Influx;
             $query  = 'SELECT '.$fields.' from "sensors" WHERE ("key" = \''.$this->key.'\' OR "key" = \''.strtolower($this->key).'\' OR "key" = \''.strtoupper($this->key).'\') AND time > now() - 365d '.$groupby.' ORDER BY time DESC LIMIT '.$limit;
             //die(print_r($query));
-            $result = $client::query($query);
-            $values = $result->getPoints();
+            $values = Device::getInfluxQuery($query, 'last');
             //die(print_r($values));
             $output = $limit == 1 ? $values[0] : $values;
             $output = array_filter($output, function($value) { return !is_null($value) && $value !== ''; });

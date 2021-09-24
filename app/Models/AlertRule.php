@@ -142,7 +142,7 @@ class AlertRule extends Model
             //Log::debug(['r'=>$r->name, 'd'=>$d->name, 'lv'=>$last_values, 'mve'=>$max_value_eval]);
 
             // evaluate measurement values
-            for ($i=$max_value_eval; $i > 0; $i--) // start with oldest value, so in the end $value contains newest value
+            for ($i=0; $i < $max_value_eval; $i++) // start with oldest value, so in the end $value contains newest value
             {  
 
                 if (!isset($last_values[$i][$m_abbr]))
@@ -200,7 +200,8 @@ class AlertRule extends Model
                 
                 if ($check_alert) // check if user already has this alert, if so, update it if diff value is bigger
                 {
-                    $value_diff_new     = abs($value - $r->threshold_value);
+                    $newest_alert_value = $alert_values[0];
+                    $value_diff_new     = abs($newest_alert_value - $r->threshold_value);
                     $value_diff_old_max = 0;
                     
                     $old_alert_values = explode(', ', $check_alert->alert_value);
@@ -225,11 +226,11 @@ class AlertRule extends Model
                         $check_alert->alert_value = implode(', ', $alert_values);
                         $a             = $check_alert;
                         $alert_comp    = $r->comparator == '=' ? 'is also equal' : 'has smaller diff';
-                        Log::debug(' |-- D='.$d->id.' Update Alert id='.$check_alert->id.' count='.$alert_counter.', v='.$check_alert->alert_value.' '.$alert_comp.': '.$value_diff_old_max.' vs new ('.$value.'): '.$value_diff_new);
+                        Log::debug(' |-- D='.$d->id.' Update Alert id='.$check_alert->id.' count='.$alert_counter.', v='.$check_alert->alert_value.' '.$alert_comp.': '.$value_diff_old_max.' vs new ('.$newest_alert_value.'): '.$value_diff_new);
                     }
                     else
                     {
-                        Log::debug(' |-- D='.$d->id.' Maintain Alert id='.$check_alert->id.' count='.$alert_counter.', v='.$check_alert->alert_value.' has equal, or bigger diff: '.$value_diff_old_max.' vs new ('.$value.'): '.$value_diff_new);
+                        Log::debug(' |-- D='.$d->id.' Maintain Alert id='.$check_alert->id.' count='.$alert_counter.', v='.$check_alert->alert_value.' has equal, or bigger diff: '.$value_diff_old_max.' vs new ('.$newest_alert_value.'): '.$value_diff_new);
                     }
                     $check_alert->save();
                 }

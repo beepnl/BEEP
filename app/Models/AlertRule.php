@@ -197,6 +197,7 @@ class AlertRule extends Model
                 $check_alert  = $d->alerts()->where('user_id', $u->id)->where('alert_rule_id', $r->id)->where('device_id', $d->id)->where('updated_at', '=', $check_date)->first();
                 $create_alert = true;
                 $alert_counter= 1;  // # of occurrences in a row
+                $a            = null;
                 
                 if ($check_alert) // check if user already has this alert, if so, update it if diff value is bigger
                 {

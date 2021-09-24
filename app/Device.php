@@ -186,12 +186,16 @@ class Device extends Model
     
     public function last_sensor_values_array($fields='*', $limit=1)
     {
-        $last_set_time = Cache::get('set-measurements-device-'.$this->id.'-time');
-        $last_req_time = Cache::get('last-values-device-'.$this->id.'-request-time');
-        $last_req_vals = Cache::get('last-values-device-'.$this->id);
+        $cache_name    = 'device-'.$this->id.'-fields-'.implode('-', $fields).'-limit-'.$limit;
+        $last_set_time = Cache::get('set-measurements-'.$cache_name.'-time');
+        $last_req_time = Cache::get('last-values-'.$cache_name.'-request-time');
+        $last_req_vals = Cache::get('last-values-'.$cache_name);
 
         if ($last_req_vals != null && $last_set_time < $last_req_time) // only request Influx if newer data is available
+        {
+            $last_req_vals['from_cache'] = true;
             return $last_req_vals;
+        }
 
         $fields = $fields != '*' ? '"'.$fields.'"' : '*';
         $groupby= $fields == '*' || strpos(',' ,$fields) ? 'GROUP BY "name,time"' : '';
@@ -210,8 +214,8 @@ class Device extends Model
             return false;
         }
 
-        Cache::put('last-values-device-'.$this->id.'-request-time', time(), 86400);
-        Cache::put('last-values-device-'.$this->id, $output, 86400);
+        Cache::put('last-values-'.$cache_name.'-request-time', time(), 86400);
+        Cache::put('last-values-'.$cache_name, $output, 86400);
 
         return $output;
     }

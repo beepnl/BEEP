@@ -103,19 +103,19 @@ class Device extends Model
         return $this->hasMany(Alert::class);
     }
 
-    /* returns most recent Influx sensor values:
+    /* getSensorValues returns most recent Influx sensor values:
     Array
     (
         [0] => Array
             (
                 [time] => 2021-05-05T14:30:00Z
-                [t_i] => 
+                [t_i] => 35.6
             )
 
         [1] => Array
             (
                 [time] => 2021-05-05T14:00:00Z
-                [t_i] => 
+                [t_i] => 34.9
             )
 
     )
@@ -249,9 +249,10 @@ class Device extends Model
     
     public function last_sensor_values_array($fields='*', $limit=1)
     {
-        $last_set_time = Cache::get('set-measurements-device-'.$this->id.'-time');
-        $last_req_time = Cache::get('last-values-device-'.$this->id.'-request-time');
-        $last_req_vals = Cache::get('last-values-device-'.$this->id);
+        $cache_name    = 'device-'.$this->id.'-fields-'.implode($fields,'-').'-limit-'.$limit;
+        $last_set_time = Cache::get('set-measurements-'.$cache_name.'-time');
+        $last_req_time = Cache::get('last-values-'.$cache_name.'-request-time');
+        $last_req_vals = Cache::get('last-values-'.$cache_name);
 
         if ($last_req_vals != null && $last_set_time < $last_req_time) // only request Influx if newer data is available
         {
@@ -264,13 +265,10 @@ class Device extends Model
         $output = null;
         try
         {
-            Device::cacheRequestRate('influx-get');
             Device::cacheRequestRate('influx-last');
-            $client = new \Influx;
             $query  = 'SELECT '.$fields.' from "sensors" WHERE ("key" = \''.$this->key.'\' OR "key" = \''.strtolower($this->key).'\' OR "key" = \''.strtoupper($this->key).'\') AND time > now() - 365d '.$groupby.' ORDER BY time DESC LIMIT '.$limit;
             //die(print_r($query));
-            $result = $client::query($query);
-            $values = $result->getPoints();
+            $values = Device::getInfluxQuery($query);
             //die(print_r($values));
             $output = $limit == 1 ? $values[0] : $values;
             $output = array_filter($output, function($value) { return !is_null($value) && $value !== ''; });
@@ -280,8 +278,8 @@ class Device extends Model
             return false;
         }
 
-        Cache::put('last-values-device-'.$this->id.'-request-time', time(), 86400);
-        Cache::put('last-values-device-'.$this->id, $output, 86400);
+        Cache::put('last-values-'.$cache_name.'-request-time', time(), 86400);
+        Cache::put('last-values-'.$cache_name, $output, 86400);
 
         return $output;
     }

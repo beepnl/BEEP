@@ -106,25 +106,29 @@ class AlertRule extends Model
         return $f;
     }
 
-    public function evaluateDeviceAlerts($device)
+    public function evaluateDeviceAlerts($device, $user)
     {
         $r = $this;
         $d = $device;
-        $u = User::find($r->user_id);
+        $u = $user;
 
-        if (!isset($u))
-            return 0;
+        $debug_start = ' |-- D='.$d->id.' U='.$user_id.' ';
 
         $alert_rule_calc_date = date('Y-m-d H:i:s'); // PGe 2021-09-17: was local, now UTC (since config/app.php has UTC as default timezone)
         $r->last_evaluated_at = $alert_rule_calc_date;
         $r->save();
 
-        if (!isset($d))
-            return 0;
-
         if (!isset($d->hive_id) || in_array($d->hive_id, $r->exclude_hive_ids)) // only parse existing hives that are not excluded
+        {
+            Log::debug($debug_start.' No hive_id to evaluate, excluded hive_ids='.implode(',',$r->exclude_hive_ids));
             return 0;
+        }
 
+        if (!isset(AlertRule::$influx_calc[$r->calculation]))
+        {
+            Log::debug($debug_start.' Undefined calculation: '.$r->calculation);
+            return 0
+        }
         $diff_comp   = $r->comparison == 'dif' || $r->comparison == 'abs_dif' ? true : false;
         $m_abbr      = $r->measurement->abbreviation;
         $influx_comp = AlertRule::$influx_calc[$r->calculation];
@@ -226,11 +230,11 @@ class AlertRule extends Model
                         $check_alert->alert_value = implode(', ', $alert_values);
                         $a             = $check_alert;
                         $alert_comp    = $r->comparator == '=' ? 'is also equal' : 'has smaller diff';
-                        Log::debug(' |-- D='.$d->id.' Update Alert id='.$check_alert->id.' count='.$alert_counter.', v='.$check_alert->alert_value.' '.$alert_comp.': '.$value_diff_old_max.' vs new ('.$newest_alert_value.'): '.$value_diff_new);
+                        Log::debug($debug_start.' Update Alert id='.$check_alert->id.' count='.$alert_counter.', v='.$check_alert->alert_value.' '.$alert_comp.': '.$value_diff_old_max.' vs new ('.$newest_alert_value.'): '.$value_diff_new);
                     }
                     else
                     {
-                        Log::debug(' |-- D='.$d->id.' Maintain Alert id='.$check_alert->id.' count='.$alert_counter.', v='.$check_alert->alert_value.' has equal, or bigger diff: '.$value_diff_old_max.' vs new ('.$newest_alert_value.'): '.$value_diff_new);
+                        Log::debug($debug_start.' Maintain Alert id='.$check_alert->id.' count='.$alert_counter.', v='.$check_alert->alert_value.' has equal, or bigger diff: '.$value_diff_old_max.' vs new ('.$newest_alert_value.'): '.$value_diff_new);
                     }
                     $check_alert->save();
                 }
@@ -238,7 +242,7 @@ class AlertRule extends Model
                 {
                     $alert_value = implode(', ', $alert_values);
                     $alert_func  = $r->readableFunction();
-                    Log::debug(' |-- D='.$d->id.' Create new Alert, v='.$alert_value.', eval_count='.$evaluation_count.' alert_count='.$alert_counter.' f='.$alert_func);
+                    Log::debug($debug_start.' Create new Alert, v='.$alert_value.', eval_count='.$evaluation_count.' alert_count='.$alert_counter.' f='.$alert_func);
 
                     $a = new Alert();
                     $a->created_at     = $alert_rule_calc_date;
@@ -264,13 +268,17 @@ class AlertRule extends Model
 
                 if ($a && $r->alert_via_email)
                 {
-                    Log::debug(' |-- D='.$d->id.' Updated or created Alert, sending email to '.$u->email);
+                    Log::debug($debug_start.' Updated or created Alert, sending email to '.$u->email);
                     Mail::to($u->email)->send(new AlertMail($a, $u->name));
                 }
                 // save last evaluated date
                 $r->last_calculated_at = $alert_rule_calc_date;
                 $r->save();
             }
+        }
+        else
+        {
+            Log::debug($debug_start.' Max eval values: 0. Last values: '.implode(',',$last_values));
         }
 
         return $alert_count;
@@ -320,15 +328,18 @@ class AlertRule extends Model
             if (isset($r->exclude_hours) && in_array($now_hour, $r->exclude_hours))
                 continue;
 
-            // check if user still exists
+            // check if user (still) exists
             $user_id     = $r->user_id;
             $user        = User::find($user_id);
-            if (!isset($user) && $r->default_rule == false)
+            if (!isset($user))
             {
-                $alerts = Alert::where('alert_rule_id', $r->id);
-                Log::debug('R='.$r->id.' user_id='.$user_id.' not found, so deleting '.$alerts->count().' alerts and rule: '.$r->name);
-                $alerts->delete();
-                $r->delete();
+                if ($r->default_rule == false)
+                {
+                    $alerts = Alert::where('alert_rule_id', $r->id);
+                    Log::debug('R='.$r->id.' U='.$user_id.' not found, so deleting '.$alerts->count().' alerts and rule: '.$r->name);
+                    $alerts->delete();
+                    $r->delete();
+                }
                 continue;
             }
 
@@ -337,10 +348,10 @@ class AlertRule extends Model
 
             if (count($user_devices) > 0)
             {
-                Log::debug('R='.$r->id.' ('.$r->name.') last evaluated @ '.$r->last_evaluated_at.' ('.$min_ago.' min ago), user_id='.$user_id.' devices_with_hive='.count($user_devices));
+                Log::debug('R='.$r->id.' U='.$user_id.' ('.$r->name.') last evaluated @ '.$r->last_evaluated_at.' ('.$min_ago.' min ago), devices_with_hive='.count($user_devices));
 
-                foreach ($user_devices as $d) 
-                    $alertCount += $r->evaluateDeviceAlerts($d);
+                foreach ($user_devices as $device) 
+                    $alertCount += $r->evaluateDeviceAlerts($device, $user);
             }
             else
             {

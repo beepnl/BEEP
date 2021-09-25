@@ -156,7 +156,7 @@ class AlertRule extends Model
 
                 $value = $last_values[$i][$m_abbr];
 
-                if (!isset($value) || $value == '')
+                if (!isset($value) || $value == '' || $value == 'null')
                     continue;
 
                 //$time  = $last_values[$i]['time'];
@@ -361,7 +361,7 @@ class AlertRule extends Model
             // define calculation per user device
             $min_msg_date = '2019-01-01 00:00:00';
             if ($r->calculation != 'cnt')
-                $min_msg_date = date('Y-m-d H:i:s', time()-(60*$r->calculation_minutes)); // 15 min ago
+                $min_msg_date = date('Y-m-d H:i:s', time()-(60*$r->calculation_minutes));
             
             $user_devices = $user->allDevices()->where('last_message_received', '>=', $min_msg_date)->where('hive_id', '!=', null)->get();
 

@@ -129,10 +129,16 @@ class Device extends Model
         $where_time    = isset($start) ? 'AND time >= \''.$start.'\'' : '';
         $device_int_min= isset($this->measurement_interval_min) ? $this->measurement_interval_min : 15;
         $time_interval = isset($interval_min) && $interval_min > $device_int_min ? $interval_min.'m' : $device_int_min.'m';
-        $group_by_time = 'GROUP BY time('.$time_interval.')';
-        $deriv_time    = $influx_func == 'DERIVATIVE' ? ','.$interval_min.'m' : '';
+        $group_by_time = 'GROUP BY time('.$time_interval.') ';
 
-        $query   = 'SELECT '.$influx_func.'("'.$measurement_abbr.'"'.$deriv_time.') AS "'.$measurement_abbr.'" FROM "'.$table.'" WHERE '.$where.' '.$where_time.' '.$group_by_time.' ORDER BY time DESC '.$where_limit;
+        $deriv_time    = '';
+        if ($influx_func == 'DERIVATIVE') // don't groupby time, but set derivative time
+        {
+            $group_by_time = '';
+            $deriv_time    = ','.$time_interval;
+        }
+
+        $query   = 'SELECT '.$influx_func.'("'.$measurement_abbr.'"'.$deriv_time.') AS "'.$measurement_abbr.'" FROM "'.$table.'" WHERE '.$where.' '.$where_time.' '.$group_by_time.'ORDER BY time DESC '.$where_limit;
         $values  = Device::getInfluxQuery($query, 'alert');
         return ['values'=>$values,'query'=>$query];
     }

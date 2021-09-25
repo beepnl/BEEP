@@ -35,7 +35,7 @@ class AlertController extends Controller
                 ->orWhere('user_id', 'LIKE', "%$keyword%")
                 ->paginate($perPage);
         } else {
-            $alert = Alert::orderByDesc('created_at')->paginate($perPage);
+            $alert = Alert::orderByDesc('updated_at')->paginate($perPage);
         }
 
         return view('alert.index', compact('alert'));

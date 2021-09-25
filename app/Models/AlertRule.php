@@ -127,7 +127,7 @@ class AlertRule extends Model
         if (!isset(AlertRule::$influx_calc[$r->calculation]))
         {
             Log::debug($debug_start.' Undefined calculation: '.$r->calculation);
-            return 0
+            return 0;
         }
         $diff_comp   = $r->comparison == 'dif' || $r->comparison == 'abs_dif' ? true : false;
         $m_abbr      = $r->measurement->abbreviation;

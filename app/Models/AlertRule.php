@@ -304,7 +304,8 @@ class AlertRule extends Model
                             $query->where('last_evaluated_at','<=', $min_ago_15)
                             ->orWhereNull('last_evaluated_at'); 
                         })
-                        ->orderBy(['user_id', 'last_evaluated_at'])
+                        ->orderBy('user_id')
+                        ->orderBy('last_evaluated_at')
                         ->get();
 
         Log::debug('Parsing '.count($alertRules).' active alert rules last evaluated before '.$min_ago_15);

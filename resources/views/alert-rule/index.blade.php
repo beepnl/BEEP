@@ -61,8 +61,8 @@
                     <td>{{ $item->id }}</td>
                     <td>{{ isset($item->user_id) ? $item->user->name.' ('.$item->user_id.')' : '' }}</td>
                     <td>{{ $item->name }}</td>
-                    <td>{{ $item->last_evaluated }}</td>
-                    <td>{{ $item->last_calculated }}</td>
+                    <td>{{ $item->last_evaluated_at }}</td>
+                    <td>{{ $item->last_calculated_at }}</td>
                     <td>{{ $item->description }}</td>
                     <td>{{ $item->measurement->pq_name_unit }}</td>
                     <td>{{ $item->calculation_minutes }}</td>

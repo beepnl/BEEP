@@ -124,9 +124,9 @@ class Device extends Model
     {
         //die(print_r([$names, $valid_sensors]));
         
-        $where_limit   = isset($limit) ? 'LIMIT '.$limit : '';
+        $where_limit   = isset($limit) ? ' LIMIT '.$limit : '';
         $where         = '("key" = \''.$this->key.'\' OR "key" = \''.strtolower($this->key).'\' OR "key" = \''.strtoupper($this->key).'\')';
-        $where_time    = isset($start) ? 'AND time >= \''.$start.'\'' : '';
+        $where_time    = isset($start) ? 'AND time >= \''.$start.'\' ' : '';
         $device_int_min= isset($this->measurement_interval_min) ? $this->measurement_interval_min : 15;
         $time_interval = isset($interval_min) && $interval_min > $device_int_min ? $interval_min.'m' : $device_int_min.'m';
         $group_by_time = 'GROUP BY time('.$time_interval.') ';
@@ -138,7 +138,7 @@ class Device extends Model
             $deriv_time    = ','.$time_interval;
         }
 
-        $query   = 'SELECT '.$influx_func.'("'.$measurement_abbr.'"'.$deriv_time.') AS "'.$measurement_abbr.'" FROM "'.$table.'" WHERE '.$where.' '.$where_time.' '.$group_by_time.'ORDER BY time DESC '.$where_limit;
+        $query   = 'SELECT '.$influx_func.'("'.$measurement_abbr.'"'.$deriv_time.') AS "'.$measurement_abbr.'" FROM "'.$table.'" WHERE '.$where.' '.$where_time.$group_by_time.'ORDER BY time DESC'.$where_limit;
         $values  = Device::getInfluxQuery($query, 'alert');
         return ['values'=>$values,'query'=>$query];
     }

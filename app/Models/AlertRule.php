@@ -323,10 +323,10 @@ class AlertRule extends Model
             // check if user still exists
             $user_id     = $r->user_id;
             $user        = User::find($user_id);
-            if (!isset($user))
+            if (!isset($user) && $r->default_rule == false)
             {
                 $alerts = Alert::where('alert_rule_id', $r->id);
-                Log::error('R='.$r->id.' user_id='.$user_id.' not found, so deleting '.$alerts->count().' alerts and rule: '.$r->name);
+                Log::debug('R='.$r->id.' user_id='.$user_id.' not found, so deleting '.$alerts->count().' alerts and rule: '.$r->name);
                 $alerts->delete();
                 $r->delete();
                 continue;

@@ -305,7 +305,6 @@ class AlertRule extends Model
     {
         $alertCount = 0;
         $now        = new Moment(); // UTC
-        $now_month  = $now->getMonth();
         $min_ago_15 = date('Y-m-d H:i:s', time()-900); // 15 min ago
 
         $alertRules = AlertRule::where('active', 1)
@@ -343,23 +342,25 @@ class AlertRule extends Model
                 $min_ago = -1 * round($now->from($r->last_evaluated_at)->getMinutes()); // round to whole value
                 if ($min_ago < $r->calculation_minutes) // do not parse too often
                 {
-                    Log::debug($debug_start.' Not evaluated: last evaluated '.$min_ago.' min ago (< calc_min='.$r->calculation_minutes.')');
+                    //Log::debug($debug_start.' Not evaluated: last evaluated '.$min_ago.' min ago (< calc_min='.$r->calculation_minutes.')');
                     continue;
                 }
             }
 
+            $now_local = new Moment('now', $r->timezone);  // Timezone of user that set alert rule (default: Europe/Amsterdam)
+            $now_month = $now_local->getMonth();
+        
             if (isset($r->exclude_months) && in_array($now_month, $r->exclude_months))
             {
-                Log::debug($debug_start.' Not evaluated: current month ('.$now_month.') in exclude_months='.implode(',',$r->exclude_months));
+                //Log::debug($debug_start.' Not evaluated: current month ('.$now_month.') in exclude_months='.implode(',',$r->exclude_months));
                 continue;
             }
 
-            $now_local = new Moment('now', $r->timezone);  // Timezone of user that set alert rule (default: Europe/Amsterdam)
             $now_hour  = $now_local->getHour();
 
             if (isset($r->exclude_hours) && in_array($now_hour, $r->exclude_hours))
             {
-                Log::debug($debug_start.' Not evaluated: current hour ('.$now_hour.') in exclude_hours='.implode(',',$r->exclude_hours));
+                //Log::debug($debug_start.' Not evaluated: current hour ('.$now_hour.') in exclude_hours='.implode(',',$r->exclude_hours));
                 continue;
             }
 
@@ -396,7 +397,7 @@ class AlertRule extends Model
             {
                 $r->last_evaluated_at = date('Y-m-d H:i:s');
                 $r->save();
-                Log::debug($debug_start.' Not evaluated: no devices have data > '.$min_msg_date.' or no hive_id');
+                // Log::debug($debug_start.' Not evaluated: no devices have data > '.$min_msg_date.' or no hive_id');
             }
             
         }

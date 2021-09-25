@@ -308,7 +308,7 @@ class AlertRule extends Model
             7. if result is true, create alert and check if e-mail needs to be sent
             8. set last_calculated_at to current time
             */
-            $debug_start = 'R='.$r->id.' U='.$user_id.' ';
+            $debug_start = 'R='.$r->id.' U='.$r->user_id.' ';
 
             // exclude parsing of rules
             $min_ago = 0;

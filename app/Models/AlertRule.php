@@ -141,71 +141,79 @@ class AlertRule extends Model
         $evaluation_count = 0;
         $alert_function   = '';
         $alert_values     = [];
-        $max_value_eval   = $diff_comp ? count($last_values) - 1 : count($last_values);
+        $last_value_count = $diff_comp ? count($last_values) - 1 : count($last_values);
+        $alert_on_no_vals = $r->comparison == 'cnt' && $r->threshold_value == 0 ? true : false;
 
-        if ($max_value_eval > 0)
+        if ($last_value_count > 0 || $alert_on_no_vals)
         {
-            //Log::debug(['r'=>$r->name, 'd'=>$d->name, 'lv'=>$last_values, 'mve'=>$max_value_eval]);
+            //Log::debug(['r'=>$r->name, 'd'=>$d->name, 'lv'=>$last_values, 'mve'=>$last_value_count]);
 
             // evaluate measurement values
-            for ($i=0; $i < $max_value_eval; $i++) // start with oldest value, so in the end $value contains newest value
-            {  
+            if ($last_value_count > 0)
+            {
+                for ($i=0; $i < $last_value_count; $i++) // start with oldest value, so in the end $value contains newest value
+                {  
 
-                if (!isset($last_values[$i][$m_abbr]))
-                    continue;
+                    if (!isset($last_values[$i][$m_abbr]))
+                        continue;
 
-                $value = $last_values[$i][$m_abbr];
+                    $value = $last_values[$i][$m_abbr];
 
-                if (!isset($value) || $value == '' || $value == 'null')
-                    continue;
+                    if (!isset($value) || $value == '' || $value == 'null')
+                        continue;
 
-                //$time  = $last_values[$i]['time'];
-                if ($diff_comp)
-                    $value = floatval($last_values[$i]) - floatval($last_values[$i+1]);
+                    //$time  = $last_values[$i]['time'];
+                    if ($diff_comp)
+                        $value = floatval($last_values[$i]) - floatval($last_values[$i+1]);
 
-                if ($r->comparison == 'abs_dif')
-                    $value = abs($value);
+                    if ($r->comparison == 'abs_dif')
+                        $value = abs($value);
 
-                $value = round($value, 1); // round to 1 decimal, just like the threshold_value
-                $thres = round($r->threshold_value, 1);
+                    $value = round($value, 1); // round to 1 decimal, just like the threshold_value
+                    $thres = round($r->threshold_value, 1);
 
-                $evaluation = false;
-                switch($r->comparator)
-                {
-                    case "=":
-                        $evaluation = $value == $thres ? true : false;
-                        break;
-                    case "<":
-                        $evaluation = $value < $thres ? true : false;
-                        break; 
-                    case ">":
-                        $evaluation = $value > $thres ? true : false;
-                        break; 
-                    case "<=":
-                        $evaluation = $value <= $thres ? true : false;
-                        break; 
-                    case ">=":
-                        $evaluation = $value >= $thres ? true : false;
-                        break; 
+                    $evaluation = false;
+                    switch($r->comparator)
+                    {
+                        case "=":
+                            $evaluation = $value == $thres ? true : false;
+                            break;
+                        case "<":
+                            $evaluation = $value < $thres ? true : false;
+                            break; 
+                        case ">":
+                            $evaluation = $value > $thres ? true : false;
+                            break; 
+                        case "<=":
+                            $evaluation = $value <= $thres ? true : false;
+                            break; 
+                        case ">=":
+                            $evaluation = $value >= $thres ? true : false;
+                            break; 
+                    }
+                    if ($evaluation)
+                    {
+                        $evaluation_count++;
+                        $alert_values[] = $value;
+                    }
                 }
-                if ($evaluation)
-                {
-                    $evaluation_count++;
-                    $alert_values[] = $value;
-                }
+            }
+            else if ($alert_on_no_vals && $last_value_count == 0)
+            {
+                $evaluation_count++;
+                $alert_values[] = 0; // alert on 0 value count
             }
 
             // check if alert should be made
             if ($evaluation_count >= $r->alert_on_occurences)
             {
                 // check if same alert was created at last alert of this alert_rule
-                $check_alert = null;
-                $check_date  = $r->last_calculated_at;
+                $alert_counter = 1;  // # of occurrences in a row
+                $a             = null;
+                $check_alert   = null;
+                $check_date    = $r->last_calculated_at;
                 if ($check_date)
                     $check_alert = $d->alerts()->where('user_id', $u->id)->where('alert_rule_id', $r->id)->where('device_id', $d->id)->where('updated_at', '>=', $check_date)->first();
-
-                $alert_counter= 1;  // # of occurrences in a row
-                $a            = null;
                 
                 if ($check_alert) // check if user already has this alert, if so, update it if diff value is bigger
                 {

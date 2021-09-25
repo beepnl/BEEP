@@ -132,8 +132,8 @@ class Device extends Model
         $group_by_time = 'GROUP BY time('.$time_interval.')';
         
         $query   = 'SELECT '.$comparison.'("'.$measurement_abbr.'") AS "'.$measurement_abbr.'" FROM "'.$table.'" WHERE '.$where.' '.$where_time.' '.$group_by_time.' ORDER BY time DESC '.$where_limit;
-
-        return Device::getInfluxQuery($query, 'alert');
+        $values  = Device::getInfluxQuery($query, 'alert');
+        return ['values'=>$values,'query'=>$query];
     }
 
     public static function selectList()

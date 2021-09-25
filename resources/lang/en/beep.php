@@ -50,7 +50,7 @@ return [
     'max'               => 'maximum',
     'ave'               => 'average',
     'der'               => 'derivative',
-    'cnt'               => 'count',
+    'cnt'               => 'count of',
     'val'               => 'value',
     'dif'               => 'difference',
     'abs'               => 'absolute value',

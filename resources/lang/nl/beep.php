@@ -50,7 +50,7 @@ return [
     'max'               => 'maximum',
     'ave'               => 'gemiddelde',
     'der'               => 'afgeleide',
-    'cnt'               => 'aantal',
+    'cnt'               => 'aantal x voorkomen van',
     'val'               => 'waarde',
     'dif'               => 'verschil',
     'abs'               => 'absolute waarde',

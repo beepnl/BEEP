@@ -102,7 +102,8 @@ class AlertRule extends Model
     public function readableFunction()
     {
         $r = $this;
-        $f = $r->measurement->pq.' '.__('beep.'.$r->calculation).' '.__('beep.'.$r->comparison).' '.AlertRule::$comparators[$r->comparator].' '.$r->threshold_value.' '.$r->measurement->unit;
+        $u = $r->calculation == 'cnt' || $r->calculation == 'der' ? '' : ' '.$r->measurement->unit;
+        $f = $r->measurement->pq.' '.__('beep.'.$r->calculation).' '.__('beep.'.$r->comparison).' '.AlertRule::$comparators[$r->comparator].' '.$r->threshold_value.$u;
         return $f;
     }
 
@@ -133,7 +134,8 @@ class AlertRule extends Model
         $m_abbr      = $r->measurement->abbreviation;
         $influx_comp = AlertRule::$influx_calc[$r->calculation];
         $limit       = $diff_comp ? $r->alert_on_occurences + 1 : $r->alert_on_occurences; // one extra for diff calculation
-        $last_values = $d->getSensorValues($m_abbr, $influx_comp, $r->calculation_minutes, $limit);
+        $last_val_inf= $d->getSensorValues($m_abbr, $influx_comp, $r->calculation_minutes, $limit);
+        $last_values = $last_val_inf['values'];
 
         $alert_count      = 0;
         $evaluation_count = 0;
@@ -278,7 +280,7 @@ class AlertRule extends Model
         }
         else
         {
-            Log::debug($debug_start.' Max eval values: 0. Last values: '.implode(',',$last_values));
+            Log::debug($debug_start.' last_values: 0, query: '.$last_val_inf['query']);
         }
 
         return $alert_count;
@@ -353,7 +355,10 @@ class AlertRule extends Model
             }
 
             // define calculation per user device
-            $min_msg_date = date('Y-m-d H:i:s', time()-(60*$r->calculation_minutes)); // 15 min ago
+            $min_msg_date = '2019-01-01 00:00:00';
+            if ($r->calculation != 'cnt')
+                $min_msg_date = date('Y-m-d H:i:s', time()-(60*$r->calculation_minutes)); // 15 min ago
+            
             $user_devices = $user->allDevices()->where('last_message_received', '>=', $min_msg_date)->where('hive_id', '!=', null)->get();
 
             if (count($user_devices) > 0)

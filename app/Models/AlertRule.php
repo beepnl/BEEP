@@ -112,7 +112,7 @@ class AlertRule extends Model
         $d = $device;
         $u = $user;
 
-        $debug_start = ' |-- D='.$d->id.' U='.$user->id.' ';
+        $debug_start = ' |-- D='.$d->id.' ';
 
         $alert_rule_calc_date = date('Y-m-d H:i:s'); // PGe 2021-09-17: was local, now UTC (since config/app.php has UTC as default timezone)
         $r->last_evaluated_at = $alert_rule_calc_date;
@@ -344,11 +344,12 @@ class AlertRule extends Model
             }
 
             // define calculation per user device
-            $user_devices= $user->allDevices()->where('hive_id', '!=', null)->get();
+            $min_msg_date = date('Y-m-d H:i:s', time()-(60*$r->calculation_minutes)); // 15 min ago
+            $user_devices = $user->allDevices()->where('last_message_received', '>=', $min_msg_date)->where('hive_id', '!=', null)->get();
 
             if (count($user_devices) > 0)
             {
-                Log::debug($debug_start.' ('.$r->name.') last evaluated @ '.$r->last_evaluated_at.' ('.$min_ago.' min ago), devices_with_hive='.count($user_devices));
+                Log::debug($debug_start.' ('.$r->name.') last evaluated @ '.$r->last_evaluated_at.' ('.$min_ago.' min ago), devices='.count($user_devices).' (with hives, and msg received > '.$min_msg_date.')');
 
                 foreach ($user_devices as $device) 
                     $alertCount += $r->evaluateDeviceAlerts($device, $user);

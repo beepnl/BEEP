@@ -367,7 +367,7 @@ class AlertRule extends Model
 
             if (count($user_devices) > 0)
             {
-                Log::debug($debug_start.' ('.$r->name.') last evaluated @ '.$r->last_evaluated_at.' ('.$min_ago.' min ago), devices='.count($user_devices).' (with hives, and msg received > '.$min_msg_date.')');
+                Log::debug($debug_start.' ('.$r->readableFunction().' @ '.$r->alert_on_occurences.'x '.$r->calculation_minutes.'min) last evaluated @ '.$r->last_evaluated_at.' ('.$min_ago.' min ago), devices='.count($user_devices).' (with hives, and msg received > '.$min_msg_date.')');
 
                 foreach ($user_devices as $device) 
                     $alertCount += $r->evaluateDeviceAlerts($device, $user);

@@ -297,7 +297,15 @@ class AlertRule extends Model
         $now_month  = $now->getMonth();
         $min_ago_15 = date('Y-m-d H:i:s', time()-900); // 15 min ago
 
-        $alertRules = AlertRule::where('active', 1)->where('default_rule', 0)->where('user_id', '!=', null)->where('last_evaluated_at', '<=', $min_ago_15)->orderBy('last_evaluated_at')->get();
+        $alertRules = AlertRule::where('active', 1)
+                        ->where('default_rule', 0)
+                        ->where('user_id', '!=', null)
+                        ->where(function($query) use ($min_ago_15) {  
+                            $query->where('last_evaluated_at','<=', $min_ago_15)
+                            ->orWhereNull('last_evaluated_at'); 
+                        })
+                        ->orderBy('user_id', 'last_evaluated_at')
+                        ->get();
 
         Log::debug('Parsing '.count($alertRules).' active alert rules last evaluated before '.$min_ago_15);
 

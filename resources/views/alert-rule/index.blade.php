@@ -33,7 +33,7 @@
                     ,
                     "order": 
                     [
-                        [ 1, "asc" ]
+                        [ 2, "desc" ]
                     ],
                 });
             });
@@ -44,7 +44,10 @@
             <thead>
                 <tr>
                     <th>#</th>
+                    <th>User</th>
                     <th>Name</th>
+                    <th>Last evaluated</th>
+                    <th>Last alert</th>
                     <th>Description</th>
                     <th>Measurement</th>
                     <th>Calculation minutes</th>
@@ -56,7 +59,10 @@
             @foreach($alertrule as $item)
                 <tr>
                     <td>{{ $item->id }}</td>
+                    <td>{{ $item->user->name }} ({{ $item->user_id }})</td>
                     <td>{{ $item->name }}</td>
+                    <td>{{ $item->last_evaluated }}</td>
+                    <td>{{ $item->last_calculated }}</td>
                     <td>{{ $item->description }}</td>
                     <td>{{ $item->measurement->pq_name_unit }}</td>
                     <td>{{ $item->calculation_minutes }}</td>

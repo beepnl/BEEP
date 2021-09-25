@@ -142,7 +142,7 @@ class AlertRule extends Model
         $alert_function   = '';
         $alert_values     = [];
         $last_value_count = $diff_comp ? count($last_values) - 1 : count($last_values);
-        $alert_on_no_vals = $r->comparison == 'cnt' && $r->threshold_value == 0 ? true : false;
+        $alert_on_no_vals = $r->calculation == 'cnt' && $r->threshold_value == 0 ? true : false;
 
         if ($last_value_count > 0 || $alert_on_no_vals)
         {

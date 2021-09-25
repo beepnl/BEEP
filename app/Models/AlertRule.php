@@ -199,8 +199,11 @@ class AlertRule extends Model
             if ($evaluation_count >= $r->alert_on_occurences)
             {
                 // check if same alert was created at last alert of this alert_rule
-                $check_date   = $r->last_calculated_at;
-                $check_alert  = $d->alerts()->where('user_id', $u->id)->where('alert_rule_id', $r->id)->where('device_id', $d->id)->where('updated_at', '>=', $check_date)->first();
+                $check_alert = null;
+                $check_date  = $r->last_calculated_at;
+                if ($check_date)
+                    $check_alert = $d->alerts()->where('user_id', $u->id)->where('alert_rule_id', $r->id)->where('device_id', $d->id)->where('updated_at', '>=', $check_date)->first();
+
                 $alert_counter= 1;  // # of occurrences in a row
                 $a            = null;
                 

@@ -47,12 +47,12 @@
                     <th>User</th>
                     <th>Name</th>
                     <th>Active</th>
-                    <th>Email</th>
-                    <th>Function</th>
                     <th>Minutes</th>
                     <th>Last evaluated</th>
                     <th>Last alert</th>
+                    <th>Function</th>
                     <th>Measurement</th>
+                    <th>Email</th>
                     <th>Default</th>
                     <th>Actions</th>
                 </tr>
@@ -64,12 +64,12 @@
                     <td>{{ isset($item->user_id) ? $item->user->name.' ('.$item->user_id.')' : '' }}</td>
                     <td>{{ $item->name }}</td>
                     <td>{{ $item->active }}</td>
-                    <td>{{ $item->alert_via_email }}</td>
-                    <td>{{ $item->readableFunction() }}</td>
                     <td>{{ $item->alert_on_occurences }}x {{ $item->calculation_minutes }}</td>
                     <td>{{ $item->last_evaluated_at }}</td>
                     <td>{{ $item->last_calculated_at }}</td>
+                    <td>{{ $item->readableFunction() }}</td>
                     <td>{{ $item->measurement->pq_name_unit }}</td>
+                    <td>{{ $item->alert_via_email }}</td>
                     <td>{{ $item->default_rule }}</td>
                     <td col-sm-1>
                         <a href="{{ route('alert-rule.show', $item->id) }}" title="{{ __('crud.show') }}"><button class="btn btn-default"><i class="fa fa-eye" aria-hidden="true"></i></button></a>

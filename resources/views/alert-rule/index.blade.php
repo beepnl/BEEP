@@ -59,7 +59,7 @@
             @foreach($alertrule as $item)
                 <tr>
                     <td>{{ $item->id }}</td>
-                    <td>{{ $item->user->name }} ({{ $item->user_id }})</td>
+                    <td>{{ isset($item->user_id) ? $item->user->name.' ('.$item->user_id.')' : '' }}</td>
                     <td>{{ $item->name }}</td>
                     <td>{{ $item->last_evaluated }}</td>
                     <td>{{ $item->last_calculated }}</td>

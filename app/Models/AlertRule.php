@@ -194,7 +194,7 @@ class AlertRule extends Model
                     $alert_values[] = $value;
                 }
             }
-            
+
             // check if alert should be made
             if ($evaluation_count >= $r->alert_on_occurences)
             {
@@ -276,6 +276,10 @@ class AlertRule extends Model
                 // save last evaluated date
                 $r->last_calculated_at = $alert_rule_calc_date;
                 $r->save();
+            }
+            else
+            {
+                Log::debug($debug_start.' evaluation_count='.$evaluation_count.', last_values: '.json_encode($last_values).', query: '.$last_val_inf['query']);
             }
         }
         else

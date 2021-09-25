@@ -308,7 +308,7 @@ class AlertRule extends Model
             7. if result is true, create alert and check if e-mail needs to be sent
             8. set last_calculated_at to current time
             */
-            $debug_start = 'R='.$r->id.' U='.$r->user_id.' ';
+            $debug_start = '|- R='.$r->id.' U='.$r->user_id.' ';
 
             // exclude parsing of rules
             $min_ago = 0;
@@ -316,17 +316,26 @@ class AlertRule extends Model
             {
                 $min_ago = -1 * round($now->from($r->last_evaluated_at)->getMinutes()); // round to whole value
                 if ($min_ago < $r->calculation_minutes) // do not parse too often
+                {
+                    Log::debug($debug_start.' Not evaluated: last evaluated '.$min_ago.' min ago (< calc_min='.$r->calculation_minutes.')');
                     continue;
+                }
             }
 
             if (isset($r->exclude_months) && in_array($now_month, $r->exclude_months))
+            {
+                Log::debug($debug_start.' Not evaluated: current month ('.$now_month.') in exclude_months='.implode(',',$r->exclude_months));
                 continue;
+            }
 
             $now_local = new Moment('now', $r->timezone);  // Timezone of user that set alert rule (default: Europe/Amsterdam)
             $now_hour  = $now_local->getHour();
 
             if (isset($r->exclude_hours) && in_array($now_hour, $r->exclude_hours))
+            {
+                Log::debug($debug_start.' Not evaluated: current hour ('.$now_hour.') in exclude_hours='.implode(',',$r->exclude_hours));
                 continue;
+            }
 
             // check if user (still) exists
             $user_id     = $r->user_id;
@@ -336,7 +345,7 @@ class AlertRule extends Model
                 if ($r->default_rule == false)
                 {
                     $alerts = Alert::where('alert_rule_id', $r->id);
-                    Log::debug($debug_start.' not found, so deleting '.$alerts->count().' alerts and rule: '.$r->name);
+                    Log::debug($debug_start.' Not evaluated: user not found, so deleting '.$alerts->count().' alerts and rule: '.$r->name);
                     $alerts->delete();
                     $r->delete();
                 }
@@ -358,6 +367,7 @@ class AlertRule extends Model
             {
                 $r->last_evaluated_at = date('Y-m-d H:i:s');
                 $r->save();
+                Log::debug($debug_start.' Not evaluated: no devices have data > '.$min_msg_date.' or no hive_id');
             }
             
         }

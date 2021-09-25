@@ -132,9 +132,9 @@ class AlertRule extends Model
         }
         $diff_comp   = $r->comparison == 'dif' || $r->comparison == 'abs_dif' ? true : false;
         $m_abbr      = $r->measurement->abbreviation;
-        $influx_comp = AlertRule::$influx_calc[$r->calculation];
+        $influx_func = AlertRule::$influx_calc[$r->calculation];
         $limit       = $diff_comp ? $r->alert_on_occurences + 1 : $r->alert_on_occurences; // one extra for diff calculation
-        $last_val_inf= $d->getSensorValues($m_abbr, $influx_comp, $r->calculation_minutes, $limit);
+        $last_val_inf= $d->getAlertSensorValues($m_abbr, $influx_func, $r->calculation_minutes, $limit);
         $last_values = $last_val_inf['values'];
 
         $alert_count      = 0;

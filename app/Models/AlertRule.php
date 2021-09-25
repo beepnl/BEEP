@@ -112,7 +112,7 @@ class AlertRule extends Model
         $d = $device;
         $u = $user;
 
-        $debug_start = ' |-- D='.$d->id.' U='.$user_id.' ';
+        $debug_start = ' |-- D='.$d->id.' U='.$user->id.' ';
 
         $alert_rule_calc_date = date('Y-m-d H:i:s'); // PGe 2021-09-17: was local, now UTC (since config/app.php has UTC as default timezone)
         $r->last_evaluated_at = $alert_rule_calc_date;
@@ -308,7 +308,7 @@ class AlertRule extends Model
             7. if result is true, create alert and check if e-mail needs to be sent
             8. set last_calculated_at to current time
             */
-            
+            $debug_start = 'R='.$r->id.' U='.$user_id.' ';
 
             // exclude parsing of rules
             $min_ago = 0;
@@ -336,7 +336,7 @@ class AlertRule extends Model
                 if ($r->default_rule == false)
                 {
                     $alerts = Alert::where('alert_rule_id', $r->id);
-                    Log::debug('R='.$r->id.' U='.$user_id.' not found, so deleting '.$alerts->count().' alerts and rule: '.$r->name);
+                    Log::debug($debug_start.' not found, so deleting '.$alerts->count().' alerts and rule: '.$r->name);
                     $alerts->delete();
                     $r->delete();
                 }
@@ -348,7 +348,7 @@ class AlertRule extends Model
 
             if (count($user_devices) > 0)
             {
-                Log::debug('R='.$r->id.' U='.$user_id.' ('.$r->name.') last evaluated @ '.$r->last_evaluated_at.' ('.$min_ago.' min ago), devices_with_hive='.count($user_devices));
+                Log::debug($debug_start.' ('.$r->name.') last evaluated @ '.$r->last_evaluated_at.' ('.$min_ago.' min ago), devices_with_hive='.count($user_devices));
 
                 foreach ($user_devices as $device) 
                     $alertCount += $r->evaluateDeviceAlerts($device, $user);

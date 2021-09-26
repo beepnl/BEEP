@@ -238,7 +238,7 @@ class AlertRule extends Model
                     $check_alert->hive_name      = $d->hive_name;
                     $check_alert->count          = $alert_counter;
                         
-                    if ($value_diff_new > $value_diff_old_max || ($value_diff_new == $value_diff_old_max && $r->comparator == '=')) // update the existing alert with new (higher diff) value and trigger e-mail
+                    if ($value_diff_new > $value_diff_old_max) // update the existing alert with new (higher diff) value and trigger e-mail
                     {
                         $check_alert->alert_value = implode(', ', $alert_values);
                         $a             = $check_alert;

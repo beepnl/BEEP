@@ -64,7 +64,7 @@
                     <td>{{ $item->id }}</td>
                     <td>{{ $item->created_at }}</td>
                     <td>{{ $item->updated_at }}</td>
-                    <td>{{ $item->getAlertRuleNameAttribute() }}</td>
+                    <td>{{ $item->getAlertRuleNameAttribute() }} ({{ $item->alert_rule_id }})</td>
                     <td>{{ $item->alert_function }}</td>
                     <td>{{ $item->alert_value }}</td>
                     <td>{{ $item->measurement->pq_name_unit }} ({{ $item->measurement->id }})</td>

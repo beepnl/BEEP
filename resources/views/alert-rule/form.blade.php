@@ -117,7 +117,7 @@
 	    <div>
 	        <select name="comparator" class="form-control" id="comparator" required>
 			    @foreach (App\Models\AlertRule::$comparators as $optionKey => $optionValue)
-			        <option value="{{ $optionKey }}" {{ (isset($alertrule->comparator) && $alertrule->comparator == $optionKey) ? 'selected' : ''}}>{{ $optionValue }}</option>
+			        <option value="{{ $optionKey }}" {{ (isset($alertrule->comparator) && $alertrule->comparator == $optionKey) ? 'selected' : ''}}>{{ $optionKey }}</option>
 			    @endforeach
 			</select>
 	        {!! $errors->first('comparator', '<p class="help-block">:message</p>') !!}

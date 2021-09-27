@@ -274,9 +274,10 @@ class AlertRule extends Model
                     $a->count          = $alert_counter;
                     $a->save();
 
-                    $alert_count++;
 
                 }
+                
+                $alert_count++;
 
 
                 if ($a && $r->alert_via_email)
@@ -284,9 +285,6 @@ class AlertRule extends Model
                     Log::debug($debug_start.' Updated or created Alert, sending email to '.$u->email);
                     Mail::to($u->email)->send(new AlertMail($a, $u->name));
                 }
-                // save last evaluated date
-                $r->last_calculated_at = $alert_rule_calc_date;
-                $r->save();
             }
             else
             {
@@ -392,15 +390,25 @@ class AlertRule extends Model
             $r->last_evaluated_at = $alert_rule_calc_date; // update also if no devices, to not evaluate all the time
             $r->save();
 
+            $calculated = 0;
             if (count($user_devices) > 0)
             {
                 Log::debug($debug_start.' ('.$r->readableFunction().' @ '.$r->alert_on_occurences.'x '.$r->calculation_minutes.'min) last evaluated @ '.$last_evaluated_at.' ('.$min_ago.' min ago), devices='.count($user_devices).' (with hives, and msg received > '.$min_msg_date.')');
 
                 foreach ($user_devices as $device) 
-                    $alertCount += $r->evaluateDeviceAlerts($device, $user, $alert_rule_calc_date);
+                    $calculated += $r->evaluateDeviceAlerts($device, $user, $alert_rule_calc_date);
+            }
+
+            // save last evaluated date
+            if ($calculated > 0)
+            {
+                $r->last_calculated_at = $alert_rule_calc_date;
+                $r->save();
+                $alertCount += $calculated;
             }
            
         }
+        Log::debug('Created total of '.count($alertCount).' alerts');
         return $alertCount;
     }
 }

@@ -107,17 +107,13 @@ class AlertRule extends Model
         return $f;
     }
 
-    public function evaluateDeviceAlerts($device, $user)
+    public function evaluateDeviceAlerts($device, $user, $alert_rule_calc_date)
     {
         $r = $this;
         $d = $device;
         $u = $user;
 
         $debug_start = ' |-- D='.$d->id.' ';
-
-        $alert_rule_calc_date = date('Y-m-d H:i:s'); // PGe 2021-09-17: was local, now UTC (since config/app.php has UTC as default timezone)
-        $r->last_evaluated_at = $alert_rule_calc_date;
-        $r->save();
 
         if (!isset($d->hive_id) || in_array($d->hive_id, $r->exclude_hive_ids)) // only parse existing hives that are not excluded
         {
@@ -200,8 +196,12 @@ class AlertRule extends Model
             }
             else if ($alert_on_no_vals && $last_value_count == 0)
             {
-                $evaluation_count++;
-                $alert_values[] = 0; // alert on 0 value count
+                $evaluation_count = $r->alert_on_occurences;
+
+                for ($i=0; $i < $evaluation_count; $i++) 
+                { 
+                    $alert_values[] = 0; // alert on 0 value count
+                }
             }
 
             // check if alert should be made
@@ -336,10 +336,12 @@ class AlertRule extends Model
             $debug_start = '|- R='.$r->id.' U='.$r->user_id.' ';
 
             // exclude parsing of rules
-            $min_ago = 0;
-            if (isset($r->last_evaluated_at))
+            $min_ago           = 0;
+            $last_evaluated_at = $r->last_evaluated_at;
+
+            if (isset($last_evaluated_at))
             {
-                $min_ago = -1 * round($now->from($r->last_evaluated_at)->getMinutes()); // round to whole value
+                $min_ago = -1 * round($now->from($last_evaluated_at)->getMinutes()); // round to whole value
                 if ($min_ago < $r->calculation_minutes) // do not parse too often
                 {
                     //Log::debug($debug_start.' Not evaluated: last evaluated '.$min_ago.' min ago (< calc_min='.$r->calculation_minutes.')');
@@ -386,20 +388,18 @@ class AlertRule extends Model
             
             $user_devices = $user->allDevices()->where('last_message_received', '>=', $min_msg_date)->where('hive_id', '!=', null)->get();
 
+            $alert_rule_calc_date = date('Y-m-d H:i:s'); // PGe 2021-09-17: was local, now UTC (since config/app.php has UTC as default timezone)
+            $r->last_evaluated_at = $alert_rule_calc_date; // update also if no devices, to not evaluate all the time
+            $r->save();
+
             if (count($user_devices) > 0)
             {
-                Log::debug($debug_start.' ('.$r->readableFunction().' @ '.$r->alert_on_occurences.'x '.$r->calculation_minutes.'min) last evaluated @ '.$r->last_evaluated_at.' ('.$min_ago.' min ago), devices='.count($user_devices).' (with hives, and msg received > '.$min_msg_date.')');
+                Log::debug($debug_start.' ('.$r->readableFunction().' @ '.$r->alert_on_occurences.'x '.$r->calculation_minutes.'min) last evaluated @ '.$last_evaluated_at.' ('.$min_ago.' min ago), devices='.count($user_devices).' (with hives, and msg received > '.$min_msg_date.')');
 
                 foreach ($user_devices as $device) 
-                    $alertCount += $r->evaluateDeviceAlerts($device, $user);
+                    $alertCount += $r->evaluateDeviceAlerts($device, $user, $alert_rule_calc_date);
             }
-            else
-            {
-                $r->last_evaluated_at = date('Y-m-d H:i:s');
-                $r->save();
-                // Log::debug($debug_start.' Not evaluated: no devices have data > '.$min_msg_date.' or no hive_id');
-            }
-            
+           
         }
         return $alertCount;
     }

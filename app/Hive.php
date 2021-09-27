@@ -12,7 +12,7 @@ class Hive extends Model
 {
     use SoftDeletes, CascadeSoftDeletes;
 
-    protected $cascadeDeletes = ['queen','inspections','layers','frames','productions'];
+    protected $cascadeDeletes = ['queen','inspections','layers','frames'];
     protected $fillable = ['user_id', 'location_id', 'hive_type_id', 'color', 'name', 'bb_width_cm', 'bb_depth_cm', 'bb_height_cm', 'fr_width_cm', 'fr_height_cm', 'order'];
     protected $guarded  = ['id'];
 	protected $hidden 	= ['user_id','deleted_at'];
@@ -172,12 +172,6 @@ class Hive extends Model
     public function devices()
     {
         return $this->hasMany(Device::class);
-    }
-
-    // manually inserted items
-    public function productions()
-    {
-        return $this->hasMany(Production::class);
     }
 
     public function inspections_by_date()

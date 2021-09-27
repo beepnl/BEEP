@@ -225,11 +225,10 @@ class Category extends Model
         $f = HiveLayerFrame::where('category_id', $this->id)->count();
         $l = Location::where('category_id', $this->id)->count();
         $s = Device::where('category_id', $this->id)->count();
-        $p = Production::where('category_id', $this->id)->count();
         $q = Queen::where('race_id', $this->id)->count();
         $o = isset($this->old_id) ? 1 : 0;
 
-        $total_usage = $i+$v+$h+$f+$l+$s+$p+$q+$o;
+        $total_usage = $i+$v+$h+$f+$l+$s+$q+$o;
 
         return $total_usage;
     }

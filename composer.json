@@ -8,7 +8,7 @@
     "type": "project",
     "require": {
         "php": ">=7.4",
-        "barryvdh/laravel-cors": "0.11.*",
+        "fruitcake/laravel-cors": "^2.0.4",
         "doctrine/dbal": "^2.9",
         "ellipsesynergie/api-response": "0.12.*",
         "fideloper/proxy": "^4.0",

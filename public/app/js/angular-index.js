@@ -533,7 +533,7 @@ app.config(['$routeProvider', '$locationProvider', function ($routeProvider) {
   }) // hives
   .when('/hives/create', {
     controller: 'HivesCtrl',
-    templateUrl: '/app/views/hive_edit.html?v=6'
+    templateUrl: '/app/views/hive_edit.html?v=7'
   }).when('/hives/:hiveId/inspect', {
     controller: 'InspectionCreateCtrl',
     templateUrl: '/app/views/inspect.html?v=7'
@@ -545,7 +545,7 @@ app.config(['$routeProvider', '$locationProvider', function ($routeProvider) {
     templateUrl: '/app/views/inspections.html?v=4'
   }).when('/hives/:hiveId/edit', {
     controller: 'HivesCtrl',
-    templateUrl: '/app/views/hive_edit.html?v=6'
+    templateUrl: '/app/views/hive_edit.html?v=7'
   }).when('/hives', {
     controller: 'HivesCtrl',
     templateUrl: '/app/views/hives.html?v=3'

@@ -127,8 +127,12 @@ class Hive extends Model
         // if ($this->getOwnerAttribute())
         //     return true;
         
-        $user_editable_hive_ids = Auth::user()->groupHives(true)->pluck('id')->toArray();
-        return in_array($this->id, $user_editable_hive_ids);
+        if (Auth::check())
+        {
+            $user_editable_hive_ids = Auth::user()->groupHives(true)->pluck('id')->toArray();
+            return in_array($this->id, $user_editable_hive_ids);
+        }
+        return false;
     }
 
 

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 use App\Http\Controllers\Controller;
 use Excel;
 use Response;
@@ -362,7 +363,7 @@ class ExportController extends Controller
         {
             // return the CSV file content in a file on disk
             $disk     = env('EXPORT_STORAGE', 'public');
-            $filePath = 'exports/beep-export-user-'.$request->user()->id.'-device-'.$device->name.'-'.$start.'-'.$end.'-'.str_random(20).'.csv';
+            $filePath = 'exports/beep-export-user-'.$request->user()->id.'-device-'.$device->name.'-'.$start.'-'.$end.'-'.Str::random(20).'.csv';
             $filePath = str_replace(' ', '', $filePath);
             if (Storage::disk($disk)->put($filePath, $csv_file))
                 return Response::json(['link'=>Storage::disk($disk)->url($filePath)]);

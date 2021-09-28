@@ -149,7 +149,7 @@ return [
 
     'redis' => [
  
-        'client' => 'predis',
+        'client' => env('REDIS_CLIENT', 'predis'),
  
         'options' => [
             'cluster' => env('REDIS_CLUSTER', 'predis'),

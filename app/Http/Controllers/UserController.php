@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 use App\Http\Controllers\Controller;
 use App\User;
 use App\Role;
@@ -65,7 +66,7 @@ class UserController extends Controller
 
         $input = $request->all();
         $input['password'] = Hash::make($input['password']);
-        $input['api_token'] = str_random(60);
+        $input['api_token'] = Str::random(60);
 
         // Handle the user upload of avatar
         if($request->hasFile('avatar')){

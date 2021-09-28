@@ -3,6 +3,7 @@
 namespace App;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Str;
 use Moment\Moment;
 use InterventionImage;
 use Storage;
@@ -138,7 +139,7 @@ class Image extends Model
             {
                 //filename to store
                 $extension = $imageFile->getClientOriginalExtension();
-                $fileName  = str_random(60).'.'.$extension;
+                $fileName  = Str::random(60).'.'.$extension;
                 $imagePath = Image::getImagePath($fileName, $type);
                 $thumbPath = Image::getImagePath($fileName, $type, true);
 

@@ -28,7 +28,7 @@ Route::group([], function()
 	Route::post('unsecure_sensors', 'Api\MeasurementController@storeMeasurementData')->middleware('throttle:1,1');
 	
 	// User functions
-	Route::post('register', 	'Api\UserController@register')->middleware('throttle:3,1');
+	Route::post('register', 	'Api\UserController@register')->middleware('throttle:6,1');
 	Route::post('login', 		'Api\UserController@login')->middleware('throttle:20,1');
 	Route::post('user/reminder','Api\UserController@reminder')->middleware('throttle:3,1');
 	Route::post('user/reset', 	'Api\UserController@reset')->middleware('throttle:3,1');

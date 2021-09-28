@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 use Illuminate\Auth\Events\Login as ApiTokenLogin;
 use Illuminate\Validation\Rule;
 use App\User;
@@ -149,8 +150,8 @@ class UserController extends Controller
                 'name'      => $request->input('name', $request->input('email')),
                 'password'  => Hash::make($request->input('password')),
                 'email'     => $request->input('email'),
-                'api_token' => str_random(60),
-                'remember_token' => str_random(10),
+                'api_token' => Str::random(60),
+                'remember_token' => Str::random(10),
                 'policy_accepted'=> $request->input('policy_accepted'),
                 'locale'    => $request->input('locale')
             ];
@@ -398,7 +399,7 @@ class UserController extends Controller
             if ($save)
             {
                 if ($newk)
-                    $user->api_token = str_random(60);
+                    $user->api_token = Str::random(60);
                 
                 $saved = $user->save();
 

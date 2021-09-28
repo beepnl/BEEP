@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 use App\Http\Controllers\Controller;
 use Auth;
 use Mail;
@@ -289,7 +290,7 @@ class GroupController extends Controller
                 else
                 {
                     // invite existing Beep user for group
-                    $token = str_random(30);
+                    $token = Str::random(30);
                     $validUser->groups()->attach($group->id, ['creator'=>false,'admin'=>$admin,'invited'=>now(),'token'=>$token]);
                     $invite_grp[$validUser->email] = ['name'=>$name, 'admin'=>$admin, 'token'=>$token];
                 }

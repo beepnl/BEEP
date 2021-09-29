@@ -123,11 +123,11 @@ class Device extends Model
     public function getAlertSensorValues($measurement_abbr, $influx_func='MEAN', $interval_min=null, $limit=null, $start=null, $table='sensors')
     {
         //die(print_r([$names, $valid_sensors]));
-        if ($table == 'sensors' && $limit == 1 && $interval_min <= 15)
+        if ($table == 'sensors' && $limit == 1 && $interval_min <= 15) // TODO: Check if time of data is ok < interval time ago
         {
             $cached_data = Cache::get('set-measurements-device-'.$this->id.'-data');
             if ($cached_data && isset($cached_data[$measurement_abbr]))
-                return ['values'=>[$measurement_abbr=>$cached_data[$measurement_abbr]], 'query'=>'from cache'];
+                return ['values'=>[[$measurement_abbr=>$cached_data[$measurement_abbr]]], 'query'=>'from cache'];
         }
 
         $where_limit   = isset($limit) ? ' LIMIT '.$limit : '';

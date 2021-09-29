@@ -243,11 +243,11 @@ class AlertRule extends Model
                         $check_alert->alert_value = implode(', ', $alert_values);
                         $a             = $check_alert;
                         $alert_comp    = $r->comparator == '=' ? 'is also equal' : 'has smaller diff';
-                        Log::debug($debug_start.' Update Alert id='.$check_alert->id.' count='.$alert_counter.', v='.$check_alert->alert_value.' '.$alert_comp.': '.$value_diff_old_max.' vs new ('.$newest_alert_value.'): '.$value_diff_new);
+                        Log::debug($debug_start.' Update Alert id='.$check_alert->id.' count='.$alert_counter.', v='.$check_alert->alert_value.' '.$alert_comp.': '.$value_diff_old_max.' vs new ('.$newest_alert_value.'): '.$value_diff_new.', query: '.$last_val_inf['query']);
                     }
                     else
                     {
-                        Log::debug($debug_start.' Maintain Alert id='.$check_alert->id.' count='.$alert_counter.', v='.$check_alert->alert_value.' has equal, or bigger diff: '.$value_diff_old_max.' vs new ('.$newest_alert_value.'): '.$value_diff_new);
+                        Log::debug($debug_start.' Maintain Alert id='.$check_alert->id.' count='.$alert_counter.', v='.$check_alert->alert_value.' has equal, or bigger diff: '.$value_diff_old_max.' vs new ('.$newest_alert_value.'): '.$value_diff_new.', query: '.$last_val_inf['query']);
                     }
                     $check_alert->save();
                 }
@@ -255,7 +255,7 @@ class AlertRule extends Model
                 {
                     $alert_value = implode(', ', $alert_values);
                     $alert_func  = $r->readableFunction();
-                    Log::debug($debug_start.' Create new Alert, v='.$alert_value.', eval_count='.$evaluation_count.' alert_count='.$alert_counter.' f='.$alert_func);
+                    Log::debug($debug_start.' Create new Alert, v='.$alert_value.', eval_count='.$evaluation_count.' alert_count='.$alert_counter.' f='.$alert_func.', query: '.$last_val_inf['query']);
 
                     $a = new Alert();
                     $a->created_at     = $alert_rule_calc_date;
@@ -288,12 +288,12 @@ class AlertRule extends Model
             }
             else
             {
-                Log::debug($debug_start.' evaluation_count='.$evaluation_count.', last_values: '.json_encode($last_values).', query: '.$last_val_inf['query']);
+                Log::debug($debug_start.' evaluation_count='.$evaluation_count.' (< '.$r->alert_on_occurences.'), last_values='.json_encode($last_values).', query: '.$last_val_inf['query']);
             }
         }
         else
         {
-            Log::debug($debug_start.' last_values: 0, query: '.$last_val_inf['query']);
+            Log::debug($debug_start.' last_value_count=0, query: '.$last_val_inf['query']);
         }
 
         return $alert_count;
@@ -410,7 +410,7 @@ class AlertRule extends Model
         }
         if ($alertCount > 0)
             Log::debug('Created total of '.$alertCount.' alerts');
-        
+
         return $alertCount;
     }
 }

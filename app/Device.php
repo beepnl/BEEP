@@ -123,30 +123,47 @@ class Device extends Model
     public function getAlertSensorValues($measurement_abbr, $influx_func='MEAN', $interval_min=null, $limit=null, $start=null, $table='sensors')
     {
         //die(print_r([$names, $valid_sensors]));
-        if ($table == 'sensors' && $limit == 1 && $interval_min <= 15) // TODO: Check if time of data is ok < interval time ago
+        $device_int_min= isset($this->measurement_interval_min) ? $this->measurement_interval_min : 15;
+        $time_int_min  = isset($interval_min) && $interval_min > $device_int_min ? $interval_min : $device_int_min;
+        $val_min_ago   = null;
+        
+        // Get values from cache
+        if ($table == 'sensors' && $limit == 1 && $interval_min <= $time_int_min)
         {
+            $cached_time = Cache::get('set-measurements-device-'.$this->id.'-time');
             $cached_data = Cache::get('set-measurements-device-'.$this->id.'-data');
-            if ($cached_data && isset($cached_data[$measurement_abbr]))
-                return ['values'=>[[$measurement_abbr=>$cached_data[$measurement_abbr]]], 'query'=>'from cache'];
+            $val_min_ago = round((time() - intval($cached_time)) / 60);
+            if ($cached_data && $cache_m_ago < $time_int_min && isset($cached_data[$measurement_abbr]))
+                return ['values'=>[["time"=>$cached_data['time'], "$measurement_abbr"=>$cached_data[$measurement_abbr]]], 'query'=>'', 'from'=>'cache', 'min_ago'=>$val_min_ago];
         }
 
+        // Get values from Influx
         $where_limit   = isset($limit) ? ' LIMIT '.$limit : '';
         $where         = '("key" = \''.$this->key.'\' OR "key" = \''.strtolower($this->key).'\' OR "key" = \''.strtoupper($this->key).'\')';
         $where_time    = isset($start) ? 'AND time >= \''.$start.'\' ' : '';
-        $device_int_min= isset($this->measurement_interval_min) ? $this->measurement_interval_min : 15;
-        $time_interval = isset($interval_min) && $interval_min > $device_int_min ? $interval_min.'m' : $device_int_min.'m';
-        $group_by_time = 'GROUP BY time('.$time_interval.') ';
+        $group_by_time = 'GROUP BY time('.$time_int_min.'m) ';
 
         $deriv_time    = '';
         if ($influx_func == 'DERIVATIVE') // don't groupby time, but set derivative time
         {
             $group_by_time = '';
-            $deriv_time    = ','.$time_interval;
+            $deriv_time    = ','.$time_int_min.'m';
         }
 
         $query   = 'SELECT '.$influx_func.'("'.$measurement_abbr.'"'.$deriv_time.') AS "'.$measurement_abbr.'" FROM "'.$table.'" WHERE '.$where.' '.$where_time.$group_by_time.'ORDER BY time DESC'.$where_limit;
         $values  = Device::getInfluxQuery($query, 'alert');
-        return ['values'=>$values,'query'=>$query];
+
+        if (count($values) > 0)
+        {
+            $last_vals = $values[0];
+            if ($last_vals['time'])
+            {
+                $last_mom    = new Moment($last_vals['time']);
+                $val_min_ago = round($last_mom->fromNow()->getMinutes());
+            }
+        }
+        
+        return ['values'=>$values,'query'=>$query, 'from'=>'influx', 'min_ago'=>$val_min_ago];
     }
 
     public static function selectList()
@@ -245,11 +262,11 @@ class Device extends Model
             $cache_fields = $fields;
 
         $cache_name    = 'device-'.$this->id.'-fields-'.$cache_fields.'-limit-'.$limit;
-        $last_set_time = Cache::get('set-measurements-device-'.$this->id.'-time'); // not fields and limit based, set in MeasurementController::storeMeasurements
+        $last_dev_time = Cache::get('set-measurements-device-'.$this->id.'-time'); // not fields and limit based, set in MeasurementController::storeMeasurements
         $last_req_time = Cache::get('last-values-'.$cache_name.'-request-time');
         $last_req_vals = Cache::get('last-values-'.$cache_name);
 
-        if ($last_req_vals != null && $last_set_time < $last_req_time) // only request Influx if newer data is available
+        if ($last_req_vals != null && $last_dev_time < $last_req_time) // only request Influx if newer data is available
         {
             $last_req_vals['from_cache'] = true;
             return $last_req_vals;

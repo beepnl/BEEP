@@ -107,7 +107,7 @@ class AlertRule extends Model
         return $f;
     }
 
-    public function evaluateDeviceAlerts($device, $user, $alert_rule_calc_date)
+    public function evaluateDeviceRuleAlerts($device, $user, $alert_rule_calc_date, $data_array=null)
     {
         $r = $this;
         $d = $device;
@@ -130,9 +130,13 @@ class AlertRule extends Model
         $m_abbr      = $r->measurement->abbreviation;
         $influx_func = AlertRule::$influx_calc[$r->calculation];
         $limit       = $diff_comp ? $r->alert_on_occurences + 1 : $r->alert_on_occurences; // one extra for diff calculation
-        $last_val_inf= $d->getAlertSensorValues($m_abbr, $influx_func, $r->calculation_minutes, $limit);
-        $last_values = $last_val_inf['values'];
+        
+        if (isset($data_array))
+            $last_val_inf= ['values'=>[$data_array], 'query'=>'', 'from'=>'measurement', 'min_ago'=>0];
+        else
+            $last_val_inf= $d->getAlertSensorValues($m_abbr, $influx_func, $r->calculation_minutes, $limit); // provides: ['values'=>$values,'query'=>$query, 'from'=>'cache', 'min_ago'=>$val_min_ago]
 
+        $last_values      = $last_val_inf['values'];
         $alert_count      = 0;
         $evaluation_count = 0;
         $alert_function   = '';
@@ -147,7 +151,7 @@ class AlertRule extends Model
             // evaluate measurement values
             if ($last_value_count > 0)
             {
-                for ($i=0; $i < $last_value_count; $i++) // start with oldest value, so in the end $value contains newest value
+                for ($i=0; $i < $last_value_count; $i++) // start with most recent value (ordered desc on time)
                 {  
 
                     if (!isset($last_values[$i][$m_abbr]))
@@ -158,7 +162,9 @@ class AlertRule extends Model
                     if (!isset($value) || $value == '' || $value == 'null')
                         continue;
 
-                    //$time  = $last_values[$i]['time'];
+                    if ($last_val_inf['min_ago'] > $r->calculation_minutes)
+                        continue;
+
                     if ($diff_comp)
                         $value = floatval($last_values[$i]) - floatval($last_values[$i+1]);
 
@@ -243,11 +249,11 @@ class AlertRule extends Model
                         $check_alert->alert_value = implode(', ', $alert_values);
                         $a             = $check_alert;
                         $alert_comp    = $r->comparator == '=' ? 'is also equal' : 'has smaller diff';
-                        Log::debug($debug_start.' Update Alert id='.$check_alert->id.' count='.$alert_counter.', v='.$check_alert->alert_value.' '.$alert_comp.': '.$value_diff_old_max.' vs new ('.$newest_alert_value.'): '.$value_diff_new.', query: '.$last_val_inf['query']);
+                        Log::debug($debug_start.' Update Alert id='.$check_alert->id.' count='.$alert_counter.', v='.$check_alert->alert_value.' '.$alert_comp.': '.$value_diff_old_max.' vs new ('.$newest_alert_value.'): '.$value_diff_new.', from: '.$last_val_inf['from']);
                     }
                     else
                     {
-                        Log::debug($debug_start.' Maintain Alert id='.$check_alert->id.' count='.$alert_counter.', v='.$check_alert->alert_value.' has equal, or bigger diff: '.$value_diff_old_max.' vs new ('.$newest_alert_value.'): '.$value_diff_new.', query: '.$last_val_inf['query']);
+                        Log::debug($debug_start.' Maintain Alert id='.$check_alert->id.' count='.$alert_counter.', v='.$check_alert->alert_value.' has equal, or bigger diff: '.$value_diff_old_max.' vs new ('.$newest_alert_value.'): '.$value_diff_new.', from: '.$last_val_inf['from']);
                     }
                     $check_alert->save();
                 }
@@ -255,7 +261,8 @@ class AlertRule extends Model
                 {
                     $alert_value = implode(', ', $alert_values);
                     $alert_func  = $r->readableFunction();
-                    Log::debug($debug_start.' Create new Alert, v='.$alert_value.', eval_count='.$evaluation_count.' alert_count='.$alert_counter.' f='.$alert_func.', query: '.$last_val_inf['query']);
+
+                    Log::debug($debug_start.' Create new Alert, v='.$alert_value.', eval_count='.$evaluation_count.' alert_count='.$alert_counter.' f='.$alert_func.', from: '.$last_val_inf['from']);
 
                     $a = new Alert();
                     $a->created_at     = $alert_rule_calc_date;
@@ -273,8 +280,6 @@ class AlertRule extends Model
                     $a->user_id        = $u->id;
                     $a->count          = $alert_counter;
                     $a->save();
-
-
                 }
                 
                 $alert_count++;
@@ -288,32 +293,172 @@ class AlertRule extends Model
             }
             else
             {
-                Log::debug($debug_start.' evaluation_count='.$evaluation_count.' (< '.$r->alert_on_occurences.'), last_values='.json_encode($last_values).', query: '.$last_val_inf['query']);
+                Log::debug($debug_start.' evaluation_count='.$evaluation_count.' (< '.$r->alert_on_occurences.'), from: '.$last_val_inf['from'].', last_values='.json_encode($last_values));
             }
         }
         else
         {
-            Log::debug($debug_start.' last_value_count=0, query: '.$last_val_inf['query']);
+            Log::debug($debug_start.' last_value_count=0, from: '.$last_val_inf['from'].', query: '.$last_val_inf['query']);
         }
 
         return $alert_count;
     }
 
+    public function parseRule($device_id=null, $data_array=null)
+    {
+        /*
+        0. define UTC timezone
+        1. evaluate only if >= 15 min ago
+        2. if filled exclude_months, define current local time (timezone) month and exclude rule if in current local time month
+        3. if filled exclude_hours, define current local time (timezone) hour and exclude rule if in current local time hour
+        4. check minute diff of rule compared to calculation_minutes
+        5. get comparison data from influx for all (except exclude_hive_ids) sensor keys
+        6. compare result via comparator with threshold_value
+        7. if result is true, create alert and check if e-mail needs to be sent
+        8. set last_calculated_at to current time
+        */
+        $r = $this;
+
+        $debug_start = '|- R='.$r->id.' U='.$r->user_id.' ';
+
+        // exclude parsing of rules
+        $min_ago           = 0;
+        $last_evaluated_at = $r->last_evaluated_at;
+
+        if (isset($last_evaluated_at))
+        {
+            $min_ago = -1 * round($now->from($last_evaluated_at)->getMinutes()); // round to whole value
+            if ($min_ago < $r->calculation_minutes) // do not parse too often
+            {
+                //Log::debug($debug_start.' Not evaluated: last evaluated '.$min_ago.' min ago (< calc_min='.$r->calculation_minutes.')');
+                return ['rules'=>0,'calc'=>0,'msg'=>'to_soon'];
+            }
+        }
+
+        $now_local = new Moment('now', $r->timezone);  // Timezone of user that set alert rule (default: Europe/Amsterdam)
+        $now_month = $now_local->getMonth();
+    
+        if (isset($r->exclude_months) && in_array($now_month, $r->exclude_months))
+        {
+            //Log::debug($debug_start.' Not evaluated: current month ('.$now_month.') in exclude_months='.implode(',',$r->exclude_months));
+            return ['rules'=>0,'calc'=>0,'msg'=>'excl_month'];
+        }
+
+        $now_hour  = $now_local->getHour();
+
+        if (isset($r->exclude_hours) && in_array($now_hour, $r->exclude_hours))
+        {
+            //Log::debug($debug_start.' Not evaluated: current hour ('.$now_hour.') in exclude_hours='.implode(',',$r->exclude_hours));
+            return ['rules'=>0,'calc'=>0,'msg'=>'excl_hour'];
+        }
+
+        // check if user (still) exists
+        $user_id     = $r->user_id;
+        $user        = User::find($user_id);
+        if (!isset($user))
+        {
+            if ($r->default_rule == false)
+            {
+                $alerts = Alert::where('alert_rule_id', $r->id);
+                Log::debug($debug_start.' Not evaluated: user not found, so deleting '.$alerts->count().' alerts and rule: '.$r->name);
+                $alerts->delete();
+                $r->delete();
+            }
+            return ['rules'=>0,'calc'=>0,'msg'=>'no_user'];
+        }
+
+        // Evaluate rule
+        $alert_rule_calc_date = date('Y-m-d H:i:s'); // PGe 2021-09-17: was local, now UTC (since config/app.php has UTC as default timezone)
+        $r->last_evaluated_at = $alert_rule_calc_date; // update also if no devices, to not evaluate all the time
+        $r->save();
+
+        // define calculation per user device
+        $min_msg_date = '2019-01-01 00:00:00';
+        if ($r->calculation != 'cnt')
+            $min_msg_date = date('Y-m-d H:i:s', time()-(60*$r->calculation_minutes));
+
+        $all_user_devices = $user->allDevices()->where('hive_id', '!=', null)->whereNotIn('hive_id', $r->exclude_hive_ids);
+
+        if ($device_id == null) // default all devices
+            $user_devices = $all_user_devices->where('last_message_received', '>=', $min_msg_date)->get();
+        else
+            $user_devices = $all_user_devices->where('last_message_received', '>=', $min_msg_date)->where('id', $device_id)->get();
+
+        $calculated = 0;
+        if (count($user_devices) > 0)
+        {
+            Log::debug($debug_start.' ('.$r->readableFunction().' @ '.$r->alert_on_occurences.'x '.$r->calculation_minutes.'min) last evaluated @ '.$last_evaluated_at.' ('.$min_ago.' min ago), devices='.count($user_devices).' (with hives, and msg received > '.$min_msg_date.')');
+
+            foreach ($user_devices as $device) 
+                $calculated += $r->evaluateDeviceRuleAlerts($device, $user, $alert_rule_calc_date, $data_array);
+        }
+        else
+        {
+            return ['rules'=>1,'calc'=>0,'msg'=>'no_device'];
+        }
+
+        // save last evaluated date
+        if ($calculated > 0)
+        {
+            $r->last_calculated_at = $alert_rule_calc_date;
+            $r->save();
+        }
+
+        return ['rules'=>1,'calc'=>$calculated,'msg'=>'ok'];
+               
+    }
+
+    public static function parseUserDeviceDirectAlertRules($user_id, $device_id=null, $data_array=null)
+    {
+        $alertCount = 0;
+        $ruleCount  = 0;
+        $min_ago_5  = date('Y-m-d H:i:s', time()-290); // a bit less than 5 min ago
+        $parse_min  = min(60, env('PARSE_ALERT_RULES_EVERY_X_MIN', 15));
+
+        $alertRules = AlertRule::where('active', 1)
+                        ->where('default_rule', 0)
+                        ->where('user_id', $user_id)
+                        ->where('alert_on_occurences', '=', 1)
+                        ->where('calculation_minutes', '<', $parse_min) // only parse alerts that are set to parsing 'at time of device data' (i.e. calculation_minutes == 0)
+                        ->where(function($query) use ($min_ago_5) {  
+                            $query->where('last_evaluated_at','<=', $min_ago_5)
+                            ->orWhereNull('last_evaluated_at'); 
+                        })
+                        ->orderBy('last_evaluated_at')
+                        ->get();
+
+        Log::debug('Parsing U='.$user_id.' D='.$device_id.' '.count($alertRules).' active alert rules last evaluated before '.$min_ago_5);
+
+        foreach ($alertRules as $r) 
+        {
+            $parsed = $r->parseRule($device_id, $data_array); // returns ['rules'=>0,'calc'=>0,'msg'=>'no_user'];
+            $ruleCount  += $parsed['rules'];
+            $alertCount += $parsed['calc'];
+        }
+        if ($alertCount > 0)
+            Log::debug('|=> Parsed active rules='.$ruleCount.', created/updated alerts='.$alertCount);
+
+        return $alertCount;
+    }
+
+    // Parse all active alert rules by cron job. Only evaluate rules with calculation_minutes > PARSE_ALERT_RULES_EVERY_X_MIN
     public static function parseRules()
     {
-        
         $alertCount = 0;
         $now        = new Moment(); // UTC
         $now_min    = $now->getMinute();
+        $parse_min  = min(60, env('PARSE_ALERT_RULES_EVERY_X_MIN', 15));
 
-        if ($now_min % env('PARSE_ALERT_RULES_EVERY_X_MIN', 15) == 0)
+        if ($now_min % $parse_min == 0)
         {
             $ruleCount  = 0;
-            $min_ago_15 = date('Y-m-d H:i:s', time()-900); // 15 min ago
+            $min_ago_15 = date('Y-m-d H:i:s', time()-890); // a bit less than 15 min ago
 
             $alertRules = AlertRule::where('active', 1)
                             ->where('default_rule', 0)
                             ->where('user_id', '!=', null)
+                            ->where('alert_on_occurences', '>', 1)
+                            ->where('calculation_minutes', '>=', $parse_min) // do not parse alerts that are set to parsing 'at time of device data' (i.e. calculation_minutes == 0)
                             ->where(function($query) use ($min_ago_15) {  
                                 $query->where('last_evaluated_at','<=', $min_ago_15)
                                 ->orWhereNull('last_evaluated_at'); 
@@ -326,95 +471,9 @@ class AlertRule extends Model
 
             foreach ($alertRules as $r) 
             {
-                /*
-                0. define UTC timezone
-                1. evaluate only if >= 15 min ago
-                2. if filled exclude_months, define current local time (timezone) month and exclude rule if in current local time month
-                3. if filled exclude_hours, define current local time (timezone) hour and exclude rule if in current local time hour
-                4. check minute diff of rule compared to calculation_minutes
-                5. get comparison data from influx for all (except exclude_hive_ids) sensor keys
-                6. compare result via comparator with threshold_value
-                7. if result is true, create alert and check if e-mail needs to be sent
-                8. set last_calculated_at to current time
-                */
-                $debug_start = '|- R='.$r->id.' U='.$r->user_id.' ';
-
-                // exclude parsing of rules
-                $min_ago           = 0;
-                $last_evaluated_at = $r->last_evaluated_at;
-
-                if (isset($last_evaluated_at))
-                {
-                    $min_ago = -1 * round($now->from($last_evaluated_at)->getMinutes()); // round to whole value
-                    if ($min_ago < $r->calculation_minutes) // do not parse too often
-                    {
-                        //Log::debug($debug_start.' Not evaluated: last evaluated '.$min_ago.' min ago (< calc_min='.$r->calculation_minutes.')');
-                        continue;
-                    }
-                }
-
-                $now_local = new Moment('now', $r->timezone);  // Timezone of user that set alert rule (default: Europe/Amsterdam)
-                $now_month = $now_local->getMonth();
-            
-                if (isset($r->exclude_months) && in_array($now_month, $r->exclude_months))
-                {
-                    //Log::debug($debug_start.' Not evaluated: current month ('.$now_month.') in exclude_months='.implode(',',$r->exclude_months));
-                    continue;
-                }
-
-                $now_hour  = $now_local->getHour();
-
-                if (isset($r->exclude_hours) && in_array($now_hour, $r->exclude_hours))
-                {
-                    //Log::debug($debug_start.' Not evaluated: current hour ('.$now_hour.') in exclude_hours='.implode(',',$r->exclude_hours));
-                    continue;
-                }
-
-                // check if user (still) exists
-                $user_id     = $r->user_id;
-                $user        = User::find($user_id);
-                if (!isset($user))
-                {
-                    if ($r->default_rule == false)
-                    {
-                        $alerts = Alert::where('alert_rule_id', $r->id);
-                        Log::debug($debug_start.' Not evaluated: user not found, so deleting '.$alerts->count().' alerts and rule: '.$r->name);
-                        $alerts->delete();
-                        $r->delete();
-                    }
-                    continue;
-                }
-
-                $ruleCount++;
-
-                // define calculation per user device
-                $min_msg_date = '2019-01-01 00:00:00';
-                if ($r->calculation != 'cnt')
-                    $min_msg_date = date('Y-m-d H:i:s', time()-(60*$r->calculation_minutes));
-                
-                $user_devices = $user->allDevices()->where('last_message_received', '>=', $min_msg_date)->where('hive_id', '!=', null)->whereNotIn('hive_id', $r->exclude_hive_ids)->get();
-
-                $alert_rule_calc_date = date('Y-m-d H:i:s'); // PGe 2021-09-17: was local, now UTC (since config/app.php has UTC as default timezone)
-                $r->last_evaluated_at = $alert_rule_calc_date; // update also if no devices, to not evaluate all the time
-                $r->save();
-
-                $calculated = 0;
-                if (count($user_devices) > 0)
-                {
-                    Log::debug($debug_start.' ('.$r->readableFunction().' @ '.$r->alert_on_occurences.'x '.$r->calculation_minutes.'min) last evaluated @ '.$last_evaluated_at.' ('.$min_ago.' min ago), devices='.count($user_devices).' (with hives, and msg received > '.$min_msg_date.')');
-
-                    foreach ($user_devices as $device) 
-                        $calculated += $r->evaluateDeviceAlerts($device, $user, $alert_rule_calc_date);
-                }
-
-                // save last evaluated date
-                if ($calculated > 0)
-                {
-                    $r->last_calculated_at = $alert_rule_calc_date;
-                    $r->save();
-                    $alertCount += $calculated;
-                }
-               
+                $parsed = $r->parseRule(); // returns ['rules'=>0,'calc'=>0,'msg'=>'no_user'];
+                $ruleCount  += $parsed['rules'];
+                $alertCount += $parsed['calc'];
             }
             if ($alertCount > 0)
                 Log::debug('|=> Parsed active rules='.$ruleCount.', created/updated alerts='.$alertCount);

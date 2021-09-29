@@ -10,6 +10,7 @@ use App\Category;
 use App\Measurement;
 use App\Models\FlashLog;
 use App\Models\Webhook;
+use App\Models\AlertRule;
 // use App\Transformer\SensorTransformer;
 use Validator;
 use InfluxDB;
@@ -243,6 +244,11 @@ class MeasurementController extends Controller
         //die(print_r($data_array));
 
         $stored = $this->storeInfluxData($data_array, $dev_eui, $time);
+        
+        // Parse Alert rules if available
+        AlertRule::parseUserDeviceDirectAlertRules($device->user_id, $device->id, $data_array);
+
+
         if($stored) 
         {
             $this->cacheRequestRate('store-measurements-201');

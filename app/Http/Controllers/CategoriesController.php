@@ -15,6 +15,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\PostCategoryRequest;
 use Illuminate\Http\Request;
 use Kalnoy\Nestedset\Collection;
+use Illuminate\Support\Str;
 
 class CategoriesController extends Controller {
 
@@ -292,7 +293,7 @@ class CategoriesController extends Controller {
                 $img  = $icon;
                 if ($ext != 'svg')
                 {
-                    $file = str_random(40).'.'.$ext;
+                    $file = Str::random(40).'.'.$ext;
                     Image::make($icon)->resize(100, 100)->save(public_path('/storage/icons/'.$file));
                     $cat_input['icon'] = $file;
                 }

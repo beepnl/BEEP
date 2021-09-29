@@ -1,4 +1,4 @@
-<div class="col-xs-12">
+<div class="col-xs-12 col-md-6">
 	<div class="form-group {{ $errors->has('abbreviation') ? 'has-error' : ''}}">
 	    <label for="abbreviation" control-label>{{ 'Abbreviation' }}</label>
 	    <div>
@@ -7,7 +7,7 @@
 	    </div>
 	</div>
 </div>
-<div class="col-xs-12">
+<div class="col-xs-12 col-md-6">
 	<div class="form-group {{ $errors->has('physical_quantity_id') ? 'has-error' : ''}}">
 	    <label for="physical_quantity_id" control-label>{{ 'Physical Quantity Id' }}</label>
 	    <div>
@@ -17,6 +17,9 @@
 	</div>
 </div>
 <div class="col-xs-12">
+	<br>
+</div>
+<div class="col-xs-12 col-md-4">
 	<div class="form-group {{ $errors->has('show_in_charts') ? 'has-error' : ''}}">
 	    <label for="show_in_charts" control-label>{{ 'Show In Charts' }}</label>
 	    <div>
@@ -31,6 +34,38 @@
     </div>
 </div>
 
+<div class="col-xs-12 col-md-4">
+	<div class="form-group {{ $errors->has('show_in_dials') ? 'has-error' : ''}}">
+	    <label for="show_in_dials" control-label>{{ 'Show In Dials' }}</label>
+	    <div>
+	        <div class="radio">
+    			<label><input name="show_in_dials" type="radio" value="1" @if (isset($measurement)) {{ (1 == $measurement->show_in_dials) ? 'checked' : '' }} @else {{ 'checked' }} @endif> Yes</label>
+			</div>
+			<div class="radio">
+			    <label><input name="show_in_dials" type="radio" value="0" {{ (isset($measurement) && 0 == $measurement->show_in_dials) ? 'checked' : '' }}> No</label>
+			</div>
+        </div>
+        {!! $errors->first('show_in_dials', '<p class="help-block">:message</p>') !!}
+    </div>
+</div>
+
+<div class="col-xs-12 col-md-4">
+	<div class="form-group {{ $errors->has('show_in_alerts') ? 'has-error' : ''}}">
+	    <label for="show_in_alerts" control-label>{{ 'Show In Alerts' }}</label>
+	    <div>
+	        <div class="radio">
+    			<label><input name="show_in_alerts" type="radio" value="1" @if (isset($measurement)) {{ (1 == $measurement->show_in_alerts) ? 'checked' : '' }} @else {{ 'checked' }} @endif> Yes</label>
+			</div>
+			<div class="radio">
+			    <label><input name="show_in_alerts" type="radio" value="0" {{ (isset($measurement) && 0 == $measurement->show_in_alerts) ? 'checked' : '' }}> No</label>
+			</div>
+        </div>
+        {!! $errors->first('show_in_alerts', '<p class="help-block">:message</p>') !!}
+    </div>
+</div>
+<div class="col-xs-12">
+	<br>
+</div>
 <div class="col-xs-12">
 	<div class="form-group {{ $errors->has('chart_group') ? 'has-error' : ''}}">
 	    <label for="chart_group" control-label>{{ 'Chart Group' }}</label>

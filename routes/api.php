@@ -13,7 +13,7 @@ use Illuminate\Http\Request;
 |
 */
 
-Route::group(['middleware' => \Barryvdh\Cors\HandleCors::class], function()
+Route::group([], function()
 {    
 
 	Route::get('/',function(){
@@ -28,7 +28,7 @@ Route::group(['middleware' => \Barryvdh\Cors\HandleCors::class], function()
 	Route::post('unsecure_sensors', 'Api\MeasurementController@storeMeasurementData')->middleware('throttle:1,1');
 	
 	// User functions
-	Route::post('register', 	'Api\UserController@register')->middleware('throttle:3,1');
+	Route::post('register', 	'Api\UserController@register')->middleware('throttle:6,1');
 	Route::post('login', 		'Api\UserController@login')->middleware('throttle:20,1');
 	Route::post('user/reminder','Api\UserController@reminder')->middleware('throttle:3,1');
 	Route::post('user/reset', 	'Api\UserController@reset')->middleware('throttle:3,1');
@@ -101,6 +101,9 @@ Route::group(['middleware' => \Barryvdh\Cors\HandleCors::class], function()
 		Route::resource('images', 			'Api\ImageController', 					['except'=>['create','edit','destroy']]);
 		Route::resource('sensordefinition', 'Api\SensorDefinitionController', 		['except'=>['create','edit']]);
 		Route::resource('samplecode', 		'Api\SampleCodeController', 			['except'=>['create','edit','destroy']]);
+		Route::resource('alerts', 			'Api\AlertController', 					['except' => ['create', 'edit']]);
+		Route::resource('alert-rules', 		'Api\AlertRuleController', 				['except' => ['create', 'edit']]);
+		Route::get('alert-rules-default', 	'Api\AlertRuleController@default');
 		
 
 		Route::delete('samplecode', 		'Api\SampleCodeController@destroy');
@@ -111,6 +114,10 @@ Route::group(['middleware' => \Barryvdh\Cors\HandleCors::class], function()
 		Route::get('export',				'Api\ExportController@all');
 		Route::post('export/csv',			'Api\ExportController@generate_csv');
 
+		Route::get('flashlogs',				'Api\FlashLogController@index');
+		Route::post('flashlogs/{id}/try',	'Api\FlashLogController@try');
+		Route::post('flashlogs/{id}/commit','Api\FlashLogController@commit');
+		Route::delete('flashlogs/{id}',		'Api\FlashLogController@destroy');
 	});
 
 });

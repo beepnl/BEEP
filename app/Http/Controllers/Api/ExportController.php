@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 use App\Http\Controllers\Controller;
 use Excel;
 use Response;
@@ -20,6 +21,8 @@ use App\Measurement;
 use App\Mail\DataExport;
 use App\Exports\HiveExport;
 use Moment\Moment;
+
+use Validator;
 
 /**
  * @group Api\ExportController
@@ -282,11 +285,22 @@ class ExportController extends Controller
     **/
     public function generate_csv(Request $request)
     {
+        $validator = Validator::make($request->all(), [
+            'device_id' => 'required|exists:sensors,id',
+            'start'     => 'required|date',
+            'end'       => 'required|date',
+        ]);
+
+        if ($validator->fails())
+            return response()->json(['errors'=>$validator->errors()]);
+        
         $device_id    = $request->input('device_id');
         $start        = $request->input('start');
         $end          = $request->input('end');
         $separator    = $request->input('separator', ';');
-        $measurements = $request->input('measurements', null);
+
+        $measurements = $request->input('measurements', '*');
+        $return_link  = $request->filled('link') ? true : false;
         $device       = $request->user()->allDevices()->find($device_id);
 
         if ($device == null)
@@ -329,7 +343,11 @@ class ExportController extends Controller
         foreach ($csv_sens as $sensor_name) 
         {
             $meas       = Measurement::where('abbreviation', $sensor_name)->first();
-            $csv_head[] = $meas ? $meas->pq_name_unit().' ('.$sensor_name.')' : $sensor_name;
+            $col_head   = $meas ? $meas->pq_name_unit() : $sensor_name;
+            if (in_array($col_head, $csv_head) && $col_head != $sensor_name) // two similar heads, so add $sensor_name
+                $col_head .= ' - '.$sensor_name;
+
+            $csv_head[] = $col_head;
         }
         $csv_head = '"'.implode('"'.$separator.'"', $csv_head).'"'."\r\n";
 
@@ -341,9 +359,17 @@ class ExportController extends Controller
         }
         $csv_file = $csv_head.implode("\r\n", $csv_body);
 
-        // return the CSV file content in a file on disk
-        // $fileName = $device->name.'_'.$start.'_'.$end.'.csv';
-        // Storage::disk('public')->put('/exports/'.$fileName, $csv_file);
+        if ($return_link)
+        {
+            // return the CSV file content in a file on disk
+            $disk     = env('EXPORT_STORAGE', 'public');
+            $filePath = 'exports/beep-export-user-'.$request->user()->id.'-device-'.$device->name.'-'.$start.'-'.$end.'-'.Str::random(20).'.csv';
+            $filePath = str_replace(' ', '', $filePath);
+            if (Storage::disk($disk)->put($filePath, $csv_file))
+                return Response::json(['link'=>Storage::disk($disk)->url($filePath)]);
+            else
+                return Response::json(['message'=>'export_not_saved'], 500);
+        }
 
         return response($csv_file)->header('Content-Type', 'text/html; charset=UTF-8');
     }

@@ -4,7 +4,6 @@ namespace App\Notifications;
 
 use Illuminate\Auth\Notifications\VerifyEmail as VerifyEmailBase;
 use URL;
-use Carbon\Carbon;
 
 class VerifyEmail extends VerifyEmailBase
 {
@@ -19,7 +18,12 @@ class VerifyEmail extends VerifyEmailBase
     protected function verificationUrl($notifiable)
     {
         $temporarySignedURL = URL::temporarySignedRoute(
-            'apiverification.verify', Carbon::now()->addMinutes(60), ['id' => $notifiable->getKey()]
+            'apiverification.verify', 
+            now()->addMinutes(60), 
+            [
+                'id' => $notifiable->getKey(),
+                'hash' => sha1($notifiable->getEmailForVerification())
+            ]
         );
 
         // I use urlencode to pass a link to my frontend.

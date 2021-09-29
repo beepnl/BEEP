@@ -86,4 +86,6 @@ return [
 
     'SensorDefinitions' => 'Sensor definities',
     'Images'        => 'Foto\'s',
+    'Alerts'        => 'Alerts',
+    'AlertRules'    => 'Alertregels',
 ];

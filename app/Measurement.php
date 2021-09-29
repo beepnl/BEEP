@@ -27,7 +27,7 @@ class Measurement extends Model
      *
      * @var array
      */
-    protected $fillable = ['abbreviation', 'physical_quantity_id', 'show_in_charts', 'chart_group', 'min_value', 'max_value', 'hex_color'];
+    protected $fillable = ['abbreviation', 'physical_quantity_id', 'show_in_charts', 'chart_group', 'min_value', 'max_value', 'hex_color', 'show_in_alerts', 'show_in_dials'];
 
     protected $hidden  = ['created_at', 'updated_at']; //'parent'
 
@@ -74,7 +74,7 @@ class Measurement extends Model
     {
         // add sensor name (temporarily)
         $trans = $translate ? Translation::translate($this->abbreviation, null, false, 'measurement') : null;
-        $name  = isset($trans) ? $trans : $this->physical_quantity()->value('name');
+        $name  = isset($trans) && strtolower($trans) != $this->abbreviation ? $trans : $this->physical_quantity()->value('name');
         // if (($name != '' && $name != '-') && isset($this->abbreviation))
         // {
         //     $abbr = '';

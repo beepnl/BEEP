@@ -16,7 +16,7 @@ class Hive extends Model
     protected $fillable = ['user_id', 'location_id', 'hive_type_id', 'color', 'name', 'bb_width_cm', 'bb_depth_cm', 'bb_height_cm', 'fr_width_cm', 'fr_height_cm', 'order'];
     protected $guarded  = ['id'];
 	protected $hidden 	= ['user_id','deleted_at'];
-    protected $appends  = ['type','location','attention','impression','reminder','reminder_date','inspection_count','sensors','owner','editable','group_ids','last_inspection_date'];
+    protected $appends  = ['type','location','attention','impression','notes','reminder','reminder_date','inspection_count','sensors','owner','editable','group_ids','last_inspection_date'];
 
     public $timestamps = false;
 
@@ -47,7 +47,7 @@ class Hive extends Model
         return $this->getLastInspectionItem('impression');
     }
 
-    public function getNoteAttribute()
+    public function getNotesAttribute()
     {
         return $this->getLastInspectionItem('notes');
     }
@@ -75,6 +75,16 @@ class Hive extends Model
     public function getBroodlayersAttribute()
     {
         return $this->layers()->where('category_id', Category::findCategoryIdByParentAndName('hive_layer','brood'))->count();
+    }
+
+    public function getFeedingBoxAttribute()
+    {
+        return $this->layers()->where('category_id', Category::findCategoryIdByParentAndName('hive_layer','feeding_box'))->count();
+    }
+
+    public function getQueenExcluderAttribute()
+    {
+        return $this->layers()->where('category_id', Category::findCategoryIdByParentAndName('hive_layer','queen_excluder'))->count();
     }
 
     public function getSensorsAttribute()
@@ -117,8 +127,12 @@ class Hive extends Model
         // if ($this->getOwnerAttribute())
         //     return true;
         
-        $user_editable_hive_ids = Auth::user()->groupHives(true)->pluck('id')->toArray();
-        return in_array($this->id, $user_editable_hive_ids);
+        if (Auth::check())
+        {
+            $user_editable_hive_ids = Auth::user()->groupHives(true)->pluck('id')->toArray();
+            return in_array($this->id, $user_editable_hive_ids);
+        }
+        return false;
     }
 
 
@@ -201,9 +215,12 @@ class Hive extends Model
         return $items_by_date;
     }
 
-    public static function selectList()
+    public static function selectList($onlyMine=false)
     {
-        return Hive::orderBy('name')->pluck('name','id');
+        if ($onlyMine)
+            return Auth::user()->hives()->orderBy('name')->pluck('name','id');
+        else
+            return Hive::orderBy('name')->pluck('name','id');
     }
 
 }

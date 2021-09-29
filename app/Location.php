@@ -75,4 +75,8 @@ class Location extends Model
         return $this->hasOne(Continent::class);
     }
 
+    public static function selectList()
+    {
+        return Location::orderBy('name')->pluck('name','id');
+    }
 }

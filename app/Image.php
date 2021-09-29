@@ -3,6 +3,7 @@
 namespace App;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Str;
 use Moment\Moment;
 use InterventionImage;
 use Storage;
@@ -63,13 +64,22 @@ class Image extends Model
     public static function imageUrl($filename, $type)
     {
         $storage      = env('IMAGE_STORAGE', Image::$storage);
-        return Storage::disk($storage)->url(Image::getImagePath($filename, $type));
+        $url          = Storage::disk($storage)->url(Image::getImagePath($filename, $type));
+        if ($storage == 'public')
+            $url = env('APP_URL').$url;
+
+        return $url;
     }
 
     public static function imageThumbUrl($filename, $type)
     {
         $storage      = env('IMAGE_STORAGE', Image::$storage);
-        return Storage::disk($storage)->url(Image::getImagePath($filename, $type, true));
+        $url          = Storage::disk($storage)->url(Image::getImagePath($filename, $type, true));
+        
+        if ($storage == 'public')
+            $url = env('APP_URL').$url;
+
+        return $url;
     }
 
     public static function getImagePath($fileName, $type='inspection', $thumb=false)
@@ -91,7 +101,7 @@ class Image extends Model
         {
             $dateString = implode('-', $dateArray);        // 2020-01-04
             $dateTime   = $dateString.'T'.$dateTimeArray[1];
-            $m = new Moment($dateTime, 'Europe/Amsterdam');
+            $m = new Moment($dateTime, 'UTC');
             return $m->setTimezone('UTC')->format('Y-m-d H:i:s');
         }
         return null;
@@ -129,7 +139,7 @@ class Image extends Model
             {
                 //filename to store
                 $extension = $imageFile->getClientOriginalExtension();
-                $fileName  = str_random(60).'.'.$extension;
+                $fileName  = Str::random(60).'.'.$extension;
                 $imagePath = Image::getImagePath($fileName, $type);
                 $thumbPath = Image::getImagePath($fileName, $type, true);
 

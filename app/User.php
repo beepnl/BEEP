@@ -3,12 +3,16 @@
 namespace App;
 
 use Illuminate\Notifications\Notifiable;
-use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Illuminate\Auth\MustVerifyEmail;
 use Illuminate\Foundation\Auth\User as Authenticatable;
-use Zizaco\Entrust\Traits\EntrustUserTrait;
+use Trebol\Entrust\Traits\EntrustUserTrait;
 
 use App\Notifications\VerifyEmail;
 use App\Notifications\ResetPassword;
+
+use App\Models\FlashLog;
+use App\Models\Alert;
+use App\Models\AlertRule;
 
 use DB;
 
@@ -62,6 +66,11 @@ class User extends Authenticatable
     public function researchesOwned()
     {
         return $this->hasMany(Research::class);
+    }
+
+    public function flashlogs()
+    {
+        return $this->hasMany(FlashLog::class);
     }
 
     public function researchesVisible()
@@ -206,6 +215,16 @@ class User extends Authenticatable
         });
     }
 
+    public function alert_rules()
+    {
+        return $this->hasMany(AlertRule::class);
+    }
+
+    public function alerts()
+    {
+        return $this->hasMany(Alert::class);
+    }
+
     public function inspectionDates()
     {
         $inspections = 0;
@@ -228,6 +247,8 @@ class User extends Authenticatable
         $this->devices()->delete();
         $this->locations()->delete(); //including $cascadeDeletes = ['hives', 'inspections']; // including $cascadeDeletes = ['queen','inspections','layers','frames','productions'];
         $this->checklists()->delete();
+        $this->alert_rules()->delete();
+        $this->alerts()->delete();
 
         // delete the user
         return parent::delete();

@@ -46,7 +46,7 @@
                     <th>#</th>
                     <th>Abbreviation</th>
                     <th>Physical Quantity</th>
-                    <th>Show In Charts</th>
+                    <th>Show In Charts / Dials / Alerts</th>
                     <th>Chart Group</th>
                     <th>Min</th>
                     <th>Max</th>
@@ -60,7 +60,7 @@
                     <td>{{ $item->id }}</td>
                     <td>{{ $item->abbreviation }}</td>
                     <td>{{ $item->pq_name_unit }}</td>
-                    <td>{{ isset($item->show_in_charts) && 1 == $item->show_in_charts ? 'Yes' : 'No' }}</td>
+                    <td>{{ isset($item->show_in_charts) && 1 == $item->show_in_charts ? 'Yes' : 'No' }} / {{ isset($item->show_in_dials) && 1 == $item->show_in_dials ? 'Yes' : 'No' }} / {{ isset($item->show_in_alerts) && 1 == $item->show_in_alerts ? 'Yes' : 'No' }}</td>
                     <td>{{ $item->chart_group }}</td>
                     <td>{{ $item->min_value }}</td>
                     <td>{{ $item->max_value }}</td>

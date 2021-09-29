@@ -71,6 +71,6 @@
 				<button type="submit" class="btn btn-primary btn-block">{{ __('crud.save') }}</button>
         </div>
 	</div>
-    {!! Form::hidden('api-token', str_random(60)) !!}
+    {!! Form::hidden('api-token', Str::random(60)) !!}
 	{!! Form::close() !!}
 @endsection

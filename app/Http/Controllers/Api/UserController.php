@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 use Illuminate\Auth\Events\Login as ApiTokenLogin;
 use Illuminate\Validation\Rule;
 use App\User;
@@ -125,6 +126,7 @@ class UserController extends Controller
             array
             (
                 'email'         => 'bail|required|email|unique:users',
+                'name'          => 'nullable|string|max:100',
                 'password'      => 'required|min:8|confirmed',
                 'policy_accepted'=>'required'
             ),
@@ -145,11 +147,11 @@ class UserController extends Controller
         else // save 'm 
         {
             $user_data = [
-                'name'      => $request->input('email'),
+                'name'      => $request->input('name', $request->input('email')),
                 'password'  => Hash::make($request->input('password')),
                 'email'     => $request->input('email'),
-                'api_token' => str_random(60),
-                'remember_token' => str_random(10),
+                'api_token' => Str::random(60),
+                'remember_token' => Str::random(10),
                 'policy_accepted'=> $request->input('policy_accepted'),
                 'locale'    => $request->input('locale')
             ];
@@ -282,8 +284,17 @@ class UserController extends Controller
     */
     public function destroy(Request $request)
     {
+        $user = $request->user();
+        $validator = Validator::make(
+            $request->all(), ['password' => 'required|string|min:8']
+        );
+
+        if($validator->fails())
+            return Response::json(['message' => $validator->errors()->first()], 500);
+        else if (Hash::check($request->input('password'), $user->password) == false)
+            return Response::json(['message' => 'invalid_password'], 500);
+        
         $del = $request->user()->delete();
-        //$del = true;
         if ($del)
             return Response::json(['message' => 'user_deleted'], 200);
 
@@ -295,14 +306,18 @@ class UserController extends Controller
     Edit the user details, renew API token
     @authenticated
     @bodyParam email string required Email address of the user. Example: test@test.com
+    @bodyParam name string Name of the user. Example: Test
     @bodyParam password string required Password of the user with minimum of 8 characters. Example: testtest
-    @bodyParam password_confirmation string required Password confirmation of the user. Example: testtest
+    @bodyParam password_new string New password to set for the user with minimum of 8 characters. Example: testtest1
+    @bodyParam password_confirmation string Password confirmation of the user, required if password_new is filled. Example: testtest1
     @bodyParam policy_accepted string Name of the privacy policy that has been accepted by the user by ticking the accept terms box. Example: beep_terms_2018_05_25_avg_v1
+    @bodyParam locale string Locale string to define locale. Example: en
     */
     public function edit(Request $request)
     {
         $user = $request->user();
         $save = false;
+        $newk = true;
 
         $validator = Validator::make
         (
@@ -315,9 +330,12 @@ class UserController extends Controller
                                         'email',
                                         Rule::unique('users')->ignore($user->id),
                                     ],
-                'password'              => 'required|string|min:8',
-                'password_new'          => 'nullable|string|min:8',
-                'password_confirmation' => 'required_with:password_new|same:password_new',
+                'name'                  => 'nullable|string|max:100',
+                'password'              => 'nullable|required_with:password_new|string|min:8', # only let locale be editable without password
+                'password_new'          => 'nullable|required_with:password_confirmation|string|min:8',
+                'password_confirmation' => 'nullable|required_with:password_new|same:password_new',
+                'locale'                => 'nullable|string|min:2',
+                'policy_accepted'       => 'nullable',
             ),
             array
             (
@@ -333,13 +351,20 @@ class UserController extends Controller
         {
             return Response::json(['message' => $validator->errors()->first()], 400);
         }
-        else if (Hash::check($request->input('password'), $user->password) == false)
+        else if (($request->filled('password_new') || ($request->filled('email') && $request->input('email') != $user->email) || ($request->filled('name') && $request->input('name') != $user->name) || ($request->filled('policy_accepted') && $request->input('policy_accepted') != $user->policy_accepted)) && Hash::check($request->input('password'), $user->password) == false)
         {
             return Response::json(['message' => 'invalid_password'], 400);
         }
         else // save 'm 
         {
-            if($request->filled('name'))
+            if($request->filled('locale') && $request->input('locale') != $user->locale)
+            {
+                $user->locale = $request->input('locale');
+                $save = true;
+                $newk = false;
+            }
+            
+            if($request->filled('name') && $request->input('name') != $user->name)
             {
                 $user->name = $request->input('name');
                 $save = true;
@@ -354,15 +379,14 @@ class UserController extends Controller
                 $save = true;
             }
 
-            if($request->filled('locale'))
-            {
-                $user->locale = $request->input('locale');
-                $save = true;
-            }
-
-            if($request->filled('policy_accepted'))
+            if($request->filled('policy_accepted') && $request->input('policy_accepted') != $user->policy_accepted && $request->input('policy_accepted') != false)
             {
                 $user->policy_accepted = $request->input('policy_accepted');
+                $save = true;
+            }
+            else if ($request->filled('policy_accepted') == false || $request->input('policy_accepted') == false)
+            {
+                $user->policy_accepted = null;
                 $save = true;
             }
 
@@ -374,8 +398,10 @@ class UserController extends Controller
 
             if ($save)
             {
-                $user->api_token = str_random(60);
-                $saved           = $user->save();
+                if ($newk)
+                    $user->api_token = Str::random(60);
+                
+                $saved = $user->save();
 
                 if ($email_changed)
                     $user->sendApiEmailVerificationNotification();
@@ -385,6 +411,53 @@ class UserController extends Controller
             }
         }
         return Response::json(['message' => 'user_not_edited'], 400);
+    }
+   
+    /**
+    api/userlocale PATCH
+    Edit the user locale only, do not update api_key
+    @authenticated
+    @bodyParam locale string Two digit country string to define locale
+    */
+    public function userlocale(Request $request)
+    {
+        $user = $request->user();
+        $save = false;
+        
+        $validator = Validator::make
+        (
+            $request->all(),
+            array
+            (
+                'locale'   => 'required|string|min:2',
+            ),
+            array
+            (
+                'required' => ':attribute_is_required',
+            )
+        );
+
+        if($validator->fails())
+        {
+            return Response::json(['message' => $validator->errors()->first()], 500);
+        }
+        else // save 'm 
+        {
+            if($request->filled('locale') && $request->input('locale') != $user->locale)
+            {
+                $user->locale = $request->input('locale');
+                $save = true;
+            }
+            
+            if ($save)
+            {
+                $saved = $user->save();
+
+                if ($saved)
+                    return Response::json($user, 200);
+            }
+        }
+        return Response::json(['message' => 'user_not_edited'], 500);
     }
    
 }

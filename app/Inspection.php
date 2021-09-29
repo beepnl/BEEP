@@ -108,7 +108,7 @@ class Inspection extends Model
         return parent::delete();
     }
 
-    public static function createInspection($items=[], $hive_ids=null, $location_ids=null, $notes='', $timeZone="Europe/Amsterdam")
+    public static function createInspection($items=[], $hive_ids=null, $location_ids=null, $notes='', $timeZone="UTC")
     {
         $now                            = new Moment();
         $inspection_data                = [];

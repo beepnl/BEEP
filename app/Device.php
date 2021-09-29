@@ -5,9 +5,11 @@ namespace App;
 use Iatstuti\Database\Support\CascadeSoftDeletes;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Cache;
 use Auth;
 use InfluxDB;
-use Cache;
+use App\Models\Alert;
+
 
 class Device extends Model
 {
@@ -94,6 +96,51 @@ class Device extends Model
 	public function user()
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function alerts()
+    {
+        return $this->hasMany(Alert::class);
+    }
+
+    /* getSensorValues returns most recent Influx sensor values:
+    Array
+    (
+        [0] => Array
+            (
+                [time] => 2021-05-05T14:30:00Z
+                [t_i] => 35.6
+            )
+
+        [1] => Array
+            (
+                [time] => 2021-05-05T14:00:00Z
+                [t_i] => 34.9
+            )
+
+    )
+    */
+    public function getAlertSensorValues($measurement_abbr, $influx_func='MEAN', $interval_min=null, $limit=null, $start=null, $table='sensors', $output_sensors_only=false)
+    {
+        //die(print_r([$names, $valid_sensors]));
+        
+        $where_limit   = isset($limit) ? ' LIMIT '.$limit : '';
+        $where         = '("key" = \''.$this->key.'\' OR "key" = \''.strtolower($this->key).'\' OR "key" = \''.strtoupper($this->key).'\')';
+        $where_time    = isset($start) ? 'AND time >= \''.$start.'\' ' : '';
+        $device_int_min= isset($this->measurement_interval_min) ? $this->measurement_interval_min : 15;
+        $time_interval = isset($interval_min) && $interval_min > $device_int_min ? $interval_min.'m' : $device_int_min.'m';
+        $group_by_time = 'GROUP BY time('.$time_interval.') ';
+
+        $deriv_time    = '';
+        if ($influx_func == 'DERIVATIVE') // don't groupby time, but set derivative time
+        {
+            $group_by_time = '';
+            $deriv_time    = ','.$time_interval;
+        }
+
+        $query   = 'SELECT '.$influx_func.'("'.$measurement_abbr.'"'.$deriv_time.') AS "'.$measurement_abbr.'" FROM "'.$table.'" WHERE '.$where.' '.$where_time.$group_by_time.'ORDER BY time DESC'.$where_limit;
+        $values  = Device::getInfluxQuery($query, 'alert');
+        return ['values'=>$values,'query'=>$query];
     }
 
     public static function selectList()
@@ -225,14 +272,18 @@ class Device extends Model
         return $output;
     }
 
-    public function addSensorDefinitionMeasurements($data_array, $value, $input_measurement_id=null, $date=null)
+    public function addSensorDefinitionMeasurements($data_array, $value, $input_measurement_id=null, $date=null, $sensor_defs=null)
     {
         
         if ($input_measurement_id != null)
         {
             // Get the right sensordefinition
             $sensor_def  = null;
-            $sensor_defs = $this->sensorDefinitions->where('input_measurement_id', $input_measurement_id); // get appropriate sensor definitions
+
+            if ($sensor_defs == null)
+                $sensor_defs = $this->sensorDefinitions->where('input_measurement_id', $input_measurement_id); // get appropriate sensor definitions
+            else
+                $sensor_defs = $sensor_defs->where('input_measurement_id', $input_measurement_id); // get appropriate sensor definitions
 
             if ($sensor_defs->count() == 0)
             {
@@ -255,7 +306,7 @@ class Device extends Model
             if (isset($sensor_def))
             {
                 $measurement_abbr_o = $sensor_def->output_abbr;
-                if (!in_array($measurement_abbr_o, array_keys($data_array)) || $sensor_def->input_measurement_id == $sensor_def->output_measurement_id) // only add value to $data_array if it does not yet exist, or input and output are the same
+                if (!isset($data_array[$measurement_abbr_o]) || $sensor_def->input_measurement_id == $sensor_def->output_measurement_id) // only add value to $data_array if it does not yet exist, or input and output are the same
                 {
                     $calibrated_measurement_val = $sensor_def->calibrated_measurement_value($value);
                     if ($calibrated_measurement_val !== null) // do not add sensor measurement is outside measurement min/max value

@@ -209,6 +209,7 @@ class MeasurementController extends Controller
 
         // remember the last date that this device stored measurements from
         Cache::put('set-measurements-device-'.$device->id.'-time', $time);
+        Cache::put('set-measurements-device-'.$device->id.'-data', $data_array);
 
         
         $date = date($this->timeFormat, $time); 

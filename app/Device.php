@@ -120,10 +120,16 @@ class Device extends Model
 
     )
     */
-    public function getAlertSensorValues($measurement_abbr, $influx_func='MEAN', $interval_min=null, $limit=null, $start=null, $table='sensors', $output_sensors_only=false)
+    public function getAlertSensorValues($measurement_abbr, $influx_func='MEAN', $interval_min=null, $limit=null, $start=null, $table='sensors')
     {
         //die(print_r([$names, $valid_sensors]));
-        
+        if ($table == 'sensors' && $limit == 1 && $interval_min <= 15)
+        {
+            $cached_data = Cache::get('set-measurements-device-'.$device->id.'-data');
+            if ($cached_data && isset($cached_data[$measurement_abbr]))
+                return ['values'=>$cached_data, 'query'=>'from cache'];
+        }
+
         $where_limit   = isset($limit) ? ' LIMIT '.$limit : '';
         $where         = '("key" = \''.$this->key.'\' OR "key" = \''.strtolower($this->key).'\' OR "key" = \''.strtoupper($this->key).'\')';
         $where_time    = isset($start) ? 'AND time >= \''.$start.'\' ' : '';

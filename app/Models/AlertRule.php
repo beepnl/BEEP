@@ -39,7 +39,7 @@ class AlertRule extends Model
     public static $calculations   = ["min"=>"Minimum", "max"=>"Maximum", "ave"=>"Average", "cnt"=>"Count"]; // exclude "der"=>"Derivative" for the moment (because of user interpretation complexity)
     public static $influx_calc    = ["min"=>"MIN", "max"=>"MAX", "ave"=>"MEAN", "der"=>"DERIVATIVE", "cnt"=>"COUNT"];
     public static $comparators    = ["="=>"equal_to", "<"=>"less_than", ">"=>"greater_than", "<="=>"less_than_or_equal", ">="=>"greater_than_or_equal"];
-    public static $comparisons    = ["val"=>"Value", "dif"=>"Difference", "abs"=>"Absolute_value", "abs_dif"=>"Absolute_value_of_dif"];
+    public static $comparisons    = ["val"=>"Value", "dif"=>"Difference", "abs_dif"=>"Absolute_value_of_dif"]; // excluse "abs"=>"Absolute_value", because it has no usecase
     public static $exclude_months = [1=>"Jan",2=>"Feb",3=>"Mar",4=>"Apr",5=>"May",6=>"Jun",7=>"Jul",8=>"Aug",9=>"Sep",10=>"Oct",11=>"Nov",12=>"Dec"];
     public static $exclude_hours  = [0=>"0:00 -> 0:59",1=>"1:00 -> 1:59",2=>"2:00 -> 2:59",3=>"3:00 -> 3:59",4=>"4:00 -> 4:59",5=>"5:00 -> 5:59",6=>"6:00 -> 6:59",7=>"7:00 -> 7:59",8=>"8:00 -> 8:59",9=>"9:00 -> 9:59",10=>"10:00 -> 10:59",11=>"11:00 -> 11:59",12=>"12:00 -> 12:59",13=>"13:00 -> 13:59",14=>"14:00 -> 14:59",15=>"15:00 -> 15:59",16=>"16:00 -> 16:59",17=>"17:00 -> 17:59",18=>"18:00 -> 18:59",19=>"19:00 -> 19:59",20=>"20:00 -> 20:59",21=>"21:00 -> 21:59",22=>"22:00 -> 22:59",23=>"23:00 -> 23:59"];
 

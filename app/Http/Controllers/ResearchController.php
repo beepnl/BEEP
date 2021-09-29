@@ -18,6 +18,7 @@ use App\Models\FlashLog;
 
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
+use Cache;
 use DB;
 use Auth;
 use Str;

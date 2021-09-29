@@ -409,7 +409,7 @@ class AlertRule extends Model
            
         }
         if ($alertCount > 0)
-            Log::debug('Created total of '.$alertCount.' alerts');
+            Log::debug('|=> Created or updated alerts='.$alertCount);
 
         return $alertCount;
     }

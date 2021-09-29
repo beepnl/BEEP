@@ -14,6 +14,7 @@ use Hash;
 use Auth;
 use Password;
 use Login;
+use Storage;
 
 /**
  * @group Api\UserController
@@ -146,6 +147,9 @@ class UserController extends Controller
         }
         else // save 'm 
         {
+            $storage = env('IMAGE_STORAGE', 's3');
+            $avatar  = Storage::disk($storage)->url('avatars/default.jpg');
+
             $user_data = [
                 'name'      => $request->input('name', $request->input('email')),
                 'password'  => Hash::make($request->input('password')),
@@ -153,7 +157,8 @@ class UserController extends Controller
                 'api_token' => Str::random(60),
                 'remember_token' => Str::random(10),
                 'policy_accepted'=> $request->input('policy_accepted'),
-                'locale'    => $request->input('locale')
+                'locale'    => $request->input('locale'),
+                'avatar'    => $avatar
             ];
 
             // save the user

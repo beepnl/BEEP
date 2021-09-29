@@ -70,10 +70,17 @@ class UserController extends Controller
 
         // Handle the user upload of avatar
         if($request->hasFile('avatar')){
-            $avatar = $request->file('avatar');
+            $avatar   = $request->file('avatar');
             $filename = time() . '.' . $avatar->getClientOriginalExtension();
-            InterventionImage::make($avatar)->resize(300, 300)->save( public_path('uploads/avatars/' . $filename ) );
-            $user->avatar = $filename;
+            $path     = 'avatars/'.$filename;
+            $storage  = env('IMAGE_STORAGE', 's3');
+            $thumb    = InterventionImage::make($avatar)->resize(300, 300);
+            Storage::disk($storage)->put($path, $thumb->stream());
+            $user->avatar = Storage::disk($storage)->url(Image::getImagePath($path));
+        }
+        else
+        {
+            $user->avatar = Storage::disk($storage)->url('avatars/default.jpg');
         }
 
         $user = User::create($input);
@@ -167,10 +174,13 @@ class UserController extends Controller
         
         // Handle the user upload of avatar
         if($request->hasFile('avatar')){
-            $avatar = $request->file('avatar');
+            $avatar   = $request->file('avatar');
             $filename = time() . '.' . $avatar->getClientOriginalExtension();
-            InterventionImage::make($avatar)->fit(300, 300)->save( public_path('uploads/avatars/' . $filename ) );
-            $user->avatar = $filename;
+            $path     = 'avatars/'.$filename;
+            $storage  = env('IMAGE_STORAGE', 's3');
+            $thumb    = InterventionImage::make($avatar)->resize(300, 300);
+            Storage::disk($storage)->put($path, $thumb->stream());
+            $user->avatar = Storage::disk($storage)->url(Image::getImagePath($path));
         }
 
         $user->update($input);

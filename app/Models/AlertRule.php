@@ -301,118 +301,124 @@ class AlertRule extends Model
 
     public static function parseRules()
     {
+        
         $alertCount = 0;
-        $ruleCount  = 0;
         $now        = new Moment(); // UTC
-        $min_ago_15 = date('Y-m-d H:i:s', time()-900); // 15 min ago
+        $now_min    = $now->getMinute();
 
-        $alertRules = AlertRule::where('active', 1)
-                        ->where('default_rule', 0)
-                        ->where('user_id', '!=', null)
-                        ->where(function($query) use ($min_ago_15) {  
-                            $query->where('last_evaluated_at','<=', $min_ago_15)
-                            ->orWhereNull('last_evaluated_at'); 
-                        })
-                        ->orderBy('user_id')
-                        ->orderBy('last_evaluated_at')
-                        ->get();
-
-        Log::debug('Parsing '.count($alertRules).' active alert rules last evaluated before '.$min_ago_15);
-
-        foreach ($alertRules as $r) 
+        if ($now_min % env('PARSE_ALERT_RULES_EVERY_X_MIN', 15) == 0)
         {
-            /*
-            0. define UTC timezone
-            1. evaluate only if >= 15 min ago
-            2. if filled exclude_months, define current local time (timezone) month and exclude rule if in current local time month
-            3. if filled exclude_hours, define current local time (timezone) hour and exclude rule if in current local time hour
-            4. check minute diff of rule compared to calculation_minutes
-            5. get comparison data from influx for all (except exclude_hive_ids) sensor keys
-            6. compare result via comparator with threshold_value
-            7. if result is true, create alert and check if e-mail needs to be sent
-            8. set last_calculated_at to current time
-            */
-            $debug_start = '|- R='.$r->id.' U='.$r->user_id.' ';
+            $ruleCount  = 0;
+            $min_ago_15 = date('Y-m-d H:i:s', time()-900); // 15 min ago
 
-            // exclude parsing of rules
-            $min_ago           = 0;
-            $last_evaluated_at = $r->last_evaluated_at;
+            $alertRules = AlertRule::where('active', 1)
+                            ->where('default_rule', 0)
+                            ->where('user_id', '!=', null)
+                            ->where(function($query) use ($min_ago_15) {  
+                                $query->where('last_evaluated_at','<=', $min_ago_15)
+                                ->orWhereNull('last_evaluated_at'); 
+                            })
+                            ->orderBy('user_id')
+                            ->orderBy('last_evaluated_at')
+                            ->get();
 
-            if (isset($last_evaluated_at))
+            Log::debug('Parsing '.count($alertRules).' active alert rules last evaluated before '.$min_ago_15);
+
+            foreach ($alertRules as $r) 
             {
-                $min_ago = -1 * round($now->from($last_evaluated_at)->getMinutes()); // round to whole value
-                if ($min_ago < $r->calculation_minutes) // do not parse too often
+                /*
+                0. define UTC timezone
+                1. evaluate only if >= 15 min ago
+                2. if filled exclude_months, define current local time (timezone) month and exclude rule if in current local time month
+                3. if filled exclude_hours, define current local time (timezone) hour and exclude rule if in current local time hour
+                4. check minute diff of rule compared to calculation_minutes
+                5. get comparison data from influx for all (except exclude_hive_ids) sensor keys
+                6. compare result via comparator with threshold_value
+                7. if result is true, create alert and check if e-mail needs to be sent
+                8. set last_calculated_at to current time
+                */
+                $debug_start = '|- R='.$r->id.' U='.$r->user_id.' ';
+
+                // exclude parsing of rules
+                $min_ago           = 0;
+                $last_evaluated_at = $r->last_evaluated_at;
+
+                if (isset($last_evaluated_at))
                 {
-                    //Log::debug($debug_start.' Not evaluated: last evaluated '.$min_ago.' min ago (< calc_min='.$r->calculation_minutes.')');
+                    $min_ago = -1 * round($now->from($last_evaluated_at)->getMinutes()); // round to whole value
+                    if ($min_ago < $r->calculation_minutes) // do not parse too often
+                    {
+                        //Log::debug($debug_start.' Not evaluated: last evaluated '.$min_ago.' min ago (< calc_min='.$r->calculation_minutes.')');
+                        continue;
+                    }
+                }
+
+                $now_local = new Moment('now', $r->timezone);  // Timezone of user that set alert rule (default: Europe/Amsterdam)
+                $now_month = $now_local->getMonth();
+            
+                if (isset($r->exclude_months) && in_array($now_month, $r->exclude_months))
+                {
+                    //Log::debug($debug_start.' Not evaluated: current month ('.$now_month.') in exclude_months='.implode(',',$r->exclude_months));
                     continue;
                 }
-            }
 
-            $now_local = new Moment('now', $r->timezone);  // Timezone of user that set alert rule (default: Europe/Amsterdam)
-            $now_month = $now_local->getMonth();
-        
-            if (isset($r->exclude_months) && in_array($now_month, $r->exclude_months))
-            {
-                //Log::debug($debug_start.' Not evaluated: current month ('.$now_month.') in exclude_months='.implode(',',$r->exclude_months));
-                continue;
-            }
+                $now_hour  = $now_local->getHour();
 
-            $now_hour  = $now_local->getHour();
-
-            if (isset($r->exclude_hours) && in_array($now_hour, $r->exclude_hours))
-            {
-                //Log::debug($debug_start.' Not evaluated: current hour ('.$now_hour.') in exclude_hours='.implode(',',$r->exclude_hours));
-                continue;
-            }
-
-            // check if user (still) exists
-            $user_id     = $r->user_id;
-            $user        = User::find($user_id);
-            if (!isset($user))
-            {
-                if ($r->default_rule == false)
+                if (isset($r->exclude_hours) && in_array($now_hour, $r->exclude_hours))
                 {
-                    $alerts = Alert::where('alert_rule_id', $r->id);
-                    Log::debug($debug_start.' Not evaluated: user not found, so deleting '.$alerts->count().' alerts and rule: '.$r->name);
-                    $alerts->delete();
-                    $r->delete();
+                    //Log::debug($debug_start.' Not evaluated: current hour ('.$now_hour.') in exclude_hours='.implode(',',$r->exclude_hours));
+                    continue;
                 }
-                continue;
-            }
 
-            $ruleCount++;
+                // check if user (still) exists
+                $user_id     = $r->user_id;
+                $user        = User::find($user_id);
+                if (!isset($user))
+                {
+                    if ($r->default_rule == false)
+                    {
+                        $alerts = Alert::where('alert_rule_id', $r->id);
+                        Log::debug($debug_start.' Not evaluated: user not found, so deleting '.$alerts->count().' alerts and rule: '.$r->name);
+                        $alerts->delete();
+                        $r->delete();
+                    }
+                    continue;
+                }
 
-            // define calculation per user device
-            $min_msg_date = '2019-01-01 00:00:00';
-            if ($r->calculation != 'cnt')
-                $min_msg_date = date('Y-m-d H:i:s', time()-(60*$r->calculation_minutes));
-            
-            $user_devices = $user->allDevices()->where('last_message_received', '>=', $min_msg_date)->where('hive_id', '!=', null)->get();
+                $ruleCount++;
 
-            $alert_rule_calc_date = date('Y-m-d H:i:s'); // PGe 2021-09-17: was local, now UTC (since config/app.php has UTC as default timezone)
-            $r->last_evaluated_at = $alert_rule_calc_date; // update also if no devices, to not evaluate all the time
-            $r->save();
+                // define calculation per user device
+                $min_msg_date = '2019-01-01 00:00:00';
+                if ($r->calculation != 'cnt')
+                    $min_msg_date = date('Y-m-d H:i:s', time()-(60*$r->calculation_minutes));
+                
+                $user_devices = $user->allDevices()->where('last_message_received', '>=', $min_msg_date)->where('hive_id', '!=', null)->whereNotIn('hive_id', $r->exclude_hive_ids)->get();
 
-            $calculated = 0;
-            if (count($user_devices) > 0)
-            {
-                Log::debug($debug_start.' ('.$r->readableFunction().' @ '.$r->alert_on_occurences.'x '.$r->calculation_minutes.'min) last evaluated @ '.$last_evaluated_at.' ('.$min_ago.' min ago), devices='.count($user_devices).' (with hives, and msg received > '.$min_msg_date.')');
-
-                foreach ($user_devices as $device) 
-                    $calculated += $r->evaluateDeviceAlerts($device, $user, $alert_rule_calc_date);
-            }
-
-            // save last evaluated date
-            if ($calculated > 0)
-            {
-                $r->last_calculated_at = $alert_rule_calc_date;
+                $alert_rule_calc_date = date('Y-m-d H:i:s'); // PGe 2021-09-17: was local, now UTC (since config/app.php has UTC as default timezone)
+                $r->last_evaluated_at = $alert_rule_calc_date; // update also if no devices, to not evaluate all the time
                 $r->save();
-                $alertCount += $calculated;
+
+                $calculated = 0;
+                if (count($user_devices) > 0)
+                {
+                    Log::debug($debug_start.' ('.$r->readableFunction().' @ '.$r->alert_on_occurences.'x '.$r->calculation_minutes.'min) last evaluated @ '.$last_evaluated_at.' ('.$min_ago.' min ago), devices='.count($user_devices).' (with hives, and msg received > '.$min_msg_date.')');
+
+                    foreach ($user_devices as $device) 
+                        $calculated += $r->evaluateDeviceAlerts($device, $user, $alert_rule_calc_date);
+                }
+
+                // save last evaluated date
+                if ($calculated > 0)
+                {
+                    $r->last_calculated_at = $alert_rule_calc_date;
+                    $r->save();
+                    $alertCount += $calculated;
+                }
+               
             }
-           
+            if ($alertCount > 0)
+                Log::debug('|=> Parsed active rules='.$ruleCount.', created/updated alerts='.$alertCount);
         }
-        if ($alertCount > 0)
-            Log::debug('|=> Parsed active rules='.$ruleCount.', created/updated alerts='.$alertCount);
 
         return $alertCount;
     }

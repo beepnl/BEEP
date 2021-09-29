@@ -39,7 +39,7 @@ class AlertRuleController extends Controller
      */
     public function default(Request $request)
     {
-        $alert_rules = AlertRule::where('default_rule', 1);
+        $alert_rules = AlertRule::where('default_rule', 1)->orderBy('name');
 
         if ($alert_rules->count() > 0)
             return response()->json(['alert-rules'=>$alert_rules->get()]);

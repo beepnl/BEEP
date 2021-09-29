@@ -327,6 +327,7 @@ class AlertRule extends Model
 
         if (isset($last_evaluated_at))
         {
+            $now = new Moment(); // UTC
             $min_ago = -1 * round($now->from($last_evaluated_at)->getMinutes()); // round to whole value
             if ($min_ago < $r->calculation_minutes) // do not parse too often
             {

@@ -133,7 +133,7 @@ class Device extends Model
             $cached_time = Cache::get('set-measurements-device-'.$this->id.'-time');
             $cached_data = Cache::get('set-measurements-device-'.$this->id.'-data');
             $val_min_ago = round((time() - intval($cached_time)) / 60);
-            if ($cached_data && $cache_m_ago < $time_int_min && isset($cached_data[$measurement_abbr]))
+            if ($cached_data && $val_min_ago < $time_int_min && isset($cached_data['time']) && isset($cached_data[$measurement_abbr]))
                 return ['values'=>[["time"=>$cached_data['time'], "$measurement_abbr"=>$cached_data[$measurement_abbr]]], 'query'=>'', 'from'=>'cache', 'min_ago'=>$val_min_ago];
         }
 

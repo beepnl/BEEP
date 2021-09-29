@@ -131,8 +131,8 @@ class AlertRule extends Model
         $influx_func = AlertRule::$influx_calc[$r->calculation];
         $limit       = $diff_comp ? $r->alert_on_occurences + 1 : $r->alert_on_occurences; // one extra for diff calculation
         
-        if (isset($data_array))
-            $last_val_inf= ['values'=>[$data_array], 'query'=>'', 'from'=>'measurement', 'min_ago'=>0];
+        if (isset($data_array) && isset($data_array['time']) && isset($data_array[$m_abbr]))
+            $last_val_inf= ['values'=>[["time"=>$data_array['time'], "$m_abbr"=>$data_array[$m_abbr]]], 'query'=>'', 'from'=>'measurement', 'min_ago'=>0];
         else
             $last_val_inf= $d->getAlertSensorValues($m_abbr, $influx_func, $r->calculation_minutes, $limit); // provides: ['values'=>$values,'query'=>$query, 'from'=>'cache', 'min_ago'=>$val_min_ago]
 

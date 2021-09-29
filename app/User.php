@@ -32,6 +32,13 @@ class User extends Authenticatable
     protected $appends  = ['app_debug'];
 
 
+    // Fix for Trebol\Entrust permissions that do not check 
+    public function can($permission, $arguments=[])
+    {
+        return $this->cans(explode('|', $permission), true);
+    }
+
+
     public function getAppDebugAttribute()
     {
         return $this->can('app-debug');

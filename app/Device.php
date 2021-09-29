@@ -245,7 +245,7 @@ class Device extends Model
             $cache_fields = $fields;
 
         $cache_name    = 'device-'.$this->id.'-fields-'.$cache_fields.'-limit-'.$limit;
-        $last_set_time = Cache::get('set-measurements-'.$cache_name.'-time');
+        $last_set_time = Cache::get('set-measurements-device-'.$this->id.'-time'); // not fields and limit based, set in MeasurementController::storeMeasurements
         $last_req_time = Cache::get('last-values-'.$cache_name.'-request-time');
         $last_req_vals = Cache::get('last-values-'.$cache_name);
 

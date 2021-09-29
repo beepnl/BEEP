@@ -9,6 +9,7 @@ use Cache;
 use Auth;
 use InfluxDB;
 use App\Models\Alert;
+use Moment\Moment;
 
 
 class Device extends Model

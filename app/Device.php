@@ -127,7 +127,7 @@ class Device extends Model
         {
             $cached_data = Cache::get('set-measurements-device-'.$this->id.'-data');
             if ($cached_data && isset($cached_data[$measurement_abbr]))
-                return ['values'=>$cached_data, 'query'=>'from cache'];
+                return ['values'=>[$measurement_abbr=>$cached_data[$measurement_abbr]], 'query'=>'from cache'];
         }
 
         $where_limit   = isset($limit) ? ' LIMIT '.$limit : '';

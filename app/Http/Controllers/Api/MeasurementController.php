@@ -241,7 +241,7 @@ class MeasurementController extends Controller
             //$data_array = $this->add_weight_kg_corrected_with_temperature($device, $data_array);
         }
         
-        //die(print_r($data_array));
+        //die(print_r(['u'=>$device->user_id, 'd'=>$data_array]));
 
         $stored = $this->storeInfluxData($data_array, $dev_eui, $time);
         

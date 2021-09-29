@@ -130,9 +130,9 @@ class AlertRule extends Model
         $m_abbr      = $r->measurement->abbreviation;
         $influx_func = AlertRule::$influx_calc[$r->calculation];
         $limit       = $diff_comp ? $r->alert_on_occurences + 1 : $r->alert_on_occurences; // one extra for diff calculation
-        
-        if (isset($data_array) && isset($data_array['time']) && isset($data_array[$m_abbr]))
-            $last_val_inf= ['values'=>[["time"=>$data_array['time'], "$m_abbr"=>$data_array[$m_abbr]]], 'query'=>'', 'from'=>'measurement', 'min_ago'=>0];
+
+        if (isset($data_array) && isset($data_array[$m_abbr]))
+            $last_val_inf= ['values'=>[["$m_abbr"=>$data_array[$m_abbr]]], 'query'=>'', 'from'=>'measurement', 'min_ago'=>0];
         else
             $last_val_inf= $d->getAlertSensorValues($m_abbr, $influx_func, $r->calculation_minutes, $limit); // provides: ['values'=>$values,'query'=>$query, 'from'=>'cache', 'min_ago'=>$val_min_ago]
 
@@ -146,7 +146,7 @@ class AlertRule extends Model
 
         if ($last_value_count > 0 || $alert_on_no_vals)
         {
-            //Log::debug(['r'=>$r->name, 'd'=>$d->name, 'lv'=>$last_values, 'mve'=>$last_value_count]);
+            //Log::debug(json_encode(['r'=>$r->name, 'd'=>$d->name, 'lv'=>$last_values, 'mve'=>$last_value_count]));
 
             // evaluate measurement values
             if ($last_value_count > 0)
@@ -428,16 +428,17 @@ class AlertRule extends Model
                         ->orderBy('last_evaluated_at')
                         ->get();
 
-        Log::debug('Parsing U='.$user_id.' D='.$device_id.' '.count($alertRules).' active alert rules last evaluated before '.$min_ago_5);
-
+        Log::debug('Parsing U='.$user_id.' D='.$device_id.' direct='.count($alertRules).' active alert rules last evaluated before '.$min_ago_5);
+        //die(print_r(['$user_id'=>$user_id,'$parse_min'=>$parse_min,'ar'=>$alertRules->toArray()]));
         foreach ($alertRules as $r) 
         {
             $parsed = $r->parseRule($device_id, $data_array); // returns ['rules'=>0,'calc'=>0,'msg'=>'no_user'];
             $ruleCount  += $parsed['rules'];
             $alertCount += $parsed['calc'];
+            Log::debug('|- '.json_encode($parsed));
         }
         if ($alertCount > 0)
-            Log::debug('|=> Parsed active rules='.$ruleCount.', created/updated alerts='.$alertCount);
+            Log::debug('|=> Parsed direct active rules='.$ruleCount.', created/updated alerts='.$alertCount);
 
         return $alertCount;
     }

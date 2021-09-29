@@ -302,6 +302,7 @@ class AlertRule extends Model
     public static function parseRules()
     {
         $alertCount = 0;
+        $ruleCount  = 0;
         $now        = new Moment(); // UTC
         $min_ago_15 = date('Y-m-d H:i:s', time()-900); // 15 min ago
 
@@ -379,6 +380,8 @@ class AlertRule extends Model
                 continue;
             }
 
+            $ruleCount++;
+
             // define calculation per user device
             $min_msg_date = '2019-01-01 00:00:00';
             if ($r->calculation != 'cnt')
@@ -409,7 +412,7 @@ class AlertRule extends Model
            
         }
         if ($alertCount > 0)
-            Log::debug('|=> Created or updated alerts='.$alertCount);
+            Log::debug('|=> Parsed active rules='.$ruleCount.', created/updated alerts='.$alertCount);
 
         return $alertCount;
     }

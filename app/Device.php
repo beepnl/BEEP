@@ -125,7 +125,7 @@ class Device extends Model
         //die(print_r([$names, $valid_sensors]));
         if ($table == 'sensors' && $limit == 1 && $interval_min <= 15)
         {
-            $cached_data = Cache::get('set-measurements-device-'.$device->id.'-data');
+            $cached_data = Cache::get('set-measurements-device-'.$this->id.'-data');
             if ($cached_data && isset($cached_data[$measurement_abbr]))
                 return ['values'=>$cached_data, 'query'=>'from cache'];
         }

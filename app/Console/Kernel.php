@@ -39,7 +39,7 @@ class Kernel extends ConsoleKernel
             {
                 AlertRule::parseRules();
             }
-        )->everyFiveMinutes();
+        )->everyMinute();
     }
 
     /**

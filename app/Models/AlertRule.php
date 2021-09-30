@@ -248,12 +248,26 @@ class AlertRule extends Model
                     {
                         $check_alert->alert_value = implode(', ', $alert_values);
                         $a             = $check_alert;
-                        $alert_comp    = $r->comparator == '=' ? 'is also equal' : 'has smaller diff';
-                        Log::debug($debug_start.' Update Alert id='.$check_alert->id.' count='.$alert_counter.', v='.$check_alert->alert_value.' '.$alert_comp.': '.$value_diff_old_max.' vs new ('.$newest_alert_value.'): '.$value_diff_new.', from: '.$last_val_inf['from']);
+                        $alert_comp    = $r->comparator == '=' ? '==' : '!=';
+                        $diff_comp     = ', Thr='.$r->threshold_value.' diff_new='.$value_diff_new.' > diff_old='.$value_diff_old_max;
+                        Log::debug($debug_start.' Update Alert id='.$check_alert->id.' count='.$alert_counter.', v_new='.$newest_alert_value.' '.$alert_comp.' v_last='.$check_alert->alert_value.$diff_comp.', from: '.$last_val_inf['from']);
                     }
                     else
                     {
-                        Log::debug($debug_start.' Maintain Alert id='.$check_alert->id.' count='.$alert_counter.', v='.$check_alert->alert_value.' has equal, or bigger diff: '.$value_diff_old_max.' vs new ('.$newest_alert_value.'): '.$value_diff_new.', from: '.$last_val_inf['from']);
+                        if ($value_diff_new == $value_diff_old_max)
+                        {
+                            $alert_compv= '==';
+                            $alert_comp = '==';
+                            $diff_comp  = '';
+                        }
+                        else
+                        {
+                            $alert_compv= '!=';
+                            $alert_comp = '<';
+                            $diff_comp  = ', Thr='.$r->threshold_value.' diff_new='.$value_diff_new.' '.$alert_comp.' diff_old='.$value_diff_old_max;
+                        }
+
+                        Log::debug($debug_start.' Maintain Alert id='.$check_alert->id.' count='.$alert_counter.', v_new='.$newest_alert_value.' '.$alert_compv.' v_last='.$check_alert->alert_value.$diff_comp.', from: '.$last_val_inf['from']);
                     }
                     $check_alert->save();
                 }
@@ -319,6 +333,8 @@ class AlertRule extends Model
         */
         $r = $this;
 
+        $parse_min   = min(60, env('PARSE_ALERT_RULES_EVERY_X_MIN', 15));
+        $m_abbr      = $r->measurement->abbreviation;
         $debug_start = '|- R='.$r->id.' U='.$r->user_id.' ';
 
         // exclude parsing of rules
@@ -376,14 +392,20 @@ class AlertRule extends Model
         // define calculation per user device
         $min_msg_date = '2019-01-01 00:00:00';
         if ($r->calculation != 'cnt')
-            $min_msg_date = date('Y-m-d H:i:s', time()-(60*$r->calculation_minutes));
+            $min_msg_date = date('Y-m-d H:i:s', time()-(60*max($parse_min, $r->calculation_minutes))); // at least 
 
         $all_user_devices = $user->allDevices()->where('hive_id', '!=', null)->whereNotIn('hive_id', $r->exclude_hive_ids);
 
         if ($device_id == null) // default all devices
             $user_devices = $all_user_devices->where('last_message_received', '>=', $min_msg_date)->get();
         else
-            $user_devices = $all_user_devices->where('last_message_received', '>=', $min_msg_date)->where('id', $device_id)->get();
+        {
+            //die(print_r(['d'=>$data_array,'r'=>$r->toArray()]));
+            if (isset($data_array) && isset($data_array[$m_abbr])) // new last_message_received not yet saved
+                $user_devices = $all_user_devices->where('id', $device_id)->get();
+            else
+                $user_devices = $all_user_devices->where('last_message_received', '>=', $min_msg_date)->where('id', $device_id)->get();
+        }
 
         $calculated = 0;
         if (count($user_devices) > 0)
@@ -395,7 +417,7 @@ class AlertRule extends Model
         }
         else
         {
-            return ['rules'=>1,'calc'=>0,'msg'=>'no_device'];
+            return ['rules'=>1,'calc'=>0,'msg'=>'no device ('.$device_id.') with hive and msg >= '.$min_msg_date];
         }
 
         // save last evaluated date
@@ -409,16 +431,16 @@ class AlertRule extends Model
                
     }
 
-    public static function parseUserDeviceDirectAlertRules($user_id, $device_id=null, $data_array=null)
+    public static function parseUserDeviceDirectAlertRules($rule_ids, $device_id=null, $data_array=null)
     {
         $alertCount = 0;
         $ruleCount  = 0;
-        $min_ago_5  = date('Y-m-d H:i:s', time()-290); // a bit less than 5 min ago
+        $min_ago_5  = date('Y-m-d H:i:s', time()-59); // a bit less than 1 min ago
         $parse_min  = min(60, env('PARSE_ALERT_RULES_EVERY_X_MIN', 15));
 
-        $alertRules = AlertRule::where('active', 1)
+        $alertRules = AlertRule::whereIn('id', $rule_ids)
+                        ->where('active', 1)
                         ->where('default_rule', 0)
-                        ->where('user_id', $user_id)
                         ->where('alert_on_occurences', '=', 1)
                         ->where('calculation_minutes', '<', $parse_min) // only parse alerts that are set to parsing 'at time of device data' (i.e. calculation_minutes == 0)
                         ->where(function($query) use ($min_ago_5) {  
@@ -428,14 +450,14 @@ class AlertRule extends Model
                         ->orderBy('last_evaluated_at')
                         ->get();
 
-        Log::debug('Parsing U='.$user_id.' D='.$device_id.' direct='.count($alertRules).' active alert rules last evaluated before '.$min_ago_5);
+        Log::debug('Parsing D='.$device_id.' direct='.count($alertRules).' active alert rules last evaluated before '.$min_ago_5);
         //die(print_r(['$user_id'=>$user_id,'$parse_min'=>$parse_min,'ar'=>$alertRules->toArray()]));
         foreach ($alertRules as $r) 
         {
             $parsed = $r->parseRule($device_id, $data_array); // returns ['rules'=>0,'calc'=>0,'msg'=>'no_user'];
             $ruleCount  += $parsed['rules'];
             $alertCount += $parsed['calc'];
-            Log::debug('|- '.json_encode($parsed));
+            Log::debug(' |- '.json_encode($parsed));
         }
         if ($alertCount > 0)
             Log::debug('|=> Parsed direct active rules='.$ruleCount.', created/updated alerts='.$alertCount);

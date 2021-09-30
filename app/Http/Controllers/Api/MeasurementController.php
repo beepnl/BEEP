@@ -240,14 +240,12 @@ class MeasurementController extends Controller
             // check if we need to compensate weight for temp (legacy)
             //$data_array = $this->add_weight_kg_corrected_with_temperature($device, $data_array);
         }
-        
-        //die(print_r(['u'=>$device->user_id, 'd'=>$data_array]));
-
         $stored = $this->storeInfluxData($data_array, $dev_eui, $time);
         
         // Parse Alert rules if available
-        AlertRule::parseUserDeviceDirectAlertRules($device->user_id, $device->id, $data_array);
-
+        $device_rule_ids = $device->hiveUserRuleIds();
+        if (count($device_rule_ids) > 0)
+            AlertRule::parseUserDeviceDirectAlertRules($device_rule_ids, $device->id, $data_array);
 
         if($stored) 
         {
@@ -567,7 +565,7 @@ class MeasurementController extends Controller
         }
         $this->cacheRequestRate('store-lora-sensors-'.$payload_type);
         
-        //die(print_r([$payload_type, $data_array]));
+        //die(print_r([$payload_type, $data_array, 'r'=>$request_data]));
         if (env('APP_ENV') == 'test')
         {
             $port        = isset($data_array['port']) ? '_port'.$data_array['port'] : '';

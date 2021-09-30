@@ -5,12 +5,12 @@ namespace App;
 use Iatstuti\Database\Support\CascadeSoftDeletes;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use DB;
 use Cache;
 use Auth;
 use InfluxDB;
 use App\Models\Alert;
 use Moment\Moment;
-
 
 class Device extends Model
 {
@@ -102,6 +102,50 @@ class Device extends Model
     public function alerts()
     {
         return $this->hasMany(Alert::class);
+    }
+
+    public function hiveUserIds()
+    {
+        $hive_id = $this->hive_id;
+        return Cache::remember('device-'.$this->id.'-hive-'.$hive_id.'-user-ids', env('CACHE_TIMEOUT_LONG'), function () use ($hive_id)
+        { 
+            $user_ids = [$this->user_id];
+            if (isset($hive_id))
+            {
+                $group_user_ids = DB::table('group_user')
+                                ->join('group_hive', function ($join) use ($hive_id) {
+                                $join->on('group_user.group_id' , '=', 'group_hive.group_id')
+                                     ->where('group_hive.hive_id', '=', $hive_id);
+                                })
+                                ->pluck('group_user.user_id')
+                                ->toArray();
+
+                $user_ids = array_unique(array_merge($user_ids, $group_user_ids));
+            }
+            return $user_ids;
+        });
+    }
+
+    public function hiveUserRuleIds()
+    {
+        $hive_id = $this->hive_id;
+        return Cache::remember('device-'.$this->id.'-hive-'.$hive_id.'-rule-ids', env('CACHE_TIMEOUT_LONG'), function () use ($hive_id)
+        { 
+            $rule_ids = $this->user->alert_rules()->pluck('id')->toArray();
+            if (isset($hive_id))
+            {
+                $group_rule_ids = DB::table('alert_rules')
+                                ->join('group_user', 'group_user.user_id', '=', 'alert_rules.user_id')
+                                ->join('group_hive', function ($join) use ($hive_id) {
+                                $join->on('group_user.group_id' , '=', 'group_hive.group_id')
+                                     ->where('group_hive.hive_id', '=', $hive_id);
+                                })
+                                ->pluck('alert_rules.id')
+                                ->toArray();
+                $rule_ids = array_unique(array_merge($rule_ids, $group_rule_ids));
+            }
+            return $rule_ids;
+        });
     }
 
     /* getSensorValues returns most recent Influx sensor values:

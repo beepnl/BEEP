@@ -255,7 +255,7 @@ class AlertRule extends Model
                         
                     if ($value_diff_new > $value_diff_old_max) // update the existing alert with new (higher diff) value and trigger e-mail
                     {
-                        $check_alert->alert_value = implode(', ', $alert_values);
+                        $check_alert->alert_value    = implode(', ', $alert_values);
                         $check_alert->alert_function = $r->readableFunction(false, $check_alert->alert_value);
                         $a             = $check_alert;
                         $alert_comp    = $r->comparator == '=' ? '==' : '!=';
@@ -264,6 +264,8 @@ class AlertRule extends Model
                     }
                     else
                     {
+                        $check_alert->alert_function = $r->readableFunction(false, $check_alert->alert_value);
+                        
                         if ($value_diff_new == $value_diff_old_max)
                         {
                             $alert_compv= '==';

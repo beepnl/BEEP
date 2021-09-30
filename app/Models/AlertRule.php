@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Log;
 use App\Measurement;
 use App\User;
+use App\Device;
 use App\Models\Alert;
 use Moment\Moment;
 
@@ -404,16 +405,16 @@ class AlertRule extends Model
         {
             //die(print_r(['d'=>$data_array,'r'=>$r->toArray()]));
             if ($direct_data) // new last_message_received not yet saved
-                $user_devices = $all_user_devices->where('id', $device_id)->get();
+                $user_devices = Device::where('id', $device_id)->get();
             else
                 $user_devices = $all_user_devices->where('last_message_received', '>=', $min_msg_date)->where('id', $device_id)->get();
         }
 
+        Log::debug($debug_start.' ('.$r->readableFunction().' @ '.$r->alert_on_occurences.'x '.$r->calculation_minutes.'min) last evaluated @ '.$last_evaluated_at.' ('.$min_ago.' min ago), devices='.count($user_devices).' (with hives, and msg received > '.$min_msg_date.')');
+        
         $calculated = 0;
         if (count($user_devices) > 0)
         {
-            Log::debug($debug_start.' ('.$r->readableFunction().' @ '.$r->alert_on_occurences.'x '.$r->calculation_minutes.'min) last evaluated @ '.$last_evaluated_at.' ('.$min_ago.' min ago), devices='.count($user_devices).' (with hives, and msg received > '.$min_msg_date.')');
-
             foreach ($user_devices as $device) 
                 $calculated += $r->evaluateDeviceRuleAlerts($device, $user, $alert_rule_calc_date, $data_array);
         }

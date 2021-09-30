@@ -284,7 +284,7 @@ class AlertRule extends Model
                 else // no previous alerts, so create
                 {
                     $alert_value = implode(', ', $alert_values);
-                    $alert_func  = $r->readableFunction(false, $check_alert->alert_value);
+                    $alert_func  = $r->readableFunction(false, $alert_value);
 
                     Log::debug($debug_start.' Create new Alert, v='.$alert_value.', eval_count='.$evaluation_count.' alert_count='.$alert_counter.' f='.$alert_func.', from: '.$last_val_inf['from']);
 

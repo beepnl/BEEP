@@ -419,7 +419,7 @@ class AlertRule extends Model
         }
         else
         {
-            return ['id'=>$r->id,'eval'=>1,'calc'=>0,'msg'=>'no device ('.$device_id.') with hive and msg >= '.$min_msg_date];
+            return ['id'=>$r->id,'eval'=>1,'calc'=>0,'msg'=>'no device ('.$device_id.' data='.$direct_data.') with hive and msg >= '.$min_msg_date];
         }
 
         // save last evaluated date

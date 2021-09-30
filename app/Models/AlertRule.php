@@ -461,7 +461,7 @@ class AlertRule extends Model
             $evalCount  += $parsed['eval'];
             $alertCount += $parsed['calc'];
             if ($parsed['eval'] == 0)
-                Log::debug('  |- '.$parsed['msg']));
+                Log::debug('  |- '.$parsed['msg']);
         }
         if ($alertCount > 0)
             Log::debug('|=> Evaluated direct rules='.$evalCount.', created/updated alerts='.$alertCount);

@@ -338,8 +338,6 @@ class AlertRule extends Model
         $m_abbr      = $r->measurement->abbreviation;
         $debug_start = '|- R='.$r->id.' U='.$r->user_id.' ';
         $direct_data = isset($data_array) && isset($data_array[$m_abbr]) ? true : false;
-
-
         
         // exclude parsing of rules
         $min_ago           = 0;
@@ -351,7 +349,7 @@ class AlertRule extends Model
             $min_ago   = -1 * round($now->from($last_evaluated_at)->getMinutes()); // round to whole value
         }
 
-        Log::debug($debug_start.' ('.$r->readableFunction().' @ '.$r->alert_on_occurences.'x '.$r->calculation_minutes.'min) last evaluated @ '.$last_evaluated_at.' ('.$min_ago.' min ago)');
+        Log::debug($debug_start.' ('.$r->readableFunction().' @ '.$r->alert_on_occurences.'x '.$r->calculation_minutes.'min) last evaluated @ '.$last_evaluated_at.' ('.$min_ago.' min ago), direct_data='."$direct_data");
         
         if ($min_ago > 0)
         {

@@ -100,12 +100,15 @@ class AlertRule extends Model
         return AlertRule::orderBy('name')->pluck('name','id');
     }
 
-    public function readableFunction()
+    public function readableFunction($short=false)
     {
         $r = $this;
-        $u = $r->calculation == 'cnt' || $r->calculation == 'der' ? '' : ' '.$r->measurement->unit;
-        $f = $r->measurement->pq.' '.__('beep.'.$r->calculation).' '.__('beep.'.$r->comparison).' '.$r->comparator.' '.$r->threshold_value.$u;
-        return $f;
+        $u = $r->calculation == 'cnt' || $r->calculation == 'der' ? '' : ''.$r->measurement->unit;
+
+        if ($short)
+            return $r->measurement->abbreviation.' '.$r->calculation.' '.$r->comparison.' '.$r->comparator.' '.$r->threshold_value.$u;
+
+        return $r->measurement->pq.' '.__('beep.'.$r->calculation).' '.__('beep.'.$r->comparison).' '.$r->comparator.' '.$r->threshold_value.$u;
     }
 
     public function evaluateDeviceRuleAlerts($device, $user, $alert_rule_calc_date, $data_array=null)
@@ -349,7 +352,7 @@ class AlertRule extends Model
             $min_ago   = -1 * round($now->from($last_evaluated_at)->getMinutes()); // round to whole value
         }
 
-        Log::debug($debug_start.' ('.$r->readableFunction().' @ '.$r->alert_on_occurences.'x '.$r->calculation_minutes.'min) last evaluated @ '.$last_evaluated_at.' ('.$min_ago.' min ago), direct_data='."$direct_data");
+        Log::debug($debug_start.'direct_data='.($direct_data?'1':'0').' ('.$r->readableFunction(true).' @ '.$r->alert_on_occurences.'x '.$r->calculation_minutes.'min) last evaluated @ '.$last_evaluated_at.' ('.$min_ago.' min ago)');
         
         if ($min_ago > 0)
         {

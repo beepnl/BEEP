@@ -348,7 +348,7 @@ class AlertRule extends Model
             if ($min_ago < $r->calculation_minutes) // do not parse too often
             {
                 //Log::debug($debug_start.' Not evaluated: last evaluated '.$min_ago.' min ago (< calc_min='.$r->calculation_minutes.')');
-                return ['rules'=>0,'calc'=>0,'msg'=>'to_soon'];
+                return ['id'=>$r->id,'rules'=>0,'calc'=>0,'msg'=>'too_soon'];
             }
         }
 
@@ -358,7 +358,7 @@ class AlertRule extends Model
         if (isset($r->exclude_months) && in_array($now_month, $r->exclude_months))
         {
             //Log::debug($debug_start.' Not evaluated: current month ('.$now_month.') in exclude_months='.implode(',',$r->exclude_months));
-            return ['rules'=>0,'calc'=>0,'msg'=>'excl_month'];
+            return ['id'=>$r->id,'rules'=>0,'calc'=>0,'msg'=>'excl_month'];
         }
 
         $now_hour  = $now_local->getHour();
@@ -366,7 +366,7 @@ class AlertRule extends Model
         if (isset($r->exclude_hours) && in_array($now_hour, $r->exclude_hours))
         {
             //Log::debug($debug_start.' Not evaluated: current hour ('.$now_hour.') in exclude_hours='.implode(',',$r->exclude_hours));
-            return ['rules'=>0,'calc'=>0,'msg'=>'excl_hour'];
+            return ['id'=>$r->id,'rules'=>0,'calc'=>0,'msg'=>'excl_hour'];
         }
 
         // check if user (still) exists
@@ -381,7 +381,7 @@ class AlertRule extends Model
                 $alerts->delete();
                 $r->delete();
             }
-            return ['rules'=>0,'calc'=>0,'msg'=>'no_user'];
+            return ['id'=>$r->id,'rules'=>0,'calc'=>0,'msg'=>'no_user'];
         }
 
         // Evaluate rule
@@ -417,7 +417,7 @@ class AlertRule extends Model
         }
         else
         {
-            return ['rules'=>1,'calc'=>0,'msg'=>'no device ('.$device_id.') with hive and msg >= '.$min_msg_date];
+            return ['id'=>$r->id,'rules'=>1,'calc'=>0,'msg'=>'no device ('.$device_id.') with hive and msg >= '.$min_msg_date];
         }
 
         // save last evaluated date
@@ -427,7 +427,7 @@ class AlertRule extends Model
             $r->save();
         }
 
-        return ['rules'=>1,'calc'=>$calculated,'msg'=>'ok'];
+        return ['id'=>$r->id,'rules'=>1,'calc'=>$calculated,'msg'=>'ok'];
                
     }
 

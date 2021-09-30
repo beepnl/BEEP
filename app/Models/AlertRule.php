@@ -436,8 +436,8 @@ class AlertRule extends Model
     public static function parseUserDeviceDirectAlertRules($rule_ids, $device_id=null, $data_array=null)
     {
         $alertCount = 0;
-        $ruleCount  = 0;
-        $min_ago_5  = date('Y-m-d H:i:s', time()-59); // a bit less than 1 min ago
+        $evalCount  = 0;
+        $min_ago_e  = date('Y-m-d H:i:s', time()-59); // a bit less than 1 min ago
         $parse_min  = min(60, env('PARSE_ALERT_RULES_EVERY_X_MIN', 15));
 
         $alertRules = AlertRule::whereIn('id', $rule_ids)
@@ -445,24 +445,24 @@ class AlertRule extends Model
                         ->where('default_rule', 0)
                         ->where('alert_on_occurences', '=', 1)
                         ->where('calculation_minutes', '<', $parse_min) // only parse alerts that are set to parsing 'at time of device data' (i.e. calculation_minutes == 0)
-                        ->where(function($query) use ($min_ago_5) {  
-                            $query->where('last_evaluated_at','<=', $min_ago_5)
+                        ->where(function($query) use ($min_ago_e) {  
+                            $query->where('last_evaluated_at','<=', $min_ago_e)
                             ->orWhereNull('last_evaluated_at'); 
                         })
                         ->orderBy('last_evaluated_at')
                         ->get();
 
-        Log::debug('Parsing D='.$device_id.' direct='.count($alertRules).' active alert rules last evaluated before '.$min_ago_5);
+        Log::debug('Evaluating (D='.$device_id.') '.count($alertRules).' direct alert rules last evaluated before '.$min_ago_e);
         //die(print_r(['$user_id'=>$user_id,'$parse_min'=>$parse_min,'ar'=>$alertRules->toArray()]));
         foreach ($alertRules as $r) 
         {
-            $parsed = $r->parseRule($device_id, $data_array); // returns ['rules'=>0,'calc'=>0,'msg'=>'no_user'];
-            $ruleCount  += $parsed['rules'];
+            $parsed = $r->parseRule($device_id, $data_array); // returns ['eval'=>0,'calc'=>0,'msg'=>'no_user'];
+            $evalCount  += $parsed['eval'];
             $alertCount += $parsed['calc'];
             Log::debug(' |- '.json_encode($parsed));
         }
         if ($alertCount > 0)
-            Log::debug('|=> Parsed direct active rules='.$ruleCount.', created/updated alerts='.$alertCount);
+            Log::debug('|=> Evaluated direct rules='.$evalCount.', created/updated alerts='.$alertCount);
 
         return $alertCount;
     }
@@ -477,7 +477,7 @@ class AlertRule extends Model
 
         if ($now_min % $parse_min == 0)
         {
-            $ruleCount  = 0;
+            $evalCount  = 0;
             $min_ago_15 = date('Y-m-d H:i:s', time()-890); // a bit less than 15 min ago
 
             $alertRules = AlertRule::where('active', 1)
@@ -493,16 +493,16 @@ class AlertRule extends Model
                             ->orderBy('last_evaluated_at')
                             ->get();
 
-            Log::debug('Parsing '.count($alertRules).' active alert rules last evaluated before '.$min_ago_15);
+            Log::debug('Evaluating '.count($alertRules).' active alert rules last evaluated before '.$min_ago_15);
 
             foreach ($alertRules as $r) 
             {
-                $parsed = $r->parseRule(); // returns ['rules'=>0,'calc'=>0,'msg'=>'no_user'];
-                $ruleCount  += $parsed['rules'];
+                $parsed = $r->parseRule(); // returns ['eval'=>0,'calc'=>0,'msg'=>'no_user'];
+                $evalCount  += $parsed['eval'];
                 $alertCount += $parsed['calc'];
             }
             if ($alertCount > 0)
-                Log::debug('|=> Parsed active rules='.$ruleCount.', created/updated alerts='.$alertCount);
+                Log::debug('|=> Evaluated rules='.$evalCount.', created/updated alerts='.$alertCount);
         }
 
         return $alertCount;

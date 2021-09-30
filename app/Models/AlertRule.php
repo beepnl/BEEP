@@ -227,8 +227,8 @@ class AlertRule extends Model
                 $a             = null;
                 $check_alert   = null;
                 $device_min    = $d->getRefreshMin();
-                $check_min     = max($r->calculation_minutes, $parse_min, $device_min)+1; 
-                $check_date    = date('Y-m-d H:i:s', time()-60*$check_min); // a bit less than 1 min ago
+                $alert_min     = max($r->calculation_minutes, $parse_min, $device_min)+1; 
+                $check_date    = date('Y-m-d H:i:s', time()-60*$alert_min); // a bit less than 1 min ago
                 if ($check_date)
                     $check_alert = $d->alerts()->where('user_id', $u->id)->where('alert_rule_id', $r->id)->where('device_id', $d->id)->where('updated_at', '>=', $check_date)->orderBy('updated_at', 'desc')->first();
                 
@@ -355,7 +355,7 @@ class AlertRule extends Model
         // exclude parsing of rules
         $min_ago           = 0;
         $last_evaluated_at = $r->last_evaluated_at;
-        $check_min         = $direct_data ? 1 : $r->calculation_minutes;
+        $check_min         = $direct_data ? 1 : max($r->calculation_minutes, $parse_min);
 
         if (isset($last_evaluated_at))
         {

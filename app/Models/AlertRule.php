@@ -352,7 +352,7 @@ class AlertRule extends Model
             $min_ago   = -1 * round($now->from($last_evaluated_at)->getMinutes()); // round to whole value
         }
 
-        Log::debug($debug_start.'direct_data='.($direct_data?'1':'0').' ('.$r->readableFunction(true).' @ '.$r->alert_on_occurences.'x '.$r->calculation_minutes.'min) last evaluated @ '.$last_evaluated_at.' ('.$min_ago.' min ago)');
+        Log::debug($debug_start.'direct_data='.($direct_data?'1':'0').' ('.$r->readableFunction(true).' @ '.$r->alert_on_occurences.'x'.$r->calculation_minutes.'m) last eval '.$min_ago.'m ago @ '.$last_evaluated_at);
         
         if ($min_ago > 0)
         {
@@ -466,13 +466,13 @@ class AlertRule extends Model
         foreach ($alertRules as $r) 
         {
             $parsed = $r->parseRule($device_id, $data_array); // returns ['eval'=>0,'calc'=>0,'msg'=>'no_user'];
-            $evalCount  += $parsed['eval'];
             $alertCount += $parsed['calc'];
-            if ($parsed['eval'] == 0)
-                Log::debug('  |- '.$parsed['msg']);
+            //$evalCount  += $parsed['eval'];
+            // if ($parsed['eval'] == 0)
+            //     Log::debug('  |- '.$parsed['msg']);
         }
-        if ($alertCount > 0)
-            Log::debug('|=> Evaluated direct rules='.$evalCount.', created/updated alerts='.$alertCount);
+        // if ($alertCount > 0)
+        //     Log::debug('|=> Evaluated direct rules='.$evalCount.', created/updated alerts='.$alertCount);
 
         return $alertCount;
     }
@@ -508,11 +508,11 @@ class AlertRule extends Model
             foreach ($alertRules as $r) 
             {
                 $parsed = $r->parseRule(); // returns ['eval'=>0,'calc'=>0,'msg'=>'no_user'];
-                $evalCount  += $parsed['eval'];
                 $alertCount += $parsed['calc'];
+                // $evalCount  += $parsed['eval'];
             }
-            if ($alertCount > 0)
-                Log::debug('|=> Evaluated rules='.$evalCount.', created/updated alerts='.$alertCount);
+            // if ($alertCount > 0)
+            //     Log::debug('|=> Evaluated rules='.$evalCount.', created/updated alerts='.$alertCount);
         }
 
         return $alertCount;

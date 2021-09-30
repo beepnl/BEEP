@@ -339,6 +339,8 @@ class AlertRule extends Model
         $debug_start = '|- R='.$r->id.' U='.$r->user_id.' ';
         $direct_data = isset($data_array) && isset($data_array[$m_abbr]) ? true : false;
 
+
+        
         // exclude parsing of rules
         $min_ago           = 0;
         $last_evaluated_at = $r->last_evaluated_at;
@@ -347,6 +349,12 @@ class AlertRule extends Model
         {
             $now       = new Moment(); // UTC
             $min_ago   = -1 * round($now->from($last_evaluated_at)->getMinutes()); // round to whole value
+        }
+
+        Log::debug($debug_start.' ('.$r->readableFunction().' @ '.$r->alert_on_occurences.'x '.$r->calculation_minutes.'min) last evaluated @ '.$last_evaluated_at.' ('.$min_ago.' min ago)');
+        
+        if ($min_ago > 0)
+        {
             $check_min = $direct_data ? 1 : $r->calculation_minutes;
             if ($min_ago < $check_min) // do not parse too often
             {
@@ -354,6 +362,7 @@ class AlertRule extends Model
                 return ['eval'=>0,'calc'=>0,'msg'=>'too_soon: min_ago='.$min_ago.' check_min='.$check_min];
             }
         }
+
 
         $now_local = new Moment('now', $r->timezone);  // Timezone of user that set alert rule (default: Europe/Amsterdam)
         $now_month = $now_local->getMonth();
@@ -410,8 +419,6 @@ class AlertRule extends Model
                 $user_devices = $all_user_devices->where('last_message_received', '>=', $min_msg_date)->where('id', $device_id)->get();
         }
 
-        Log::debug($debug_start.' ('.$r->readableFunction().' @ '.$r->alert_on_occurences.'x '.$r->calculation_minutes.'min) last evaluated @ '.$last_evaluated_at.' ('.$min_ago.' min ago), devices='.count($user_devices).' (with hives, and msg received > '.$min_msg_date.')');
-        
         $calculated = 0;
         if (count($user_devices) > 0)
         {

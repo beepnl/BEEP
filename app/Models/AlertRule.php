@@ -63,11 +63,11 @@ class AlertRule extends Model
         //     $a->save();
         // });
 
-        AlertRule::deleting(function($r)
-        {
-            $a = new Alert(['alert_rule_id'=>$r->id, 'alert_function'=>$r->readableFunction(), 'alert_value'=>'alert_rule_deleted', 'measurement_id'=>$r->measurement_id, 'user_id'=>$r->user_id]);
-            $a->save();
-        });
+        // AlertRule::deleting(function($r)
+        // {
+        //     $a = new Alert(['alert_rule_id'=>$r->id, 'alert_function'=>$r->readableFunction(), 'alert_value'=>'alert_rule_deleted', 'measurement_id'=>$r->measurement_id, 'user_id'=>$r->user_id]);
+        //     $a->save();
+        // });
     }
 
 
@@ -100,10 +100,13 @@ class AlertRule extends Model
         return AlertRule::orderBy('name')->pluck('name','id');
     }
 
-    public function readableFunction($short=false)
+    public function readableFunction($short=false, $value=null)
     {
         $r = $this;
         $u = $r->calculation == 'cnt' || $r->calculation == 'der' ? '' : ''.$r->measurement->unit;
+
+        if ($value != null) // alert function
+            return __('beep.'.$r->calculation).' '.__('beep.'.$r->comparison).' '.$r->measurement->pq.' = '.$value.$u.' ('.$r->comparator.' '.$r->threshold_value.$u.')';
 
         if ($short)
             return $r->measurement->abbreviation.' '.$r->calculation.' '.$r->comparison.' '.$r->comparator.' '.$r->threshold_value.$u;
@@ -117,6 +120,7 @@ class AlertRule extends Model
         $d = $device;
         $u = $user;
 
+        $parse_min   = min(60, env('PARSE_ALERT_RULES_EVERY_X_MIN', 15));
         $debug_start = ' |-- D='.$d->id.' ';
 
         if (!isset($d->hive_id) || in_array($d->hive_id, $r->exclude_hive_ids)) // only parse existing hives that are not excluded
@@ -134,8 +138,9 @@ class AlertRule extends Model
         $m_abbr      = $r->measurement->abbreviation;
         $influx_func = AlertRule::$influx_calc[$r->calculation];
         $limit       = $diff_comp ? $r->alert_on_occurences + 1 : $r->alert_on_occurences; // one extra for diff calculation
+        $direct_data = isset($data_array) && isset($data_array[$m_abbr]) ? true : false;
 
-        if (isset($data_array) && isset($data_array[$m_abbr]))
+        if ($direct_data)
             $last_val_inf= ['values'=>[["$m_abbr"=>$data_array[$m_abbr]]], 'query'=>'', 'from'=>'measurement', 'min_ago'=>0];
         else
             $last_val_inf= $d->getAlertSensorValues($m_abbr, $influx_func, $r->calculation_minutes, $limit); // provides: ['values'=>$values,'query'=>$query, 'from'=>'cache', 'min_ago'=>$val_min_ago]
@@ -221,9 +226,9 @@ class AlertRule extends Model
                 $alert_counter = 1;  // # of occurrences in a row
                 $a             = null;
                 $check_alert   = null;
-                $check_date    = $r->last_calculated_at;
+                $check_date    = date('Y-m-d H:i:s', time()-60*$parse_min); // a bit less than 1 min ago
                 if ($check_date)
-                    $check_alert = $d->alerts()->where('user_id', $u->id)->where('alert_rule_id', $r->id)->where('device_id', $d->id)->where('updated_at', '>=', $check_date)->first();
+                    $check_alert = $d->alerts()->where('user_id', $u->id)->where('alert_rule_id', $r->id)->where('device_id', $d->id)->where('updated_at', '>=', $check_date)->orderBy('updated_at', 'desc')->first();
                 
                 if ($check_alert) // check if user already has this alert, if so, update it if diff value is bigger
                 {
@@ -251,6 +256,7 @@ class AlertRule extends Model
                     if ($value_diff_new > $value_diff_old_max) // update the existing alert with new (higher diff) value and trigger e-mail
                     {
                         $check_alert->alert_value = implode(', ', $alert_values);
+                        $check_alert->alert_function = $r->readableFunction(false, $check_alert->alert_value);
                         $a             = $check_alert;
                         $alert_comp    = $r->comparator == '=' ? '==' : '!=';
                         $diff_comp     = ', Thr='.$r->threshold_value.' diff_new='.$value_diff_new.' > diff_old='.$value_diff_old_max;
@@ -278,7 +284,7 @@ class AlertRule extends Model
                 else // no previous alerts, so create
                 {
                     $alert_value = implode(', ', $alert_values);
-                    $alert_func  = $r->readableFunction();
+                    $alert_func  = $r->readableFunction(false, $check_alert->alert_value);
 
                     Log::debug($debug_start.' Create new Alert, v='.$alert_value.', eval_count='.$evaluation_count.' alert_count='.$alert_counter.' f='.$alert_func.', from: '.$last_val_inf['from']);
 

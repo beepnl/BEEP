@@ -460,7 +460,7 @@ class AlertRule extends Model
             $parsed = $r->parseRule($device_id, $data_array); // returns ['eval'=>0,'calc'=>0,'msg'=>'no_user'];
             $evalCount  += $parsed['eval'];
             $alertCount += $parsed['calc'];
-            Log::debug(' |- '.json_encode($parsed));
+            //Log::debug(' |- '.json_encode($parsed));
         }
         if ($alertCount > 0)
             Log::debug('|=> Evaluated direct rules='.$evalCount.', created/updated alerts='.$alertCount);

@@ -351,7 +351,7 @@ class AlertRule extends Model
             if ($min_ago < $check_min) // do not parse too often
             {
                 //Log::debug($debug_start.' Not evaluated: last evaluated '.$min_ago.' min ago (< calc_min='.$r->calculation_minutes.')');
-                return ['id'=>$r->id,'eval'=>0,'calc'=>0,'msg'=>'too_soon'];
+                return ['eval'=>0,'calc'=>0,'msg'=>'too_soon: min_ago='.$min_ago.' check_min='.$check_min];
             }
         }
 
@@ -361,7 +361,7 @@ class AlertRule extends Model
         if (isset($r->exclude_months) && in_array($now_month, $r->exclude_months))
         {
             //Log::debug($debug_start.' Not evaluated: current month ('.$now_month.') in exclude_months='.implode(',',$r->exclude_months));
-            return ['id'=>$r->id,'eval'=>0,'calc'=>0,'msg'=>'excl_month'];
+            return ['eval'=>0,'calc'=>0,'msg'=>'excl_month='.$now_month];
         }
 
         $now_hour  = $now_local->getHour();
@@ -369,7 +369,7 @@ class AlertRule extends Model
         if (isset($r->exclude_hours) && in_array($now_hour, $r->exclude_hours))
         {
             //Log::debug($debug_start.' Not evaluated: current hour ('.$now_hour.') in exclude_hours='.implode(',',$r->exclude_hours));
-            return ['id'=>$r->id,'eval'=>0,'calc'=>0,'msg'=>'excl_hour'];
+            return ['eval'=>0,'calc'=>0,'msg'=>'excl_hour='.$now_hour];
         }
 
         // check if user (still) exists
@@ -384,7 +384,7 @@ class AlertRule extends Model
                 $alerts->delete();
                 $r->delete();
             }
-            return ['id'=>$r->id,'eval'=>0,'calc'=>0,'msg'=>'no_user'];
+            return ['eval'=>0,'calc'=>0,'msg'=>'no_user'];
         }
 
         // Evaluate rule
@@ -420,7 +420,7 @@ class AlertRule extends Model
         }
         else
         {
-            return ['id'=>$r->id,'eval'=>1,'calc'=>0,'msg'=>'no device ('.$device_id.' data='.$direct_data.') with hive and msg >= '.$min_msg_date];
+            return ['eval'=>1,'calc'=>0,'msg'=>'no device ('.$device_id.' data='.$direct_data.') with hive and msg >= '.$min_msg_date];
         }
 
         // save last evaluated date
@@ -430,7 +430,7 @@ class AlertRule extends Model
             $r->save();
         }
 
-        return ['id'=>$r->id,'eval'=>1,'calc'=>$calculated,'msg'=>'ok'];
+        return ['eval'=>1,'calc'=>$calculated,'msg'=>'ok'];
                
     }
 
@@ -460,7 +460,7 @@ class AlertRule extends Model
             $parsed = $r->parseRule($device_id, $data_array); // returns ['eval'=>0,'calc'=>0,'msg'=>'no_user'];
             $evalCount  += $parsed['eval'];
             $alertCount += $parsed['calc'];
-            //Log::debug(' |- '.json_encode($parsed));
+            Log::debug(' |- '.implode(', ',$parsed));
         }
         if ($alertCount > 0)
             Log::debug('|=> Evaluated direct rules='.$evalCount.', created/updated alerts='.$alertCount);

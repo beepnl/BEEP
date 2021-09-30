@@ -345,6 +345,7 @@ class AlertRule extends Model
         // exclude parsing of rules
         $min_ago           = 0;
         $last_evaluated_at = $r->last_evaluated_at;
+        $check_min         = $direct_data ? 1 : $r->calculation_minutes;
 
         if (isset($last_evaluated_at))
         {
@@ -352,11 +353,10 @@ class AlertRule extends Model
             $min_ago   = -1 * round($now->from($last_evaluated_at)->getMinutes()); // round to whole value
         }
 
-        Log::debug($debug_start.'direct_data='.($direct_data?'1':'0').' ('.$r->readableFunction(true).' @ '.$r->alert_on_occurences.'x'.$r->calculation_minutes.'m) last eval '.$min_ago.'m ago @ '.$last_evaluated_at);
+        Log::debug($debug_start.'direct_data='.($direct_data?'1':'0').' ('.$r->readableFunction(true).' @ '.$r->alert_on_occurences.'x'.$r->calculation_minutes.'m) last eval '.$min_ago.'m ago (check_min='.$check_min.') @ '.$last_evaluated_at);
         
         if ($min_ago > 0)
         {
-            $check_min = $direct_data ? 1 : $r->calculation_minutes;
             if ($min_ago < $check_min) // do not parse too often
             {
                 //Log::debug($debug_start.' Not evaluated: last evaluated '.$min_ago.' min ago (< calc_min='.$r->calculation_minutes.')');

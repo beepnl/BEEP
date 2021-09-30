@@ -226,7 +226,9 @@ class AlertRule extends Model
                 $alert_counter = 1;  // # of occurrences in a row
                 $a             = null;
                 $check_alert   = null;
-                $check_date    = date('Y-m-d H:i:s', time()-60*$parse_min); // a bit less than 1 min ago
+                $device_min    = $d->getRefreshMin();
+                $check_min     = max($r->calculation_minutes, $parse_min, $device_min)+1; 
+                $check_date    = date('Y-m-d H:i:s', time()-60*$check_min); // a bit less than 1 min ago
                 if ($check_date)
                     $check_alert = $d->alerts()->where('user_id', $u->id)->where('alert_rule_id', $r->id)->where('device_id', $d->id)->where('updated_at', '>=', $check_date)->orderBy('updated_at', 'desc')->first();
                 

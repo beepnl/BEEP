@@ -104,6 +104,13 @@ class Device extends Model
         return $this->hasMany(Alert::class);
     }
 
+    public function getRefreshMin()
+    {
+        $int_min = isset($this->measurement_interval_min) ? $this->measurement_interval_min : 0;
+        $int_mul = isset($this->measurement_transmission_ratio) ? $this->measurement_transmission_ratio : 1;
+        return $int_min * $int_mul;
+    }
+
     public function hiveUserIds()
     {
         $hive_id = $this->hive_id;

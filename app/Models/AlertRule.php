@@ -106,7 +106,7 @@ class AlertRule extends Model
         $u = $r->calculation == 'cnt' || $r->calculation == 'der' ? '' : ''.$r->measurement->unit;
 
         if ($value != null) // alert function
-            return __('beep.'.$r->calculation).' '.__('beep.'.$r->comparison).' '.$r->measurement->pq.' = '.$value.$u.' ('.$r->comparator.' '.$r->threshold_value.$u.')';
+            return __('beep.'.$r->calculation).' '.__('beep.'.$r->comparison).' '.$r->measurement->pq.' = '.$value.$u."\n(".$r->comparator.' '.$r->threshold_value.$u.')';
 
         if ($short)
             return $r->measurement->abbreviation.' '.$r->calculation.' '.$r->comparison.' '.$r->comparator.' '.$r->threshold_value.$u;
@@ -265,7 +265,7 @@ class AlertRule extends Model
                     else
                     {
                         $check_alert->alert_function = $r->readableFunction(false, $check_alert->alert_value);
-                        
+
                         if ($value_diff_new == $value_diff_old_max)
                         {
                             $alert_compv= '==';
@@ -288,7 +288,7 @@ class AlertRule extends Model
                     $alert_value = implode(', ', $alert_values);
                     $alert_func  = $r->readableFunction(false, $alert_value);
 
-                    Log::debug($debug_start.' Create new Alert, v='.$alert_value.', eval_count='.$evaluation_count.' alert_count='.$alert_counter.' f='.$alert_func.', from: '.$last_val_inf['from']);
+                    Log::debug($debug_start.' Create new Alert, v='.$alert_value.', eval_count='.$evaluation_count.' alert_count='.$alert_counter.' f='.$r->readableFunction(true).', from: '.$last_val_inf['from']);
 
                     $a = new Alert();
                     $a->created_at     = $alert_rule_calc_date;

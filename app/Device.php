@@ -271,11 +271,10 @@ class Device extends Model
     }
 
     // Provide a list of sensor names that exist within the $where clase and $table
-    public static function getAvailableSensorNamesFromData($names, $where, $table='sensors', $output_sensors_only=true)
+    public static function getAvailableSensorNamesNoCache($names, $where, $table='sensors', $output_sensors_only=true, $cache_name='names-nocache')
     {
-        //die(print_r([$names, $valid_sensors]));
-        $valid_sensors  = Measurement::all()->pluck('pq', 'abbreviation')->toArray();
-        $output_sensors = Measurement::where('show_in_charts', '=', 1)->pluck('abbreviation')->toArray();
+        $valid_sensors  = Measurement::getValidMeasurements();
+        $output_sensors = Measurement::getValidMeasurements(true);
 
         $out           = [];
         $valid_sensors = $output_sensors_only ? $output_sensors : array_keys($valid_sensors);
@@ -289,7 +288,7 @@ class Device extends Model
         $valid_fields = implode(', ', $fields);
 
         $query  = 'SELECT '.$valid_fields.' FROM "'.$table.'" WHERE '.$where.' GROUP BY "name,time" ORDER BY time DESC LIMIT 1';
-        $values = Device::getInfluxQuery($query, 'names');
+        $values = Device::getInfluxQuery($query, $cache_name);
 
         if (count($values) > 0)
             $sensors = $values[0];
@@ -303,6 +302,30 @@ class Device extends Model
         $out = array_values($out);
 
         return $out;
+    }
+
+    // Provide a list of sensor names that exist within the $where clase and $table (cached)
+    public static function getAvailableSensorNamesFromData($device_name, $names, $where, $table='sensors', $output_sensors_only=true, $cache=true)
+    {
+        $output_name   = $output_sensors_only ? 'output' : 'valid';
+        $names_name    = gettype($names) == 'array' ? implode('-', $names) : $names;
+
+        $cache_string  = 'device-'.$device_name.'-'.$table.'-measurement-names-'.$names_name.'-'.$output_name;
+        $cache_array   = Cache::get($cache_string);
+
+        $forget = 0;
+        if (gettype($cache_array) != 'array' || count($cache_array) == 0 || $cache == false)
+        {
+            $forget = 1;
+            Cache::forget($cache_string);
+        }
+
+        //die(print_r(['forget'=>$forget, 'key'=>$cache_string, 'data'=>$cache_array]));
+
+        return Cache::remember($cache_string, env('CACHE_TIMEOUT_LONG', 3600), function () use ($names, $where, $table, $output_sensors_only)
+        { 
+            return Device::getAvailableSensorNamesNoCache($names, $where, $table, $output_sensors_only, 'names');
+        });
     }
 
     

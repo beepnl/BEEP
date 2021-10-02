@@ -43,8 +43,8 @@ class MeasurementController extends Controller
     public function __construct()
     {
         // make sure to add to the measurements DB table w_v_kg_per_val, w_fl_kg_per_val, etc. and w_v_offset, w_fl_offset to let the calibration functions function correctly
-        $this->valid_sensors  = Measurement::all()->pluck('pq', 'abbreviation')->toArray();
-        $this->output_sensors = Measurement::where('show_in_charts', '=', 1)->pluck('abbreviation')->toArray();
+        $this->valid_sensors  = Measurement::getValidMeasurements();
+        $this->output_sensors = Measurement::getValidMeasurements(true);
         $this->client         = new \Influx;
         //die(print_r($this->valid_sensors));
     }
@@ -281,7 +281,7 @@ class MeasurementController extends Controller
             $sensors     = $request->input('sensors', $this->output_sensors);
             $where       = '("key" = \''.$device->key.'\' OR "key" = \''.strtolower($device->key).'\' OR "key" = \''.strtoupper($device->key).'\') AND time >= \''.$startString.'\' AND time <= \''.$endString.'\'';
 
-            $sensor_measurements = Device::getAvailableSensorNamesFromData($sensors, $where, 'sensors', false);
+            $sensor_measurements = Device::getAvailableSensorNamesNoCache($sensors, $where, 'sensors', false);
             //die(print_r([$device->name, $device->key]));
             if ($sensor_measurements)
             {
@@ -842,7 +842,7 @@ class MeasurementController extends Controller
             $deviceMaxResolutionMinutes = $device->measurement_interval_min * max(1,$device->measurement_transmission_ratio);
 
         $interval  = $request->input('interval','day');
-        $index     = $request->input('index',0);
+        $index     = intval($request->input('index',0));
         $timeGroup = $request->input('timeGroup','day');
         $timeZone  = $request->input('timezone','UTC');
         
@@ -853,6 +853,8 @@ class MeasurementController extends Controller
         $staTimestamp->setTimezone($timeZone);
         $endTimestamp = new Moment();
         $endTimestamp->setTimezone($timeZone);
+
+        $cache_sensor_names = $index < 7 ? true : false;
         // if (timeGroup != null)
         // {
             switch($interval)
@@ -861,17 +863,20 @@ class MeasurementController extends Controller
                     $resolution = '1d';
                     $staTimestamp->subtractYears($index);
                     $endTimestamp->subtractYears($index);
+                    $cache_sensor_names = false;
                     break;
                 case 'month':
                     $resolution = $deviceMaxResolutionMinutes > 180 ? $deviceMaxResolutionMinutes.'m' : '3h';
                     $staTimestamp->subtractMonths($index);
                     $endTimestamp->subtractMonths($index);
+                    $cache_sensor_names = false;
                     break;
                 case 'week':
                     $requestInterval = 'week';
                     $resolution = $deviceMaxResolutionMinutes > 60 ? $deviceMaxResolutionMinutes.'m' : '1h';
                     $staTimestamp->subtractWeeks($index);
                     $endTimestamp->subtractWeeks($index);
+                    $cache_sensor_names = false;
                     break;
                 case 'day':
                     $resolution = $deviceMaxResolutionMinutes > 10 ? $deviceMaxResolutionMinutes.'m' : '10m';
@@ -898,8 +903,9 @@ class MeasurementController extends Controller
         {
             if ($device)
             {
-                $groupByResolution = 'GROUP BY time('.$resolution.') fill(null)';
-                $queryList         = Device::getAvailableSensorNamesFromData($names, $whereKeyAndTime);
+                $fill              = env('INFLUX_FILL', 'null');
+                $groupByResolution = 'GROUP BY time('.$resolution.') fill('.$fill.')';
+                $queryList         = Device::getAvailableSensorNamesFromData($device->id, $names, $whereKeyAndTime, 'sensors', true, $cache_sensor_names);
 
                 foreach ($queryList as $i => $name) 
                     $queryList[$i] = 'MEAN("'.$name.'") AS "'.$name.'"';
@@ -909,7 +915,8 @@ class MeasurementController extends Controller
             // Add weather
             if ($location && isset($location->coordinate_lat) && isset($location->coordinate_lon))
             {
-                $queryListWeather   = Device::getAvailableSensorNamesFromData($names, '"lat" = \''.$location->coordinate_lat.'\' AND "lon" = \''.$location->coordinate_lon.'\' AND time >= \''.$staTimestampString.'\' AND time <= \''.$endTimestampString.'\'', 'weather');
+                $whereLoc = '"lat" = \''.$location->coordinate_lat.'\' AND "lon" = \''.$location->coordinate_lon.'\' AND time >= \''.$staTimestampString.'\' AND time <= \''.$endTimestampString.'\'';
+                $queryListWeather   = Device::getAvailableSensorNamesFromData('loc'.$location->id, $names, $whereLoc, 'weather', true, $cache_sensor_names);
                 
                 foreach ($queryListWeather as $i => $name) 
                     $queryListWeather[$i] = 'MEAN("'.$name.'") AS "'.$name.'"';
@@ -954,6 +961,6 @@ class MeasurementController extends Controller
         if (count($sensors_out) == 0 && count($weather_out) == 0)
             return Response::json('sensor-none-error', 500);
 
-        return Response::json( ['id'=>$device->id, 'interval'=>$interval, 'index'=>$index, 'timeGroup'=>$timeGroup, 'resolution'=>$resolution, 'measurements'=>$sensors_out, 'sensorDefinitions'=>$sensorDefinitions] );
+        return Response::json( ['id'=>$device->id, 'interval'=>$interval, 'index'=>$index, 'timeGroup'=>$timeGroup, 'resolution'=>$resolution, 'measurements'=>$sensors_out, 'sensorDefinitions'=>$sensorDefinitions, 'cacheSensorNames'=>$cache_sensor_names] );
     }
 }

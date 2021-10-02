@@ -1,4 +1,4 @@
-<div class="col-xs-3">
+<div class="col-xs-12 col-md-4">
 	<div class="form-group {{ $errors->has('active') ? 'has-error' : ''}}">
 	    <label for="active" control-label>{{ 'Active' }}</label>
 	    <div>
@@ -12,7 +12,7 @@
 	    </div>
 	</div>
 </div>
-<div class="col-xs-3">
+<div class="col-xs-12 col-md-4">
 	<div class="form-group {{ $errors->has('default_rule') ? 'has-error' : ''}}">
 	    <label for="default_rule" control-label>{{ 'Default Rule' }}</label>
 	    <div>
@@ -26,7 +26,7 @@
 	    </div>
 	</div>
 </div>
-<div class="col-xs-3">
+<div class="col-xs-12 col-md-4">
 	<div class="form-group {{ $errors->has('alert_via_email') ? 'has-error' : ''}}">
 	    <label for="alert_via_email" control-label>{{ 'Alert Via Email' }}</label>
 	    <div>
@@ -40,7 +40,7 @@
 	    </div>
 	</div>
 </div>
-<div class="col-xs-3">
+<div class="col-xs-12 col-md-6">
 	<div class="form-group {{ $errors->has('last_calculated_at') ? 'has-error' : ''}}">
 	    <label for="last_calculated_at" control-label>{{ 'Last calculated at (YYYY-MM-DD HH:mm:ss)' }}</label>
 	    <div>
@@ -49,7 +49,16 @@
 	    </div>
 	</div>
 </div>
-<div class="col-xs-6">
+<div class="col-xs-12 col-md-6">
+	<div class="form-group {{ $errors->has('last_evaluated_at') ? 'has-error' : ''}}">
+	    <label for="last_evaluated_at" control-label>{{ 'Last evaluated at (YYYY-MM-DD HH:mm:ss)' }}</label>
+	    <div>
+	        <input class="form-control" name="last_evaluated_at" type="text" id="last_evaluated_at" value="{{ $alertrule->last_evaluated_at ?? ''}}" >
+	        {!! $errors->first('last_evaluated_at', '<p class="help-block">:message</p>') !!}
+	    </div>
+	</div>
+</div>
+<div class="col-xs-12 col-md-6">
 	<div class="form-group {{ $errors->has('name') ? 'has-error' : ''}}">
 	    <label for="name" control-label>{{ 'Name' }}</label>
 	    <div>
@@ -58,7 +67,7 @@
 	    </div>
 	</div>
 </div>
-<div class="col-xs-6">
+<div class="col-xs-12 col-md-6">
 	<div class="form-group {{ $errors->has('description') ? 'has-error' : ''}}">
 	    <label for="description" control-label>{{ 'Description' }}</label>
 	    <div>
@@ -67,7 +76,7 @@
 	    </div>
 	</div>
 </div>
-<div class="col-xs-4">
+<div class="col-xs-12 col-md-4">
 	<div class="form-group {{ $errors->has('measurement_id') ? 'has-error' : ''}}">
 	    <label for="measurement_id" control-label>{{ 'Measurement Id' }}</label>
 	    <div>
@@ -76,7 +85,7 @@
 	    </div>
 	</div>
 </div>
-<div class="col-xs-4">
+<div class="col-xs-12 col-md-4">
 	<div class="form-group {{ $errors->has('calculation') ? 'has-error' : ''}}">
 	    <label for="calculation" control-label>{{ 'Calculation' }}</label>
 	    <div>
@@ -89,7 +98,7 @@
 	    </div>
 	</div>
 </div>
-<div class="col-xs-4">
+<div class="col-xs-12 col-md-4">
 	<div class="form-group {{ $errors->has('calculation_minutes') ? 'has-error' : ''}}">
 	    <label for="calculation_minutes" control-label>{{ 'Calculation Minutes' }}</label>
 	    <div>
@@ -98,7 +107,7 @@
 	    </div>
 	</div>
 </div>
-<div class="col-xs-4">
+<div class="col-xs-12 col-md-4">
 	<div class="form-group {{ $errors->has('comparison') ? 'has-error' : ''}}">
 	    <label for="comparison" control-label>{{ 'Comparison' }}</label>
 	    <div>
@@ -111,7 +120,7 @@
 	    </div>
 	</div>
 </div>
-<div class="col-xs-4">
+<div class="col-xs-12 col-md-4">
 	<div class="form-group {{ $errors->has('comparator') ? 'has-error' : ''}}">
 	    <label for="comparator" control-label>{{ 'Comparator' }}</label>
 	    <div>
@@ -124,7 +133,7 @@
 	    </div>
 	</div>
 </div>
-<div class="col-xs-4">
+<div class="col-xs-12 col-md-4">
 	<div class="form-group {{ $errors->has('threshold_value') ? 'has-error' : ''}}">
 	    <label for="threshold_value" control-label>{{ 'Threshold Value' }}</label>
 	    <div>
@@ -133,7 +142,7 @@
 	    </div>
 	</div>
 </div>
-<div class="col-xs-4">
+<div class="col-xs-12 col-md-3">
 	<div class="form-group {{ $errors->has('alert_on_occurrences') ? 'has-error' : ''}}">
 	    <label for="alert_on_occurrences" control-label>{{ 'Alert on occurences' }}</label>
 	    <div>
@@ -142,7 +151,7 @@
 	    </div>
 	</div>
 </div>
-<div class="col-xs-4">
+<div class="col-xs-12 col-md-3">
 	<div class="form-group {{ $errors->has('exclude_months') ? 'has-error' : ''}}">
 	    <label for="exclude_months" control-label>{{ 'Exclude Months' }}</label>
 	    <div>
@@ -151,7 +160,7 @@
 	    </div>
 	</div>
 </div>
-<div class="col-xs-4">
+<div class="col-xs-12 col-md-3">
 	<div class="form-group {{ $errors->has('exclude_hours') ? 'has-error' : ''}}">
 	    <label for="exclude_hours" control-label>{{ 'Exclude Hours' }}</label>
 	    <div>
@@ -160,7 +169,7 @@
 	    </div>
 	</div>
 </div>
-<div class="col-xs-4">
+<div class="col-xs-12 col-md-3">
 	<div class="form-group {{ $errors->has('exclude_hive_ids') ? 'has-error' : ''}}">
 	    <label for="exclude_hive_ids" control-label>{{ 'Exclude Hives' }}</label>
 	    <div>
@@ -170,7 +179,7 @@
 	</div>
 </div>
 
-<div class="col-xs-4">
+<div class="col-xs-12 col-md-6">
 	<div class="form-group {{ $errors->has('webhook_url') ? 'has-error' : ''}}">
 	    <label for="webhook_url" control-label>{{ 'Webhook Url' }}</label>
 	    <div>
@@ -180,7 +189,7 @@
 	</div>
 </div>
 
-<div class="col-xs-4">
+<div class="col-xs-12 col-md-6">
 	<div class="form-group {{ $errors->has('user_id') ? 'has-error' : ''}}">
 	    <label for="user_id" control-label>{{ 'User Id' }}</label>
 	    <div>

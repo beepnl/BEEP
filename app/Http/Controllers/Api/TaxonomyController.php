@@ -48,6 +48,8 @@ class TaxonomyController extends Controller
             $out['alert_rules']['calculations'] = AlertRule::$calculations;
             $out['alert_rules']['comparators']  = AlertRule::$comparators;
             $out['alert_rules']['comparisons']  = AlertRule::$comparisons;
+            $out['alert_rules']['exclude_hours']= AlertRule::$exclude_hours;
+            $out['alert_rules']['calc_minutes'] = AlertRule::$calc_minutes;
 
             return $out;
         });

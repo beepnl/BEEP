@@ -5,11 +5,12 @@ namespace App;
 use Iatstuti\Database\Support\CascadeSoftDeletes;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use DB;
 use Cache;
 use Auth;
 use InfluxDB;
 use App\Models\Alert;
-
+use Moment\Moment;
 
 class Device extends Model
 {
@@ -103,6 +104,57 @@ class Device extends Model
         return $this->hasMany(Alert::class);
     }
 
+    public function getRefreshMin()
+    {
+        $int_min = isset($this->measurement_interval_min) ? $this->measurement_interval_min : 0;
+        $int_mul = isset($this->measurement_transmission_ratio) ? $this->measurement_transmission_ratio : 1;
+        return $int_min * $int_mul;
+    }
+
+    public function hiveUserIds()
+    {
+        $hive_id = $this->hive_id;
+        return Cache::remember('device-'.$this->id.'-hive-'.$hive_id.'-user-ids', env('CACHE_TIMEOUT_LONG'), function () use ($hive_id)
+        { 
+            $user_ids = [$this->user_id];
+            if (isset($hive_id))
+            {
+                $group_user_ids = DB::table('group_user')
+                                ->join('group_hive', function ($join) use ($hive_id) {
+                                $join->on('group_user.group_id' , '=', 'group_hive.group_id')
+                                     ->where('group_hive.hive_id', '=', $hive_id);
+                                })
+                                ->pluck('group_user.user_id')
+                                ->toArray();
+
+                $user_ids = array_unique(array_merge($user_ids, $group_user_ids));
+            }
+            return $user_ids;
+        });
+    }
+
+    public function hiveUserRuleIds()
+    {
+        $hive_id = $this->hive_id;
+        return Cache::remember('device-'.$this->id.'-hive-'.$hive_id.'-rule-ids', env('CACHE_TIMEOUT_LONG'), function () use ($hive_id)
+        { 
+            $rule_ids = $this->user->alert_rules()->pluck('id')->toArray();
+            if (isset($hive_id))
+            {
+                $group_rule_ids = DB::table('alert_rules')
+                                ->join('group_user', 'group_user.user_id', '=', 'alert_rules.user_id')
+                                ->join('group_hive', function ($join) use ($hive_id) {
+                                $join->on('group_user.group_id' , '=', 'group_hive.group_id')
+                                     ->where('group_hive.hive_id', '=', $hive_id);
+                                })
+                                ->pluck('alert_rules.id')
+                                ->toArray();
+                $rule_ids = array_unique(array_merge($rule_ids, $group_rule_ids));
+            }
+            return $rule_ids;
+        });
+    }
+
     /* getSensorValues returns most recent Influx sensor values:
     Array
     (
@@ -120,27 +172,50 @@ class Device extends Model
 
     )
     */
-    public function getAlertSensorValues($measurement_abbr, $influx_func='MEAN', $interval_min=null, $limit=null, $start=null, $table='sensors', $output_sensors_only=false)
+    public function getAlertSensorValues($measurement_abbr, $influx_func='MEAN', $interval_min=null, $limit=null, $start=null, $table='sensors')
     {
         //die(print_r([$names, $valid_sensors]));
+        $device_int_min= isset($this->measurement_interval_min) ? $this->measurement_interval_min : 15;
+        $time_int_min  = isset($interval_min) && $interval_min > $device_int_min ? $interval_min : $device_int_min;
+        $val_min_ago   = null;
         
+        // Get values from cache
+        if ($table == 'sensors' && $limit == 1 && $interval_min <= $time_int_min)
+        {
+            $cached_time = Cache::get('set-measurements-device-'.$this->id.'-time');
+            $cached_data = Cache::get('set-measurements-device-'.$this->id.'-data');
+            $val_min_ago = round((time() - intval($cached_time)) / 60);
+            if ($cached_data && $val_min_ago < $time_int_min && isset($cached_data['time']) && isset($cached_data[$measurement_abbr]))
+                return ['values'=>[["time"=>$cached_data['time'], "$measurement_abbr"=>$cached_data[$measurement_abbr]]], 'query'=>'', 'from'=>'cache', 'min_ago'=>$val_min_ago];
+        }
+
+        // Get values from Influx
         $where_limit   = isset($limit) ? ' LIMIT '.$limit : '';
         $where         = '("key" = \''.$this->key.'\' OR "key" = \''.strtolower($this->key).'\' OR "key" = \''.strtoupper($this->key).'\')';
         $where_time    = isset($start) ? 'AND time >= \''.$start.'\' ' : '';
-        $device_int_min= isset($this->measurement_interval_min) ? $this->measurement_interval_min : 15;
-        $time_interval = isset($interval_min) && $interval_min > $device_int_min ? $interval_min.'m' : $device_int_min.'m';
-        $group_by_time = 'GROUP BY time('.$time_interval.') ';
+        $group_by_time = 'GROUP BY time('.$time_int_min.'m) ';
 
         $deriv_time    = '';
         if ($influx_func == 'DERIVATIVE') // don't groupby time, but set derivative time
         {
             $group_by_time = '';
-            $deriv_time    = ','.$time_interval;
+            $deriv_time    = ','.$time_int_min.'m';
         }
 
         $query   = 'SELECT '.$influx_func.'("'.$measurement_abbr.'"'.$deriv_time.') AS "'.$measurement_abbr.'" FROM "'.$table.'" WHERE '.$where.' '.$where_time.$group_by_time.'ORDER BY time DESC'.$where_limit;
         $values  = Device::getInfluxQuery($query, 'alert');
-        return ['values'=>$values,'query'=>$query];
+
+        if (count($values) > 0)
+        {
+            $last_vals = $values[0];
+            if ($last_vals['time'])
+            {
+                $last_mom    = new Moment($last_vals['time']);
+                $val_min_ago = round($last_mom->fromNow()->getMinutes());
+            }
+        }
+        
+        return ['values'=>$values,'query'=>$query, 'from'=>'influx', 'min_ago'=>$val_min_ago];
     }
 
     public static function selectList()
@@ -196,11 +271,10 @@ class Device extends Model
     }
 
     // Provide a list of sensor names that exist within the $where clase and $table
-    public static function getAvailableSensorNamesFromData($names, $where, $table='sensors', $output_sensors_only=true)
+    public static function getAvailableSensorNamesNoCache($names, $where, $table='sensors', $output_sensors_only=true, $cache_name='names-nocache')
     {
-        //die(print_r([$names, $valid_sensors]));
-        $valid_sensors  = Measurement::all()->pluck('pq', 'abbreviation')->toArray();
-        $output_sensors = Measurement::where('show_in_charts', '=', 1)->pluck('abbreviation')->toArray();
+        $valid_sensors  = Measurement::getValidMeasurements();
+        $output_sensors = Measurement::getValidMeasurements(true);
 
         $out           = [];
         $valid_sensors = $output_sensors_only ? $output_sensors : array_keys($valid_sensors);
@@ -214,7 +288,7 @@ class Device extends Model
         $valid_fields = implode(', ', $fields);
 
         $query  = 'SELECT '.$valid_fields.' FROM "'.$table.'" WHERE '.$where.' GROUP BY "name,time" ORDER BY time DESC LIMIT 1';
-        $values = Device::getInfluxQuery($query, 'names');
+        $values = Device::getInfluxQuery($query, $cache_name);
 
         if (count($values) > 0)
             $sensors = $values[0];
@@ -230,6 +304,30 @@ class Device extends Model
         return $out;
     }
 
+    // Provide a list of sensor names that exist within the $where clase and $table (cached)
+    public static function getAvailableSensorNamesFromData($device_name, $names, $where, $table='sensors', $output_sensors_only=true, $cache=true)
+    {
+        $output_name   = $output_sensors_only ? 'output' : 'valid';
+        $names_name    = gettype($names) == 'array' ? implode('-', $names) : $names;
+
+        $cache_string  = 'device-'.$device_name.'-'.$table.'-measurement-names-'.$names_name.'-'.$output_name;
+        $cache_array   = Cache::get($cache_string);
+
+        $forget = 0;
+        if (gettype($cache_array) != 'array' || count($cache_array) == 0 || $cache == false)
+        {
+            $forget = 1;
+            Cache::forget($cache_string);
+        }
+
+        //die(print_r(['forget'=>$forget, 'key'=>$cache_string, 'data'=>$cache_array]));
+
+        return Cache::remember($cache_string, env('CACHE_TIMEOUT_LONG', 3600), function () use ($names, $where, $table, $output_sensors_only)
+        { 
+            return Device::getAvailableSensorNamesNoCache($names, $where, $table, $output_sensors_only, 'names');
+        });
+    }
+
     
     public function last_sensor_values_array($fields='*', $limit=1)
     {
@@ -239,11 +337,11 @@ class Device extends Model
             $cache_fields = $fields;
 
         $cache_name    = 'device-'.$this->id.'-fields-'.$cache_fields.'-limit-'.$limit;
-        $last_set_time = Cache::get('set-measurements-device-'.$this->id.'-time'); // not fields and limit based, set in MeasurementController::storeMeasurements
+        $last_dev_time = Cache::get('set-measurements-device-'.$this->id.'-time'); // not fields and limit based, set in MeasurementController::storeMeasurements
         $last_req_time = Cache::get('last-values-'.$cache_name.'-request-time');
         $last_req_vals = Cache::get('last-values-'.$cache_name);
 
-        if ($last_req_vals != null && $last_set_time < $last_req_time) // only request Influx if newer data is available
+        if ($last_req_vals != null && $last_dev_time < $last_req_time) // only request Influx if newer data is available
         {
             $last_req_vals['from_cache'] = true;
             return $last_req_vals;

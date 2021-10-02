@@ -47,7 +47,7 @@
 				<div class="inner">
 					<h3>{{ $data['influx-get'] }} / {{ $data['influx-write'] }}</h3>
 
-					<p>Influx read/write /hr: last:{{$data['influx-last']}} | names:{{$data['influx-names']}} | device:{{$data['influx-device']}} | alert:{{$data['influx-alert']}} | wea:{{$data['influx-weather']}} | data:{{$data['influx-data']}} | log:{{$data['influx-flashlog']}} | res:{{$data['influx-research']+$data['influx-research-api']}} | csv:{{$data['influx-csv']}}
+					<p>Influx read/write /hr: last:{{$data['influx-last']}} | names/nc:{{$data['influx-names']}}/{{$data['influx-names-nocache']}} | device:{{$data['influx-device']}} | alert:{{$data['influx-alert']}} | wea:{{$data['influx-weather']}} | data:{{$data['influx-data']}} | log:{{$data['influx-flashlog']}} | res:{{$data['influx-research']+$data['influx-research-api']}} | csv:{{$data['influx-csv']}}
 					</p>
 				</div>
 				<div class="icon">

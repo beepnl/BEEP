@@ -111,7 +111,7 @@ app.service('api', ['$http', '$rootScope', function ($http, $rootScope) {
 
   this.handleAuthentication = function (result) {
     $rootScope.user = result;
-    $rootScope.user.img = API_URL + "../uploads/avatars/" + result.avatar; // token
+    if (result.avatar == 'null' || 'default.jpg') $rootScope.user.img = "https://assets.beep.nl/avatars/default.jpg";else $rootScope.user.img = result.avatar; // token
 
     if (result.api_token != null) self.setApiToken(result.api_token);
     $rootScope.$broadcast('userUpdated');

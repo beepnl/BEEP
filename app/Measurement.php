@@ -5,6 +5,7 @@ namespace App;
 use Illuminate\Database\Eloquent\Model;
 use App\PhysicalQuantity;
 use App\Translation;
+use Cache;
 
 class Measurement extends Model
 {
@@ -27,7 +28,7 @@ class Measurement extends Model
      *
      * @var array
      */
-    protected $fillable = ['abbreviation', 'physical_quantity_id', 'show_in_charts', 'chart_group', 'min_value', 'max_value', 'hex_color', 'show_in_alerts', 'show_in_dials'];
+    protected $fillable = ['abbreviation', 'physical_quantity_id', 'show_in_charts', 'chart_group', 'min_value', 'max_value', 'hex_color', 'show_in_alerts', 'show_in_dials', 'weather'];
 
     protected $hidden  = ['created_at', 'updated_at']; //'parent'
 
@@ -120,6 +121,19 @@ class Measurement extends Model
             return $m->id;
 
         return null;
+    }
+
+    public static function getValidMeasurements($output=false, $weather=false)
+    {
+        $name_table = $weather ? 'weather' : 'sensors';
+        $name_value = $output ? 'output' : 'valid';
+        return Cache::remember('measurement-list-'.$name_table.'-'.$name_value, env('CACHE_TIMEOUT_LONG'), function () use ($output, $weather)
+        { 
+            if ($output)
+                return Measurement::where('weather',$weather)->where('show_in_charts', '=', 1)->pluck('abbreviation')->toArray();
+
+            return Measurement::where('weather',$weather)->get()->pluck('pq', 'abbreviation')->toArray();
+        });
     }
 
     public static function selectList()

@@ -19,7 +19,7 @@
 <div class="col-xs-12">
 	<br>
 </div>
-<div class="col-xs-12 col-md-4">
+<div class="col-xs-12 col-md-3">
 	<div class="form-group {{ $errors->has('show_in_charts') ? 'has-error' : ''}}">
 	    <label for="show_in_charts" control-label>{{ 'Show In Charts' }}</label>
 	    <div>
@@ -34,7 +34,7 @@
     </div>
 </div>
 
-<div class="col-xs-12 col-md-4">
+<div class="col-xs-12 col-md-3">
 	<div class="form-group {{ $errors->has('show_in_dials') ? 'has-error' : ''}}">
 	    <label for="show_in_dials" control-label>{{ 'Show In Dials' }}</label>
 	    <div>
@@ -49,7 +49,7 @@
     </div>
 </div>
 
-<div class="col-xs-12 col-md-4">
+<div class="col-xs-12 col-md-3">
 	<div class="form-group {{ $errors->has('show_in_alerts') ? 'has-error' : ''}}">
 	    <label for="show_in_alerts" control-label>{{ 'Show In Alerts' }}</label>
 	    <div>
@@ -63,6 +63,22 @@
         {!! $errors->first('show_in_alerts', '<p class="help-block">:message</p>') !!}
     </div>
 </div>
+
+<div class="col-xs-12 col-md-3">
+	<div class="form-group {{ $errors->has('weather') ? 'has-error' : ''}}">
+	    <label for="weather" control-label>{{ 'Weather related' }}</label>
+	    <div>
+	        <div class="radio">
+    			<label><input name="weather" type="radio" value="1" @if (isset($measurement)) {{ (1 == $measurement->weather) ? 'checked' : '' }} @else {{ 'checked' }} @endif> Yes</label>
+			</div>
+			<div class="radio">
+			    <label><input name="weather" type="radio" value="0" {{ (isset($measurement) && 0 == $measurement->weather) ? 'checked' : '' }}> No</label>
+			</div>
+        </div>
+        {!! $errors->first('weather', '<p class="help-block">:message</p>') !!}
+    </div>
+</div>
+
 <div class="col-xs-12">
 	<br>
 </div>

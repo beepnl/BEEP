@@ -65,7 +65,7 @@
                     <td>{{ isset($item->user_id) ? $item->user->name.' ('.$item->user_id.')' : '' }}</td>
                     <td>{{ $item->name }}</td>
                     <td>{{ $item->active }}</td>
-                    <td>{{ $item->alert_on_occurences }}x {{ $item->calculation_minutes }}</td>
+                    <td>{{ $item->calculation_minutes }} x{{ $item->alert_on_occurences }}</td>
                     <td>{{ $item->last_evaluated_at }}</td>
                     <td>{{ $item->last_calculated_at }}</td>
                     <td>{{ $item->readableFunction() }}</td>

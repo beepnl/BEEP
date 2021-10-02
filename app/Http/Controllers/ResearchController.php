@@ -33,8 +33,8 @@ class ResearchController extends Controller
 
     public function __construct()
     {
-        $this->valid_sensors  = Measurement::all()->pluck('pq', 'abbreviation')->toArray();
-        $this->output_sensors = Measurement::where('show_in_charts', '=', 1)->pluck('abbreviation')->toArray();
+        $this->valid_sensors  = Measurement::getValidMeasurements();
+        $this->output_sensors = Measurement::getValidMeasurements(true);
         $this->client         = new \Influx;
         //die(print_r($this->valid_sensors));
     }
@@ -975,7 +975,7 @@ class ResearchController extends Controller
             else
                 $names = $this->output_sensors;
             
-            $queryList = Device::getAvailableSensorNamesFromData($names, $where, $database);
+            $queryList = Device::getAvailableSensorNamesNoCache($names, $where, $database);
             
             if (isset($queryList) && gettype($queryList) == 'array' && count($queryList) > 0)
                 $groupBySelect = implode(', ', $queryList);

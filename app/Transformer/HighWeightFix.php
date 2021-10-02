@@ -117,7 +117,7 @@ class HighWeightFix {
                     $limit  = $values_per_device != null ? ' LIMIT '.$values_per_device : '';
                     $query  = 'SELECT * FROM "sensors" WHERE '.$where.' AND time >= \''.$start.'\' AND time < \''.$end.'\' GROUP BY "key" ORDER BY time ASC'.$limit;
 
-                    $valid_sensors = Measurement::all()->pluck('pq', 'abbreviation')->toArray();
+                    $valid_sensors  = Measurement::getValidMeasurements();
 
                     $data = HighWeightFix::getInfluxQuery($query);
 

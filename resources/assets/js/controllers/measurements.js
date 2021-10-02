@@ -317,7 +317,7 @@ app.controller('MeasurementsCtrl', function($scope, $rootScope, $timeout, $inter
                 measurements.loadLastSensorValues();
             }
             // set timer
-            if ($scope.periodIndex == 0)
+            if ($scope.periodIndex == 0 && $scope.period == 'hour')
             {
                 $scope.loadLastSensorValuesTimer = $interval(function()
                 {

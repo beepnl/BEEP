@@ -101,7 +101,7 @@ app.service('measurements', ['$http', '$rootScope', '$interval', 'api', 'setting
 	{
 		api.getApiRequest('dataRequest', 'sensors/measurements', 'id='+self.sensorId+'&interval='+self.interval+'&index='+self.timeIndex+'&timeGroup='+self.timeGroup+'&timezone='+self.timeZone);
 		
-		if (self.timeIndex > 0)
+		if (self.timeIndex > 0 || self.timeGroup == null || self.timeGroup != 'hour')
 			self.stopLoadingMeasurements(); // no need to refresh, because no new values
 	}
 

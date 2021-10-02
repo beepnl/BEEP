@@ -689,7 +689,7 @@ app.service('measurements', ['$http', '$rootScope', '$interval', 'api', 'setting
 
   this.sensorMeasurementRequest = function () {
     api.getApiRequest('dataRequest', 'sensors/measurements', 'id=' + self.sensorId + '&interval=' + self.interval + '&index=' + self.timeIndex + '&timeGroup=' + self.timeGroup + '&timezone=' + self.timeZone);
-    if (self.timeIndex > 0) self.stopLoadingMeasurements(); // no need to refresh, because no new values
+    if (self.timeIndex > 0 || self.timeGroup == null || self.timeGroup != 'hour') self.stopLoadingMeasurements(); // no need to refresh, because no new values
   };
 
   this.loadRemoteDevices = function () {
@@ -3814,7 +3814,7 @@ app.controller('MeasurementsCtrl', function ($scope, $rootScope, $timeout, $inte
       } // set timer
 
 
-      if ($scope.periodIndex == 0) {
+      if ($scope.periodIndex == 0 && $scope.period == 'hour') {
         $scope.loadLastSensorValuesTimer = $interval(function () {
           measurements.loadLastSensorValues();
         }, 20000);

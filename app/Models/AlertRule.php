@@ -43,7 +43,7 @@ class AlertRule extends Model
     public static $comparisons    = ["val"=>"Value", "dif"=>"Difference", "abs_dif"=>"Absolute_value_of_dif"]; // excluse "abs"=>"Absolute_value", because it has no usecase
     public static $exclude_months = [1=>"Jan",2=>"Feb",3=>"Mar",4=>"Apr",5=>"May",6=>"Jun",7=>"Jul",8=>"Aug",9=>"Sep",10=>"Oct",11=>"Nov",12=>"Dec"];
     public static $exclude_hours  = [0=>"0:00 - 0:59",1=>"1:00 - 1:59",2=>"2:00 - 2:59",3=>"3:00 - 3:59",4=>"4:00 - 4:59",5=>"5:00 - 5:59",6=>"6:00 - 6:59",7=>"7:00 - 7:59",8=>"8:00 - 8:59",9=>"9:00 - 9:59",10=>"10:00 - 10:59",11=>"11:00 - 11:59",12=>"12:00 - 12:59",13=>"13:00 - 13:59",14=>"14:00 - 14:59",15=>"15:00 - 15:59",16=>"16:00 - 16:59",17=>"17:00 - 17:59",18=>"18:00 - 18:59",19=>"19:00 - 19:59",20=>"20:00 - 20:59",21=>"21:00 - 21:59",22=>"22:00 - 22:59",23=>"23:00 - 23:59"];
-    public static $calc_minutes   = [0, 30, 60, 180, 360, 720, 1440, 2880, 10080];
+    public static $calc_minutes   = [0, 60, 180, 360, 720, 1440, 2880, 10080];
 
     public static function boot()
     {
@@ -146,7 +146,10 @@ class AlertRule extends Model
             $last_val_inf= $d->getAlertSensorValues($m_abbr, $influx_func, $r->calculation_minutes, $limit); // provides: ['values'=>$values,'query'=>$query, 'from'=>'cache', 'min_ago'=>$val_min_ago]
 
         if ($last_val_inf['min_ago'] > $r->calculation_minutes)
-            Log::debug($debug_start.' Data from '.$last_val_inf['min_ago'].'m ago > calc /'.$r->calculation_minutes.'m');
+        {
+            Log::debug($debug_start.' Not evaluating, data from '.$last_val_inf['min_ago'].'m ago is longer ago than '.$r->calculation_minutes.'m (calc min)');
+            return 0;
+        }
 
         $last_values      = $last_val_inf['values'];
         $alert_count      = 0;
@@ -168,58 +171,77 @@ class AlertRule extends Model
                 {  
 
                     if (!isset($last_values[$i][$m_abbr]))
-                        continue;
-
-                    $value      = floatval($last_values[$i][$m_abbr]);
-                    if (!isset($value) || $value == '' || $value == 'null')
-                        continue;
-                    
-                    $value_prev = null;
-                    if ($i+1 < count($last_values) && isset($last_values[$i+1][$m_abbr]))
-                        $value_prev = floatval($last_values[$i+1][$m_abbr]);
-
-
-                    if ($diff_comp && isset($value_prev))
                     {
-                        $value = floatval($value - $value_prev);
-                        $last_values_calc[] = $value;
-                        $last_values_calc[] = $value_prev;
+                        continue;
                     }
                     else
                     {
-                        $last_values_calc[] = $value;
+                        $value = $last_values[$i][$m_abbr];
+                        if (!isset($value) || $value == '' || $value == 'null')
+                            continue;
+                    }
+                    
+                    $value_prev = null;
+                    if ($i+1 < count($last_values) && isset($last_values[$i+1][$m_abbr]))
+                    {
+                        $value_prev = $last_values[$i+1][$m_abbr];
+                        if (!isset($value_prev) || $value_prev == '' || $value_prev == 'null')
+                            continue;
                     }
 
-                    if ($r->comparison == 'abs_dif')
-                        $value = abs($value);
+                    if ($diff_comp)
+                    {
+                        $calc = $value - $value_prev;
+                        if ($r->comparison == 'abs_dif')
+                            $calc = abs($calc);
+                    }
+                    else
+                    {
+                        $calc = $value;
+                    }
 
-                    $value = round($value, 1); // round to 1 decimal, just like the threshold_value
+                    $calc  = round($calc, 1); // round to 1 decimal, just like the threshold_value
                     $thres = round($r->threshold_value, 1);
-
                     
                     $evaluation = false;
                     switch($r->comparator)
                     {
                         case "=":
-                            $evaluation = $value == $thres ? true : false;
+                            $evaluation = $calc == $thres ? true : false;
                             break;
                         case "<":
-                            $evaluation = $value < $thres ? true : false;
+                            $evaluation = $calc < $thres ? true : false;
                             break; 
                         case ">":
-                            $evaluation = $value > $thres ? true : false;
+                            $evaluation = $calc > $thres ? true : false;
                             break; 
                         case "<=":
-                            $evaluation = $value <= $thres ? true : false;
+                            $evaluation = $calc <= $thres ? true : false;
                             break; 
                         case ">=":
-                            $evaluation = $value >= $thres ? true : false;
+                            $evaluation = $calc >= $thres ? true : false;
                             break; 
                     }
                     if ($evaluation)
                     {
                         $evaluation_count++;
-                        $alert_values[] = $value;
+                        $alert_values[] = $calc;
+                    }
+
+                    // save last calc values for reference
+                    $key = $m_abbr.'_'.$i;
+                    if (isset($last_values[$i]['time'])
+                        $key = $last_values[$i]['time'];
+                    
+                    $last_values_calc[$key] = $value;
+
+                    if ($diff_comp && $i == $last_value_count-1)
+                    {
+                        $key = $m_abbr.'_'.$i+1;
+                        if (isset($last_values[$i+1]['time'])
+                            $key = $last_values[$i+1]['time'];
+
+                        $last_values_calc[$key] = $value_prev;
                     }
                 }
             }
@@ -229,7 +251,8 @@ class AlertRule extends Model
 
                 for ($i=0; $i < $evaluation_count; $i++) 
                 { 
-                    $alert_values[] = 0; // alert on 0 value count
+                    $alert_values[]     = 0; // alert on 0 value count
+                    $last_values_calc[] = 0;
                 }
             }
 
@@ -278,7 +301,7 @@ class AlertRule extends Model
                         $diff_comp     = ', Thr='.$r->threshold_value.' diff_new='.$value_diff_new.' > diff_old='.$value_diff_old_max;
                         Log::debug($debug_start.' Update Alert id='.$check_alert->id.' count='.$alert_counter.', v_new='.$newest_alert_value.' '.$alert_comp.' v_last='.$check_alert->alert_value.$diff_comp.', from: '.$last_val_inf['from']);
                     }
-                    else
+                    else // only update count of existing alert
                     {
                         $check_alert->alert_function = $r->readableFunction(false, $check_alert->alert_value);
 
@@ -335,7 +358,7 @@ class AlertRule extends Model
             }
             else
             {
-                Log::debug($debug_start.' evaluation_count='.$evaluation_count.'x (< '.$r->alert_on_occurences.'x), from: '.$last_val_inf['from'].', last_values='.json_encode($last_values));
+                Log::debug($debug_start.' evaluation_count='.$evaluation_count.'x (< '.$r->alert_on_occurences.'x), from: '.$last_val_inf['from'].', last_values='.json_encode($last_values_calc));
             }
         }
         else

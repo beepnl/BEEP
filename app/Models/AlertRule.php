@@ -139,7 +139,7 @@ class AlertRule extends Model
         $u = $user;
 
         $parse_min   = min(60, env('PARSE_ALERT_RULES_EVERY_X_MIN', 15));
-        $debug_start = ' |-- D='.$d->id.' ';
+        $debug_start = ' |- D='.$d->id.' ';
 
         if (!isset($d->hive_id) || in_array($d->hive_id, $r->exclude_hive_ids)) // only parse existing hives that are not excluded
         {
@@ -174,7 +174,7 @@ class AlertRule extends Model
         $evaluation_count = 0;
         $alert_function   = '';
         $alert_values     = [];
-        $last_values_calc = [];
+        $last_values_data = [];
         $last_value_count = $diff_comp ? count($last_values) - 1 : max($r->alert_on_occurences, count($last_values));
         $alert_on_no_vals = $r->calculation == 'cnt' && $r->threshold_value == 0 ? true : false;
 
@@ -187,7 +187,6 @@ class AlertRule extends Model
             {
                 for ($i=0; $i < $last_value_count; $i++) // start with most recent value (ordered desc on time)
                 {  
-
                     if (!isset($last_values[$i][$m_abbr]))
                     {
                         continue;
@@ -195,6 +194,13 @@ class AlertRule extends Model
                     else
                     {
                         $value = $last_values[$i][$m_abbr];
+                        // Save last calc values for reference
+                        $key   = $m_abbr.'_'.$i;
+                        if (isset($last_values[$i]['time']))
+                            $key = $last_values[$i]['time'];
+                    
+                        $last_values_data["$key"] = $value;
+                        // Continue if unset
                         if (!isset($value) || $value == '' || $value == 'null')
                             continue;
                     }
@@ -203,10 +209,23 @@ class AlertRule extends Model
                     if ($i+1 < count($last_values) && isset($last_values[$i+1][$m_abbr]))
                     {
                         $value_prev = $last_values[$i+1][$m_abbr];
+                        // Save last calc values for reference
+                        if ($diff_comp && $i == $last_value_count-1)
+                        {
+                            //die(print_r([$i,$m_abbr]));
+                            $key = $m_abbr.'_'.($i+1);
+                            if (isset($last_values[$i+1]['time']))
+                                $key = $last_values[$i+1]['time'];
+
+                            $last_values_data["$key"] = $value_prev;
+                        }
+                        // Continue if unset
                         if (!isset($value_prev) || $value_prev == '' || $value_prev == 'null')
                             continue;
                     }
+ 
 
+                    // Calculate value for rule
                     $calc = null;
                     if ($diff_comp)
                     {
@@ -259,23 +278,6 @@ class AlertRule extends Model
                         $evaluation_count++;
                         $alert_values[] = $calc;
                     }
-
-                    // save last calc values for reference
-                    $key = $m_abbr.'_'.$i;
-                    if (isset($last_values[$i]['time']))
-                        $key = $last_values[$i]['time'];
-                    
-                    $last_values_calc["$key"] = $value;
-
-                    if ($diff_comp && $i == $last_value_count-1)
-                    {
-                        //die(print_r([$i,$m_abbr]));
-                        $key = $m_abbr.'_'.($i+1);
-                        if (isset($last_values[$i+1]['time']))
-                            $key = $last_values[$i+1]['time'];
-
-                        $last_values_calc["$key"] = $value_prev;
-                    }
                 }
             }
             else if ($alert_on_no_vals && $last_value_count == 0)
@@ -285,7 +287,7 @@ class AlertRule extends Model
                 for ($i=0; $i < $evaluation_count; $i++) 
                 { 
                     $alert_values[]     = 0; // alert on 0 value count
-                    $last_values_calc[] = 0;
+                    $last_values_data[] = 0;
                 }
             }
 
@@ -392,7 +394,7 @@ class AlertRule extends Model
             }
             else
             {
-                Log::debug($debug_start.' evaluation_count='.$evaluation_count.'x (< '.$r->alert_on_occurences.'x), from: '.$last_val_inf['from'].', last_values='.json_encode($last_values_calc));
+                Log::debug($debug_start.' evaluation_count='.$evaluation_count.'x (< '.$r->alert_on_occurences.'x), from: '.$last_val_inf['from'].', last_values='.json_encode($last_values_data));
             }
         }
         else

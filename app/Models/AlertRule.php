@@ -100,7 +100,7 @@ class AlertRule extends Model
         return AlertRule::orderBy('name')->pluck('name','id');
     }
 
-    private function cacheRequestRate($name, $amount=1)
+    public static function cacheRequestRate($name, $amount=1)
     {
         Cache::remember($name.'-time', 86400, function () use ($name)
         { 
@@ -607,7 +607,7 @@ class AlertRule extends Model
             // if ($alertCount > 0)
             //     Log::debug('|=> Evaluated rules='.$evalCount.', created/updated alerts='.$alertCount);
         }
-        $this->cacheRequestRate('alert-timed', $alertCount);
+        AlertRule::cacheRequestRate('alert-timed', $alertCount);
         return $alertCount;
     }
 }

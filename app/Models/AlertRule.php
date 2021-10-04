@@ -51,7 +51,7 @@ class AlertRule extends Model
 
         AlertRule::created(function($r)
         {
-            $a = new Alert(['alert_rule_id'=>$r->id, 'alert_function'=>$r->readableFunction(), 'alert_value'=>'alert_rule_created', 'measurement_id'=>$r->measurement_id, 'user_id'=>$r->user_id]);
+            $a = new Alert(['alert_rule_id'=>$r->id, 'alert_function'=>'alert_rule_created', 'alert_value'=>$r->readableFunction(), 'measurement_id'=>$r->measurement_id, 'user_id'=>$r->user_id]);
             $a->save();
         });
 
@@ -138,10 +138,10 @@ class AlertRule extends Model
         $m_abbr      = $r->measurement->abbreviation;
         $influx_func = AlertRule::$influx_calc[$r->calculation];
         $limit       = $diff_comp ? $r->alert_on_occurences + 1 : $r->alert_on_occurences; // one extra for diff calculation
-        $direct_data = isset($data_array) && isset($data_array[$m_abbr]) ? true : false;
+        $direct_data = isset($data_array) && count($data_array) > 0 && isset($data_array[0][$m_abbr]) ? true : false;
 
         if ($direct_data)
-            $last_val_inf= ['values'=>[["$m_abbr"=>$data_array[$m_abbr]]], 'query'=>'', 'from'=>'measurement', 'min_ago'=>0];
+            $last_val_inf= ['values'=>$data_array, 'query'=>'', 'from'=>'measurement', 'min_ago'=>0];
         else
             $last_val_inf= $d->getAlertSensorValues($m_abbr, $influx_func, $r->calculation_minutes, $limit); // provides: ['values'=>$values,'query'=>$query, 'from'=>'cache', 'min_ago'=>$val_min_ago]
 
@@ -350,7 +350,7 @@ class AlertRule extends Model
         $parse_min   = min(60, env('PARSE_ALERT_RULES_EVERY_X_MIN', 15));
         $m_abbr      = $r->measurement->abbreviation;
         $debug_start = '|- R='.$r->id.' U='.$r->user_id.' ';
-        $direct_data = isset($data_array) && isset($data_array[$m_abbr]) ? true : false;
+        $direct_data = isset($data_array) && count($data_array) > 0 && isset($data_array[0][$m_abbr]) ? true : false;
         
         // exclude parsing of rules
         $min_ago           = 0;

@@ -208,7 +208,16 @@ class MeasurementController extends Controller
         if (isset($data_array['time']))
             $time = intVal($data_array['time']);
 
-        // remember the last date that this device stored measurements from
+        // remember the last date that this device stored measurements from (and previous to calculate diff)
+        $cached_time   = Cache::get('set-measurements-device-'.$device->id.'-time');
+        $cached_data   = Cache::get('set-measurements-device-'.$device->id.'-data');
+        $has_prev_data = false;
+        if ($cached_time && $cached_data)
+        {
+            Cache::put('set-measurements-device-'.$device->id.'-time-prev', $cached_time);
+            Cache::put('set-measurements-device-'.$device->id.'-data-prev', $cached_data);
+            $has_prev_data = true;
+        }
         Cache::put('set-measurements-device-'.$device->id.'-time', $time);
         Cache::put('set-measurements-device-'.$device->id.'-data', $data_array);
 
@@ -245,7 +254,13 @@ class MeasurementController extends Controller
         // Parse Alert rules if available
         $device_rule_ids = $device->hiveUserRuleIds();
         if (count($device_rule_ids) > 0)
-            AlertRule::parseUserDeviceDirectAlertRules($device_rule_ids, $device->id, $data_array);
+        {
+            $last_values_array = [$data_array];
+            if ($has_prev_data)
+                $last_values_array[] = $cached_data;
+            
+            AlertRule::parseUserDeviceDirectAlertRules($device_rule_ids, $device->id, $last_values_array);
+        }
 
         if($stored) 
         {

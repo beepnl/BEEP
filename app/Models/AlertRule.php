@@ -179,7 +179,7 @@ class AlertRule extends Model
                         $value_prev = floatval($last_values[$i+1][$m_abbr]);
 
 
-                    if ($diff_comp && isset())
+                    if ($diff_comp && isset($value_prev))
                     {
                         $value = floatval($value - $value_prev);
                         $last_values_calc[] = $value;

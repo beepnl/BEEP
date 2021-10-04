@@ -262,14 +262,28 @@
 		<!-- small box -->
 			<div class="small-box bg-orange">
 				<div class="inner">
-					<h3>{{ $data['sensors'] }}</h3>
-					<p>{{ __('general.Sensors') }}</p>
+					<h3>{{ $data['sensors'] }} / {{ $data['sensors-online'] }}</h3>
+					<p>{{ __('general.Devices') }} / Online<br>Within 2x their refresh rate</p>
 				</div>
 				<div class="icon">
 					<i class="fa fa-wifi"></i>
 				</div>
 			</div>
 		</div>
+
+		<div class="col-lg-3 col-xs-6">
+		<!-- small box -->
+			<div class="small-box bg-orange">
+				<div class="inner">
+					<h3>{{ $data['alert-rules'] }} / {{ $data['alerts'] }}</h3>
+					<p>{{ __('beep.AlertRules') }} / {{ __('beep.Alerts') }}<br>Direct: {{ $data['alert-direct'] }} | timed: {{ $data['alert-timed'] }} created/hr</p>
+				</div>
+				<div class="icon">
+					<i class="fa fa-bell"></i>
+				</div>
+			</div>
+		</div>
+
 
 		<div class="col-lg-3 col-xs-6">
 		<!-- small box -->

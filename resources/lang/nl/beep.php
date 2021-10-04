@@ -52,8 +52,10 @@ return [
     'der'               => 'afgeleide',
     'cnt'               => 'aantal x voorkomen van',
     'val'               => 'waarde',
-    'dif'               => 'verschil',
+    'dif'               => 'verschil met vorige waarde',
+    'dec'               => 'daling',
+    'inc'               => 'stijging',
     'abs'               => 'absolute waarde',
-    'abs_dif'           => 'absoluut verschil',
+    'abs_dif'           => 'absolute waarde verschil',
 
 ];

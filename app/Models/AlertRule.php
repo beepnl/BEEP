@@ -9,8 +9,8 @@ use App\User;
 use App\Device;
 use App\Models\Alert;
 use Moment\Moment;
-
 use Mail;
+use Cache;
 use App\Mail\AlertMail;
 
 class AlertRule extends Model
@@ -40,7 +40,7 @@ class AlertRule extends Model
     public static $calculations   = ["min"=>"Minimum", "max"=>"Maximum", "ave"=>"Average", "cnt"=>"Count"]; // exclude "der"=>"Derivative" for the moment (because of user interpretation complexity)
     public static $influx_calc    = ["min"=>"MIN", "max"=>"MAX", "ave"=>"MEAN", "der"=>"DERIVATIVE", "cnt"=>"COUNT"];
     public static $comparators    = ["="=>"equal_to", "<"=>"less_than", ">"=>"greater_than", "<="=>"less_than_or_equal", ">="=>"greater_than_or_equal"];
-    public static $comparisons    = ["val"=>"Value", "dif"=>"Difference", "abs_dif"=>"Absolute_value_of_dif"]; // excluse "abs"=>"Absolute_value", because it has no usecase
+    public static $comparisons    = ["val"=>"Value", "inc"=>"Increase", "dec"=>"Decrease", "dif"=>"Difference", "abs_dif"=>"Absolute_value_of_dif"]; // excluse "abs"=>"Absolute_value", because it has no usecase
     public static $exclude_months = [1=>"Jan",2=>"Feb",3=>"Mar",4=>"Apr",5=>"May",6=>"Jun",7=>"Jul",8=>"Aug",9=>"Sep",10=>"Oct",11=>"Nov",12=>"Dec"];
     public static $exclude_hours  = [0=>"0:00 - 0:59",1=>"1:00 - 1:59",2=>"2:00 - 2:59",3=>"3:00 - 3:59",4=>"4:00 - 4:59",5=>"5:00 - 5:59",6=>"6:00 - 6:59",7=>"7:00 - 7:59",8=>"8:00 - 8:59",9=>"9:00 - 9:59",10=>"10:00 - 10:59",11=>"11:00 - 11:59",12=>"12:00 - 12:59",13=>"13:00 - 13:59",14=>"14:00 - 14:59",15=>"15:00 - 15:59",16=>"16:00 - 16:59",17=>"17:00 - 17:59",18=>"18:00 - 18:59",19=>"19:00 - 19:59",20=>"20:00 - 20:59",21=>"21:00 - 21:59",22=>"22:00 - 22:59",23=>"23:00 - 23:59"];
     public static $calc_minutes   = [0, 60, 180, 360, 720, 1440, 2880, 10080];
@@ -100,18 +100,36 @@ class AlertRule extends Model
         return AlertRule::orderBy('name')->pluck('name','id');
     }
 
+    private function cacheRequestRate($name, $amount=1)
+    {
+        Cache::remember($name.'-time', 86400, function () use ($name)
+        { 
+            Cache::forget($name.'-count'); 
+            return time(); 
+        });
+
+        if (Cache::has($name.'-count'))
+            Cache::increment($name.'-count', $amount);
+        else
+            Cache::put($name.'-count', $amount);
+
+    }
+
     public function readableFunction($short=false, $value=null)
     {
-        $r = $this;
-        $u = $r->calculation == 'cnt' || $r->calculation == 'der' ? '' : ''.$r->measurement->unit;
+        $rule       = $this;
+        $unit       = $rule->calculation == 'cnt' || $rule->calculation == 'der' ? '' : ''.$rule->measurement->unit;
+        $calc       = $rule->calculation_minutes == 0 ? '' : ''.$rule->calculation.' ';
+        $calc_trans = $rule->calculation_minutes == 0 ? '' : __('beep.'.$rule->calculation).' ';
+
 
         if ($value != null) // alert function
-            return __('beep.'.$r->calculation).' '.__('beep.'.$r->comparison).' '.$r->measurement->pq.' = '.$value.$u."\n(".$r->comparator.' '.$r->threshold_value.$u.')';
+            return $calc_trans.__('beep.'.$rule->comparison).' '.$rule->measurement->pq.' = '.$value.$unit."\n(".$rule->comparator.' '.$rule->threshold_value.$unit.')';
 
         if ($short)
-            return $r->measurement->abbreviation.' '.$r->calculation.' '.$r->comparison.' '.$r->comparator.' '.$r->threshold_value.$u;
+            return $rule->measurement->abbreviation.' '.$calc.$rule->comparison.' '.$rule->comparator.' '.$rule->threshold_value.$unit;
 
-        return $r->measurement->pq.' '.__('beep.'.$r->calculation).' '.__('beep.'.$r->comparison).' '.$r->comparator.' '.$r->threshold_value.$u;
+        return $rule->measurement->pq.' '.$calc_trans.__('beep.'.$rule->comparison).' '.$rule->comparator.' '.$rule->threshold_value.$unit;
     }
 
     public function evaluateDeviceRuleAlerts($device, $user, $alert_rule_calc_date, $data_array=null)
@@ -134,7 +152,7 @@ class AlertRule extends Model
             Log::debug($debug_start.' Undefined calculation: '.$r->calculation);
             return 0;
         }
-        $diff_comp   = $r->comparison == 'dif' || $r->comparison == 'abs_dif' ? true : false;
+        $diff_comp   = $r->comparison == 'dif' || $r->comparison == 'abs_dif' || $r->comparison == 'inc' || $r->comparison == 'dec' ? true : false;
         $m_abbr      = $r->measurement->abbreviation;
         $influx_func = AlertRule::$influx_calc[$r->calculation];
         $limit       = $diff_comp ? $r->alert_on_occurences + 1 : $r->alert_on_occurences; // one extra for diff calculation
@@ -157,7 +175,7 @@ class AlertRule extends Model
         $alert_function   = '';
         $alert_values     = [];
         $last_values_calc = [];
-        $last_value_count = $diff_comp ? count($last_values) - 1 : count($last_values);
+        $last_value_count = $diff_comp ? count($last_values) - 1 : max($r->alert_on_occurences, count($last_values));
         $alert_on_no_vals = $r->calculation == 'cnt' && $r->threshold_value == 0 ? true : false;
 
         if ($last_value_count > 0 || $alert_on_no_vals)
@@ -189,16 +207,30 @@ class AlertRule extends Model
                             continue;
                     }
 
+                    $calc = null;
                     if ($diff_comp)
                     {
-                        $calc = $value - $value_prev;
-                        if ($r->comparison == 'abs_dif')
-                            $calc = abs($calc);
+                        switch($r->comparison)
+                        {
+                            case 'inc':
+                            case 'dif':
+                                $calc = $value - $value_prev;
+                                break;
+                            case 'dec':
+                                $calc = $value_prev - $value;
+                                break;
+                            case 'abs_dif':
+                                $calc = abs($value - $value_prev);
+                                break;
+                        }
                     }
                     else
                     {
                         $calc = $value;
                     }
+
+                    if (is_nan($calc))
+                        continue;
 
                     $calc  = round($calc, 1); // round to 1 decimal, just like the threshold_value
                     $thres = round($r->threshold_value, 1);
@@ -206,19 +238,19 @@ class AlertRule extends Model
                     $evaluation = false;
                     switch($r->comparator)
                     {
-                        case "=":
+                        case '=':
                             $evaluation = $calc == $thres ? true : false;
                             break;
-                        case "<":
+                        case '<':
                             $evaluation = $calc < $thres ? true : false;
                             break; 
-                        case ">":
+                        case '>':
                             $evaluation = $calc > $thres ? true : false;
                             break; 
-                        case "<=":
+                        case '<=':
                             $evaluation = $calc <= $thres ? true : false;
                             break; 
-                        case ">=":
+                        case '>=':
                             $evaluation = $calc >= $thres ? true : false;
                             break; 
                     }
@@ -264,11 +296,12 @@ class AlertRule extends Model
                 $alert_counter = 1;  // # of occurrences in a row
                 $a             = null;
                 $check_alert   = null;
-                $device_min    = $d->getRefreshMin();
-                $alert_min     = max($r->calculation_minutes, $parse_min, $device_min)+1; 
-                $check_date    = date('Y-m-d H:i:s', time()-60*$alert_min); // a bit less than 1 min ago
-                if ($check_date)
-                    $check_alert = $d->alerts()->where('user_id', $u->id)->where('alert_rule_id', $r->id)->where('device_id', $d->id)->where('updated_at', '>=', $check_date)->orderBy('updated_at', 'desc')->first();
+                $device_min    = $d->getRefreshMin()*2; // do not create new alert on every 1 missing value
+                $alerts_min_max= max($r->calculation_minutes, $parse_min, $device_min)+1; // the higher, the earlier the $alerts_after, the more alerts are matching
+                $alerts_after    = date('Y-m-d H:i:s', time()-60*$alerts_min_max); // a bit less than alerts_min_max ago
+                //die(print_r(['am'=>$alerts_min_max, 'cm'=>$r->calculation_minutes, 'pm'=>$parse_min, 'dm'=>$device_min]));
+                if ($alerts_after)
+                    $check_alert = $d->alerts()->where('user_id', $u->id)->where('alert_rule_id', $r->id)->where('device_id', $d->id)->where('updated_at', '>=', $alerts_after)->orderBy('updated_at', 'desc')->first();
                 
                 if ($check_alert) // check if user already has this alert, if so, update it if diff value is bigger
                 {
@@ -574,7 +607,7 @@ class AlertRule extends Model
             // if ($alertCount > 0)
             //     Log::debug('|=> Evaluated rules='.$evalCount.', created/updated alerts='.$alertCount);
         }
-
+        $this->cacheRequestRate('alert-timed', $alertCount);
         return $alertCount;
     }
 }

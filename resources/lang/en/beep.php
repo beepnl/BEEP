@@ -53,6 +53,8 @@ return [
     'cnt'               => 'count of',
     'val'               => 'value',
     'dif'               => 'difference',
+    'dec'               => 'decrease',
+    'inc'               => 'increase',
     'abs'               => 'absolute value',
     'abs_dif'           => 'absolute difference',
 

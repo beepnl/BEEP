@@ -542,7 +542,7 @@ class AlertRule extends Model
                         ->orderBy('last_evaluated_at')
                         ->get();
 
-        Log::debug('Evaluating (D='.$device_id.') '.count($alertRules).' direct alert rules last evaluated before '.$min_ago_e);
+        Log::debug('Evaluating (D='.$device_id.') '.count($alertRules).' direct alert rules last evaluated before '.$min_ago_e.' (59s ago)');
         //die(print_r(['$user_id'=>$user_id,'$parse_min'=>$parse_min,'ar'=>$alertRules->toArray()]));
         $m_abbr_no_data = [];
         foreach ($alertRules as $r) 
@@ -561,7 +561,7 @@ class AlertRule extends Model
             }
             else
             {
-                Log::debug($debug_start.' No data available for: '.$m_abbr);
+                Log::debug($debug_start.'No data available for: '.$m_abbr);
             }
         }
         // if ($alertCount > 0)
@@ -581,22 +581,22 @@ class AlertRule extends Model
         if ($now_min % $parse_min == 0)
         {
             $evalCount  = 0;
-            $min_ago_15 = date('Y-m-d H:i:s', time()-890); // a bit less than 15 min ago
+            $min_ago_e  = date('Y-m-d H:i:s', time()-(59*$parse_min)); // a bit less than 15 min ago
 
             $alertRules = AlertRule::where('active', 1)
                             ->where('default_rule', 0)
                             ->where('user_id', '!=', null)
                             ->where('alert_on_occurences', '>', 1)
                             ->where('calculation_minutes', '>=', $parse_min) // do not parse alerts that are set to parsing 'at time of device data' (i.e. calculation_minutes == 0)
-                            ->where(function($query) use ($min_ago_15) {  
-                                $query->where('last_evaluated_at','<=', $min_ago_15)
+                            ->where(function($query) use ($min_ago_e) {  
+                                $query->where('last_evaluated_at','<=', $min_ago_e)
                                 ->orWhereNull('last_evaluated_at'); 
                             })
                             ->orderBy('user_id')
                             ->orderBy('last_evaluated_at')
                             ->get();
 
-            Log::debug('Evaluating '.count($alertRules).' active alert rules last evaluated before '.$min_ago_15);
+            Log::debug('Evaluating '.count($alertRules).' active alert rules last evaluated before '.$min_ago_e.' ('.$parse_min.'m ago)');
 
             foreach ($alertRules as $r) 
             {

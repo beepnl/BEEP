@@ -145,11 +145,15 @@ class AlertRule extends Model
         else
             $last_val_inf= $d->getAlertSensorValues($m_abbr, $influx_func, $r->calculation_minutes, $limit); // provides: ['values'=>$values,'query'=>$query, 'from'=>'cache', 'min_ago'=>$val_min_ago]
 
+        if ($last_val_inf['min_ago'] > $r->calculation_minutes)
+            Log::debug($debug_start.' Data from '.$last_val_inf['min_ago'].'m ago > calc /'.$r->calculation_minutes.'m');
+
         $last_values      = $last_val_inf['values'];
         $alert_count      = 0;
         $evaluation_count = 0;
         $alert_function   = '';
         $alert_values     = [];
+        $last_values_calc = [];
         $last_value_count = $diff_comp ? count($last_values) - 1 : count($last_values);
         $alert_on_no_vals = $r->calculation == 'cnt' && $r->threshold_value == 0 ? true : false;
 
@@ -166,16 +170,25 @@ class AlertRule extends Model
                     if (!isset($last_values[$i][$m_abbr]))
                         continue;
 
-                    $value = $last_values[$i][$m_abbr];
-
+                    $value      = floatval($last_values[$i][$m_abbr]);
                     if (!isset($value) || $value == '' || $value == 'null')
                         continue;
+                    
+                    $value_prev = null;
+                    if ($i+1 < count($last_values) && isset($last_values[$i+1][$m_abbr]))
+                        $value_prev = floatval($last_values[$i+1][$m_abbr]);
 
-                    if ($last_val_inf['min_ago'] > $r->calculation_minutes)
-                        continue;
 
-                    if ($diff_comp)
-                        $value = floatval($last_values[$i]) - floatval($last_values[$i+1]);
+                    if ($diff_comp && isset())
+                    {
+                        $value = floatval($value - $value_prev);
+                        $last_values_calc[] = $value;
+                        $last_values_calc[] = $value_prev;
+                    }
+                    else
+                    {
+                        $last_values_calc[] = $value;
+                    }
 
                     if ($r->comparison == 'abs_dif')
                         $value = abs($value);
@@ -183,6 +196,7 @@ class AlertRule extends Model
                     $value = round($value, 1); // round to 1 decimal, just like the threshold_value
                     $thres = round($r->threshold_value, 1);
 
+                    
                     $evaluation = false;
                     switch($r->comparator)
                     {
@@ -321,7 +335,7 @@ class AlertRule extends Model
             }
             else
             {
-                Log::debug($debug_start.' evaluation_count='.$evaluation_count.' (< '.$r->alert_on_occurences.'), from: '.$last_val_inf['from'].', last_values='.json_encode($last_values));
+                Log::debug($debug_start.' evaluation_count='.$evaluation_count.'x (< '.$r->alert_on_occurences.'x), from: '.$last_val_inf['from'].', last_values='.json_encode($last_values));
             }
         }
         else
@@ -473,13 +487,25 @@ class AlertRule extends Model
 
         Log::debug('Evaluating (D='.$device_id.') '.count($alertRules).' direct alert rules last evaluated before '.$min_ago_e);
         //die(print_r(['$user_id'=>$user_id,'$parse_min'=>$parse_min,'ar'=>$alertRules->toArray()]));
+        $m_abbr_no_data = [];
         foreach ($alertRules as $r) 
         {
-            $parsed = $r->parseRule($device_id, $data_array); // returns ['eval'=>0,'calc'=>0,'msg'=>'no_user'];
-            $alertCount += $parsed['calc'];
-            //$evalCount  += $parsed['eval'];
-            // if ($parsed['eval'] == 0)
-            //     Log::debug('  |- '.$parsed['msg']);
+            $debug_start = '|- R='.$r->id.' U='.$r->user_id.' ';
+            $m_abbr      = $r->measurement->abbreviation;
+            $direct_data = isset($data_array) && count($data_array) > 0 && isset($data_array[0][$m_abbr]) ? true : false;
+
+            if ($direct_data)
+            {
+                $parsed = $r->parseRule($device_id, $data_array); // returns ['eval'=>0,'calc'=>0,'msg'=>'no_user'];
+                $alertCount += $parsed['calc'];
+                //$evalCount  += $parsed['eval'];
+                // if ($parsed['eval'] == 0)
+                //     Log::debug('  |- '.$parsed['msg']);
+            }
+            else
+            {
+                Log::debug($debug_start.' No data available for: '.$m_abbr);
+            }
         }
         // if ($alertCount > 0)
         //     Log::debug('|=> Evaluated direct rules='.$evalCount.', created/updated alerts='.$alertCount);

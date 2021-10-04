@@ -230,7 +230,7 @@ class AlertRule extends Model
 
                     // save last calc values for reference
                     $key = $m_abbr.'_'.$i;
-                    if (isset($last_values[$i]['time'])
+                    if (isset($last_values[$i]['time']))
                         $key = $last_values[$i]['time'];
                     
                     $last_values_calc[$key] = $value;
@@ -238,7 +238,7 @@ class AlertRule extends Model
                     if ($diff_comp && $i == $last_value_count-1)
                     {
                         $key = $m_abbr.'_'.$i+1;
-                        if (isset($last_values[$i+1]['time'])
+                        if (isset($last_values[$i+1]['time']))
                             $key = $last_values[$i+1]['time'];
 
                         $last_values_calc[$key] = $value_prev;

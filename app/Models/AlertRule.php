@@ -233,15 +233,16 @@ class AlertRule extends Model
                     if (isset($last_values[$i]['time']))
                         $key = $last_values[$i]['time'];
                     
-                    $last_values_calc[$key] = $value;
+                    $last_values_calc["$key"] = $value;
 
                     if ($diff_comp && $i == $last_value_count-1)
                     {
-                        $key = $m_abbr.'_'.$i+1;
+                        //die(print_r([$i,$m_abbr]));
+                        $key = $m_abbr.'_'.($i+1);
                         if (isset($last_values[$i+1]['time']))
                             $key = $last_values[$i+1]['time'];
 
-                        $last_values_calc[$key] = $value_prev;
+                        $last_values_calc["$key"] = $value_prev;
                     }
                 }
             }

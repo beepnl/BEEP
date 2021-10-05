@@ -16,6 +16,8 @@ use App\HiveLayerFrame;
 use App\Device;
 use App\Measurement;
 use App\Research;
+use App\Models\Alert;
+use App\Models\AlertRule;
 use DB;
 
 use Illuminate\Support\Facades\Cache;
@@ -60,29 +62,31 @@ class DashboardController extends Controller
         $last_year          = $moment->subtractMonths(12)->format('Y-m-d');
         //die(print_r($last_day));
 
-        $data               = [];
-        $data['users']      = User::count();
-        $data['newusers']   = User::where('created_at', '>', $last_week)->count();
-        $data['hourusers']  = User::where('last_login', '>', $last_hour)->count();
-        $data['dayusers']   = User::where('last_login', '>', $last_day)->count();
-        $data['activeusers']= User::whereDate('last_login', '>', $last_month)->count();
-        $data['qrtusers']   = User::whereDate('last_login', '>', $last_qrt)->count();
-        $data['yearusers']  = User::whereDate('last_login', '>', $last_year)->count();
-        $data['locations']  = Location::count();
-        $data['hives']      = Hive::count();
-        $data['frames']     = HiveLayerFrame::count();
-        $data['inspections']= Inspection::count();
-        $data['inspectionitems']= InspectionItem::count();
-        $data['itemsperinspection']= $data['inspections'] == 0 ? 0 : round($data['inspectionitems'] / $data['inspections'], 1);
-        $data['queens']     = Queen::count();
-        $data['checklists'] = Checklist::count();
-        $data['checklists_edited'] = Checklist::whereRaw('updated_at - created_at > 60')->count();
-        $data['sensors']    = Device::count();
-        $data['researches'] = [];
-        $data['store-measurements-201'] = $this->cacheRequestGetRate('store-measurements-201');
-        $data['store-measurements-400'] = $this->cacheRequestGetRate('store-measurements-400', 3600);
-        $data['store-measurements-401'] = $this->cacheRequestGetRate('store-measurements-401', 3600);
-        $data['store-measurements-500'] = $this->cacheRequestGetRate('store-measurements-500', 3600);
+        $data                                 = [];
+        $data['users']                        = User::count();
+        $data['newusers']                     = User::where('created_at', '>', $last_week)->count();
+        $data['hourusers']                    = User::where('last_login', '>', $last_hour)->count();
+        $data['dayusers']                     = User::where('last_login', '>', $last_day)->count();
+        $data['activeusers']                  = User::whereDate('last_login', '>', $last_month)->count();
+        $data['qrtusers']                     = User::whereDate('last_login', '>', $last_qrt)->count();
+        $data['yearusers']                    = User::whereDate('last_login', '>', $last_year)->count();
+        $data['locations']                    = Location::count();
+        $data['hives']                        = Hive::count();
+        $data['frames']                       = HiveLayerFrame::count();
+        $data['inspections']                  = Inspection::count();
+        $data['inspectionitems']              = InspectionItem::count();
+        $data['itemsperinspection']           = $data['inspections'] == 0 ? 0 : round($data['inspectionitems'] / $data['inspections'], 1);
+        $data['queens']                       = Queen::count();
+        $data['checklists']                   = Checklist::count();
+        $data['checklists_edited']            = Checklist::whereRaw('updated_at - created_at > 60')->count();
+        $data['sensors']                      = Device::count();
+        $data['sensors-online']               = Device::all()->where('online', true)->count();
+        $data['researches']                   = [];
+
+        $data['store-measurements-201']       = $this->cacheRequestGetRate('store-measurements-201');
+        $data['store-measurements-400']       = $this->cacheRequestGetRate('store-measurements-400', 3600);
+        $data['store-measurements-401']       = $this->cacheRequestGetRate('store-measurements-401', 3600);
+        $data['store-measurements-500']       = $this->cacheRequestGetRate('store-measurements-500', 3600);
         $data['store-sensors']                = $this->cacheRequestGetRate('store-sensors');
         $data['store-lora-sensors-']          = $this->cacheRequestGetRate('store-lora-sensors-');
         $data['store-lora-sensors-kpn']       = $this->cacheRequestGetRate('store-lora-sensors-kpn');
@@ -108,6 +112,11 @@ class DashboardController extends Controller
         $data['influx-research-api']          = $this->cacheRequestGetRate('influx-research-api', 3600);
         $data['influx-weight']                = $this->cacheRequestGetRate('influx-weight', 3600);
         $data['influx-csv']                   = $this->cacheRequestGetRate('influx-csv', 3600);
+
+        $data['alert-rules']                  = AlertRule::count();
+        $data['alerts']                       = Alert::count();
+        $data['alert-direct']                 = $this->cacheRequestGetRate('alert-direct', 3600);
+        $data['alert-timed']                  = $this->cacheRequestGetRate('alert-timed', 3600);
 
         foreach (Research::all() as $key => $r)
         {

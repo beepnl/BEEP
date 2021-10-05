@@ -154,7 +154,7 @@ class MeasurementController extends Controller
         return $stored;
     }
 
-    private function cacheRequestRate($name)
+    private function cacheRequestRate($name, $amount=1)
     {
         Cache::remember($name.'-time', 86400, function () use ($name)
         { 
@@ -163,9 +163,9 @@ class MeasurementController extends Controller
         });
 
         if (Cache::has($name.'-count'))
-            Cache::increment($name.'-count');
+            Cache::increment($name.'-count', $amount);
         else
-            Cache::put($name.'-count', 1);
+            Cache::put($name.'-count', $amount);
 
     }
 
@@ -208,14 +208,9 @@ class MeasurementController extends Controller
         if (isset($data_array['time']))
             $time = intVal($data_array['time']);
 
-        // remember the last date that this device stored measurements from
-        Cache::put('set-measurements-device-'.$device->id.'-time', $time);
-        Cache::put('set-measurements-device-'.$device->id.'-data', $data_array);
-
-        
-        $date = date($this->timeFormat, $time); 
 
         // Add senaor data based on available device sensorDefinitions
+        $date            = date($this->timeFormat, $time); 
         $sensor_defs     = $device->activeSensorDefinitions();
         $sensor_defs_all = $device->sensorDefinitions;
         foreach ($sensor_defs as $sd) 
@@ -242,15 +237,38 @@ class MeasurementController extends Controller
         }
         $stored = $this->storeInfluxData($data_array, $dev_eui, $time);
         
+        
+        // Remember the last date/data that this device stored measurements from (and previous to calculate diff)
+        $cached_time   = Cache::get('set-measurements-device-'.$device->id.'-time');
+        $cached_data   = Cache::get('set-measurements-device-'.$device->id.'-data');
+        $has_prev_data = false;
+        if ($cached_time && $cached_data)
+        {
+            Cache::put('set-measurements-device-'.$device->id.'-time-prev', $cached_time);
+            Cache::put('set-measurements-device-'.$device->id.'-data-prev', $cached_data);
+            $has_prev_data = true;
+        }
+        Cache::put('set-measurements-device-'.$device->id.'-time', $time);
+        Cache::put('set-measurements-device-'.$device->id.'-data', $data_array);
+        
         // Parse Alert rules if available
+        $alert_count     = 0;
         $device_rule_ids = $device->hiveUserRuleIds();
         if (count($device_rule_ids) > 0)
-            AlertRule::parseUserDeviceDirectAlertRules($device_rule_ids, $device->id, $data_array);
+        {
+            $last_values_array = [$data_array];
+            if ($has_prev_data)
+                $last_values_array[] = $cached_data;
+
+            $alert_count = AlertRule::parseUserDeviceDirectAlertRules($device_rule_ids, $device->id, $last_values_array);
+            $this->cacheRequestRate('alert-direct', $alert_count);
+        }
 
         if($stored) 
         {
             $this->cacheRequestRate('store-measurements-201');
-            return Response::json("saved", 201);
+            $alert_comment = $alert_count > 0 ? '-'.$alert_count.'-alerts' : '';
+            return Response::json('saved'.$alert_comment, 201);
         } 
         else
         {

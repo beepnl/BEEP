@@ -17,8 +17,10 @@ class DataExport extends Mailable
      *
      * @return void
      */
-    public function __construct($attachment_path)
+    public function __construct($user, $attachment_disk, $attachment_path)
     {
+        $this->user            = $user;
+        $this->attachment_disk = $attachment_disk;
         $this->attachment_path = $attachment_path;
     }
 
@@ -29,6 +31,6 @@ class DataExport extends Mailable
      */
     public function build()
     {
-        return $this->markdown('emails.export')->attach($this->attachment_path, ['mime'=>'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet']);
+        return $this->markdown('emails.export',['name'=>$this->user->name])->attachFromStorageDisk($this->attachment_disk, $this->attachment_path);
     }
 }

@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Api;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use App\Http\Controllers\Controller;
-use Excel;
 use Response;
 use Storage;
 use Mail;
@@ -18,9 +17,12 @@ use App\Category;
 use App\Inspection;
 use App\InspectionItem;
 use App\Measurement;
+use App\Models\Flashlog;
 use App\Mail\DataExport;
 use App\Exports\HiveExport;
 use Moment\Moment;
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 
 use Validator;
 
@@ -58,148 +60,497 @@ class ExportController extends Controller
 
     public function all(Request $request)
     {
-        $fileType = $request->filled('fileFormat') ? $request->input('fileFormat') : 'xlsx';
-        $fileName = strtolower(env('APP_NAME')).'-export-'.$request->user()->id.time();
+        $fileName = strtolower(env('APP_NAME')).'-export-user-'.$request->user()->id;
         $user     = $request->user();
 
-        $item_names = Inspection::item_names($user->inspections()->get());
-        $userExport = $this->getUser($user);
-        $hiveExport = $this->getHives($user);
-        $locaExport = $this->getLocations($user);
-        $inspExport = $this->getInspections($user, $item_names);
+        $sensor_urls  = [];
+        $download_url = null;
+        $download     = true;
+        $sensordata   = true; //$request->has('sensordata');
 
+        $date_start        = $user->created_at;
+        $date_until        = date('Y-m-d H:i:s');
+        $date_user_created = $date_start;
+        $date_until_today  = $date_until;
 
-        $file = Excel::create($fileName, function($excel) use ($request, $fileName, $userExport, $hiveExport, $locaExport, $inspExport) 
+        // Fill dates array
+        $assets = ["users"=>0, "apiaries"=>0, "hives"=>0, "inspections"=>0, "devices"=>0, "measurements"=>0, "weather"=>0, "flashlogs"=>0];
+
+        $spreadsheet_array = [];
+
+        if ($download)
         {
+            // Fill export array
+            
+            // Define header rows of tabs
+            $spreadsheet_array[__('export.users')] = [
+                           ['User_id',
+                            __('export.name'),
+                            __('export.email'),
+                            __('export.avatar'),
+                            __('export.created_at'),
+                            __('export.updated_at'),
+                            __('export.last_login')]
+                        ];
 
-            // Set the title
-            $excel->setTitle($fileName);
+            // add user data to sheet data arrays
+            //foreach ($users as $user) 
+                $spreadsheet_array[__('export.users')][] = $this->getUser($user);
 
-            // Chain the setters
-            $excel->setCreator(env('APP_NAME'))
-                  ->setCompany(env('APP_NAME'));
 
-            // Call them separately
-            $excel->setDescription($fileName);
+            $spreadsheet_array[__('export.locations')] = [
+                           ['User_id',
+                            'Location_id',
+                            __('export.name'),
+                            __('export.type'),
+                            __('export.hives'),
+                            __('export.coordinate_lat'),
+                            __('export.coordinate_lon'),
+                            __('export.address'),
+                            __('export.postal_code'),
+                            __('export.city'),
+                            __('export.country_code'),
+                            __('export.continent'),
+                            __('export.created_at'),
+                            __('export.deleted_at')]
+                        ];
 
-            //Make sheets
-            $excel->sheet(__('export.user'), function($sheet) use ($userExport) 
+            $spreadsheet_array[__('export.hives')] = [
+                           ['User_id',
+                            'Hive_id',
+                            __('export.name'),
+                            __('export.type'),
+                            'Location_id',
+                            __('export.color'),
+                            __('export.queen'),
+                            __('export.queen_color'),
+                            __('export.queen_born'),
+                            __('export.queen_fertilized'),
+                            __('export.queen_clipped'),
+                            __('export.brood_layers'),
+                            __('export.honey_layers'),
+                            __('export.frames'),
+                            __('export.created_at'),
+                            __('export.deleted_at')]
+                        ];
+
+            $spreadsheet_array[__('export.inspections')] = [
+                           ['User_id',
+                            'Inspection_id',
+                            __('export.created_at'),
+                            'Hive_id',
+                            'Location_id',
+                            __('export.impression'),
+                            __('export.attention'),
+                            __('export.reminder'),
+                            __('export.reminder_date'),
+                            __('export.notes')]
+                        ];
+
+            $spreadsheet_array[__('export.devices')] = [
+                           ['User_id',
+                            'Device_id',
+                            __('export.name'),
+                            'Hive_id',
+                            'Location_id',
+                            'Type',
+                            'last_message_received',
+                            'hardware_id',
+                            'firmware_version',
+                            'hardware_version',
+                            'boot_count',
+                            'measurement_interval_min',
+                            'measurement_transmission_ratio',
+                            'ble_pin',
+                            'battery_voltage',
+                            'next_downlink_message',
+                            'last_downlink_result',
+                            __('export.created_at'),
+                            __('export.deleted_at')]
+                        ];
+
+            if ($sensordata)
+                $spreadsheet_array['Sensor data'] = [
+                            ['User_id',
+                            'Device_id',
+                            'Date from',
+                            'Date to',
+                            'Data file']
+                        ];
+
+            if ($sensordata)
+                $spreadsheet_array['Device Flashlogs'] = [
+                            ['User_id',
+                            'Device_id',
+                            'Hive_id',
+                            'Number of messages in file',
+                            'Log saved to disk',
+                            'Log parsed correctly',
+                            'Log has timestamps',
+                            'Bytes received',
+                            'Raw log file',
+                            'Stripped log file',
+                            'Parsed log file',
+                            __('export.created_at'),
+                            __('export.deleted_at')]
+                        ];
+
+            if ($sensordata)
+                $spreadsheet_array['Weather data'] = [
+                            ['User_id',
+                            'Device_id',
+                            'Date from',
+                            'Date to',
+                            'Data file']
+                        ];
+
+            // Add item names to header row of inspections
+            // first combine all user's itemnames
+            $item_ancs  = [];
+            $item_names = [];
+            // foreach ($users as $user) 
+            // {
+                $ins = Inspection::item_names($user->allInspections()->get());
+                foreach ($ins as $in) 
+                {
+                    $name = $in['anc'].$in['name'];
+                    if (!in_array($name, $item_ancs))
+                    {
+                        $item_ancs[]  = $name;
+                        $item_names[] = $in; 
+                    }
+                }
+            // }
+
+            foreach ($item_ancs as $name) 
+                $spreadsheet_array[__('export.inspections')][0][] = $name;
+
+            $spreadsheet_array[__('export.inspections')][0][] = __('export.deleted_at');
+
+
+            // Fill dates array with counts of data, and select the data for each user by consent
+            $u = $user; 
+            $user_id = $u->id;
+            
+            // add user data
+            $user_apiaries     = $user->locations()->where('created_at', '<', $date_until)->orderBy('created_at')->get();
+            $user_hives        = $user->hives()->where('created_at', '<', $date_until)->orderBy('created_at')->get();
+            $user_devices      = $user->devices()->where('created_at', '<', $date_until)->orderBy('created_at')->get();
+            $user_flashlogs    = FlashLog::where('user_id', $user_id)->where('created_at', '>=', $date_start)->where('created_at', '<', $date_until)->orderBy('created_at')->get();
+            $user_measurements = [];
+            $user_weather_data = [];
+            
+            // add hive inspections (also from collaborators)
+            $hive_inspection_ids = [];
+            foreach ($user_hives as $hive)
             {
-                $sheet->freezeFirstRow();
-                $sheet->fromModel($userExport);
-            });
-            // Bug https://github.com/Maatwebsite/Laravel-Excel/issues/2478
-            $excel->sheet(__('export.locations'), function($sheet) use ($locaExport) 
-            {
-                $sheet->freezeFirstRow();
-                $sheet->fromModel($locaExport);
-            });
-            $excel->sheet(__('export.hives'), function($sheet) use ($hiveExport) 
-            {
-                $sheet->freezeFirstRow();
-                $sheet->fromModel($hiveExport);
-            });
-            $excel->sheet(__('export.inspections'), function($sheet) use ($inspExport) 
-            {
-                $sheet->setFreeze('D3');
-                $sheet->setColumnFormat(array('I:Z' => '@'));
-                $sheet->fromModel($inspExport);
-            });
+                $hive_inspections = $hive->inspections()->where('created_at', '>=', $date_start)->where('created_at', '<', $date_until)->get();
+                foreach ($hive_inspections as $ins) 
+                    $hive_inspection_ids[] = $ins->id;
+                
+            }
+            $hive_inspections  = Inspection::whereIn('id', $hive_inspection_ids)->with('items')->where('created_at', '>=', $date_start)->where('created_at', '<', $date_until)->orderBy('created_at')->get();
 
-        })->store($fileType, storage_path('exports'));
+            //die(print_r([$date_until, $hive_inspections->toArray(), $user_hives->toArray()]));
 
-        if (isset($file->storagePath))
+            if ($user_devices->count() > 0)
+            {
+                // get daily counts of sensor measurements
+                $points           = [];
+                $weather          = [];
+                $user_device_keys = [];
+                $user_dloc_coords = [];
+
+                // Add sensor data
+                foreach ($user_devices as $device) 
+                {
+                    $user_device_keys[]= '"key" = \''.$device->key.'\' OR "key" = \''.strtolower($device->key).'\' OR "key" = \''.strtoupper($device->key).'\'';
+                    $loc = $device->location();
+                    if ($loc && isset($loc->coordinate_lat) && isset($loc->coordinate_lon)) 
+                        $user_dloc_coords[] = '("lat" = \''.$loc->coordinate_lat.'\' AND "lon" = \''.$loc->coordinate_lon.'\')';
+                }
+                
+                $user_device_keys = '('.implode(' OR ', $user_device_keys).')';
+
+                try{
+                    $this->cacheRequestRate('influx-get');
+                    $this->cacheRequestRate('influx-export');
+                    $points = $this->client::query('SELECT COUNT("bv") as "count" FROM "sensors" WHERE '.$user_device_keys.' AND time >= \''.$date_user_created.'\' AND time <= \''.$date_until_today.'\' GROUP BY time(1d)')->getPoints();
+                } catch (InfluxDB\Exception $e) {
+                    // return Response::json('influx-group-by-query-error', 500);
+                }
+                if (count($points) > 0)
+                {
+                    foreach ($points as $point) 
+                        $user_measurements[substr($point['time'],0,10)] = $point['count'];
+                }
+
+                // Add weather data
+                $user_location_coord_where = '('.implode(' OR ', $user_dloc_coords).')';
+                if (count($user_dloc_coords) > 0 && isset($date_user_created))
+                {
+                    try{
+                        $weather = $this->client::query('SELECT COUNT("temperature") as "count" FROM "weather" WHERE '.$user_location_coord_where.' AND time >= \''.$date_user_created.'\' AND time <= \''.$date_until_today.'\' GROUP BY time(1d)')->getPoints(); // get first weather date
+                    } catch (InfluxDB\Exception $e) {
+                        // return Response::json('influx-group-by-query-error', 500);
+                    }
+                    if (count($weather) > 0)
+                    {
+                        foreach ($weather as $point) 
+                            $user_weather_data[substr($point['time'],0,10)] = $point['count'];
+                    }
+                }
+            }
+
+
+                
+            // Fill objects for consent period
+            $locas = $this->getLocations($user_id, $user_apiaries, $date_user_created, $date_until_today);
+            foreach ($locas as $loca)
+                $spreadsheet_array[__('export.locations')][] = $loca;
+
+            $hives = $this->getHives($user_id, $user_hives, $date_user_created, $date_until_today);
+            foreach ($hives as $hive)
+                $spreadsheet_array[__('export.hives')][] = $hive;
+
+            $insps = $this->getInspections($user_id, $hive_inspections, $item_ancs, $date_user_created, $date_until_today);
+            foreach ($insps as $insp)
+                $spreadsheet_array[__('export.inspections')][] = $insp;
+
+
+            if ($sensordata && $user_devices->count() > 0)
+            {
+                
+                $flash = $this->getFlashlogs($user_id, $user_flashlogs, $date_user_created, $date_until_today);
+                foreach ($flash as $fla)
+                    $spreadsheet_array['Device Flashlogs'][] = $fla;
+                
+                
+                foreach ($user_devices as $device)
+                {
+                    // Add device to spreadsheet
+                    if ($device->created_at < $date_until_today)
+                    {
+                        $spreadsheet_array[__('export.devices')][] = $this->getDevice($user_id, $device);
+                    
+                        // Export data to file per device / period
+                        $where    = '("key" = \''.$device->key.'\' OR "key" = \''.strtolower($device->key).'\' OR "key" = \''.strtoupper($device->key).'\') AND time >= \''.$date_user_created.'\' AND time <= \''.$date_until_today.'\'';
+                        $dataName = strtolower(env('APP_NAME')).'-export-device-id-'.$device->id.'-sensor-data-'.substr($date_user_created,0,10).'-'.substr($date_until_today,0,10).'-'.Str::random(10).'.csv';
+                        $filePath = $this->exportCsvFromInflux($where, $dataName, '*', 'sensors');
+                        if ($filePath)
+                        {
+                            $spreadsheet_array['Sensor data'][] = [$user_id, $device->id, $date_user_created, $date_until_today, $filePath];
+                            $sensor_urls[$dataName] = $filePath;
+                        }
+
+                        // Export data to file per device location / period
+                        $loc = $device->location();
+                        if ($loc && isset($loc->coordinate_lat) && isset($loc->coordinate_lon)) 
+                        {
+                            $where    = '"lat" = \''.$loc->coordinate_lat.'\' AND "lon" = \''.$loc->coordinate_lon.'\' AND time >= \''.$date_user_created.'\' AND time <= \''.$date_until_today.'\'';
+                            $dataName = strtolower(env('APP_NAME')).'-export-device-id-'.$device->id.'-weather-data-'.substr($date_user_created,0,10).'-'.substr($date_until_today,0,10).'-'.Str::random(10).'.csv';
+                            $filePath = $this->exportCsvFromInflux($where, $dataName, '*', 'weather');
+                            if ($filePath)
+                            {
+                                $spreadsheet_array['Weather data'][] = [$user_id, $device->id, $date_user_created, $date_until_today, $filePath];
+                                $sensor_urls[$dataName] = $filePath;
+                            }
+                        }
+                    }
+                }
+            }
+
+            $export_result = $this->export($spreadsheet_array, $fileName, $date_start, $date_until);
+
+        }
+
+        // send e-mail with attachment
+        if ($export_result && isset($export_result['path']))
         {
-            $path = $file->storagePath.'/'.$fileName.'.'.$fileType;
-            Mail::to($user->email)->send(new DataExport($path));
-            $delf = $fileName.'.'.$fileType;
-            $del  = Storage::disk('exports')->delete($delf);
-            return response()->json(['file'=>$fileName.'.'.$fileType, 'del'=>$del, 'delf'=>$delf],200);
+            //$path = $file->storagePath.'/'.$fileName.'.'.$fileType;
+            $path = $export_result['path'];
+            $disk = env('EXPORT_STORAGE', 'public');
+            Mail::to($user->email)->send(new DataExport($user, $disk, $path));
+            $del  = Storage::disk($disk)->delete($path);
+            return response()->json(['file'=>$export_result['url'], 'del'=>$del, 'delf'=>$path],200);
         }
         else
         {
             return response()->json(['error'=>'export-error'],404);
         }
     }
+
+    private function export($spreadsheetArray, $fileName='export', $date_start='Account created', $date_until='Today')
+    {
+        $spreadsheet = new Spreadsheet();
+        $sheet = $spreadsheet->getActiveSheet();
+
+        // Set meta data
+        $sheet->setTitle('Meta data');
+        $sheet->setCellValue('A1', 'Meta data');
+        $sheet->setCellValue('A3', env('APP_NAME').' data export');
+        $sheet->setCellValue('C3', date('Y-m-d H:i:s'));
+        $sheet->setCellValue('A4', 'Start date');
+        $sheet->setCellValue('C4', $date_start);
+        $sheet->setCellValue('A5', 'End date');
+        $sheet->setCellValue('C5', $date_until);
+        $sheet->setCellValue('A6', 'Sheets');
+        $sheet->setCellValue('C6', count($spreadsheetArray));
+
+        $row = 8;
+        foreach ($spreadsheetArray as $title => $data)
+        {
+            $sheet->setCellValue('A'.$row, $title);
+            $sheet->setCellValue('C'.$row, count($data)-1);
+            $row++;
+        }
+        
+        // Fill sheet with tabs and data
+        foreach ($spreadsheetArray as $title => $data) 
+        {
+            $sheet = $spreadsheet->createSheet();
+            $sheet->setTitle($title);
+            $sheet->fromArray($data);
+        }
+        
+        // save sheet
+        $fileName = $fileName.'-'.Str::random(20);
+        $filePath = 'exports/'.$fileName.'.xlsx';
+        $writer = new Xlsx($spreadsheet);
+        //$writer->setOffice2003Compatibility(true);
+
+        ob_start();
+        $writer->save('php://output');
+        $file_content = ob_get_contents();
+        ob_end_clean();
+
+        $disk = env('EXPORT_STORAGE', 'public');
+        if (Storage::disk($disk)->put($filePath, $file_content))
+            return ['url'=>Storage::disk($disk)->url($filePath), 'path'=>$filePath];
+
+        return null;
+    }
+
     
     private function getUser(User $user)
     {
-        return $user->where('id',$user->id)->get()->map(function($item)
-        {
-            return [
-                // __('export.id') => $item->id,
-                __('export.name') => $item->name,
-                __('export.email') => $item->email,
-                __('export.avatar') => $item->avatar,
-                __('export.created_at') => $item->created_at,
-                __('export.updated_at') => $item->updated_at,
-                __('export.last_login') => $item->last_login,
-            ];
-        });
+        return [
+            $user->id,
+            $user->name,
+            $user->email,
+            $user->avatar,
+            $user->created_at,
+            $user->updated_at,
+            $user->last_login
+        ];
     }
 
-    private function getLocations(User $user)
+    private function getLocations($user_id, $locations, $date_start=null, $date_until=null)
     {
-        return $user->locations()->withTrashed()->orderBy('deleted_at')->orderBy('name')->get()->map(function($item)
+        return $locations->where('created_at', '<=', $date_until)->sortBy('name')->map(function($item) use ($user_id)
         {
             return [
-                // __('export.id') => $item->id,
-                __('export.name') => $item->name,
-                __('export.type') => $item->type,
-                __('export.hives') => $item->hives()->count(),
-                __('export.coordinate_lat') => $item->coordinate_lat,
-                __('export.coordinate_lon') => $item->coordinate_lon,
-                __('export.address') => $item->street.' '.$item->street_no,
-                __('export.postal_code') => $item->postal_code,
-                __('export.city') => $item->city,
-                __('export.country_code') => strtoupper($item->country_code),
-                __('export.continent') => $item->continent,
-                __('export.created_at') => $item->created_at,
-                __('export.deleted_at') => $item->deleted_at,
+                $user_id,
+                $item->id,
+                $item->name,
+                $item->type,
+                $item->hives()->count(),
+                $item->coordinate_lat,
+                $item->coordinate_lon,
+                $item->street.' '.$item->street_no,
+                $item->postal_code,
+                $item->city,
+                strtoupper($item->country_code),
+                $item->continent,
+                $item->created_at,
+                $item->deleted_at,
             ];
         });
     }
     
-    private function getHives(User $user)
+    private function getHives($user_id, $hives, $date_start=null, $date_until=null)
     {
-        return $user->hives()->withTrashed()->orderBy('deleted_at')->orderBy('location_id')->orderBy('name')->get()->map(function($item)
+        return $hives->where('created_at', '<=', $date_until)->sortBy('name')->map(function($item) use ($user_id)
         {
             $queen = $item->queen;
 
             return [
-                // __('export.id') => $item->id, 
-                __('export.name') => $item->name,
-                __('export.type') => $item->type,
-                __('export.location') => $item->location,
-                __('export.color') => $item->color,
-                __('export.queen') => isset($queen) ? $queen->name : '',
-                __('export.queen_color') => isset($queen) ? $queen->color : '',
-                __('export.queen_born') => isset($queen) ? $queen->created_at : '',
-                __('export.queen_fertilized') => isset($queen) ? $queen->fertilized : '',
-                __('export.queen_clipped') => isset($queen) ? $queen->clipped : '',
-                __('export.brood_layers') => $item->getBroodlayersAttribute(),
-                __('export.honey_layers') => $item->getHoneylayersAttribute(),
-                __('export.frames') => $item->frames()->count(),
-                __('export.created_at') => $item->created_at,
-                __('export.deleted_at') => $item->deleted_at,
+                $user_id,
+                $item->id, 
+                $item->name,
+                $item->type,
+                $item->location_id,
+                $item->color,
+                isset($queen) ? $queen->name : '',
+                isset($queen) ? $queen->color : '',
+                isset($queen) ? $queen->created_at : '',
+                isset($queen) ? $queen->fertilized : '',
+                isset($queen) ? $queen->clipped : '',
+                $item->getBroodlayersAttribute(),
+                $item->getHoneylayersAttribute(),
+                $item->frames()->count(),
+                $item->created_at,
+                $item->deleted_at,
             ];
         });
     }
 
-    private function getInspections(User $user, $item_names)
+    private function getDevice($user_id, $item)
+    {
+        return [
+            $user_id,
+            $item->id, 
+            $item->name, 
+            $item->hive_id,
+            $item->location_id,
+            $item->getTypeAttribute(),
+            $item->last_message_received,
+            $item->hardware_id,
+            $item->firmware_version,
+            $item->hardware_version,
+            $item->boot_count,
+            $item->measurement_interval_min,
+            $item->measurement_transmission_ratio,
+            $item->ble_pin,
+            $item->battery_voltage,
+            $item->next_downlink_message,
+            $item->last_downlink_result,
+            $item->created_at,
+            $item->deleted_at
+        ];
+    }
+
+    private function getFlashlogs($user_id, $flashlogs, $date_start=null, $date_until=null)
+    {
+        return $flashlogs->where('created_at', '<=', $date_until)->sortBy('name')->map(function($item) use ($user_id)
+        {
+            return [
+                $user_id,
+                $item->device_id, 
+                $item->hive_id,
+                $item->log_messages,
+                $item->log_saved,
+                $item->log_parsed,
+                $item->log_has_timestamps,
+                $item->bytes_received,
+                $item->log_file,
+                $item->log_file_stripped,
+                $item->log_file_parsed,
+                $item->created_at,
+                $item->deleted_at,
+            ];
+        });
+    }
+
+    private function getInspections($user_id, $inspections, $item_names, $date_start=null, $date_until=null)
     {
         // array of inspection items and data
-        $inspection_data = array_fill_keys(array_map(function($name_arr)
-        {
-            return $name_arr['anc'].$name_arr['name'];
+        $inspection_data = array_fill_keys($item_names, '');
 
-        }, $item_names),'');
-        
-
-        $inspections = $user->inspections()->withTrashed()->with('items')->orderBy('deleted_at')->orderByDesc('created_at')->get();
+        $inspections = $inspections->where('created_at', '>=', $date_start)->where('created_at', '<=', $date_until)->sortByDesc('created_at');
 
 
-        $table = $inspections->map(function($inspection) use ($inspection_data)
+        $table = $inspections->map(function($inspection) use ($inspection_data, $user_id)
         {
             if (isset($inspection->items))
             {
@@ -209,7 +560,7 @@ class ExportController extends Controller
                     $inspection_data[$array_key] = $inspectionItem->humanReadableValue();
                 }
             }
-            $locationName = ($inspection->locations()->count() > 0 ? $inspection->locations()->first()->name : ($inspection->hives()->count() > 0 ? $inspection->hives()->first()->location()->first()->name : ''));
+            $locationId = ($inspection->locations()->count() > 0 ? $inspection->locations()->first()->id : ($inspection->hives()->count() > 0 ? $inspection->hives()->first()->location_id : ''));
             
             $reminder_date= '';
             if (isset($inspection->reminder_date) && $inspection->reminder_date != null)
@@ -221,10 +572,13 @@ class ExportController extends Controller
             $smileys  = __('taxonomy.smileys');
             $boolean  = __('taxonomy.boolean');
             
+            // add general inspection data columns
             $pre = [
+                'user_id' => $user_id,
+                'inspection_id' => $inspection->id,
                 __('export.created_at') => $inspection->created_at,
-                __('export.hive') => $inspection->hives()->count() > 0 ? $inspection->hives()->first()->name : '', 
-                __('export.location') => $locationName, 
+                __('export.hive') => $inspection->hives()->count() > 0 ? $inspection->hives()->first()->id : '', 
+                __('export.location') => $locationId, 
                 __('export.impression') => $inspection->impression > -1 &&  $inspection->impression < count($smileys) ? $smileys[$inspection->impression] : '',
                 __('export.attention') => $inspection->attention > -1 &&  $inspection->attention < count($boolean) ? $boolean[$inspection->attention] : '',
                 __('export.reminder') => $inspection->reminder,
@@ -234,43 +588,85 @@ class ExportController extends Controller
 
             $dat = array_merge($pre, $inspection_data, [__('export.deleted_at') => $inspection->deleted_at]);
 
-            return $dat;
+            return array_values($dat);
         });
-
-        // Add extra title rows
-        // $context = $inspection_data;
-        $legends = $inspection_data;
-        // $types   = $inspection_data;
-
-        foreach ($item_names as $item) 
-        {
-            // if(in_array($item['name'], array_keys($context)))
-            //     $context[$item['name']] = $item['anc'];
-
-            if(in_array($item['name'], array_keys($legends)))
-                $legends[$item['name']] = $item['range'];
-
-            // if(in_array($item['name'], array_keys($types)))
-            //     $types[$item['name']] = $item['type'];
-        }
-
-        $ins_cols = [
-                __('export.created_at') => '',
-                __('export.hive') => '', 
-                __('export.location') => '', 
-                __('export.impression') => '',
-                __('export.attention') => '',
-                __('export.reminder') => '',
-                __('export.reminder_date') => '',
-                __('export.notes') => '',
-            ];
-
-        $table->prepend(array_merge($ins_cols, $legends));
-        //$table->prepend(array_merge($ins_cols,$types));
-        // $table->prepend(array_merge($ins_cols, $context));
-
+        //die(print_r($table));
         return $table;
     }
+
+
+    private function exportCsvFromInflux($where, $fileName='device-export-', $measurements='*', $database='sensors', $separator=',')
+    {
+        $options= ['precision'=>'rfc3339', 'format'=>'csv'];
+        
+        if ($database == 'sensors')
+        {
+            if (isset($measurements) && gettype($measurements) == 'array' && count($measurements) > 0)
+                $names = $measurements;
+            else
+                $names = $this->output_sensors;
+            
+            $queryList = Device::getAvailableSensorNamesNoCache($names, $where, $database);
+            
+            if (isset($queryList) && gettype($queryList) == 'array' && count($queryList) > 0)
+                $groupBySelect = implode(', ', $queryList);
+            else 
+                $groupBySelect = '"'.implode('","',$names).'"';
+
+            $query = 'SELECT '.$groupBySelect.' FROM "'.$database.'" WHERE '.$where;
+        }
+        else // i.e. weather data
+        {
+            if ($measurements == null || $measurements == '' || $measurements === '*')
+                $sensor_measurements = '*';
+            else
+                $sensor_measurements = $measurements;
+
+            $query = 'SELECT '.$sensor_measurements.' FROM "'.$database.'" WHERE '.$where;
+        }
+        
+        try{
+            $data   = $this->client::query($query, $options)->getPoints(); // get first sensor date
+        } catch (InfluxDB\Exception $e) {
+            return null;
+        }
+
+        if (count($data) == 0)
+            return null;
+
+        $csv_file = $data;
+
+        //format CSV header row: time, sensor1 (unit2), sensor2 (unit2), etc. Excluse the 'sensor' and 'key' columns
+        $csv_file = "";
+
+        $csv_sens = array_keys($data[0]);
+        $csv_head = [];
+        foreach ($csv_sens as $sensor_name) 
+        {
+            $meas       = Measurement::where('abbreviation', $sensor_name)->first();
+            $csv_head[] = $meas ? $meas->pq_name_unit().' ('.$sensor_name.')' : $sensor_name;
+        }
+        $csv_head = '"'.implode('"'.$separator.'"', $csv_head).'"'."\r\n";
+
+        // format CSV file body
+        $csv_body = [];
+        foreach ($data as $sensor_values) 
+        {
+            $csv_body[] = implode($separator, $sensor_values);
+        }
+        $csv_file = $csv_head.implode("\r\n", $csv_body);
+
+        // return the CSV file content in a file on disk
+        $filePath = 'exports/'.$fileName;
+        $disk     = env('EXPORT_STORAGE', 'public');
+
+        if (Storage::disk($disk)->put($filePath, $csv_file))
+            return Storage::disk($disk)->url($filePath);
+
+        return null;
+    }
+
+
 
     /**
     api/export/csv POST

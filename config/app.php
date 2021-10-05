@@ -169,7 +169,6 @@ return [
         Collective\Html\HtmlServiceProvider::class,
         Intervention\Image\ImageServiceProvider::class,
         Mcamara\LaravelLocalization\LaravelLocalizationServiceProvider::class,
-        Maatwebsite\Excel\ExcelServiceProvider::class,
         //
 
         /*
@@ -236,7 +235,6 @@ return [
         'InterventionImage' => Intervention\Image\Facades\Image::class,
         'LaravelLocalization'   => Mcamara\LaravelLocalization\Facades\LaravelLocalization::class,
         'Influx' => TrayLabs\InfluxDB\Facades\InfluxDB::class,
-        //'Excel' => Maatwebsite\Excel\Facades\Excel::class,
         // 'Debugbar' => Barryvdh\Debugbar\Facade::class,
     ],
 

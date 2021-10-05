@@ -1,5 +1,5 @@
 @component('mail::message')
-#{{ __('export.export_data') }}
+{{ __('alert.Dear') }} {{$name}},
 
 {{ __('export.export_text') }}
 

@@ -191,7 +191,10 @@ class InspectionItem extends Model
 
     public function unit()
     {
-        return $this->category->unit;
+        if (isset($this->category))
+            return $this->category->unit;
+
+        return '';
     }
 
     public function humanReadableValue()

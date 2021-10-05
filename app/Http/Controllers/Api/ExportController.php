@@ -600,7 +600,8 @@ class ExportController extends Controller
     private function exportCsvFromInflux($where, $fileName='device-export-', $measurements='*', $database='sensors', $separator=',')
     {
         $options= ['precision'=>'rfc3339', 'format'=>'csv'];
-        $groupBy= 'GROUP BY time(3h) fill(none)';
+        $groupByTime = env('EXPORT_INFLUX_GROUPBY_TIME', '6h');
+        $groupBy= 'GROUP BY time('.$groupByTime.') fill(none)';
 
         if ($database == 'sensors')
         {
@@ -632,7 +633,7 @@ class ExportController extends Controller
 
             $groupBySelectWeather = implode(', ', $names);
 
-            $query = 'SELECT '.$groupBySelectWeather.' FROM "'.$database.'" WHERE '.$where.' '.$groupBy;;
+            $query = 'SELECT '.$groupBySelectWeather.' FROM "'.$database.'" WHERE '.$where.' '.$groupBy;
         }
         
         try{

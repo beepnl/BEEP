@@ -68,7 +68,7 @@ class ExportController extends Controller
         $sensor_urls  = [];
         $download_url = null;
         $download     = true;
-        $sensordata   = true; //$request->has('sensordata');
+        $sensordata   = env('EXPORT_INFLUX_SENSORDATA', true); //$request->has('sensordata');
 
         $date_start        = $user->created_at;
         $date_until        = date('Y-m-d H:i:s');

@@ -425,7 +425,7 @@ class ExportController extends Controller
         ob_end_clean();
 
         $disk = env('EXPORT_STORAGE', 'public');
-        if (Storage::disk($disk)->put($filePath, $file_content))
+        if (Storage::disk($disk)->put($filePath, $file_content, ['mimetype' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet']))
             return ['url'=>Storage::disk($disk)->url($filePath), 'path'=>$filePath];
 
         return null;
@@ -660,7 +660,7 @@ class ExportController extends Controller
         $filePath = 'exports/'.$fileName;
         $disk     = env('EXPORT_STORAGE', 'public');
 
-        if (Storage::disk($disk)->put($filePath, $csv_file))
+        if (Storage::disk($disk)->put($filePath, $csv_file, ['mimetype' => 'text/csv']))
             return Storage::disk($disk)->url($filePath);
 
         return null;
@@ -761,7 +761,7 @@ class ExportController extends Controller
             $disk     = env('EXPORT_STORAGE', 'public');
             $filePath = 'exports/beep-export-user-'.$request->user()->id.'-device-'.$device->name.'-'.$start.'-'.$end.'-'.Str::random(20).'.csv';
             $filePath = str_replace(' ', '', $filePath);
-            if (Storage::disk($disk)->put($filePath, $csv_file))
+            if (Storage::disk($disk)->put($filePath, $csv_file, ['mimetype' => 'text/csv']))
                 return Response::json(['link'=>Storage::disk($disk)->url($filePath)]);
             else
                 return Response::json(['message'=>'export_not_saved'], 500);

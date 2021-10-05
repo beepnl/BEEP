@@ -71,8 +71,8 @@ class AlertRuleController extends Controller
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'name'                  => 'nullable|string|max:100',
-            'description'           => 'nullable|string|max:255',
+            'name'                  => 'nullable|string',
+            'description'           => 'nullable|string',
             'measurement_id'        => 'required|integer|exists:measurements,id',
             'calculation'           => ['required', Rule::in(array_keys(AlertRule::$calculations))],
             'comparator'            => ['required', Rule::in(array_keys(AlertRule::$comparators))],
@@ -93,7 +93,9 @@ class AlertRuleController extends Controller
 
 
         $requestData = $request->except('default_rule'); // never let users create a default rule via the API
-
+        
+        $requestData['name']                 = substr($request->input('name'), 0, 50);
+        $requestData['description']          = substr($request->input('description'), 0, 255);
         $requestData['alert_on_occurrences'] = $request->input('alert_on_occurrences', 1);
 
         if ($request->filled('exclude_hive_ids'))
@@ -153,8 +155,8 @@ class AlertRuleController extends Controller
     public function update(Request $request, $id)
     {
         $validator = Validator::make($request->all(), [
-			'name'                  => 'nullable|string|max:100',
-            'description'           => 'nullable|string|max:255',
+			'name'                  => 'nullable|string',
+            'description'           => 'nullable|string',
             'measurement_id'        => 'required|integer|exists:measurements,id',
 			'calculation'           => ['required', Rule::in(array_keys(AlertRule::$calculations))],
 			'comparator'            => ['required', Rule::in(array_keys(AlertRule::$comparators))],
@@ -176,6 +178,10 @@ class AlertRuleController extends Controller
 
         $alertrule   = Auth::user()->alert_rules()->findOrFail($id);
         $requestData = $request->except('default_rule'); // never let users create a default rule via the API
+
+        $requestData['name']                 = substr($request->input('name'), 0, 50);
+        $requestData['description']          = substr($request->input('description'), 0, 255);
+        $requestData['alert_on_occurrences'] = $request->input('alert_on_occurrences', 1);
 
         if ($request->filled('exclude_hive_ids'))
             $requestData['exclude_hive_ids'] = implode(",", $requestData['exclude_hive_ids']);

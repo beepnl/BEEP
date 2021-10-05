@@ -56,6 +56,6 @@ return [
     'dec'               => 'decrease',
     'inc'               => 'increase',
     'abs'               => 'absolute value',
-    'abs_dif'           => 'absolute difference',
+    'abs_dif'           => 'change',
 
 ];

@@ -19,10 +19,12 @@ class AlertMail extends Mailable
      *
      * @return void
      */
-    public function __construct(Alert $alert, $name)
+    public function __construct(Alert $alert, $name, $last_values_string, $display_date_local)
     {
         $this->alert = $alert;
         $this->name  = $name; 
+        $this->last_values_string  = $last_values_string; 
+        $this->display_date_local  = $display_date_local; 
     }
 
     /**
@@ -37,6 +39,8 @@ class AlertMail extends Mailable
             [
                 'alert'=>$this->alert, 
                 'name' =>$this->name, 
+                'last_values_string' =>$this->last_values_string, 
+                'display_date_local' =>$this->display_date_local, 
                 'url'  =>env('WEBAPP_URL').'alerts'
             ])
             ->subject(__('alert.subject').(isset($this->alert->hive_name) ? ' '.__('beep.Hive').': '.$this->alert->hive_name : ''));

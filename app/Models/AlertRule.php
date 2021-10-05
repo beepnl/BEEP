@@ -40,7 +40,7 @@ class AlertRule extends Model
     public static $calculations   = ["min"=>"Minimum", "max"=>"Maximum", "ave"=>"Average", "cnt"=>"Count"]; // exclude "der"=>"Derivative" for the moment (because of user interpretation complexity)
     public static $influx_calc    = ["min"=>"MIN", "max"=>"MAX", "ave"=>"MEAN", "der"=>"DERIVATIVE", "cnt"=>"COUNT"];
     public static $comparators    = ["="=>"equal_to", "<"=>"less_than", ">"=>"greater_than", "<="=>"less_than_or_equal", ">="=>"greater_than_or_equal"];
-    public static $comparisons    = ["val"=>"Value", "inc"=>"Increase", "dec"=>"Decrease", "abs_dif"=>"Absolute value change"]; // excluse "abs"=>"Absolute_value","dif"=>"Difference" because it has no usecase
+    public static $comparisons    = ["val"=>"Value", "inc"=>"Increase", "dec"=>"Decrease", "abs_dif"=>"Absolute_value_of_dif"]; // excluse "abs"=>"Absolute_value","dif"=>"Difference" because it has no usecase
     public static $exclude_months = [1=>"Jan",2=>"Feb",3=>"Mar",4=>"Apr",5=>"May",6=>"Jun",7=>"Jul",8=>"Aug",9=>"Sep",10=>"Oct",11=>"Nov",12=>"Dec"];
     public static $exclude_hours  = [0=>"0:00 - 0:59",1=>"1:00 - 1:59",2=>"2:00 - 2:59",3=>"3:00 - 3:59",4=>"4:00 - 4:59",5=>"5:00 - 5:59",6=>"6:00 - 6:59",7=>"7:00 - 7:59",8=>"8:00 - 8:59",9=>"9:00 - 9:59",10=>"10:00 - 10:59",11=>"11:00 - 11:59",12=>"12:00 - 12:59",13=>"13:00 - 13:59",14=>"14:00 - 14:59",15=>"15:00 - 15:59",16=>"16:00 - 16:59",17=>"17:00 - 17:59",18=>"18:00 - 18:59",19=>"19:00 - 19:59",20=>"20:00 - 20:59",21=>"21:00 - 21:59",22=>"22:00 - 22:59",23=>"23:00 - 23:59"];
     public static $calc_minutes   = [0, 60, 180, 360, 720, 1440, 2880, 10080];
@@ -86,6 +86,11 @@ class AlertRule extends Model
         return !empty($this->attributes['exclude_hive_ids']) ? array_map(function($value){ return intval($value); }, explode(",", $this->attributes['exclude_hive_ids'])) : [];
     }
 
+    public function getUnit()
+    {
+        return $this->calculation == 'cnt' || $this->calculation == 'der' ? '' : ''.$this->measurement->unit;
+    }
+
     public function measurement()
     {
         return $this->belongsTo(Measurement::class);
@@ -118,13 +123,13 @@ class AlertRule extends Model
     public function readableFunction($short=false, $value=null)
     {
         $rule       = $this;
-        $unit       = $rule->calculation == 'cnt' || $rule->calculation == 'der' ? '' : ''.$rule->measurement->unit;
+        $unit       = $rule->getUnit();
         $calc       = $rule->calculation_minutes == 0 ? '' : ''.$rule->calculation.' ';
         $calc_trans = $rule->calculation_minutes == 0 ? '' : __('beep.'.$rule->calculation).' ';
 
 
         if ($value != null) // alert function
-            return $calc_trans.__('beep.'.$rule->comparison).' '.$rule->measurement->pq.' = '.$value.$unit."\n(".$rule->comparator.' '.$rule->threshold_value.$unit.')';
+            return ucfirst($calc_trans).__('beep.'.$rule->comparison).' '.$rule->measurement->pq.' = '.$value.$unit."\n(".$rule->comparator.' '.$rule->threshold_value.$unit.')';
 
         if ($short)
             return $rule->measurement->abbreviation.' '.$calc.$rule->comparison.' '.$rule->comparator.' '.$rule->threshold_value.$unit;
@@ -388,8 +393,17 @@ class AlertRule extends Model
 
                 if ($a && $r->alert_via_email)
                 {
+                    $last_values_string = implode(' -> ',array_values(array_reverse($last_values_data))).$r->getUnit();
+                    $created_date_local = new Moment($a->reated_at, 'UTC');
+                    // Set locale for date
+                    $locale_array       = config('laravellocalization.supportedLocales');
+                    $locale_identifier  = isset($locale_array[$u->locale]) ? $locale_array[$u->locale]['regional'] : null;
+                    if ($locale_identifier)
+                        \Moment\Moment::setLocale($locale_identifier);
+                    $display_date_local = $created_date_local->setTimezone($r->timezone)->format('LLLL', new \Moment\CustomFormats\MomentJs());
+                    
                     Log::debug($debug_start.' Updated or created Alert, sending email to '.$u->email);
-                    Mail::to($u->email)->send(new AlertMail($a, $u->name));
+                    Mail::to($u->email)->send(new AlertMail($a, $u->name, $last_values_string, $display_date_local));
                 }
             }
             else
@@ -563,7 +577,7 @@ class AlertRule extends Model
             }
             else
             {
-                Log::debug($debug_start.'No data available for: '.$m_abbr);
+                Log::debug($debug_start.'direct_data=0 ('.$r->readableFunction(true).') No data available for: '.$m_abbr);
             }
         }
         // if ($alertCount > 0)

@@ -56,6 +56,6 @@ return [
     'dec'               => 'daling',
     'inc'               => 'stijging',
     'abs'               => 'absolute waarde',
-    'abs_dif'           => 'absolute waarde verschil',
+    'abs_dif'           => 'verandering',
 
 ];

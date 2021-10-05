@@ -61,7 +61,10 @@ class InspectionItem extends Model
 
     public function type()
     {
-        return $this->category->input;
+        if (isset($this->category))
+            return $this->category->input;
+
+        return null;
     }
 
     public function inspection()
@@ -76,7 +79,10 @@ class InspectionItem extends Model
 
     public function name()
     {
-        return $this->category->transName();
+        if (isset($this->category))
+            return $this->category->transName();
+
+        return '';
     }
 
     public function ancestors()

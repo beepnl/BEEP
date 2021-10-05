@@ -34,11 +34,13 @@ class ExportController extends Controller
 {
     protected $valid_sensors  = [];
     protected $output_sensors = [];
+    protected $output_weather = [];
 
     public function __construct()
     {
         $this->valid_sensors  = Measurement::getValidMeasurements();
         $this->output_sensors = Measurement::getValidMeasurements(true);
+        $this->output_weather = Measurement::getValidMeasurements(true, true);
         $this->client         = new \Influx;
         //die(print_r($this->valid_sensors));
     }
@@ -598,7 +600,8 @@ class ExportController extends Controller
     private function exportCsvFromInflux($where, $fileName='device-export-', $measurements='*', $database='sensors', $separator=',')
     {
         $options= ['precision'=>'rfc3339', 'format'=>'csv'];
-        
+        $groupBy= 'GROUP BY time(3h) fill(none)';
+
         if ($database == 'sensors')
         {
             if (isset($measurements) && gettype($measurements) == 'array' && count($measurements) > 0)
@@ -607,22 +610,29 @@ class ExportController extends Controller
                 $names = $this->output_sensors;
             
             $queryList = Device::getAvailableSensorNamesNoCache($names, $where, $database);
+            if (count($queryList) == 0)
+                $queryList = $names;
             
-            if (isset($queryList) && gettype($queryList) == 'array' && count($queryList) > 0)
-                $groupBySelect = implode(', ', $queryList);
-            else 
-                $groupBySelect = '"'.implode('","',$names).'"';
+            foreach ($queryList as $i => $name) 
+                $queryList[$i] = 'MEAN("'.$name.'") AS "'.$name.'"';
 
-            $query = 'SELECT '.$groupBySelect.' FROM "'.$database.'" WHERE '.$where;
+            $groupBySelect = implode(', ', $queryList);
+
+            $query = 'SELECT '.$groupBySelect.' FROM "'.$database.'" WHERE '.$where.' '.$groupBy;
         }
         else // i.e. weather data
         {
-            if ($measurements == null || $measurements == '' || $measurements === '*')
-                $sensor_measurements = '*';
+            if (isset($measurements) && gettype($measurements) == 'array' && count($measurements) > 0)
+                $names = $measurements;
             else
-                $sensor_measurements = $measurements;
+                $names = $this->output_weather;
 
-            $query = 'SELECT '.$sensor_measurements.' FROM "'.$database.'" WHERE '.$where;
+            foreach ($names as $i => $name) 
+                $names[$i] = 'MEAN("'.$name.'") AS "'.$name.'"';
+
+            $groupBySelectWeather = implode(', ', $names);
+
+            $query = 'SELECT '.$groupBySelectWeather.' FROM "'.$database.'" WHERE '.$where.' '.$groupBy;;
         }
         
         try{

@@ -71,14 +71,14 @@ class AlertRuleController extends Controller
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'name'                  => 'nullable|string',
-            'description'           => 'nullable|string',
+            'name'                  => 'nullable|string|max:100',
+            'description'           => 'nullable|string|max:255',
             'measurement_id'        => 'required|integer|exists:measurements,id',
             'calculation'           => ['required', Rule::in(array_keys(AlertRule::$calculations))],
             'comparator'            => ['required', Rule::in(array_keys(AlertRule::$comparators))],
             'comparison'            => ['required', Rule::in(array_keys(AlertRule::$comparisons))],
             'threshold_value'       => 'required|numeric',
-            'calculation_minutes'   => 'required|numeric',
+            'calculation_minutes'   => ['required', Rule::in(AlertRule::$calc_minutes)],
             'exclude_months.*'      => ['nullable', 'integer', Rule::in(array_keys(AlertRule::$exclude_months))],
             'exclude_hours.*'       => ['nullable', 'integer', Rule::in(array_keys(AlertRule::$exclude_hours))],
             'exclude_hive_ids.*'    => ['nullable', 'integer', Rule::in($request->user()->allHives()->pluck('id'))],
@@ -153,14 +153,14 @@ class AlertRuleController extends Controller
     public function update(Request $request, $id)
     {
         $validator = Validator::make($request->all(), [
-			'name'                  => 'nullable|string',
-            'description'           => 'nullable|string',
+			'name'                  => 'nullable|string|max:100',
+            'description'           => 'nullable|string|max:255',
             'measurement_id'        => 'required|integer|exists:measurements,id',
 			'calculation'           => ['required', Rule::in(array_keys(AlertRule::$calculations))],
 			'comparator'            => ['required', Rule::in(array_keys(AlertRule::$comparators))],
 			'comparison'            => ['required', Rule::in(array_keys(AlertRule::$comparisons))],
             'threshold_value'       => 'required|numeric',
-            'calculation_minutes'   => 'required|numeric',
+            'calculation_minutes'   => ['required', Rule::in(AlertRule::$calc_minutes)],
             'exclude_months.*'      => ['nullable', 'integer', Rule::in(array_keys(AlertRule::$exclude_months))],
             'exclude_hours.*'       => ['nullable', 'integer', Rule::in(array_keys(AlertRule::$exclude_hours))],
             'exclude_hive_ids.*'    => ['nullable', 'integer', Rule::in($request->user()->allHives()->pluck('id'))],

@@ -17,7 +17,7 @@ use App\Category;
 use App\Inspection;
 use App\InspectionItem;
 use App\Measurement;
-use App\Models\Flashlog;
+use App\Models\FlashLog;
 use App\Mail\DataExport;
 use App\Exports\HiveExport;
 use Moment\Moment;

@@ -81,7 +81,10 @@ class InspectionItem extends Model
 
     public function ancestors()
     {
-        return  $this->category->ancName();
+        if (isset($this->category))
+            return $this->category->ancName();
+
+        return '';
     }
 
     public function val($locale = null)

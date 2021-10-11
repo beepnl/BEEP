@@ -7,7 +7,7 @@ body, body *:not(html):not(style):not(br):not(tr):not(code) {
 
 body {
     background-color: #F2F4F6;
-    color: #666666;
+    color: #333333;
     height: 100%;
     line-height: 1.4;
     margin: 0;

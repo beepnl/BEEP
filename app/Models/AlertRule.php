@@ -618,7 +618,6 @@ class AlertRule extends Model
             $alertRules = AlertRule::where('active', 1)
                             ->where('default_rule', 0)
                             ->where('user_id', '!=', null)
-                            ->where('alert_on_occurences', '>', 1)
                             ->where('calculation_minutes', '>=', $parse_min) // do not parse alerts that are set to parsing 'at time of device data' (i.e. calculation_minutes == 0)
                             ->where(function($query) use ($min_ago_e) {  
                                 $query->where('last_evaluated_at','<=', $min_ago_e)

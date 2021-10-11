@@ -4,9 +4,11 @@ return [
 
     'subject'       => 'BEEP alert',
     'Dear'          => 'Dear',
-    'alert_text'    => 'A notification has been created from rule :alertrule with the following content:',
+    'Location'      => 'Location',
+    'Name'          => 'Name',
+    'alert_text'    => 'A notification has been created from rule :alertrule.',
     'alert_value'   => 'The measured value(s) that triggered the alert: :value',
-    'disable_text'  => 'You can disable these e-mails in the Alert settings screen.',
+    'disable_text'  => 'Unsubscribe? Disable alert in Alert settings',
     'View_alerts'   => 'View all notifications in the BEEP app'
 
 ];

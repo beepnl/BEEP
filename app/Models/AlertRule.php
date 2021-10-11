@@ -180,7 +180,7 @@ class AlertRule extends Model
         $alert_function   = '';
         $alert_values     = [];
         $last_values_data = [];
-        $last_value_count = $diff_comp ? count($last_values) - 1 : max($r->alert_on_occurences, count($last_values));
+        $last_value_count = $diff_comp ? count($last_values) - 1 : min($r->alert_on_occurences, count($last_values));
         $alert_on_no_vals = $r->calculation == 'cnt' && $r->threshold_value == 0 ? true : false;
 
         if ($last_value_count > 0 || $alert_on_no_vals)
@@ -339,8 +339,8 @@ class AlertRule extends Model
                         $check_alert->alert_function = $r->readableFunction(false, $check_alert->alert_value);
                         $a             = $check_alert;
                         $alert_comp    = $r->comparator == '=' ? '==' : '!=';
-                        $diff_comp     = ', Thr='.$r->threshold_value.' diff_new='.$value_diff_new.' > diff_old='.$value_diff_old_max;
-                        Log::debug($debug_start.' Update Alert id='.$check_alert->id.' count='.$alert_counter.', v_new='.$newest_alert_value.' '.$alert_comp.' v_last='.$check_alert->alert_value.$diff_comp.', from: '.$last_val_inf['from']);
+                        $diff_expla    = ', Thr='.$r->threshold_value.' diff_new='.$value_diff_new.' > diff_old='.$value_diff_old_max;
+                        Log::debug($debug_start.' Update Alert id='.$check_alert->id.' count='.$alert_counter.', v_new='.$newest_alert_value.' '.$alert_comp.' v_last='.$check_alert->alert_value.$diff_expla.', from: '.$last_val_inf['from']);
                     }
                     else // only update count of existing alert
                     {
@@ -350,16 +350,16 @@ class AlertRule extends Model
                         {
                             $alert_compv= '==';
                             $alert_comp = '==';
-                            $diff_comp  = '';
+                            $diff_expla = '';
                         }
                         else
                         {
                             $alert_compv= '!=';
                             $alert_comp = '<';
-                            $diff_comp  = ', Thr='.$r->threshold_value.' diff_new='.$value_diff_new.' '.$alert_comp.' diff_old='.$value_diff_old_max;
+                            $diff_expla = ', Thr='.$r->threshold_value.' diff_new='.$value_diff_new.' '.$alert_comp.' diff_old='.$value_diff_old_max;
                         }
 
-                        Log::debug($debug_start.' Maintain Alert id='.$check_alert->id.' count='.$alert_counter.', v_new='.$newest_alert_value.' '.$alert_compv.' v_last='.$check_alert->alert_value.$diff_comp.', from: '.$last_val_inf['from']);
+                        Log::debug($debug_start.' Maintain Alert id='.$check_alert->id.' count='.$alert_counter.', v_new='.$newest_alert_value.' '.$alert_compv.' v_last='.$check_alert->alert_value.$diff_expla.', from: '.$last_val_inf['from']);
                     }
                     $check_alert->save();
                 }
@@ -393,14 +393,30 @@ class AlertRule extends Model
 
                 if ($a && $r->alert_via_email)
                 {
-                    $last_values_string = implode(' -> ',array_values(array_reverse($last_values_data))).$r->getUnit();
-                    $created_date_local = new Moment($a->reated_at, 'UTC');
+                    $last_values_string = null;
+                    if ($diff_comp)
+                    {
+                        $last_values_data = array_reverse($last_values_data); // for 
+                        $last_values_array= [];
+                        foreach ($last_values_data as $key => $value) 
+                        {
+                            $last_values_array[] = round($value, 1);
+                        }
+                        $last_values_string = implode(' -> ',$last_values_array).$r->getUnit();
+                    }
+
                     // Set locale for date
+                    $created_date_local = new Moment($a->reated_at, 'UTC');
                     $locale_array       = config('laravellocalization.supportedLocales');
                     $locale_identifier  = isset($locale_array[$u->locale]) ? $locale_array[$u->locale]['regional'] : null;
+
                     if ($locale_identifier)
                         \Moment\Moment::setLocale($locale_identifier);
+
                     $display_date_local = $created_date_local->setTimezone($r->timezone)->format('LLLL', new \Moment\CustomFormats\MomentJs());
+                    
+                    if ($locale_identifier) // reset global locale
+                        \Moment\Moment::setLocale('en_GB');
                     
                     Log::debug($debug_start.' Updated or created Alert, sending email to '.$u->email);
                     Mail::to($u->email)->send(new AlertMail($a, $u->name, $last_values_string, $display_date_local));

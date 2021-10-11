@@ -41,7 +41,8 @@ class AlertMail extends Mailable
                 'name' =>$this->name, 
                 'last_values_string' =>$this->last_values_string, 
                 'display_date_local' =>$this->display_date_local, 
-                'url'  =>env('WEBAPP_URL').'alerts'
+                'url'  =>env('WEBAPP_URL').'alerts',
+                'url_settings' =>env('WEBAPP_URL').'alertrules'
             ])
             ->subject(__('alert.subject').(isset($this->alert->hive_name) ? ' '.__('beep.Hive').': '.$this->alert->hive_name : ''));
     }

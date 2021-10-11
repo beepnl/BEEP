@@ -4,9 +4,11 @@ return [
 
     'subject'       => 'BEEP notificatie',
     'Dear'          => 'Beste',
-    'alert_text'    => 'Er is op :date een notificatie aangemaakt door instelling :alertrule met de volgende inhoud:',
+    'Location'      => 'Locatie',
+    'Name'          => 'Naam',
+    'alert_text'    => 'Er is op :date een notificatie aangemaakt door de notificatie-instelling: :alertrule.',
     'alert_value'   => 'De gemeten waarde(n) die de notificatie hebben getriggerd: :value',
-    'disable_text'  => 'Je kunt deze meldingen uitzetten in het Notificatie-instellingen scherm.',
+    'disable_text'  => 'Afmelden? Zet deze notificatie uit in instellingen',
     'View_alerts'   => 'Bekijk alle notificaties in de BEEP app'
 
 ];

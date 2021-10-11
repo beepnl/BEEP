@@ -137,7 +137,7 @@ class AlertRule extends Model
         return $rule->measurement->pq.' '.$calc_trans.__('beep.'.$rule->comparison).' '.$rule->comparator.' '.$rule->threshold_value.$unit;
     }
 
-    public function evaluateDeviceRuleAlerts($device, $user, $alert_rule_calc_date, $data_array=null)
+    public function evaluateDeviceRuleAlerts($device, $user, $alert_rule_calc_date, $data_array=null, $log_on=false)
     {
         $r = $this;
         $d = $device;
@@ -148,13 +148,15 @@ class AlertRule extends Model
 
         if (!isset($d->hive_id) || in_array($d->hive_id, $r->exclude_hive_ids)) // only parse existing hives that are not excluded
         {
-            Log::debug($debug_start.' No hive_id to evaluate, excluded hive_ids='.implode(',',$r->exclude_hive_ids));
+            if($log_on)
+                Log::debug($debug_start.' No hive_id to evaluate, excluded hive_ids='.implode(',',$r->exclude_hive_ids));
             return 0;
         }
 
         if (!isset(AlertRule::$influx_calc[$r->calculation]))
         {
-            Log::debug($debug_start.' Undefined calculation: '.$r->calculation);
+            if($log_on)
+                Log::debug($debug_start.' Undefined calculation: '.$r->calculation);
             return 0;
         }
         $diff_comp   = $r->comparison == 'dif' || $r->comparison == 'abs_dif' || $r->comparison == 'inc' || $r->comparison == 'dec' ? true : false;
@@ -170,7 +172,8 @@ class AlertRule extends Model
 
         if ($last_val_inf['min_ago'] > $r->calculation_minutes)
         {
-            Log::debug($debug_start.' Not evaluating, data from '.$last_val_inf['min_ago'].'m ago is longer ago than '.$r->calculation_minutes.'m (calc min)');
+            if($log_on)
+                Log::debug($debug_start.' Not evaluating, data from '.$last_val_inf['min_ago'].'m ago is longer ago than '.$r->calculation_minutes.'m (calc min)');
             return 0;
         }
 
@@ -338,28 +341,35 @@ class AlertRule extends Model
                         $check_alert->alert_value    = implode(', ', $alert_values);
                         $check_alert->alert_function = $r->readableFunction(false, $check_alert->alert_value);
                         $a             = $check_alert;
-                        $alert_comp    = $r->comparator == '=' ? '==' : '!=';
-                        $diff_expla    = ', Thr='.$r->threshold_value.' diff_new='.$value_diff_new.' > diff_old='.$value_diff_old_max;
-                        Log::debug($debug_start.' Update Alert id='.$check_alert->id.' count='.$alert_counter.', v_new='.$newest_alert_value.' '.$alert_comp.' v_last='.$check_alert->alert_value.$diff_expla.', from: '.$last_val_inf['from']);
+                        
+                        if($log_on)
+                        {
+                            $alert_comp    = $r->comparator == '=' ? '==' : '!=';
+                            $diff_expla    = ', Thr='.$r->threshold_value.' diff_new='.$value_diff_new.' > diff_old='.$value_diff_old_max;
+                            Log::debug($debug_start.' Update Alert id='.$check_alert->id.' count='.$alert_counter.', v_new='.$newest_alert_value.' '.$alert_comp.' v_last='.$check_alert->alert_value.$diff_expla.', from: '.$last_val_inf['from']);
+                        }
                     }
                     else // only update count of existing alert
                     {
                         $check_alert->alert_function = $r->readableFunction(false, $check_alert->alert_value);
 
-                        if ($value_diff_new == $value_diff_old_max)
+                        if($log_on)
                         {
-                            $alert_compv= '==';
-                            $alert_comp = '==';
-                            $diff_expla = '';
-                        }
-                        else
-                        {
-                            $alert_compv= '!=';
-                            $alert_comp = '<';
-                            $diff_expla = ', Thr='.$r->threshold_value.' diff_new='.$value_diff_new.' '.$alert_comp.' diff_old='.$value_diff_old_max;
-                        }
+                            if ($value_diff_new == $value_diff_old_max)
+                            {
+                                $alert_compv= '==';
+                                $alert_comp = '==';
+                                $diff_expla = '';
+                            }
+                            else
+                            {
+                                $alert_compv= '!=';
+                                $alert_comp = '<';
+                                $diff_expla = ', Thr='.$r->threshold_value.' diff_new='.$value_diff_new.' '.$alert_comp.' diff_old='.$value_diff_old_max;
+                            }
 
-                        Log::debug($debug_start.' Maintain Alert id='.$check_alert->id.' count='.$alert_counter.', v_new='.$newest_alert_value.' '.$alert_compv.' v_last='.$check_alert->alert_value.$diff_expla.', from: '.$last_val_inf['from']);
+                            Log::debug($debug_start.' Maintain Alert id='.$check_alert->id.' count='.$alert_counter.', v_new='.$newest_alert_value.' '.$alert_compv.' v_last='.$check_alert->alert_value.$diff_expla.', from: '.$last_val_inf['from']);
+                        }
                     }
                     $check_alert->save();
                 }
@@ -368,7 +378,8 @@ class AlertRule extends Model
                     $alert_value = implode(', ', $alert_values);
                     $alert_func  = $r->readableFunction(false, $alert_value);
 
-                    Log::debug($debug_start.' Create new Alert, v='.$alert_value.', eval_count='.$evaluation_count.' alert_count='.$alert_counter.' f='.$r->readableFunction(true).', from: '.$last_val_inf['from']);
+                    if($log_on)
+                        Log::debug($debug_start.' Create new Alert, v='.$alert_value.', eval_count='.$evaluation_count.' alert_count='.$alert_counter.' f='.$r->readableFunction(true).', from: '.$last_val_inf['from']);
 
                     $a = new Alert();
                     $a->created_at     = $alert_rule_calc_date;
@@ -418,16 +429,18 @@ class AlertRule extends Model
                     if ($locale_identifier) // reset global locale
                         \Moment\Moment::setLocale('en_GB');
                     
-                    Log::debug($debug_start.' Updated or created Alert, sending email to '.$u->email);
+                    if($log_on)
+                        Log::debug($debug_start.' Updated or created Alert, sending email to '.$u->email);
+
                     Mail::to($u->email)->send(new AlertMail($a, $u->name, $last_values_string, $display_date_local));
                 }
             }
-            else
+            else if($log_on)
             {
                 Log::debug($debug_start.' evaluation_count='.$evaluation_count.'x (< '.$r->alert_on_occurences.'x), from: '.$last_val_inf['from'].', last_values='.json_encode($last_values_data));
             }
         }
-        else
+        else if($log_on)
         {
             Log::debug($debug_start.' last_value_count=0, from: '.$last_val_inf['from'].', query: '.$last_val_inf['query']);
         }
@@ -435,7 +448,7 @@ class AlertRule extends Model
         return $alert_count;
     }
 
-    public function parseRule($device_id=null, $data_array=null)
+    public function parseRule($device_id=null, $data_array=null, $log_on=false)
     {
         /*
         0. define UTC timezone
@@ -466,7 +479,8 @@ class AlertRule extends Model
             $min_ago   = -1 * round($now->from($last_evaluated_at)->getMinutes()); // round to whole value
         }
 
-        Log::debug($debug_start.'direct_data='.($direct_data?'1':'0').' ('.$r->readableFunction(true).' @ '.$r->alert_on_occurences.'x'.$r->calculation_minutes.'m) last eval '.$min_ago.'m ago (check_min='.$check_min.') @ '.$last_evaluated_at);
+        if($log_on)
+            Log::debug($debug_start.'direct_data='.($direct_data?'1':'0').' ('.$r->readableFunction(true).' @ '.$r->alert_on_occurences.'x'.$r->calculation_minutes.'m) last eval '.$min_ago.'m ago (check_min='.$check_min.') @ '.$last_evaluated_at);
         
         if ($min_ago > 0)
         {
@@ -503,7 +517,7 @@ class AlertRule extends Model
             if ($r->default_rule == false)
             {
                 $alerts = Alert::where('alert_rule_id', $r->id);
-                Log::debug($debug_start.' Not evaluated: user not found, so deleting '.$alerts->count().' alerts and rule: '.$r->name);
+                Log::warning($debug_start.' Not evaluated: user not found, so deleting '.$alerts->count().' alerts and rule: '.$r->name);
                 $alerts->delete();
                 $r->delete();
             }
@@ -539,7 +553,7 @@ class AlertRule extends Model
         if (count($user_devices) > 0)
         {
             foreach ($user_devices as $device) 
-                $calculated += $r->evaluateDeviceRuleAlerts($device, $user, $alert_rule_calc_date, $data_array);
+                $calculated += $r->evaluateDeviceRuleAlerts($device, $user, $alert_rule_calc_date, $data_array, $log_on);
         }
         else
         {
@@ -563,6 +577,7 @@ class AlertRule extends Model
         $evalCount  = 0;
         $min_ago_e  = date('Y-m-d H:i:s', time()-59); // a bit less than 1 min ago
         $parse_min  = min(60, env('PARSE_ALERT_RULES_EVERY_X_MIN', 15));
+        $log_on     = env('LOG_ALERT_RULE_PARSING', false);
 
         $alertRules = AlertRule::whereIn('id', $rule_ids)
                         ->where('active', 1)
@@ -576,7 +591,8 @@ class AlertRule extends Model
                         ->orderBy('last_evaluated_at')
                         ->get();
 
-        Log::debug('Evaluating (D='.$device_id.') '.count($alertRules).' direct alert rules last evaluated before '.$min_ago_e.' (59s ago)');
+        if ($log_on)
+            Log::info('Evaluating (D='.$device_id.') '.count($alertRules).' direct alert rules last evaluated before '.$min_ago_e.' (59s ago)');
         //die(print_r(['$user_id'=>$user_id,'$parse_min'=>$parse_min,'ar'=>$alertRules->toArray()]));
         $m_abbr_no_data = [];
         foreach ($alertRules as $r) 
@@ -587,13 +603,13 @@ class AlertRule extends Model
 
             if ($direct_data)
             {
-                $parsed = $r->parseRule($device_id, $data_array); // returns ['eval'=>0,'calc'=>0,'msg'=>'no_user'];
+                $parsed = $r->parseRule($device_id, $data_array, $log_on); // returns ['eval'=>0,'calc'=>0,'msg'=>'no_user'];
                 $alertCount += $parsed['calc'];
                 //$evalCount  += $parsed['eval'];
                 // if ($parsed['eval'] == 0)
                 //     Log::debug('  |- '.$parsed['msg']);
             }
-            else
+            else if ($log_on)
             {
                 Log::debug($debug_start.'direct_data=0 ('.$r->readableFunction(true).') No data available for: '.$m_abbr);
             }
@@ -611,6 +627,7 @@ class AlertRule extends Model
         $now        = new Moment(); // UTC
         $now_min    = $now->getMinute();
         $parse_min  = min(60, env('PARSE_ALERT_RULES_EVERY_X_MIN', 15));
+        $log_on     = env('LOG_ALERT_RULE_PARSING', false);
 
         if ($now_min % $parse_min == 0)
         {
@@ -629,11 +646,12 @@ class AlertRule extends Model
                             ->orderBy('last_evaluated_at')
                             ->get();
 
-            Log::debug('Evaluating '.count($alertRules).' active alert rules last evaluated before '.$min_ago_e.' ('.$parse_min.'m ago)');
+            if ($log_on)
+                Log::info('Evaluating '.count($alertRules).' active alert rules last evaluated before '.$min_ago_e.' ('.$parse_min.'m ago)');
 
             foreach ($alertRules as $r) 
             {
-                $parsed = $r->parseRule(); // returns ['eval'=>0,'calc'=>0,'msg'=>'no_user'];
+                $parsed = $r->parseRule(null, null, $log_on); // returns ['eval'=>0,'calc'=>0,'msg'=>'no_user'];
                 $alertCount += $parsed['calc'];
                 // $evalCount  += $parsed['eval'];
             }

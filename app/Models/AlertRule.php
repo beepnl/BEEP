@@ -523,7 +523,9 @@ class AlertRule extends Model
         $all_user_devices = $user->allDevices()->where('hive_id', '!=', null)->whereNotIn('hive_id', $r->exclude_hive_ids);
 
         if ($device_id == null) // default all devices
+        {
             $user_devices = $all_user_devices->where('last_message_received', '>=', $min_msg_date)->get();
+        }
         else
         {
             //die(print_r(['d'=>$data_array,'r'=>$r->toArray()]));

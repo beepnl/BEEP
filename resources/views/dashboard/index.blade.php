@@ -76,8 +76,8 @@
 		<!-- small box -->
 			<div class="small-box bg-primary">
 				<div class="inner">
-					<h3>{{ $data['users'] }} / {{ $data['newusers'] }}</h3>
-					<p>Total users <br>New last 7 days</p>
+					<h3>{{ $data['users'] }} / {{ $data['users-locale'] }} / {{ $data['newusers'] }}</h3>
+					<p>Users<br>Total / App v3 / New last 7 days</p>
 				</div>
 				<div class="icon">
 					<i class="fa fa-user-circle-o"></i>

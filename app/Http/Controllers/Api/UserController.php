@@ -434,7 +434,7 @@ class UserController extends Controller
             $request->all(),
             array
             (
-                'locale'   => 'required|string|min:2',
+                'locale'   => 'required|string|min:2|max:2',
             ),
             array
             (

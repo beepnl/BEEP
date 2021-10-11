@@ -64,6 +64,7 @@ class DashboardController extends Controller
 
         $data                                 = [];
         $data['users']                        = User::count();
+        $data['users-locale']                 = User::where('locale', '!=', null)->count();
         $data['newusers']                     = User::where('created_at', '>', $last_week)->count();
         $data['hourusers']                    = User::where('last_login', '>', $last_hour)->count();
         $data['dayusers']                     = User::where('last_login', '>', $last_day)->count();

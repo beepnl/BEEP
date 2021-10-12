@@ -34,6 +34,7 @@ class AlertMail extends Mailable
      */
     public function build()
     {
+        $subject = __('alert.subject').(null !== $this->alert->alert_rule_name ? ' - '.$this->alert->alert_rule_name : '').(null !== $this->alert->hive_name ? ' - '.__('beep.Hive').': '.$this->alert->hive_name : '');
         return $this->markdown(
             'emails.alert',
             [
@@ -44,6 +45,6 @@ class AlertMail extends Mailable
                 'url'  =>env('WEBAPP_URL').'alerts',
                 'url_settings' =>env('WEBAPP_URL').'alertrules'
             ])
-            ->subject(__('alert.subject').(isset($this->alert->hive_name) ? ' '.__('beep.Hive').': '.$this->alert->hive_name : ''));
+            ->subject($subject);
     }
 }

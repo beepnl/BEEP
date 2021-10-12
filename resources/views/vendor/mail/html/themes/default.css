@@ -58,8 +58,8 @@ h3 {
 }
 
 p {
-    color: #74787E;
-    font-size: 16px;
+    color: #333333;
+    font-size: 14px;
     line-height: 1.5em;
     margin-top: 0;
     text-align: left;
@@ -97,7 +97,7 @@ img {
 /* Header */
 
 .header {
-    padding: 25px 0;
+    padding: 15px 0;
     text-align: center;
 }
 
@@ -137,8 +137,8 @@ img {
 
 .subcopy {
     border-top: 1px solid #EDEFF2;
-    margin-top: 25px;
-    padding-top: 25px;
+    margin-top: 20px;
+    padding-top: 20px;
 }
 
 .subcopy p {
@@ -166,7 +166,7 @@ img {
 /* Tables */
 
 .table table {
-    margin: 30px auto;
+    margin: 20px auto;
     width: 100%;
     -premailer-cellpadding: 0;
     -premailer-cellspacing: 0;
@@ -179,9 +179,9 @@ img {
 }
 
 .table td {
-    color: #74787E;
+    color: #444444;
     font-size: 15px;
-    line-height: 18px;
+    line-height: 16px;
     padding: 10px 0;
 }
 
@@ -250,12 +250,14 @@ img {
 /* Panels */
 
 .panel {
-    margin: 0 0 21px;
+    margin: 0 0 10px;
 }
 
 .panel-content {
     background-color: #EDEFF2;
-    padding: 16px;
+    padding: 20px;
+    padding-top: 8px;
+    padding-bottom: 8px;
 }
 
 .panel-item {

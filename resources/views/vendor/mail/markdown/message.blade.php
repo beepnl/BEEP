@@ -21,7 +21,7 @@
     {{-- Footer --}}
     @slot('footer')
         @component('mail::footer')
-            © {{ date('Y') }} {{ config('app.name') }}.
+            {{ date('Y') }} team {{ config('app.name') }}
         @endcomponent
     @endslot
 @endcomponent

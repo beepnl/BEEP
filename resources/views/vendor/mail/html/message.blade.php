@@ -2,7 +2,7 @@
 {{-- Header --}}
 @slot('header')
 @component('mail::header', ['url' => config('app.url')])
-<img src="{{asset('https://app.beep.nl/img/beep-icon-logo-small.png')}}" alt="{{ config('app.name') }}"/>
+<img style="width:200px;" src="https://assets.beep.nl/static/email/beep-icon-logo.png" alt="{{ config('app.name') }}"/>
 @endcomponent
 @endslot
 
@@ -21,7 +21,7 @@
 {{-- Footer --}}
 @slot('footer')
 @component('mail::footer')
-© {{ date('Y') }} team {{ config('app.name') }}.
+{{ date('Y') }} team {{ config('app.name') }}
 @endcomponent
 @endslot
 @endcomponent

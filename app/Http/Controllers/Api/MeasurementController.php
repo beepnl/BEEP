@@ -113,15 +113,16 @@ class MeasurementController extends Controller
     
 
     // requires at least ['name'=>value] to be set
-    private function storeInfluxData($data_array, $dev_eui, $unix_timestamp)
+    private function storeInfluxData($data_array, $device, $unix_timestamp)
     {
         // store posted data
-        $client    = $this->client;
-        $points    = [];
-        $unix_time = isset($unix_timestamp) ? $unix_timestamp : time();
+        $client      = $this->client;
+        $points      = [];
+        $unix_time   = isset($unix_timestamp) ? $unix_timestamp : time();
+        $sensor_tags = ['key' => strtolower($device->key), 'device_name' => $device->name, 'hardware_id' => strtolower($device->hardware_id), 'user_id' => $device->user_id]; 
 
         $valid_sensor_keys = array_keys($this->valid_sensors);
-
+        
         foreach ($data_array as $key => $value) 
         {
             if (in_array($key, $valid_sensor_keys) )
@@ -130,7 +131,7 @@ class MeasurementController extends Controller
                     new InfluxDB\Point(
                         'sensors',                  // name of the measurement
                         null,                       // the measurement value
-                        ['key' => $dev_eui],     // optional tags
+                        $sensor_tags,               // optional tags
                         ["$key" => floatval($value)], // key value pairs
                         $unix_time                  // Time precision has to be set to InfluxDB\Database::PRECISION_SECONDS!
                     )
@@ -235,7 +236,7 @@ class MeasurementController extends Controller
             // check if we need to compensate weight for temp (legacy)
             //$data_array = $this->add_weight_kg_corrected_with_temperature($device, $data_array);
         }
-        $stored = $this->storeInfluxData($data_array, $dev_eui, $time);
+        $stored = $this->storeInfluxData($data_array, $device, $time);
         
         
         // Remember the last date/data that this device stored measurements from (and previous to calculate diff)

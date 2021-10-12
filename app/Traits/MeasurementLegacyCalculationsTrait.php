@@ -130,7 +130,7 @@ trait MeasurementLegacyCalculationsTrait
         {
             $store  = ['calibrating_weight'=>$weight_kg];
             //die(print_r($store));
-            $stored = $this->storeInfluxData($store, $device->key, time());
+            $stored = $this->storeInfluxData($store, $device, time());
             if ($stored)
                 return true;
         }
@@ -194,7 +194,7 @@ trait MeasurementLegacyCalculationsTrait
 
             //die(print_r(['weight_kg'=>$weight_kg, 'values'=>$search_for, 'cal'=>$calibrate,'key'=>$device->key]));
 
-            $stored = $this->storeInfluxData($calibrate, $device->key, time());
+            $stored = $this->storeInfluxData($calibrate, $device, time());
             if ($stored)
                 return true;
         }
@@ -223,7 +223,7 @@ trait MeasurementLegacyCalculationsTrait
         if (isset($offset['w_v_offset']))
             $this->createOrUpdateDefinition($device, 'w_v', 'weight_kg', $offset['w_v_offset']);
         
-        $stored = $this->storeInfluxData($offset, $device->key, time());
+        $stored = $this->storeInfluxData($offset, $device, time());
         if ($stored)
             return true;
 

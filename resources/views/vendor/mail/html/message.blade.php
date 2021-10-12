@@ -1,7 +1,7 @@
 @component('mail::layout')
 {{-- Header --}}
 @slot('header')
-@component('mail::header', ['url' => config('app.url')])
+@component('mail::header', ['url' => config('app.webapp_url')])
 <img style="width:200px;" src="https://assets.beep.nl/static/email/beep-icon-logo.png" alt="{{ config('app.name') }}"/>
 @endcomponent
 @endslot

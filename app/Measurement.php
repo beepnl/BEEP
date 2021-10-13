@@ -130,7 +130,7 @@ class Measurement extends Model
         return Cache::remember('measurement-list-'.$name_table.'-'.$name_value, env('CACHE_TIMEOUT_LONG'), function () use ($output, $weather)
         { 
             if ($output)
-                return Measurement::where('weather',$weather)->where('show_in_charts', '=', 1)->pluck('abbreviation')->toArray();
+                return Measurement::where('weather',$weather)->where('show_in_charts', true)->pluck('abbreviation')->toArray();
 
             return Measurement::where('weather',$weather)->get()->pluck('pq', 'abbreviation')->toArray();
         });

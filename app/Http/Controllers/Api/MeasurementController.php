@@ -35,7 +35,9 @@ class MeasurementController extends Controller
 
     protected $respose;
     protected $valid_sensors  = [];
+    protected $valid_weather  = [];
     protected $output_sensors = [];
+    protected $output_weather = [];
     protected $precision      = 's';
     protected $timeFormat     = 'Y-m-d H:i:s';
     protected $maxDataPoints  = 5000;
@@ -44,7 +46,9 @@ class MeasurementController extends Controller
     {
         // make sure to add to the measurements DB table w_v_kg_per_val, w_fl_kg_per_val, etc. and w_v_offset, w_fl_offset to let the calibration functions function correctly
         $this->valid_sensors  = Measurement::getValidMeasurements();
+        $this->valid_weather  = Measurement::getValidMeasurements(false, true);
         $this->output_sensors = Measurement::getValidMeasurements(true);
+        $this->output_weather = Measurement::getValidMeasurements(true, true);
         $this->client         = new \Influx;
         //die(print_r($this->valid_sensors));
     }
@@ -838,6 +842,7 @@ class MeasurementController extends Controller
         $device  = $this->get_user_device($request);
         $location= $device->location();
         $names   = array_keys($this->valid_sensors);
+        $names_w = array_keys($this->valid_weather);
 
         if ($request->filled('names'))
             $names = explode(",", $request->input('names'));
@@ -935,7 +940,7 @@ class MeasurementController extends Controller
             if ($location && isset($location->coordinate_lat) && isset($location->coordinate_lon))
             {
                 $whereLoc = '"lat" = \''.$location->coordinate_lat.'\' AND "lon" = \''.$location->coordinate_lon.'\' AND time >= \''.$staTimestampString.'\' AND time <= \''.$endTimestampString.'\'';
-                $queryListWeather   = Device::getAvailableSensorNamesFromData('loc'.$location->id, $names, $whereLoc, 'weather', true, $cache_sensor_names);
+                $queryListWeather   = Device::getAvailableSensorNamesFromData('loc'.$location->id, $names_w, $whereLoc, 'weather', true, $cache_sensor_names);
                 
                 foreach ($queryListWeather as $i => $name) 
                     $queryListWeather[$i] = 'MEAN("'.$name.'") AS "'.$name.'"';

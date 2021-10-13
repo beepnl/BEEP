@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 
 use App\Measurement;
 use Illuminate\Http\Request;
+use Cache;
 
 class MeasurementController extends Controller
 {
@@ -102,6 +103,8 @@ class MeasurementController extends Controller
         
         $measurement = Measurement::findOrFail($id);
         $measurement->update($requestData);
+
+        Cache::forget('taxonomy-lists');
 
         return redirect('measurement')->with('flash_message', 'Measurement updated!');
     }

@@ -297,8 +297,9 @@ class Device extends Model
     // Provide a list of sensor names that exist within the $where clase and $table
     public static function getAvailableSensorNamesNoCache($names, $where, $table='sensors', $output_sensors_only=true, $cache_name='names-nocache')
     {
+        $weather        = $table == 'weather' ? true : false;
         $valid_sensors  = Measurement::getValidMeasurements();
-        $output_sensors = Measurement::getValidMeasurements(true);
+        $output_sensors = Measurement::getValidMeasurements(true, $weather);
 
         $out           = [];
         $valid_sensors = $output_sensors_only ? $output_sensors : array_keys($valid_sensors);

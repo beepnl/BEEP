@@ -305,6 +305,9 @@ class Device extends Model
         $valid_sensors = $output_sensors_only ? $output_sensors : array_keys($valid_sensors);
         $valid_sensors = array_intersect($valid_sensors, $names);
         
+        if (count($valid_sensors) == 0)
+            return $out;
+
         $fields = [];
         foreach ($valid_sensors as $field)
         {

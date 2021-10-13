@@ -71,6 +71,15 @@ class Device extends Model
         return false;
     }
 
+    public function researchNames()
+    {
+        $res = $this->researches();
+        if ($res->count() > 0)
+            return implode(', ', $res->pluck('name')->toArray());
+
+        return '';
+    }
+
     public function getOnlineAttribute()
     {
         $refresh_min  = max(15, $this->getRefreshMin() * 2);
@@ -107,6 +116,11 @@ class Device extends Model
 	public function user()
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function researches()
+    {
+        return $this->user->researches();
     }
 
     public function alerts()

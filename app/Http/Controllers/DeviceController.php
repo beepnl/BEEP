@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Category;
 use App\Device;
 use App\User;
+use App\Research;
 use App\Hive;
 use App\Location;
 
@@ -20,9 +21,62 @@ class DeviceController extends Controller
      */
     public function index(Request $request)
     {
-        $sensors = Device::all(); //->paginate(10);
+        $keyword     = $request->get('search');
+        $search_user = $request->get('user');
+        $search_res  = $request->get('research');
+        $perPage     = 50;
+        $devices     = Device::where('id', '!=', null);
+
+        $research_id = null;
+        if (!empty($search_res)) 
+        {
+            $res = Research::where('name', 'LIKE', "%$search_res%")
+                            ->orWhere('institution', 'LIKE', "%$search_res%")
+                            ->orWhere('description', 'LIKE', "%$search_res%")
+                            ->orWhere('type', 'LIKE', "%$search_res%")
+                            ->first();
+            if ($res)
+            {
+                $device_ids = [];
+                foreach ($res->users as $user) 
+                    $device_ids = array_merge($device_ids, $user->devices->pluck('id')->toArray());
+                
+                $devices = $devices->whereIn('id', $device_ids);
+            }
+        }
+
+        if (!empty($search_user)) 
+        {
+            $user = User::where('name', 'LIKE', "%$search_user%")
+                        ->orWhere('email', 'LIKE', "%$search_user%")
+                        ->orWhere('locale', 'LIKE', "%$search_user%")
+                        ->orWhere('id', 'LIKE', "%$search_user%")
+                        ->first();
+            
+            if ($user)
+                $devices = $devices->where('user_id', $user->id);
+
+        }
+
+        if (!empty($keyword)) 
+        {
+            $devices = $devices->where('hive_id', 'LIKE', "%$keyword%")
+                                ->orWhere('name', 'LIKE', "%$keyword%")
+                                ->orWhere('key', 'LIKE', "%$keyword%")
+                                ->orWhere('last_message_received', 'LIKE', "%$keyword%")
+                                ->orWhere('hardware_id', 'LIKE', "%$keyword%")
+                                ->orWhere('firmware_version', 'LIKE', "%$keyword%")
+                                ->orWhere('hardware_version', 'LIKE', "%$keyword%")
+                                ->orWhere('measurement_interval_min', 'LIKE', "%$keyword%")
+                                ->orWhere('battery_voltage', 'LIKE', "%$keyword%")
+                                ->orWhere('datetime', 'LIKE', "%$keyword%")
+                                ->orWhere('datetime_offset_sec', 'LIKE', "%$keyword%");
+        }
+
+
+        $sensors = $devices->orderByDesc('last_message_received')->paginate($perPage);
+
         return view('devices.index',compact('sensors'));
-            // ->with('i', ($request->input('page', 1) - 1) * 10);
     }
 
     /**

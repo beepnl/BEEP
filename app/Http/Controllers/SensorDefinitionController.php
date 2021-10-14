@@ -5,6 +5,9 @@ namespace App\Http\Controllers;
 use App\Http\Requests;
 use App\Http\Controllers\Controller;
 
+use App\User;
+use App\Device;
+use App\Measurement;
 use App\SensorDefinition;
 use Illuminate\Http\Request;
 
@@ -17,19 +20,58 @@ class SensorDefinitionController extends Controller
      */
     public function index(Request $request)
     {
-        $keyword = $request->get('search');
-        $perPage = 25;
+        $page        = $request->get('page');
+        $keyword     = $request->get('search');
+        $search_user = $request->get('user');
+        $search_dev  = $request->get('device');
+        $search_mid  = $request->get('measurement_id');
+        $perPage     = 50;
+        $defs        = SensorDefinition::where('id', '!=', null);
 
-        if (!empty($keyword)) {
-            $sensordefinition = SensorDefinition::where('offset', 'LIKE', "%$keyword%")
-                ->orWhere('multiplier', 'LIKE', "%$keyword%")
-                ->orWhere('sensor_id', 'LIKE', "%$keyword%")
-                ->paginate($perPage);
-        } else {
-            $sensordefinition = SensorDefinition::paginate($perPage);
+        if (!empty($search_mid)) 
+        {
+            $defs = $defs->where('input_measurement_id', $search_mid)->orWhere('output_measurement_id', $search_mid);
+        }
+ 
+        if (!empty($search_dev)) 
+        {
+            $dev_ids = Device::where('name', 'LIKE', "%$search_dev%")
+                            ->orWhere('key', 'LIKE', "%$search_dev%")
+                            ->orWhere('hardware_id', 'LIKE', "%$search_dev%")
+                            ->orWhere('hardware_version', 'LIKE', "%$search_dev%")
+                            ->pluck('id')
+                            ->toArray();
+            if ($dev_ids)
+                $defs = $defs->whereIn('id', $device_ids);
+            
         }
 
-        return view('sensordefinition.index', compact('sensordefinition'));
+        if (!empty($search_user)) 
+        {
+            $user = User::where('name', 'LIKE', "%$search_user%")
+                        ->orWhere('email', 'LIKE', "%$search_user%")
+                        ->orWhere('locale', 'LIKE', "%$search_user%")
+                        ->orWhere('id', 'LIKE', "%$search_user%")
+                        ->first();
+            
+            if ($user)
+            {
+                die(print_r($user->toArray()));
+                $device_ids = $user->devices()->pluck('id')->toArray();
+                $defs       = $defs->whereIn('device_id', $device_ids);
+            }
+
+        }
+
+        if (!empty($keyword)) 
+        {
+            $defs = $defs->where('name', 'LIKE', "%$keyword%");
+        }
+
+        $sensordefinition = $defs->orderBy('name')->paginate($perPage);
+
+
+        return view('sensordefinition.index', compact('sensordefinition','search_mid','page'));
     }
 
     /**

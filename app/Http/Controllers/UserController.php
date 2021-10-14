@@ -24,13 +24,31 @@ class UserController extends Controller
      */
     public function index(Request $request)
     {
-        $data       = [Auth::user()];
+        $page       = $request->input('page');
         $show_stats = $request->filled('stats');
 
         if (Auth::user()->hasRole('superadmin'))
-            $data = User::with('roles')->get();
+        {
+            $keyword     = $request->get('search');
+            $perPage     = 50;
+            $users       = User::where('id', '!=', null);
 
-        return view('users.index',compact('data', 'show_stats'));
+            if (!empty($keyword)) 
+            {
+                $users = $users->where('name', 'LIKE', "%$keyword%")
+                                ->orWhere('email', 'LIKE', "%$keyword%")
+                                ->orWhere('locale', 'LIKE', "%$keyword%")
+                                ->orWhere('id', 'LIKE', "%$keyword%");
+
+            }
+            
+            $data = $users->orderBy('name')->with('roles')->paginate($perPage);
+        }
+        else
+        {
+            $data = [Auth::user()];
+        }
+        return view('users.index',compact('data', 'show_stats', 'page'));
     }
 
     /**

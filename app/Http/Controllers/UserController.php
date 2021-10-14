@@ -12,6 +12,7 @@ use DB;
 use Hash;
 use Image;
 use Auth;
+use Storage;
 
 class UserController extends Controller
 {

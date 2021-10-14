@@ -23,9 +23,10 @@ Route::group([], function()
 	// save sensor data of multiple sensors
 	Route::post('sensors', 		'Api\MeasurementController@storeMeasurementData')->middleware('throttle:20,1');
 	Route::post('lora_sensors', 'Api\MeasurementController@lora_sensors')->middleware('throttle:20,1');
+	Route::get('sensors/measurement_types', 'Api\MeasurementController@sensor_measurement_types');
 
 	// save sensor data of multiple sensors (unsecure)
-	Route::post('unsecure_sensors', 'Api\MeasurementController@storeMeasurementData')->middleware('throttle:1,1');
+	//Route::post('unsecure_sensors', 'Api\MeasurementController@storeMeasurementData')->middleware('throttle:1,1');
 	
 	// User functions
 	Route::post('register', 	'Api\UserController@register')->middleware('throttle:6,1');
@@ -38,6 +39,7 @@ Route::group([], function()
 	Route::post('email/resend', 'Api\Auth\VerificationController@resend')->name('apiverification.resend')->middleware('throttle:3,1');
 
 	Route::post('groups/checktoken', 'Api\GroupController@checktoken');
+	
 
 
 	Route::group(['middleware'=>['auth:api', 'verifiedApi']], function()
@@ -55,7 +57,6 @@ Route::group([], function()
 		Route::get('sensors/lastweight', 	'Api\MeasurementController@lastweight');
 		Route::post('sensors/calibrateweight','Api\MeasurementController@calibrateweight');
 		Route::post('sensors/offsetweight' ,'Api\MeasurementController@offsetweight');
-		Route::get('sensors/measurement_types', 'Api\MeasurementController@sensor_measurement_types');
 		Route::get('sensors/measurement_types_available', 'Api\MeasurementController@sensor_measurement_types_available');
 		Route::post('lora_sensors_auth',  	'Api\MeasurementController@lora_sensors')->middleware('throttle:1000,1');
 		Route::post('sensors/flashlog',  	'Api\MeasurementController@flashlog')->middleware('throttle:500,1');

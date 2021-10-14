@@ -283,7 +283,21 @@ class MeasurementController extends Controller
         }
     }
 
-    
+    /**
+    api/sensors/measurement_types GET
+    Request all currently available sensor measurement types that can be POSTed to
+    @queryParam locale string Two digit locale to get translated sensor measurement types. Example: en
+    */
+    public function sensor_measurement_types(Request $request)
+    {
+        $locale = null;
+        if ($request->filled('locale'))
+            $locale = $request->input('locale');
+
+        return Response::json(Measurement::getValidMeasurements(false, false, $locale));
+    }
+
+
     public function sensor_measurement_types_available(Request $request)
     {
         $device_id           = $request->input('device_id');
@@ -555,8 +569,9 @@ class MeasurementController extends Controller
     When TTN payload is supplied, the TTN HTTP integration decoder/converter is assumed to have already converted the payload from LoRa HEX to key/value conversion
 
     @bodyParam key string required DEV EUI of the Device to enable storing sensor data
-    @bodyParam payload_fields array TTN Measurement data
-    @bodyParam DevEUI_uplink array KPN Measurement data
+    @bodyParam payload_raw string TTN BEEP Measurement data in Base 64 encoded string
+    @bodyParam payload_fields json TTN Measurement data array
+    @bodyParam DevEUI_uplink json KPN Measurement data array
     */
     public function lora_sensors(Request $request)
     {
@@ -598,12 +613,11 @@ class MeasurementController extends Controller
         return $this->storeMeasurements($data_array);
     }
 
-   /**
+    /**
     api/sensors POST
-    Store sensor measurement data (see BEEP sensor data API definition) from API, or TTN. In case of using api/unsecure_sensors, this is used for legacy measurement devices that do not have the means to encrypt HTTPS cypher
-    @bodyParam key string required DEV EUI of the Device to enable storing sensor data
-    @bodyParam data array Measurement data
-    @bodyParam payload_fields array TTN Measurement data
+    Store sensor measurement data (see BEEP sensor data API definition) from API, or TTN. See /sensors/measurement_types?locale=en which measurement types can be used to POST data to.
+    @bodyParam key/data json required Measurement data as JSON: {"key":"your_beep_device_key", "t":18.4, t_i":34.5, "weight_kg":57.348, "h":58, "bv":3.54}
+    @queryParam key/data string required Measurement formatted as URL query: key=your_beep_device_key&t=18.4&t_i=34.5&weight_kg=57.348&h=58&bv=3.54
     */
     public function storeMeasurementData(Request $request)
     {

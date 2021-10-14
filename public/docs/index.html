@@ -88,7 +88,7 @@ fetch(url, {
 </blockquote>
 <pre><code class="language-bash">curl -X POST "https://api.beep.nl/api/alerts" \
     -H "Content-Type: application/json" \
-    -d '{"alert_rule_id":11,"measurement_id":8,"alert_value":"ipsam","show":true}'
+    -d '{"alert_rule_id":9,"measurement_id":1,"alert_value":"expedita","show":false}'
 </code></pre>
 <pre><code class="language-javascript">const url = new URL("https://api.beep.nl/api/alerts");
 
@@ -98,10 +98,10 @@ let headers = {
 }
 
 let body = {
-    "alert_rule_id": 11,
-    "measurement_id": 8,
-    "alert_value": "ipsam",
-    "show": true
+    "alert_rule_id": 9,
+    "measurement_id": 1,
+    "alert_value": "expedita",
+    "show": false
 }
 
 fetch(url, {
@@ -190,7 +190,7 @@ fetch(url, {
 </blockquote>
 <pre><code class="language-bash">curl -X PUT "https://api.beep.nl/api/alerts/1" \
     -H "Content-Type: application/json" \
-    -d '{"show":false}'
+    -d '{"show":true}'
 </code></pre>
 <pre><code class="language-javascript">const url = new URL("https://api.beep.nl/api/alerts/1");
 
@@ -200,7 +200,7 @@ let headers = {
 }
 
 let body = {
-    "show": false
+    "show": true
 }
 
 fetch(url, {
@@ -297,7 +297,7 @@ fetch(url, {
 </blockquote>
 <pre><code class="language-bash">curl -X POST "https://api.beep.nl/api/alert-rules" \
     -H "Content-Type: application/json" \
-    -d '{"measurement_id":12,"calculation":"et","comparator":"et","comparison":"ut","threshold_value":80475980.99282853,"name":"et","description":"et","calculation_minutes":13,"exclude_months":"[1,2,3,11,12]","exclude_hours":"[0,1,2,3,22,23]","exclude_hive_ids":[],"alert_on_occurrences":4,"alert_via_email":true,"webhook_url":"et","active":false}'
+    -d '{"measurement_id":12,"calculation":"optio","comparator":"consectetur","comparison":"laborum","threshold_value":31896083,"name":"nostrum","description":"consectetur","calculation_minutes":17,"exclude_months":"[1,2,3,11,12]","exclude_hours":"[0,1,2,3,22,23]","exclude_hive_ids":[],"alert_on_occurrences":10,"alert_via_email":false,"webhook_url":"quis","active":false}'
 </code></pre>
 <pre><code class="language-javascript">const url = new URL("https://api.beep.nl/api/alert-rules");
 
@@ -308,19 +308,19 @@ let headers = {
 
 let body = {
     "measurement_id": 12,
-    "calculation": "et",
-    "comparator": "et",
-    "comparison": "ut",
-    "threshold_value": 80475980.99282853,
-    "name": "et",
-    "description": "et",
-    "calculation_minutes": 13,
+    "calculation": "optio",
+    "comparator": "consectetur",
+    "comparison": "laborum",
+    "threshold_value": 31896083,
+    "name": "nostrum",
+    "description": "consectetur",
+    "calculation_minutes": 17,
     "exclude_months": "[1,2,3,11,12]",
     "exclude_hours": "[0,1,2,3,22,23]",
     "exclude_hive_ids": [],
-    "alert_on_occurrences": 4,
-    "alert_via_email": true,
-    "webhook_url": "et",
+    "alert_on_occurrences": 10,
+    "alert_via_email": false,
+    "webhook_url": "quis",
     "active": false
 }
 
@@ -476,7 +476,7 @@ fetch(url, {
 </blockquote>
 <pre><code class="language-bash">curl -X PUT "https://api.beep.nl/api/alert-rules/1" \
     -H "Content-Type: application/json" \
-    -d '{"name":"harum","description":"aut","measurement_id":13,"calculation":"sunt","comparator":"et","comparison":"placeat","threshold_value":6.8565,"calculation_minutes":14,"exclude_months":"[1,2,3,11,12]","exclude_hours":"[0,1,2,3,22,23]","exclude_hive_ids":[],"alert_on_occurrences":19,"alert_via_email":true,"webhook_url":"non","active":false}'
+    -d '{"name":"illo","description":"omnis","measurement_id":5,"calculation":"voluptatibus","comparator":"autem","comparison":"id","threshold_value":96673826.20444001,"calculation_minutes":19,"exclude_months":"[1,2,3,11,12]","exclude_hours":"[0,1,2,3,22,23]","exclude_hive_ids":[],"alert_on_occurrences":9,"alert_via_email":true,"webhook_url":"quae","active":false}'
 </code></pre>
 <pre><code class="language-javascript">const url = new URL("https://api.beep.nl/api/alert-rules/1");
 
@@ -486,20 +486,20 @@ let headers = {
 }
 
 let body = {
-    "name": "harum",
-    "description": "aut",
-    "measurement_id": 13,
-    "calculation": "sunt",
-    "comparator": "et",
-    "comparison": "placeat",
-    "threshold_value": 6.8565,
-    "calculation_minutes": 14,
+    "name": "illo",
+    "description": "omnis",
+    "measurement_id": 5,
+    "calculation": "voluptatibus",
+    "comparator": "autem",
+    "comparison": "id",
+    "threshold_value": 96673826.20444001,
+    "calculation_minutes": 19,
     "exclude_months": "[1,2,3,11,12]",
     "exclude_hours": "[0,1,2,3,22,23]",
     "exclude_hive_ids": [],
-    "alert_on_occurrences": 19,
+    "alert_on_occurrences": 9,
     "alert_via_email": true,
-    "webhook_url": "non",
+    "webhook_url": "quae",
     "active": false
 }
 
@@ -2359,7 +2359,7 @@ fetch(url, {
 </blockquote>
 <pre><code class="language-bash">curl -X POST "https://api.beep.nl/api/devices/multiple" \
     -H "Content-Type: application/json" \
-    -d '{"id":8,"key":"autem","hardware_id":"fugit","name":"consequatur","hive_id":8,"type":"architecto","last_message_received":"consequuntur","firmware_version":"qui","hardware_version":"non","boot_count":3,"measurement_interval_min":44.2374274,"measurement_transmission_ratio":885467659,"ble_pin":"facere","battery_voltage":1083,"next_downlink_message":"iure","last_downlink_result":"voluptatem"}'
+    -d '{"id":2,"key":"ipsa","hardware_id":"omnis","name":"modi","hive_id":8,"type":"laudantium","last_message_received":"dolore","firmware_version":"laudantium","hardware_version":"velit","boot_count":5,"measurement_interval_min":3518390.9,"measurement_transmission_ratio":702,"ble_pin":"sit","battery_voltage":59.868710434,"next_downlink_message":"cum","last_downlink_result":"animi"}'
 </code></pre>
 <pre><code class="language-javascript">const url = new URL("https://api.beep.nl/api/devices/multiple");
 
@@ -2369,22 +2369,22 @@ let headers = {
 }
 
 let body = {
-    "id": 8,
-    "key": "autem",
-    "hardware_id": "fugit",
-    "name": "consequatur",
+    "id": 2,
+    "key": "ipsa",
+    "hardware_id": "omnis",
+    "name": "modi",
     "hive_id": 8,
-    "type": "architecto",
-    "last_message_received": "consequuntur",
-    "firmware_version": "qui",
-    "hardware_version": "non",
-    "boot_count": 3,
-    "measurement_interval_min": 44.2374274,
-    "measurement_transmission_ratio": 885467659,
-    "ble_pin": "facere",
-    "battery_voltage": 1083,
-    "next_downlink_message": "iure",
-    "last_downlink_result": "voluptatem"
+    "type": "laudantium",
+    "last_message_received": "dolore",
+    "firmware_version": "laudantium",
+    "hardware_version": "velit",
+    "boot_count": 5,
+    "measurement_interval_min": 3518390.9,
+    "measurement_transmission_ratio": 702,
+    "ble_pin": "sit",
+    "battery_voltage": 59.868710434,
+    "next_downlink_message": "cum",
+    "last_downlink_result": "animi"
 }
 
 fetch(url, {
@@ -2593,7 +2593,7 @@ fetch(url, {
 </blockquote>
 <pre><code class="language-bash">curl -X GET -G "https://api.beep.nl/api/devices" \
     -H "Content-Type: application/json" \
-    -d '{"hardware_id":"quae"}'
+    -d '{"hardware_id":"consequuntur"}'
 </code></pre>
 <pre><code class="language-javascript">const url = new URL("https://api.beep.nl/api/devices");
 
@@ -2603,7 +2603,7 @@ let headers = {
 }
 
 let body = {
-    "hardware_id": "quae"
+    "hardware_id": "consequuntur"
 }
 
 fetch(url, {
@@ -2691,7 +2691,7 @@ fetch(url, {
 </blockquote>
 <pre><code class="language-bash">curl -X POST "https://api.beep.nl/api/devices" \
     -H "Content-Type: application/json" \
-    -d '{"id":10,"key":"labore","hardware_id":"dolor","name":"enim","hive_id":20,"type":"optio","last_message_received":"et","firmware_version":"officia","hardware_version":"sapiente","boot_count":1,"measurement_interval_min":18.07,"measurement_transmission_ratio":4,"ble_pin":"est","battery_voltage":388257.658943825,"next_downlink_message":"nulla","last_downlink_result":"magnam","create_ttn_device":true,"app_key":"laboriosam"}'
+    -d '{"id":15,"key":"nostrum","hardware_id":"perspiciatis","name":"laudantium","hive_id":15,"type":"assumenda","last_message_received":"error","firmware_version":"sed","hardware_version":"eum","boot_count":9,"measurement_interval_min":221135233,"measurement_transmission_ratio":1.778638531,"ble_pin":"ut","battery_voltage":660359.8,"next_downlink_message":"quos","last_downlink_result":"quia","create_ttn_device":false,"app_key":"occaecati"}'
 </code></pre>
 <pre><code class="language-javascript">const url = new URL("https://api.beep.nl/api/devices");
 
@@ -2701,24 +2701,24 @@ let headers = {
 }
 
 let body = {
-    "id": 10,
-    "key": "labore",
-    "hardware_id": "dolor",
-    "name": "enim",
-    "hive_id": 20,
-    "type": "optio",
-    "last_message_received": "et",
-    "firmware_version": "officia",
-    "hardware_version": "sapiente",
-    "boot_count": 1,
-    "measurement_interval_min": 18.07,
-    "measurement_transmission_ratio": 4,
-    "ble_pin": "est",
-    "battery_voltage": 388257.658943825,
-    "next_downlink_message": "nulla",
-    "last_downlink_result": "magnam",
-    "create_ttn_device": true,
-    "app_key": "laboriosam"
+    "id": 15,
+    "key": "nostrum",
+    "hardware_id": "perspiciatis",
+    "name": "laudantium",
+    "hive_id": 15,
+    "type": "assumenda",
+    "last_message_received": "error",
+    "firmware_version": "sed",
+    "hardware_version": "eum",
+    "boot_count": 9,
+    "measurement_interval_min": 221135233,
+    "measurement_transmission_ratio": 1.778638531,
+    "ble_pin": "ut",
+    "battery_voltage": 660359.8,
+    "next_downlink_message": "quos",
+    "last_downlink_result": "quia",
+    "create_ttn_device": false,
+    "app_key": "occaecati"
 }
 
 fetch(url, {
@@ -2891,7 +2891,7 @@ fetch(url, {
 </blockquote>
 <pre><code class="language-bash">curl -X PUT "https://api.beep.nl/api/devices/1" \
     -H "Content-Type: application/json" \
-    -d '{"id":7,"key":"ducimus","hardware_id":"molestiae","name":"facilis","hive_id":6,"type":"perferendis","delete":false,"last_message_received":"libero","firmware_version":"reprehenderit","hardware_version":"asperiores","boot_count":7,"measurement_interval_min":0.01336,"measurement_transmission_ratio":225842.26,"ble_pin":"cumque","battery_voltage":240.320528588,"next_downlink_message":"repudiandae","last_downlink_result":"voluptate"}'
+    -d '{"id":7,"key":"ipsa","hardware_id":"aperiam","name":"dolorem","hive_id":15,"type":"animi","delete":true,"last_message_received":"molestias","firmware_version":"non","hardware_version":"nemo","boot_count":3,"measurement_interval_min":0,"measurement_transmission_ratio":12107559.34,"ble_pin":"pariatur","battery_voltage":6370.99767241,"next_downlink_message":"aut","last_downlink_result":"nisi"}'
 </code></pre>
 <pre><code class="language-javascript">const url = new URL("https://api.beep.nl/api/devices/1");
 
@@ -2902,22 +2902,22 @@ let headers = {
 
 let body = {
     "id": 7,
-    "key": "ducimus",
-    "hardware_id": "molestiae",
-    "name": "facilis",
-    "hive_id": 6,
-    "type": "perferendis",
-    "delete": false,
-    "last_message_received": "libero",
-    "firmware_version": "reprehenderit",
-    "hardware_version": "asperiores",
-    "boot_count": 7,
-    "measurement_interval_min": 0.01336,
-    "measurement_transmission_ratio": 225842.26,
-    "ble_pin": "cumque",
-    "battery_voltage": 240.320528588,
-    "next_downlink_message": "repudiandae",
-    "last_downlink_result": "voluptate"
+    "key": "ipsa",
+    "hardware_id": "aperiam",
+    "name": "dolorem",
+    "hive_id": 15,
+    "type": "animi",
+    "delete": true,
+    "last_message_received": "molestias",
+    "firmware_version": "non",
+    "hardware_version": "nemo",
+    "boot_count": 3,
+    "measurement_interval_min": 0,
+    "measurement_transmission_ratio": 12107559.34,
+    "ble_pin": "pariatur",
+    "battery_voltage": 6370.99767241,
+    "next_downlink_message": "aut",
+    "last_downlink_result": "nisi"
 }
 
 fetch(url, {
@@ -3085,7 +3085,7 @@ fetch(url, {
 </blockquote>
 <pre><code class="language-bash">curl -X POST "https://api.beep.nl/api/export/csv" \
     -H "Content-Type: application/json" \
-    -d '{"device_id":"omnis","start":"2020-05-27 16:16","end":"2020-05-30 00:00","separator":";","measurements":"'am2315_t,am2315_h,mhz_co2'","link":false}'
+    -d '{"device_id":"nobis","start":"2020-05-27 16:16","end":"2020-05-30 00:00","separator":";","measurements":"'am2315_t,am2315_h,mhz_co2'","link":false}'
 </code></pre>
 <pre><code class="language-javascript">const url = new URL("https://api.beep.nl/api/export/csv");
 
@@ -3095,7 +3095,7 @@ let headers = {
 }
 
 let body = {
-    "device_id": "omnis",
+    "device_id": "nobis",
     "start": "2020-05-27 16:16",
     "end": "2020-05-30 00:00",
     "separator": ";",
@@ -3775,7 +3775,7 @@ fetch(url, {
 </blockquote>
 <pre><code class="language-bash">curl -X GET -G "https://api.beep.nl/api/inspections/lists" \
     -H "Content-Type: application/json" \
-    -d '{"id":19}'
+    -d '{"id":7}'
 </code></pre>
 <pre><code class="language-javascript">const url = new URL("https://api.beep.nl/api/inspections/lists");
 
@@ -3785,7 +3785,7 @@ let headers = {
 }
 
 let body = {
-    "id": 19
+    "id": 7
 }
 
 fetch(url, {
@@ -4281,15 +4281,20 @@ fetch(url, {
 <p>Store and retreive sensor data (both LoRa and API POSTs) from a Device</p>
 <!-- START_b3690d7048f832bb2ae7059b2ccd2d2e -->
 <h2>api/sensors POST</h2>
-<p>Store sensor measurement data (see BEEP sensor data API definition) from API, or TTN. In case of using api/unsecure_sensors, this is used for legacy measurement devices that do not have the means to encrypt HTTPS cypher</p>
+<p>Store sensor measurement data (see BEEP sensor data API definition) from API, or TTN. See /sensors/measurement_types?locale=en which measurement types can be used to POST data to.</p>
 <blockquote>
 <p>Example request:</p>
 </blockquote>
-<pre><code class="language-bash">curl -X POST "https://api.beep.nl/api/sensors" \
+<pre><code class="language-bash">curl -X POST "https://api.beep.nl/api/sensors?key%2Fdata=voluptates" \
     -H "Content-Type: application/json" \
-    -d '{"key":"vel","data":[],"payload_fields":[]}'
+    -d '{"key\/data":"reprehenderit"}'
 </code></pre>
 <pre><code class="language-javascript">const url = new URL("https://api.beep.nl/api/sensors");
+
+    let params = {
+            "key/data": "voluptates",
+        };
+    Object.keys(params).forEach(key =&gt; url.searchParams.append(key, params[key]));
 
 let headers = {
     "Content-Type": "application/json",
@@ -4297,9 +4302,7 @@ let headers = {
 }
 
 let body = {
-    "key": "vel",
-    "data": [],
-    "payload_fields": []
+    "key\/data": "reprehenderit"
 }
 
 fetch(url, {
@@ -4323,22 +4326,27 @@ fetch(url, {
 </thead>
 <tbody>
 <tr>
-<td>key</td>
-<td>string</td>
+<td>key/data</td>
+<td>json</td>
 <td>required</td>
-<td>DEV EUI of the Device to enable storing sensor data</td>
+<td>Measurement data as JSON: {&quot;key&quot;:&quot;your_beep_device_key&quot;, &quot;t&quot;:18.4, t_i&quot;:34.5, &quot;weight_kg&quot;:57.348, &quot;h&quot;:58, &quot;bv&quot;:3.54}</td>
 </tr>
+</tbody>
+</table>
+<h4>Query Parameters</h4>
+<table>
+<thead>
 <tr>
-<td>data</td>
-<td>array</td>
-<td>optional</td>
-<td>Measurement data</td>
+<th>Parameter</th>
+<th>Status</th>
+<th>Description</th>
 </tr>
+</thead>
+<tbody>
 <tr>
-<td>payload_fields</td>
-<td>array</td>
+<td>key/data</td>
 <td>optional</td>
-<td>TTN Measurement data</td>
+<td>string required Measurement formatted as URL query: key=your_beep_device_key&amp;t=18.4&amp;t_i=34.5&amp;weight_kg=57.348&amp;h=58&amp;bv=3.54</td>
 </tr>
 </tbody>
 </table>
@@ -4353,7 +4361,7 @@ When TTN payload is supplied, the TTN HTTP integration decoder/converter is assu
 </blockquote>
 <pre><code class="language-bash">curl -X POST "https://api.beep.nl/api/lora_sensors" \
     -H "Content-Type: application/json" \
-    -d '{"key":"ipsa","payload_fields":[],"DevEUI_uplink":[]}'
+    -d '{"key":"maxime","payload_raw":"temporibus","payload_fields":"ad","DevEUI_uplink":"doloribus"}'
 </code></pre>
 <pre><code class="language-javascript">const url = new URL("https://api.beep.nl/api/lora_sensors");
 
@@ -4363,9 +4371,10 @@ let headers = {
 }
 
 let body = {
-    "key": "ipsa",
-    "payload_fields": [],
-    "DevEUI_uplink": []
+    "key": "maxime",
+    "payload_raw": "temporibus",
+    "payload_fields": "ad",
+    "DevEUI_uplink": "doloribus"
 }
 
 fetch(url, {
@@ -4395,84 +4404,155 @@ fetch(url, {
 <td>DEV EUI of the Device to enable storing sensor data</td>
 </tr>
 <tr>
-<td>payload_fields</td>
-<td>array</td>
+<td>payload_raw</td>
+<td>string</td>
 <td>optional</td>
-<td>TTN Measurement data</td>
+<td>TTN BEEP Measurement data in Base 64 encoded string</td>
+</tr>
+<tr>
+<td>payload_fields</td>
+<td>json</td>
+<td>optional</td>
+<td>TTN Measurement data array</td>
 </tr>
 <tr>
 <td>DevEUI_uplink</td>
-<td>array</td>
+<td>json</td>
 <td>optional</td>
-<td>KPN Measurement data</td>
+<td>KPN Measurement data array</td>
 </tr>
 </tbody>
 </table>
 <!-- END_493153e007f201a68c09b94906fd38fd -->
-<!-- START_bcb7a14ed838926257563c68667a27c1 -->
-<h2>api/sensors POST</h2>
-<p>Store sensor measurement data (see BEEP sensor data API definition) from API, or TTN. In case of using api/unsecure_sensors, this is used for legacy measurement devices that do not have the means to encrypt HTTPS cypher</p>
+<!-- START_c3342d8fcf8e60d79307f7cd57c903d5 -->
+<h2>api/sensors/measurement_types GET</h2>
+<p>Request all currently available sensor measurement types that can be POSTed to</p>
 <blockquote>
 <p>Example request:</p>
 </blockquote>
-<pre><code class="language-bash">curl -X POST "https://api.beep.nl/api/unsecure_sensors" \
-    -H "Content-Type: application/json" \
-    -d '{"key":"unde","data":[],"payload_fields":[]}'
-</code></pre>
-<pre><code class="language-javascript">const url = new URL("https://api.beep.nl/api/unsecure_sensors");
+<pre><code class="language-bash">curl -X GET -G "https://api.beep.nl/api/sensors/measurement_types?locale=en" </code></pre>
+<pre><code class="language-javascript">const url = new URL("https://api.beep.nl/api/sensors/measurement_types");
+
+    let params = {
+            "locale": "en",
+        };
+    Object.keys(params).forEach(key =&gt; url.searchParams.append(key, params[key]));
 
 let headers = {
-    "Content-Type": "application/json",
     "Accept": "application/json",
-}
-
-let body = {
-    "key": "unde",
-    "data": [],
-    "payload_fields": []
+    "Content-Type": "application/json",
 }
 
 fetch(url, {
-    method: "POST",
+    method: "GET",
     headers: headers,
-    body: body
 })
     .then(response =&gt; response.json())
     .then(json =&gt; console.log(json));</code></pre>
+<blockquote>
+<p>Example response (200):</p>
+</blockquote>
+<pre><code class="language-json">{
+    "t": "Temperature",
+    "h": "Humidity",
+    "p": "Pressure",
+    "w": "Weight sum",
+    "l": "Light",
+    "bv": "Battery voltage",
+    "w_v": "Weight sum",
+    "w_fl": "Weight front-left",
+    "w_fr": "Weight front-right",
+    "w_bl": "Weight back-left",
+    "w_br": "Weight back-right",
+    "s_fan_4": "Sound fanning 4 days old",
+    "s_fan_6": "Sound fanning 6 days old",
+    "s_fan_9": "Sound fanning 9 days old",
+    "s_fly_a": "Sound flying",
+    "s_tot": "Sound total",
+    "t_i": "Temperature inside",
+    "bc_i": "Bee count in",
+    "bc_o": "Bee count out",
+    "weight_kg": "Weight",
+    "weight_kg_corrected": "Weight corrected",
+    "rssi": "Received signal strength",
+    "snr": "Signal to noise ratio",
+    "lat": "Lattitude",
+    "lon": "lon",
+    "s_bin098_146Hz": "S bin098 146Hz",
+    "s_bin146_195Hz": "S bin146 195Hz",
+    "s_bin195_244Hz": "S bin195 244Hz",
+    "s_bin244_293Hz": "S bin244 293Hz",
+    "s_bin293_342Hz": "S bin293 342Hz",
+    "s_bin342_391Hz": "S bin342 391Hz",
+    "s_bin391_439Hz": "S bin391 439Hz",
+    "s_bin439_488Hz": "S bin439 488Hz",
+    "s_bin488_537Hz": "S bin488 537Hz",
+    "s_bin537_586Hz": "S bin537 586Hz",
+    "calibrating_weight": "Calibrating weight",
+    "w_fl_kg_per_val": "W fl kg per val",
+    "w_fr_kg_per_val": "W fr kg per val",
+    "w_bl_kg_per_val": "W bl kg per val",
+    "w_br_kg_per_val": "W br kg per val",
+    "w_fl_offset": "W fl offset",
+    "w_fr_offset": "W fr offset",
+    "w_bl_offset": "W bl offset",
+    "w_br_offset": "W br offset",
+    "bc_tot": "Bc tot",
+    "s_spl": "S spl",
+    "h_i": "H i",
+    "w_v_offset": "W v offset",
+    "w_v_kg_per_val": "W v kg per val",
+    "s_bin_0_201": "S bin 0 201",
+    "s_bin_201_402": "S bin 201 402",
+    "s_bin_402_602": "S bin 402 602",
+    "s_bin_602_803": "S bin 602 803",
+    "s_bin_803_1004": "S bin 803 1004",
+    "s_bin_1004_1205": "S bin 1004 1205",
+    "s_bin_1205_1406": "S bin 1205 1406",
+    "s_bin_1406_1607": "S bin 1406 1607",
+    "s_bin_1607_1807": "S bin 1607 1807",
+    "s_bin_1807_2008": "S bin 1807 2008",
+    "t_0": "T 0",
+    "t_1": "T 1",
+    "t_2": "T 2",
+    "t_3": "T 3",
+    "t_4": "T 4",
+    "t_5": "T 5",
+    "t_6": "T 6",
+    "t_7": "T 7",
+    "t_8": "T 8",
+    "t_9": "T 9",
+    "s_bin_122_173": "S bin 122 173",
+    "s_bin_71_122": "S bin 71 122",
+    "s_bin_173_224": "S bin 173 224",
+    "s_bin_224_276": "S bin 224 276",
+    "s_bin_276_327": "S bin 276 327",
+    "s_bin_327_378": "S bin 327 378",
+    "s_bin_378_429": "S bin 378 429",
+    "s_bin_429_480": "S bin 429 480",
+    "s_bin_480_532": "S bin 480 532",
+    "s_bin_532_583": "S bin 532 583"
+}</code></pre>
 <h3>HTTP Request</h3>
-<p><code>POST api/unsecure_sensors</code></p>
-<h4>Body Parameters</h4>
+<p><code>GET api/sensors/measurement_types</code></p>
+<h4>Query Parameters</h4>
 <table>
 <thead>
 <tr>
 <th>Parameter</th>
-<th>Type</th>
 <th>Status</th>
 <th>Description</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td>key</td>
-<td>string</td>
-<td>required</td>
-<td>DEV EUI of the Device to enable storing sensor data</td>
-</tr>
-<tr>
-<td>data</td>
-<td>array</td>
+<td>locale</td>
 <td>optional</td>
-<td>Measurement data</td>
-</tr>
-<tr>
-<td>payload_fields</td>
-<td>array</td>
-<td>optional</td>
-<td>TTN Measurement data</td>
+<td>string Two digit locale to get translated sensor measurement types.</td>
 </tr>
 </tbody>
 </table>
-<!-- END_bcb7a14ed838926257563c68667a27c1 -->
+<!-- END_c3342d8fcf8e60d79307f7cd57c903d5 -->
 <!-- START_f110a838c139b465d2aa0fe28eced864 -->
 <h2>api/sensors/measurements GET</h2>
 <p>Request all sensor measurements from a certain interval (hour, day, week, month, year) and index (0=until now, 1=previous interval, etc.)</p>
@@ -4482,7 +4562,7 @@ fetch(url, {
 </blockquote>
 <pre><code class="language-bash">curl -X GET -G "https://api.beep.nl/api/sensors/measurements" \
     -H "Content-Type: application/json" \
-    -d '{"key":"in","id":6,"hive_id":6,"names":"doloribus","interval":"corrupti","index":2}'
+    -d '{"key":"sed","id":11,"hive_id":15,"names":"quia","interval":"consectetur","index":9}'
 </code></pre>
 <pre><code class="language-javascript">const url = new URL("https://api.beep.nl/api/sensors/measurements");
 
@@ -4492,12 +4572,12 @@ let headers = {
 }
 
 let body = {
-    "key": "in",
-    "id": 6,
-    "hive_id": 6,
-    "names": "doloribus",
-    "interval": "corrupti",
-    "index": 2
+    "key": "sed",
+    "id": 11,
+    "hive_id": 15,
+    "names": "quia",
+    "interval": "consectetur",
+    "index": 9
 }
 
 fetch(url, {
@@ -4574,7 +4654,7 @@ fetch(url, {
 </blockquote>
 <pre><code class="language-bash">curl -X GET -G "https://api.beep.nl/api/sensors/lastvalues" \
     -H "Content-Type: application/json" \
-    -d '{"key":"est","id":18,"hive_id":12}'
+    -d '{"key":"nesciunt","id":6,"hive_id":17}'
 </code></pre>
 <pre><code class="language-javascript">const url = new URL("https://api.beep.nl/api/sensors/lastvalues");
 
@@ -4584,9 +4664,9 @@ let headers = {
 }
 
 let body = {
-    "key": "est",
-    "id": 18,
-    "hive_id": 12
+    "key": "nesciunt",
+    "id": 6,
+    "hive_id": 17
 }
 
 fetch(url, {
@@ -4645,7 +4725,7 @@ fetch(url, {
 </blockquote>
 <pre><code class="language-bash">curl -X GET -G "https://api.beep.nl/api/sensors/lastweight" \
     -H "Content-Type: application/json" \
-    -d '{"key":"aliquam","id":1,"hive_id":16}'
+    -d '{"key":"sequi","id":19,"hive_id":1}'
 </code></pre>
 <pre><code class="language-javascript">const url = new URL("https://api.beep.nl/api/sensors/lastweight");
 
@@ -4655,9 +4735,9 @@ let headers = {
 }
 
 let body = {
-    "key": "aliquam",
-    "id": 1,
-    "hive_id": 16
+    "key": "sequi",
+    "id": 19,
+    "hive_id": 1
 }
 
 fetch(url, {
@@ -4800,7 +4880,7 @@ When TTN payload is supplied, the TTN HTTP integration decoder/converter is assu
 </blockquote>
 <pre><code class="language-bash">curl -X POST "https://api.beep.nl/api/lora_sensors_auth" \
     -H "Content-Type: application/json" \
-    -d '{"key":"ex","payload_fields":[],"DevEUI_uplink":[]}'
+    -d '{"key":"sed","payload_raw":"consequatur","payload_fields":"sed","DevEUI_uplink":"inventore"}'
 </code></pre>
 <pre><code class="language-javascript">const url = new URL("https://api.beep.nl/api/lora_sensors_auth");
 
@@ -4810,9 +4890,10 @@ let headers = {
 }
 
 let body = {
-    "key": "ex",
-    "payload_fields": [],
-    "DevEUI_uplink": []
+    "key": "sed",
+    "payload_raw": "consequatur",
+    "payload_fields": "sed",
+    "DevEUI_uplink": "inventore"
 }
 
 fetch(url, {
@@ -4842,16 +4923,22 @@ fetch(url, {
 <td>DEV EUI of the Device to enable storing sensor data</td>
 </tr>
 <tr>
-<td>payload_fields</td>
-<td>array</td>
+<td>payload_raw</td>
+<td>string</td>
 <td>optional</td>
-<td>TTN Measurement data</td>
+<td>TTN BEEP Measurement data in Base 64 encoded string</td>
+</tr>
+<tr>
+<td>payload_fields</td>
+<td>json</td>
+<td>optional</td>
+<td>TTN Measurement data array</td>
 </tr>
 <tr>
 <td>DevEUI_uplink</td>
-<td>array</td>
+<td>json</td>
 <td>optional</td>
-<td>KPN Measurement data</td>
+<td>KPN Measurement data array</td>
 </tr>
 </tbody>
 </table>
@@ -4863,17 +4950,17 @@ fetch(url, {
 <blockquote>
 <p>Example request:</p>
 </blockquote>
-<pre><code class="language-bash">curl -X POST "https://api.beep.nl/api/sensors/flashlog?show=quia&amp;save=ab&amp;fill=doloremque&amp;log_size_bytes=nihil" \
+<pre><code class="language-bash">curl -X POST "https://api.beep.nl/api/sensors/flashlog?show=enim&amp;save=iusto&amp;fill=reiciendis&amp;log_size_bytes=et" \
     -H "Content-Type: application/json" \
-    -d '{"id":5,"key":"sed","hardware_id":"id","data":"aut","file":"sit"}'
+    -d '{"id":20,"key":"adipisci","hardware_id":"inventore","data":"laudantium","file":"saepe"}'
 </code></pre>
 <pre><code class="language-javascript">const url = new URL("https://api.beep.nl/api/sensors/flashlog");
 
     let params = {
-            "show": "quia",
-            "save": "ab",
-            "fill": "doloremque",
-            "log_size_bytes": "nihil",
+            "show": "enim",
+            "save": "iusto",
+            "fill": "reiciendis",
+            "log_size_bytes": "et",
         };
     Object.keys(params).forEach(key =&gt; url.searchParams.append(key, params[key]));
 
@@ -4883,11 +4970,11 @@ let headers = {
 }
 
 let body = {
-    "id": 5,
-    "key": "sed",
-    "hardware_id": "id",
-    "data": "aut",
-    "file": "sit"
+    "id": 20,
+    "key": "adipisci",
+    "hardware_id": "inventore",
+    "data": "laudantium",
+    "file": "saepe"
 }
 
 fetch(url, {
@@ -6105,7 +6192,7 @@ fetch(url, {
 </blockquote>
 <pre><code class="language-bash">curl -X GET -G "https://api.beep.nl/api/sensordefinition" \
     -H "Content-Type: application/json" \
-    -d '{"device_id":2,"device_hardware_id":"distinctio","input_measurement_abbreviation":"consequuntur","limit":19}'
+    -d '{"device_id":3,"device_hardware_id":"blanditiis","input_measurement_abbreviation":"non","limit":16}'
 </code></pre>
 <pre><code class="language-javascript">const url = new URL("https://api.beep.nl/api/sensordefinition");
 
@@ -6115,10 +6202,10 @@ let headers = {
 }
 
 let body = {
-    "device_id": 2,
-    "device_hardware_id": "distinctio",
-    "input_measurement_abbreviation": "consequuntur",
-    "limit": 19
+    "device_id": 3,
+    "device_hardware_id": "blanditiis",
+    "input_measurement_abbreviation": "non",
+    "limit": 16
 }
 
 fetch(url, {
@@ -6183,7 +6270,7 @@ fetch(url, {
 </blockquote>
 <pre><code class="language-bash">curl -X POST "https://api.beep.nl/api/sensordefinition" \
     -H "Content-Type: application/json" \
-    -d '{"name":"adipisci","inside":false,"offset":656498,"multiplier":0.08904139,"input_measurement_id":5,"input_measurement_abbreviation":"w_v","output_measurement_id":6,"output_measurement_abbreviation":"t_i","device_id":8,"device_hardware_id":"dolorem"}'
+    -d '{"name":"et","inside":false,"offset":57564320.7,"multiplier":32970.95,"input_measurement_id":5,"input_measurement_abbreviation":"w_v","output_measurement_id":6,"output_measurement_abbreviation":"t_i","device_id":11,"device_hardware_id":"enim"}'
 </code></pre>
 <pre><code class="language-javascript">const url = new URL("https://api.beep.nl/api/sensordefinition");
 
@@ -6193,16 +6280,16 @@ let headers = {
 }
 
 let body = {
-    "name": "adipisci",
+    "name": "et",
     "inside": false,
-    "offset": 656498,
-    "multiplier": 0.08904139,
+    "offset": 57564320.7,
+    "multiplier": 32970.95,
     "input_measurement_id": 5,
     "input_measurement_abbreviation": "w_v",
     "output_measurement_id": 6,
     "output_measurement_abbreviation": "t_i",
-    "device_id": 8,
-    "device_hardware_id": "dolorem"
+    "device_id": 11,
+    "device_hardware_id": "enim"
 }
 
 fetch(url, {
@@ -6453,13 +6540,13 @@ fetch(url, {
 <blockquote>
 <p>Example request:</p>
 </blockquote>
-<pre><code class="language-bash">curl -X GET -G "https://api.beep.nl/api/taxonomy/taxonomy?locale=iusto&amp;flat=a&amp;order=corrupti" </code></pre>
+<pre><code class="language-bash">curl -X GET -G "https://api.beep.nl/api/taxonomy/taxonomy?locale=natus&amp;flat=atque&amp;order=eligendi" </code></pre>
 <pre><code class="language-javascript">const url = new URL("https://api.beep.nl/api/taxonomy/taxonomy");
 
     let params = {
-            "locale": "iusto",
-            "flat": "a",
-            "order": "corrupti",
+            "locale": "natus",
+            "flat": "atque",
+            "order": "eligendi",
         };
     Object.keys(params).forEach(key =&gt; url.searchParams.append(key, params[key]));
 
@@ -6950,7 +7037,7 @@ fetch(url, {
 </blockquote>
 <pre><code class="language-bash">curl -X PATCH "https://api.beep.nl/api/userlocale" \
     -H "Content-Type: application/json" \
-    -d '{"locale":"eaque"}'
+    -d '{"locale":"quidem"}'
 </code></pre>
 <pre><code class="language-javascript">const url = new URL("https://api.beep.nl/api/userlocale");
 
@@ -6960,7 +7047,7 @@ let headers = {
 }
 
 let body = {
-    "locale": "eaque"
+    "locale": "quidem"
 }
 
 fetch(url, {

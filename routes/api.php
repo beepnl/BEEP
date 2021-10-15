@@ -21,9 +21,9 @@ Route::group([], function()
 	});
 
 	// save sensor data of multiple sensors
-	Route::post('sensors', 		'Api\MeasurementController@storeMeasurementData')->middleware('throttle:60,1,sensors');
-	Route::post('lora_sensors', 'Api\MeasurementController@lora_sensors')->middleware('throttle:60,1,lora_sensors');
-	Route::get('sensors/measurement_types', 'Api\MeasurementController@sensor_measurement_types');
+	Route::post('sensors', 		'Api\MeasurementController@storeMeasurementData')->middleware('throttle:10,1,sensors');
+	Route::post('lora_sensors', 'Api\MeasurementController@lora_sensors')->middleware('throttle:10,1,lora_sensors');
+	Route::get('sensors/measurement_types', 'Api\MeasurementController@sensor_measurement_types')->middleware('throttle:3,1,measurement_types');
 
 	// save sensor data of multiple sensors (unsecure)
 	//Route::post('unsecure_sensors', 'Api\MeasurementController@storeMeasurementData')->middleware('throttle:1,1');
@@ -40,10 +40,17 @@ Route::group([], function()
 
 	Route::post('groups/checktoken', 'Api\GroupController@checktoken')->middleware('throttle:6,1,checktoken');
 	
-
-
-	Route::group(['middleware'=>['auth:api', 'verifiedApi']], function()
+	
+	// high traffic routes
+	Route::group(['middleware'=>['auth:api', 'verifiedApi', 'throttle:global_rate_limit_per_min_sensors,1,sensor_traffic']], function()
 	{  
+		Route::post('sensors_auth',  		'Api\MeasurementController@storeMeasurementData');
+		Route::post('lora_sensors_auth',  	'Api\MeasurementController@lora_sensors');
+	});
+
+	// normal traffic routes
+	Route::group(['middleware'=>['auth:api', 'verifiedApi', 'throttle:global_rate_limit_per_min,1,normal_traffic']], function()
+	{
 		// Authenticate and provide the token
 		Route::post('authenticate', 		'Api\UserController@authenticate');
 
@@ -52,15 +59,13 @@ Route::group([], function()
 		Route::get('devices/ttn/{dev_id}',  'Api\DeviceController@getTTNDevice');
 		Route::post('devices/ttn/{dev_id}', 'Api\DeviceController@postTTNDevice');
 		Route::post('devices/tts/{step}/{dev_id}/{dev_eui}/{app_key}', 'Api\DeviceController@debugTtsDevice');
-		Route::get('sensors/measurements', 	'Api\MeasurementController@data')->middleware('throttle:global_rate_limit_per_min,1,measurements');
-		Route::get('sensors/lastvalues', 	'Api\MeasurementController@lastvalues')->middleware('throttle:global_rate_limit_per_min,1,lastvalues');
+		Route::get('sensors/measurements', 	'Api\MeasurementController@data');
+		Route::get('sensors/lastvalues', 	'Api\MeasurementController@lastvalues');
 		Route::get('sensors/lastweight', 	'Api\MeasurementController@lastweight');
 		Route::post('sensors/calibrateweight','Api\MeasurementController@calibrateweight');
 		Route::post('sensors/offsetweight' ,'Api\MeasurementController@offsetweight');
 		Route::get('sensors/measurement_types_available', 'Api\MeasurementController@sensor_measurement_types_available');
-		Route::post('sensors_auth',  		'Api\MeasurementController@storeMeasurementData')->middleware('throttle:max_rate_limit_per_min,1,sensors_auth');
-		Route::post('lora_sensors_auth',  	'Api\MeasurementController@lora_sensors')->middleware('throttle:max_rate_limit_per_min,1,lora_sensors_auth');
-		Route::post('sensors/flashlog',  	'Api\MeasurementController@flashlog')->middleware('throttle:20,1,flashlog');
+		Route::post('sensors/flashlog',  	'Api\MeasurementController@flashlog');
 		Route::get('sensors/decode/p/{port}/pl/{payload}', 'Api\MeasurementController@decode_beep_lora_payload');
 
 		Route::post('settings', 			'Api\SettingController@store');
@@ -76,7 +81,6 @@ Route::group([], function()
 		Route::post('inspections/store', 	'Api\InspectionsController@store');
 		Route::delete('inspections/{id}', 	'Api\InspectionsController@destroy');
 
-		Route::get('weather', 				'Api\WeatherController@index')->middleware('throttle:1,1,weather');
 
 		Route::get('research', 				'Api\ResearchController@index');
 		Route::post('research/{id}/add_consent',   'Api\ResearchController@add_consent');
@@ -107,19 +111,25 @@ Route::group([], function()
 		Route::resource('alert-rules', 		'Api\AlertRuleController', 				['except' => ['create', 'edit']]);
 		Route::get('alert-rules-default', 	'Api\AlertRuleController@default');
 		
-
 		Route::delete('samplecode', 		'Api\SampleCodeController@destroy');
 		Route::delete('images', 			'Api\ImageController@destroyByUrl');
 		Route::delete('groups/detach/{id}', 'Api\GroupController@detach');
 
 		Route::get('categoryinputs',		'Api\CategoryController@inputs');
-		Route::get('export',				'Api\ExportController@all');
 		Route::post('export/csv',			'Api\ExportController@generate_csv');
 
 		Route::get('flashlogs',				'Api\FlashLogController@index');
 		Route::post('flashlogs/{id}/try',	'Api\FlashLogController@try');
 		Route::post('flashlogs/{id}/commit','Api\FlashLogController@commit');
 		Route::delete('flashlogs/{id}',		'Api\FlashLogController@destroy');
+	});
+
+
+	// low traffic routes
+	Route::group(['middleware'=>['auth:api', 'verifiedApi', 'throttle:3,1,low_traffic']], function()
+	{  
+		Route::get('export',				'Api\ExportController@all');
+		Route::get('weather', 				'Api\WeatherController@index');
 	});
 
 });

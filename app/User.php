@@ -46,11 +46,11 @@ class User extends Authenticatable
 
     public function getGlobalRateLimitPerMinAttribute()
     {
-        return env('API_GLOBAL_RATE_LIMIT', 60);
+        return env('API_GLOBAL_RATE_LIMIT', 60); // rate for all app calls together
     }
-    public function getMaxRateLimitPerMinAttribute()
+    public function getGlobalRateLimitPerMinSensorsAttribute()
     {
-        return !empty($this->attributes['rate_limit_per_min']) ? $this->attributes['rate_limit_per_min'] : env('API_GLOBAL_SENSOR_DATA_RATE_LIMIT', 120);
+        return !empty($this->attributes['rate_limit_per_min']) ? $this->attributes['rate_limit_per_min'] : env('API_GLOBAL_RATE_LIMIT_SENSOR_DATA', 10); // rate limit for only authenticated sensor data post
     }
 
     public function getAppDebugAttribute()

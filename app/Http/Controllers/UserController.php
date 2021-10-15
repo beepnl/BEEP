@@ -100,7 +100,7 @@ class UserController extends Controller
         }
         else
         {
-            $input['avatar'] = Storage::disk($storage)->url('avatars/default.jpg');
+            $input['avatar'] = env('AWS_URL', 'https://assets.beep.nl/').'avatars/default.jpg';
         }
 
         $user = User::create($input);
@@ -187,7 +187,7 @@ class UserController extends Controller
         if(!empty($input['password'])){ 
             $input['password'] = Hash::make($input['password']);
         }else{
-            $input = array_except($input,array('password'));    
+            unset($input['password']);    
         }
 
         $user = User::find($id);

@@ -206,7 +206,25 @@ class MeasurementController extends Controller
             return Response::json('No valid key provided', 401);
         }
 
-        
+        // store device metadata
+        if (isset($data_array['beep_base']) && boolval($data_array['beep_base']) && isset($data_array['key']) && isset($data_array['hardware_id'])) // store hardware id
+        {
+            $this->storeDeviceMeta($data_array['key'], 'hardware_id', $data_array['hardware_id']);
+            if (isset($data_array['measurement_transmission_ratio']))
+                $this->storeDeviceMeta($data_array['key'], 'measurement_transmission_ratio', $data_array['measurement_transmission_ratio']);
+            if (isset($data_array['measurement_interval_min']))
+                $this->storeDeviceMeta($data_array['key'], 'measurement_interval_min', $data_array['measurement_interval_min']);
+            if (isset($data_array['hardware_version']))
+                $this->storeDeviceMeta($data_array['key'], 'hardware_version', $data_array['hardware_version']);
+            if (isset($data_array['firmware_version']))
+                $this->storeDeviceMeta($data_array['key'], 'firmware_version', $data_array['firmware_version']);
+            if (isset($data_array['bootcount']))
+                $this->storeDeviceMeta($data_array['key'], 'bootcount', $data_array['bootcount']);
+            if (isset($data_array['time_device']))
+                $this->storeDeviceMeta($data_array['key'], 'time_device', $data_array['time_device']);
+        }
+
+
         unset($data_array['key']);
 
         $time = time();
@@ -359,6 +377,26 @@ class MeasurementController extends Controller
     }
 
 
+    private function addOldWeightValues($data_array)
+    {
+        if (isset($data_array['w_fl']) || isset($data_array['w_fr']) || isset($data_array['w_bl']) || isset($data_array['w_br'])) // v7 firmware
+        {
+            // - H   -> *2 (range 0-200)
+            // - T   -> -10 -> +40 range (+10, *5), so 0-250 is /5, -10
+            // - W_E -> -20 -> +80 range (/2, +10, *5), so 0-250 is /5, -10, *2
+            $data_array = $this->floatify_sensor_val($data_array, 't');
+            $data_array = $this->floatify_sensor_val($data_array, 't_i');
+            $data_array = $this->floatify_sensor_val($data_array, 'h');
+            $data_array = $this->floatify_sensor_val($data_array, 'bv');
+            $data_array = $this->floatify_sensor_val($data_array, 'w_v');
+            $data_array = $this->floatify_sensor_val($data_array, 'w_fl');
+            $data_array = $this->floatify_sensor_val($data_array, 'w_fr');
+            $data_array = $this->floatify_sensor_val($data_array, 'w_bl');
+            $data_array = $this->floatify_sensor_val($data_array, 'w_br');
+        }
+        return $data_array;
+    }
+
     private function parse_kpn_payload($request_data)
     {
         $data_array = [];
@@ -388,38 +426,6 @@ class MeasurementController extends Controller
         if (isset($request_data['DevEUI_uplink']['payload_hex']))
             $data_array = array_merge($data_array, $this->decode_simpoint_payload($request_data['DevEUI_uplink']));
 
-        //die(print_r($data_array));
-        if (isset($data_array['beep_base']) && boolval($data_array['beep_base']) && isset($data_array['key']) && isset($data_array['hardware_id'])) // store hardware id
-        {
-            $this->storeDeviceMeta($data_array['key'], 'hardware_id', $data_array['hardware_id']);
-            if (isset($data_array['measurement_transmission_ratio']))
-                $this->storeDeviceMeta($data_array['key'], 'measurement_transmission_ratio', $data_array['measurement_transmission_ratio']);
-            if (isset($data_array['measurement_interval_min']))
-                $this->storeDeviceMeta($data_array['key'], 'measurement_interval_min', $data_array['measurement_interval_min']);
-            if (isset($data_array['hardware_version']))
-                $this->storeDeviceMeta($data_array['key'], 'hardware_version', $data_array['hardware_version']);
-            if (isset($data_array['firmware_version']))
-                $this->storeDeviceMeta($data_array['key'], 'firmware_version', $data_array['firmware_version']);
-            if (isset($data_array['bootcount']))
-                $this->storeDeviceMeta($data_array['key'], 'bootcount', $data_array['bootcount']);
-        }
-
-
-        if (isset($data_array['w_fl']) || isset($data_array['w_fr']) || isset($data_array['w_bl']) || isset($data_array['w_br'])) // v7 firmware
-        {
-            // - H   -> *2 (range 0-200)
-            // - T   -> -10 -> +40 range (+10, *5), so 0-250 is /5, -10
-            // - W_E -> -20 -> +80 range (/2, +10, *5), so 0-250 is /5, -10, *2
-            $data_array = $this->floatify_sensor_val($data_array, 't');
-            $data_array = $this->floatify_sensor_val($data_array, 't_i');
-            $data_array = $this->floatify_sensor_val($data_array, 'h');
-            $data_array = $this->floatify_sensor_val($data_array, 'bv');
-            $data_array = $this->floatify_sensor_val($data_array, 'w_v');
-            $data_array = $this->floatify_sensor_val($data_array, 'w_fl');
-            $data_array = $this->floatify_sensor_val($data_array, 'w_fr');
-            $data_array = $this->floatify_sensor_val($data_array, 'w_bl');
-            $data_array = $this->floatify_sensor_val($data_array, 'w_br');
-        }
         return $data_array;
     }
     
@@ -526,24 +532,6 @@ class MeasurementController extends Controller
             $data_array = $this->decode_ttn_payload($request_data);
         else if (isset($request_data['uplink_message']) && isset($request_data['end_device_ids'])) // TTN v3 (Things cloud)
             $data_array = $this->decode_ttn_payload($request_data);
-
-        // store device metadata
-        if (isset($data_array['beep_base']) && boolval($data_array['beep_base']) && isset($data_array['key']) && isset($data_array['hardware_id'])) // store hardware id
-        {
-            $this->storeDeviceMeta($data_array['key'], 'hardware_id', $data_array['hardware_id']);
-            if (isset($data_array['measurement_transmission_ratio']))
-                $this->storeDeviceMeta($data_array['key'], 'measurement_transmission_ratio', $data_array['measurement_transmission_ratio']);
-            if (isset($data_array['measurement_interval_min']))
-                $this->storeDeviceMeta($data_array['key'], 'measurement_interval_min', $data_array['measurement_interval_min']);
-            if (isset($data_array['hardware_version']))
-                $this->storeDeviceMeta($data_array['key'], 'hardware_version', $data_array['hardware_version']);
-            if (isset($data_array['firmware_version']))
-                $this->storeDeviceMeta($data_array['key'], 'firmware_version', $data_array['firmware_version']);
-            if (isset($data_array['bootcount']))
-                $this->storeDeviceMeta($data_array['key'], 'bootcount', $data_array['bootcount']);
-            if (isset($data_array['time_device']))
-                $this->storeDeviceMeta($data_array['key'], 'time_device', $data_array['time_device']);
-        }
 
         // process downlink
         if (isset($data_array['key']) && isset($data['downlink_url']))

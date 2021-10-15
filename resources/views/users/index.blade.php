@@ -9,6 +9,15 @@
 	@component('components/box')
 		@slot('title')
 			{{ __('crud.overview', ['item'=>__('general.users')]) }}
+			{!! Form::open(['method' => 'GET', 'route' => 'users.index', 'class' => 'form-inline', 'role' => 'search'])  !!}
+            <div class="input-group" style="display: inline-block;">
+                <input type="text" class="form-control" style="max-width: 160px;" name="search" placeholder="Search User..." value="{{ request('search') }}">
+                <span class="input-group-btn">
+                    <button type="submit" class="btn btn-deafult"><i class="fa fa-search"></i></button>
+                </span>
+            </div>
+            {!! Form::hidden('page', $page) !!}
+            {!! Form::close() !!}
 		@endslot
 
 		@slot('action')
@@ -28,6 +37,7 @@
 				$(document).ready(function() {
 					$("#data-table").DataTable(
 						{
+				        "pageLength": 50,
 				        "language": 
 				            @php
 								echo File::get(public_path('js/datatables/i18n/'.LaravelLocalization::getCurrentLocaleName().'.lang'));
@@ -97,6 +107,8 @@
 					@endforeach
 				<tbody>
 			</table>
+
+			<div class="pagination-wrapper"> {!! $data->appends(Request::except('page'))->render() !!} </div>
 		@endslot
 	@endcomponent
 @endsection

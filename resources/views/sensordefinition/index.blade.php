@@ -7,6 +7,30 @@
     @component('components/box')
         @slot('title')
             {{ __('crud.overview', ['item'=>__('beep.SensorDefinition')]) }}
+            {!! Form::open(['method' => 'GET', 'route' => 'sensordefinition.index', 'class' => 'form-inline', 'role' => 'search'])  !!}
+            <div class="input-group" style="display: inline-block;">
+                <input type="text" class="form-control" style="max-width: 100px;" name="user" placeholder="User..." value="{{ request('user') }}">
+                <span class="input-group-btn">
+                    <button type="submit" class="btn btn-deafult"><i class="fa fa-search"></i></button>
+                </span>
+            </div>
+            <div class="input-group" style="display: inline-block;">
+                <input type="text" class="form-control" style="max-width: 100px;" name="device" placeholder="Device..." value="{{ request('device') }}">
+                <span class="input-group-btn">
+                    <button type="submit" class="btn btn-deafult"><i class="fa fa-search"></i></button>
+                </span>
+            </div>
+            <div class="input-group" style="display: inline-block;">
+                {!! Form::select('measurement_id', App\Measurement::selectList(), e($search_mid ?? null), array('style'=>'max-width: 300px; font-size:10px;', 'onchange'=>'this.form.submit()', 'placeholder'=>__('crud.select', ['item'=>__('beep.measurement')]),'class' => 'form-control select2')) !!}
+            </div>
+            <div class="input-group" style="display: inline-block;">
+                <input type="text" class="form-control" style="max-width: 160px;" name="search" placeholder="Sensor def prop..." value="{{ request('search') }}">
+                <span class="input-group-btn">
+                    <button type="submit" class="btn btn-deafult"><i class="fa fa-search"></i></button>
+                </span>
+            </div>
+            {!! Form::hidden('page', $page) !!}
+            {!! Form::close() !!}
         @endslot
 
         @slot('action')
@@ -26,6 +50,7 @@
             $(document).ready(function() {
                 $("#table-sensordefinition").DataTable(
                     {
+                    "pageLength": 50,
                     "language": 
                         @php
                             echo File::get(public_path('js/datatables/i18n/'.LaravelLocalization::getCurrentLocaleName().'.lang'));
@@ -50,7 +75,7 @@
                     <th>Unit Per Value</th>
                     <th>Measurement in</th>
                     <th>Measurement out</th>
-                    <th>Sensor</th>
+                    <th>Device</th>
                     <th>Actions</th>
                 </tr>
             </thead>
@@ -83,7 +108,7 @@
             </tbody>
         </table>
 
-        <div class="pagination-wrapper"> {!! $sensordefinition->render() !!} </div>
+        <div class="pagination-wrapper"> {!! $sensordefinition->appends(Request::except('page'))->render() !!} </div>
 
         @endslot
     @endcomponent

@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 use App\PhysicalQuantity;
 use App\Translation;
 use Cache;
+use LaravelLocalization;
 
 class Measurement extends Model
 {
@@ -123,11 +124,12 @@ class Measurement extends Model
         return null;
     }
 
-    public static function getValidMeasurements($output=false, $weather=false)
+    public static function getValidMeasurements($output=false, $weather=false, $locale=null)
     {
         $name_table = $weather ? 'weather' : 'sensors';
         $name_value = $output ? 'output' : 'valid';
-        return Cache::remember('measurement-list-'.$name_table.'-'.$name_value, env('CACHE_TIMEOUT_LONG'), function () use ($output, $weather)
+        $locale     = $locale == null ? LaravelLocalization::getCurrentLocale() : $locale;
+        return Cache::remember('measurement-list-'.$locale.'-'.$name_table.'-'.$name_value, env('CACHE_TIMEOUT_LONG'), function () use ($output, $weather)
         { 
             if ($output)
                 return Measurement::where('weather',$weather)->where('show_in_charts', true)->pluck('abbreviation')->toArray();

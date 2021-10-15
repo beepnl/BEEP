@@ -12,6 +12,7 @@ use DB;
 use Hash;
 use Image;
 use Auth;
+use Storage;
 
 class UserController extends Controller
 {
@@ -23,13 +24,31 @@ class UserController extends Controller
      */
     public function index(Request $request)
     {
-        $data       = [Auth::user()];
+        $page       = $request->input('page');
         $show_stats = $request->filled('stats');
 
         if (Auth::user()->hasRole('superadmin'))
-            $data = User::with('roles')->get();
+        {
+            $keyword     = $request->get('search');
+            $perPage     = 50;
+            $users       = User::where('id', '!=', null);
 
-        return view('users.index',compact('data', 'show_stats'));
+            if (!empty($keyword)) 
+            {
+                $users = $users->where('name', 'LIKE', "%$keyword%")
+                                ->orWhere('email', 'LIKE', "%$keyword%")
+                                ->orWhere('locale', 'LIKE', "%$keyword%")
+                                ->orWhere('id', 'LIKE', "%$keyword%");
+
+            }
+            
+            $data = $users->orderBy('name')->with('roles')->paginate($perPage);
+        }
+        else
+        {
+            $data = [Auth::user()];
+        }
+        return view('users.index',compact('data', 'show_stats', 'page'));
     }
 
     /**
@@ -68,19 +87,20 @@ class UserController extends Controller
         $input['password'] = Hash::make($input['password']);
         $input['api_token'] = Str::random(60);
 
+        $storage  = env('IMAGE_STORAGE', 's3');
+        
         // Handle the user upload of avatar
         if($request->hasFile('avatar')){
             $avatar   = $request->file('avatar');
             $filename = time() . '.' . $avatar->getClientOriginalExtension();
             $path     = 'avatars/'.$filename;
-            $storage  = env('IMAGE_STORAGE', 's3');
             $thumb    = InterventionImage::make($avatar)->resize(300, 300);
             Storage::disk($storage)->put($path, $thumb->stream());
-            $user->avatar = Storage::disk($storage)->url(Image::getImagePath($path));
+            $input['avatar'] = Storage::disk($storage)->url(Image::getImagePath($path));
         }
         else
         {
-            $user->avatar = Storage::disk($storage)->url('avatars/default.jpg');
+            $input['avatar'] = Storage::disk($storage)->url('avatars/default.jpg');
         }
 
         $user = User::create($input);

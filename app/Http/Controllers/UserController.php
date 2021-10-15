@@ -96,11 +96,11 @@ class UserController extends Controller
             $path     = 'avatars/'.$filename;
             $thumb    = InterventionImage::make($avatar)->resize(300, 300);
             Storage::disk($storage)->put($path, $thumb->stream());
-            $user->avatar = Storage::disk($storage)->url(Image::getImagePath($path));
+            $input['avatar'] = Storage::disk($storage)->url(Image::getImagePath($path));
         }
         else
         {
-            $user->avatar = Storage::disk($storage)->url('avatars/default.jpg');
+            $input['avatar'] = Storage::disk($storage)->url('avatars/default.jpg');
         }
 
         $user = User::create($input);

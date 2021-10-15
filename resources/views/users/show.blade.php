@@ -28,7 +28,7 @@
             <div class="form-group">
                 <label>{{ __('crud.avatar') }}:</label>
                 <br>
-                <img src="/uploads/avatars/{{ $user->avatar }}" style="width:100px; height:100px; margin-right: 20px; margin-bottom: 10px;" class="img-circle">
+                <img src="{{ $user->avatar }}" style="width:100px; height:100px; margin-right: 20px; margin-bottom: 10px;" class="img-circle">
             </div>
         </div>
         <div class="col-xs-12 col-sm-12 col-md-12">
@@ -55,5 +55,13 @@
                 @endif
             </div>
         </div>
+        @if(Auth::user()->hasRole('superadmin'))
+        <div class="col-xs-12 col-sm-12 col-md-12">
+            <div class="form-group">
+                <label>API token:</label>
+                <p>{{ $user->api_token }}</p>
+            </div>
+        </div>
+        @endif
 	</div>
 @endsection

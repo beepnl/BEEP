@@ -18,40 +18,46 @@
 	@endif
 	{!! Form::model($user, ['method' => 'PATCH','route' => ['users.update', $user->id],'files'=>'true']) !!}
 	<div class="row">
-		<div class="col-xs-12 col-sm-12 col-md-12">
+		<div class="col-xs-12 col-sm-12 col-md-3">
             <div class="form-group">
                 <label>{{ __('crud.name') }}:</label>
                 {!! Form::text('name', null, array('placeholder' => __('crud.name'),'class' => 'form-control')) !!}
             </div>
         </div>
-        <div class="col-xs-12 col-sm-12 col-md-12">
+        <div class="col-xs-12 col-sm-12 col-md-3">
             <div class="form-group">
                 <label>{{ __('crud.email') }}:</label>
                 {!! Form::text('email', null, array('placeholder' => __('crud.email'),'class' => 'form-control')) !!}
             </div>
         </div>
-        <div class="col-xs-12 col-sm-12 col-md-12">
+        <div class="col-xs-12 col-sm-12 col-md-3">
             <div class="form-group">
                 <label>{{ __('general.Language') }}:</label>
                 {!! Form::text('locale', null, array('placeholder' => __('general.Language').' code','class' => 'form-control')) !!}
+            </div>
+        </div>
+        <div class="col-xs-12 col-sm-12 col-md-3">
+            <div class="form-group">
+                <label>Rate limit (max req/min):</label>
+                {!! Form::text('rate_limit_per_min', null, array('placeholder' => 'Max requests per minute'.' code','class' => 'form-control')) !!}
             </div>
         </div>
         <div class="col-xs-12 col-sm-12 col-md-12">
             <div class="form-group">
                 <label>{{ __('crud.avatar') }}:</label>
                 <br>
-                <img src="/uploads/avatars/{{ $user->avatar }}" style="width:100px; height:100px; margin-right: 20px; margin-bottom: 10px;" class="img-circle">
+                <img src="{{ $user->avatar }}" style="width:100px; height:100px; margin-right: 20px; margin-bottom: 10px;" class="img-circle">
                 {!! Form::file('avatar', array('class' => 'btn btn-default', 'style'=>'display: inline-block;')) !!}
                 <p class="help-block">{{ __('crud.avatar_file')}}</p>
             </div>
         </div>
-        <div class="col-xs-12 col-sm-12 col-md-12">
+        <div class="col-xs-12 col-sm-12 col-md-6">
             <div class="form-group">
                 <label>{{ __('crud.pass') }}:</label>
                 {!! Form::password('password', array('placeholder' => __('crud.pass'),'class' => 'form-control')) !!}
             </div>
         </div>
-        <div class="col-xs-12 col-sm-12 col-md-12">
+        <div class="col-xs-12 col-sm-12 col-md-6">
             <div class="form-group">
                 <label>{{ __('crud.pass_confirm') }}:</label>
                 {!! Form::password('confirm-password', array('placeholder' => __('crud.pass_confirm'),'class' => 'form-control')) !!}

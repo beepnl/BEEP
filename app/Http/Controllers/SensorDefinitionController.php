@@ -42,7 +42,7 @@ class SensorDefinitionController extends Controller
                             ->pluck('id')
                             ->toArray();
             if ($dev_ids)
-                $defs = $defs->whereIn('id', $device_ids);
+                $defs = $defs->whereIn('id', $dev_ids);
             
         }
 
@@ -56,9 +56,8 @@ class SensorDefinitionController extends Controller
             
             if ($user)
             {
-                die(print_r($user->toArray()));
-                $device_ids = $user->devices()->pluck('id')->toArray();
-                $defs       = $defs->whereIn('device_id', $device_ids);
+                $dev_ids = $user->devices()->pluck('id')->toArray();
+                $defs       = $defs->whereIn('device_id', $dev_ids);
             }
 
         }

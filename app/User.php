@@ -21,7 +21,7 @@ class User extends Authenticatable
     use Notifiable;
     use EntrustUserTrait;
 
-    protected $fillable = ['name', 'email', 'password', 'api_token', 'last_login', 'policy_accepted', 'locale', 'avatar'];
+    protected $fillable = ['name', 'email', 'password', 'api_token', 'last_login', 'policy_accepted', 'locale', 'avatar', 'rate_limit_per_min'];
 
     protected $hidden = ['password', 'remember_token', 'researchesVisible', 'researchesOwned'];
 
@@ -38,6 +38,20 @@ class User extends Authenticatable
         return $this->cans(explode('|', $permission), true);
     }
 
+
+    public function getAvatarAttribute()
+    {
+        return !empty($this->attributes['avatar']) && substr($this->attributes['avatar'], 0, 8) == 'https://' ? $this->attributes['avatar'] : env('AWS_URL').'avatars/default.jpg';
+    }
+
+    public function getGlobalRateLimitPerMinAttribute()
+    {
+        return env('API_GLOBAL_RATE_LIMIT', 60);
+    }
+    public function getMaxRateLimitPerMinAttribute()
+    {
+        return !empty($this->attributes['rate_limit_per_min']) ? $this->attributes['rate_limit_per_min'] : env('API_GLOBAL_SENSOR_DATA_RATE_LIMIT', 120);
+    }
 
     public function getAppDebugAttribute()
     {

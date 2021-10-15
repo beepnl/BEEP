@@ -13,6 +13,7 @@ use Hash;
 use Image;
 use Auth;
 use Storage;
+use InterventionImage;
 
 class UserController extends Controller
 {
@@ -96,7 +97,7 @@ class UserController extends Controller
             $path     = 'avatars/'.$filename;
             $thumb    = InterventionImage::make($avatar)->resize(300, 300);
             Storage::disk($storage)->put($path, $thumb->stream());
-            $input['avatar'] = Storage::disk($storage)->url(Image::getImagePath($path));
+            $input['avatar'] = Storage::disk($storage)->url($path);
         }
         else
         {
@@ -187,7 +188,7 @@ class UserController extends Controller
         if(!empty($input['password'])){ 
             $input['password'] = Hash::make($input['password']);
         }else{
-            $input = array_except($input,array('password'));    
+            unset($input['password']);    
         }
 
         $user = User::find($id);
@@ -195,12 +196,12 @@ class UserController extends Controller
         // Handle the user upload of avatar
         if($request->hasFile('avatar')){
             $avatar   = $request->file('avatar');
-            $filename = time() . '.' . $avatar->getClientOriginalExtension();
+            $filename = time().'.'.$avatar->getClientOriginalExtension();
             $path     = 'avatars/'.$filename;
             $storage  = env('IMAGE_STORAGE', 's3');
             $thumb    = InterventionImage::make($avatar)->resize(300, 300);
             Storage::disk($storage)->put($path, $thumb->stream());
-            $user->avatar = Storage::disk($storage)->url(Image::getImagePath($path));
+            $input['avatar'] = Storage::disk($storage)->url($path);
         }
 
         $user->update($input);
@@ -225,7 +226,7 @@ class UserController extends Controller
             }
         }
 
-        return redirect()->route('users.index')
+        return redirect()->route('users.index',['search='.$id])
                         ->with("success", "User updated successfully");
     }
 

@@ -196,7 +196,7 @@ class UserController extends Controller
         // Handle the user upload of avatar
         if($request->hasFile('avatar')){
             $avatar   = $request->file('avatar');
-            $filename = time() . '.' . $avatar->getClientOriginalExtension();
+            $filename = time().'.'.$avatar->getClientOriginalExtension();
             $path     = 'avatars/'.$filename;
             $storage  = env('IMAGE_STORAGE', 's3');
             $thumb    = InterventionImage::make($avatar)->resize(300, 300);

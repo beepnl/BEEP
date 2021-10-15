@@ -75,7 +75,7 @@
 					<tr>
 						<td>{{ $user->id }}</td>
 						<td>{{ $user->created_at }}</td>
-						<td><img src="/uploads/avatars/{{ $user->avatar }}" style="width:35px; height:35px;" class="img-circle"></td>
+						<td><img src="{{ $user->avatar }}" style="width:35px; height:35px;" class="img-circle"></td>
 						<td>{{ $user->name }}</td>
 						{{-- <td>{{ $user->email }}</td> --}}
 						<td>

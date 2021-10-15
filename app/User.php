@@ -39,6 +39,11 @@ class User extends Authenticatable
     }
 
 
+    public function getAvatarAttribute()
+    {
+        return !empty($this->attributes['avatar']) && substr($this->attributes['avatar'], 0, 8) == 'https://' ? $this->attributes['avatar'] : env('AWS_URL').'avatars/default.jpg';
+    }
+
     public function getAppDebugAttribute()
     {
         return $this->can('app-debug');

@@ -40,7 +40,7 @@
             <div class="form-group">
                 <label>{{ __('crud.avatar') }}:</label>
                 <br>
-                <img src="/uploads/avatars/{{ $user->avatar }}" style="width:100px; height:100px; margin-right: 20px; margin-bottom: 10px;" class="img-circle">
+                <img src="{{ $user->avatar }}" style="width:100px; height:100px; margin-right: 20px; margin-bottom: 10px;" class="img-circle">
                 {!! Form::file('avatar', array('class' => 'btn btn-default', 'style'=>'display: inline-block;')) !!}
                 <p class="help-block">{{ __('crud.avatar_file')}}</p>
             </div>

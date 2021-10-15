@@ -201,7 +201,7 @@ class UserController extends Controller
             $storage  = env('IMAGE_STORAGE', 's3');
             $thumb    = InterventionImage::make($avatar)->resize(300, 300);
             Storage::disk($storage)->put($path, $thumb->stream());
-            $user->avatar = Storage::disk($storage)->url(Image::getImagePath($path));
+            $user->avatar = Storage::disk($storage)->url($path);
         }
 
         $user->update($input);

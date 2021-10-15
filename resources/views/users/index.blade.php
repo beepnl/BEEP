@@ -67,6 +67,7 @@
 						<th class="col-xs-1">{{ __('general.Sensors') }}</th>
 						@endif
 						<th class="col-xs-1">{{ __('general.last_login') }}</th>
+						<th class="col-xs-1">Rate limit</th>
 						<th class="col-xs-2">{{ __('crud.actions') }}</th>
 					</tr>
 				</thead>
@@ -92,6 +93,7 @@
 						<td>{{ $user->sensors->count() }}</td>
 						@endif
 						<td>{{ $user->last_login }}</td>
+						<td>{{ $user->rate_limit_per_min }}</td>
 						<td>
 							<a class="btn btn-default" href="{{ route('users.show',$user->id) }}" title="{{ __('crud.show') }}"><i class="fa fa-eye"></i></a>
 							@permission('user-edit')

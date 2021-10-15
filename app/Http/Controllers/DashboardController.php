@@ -45,6 +45,19 @@ class DashboardController extends Controller
         }
     }
 
+    private function cacheRequestGetArray($name)
+    {
+        if (Cache::has($name))
+        {
+            $array = Cache::get($name);
+            if (gettype($array) == 'array')
+                return implode("\x0A", $array);
+            else
+                return $array;
+        }
+        return '';
+    }
+
 
     /**
      * Display a listing of the resource.
@@ -86,8 +99,11 @@ class DashboardController extends Controller
 
         $data['store-measurements-201']       = $this->cacheRequestGetRate('store-measurements-201');
         $data['store-measurements-400']       = $this->cacheRequestGetRate('store-measurements-400', 3600);
+        $data['store-measurements-400-array'] = $this->cacheRequestGetArray('store-measurements-400-array');
         $data['store-measurements-401']       = $this->cacheRequestGetRate('store-measurements-401', 3600);
+        $data['store-measurements-401-array'] = $this->cacheRequestGetArray('store-measurements-401-array');
         $data['store-measurements-500']       = $this->cacheRequestGetRate('store-measurements-500', 3600);
+        $data['store-measurements-500-array'] = $this->cacheRequestGetArray('store-measurements-500-array');
         $data['store-sensors']                = $this->cacheRequestGetRate('store-sensors');
         $data['store-lora-sensors-']          = $this->cacheRequestGetRate('store-lora-sensors-');
         $data['store-lora-sensors-kpn']       = $this->cacheRequestGetRate('store-lora-sensors-kpn');

@@ -31,7 +31,7 @@
 		<!-- small box -->
 			<div class="small-box bg-red">
 				<div class="inner">
-					<h3>{{ $data['store-measurements-400'] }} / {{ $data['store-measurements-401'] }} / {{ $data['store-measurements-500'] }}</h3>
+					<h3><span title="{{ $data['store-measurements-400-array'] }}">{{ $data['store-measurements-400'] }}</span> / <span title="{{ $data['store-measurements-401-array'] }}">{{ $data['store-measurements-401'] }}</span> / <span title="{{ $data['store-measurements-500-array'] }}">{{ $data['store-measurements-500'] }}</span></h3>
 					<p>Data storage <br>no/unexisting key/error (400/401/500) req/hr</p>
 				</div>
 				<div class="icon">

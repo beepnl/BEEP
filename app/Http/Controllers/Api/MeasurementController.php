@@ -173,12 +173,37 @@ class MeasurementController extends Controller
 
     }
 
+    private function cacheRequestArray($name, $val=null)
+    {
+        if (isset($val))
+        {
+            $val   = date('H:i:s').' - '.$val;
+            $array = [];
+
+            if (Cache::has($name.'-array'))
+            {
+                $array = Cache::get($name.'-array');
+                array_unshift($array, $val);
+                if (count($array) > 50)
+                    array_pop($array);
+
+                Cache::forget($name.'-array');
+            }
+            else
+            {
+                $array[] = $val;
+            }
+            Cache::put($name.'-array', $array, 3600);  
+        }
+    }
+
     private function storeMeasurements($data_array)
     {
         if (!in_array('key', array_keys($data_array)) || $data_array['key'] == '' || $data_array['key'] == null)
         {
             Storage::disk('local')->put('sensors/sensor_no_key.log', json_encode($data_array));
             $this->cacheRequestRate('store-measurements-400');
+            $this->cacheRequestArray('store-measurements-400', json_encode($data_array));
             return Response::json('No key provided', 400);
         }
 
@@ -231,6 +256,7 @@ class MeasurementController extends Controller
             {
                 Storage::disk('local')->put('sensors/sensor_invalid_key.log', json_encode($data_array));
                 $this->cacheRequestRate('store-measurements-401');
+                $this->cacheRequestArray('store-measurements-401', $dev_eui);
                 return Response::json('No valid key provided', 401);
             }
         }
@@ -309,6 +335,7 @@ class MeasurementController extends Controller
             //die(print_r($data_array));
             Storage::disk('local')->put('sensors/sensor_write_error.log', json_encode($data_array));
             $this->cacheRequestRate('store-measurements-500');
+            $this->cacheRequestArray('store-measurements-500', json_encode($data_array));
             return Response::json('sensor-write-error', 500);
         }
     }

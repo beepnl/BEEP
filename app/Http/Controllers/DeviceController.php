@@ -47,14 +47,14 @@ class DeviceController extends Controller
 
         if (!empty($search_user)) 
         {
-            $user = User::where('name', 'LIKE', "%$search_user%")
+            $user_ids = User::where('name', 'LIKE', "%$search_user%")
                         ->orWhere('email', 'LIKE', "%$search_user%")
                         ->orWhere('locale', 'LIKE', "%$search_user%")
                         ->orWhere('id', 'LIKE', "%$search_user%")
-                        ->first();
+                        ->pluck('id');
             
-            if ($user)
-                $devices = $devices->where('user_id', $user->id);
+            if (count($user_ids) > 0)
+                $devices = $devices->whereIn('user_id', $user_ids);
 
         }
 

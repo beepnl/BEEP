@@ -463,7 +463,9 @@ class ResearchController extends Controller
                 try{
                     $this->cacheRequestRate('influx-get');
                     $this->cacheRequestRate('influx-research');
-                    $points = $this->client::query('SELECT COUNT("bv") as "count" FROM "sensors" WHERE '.$user_device_keys.' AND time >= \''.$date_curr_consent.'\' AND time <= \''.$moment_end->format('Y-m-d H:i:s').'\' GROUP BY time(1d)')->getPoints();
+                    $query  = 'SELECT COUNT("bv") as "count" FROM "sensors" WHERE '.$user_device_keys.' AND time >= \''.$date_curr_consent.'\' AND time <= \''.$moment_end->format('Y-m-d H:i:s').'\' GROUP BY time(1d)';
+                    //die($query); 
+                    $points = $this->client::query($query)->getPoints();
                 } catch (InfluxDB\Exception $e) {
                     // return Response::json('influx-group-by-query-error', 500);
                 }

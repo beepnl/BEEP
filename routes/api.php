@@ -46,12 +46,12 @@ Route::group([], function()
 	{  
 		// Authenticate and provide the token
 		Route::post('authenticate', 		'Api\UserController@authenticate');
+		//Route::post('devices/tts/{step}/{dev_id}/{dev_eui}/{app_key}', 'Api\DeviceController@debugTtsDevice');
 
 		// get more data of 1 sensor (Device)
 		Route::post('devices/multiple',		'Api\DeviceController@storeMultiple');
 		Route::get('devices/ttn/{dev_id}',  'Api\DeviceController@getTTNDevice');
 		Route::post('devices/ttn/{dev_id}', 'Api\DeviceController@postTTNDevice');
-		Route::post('devices/tts/{step}/{dev_id}/{dev_eui}/{app_key}', 'Api\DeviceController@debugTtsDevice');
 		Route::get('sensors/measurements', 	'Api\MeasurementController@data')->middleware('throttle:global_rate_limit_per_min,1,measurements');
 		Route::get('sensors/lastvalues', 	'Api\MeasurementController@lastvalues')->middleware('throttle:global_rate_limit_per_min,1,lastvalues');
 		Route::get('sensors/lastweight', 	'Api\MeasurementController@lastweight');

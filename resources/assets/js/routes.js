@@ -83,7 +83,7 @@ app.config(['$routeProvider', '$locationProvider',  function($routeProvider)
   .when('/locations/create',
   {
       controller  : 'LocationsCtrl',
-      templateUrl : '/app/views/forms/location_create.html',
+      templateUrl : '/app/views/forms/location_create.html?v=1',
   })
   .when('/locations',
   {

@@ -175,6 +175,7 @@ class DeviceController extends Controller
             switch ($step) {
                 case 'get':
                     $response = $this->doTTNRequest($dev_id);
+                    //die(json_decode($response->getBody())->ids->dev_eui);
                     break;
                 case 'delete_ns':
                     $response = $this->doTTNRequest($dev_id, 'DELETE', null, 'ns');
@@ -341,6 +342,15 @@ class DeviceController extends Controller
         $device_check = $this->doTTNRequest($dev_id);
         if ($device_check->getStatusCode() == 200) // if device exists, delete device to renew settings
         {
+            // Add former Dev EUI to Device
+            $device = Device::where('hardware_id', $dev_id)->first();
+            if ($device)
+            {
+                $former_tts_device = json_decode($device_check->getBody());
+                if ($former_tts_device && isset($former_tts_device->ids->dev_eui))
+                    $device->addFormerKey($former_tts_device->ids->dev_eui);
+            }
+
             // Delete js, as, ns, and device first
             $this->doTTNRequest($dev_id, 'DELETE', null, 'js');
             $this->doTTNRequest($dev_id, 'DELETE', null, 'as');
@@ -379,7 +389,7 @@ class DeviceController extends Controller
 
     private function canUserClaimDevice($id=null, $key=null, $hwi=null)
     {
-        $can_claim         = 0;
+        $can_claim     = 0;
         $device_exists = 0;
 
         if (isset($id))
@@ -397,10 +407,10 @@ class DeviceController extends Controller
         
         if (isset($hwi))
         {
-            $hwid_exists    = Device::where('hardware_id', $hwi)->count();
+            $hwid_exists    = Device::withTrashed()->where('hardware_id', $hwi)->count();
             $device_exists += $hwid_exists;
-
-            $can_claim_hw    = Auth::user()->devices->where('hardware_id', $hwi)->count();
+            $can_claim_hw   = Auth::user()->devices->where('hardware_id', $hwi)->count();
+            
             if ($can_claim_hw > 0) // device does not (yet) belong to user
             {
                 $can_claim += $can_claim_hw;
@@ -411,6 +421,15 @@ class DeviceController extends Controller
                 {
                     if ($this->doTTNRequest($hwi)->getStatusCode() == 404)
                         $can_claim += 1; // if hardware_id does not exist yet, user can claim it
+                }
+                else // user does not have hw_id, but it exists in database, so check if it is deleted and undelete it if it belonged to the user
+                {
+                    $check_device = Device::onlyTrashed()->where('hardware_id', $hwi)->first();
+                    if ($check_device && $check_device->user_id == Auth::user()->id) // undelete device
+                    {
+                        $check_device->restore();
+                        $can_claim += 1;
+                    }
                 }
             }
         }
@@ -642,7 +661,7 @@ class DeviceController extends Controller
         }
 
         $validator = Validator::make($device, [
-            'key'               => ['required_without_all:id,hardware_id','string','min:4',Rule::unique('sensors', 'key')->ignore($sid)],
+            'key'               => ['required_without_all:id,hardware_id','string','min:4',Rule::unique('sensors', 'key')->ignore($sid)->whereNull('deleted_at')],
             'name'              => 'nullable|string',
             'id'                => ['required_without_all:key,hardware_id','integer', Rule::unique('sensors')->ignore($sid)],
             'hardware_id'       => ['required_without_all:key,id','string'],
@@ -653,10 +672,13 @@ class DeviceController extends Controller
 
         if ($validator->fails())
         {
-            return ['errors'=>$validator->errors().' (KEY: '.$key.', HW ID: '.$hwi.')', 'http_response_code'=>400];
+            return ['errors'=>$validator->errors().' (KEY/DEV EUI: '.$key.', HW ID: '.$hwi.')', 'http_response_code'=>400];
         }
         else
         {
+            if ($this->canUserClaimDevice($sid, $key, $hwi) === false)
+                return ['errors'=>'Cannot create device: (KEY/DEV EUI: '.$key.', HW ID: '.$hwi.')', 'http_response_code'=>400];
+
             $valid_data = $validator->validated();
             $device_new = [];
             $device_obj = null;
@@ -695,15 +717,6 @@ class DeviceController extends Controller
                 // edit
                 $device_new = $device_obj->toArray();
                 $device_id  = $device_obj->id;
-            }
-            else
-            {
-                // Check if hw id is available
-                if (isset($device['hardware_id']) && Device::where('hardware_id', $device['hardware_id'])->count() > 0)
-                    return ['errors'=>'device_not_yours', 'http_response_code'=>403];
-
-                if (isset($device['key']) && Device::where('key', $device['key'])->count() > 0)
-                    return ['errors'=>'device_not_yours', 'http_response_code'=>403];
             }
 
             $typename                  = isset($device['type']) ? $device['type'] : 'beep'; 

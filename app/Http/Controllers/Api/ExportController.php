@@ -266,7 +266,7 @@ class ExportController extends Controller
                 // Add sensor data
                 foreach ($user_devices as $device) 
                 {
-                    $user_device_keys[]= '"key" = \''.$device->key.'\' OR "key" = \''.strtolower($device->key).'\' OR "key" = \''.strtoupper($device->key).'\'';
+                    $user_device_keys[]= $device->influxWhereKeys();
                     $loc = $device->location();
                     if ($loc && isset($loc->coordinate_lat) && isset($loc->coordinate_lon)) 
                         $user_dloc_coords[] = '("lat" = \''.$loc->coordinate_lat.'\' AND "lon" = \''.$loc->coordinate_lon.'\')';
@@ -336,7 +336,7 @@ class ExportController extends Controller
                         $spreadsheet_array[__('export.devices')][] = $this->getDevice($user_id, $device);
                     
                         // Export data to file per device / period
-                        $where    = '("key" = \''.$device->key.'\' OR "key" = \''.strtolower($device->key).'\' OR "key" = \''.strtoupper($device->key).'\') AND time >= \''.$date_user_created.'\' AND time <= \''.$date_until_today.'\'';
+                        $where    = $device->influxWhereKeys().' AND time >= \''.$date_user_created.'\' AND time <= \''.$date_until_today.'\'';
                         $dataName = strtolower(env('APP_NAME')).'-export-device-id-'.$device->id.'-sensor-data-'.substr($date_user_created,0,10).'-'.substr($date_until_today,0,10).'-'.Str::random(10).'.csv';
                         $filePath = $this->exportCsvFromInflux($where, $dataName, '*', 'sensors');
                         if ($filePath)
@@ -713,8 +713,6 @@ class ExportController extends Controller
         if ($device == null)
             return Response::json('invalid-user-device', 500);
 
-        $sensor_key = $device->key;
-
         $options= ['precision'=>'rfc3339', 'format'=>'csv'];
         
         if (isset($measurements) && gettype($measurements) == 'array' && count($measurements) > 0)
@@ -722,7 +720,7 @@ class ExportController extends Controller
         else
             $names = $this->output_sensors;
         
-        $whereDeviceTime = '("key" = \''.$device->key.'\' OR "key" = \''.strtolower($device->key).'\' OR "key" = \''.strtoupper($device->key).'\') AND time >= \''.$start.'\' AND time < \''.$end.'\'';
+        $whereDeviceTime = $device->influxWhereKeys().' AND time >= \''.$start.'\' AND time < \''.$end.'\'';
         $queryList       = Device::getAvailableSensorNamesNoCache($names, $whereDeviceTime); // ($names, $table, $where, $limit='', $output_sensors_only=true)
 
         if (isset($queryList) && gettype($queryList) == 'array' && count($queryList) > 0)

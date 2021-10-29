@@ -173,12 +173,37 @@ class MeasurementController extends Controller
 
     }
 
+    private function cacheRequestArray($name, $val=null)
+    {
+        if (isset($val))
+        {
+            $val   = date('H:i:s').' - '.$val;
+            $array = [];
+
+            if (Cache::has($name.'-array'))
+            {
+                $array = Cache::get($name.'-array');
+                array_unshift($array, $val);
+                if (count($array) > 50)
+                    array_pop($array);
+
+                Cache::forget($name.'-array');
+            }
+            else
+            {
+                $array[] = $val;
+            }
+            Cache::put($name.'-array', $array, 3600);  
+        }
+    }
+
     private function storeMeasurements($data_array)
     {
         if (!in_array('key', array_keys($data_array)) || $data_array['key'] == '' || $data_array['key'] == null)
         {
             Storage::disk('local')->put('sensors/sensor_no_key.log', json_encode($data_array));
             $this->cacheRequestRate('store-measurements-400');
+            $this->cacheRequestArray('store-measurements-400', json_encode($data_array));
             return Response::json('No key provided', 400);
         }
 
@@ -188,42 +213,47 @@ class MeasurementController extends Controller
 
         if($device)
         {
-            if (isset($data_array['bv']))
+            // store device metadata
+            if (isset($data_array['beep_base']) && boolval($data_array['beep_base']) && isset($data_array['hardware_id'])) // store hardware id
             {
-                $battery_voltage = floatval($data_array['bv']);
-                if ($battery_voltage > 100)
-                    $battery_voltage = $battery_voltage / 1000;
-                
-                $this->storeDeviceMeta($dev_eui, 'battery_voltage', $battery_voltage);
-            } 
-
+                $device = $this->storeDeviceMeta($device, 'hardware_id', $data_array['hardware_id']);
+                if (isset($data_array['measurement_transmission_ratio']))
+                    $device = $this->storeDeviceMeta($device, 'measurement_transmission_ratio', $data_array['measurement_transmission_ratio']);
+                if (isset($data_array['measurement_interval_min']))
+                    $device = $this->storeDeviceMeta($device, 'measurement_interval_min', $data_array['measurement_interval_min']);
+                if (isset($data_array['hardware_version']))
+                    $device = $this->storeDeviceMeta($device, 'hardware_version', $data_array['hardware_version']);
+                if (isset($data_array['firmware_version']))
+                    $device = $this->storeDeviceMeta($device, 'firmware_version', $data_array['firmware_version']);
+                if (isset($data_array['bootcount']))
+                    $device = $this->storeDeviceMeta($device, 'bootcount', $data_array['bootcount']);
+                if (isset($data_array['time_device']))
+                    $device = $this->storeDeviceMeta($device, 'time_device', $data_array['time_device']);
+            }
+            // store metadata from sensor
+            $device->last_message_received = date('Y-m-d H:i:s');
+            $device->save();
         }
         else
         {
-            Storage::disk('local')->put('sensors/sensor_invalid_key.log', json_encode($data_array));
-            $this->cacheRequestRate('store-measurements-401');
-            return Response::json('No valid key provided', 401);
+            if (isset($data_array['beep_base']) && boolval($data_array['beep_base']) && isset($data_array['hardware_id'])) // store hardware id
+                $device = $this->storeDeviceMeta($device, 'hardware_id', $data_array['hardware_id']); // create device if ALLOW_DEVICE_CREATION == 'true'
+
+            if ($device) // new device created from hw id?
+            {
+                $device->last_message_received = date('Y-m-d H:i:s');
+                $device->save();
+            } 
+            else
+            {
+                Storage::disk('local')->put('sensors/sensor_invalid_key.log', json_encode($data_array));
+                $this->cacheRequestRate('store-measurements-401');
+                $this->cacheRequestArray('store-measurements-401', $dev_eui);
+                return Response::json('No valid key provided', 401);
+            }
         }
 
-        // store device metadata
-        if (isset($data_array['beep_base']) && boolval($data_array['beep_base']) && isset($data_array['key']) && isset($data_array['hardware_id'])) // store hardware id
-        {
-            $this->storeDeviceMeta($data_array['key'], 'hardware_id', $data_array['hardware_id']);
-            if (isset($data_array['measurement_transmission_ratio']))
-                $this->storeDeviceMeta($data_array['key'], 'measurement_transmission_ratio', $data_array['measurement_transmission_ratio']);
-            if (isset($data_array['measurement_interval_min']))
-                $this->storeDeviceMeta($data_array['key'], 'measurement_interval_min', $data_array['measurement_interval_min']);
-            if (isset($data_array['hardware_version']))
-                $this->storeDeviceMeta($data_array['key'], 'hardware_version', $data_array['hardware_version']);
-            if (isset($data_array['firmware_version']))
-                $this->storeDeviceMeta($data_array['key'], 'firmware_version', $data_array['firmware_version']);
-            if (isset($data_array['bootcount']))
-                $this->storeDeviceMeta($data_array['key'], 'bootcount', $data_array['bootcount']);
-            if (isset($data_array['time_device']))
-                $this->storeDeviceMeta($data_array['key'], 'time_device', $data_array['time_device']);
-        }
-
-
+        // Save data
         unset($data_array['key']);
 
         $time = time();
@@ -240,6 +270,17 @@ class MeasurementController extends Controller
             if (isset($sd->output_abbr) && isset($data_array[$sd->input_abbr]))
                 $data_array = $device->addSensorDefinitionMeasurements($data_array, $data_array[$sd->input_abbr], $sd->input_measurement_id, $date, $sensor_defs_all);
         }
+        // store battery voltage after applying sensor defs
+        if (isset($data_array['bv']))
+        {
+            $battery_voltage = floatval($data_array['bv']);
+            if ($battery_voltage > 100)
+            {
+                $battery_voltage = $battery_voltage / 1000;
+                $data_array['bv'] = $battery_voltage;
+            }
+            $device = $this->storeDeviceMeta($device, 'battery_voltage', $battery_voltage);
+        } 
         
         // Legacy weight calculation from 2-4 load cells
         if (!isset($data_array['weight_kg']) && (isset($data_array['w_fl']) || isset($data_array['w_fr']) || isset($data_array['w_bl']) || isset($data_array['w_br'])) ) 
@@ -297,6 +338,7 @@ class MeasurementController extends Controller
             //die(print_r($data_array));
             Storage::disk('local')->put('sensors/sensor_write_error.log', json_encode($data_array));
             $this->cacheRequestRate('store-measurements-500');
+            $this->cacheRequestArray('store-measurements-500', json_encode($data_array));
             return Response::json('sensor-write-error', 500);
         }
     }
@@ -333,7 +375,7 @@ class MeasurementController extends Controller
             $endString   = $endMoment->setTimezone($tz)->format($this->timeFormat);
             
             $sensors     = $request->input('sensors', $this->output_sensors);
-            $where       = '("key" = \''.$device->key.'\' OR "key" = \''.strtolower($device->key).'\' OR "key" = \''.strtoupper($device->key).'\') AND time >= \''.$startString.'\' AND time <= \''.$endString.'\'';
+            $where       = $device->influxWhereKeys().' AND time >= \''.$startString.'\' AND time <= \''.$endString.'\'';
 
             $sensor_measurements = Device::getAvailableSensorNamesNoCache($sensors, $where, 'sensors', false);
             //die(print_r([$device->name, $device->key]));
@@ -376,7 +418,7 @@ class MeasurementController extends Controller
     }
 
 
-    private function addOldWeightValues($data_array)
+    private function convertOldFirmwareValues($data_array)
     {
         if (isset($data_array['w_fl']) || isset($data_array['w_fr']) || isset($data_array['w_bl']) || isset($data_array['w_br'])) // v7 firmware
         {
@@ -428,10 +470,8 @@ class MeasurementController extends Controller
         return $data_array;
     }
     
-    private function storeDeviceMeta($key, $field=null, $value=null)
+    private function storeDeviceMeta($device=null, $field=null, $value=null)
     {
-        $device = Device::where('key', $key)->first();
-
         if ($device == null && $field == 'hardware_id' && $value !== null && env('ALLOW_DEVICE_CREATION') == 'true' && Auth::user() && Auth::user()->hasRole('sensor-data')) // no device with this key available, so create new device by hardware id
         {
             $device = Device::where('hardware_id', $value)->first();
@@ -474,10 +514,8 @@ class MeasurementController extends Controller
 
                 }
             }
-            // store metadata from sensor
-            $device->last_message_received = date('Y-m-d H:i:s');
-            $device->save();
         }
+        return $device;
     }
 
     private function sendDeviceDownlink($key, $url)
@@ -921,7 +959,7 @@ class MeasurementController extends Controller
         $groupBySelectWeather = null;
         $groupByResolution  = '';
         $limit              = 'LIMIT '.$this->maxDataPoints;
-        $whereKeyAndTime    = '("key" = \''.$device->key.'\' OR "key" = \''.strtolower($device->key).'\' OR "key" = \''.strtoupper($device->key).'\') AND time >= \''.$staTimestampString.'\' AND time <= \''.$endTimestampString.'\'';
+        $whereKeyAndTime    = $device->influxWhereKeys().' AND time >= \''.$staTimestampString.'\' AND time <= \''.$endTimestampString.'\'';
 
 
         if($resolution != null)

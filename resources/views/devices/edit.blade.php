@@ -35,6 +35,12 @@
                 {!! Form::text('key', null, array('placeholder' => __('crud.key'),'class' => 'form-control')) !!}
             </div>
         </div>
+        <div class="col-xs-12 col-sm-12 col-md-12">
+            <div class="form-group">
+                <label>Former DEV EUIs, after auto LoRa configure (comma separated):</label>
+                {!! Form::text('former_key_list', null, array('placeholder' => 'Former keys','class' => 'form-control')) !!}
+            </div>
+        </div>
         <div class="col-xs-12 col-sm-6 col-md-4">
             <div class="form-group">
                 <label>{{ __('general.User') }}</label>

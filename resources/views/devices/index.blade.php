@@ -100,8 +100,8 @@
 						{{-- <th>Sticker</th> --}}
 						<th>{{ __('crud.name') }}</th>
 						<th>{{ __('crud.type') }}</th>
-						<th style="min-width: 180px;">DEV EUI ({{ __('crud.key') }}) / Hardware ID</th>
-						<th style="min-width: 150px;">Last seen</th>
+						<th style="min-width: 170px;">DEV EUI ({{ __('crud.key') }}) / HW ID</th>
+						<th style="min-width: 140px;">Last seen (UTC)</th>
 						<th><img src="/img/icn_bat.svg" style="width: 20px;"></th>
 						<th>Hardware version</th>
 						<th style="min-width: 100px;">Firmware version</th>

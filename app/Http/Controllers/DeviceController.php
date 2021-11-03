@@ -30,31 +30,34 @@ class DeviceController extends Controller
         $research_id = null;
         if (!empty($search_res)) 
         {
-            $res = Research::where('name', 'LIKE', "%$search_res%")
+            $researches = Research::where('name', 'LIKE', "%$search_res%")
                             ->orWhere('institution', 'LIKE', "%$search_res%")
                             ->orWhere('description', 'LIKE', "%$search_res%")
                             ->orWhere('type', 'LIKE', "%$search_res%")
-                            ->first();
-            if ($res)
+                            ->get();
+
+            if (count($researches) > 0)
             {
                 $device_ids = [];
-                foreach ($res->users as $user) 
-                    $device_ids = array_merge($device_ids, $user->devices->pluck('id')->toArray());
-                
+                foreach ($researches as $res)
+                { 
+                    foreach ($res->users as $user) 
+                        $device_ids = array_merge($device_ids, $user->devices->pluck('id')->toArray());
+                }
                 $devices = $devices->whereIn('id', $device_ids);
             }
         }
 
         if (!empty($search_user)) 
         {
-            $user = User::where('name', 'LIKE', "%$search_user%")
+            $user_ids = User::where('name', 'LIKE', "%$search_user%")
                         ->orWhere('email', 'LIKE', "%$search_user%")
                         ->orWhere('locale', 'LIKE', "%$search_user%")
                         ->orWhere('id', 'LIKE', "%$search_user%")
-                        ->first();
+                        ->pluck('id');
             
-            if ($user)
-                $devices = $devices->where('user_id', $user->id);
+            if (count($user_ids) > 0)
+                $devices = $devices->whereIn('user_id', $user_ids);
 
         }
 

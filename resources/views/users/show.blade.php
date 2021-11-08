@@ -55,13 +55,13 @@
                 @endif
             </div>
         </div>
-        @if(Auth::user()->hasRole('superadmin'))
+        @role('superadmin')
         <div class="col-xs-12 col-sm-12 col-md-12">
             <div class="form-group">
                 <label>API token:</label>
                 <p>{{ $user->api_token }}</p>
             </div>
         </div>
-        @endif
+        @endrole
 	</div>
 @endsection

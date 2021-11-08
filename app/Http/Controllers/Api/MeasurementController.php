@@ -184,10 +184,13 @@ class MeasurementController extends Controller
             if (Cache::has($name.'-array'))
             {
                 $array = Cache::get($name.'-array');
-                array_unshift($array, $val);
-                if (count($array) > 50)
-                    array_pop($array);
+                if (gettype($array) == 'array')
+                {
+                    array_unshift($array, $val); // put at first value
+                    if (count($array) > 50)
+                        array_pop($array); // remove last value
 
+                }
                 Cache::forget($name.'-array');
             }
             else

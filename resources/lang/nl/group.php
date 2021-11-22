@@ -13,6 +13,7 @@ return [
     'Dear'          => 'Beste',
     'accepted'      => 'heeft de uitnodiging geaccepteerd voor groep: ',
     'subject_accept'=> 'Groep acceptatie',
+    'subject_refusal'=> 'Groep afwijzing',
     'email_na'      => 'Deze e-mail adressen zijn nog geen lid van Beep: ',
     'Invited'       => 'Uitgenodigd: ',
     'Updated'       => 'Geupdate: ',

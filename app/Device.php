@@ -19,9 +19,9 @@ class Device extends Model
     protected $table    = 'sensors';
  
     protected $cascadeDeletes = ['sensorDefinitions'];
-    protected $fillable = ['user_id', 'hive_id', 'category_id', 'name', 'key', 'last_message_received', 'hardware_id', 'firmware_version', 'hardware_version', 'boot_count', 'measurement_interval_min', 'measurement_transmission_ratio', 'ble_pin', 'battery_voltage', 'next_downlink_message', 'last_downlink_result', 'datetime', 'datetime_offset_sec'];
+    protected $fillable = ['user_id', 'hive_id', 'category_id', 'name', 'key', 'last_message_received', 'hardware_id', 'firmware_version', 'hardware_version', 'boot_count', 'measurement_interval_min', 'measurement_transmission_ratio', 'ble_pin', 'battery_voltage', 'next_downlink_message', 'last_downlink_result', 'datetime', 'datetime_offset_sec', 'former_key_list'];
 	protected $guarded 	= ['id'];
-    protected $hidden   = ['user_id', 'category_id', 'deleted_at', 'hive'];
+    protected $hidden   = ['user_id', 'category_id', 'deleted_at', 'hive', 'former_key_list'];
     protected $appends  = ['type','hive_name', 'location_name', 'owner', 'online'];
 
     public $timestamps  = false;
@@ -71,15 +71,6 @@ class Device extends Model
         return false;
     }
 
-    public function researchNames()
-    {
-        $res = $this->researches();
-        if ($res->count() > 0)
-            return implode(', ', $res->pluck('name')->toArray());
-
-        return '';
-    }
-
     public function getOnlineAttribute()
     {
         $refresh_min  = max(15, $this->getRefreshMin() * 2);
@@ -89,6 +80,68 @@ class Device extends Model
         
         return false;
     }
+
+
+    public function researchNames()
+    {
+        $res = $this->researches();
+        if ($res->count() > 0)
+            return implode(', ', $res->pluck('name')->toArray());
+
+        return '';
+    }
+
+    // former Dev EUIs (created at redoing automatic LoRa config)
+    public function influxWhereKeys()
+    {
+        $keys = [$this->key];
+
+        if (isset($this->former_key_list))
+        {
+            $keys = array_merge($keys, explode(',', $this->former_key_list));
+        }
+        // add upper or lowercase key
+        $add_keys = [];
+        foreach ($keys as $key)
+        {
+            $key_low = strtolower($key);
+            $key_upp = strtoupper($key);
+
+            if ($key_low !== $key)
+                $add_keys[] = $key_low;
+
+            if ($key_upp !== $key)
+                $add_keys[] = $key_upp;
+        }
+        if (count($add_keys) > 0)
+            $keys = array_merge($keys, $add_keys);
+
+        $where_keys = '("key" = \''.implode('\' OR "key" = \'', $keys).'\')';
+        //die(print_r($where_keys));
+        return $where_keys;
+    }
+
+    public function addFormerKey($key)
+    {
+        if (!isset($key) || $key == '' || $key == null)
+            return false;
+
+        $keys = [];
+        if (isset($this->former_key_list))
+            $keys = explode(',', $this->former_key_list);
+        
+        if (in_array($key, $keys) === false)
+            $keys[] = $key;
+
+        if (count($keys) > 0)
+        {
+            $this->former_key_list = implode(',', $keys);
+            $this->save();
+            return true;
+        }
+        return false;
+    }
+
 
     public function sensorDefinitions()
     {

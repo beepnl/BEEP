@@ -117,15 +117,16 @@ class MeasurementController extends Controller
     
 
     // requires at least ['name'=>value] to be set
-    private function storeInfluxData($data_array, $dev_eui, $unix_timestamp)
+    private function storeInfluxData($data_array, $device, $unix_timestamp)
     {
         // store posted data
-        $client    = $this->client;
-        $points    = [];
-        $unix_time = isset($unix_timestamp) ? $unix_timestamp : time();
+        $client      = $this->client;
+        $points      = [];
+        $unix_time   = isset($unix_timestamp) ? $unix_timestamp : time();
+        $sensor_tags = ['key' => strtolower($device->key), 'device_name' => $device->name, 'hardware_id' => strtolower($device->hardware_id), 'user_id' => $device->user_id]; 
 
         $valid_sensor_keys = array_keys($this->valid_sensors);
-
+        
         foreach ($data_array as $key => $value) 
         {
             if (in_array($key, $valid_sensor_keys) )
@@ -134,7 +135,7 @@ class MeasurementController extends Controller
                     new InfluxDB\Point(
                         'sensors',                  // name of the measurement
                         null,                       // the measurement value
-                        ['key' => $dev_eui],     // optional tags
+                        $sensor_tags,               // optional tags
                         ["$key" => floatval($value)], // key value pairs
                         $unix_time                  // Time precision has to be set to InfluxDB\Database::PRECISION_SECONDS!
                     )
@@ -183,10 +184,13 @@ class MeasurementController extends Controller
             if (Cache::has($name.'-array'))
             {
                 $array = Cache::get($name.'-array');
-                array_unshift($array, $val);
-                if (count($array) > 50)
-                    array_pop($array);
+                if (gettype($array) == 'array')
+                {
+                    array_unshift($array, $val); // put at first value
+                    if (count($array) > 50)
+                        array_pop($array); // remove last value
 
+                }
                 Cache::forget($name.'-array');
             }
             else
@@ -214,14 +218,6 @@ class MeasurementController extends Controller
         if($device)
         {
             // store device metadata
-            if (isset($data_array['bv']))
-            {
-                $battery_voltage = floatval($data_array['bv']);
-                if ($battery_voltage > 100)
-                    $battery_voltage = $battery_voltage / 1000;
-                
-                $device = $this->storeDeviceMeta($device, 'battery_voltage', $battery_voltage);
-            } 
             if (isset($data_array['beep_base']) && boolval($data_array['beep_base']) && isset($data_array['hardware_id'])) // store hardware id
             {
                 $device = $this->storeDeviceMeta($device, 'hardware_id', $data_array['hardware_id']);
@@ -278,6 +274,17 @@ class MeasurementController extends Controller
             if (isset($sd->output_abbr) && isset($data_array[$sd->input_abbr]))
                 $data_array = $device->addSensorDefinitionMeasurements($data_array, $data_array[$sd->input_abbr], $sd->input_measurement_id, $date, $sensor_defs_all);
         }
+        // store battery voltage after applying sensor defs
+        if (isset($data_array['bv']))
+        {
+            $battery_voltage = floatval($data_array['bv']);
+            if ($battery_voltage > 100)
+            {
+                $battery_voltage = $battery_voltage / 1000;
+                $data_array['bv'] = $battery_voltage;
+            }
+            $device = $this->storeDeviceMeta($device, 'battery_voltage', $battery_voltage);
+        } 
         
         // Legacy weight calculation from 2-4 load cells
         if (!isset($data_array['weight_kg']) && (isset($data_array['w_fl']) || isset($data_array['w_fr']) || isset($data_array['w_bl']) || isset($data_array['w_br'])) ) 
@@ -295,7 +302,7 @@ class MeasurementController extends Controller
             // check if we need to compensate weight for temp (legacy)
             //$data_array = $this->add_weight_kg_corrected_with_temperature($device, $data_array);
         }
-        $stored = $this->storeInfluxData($data_array, $dev_eui, $time);
+        $stored = $this->storeInfluxData($data_array, $device, $time);
         
         
         // Remember the last date/data that this device stored measurements from (and previous to calculate diff)
@@ -372,7 +379,7 @@ class MeasurementController extends Controller
             $endString   = $endMoment->setTimezone($tz)->format($this->timeFormat);
             
             $sensors     = $request->input('sensors', $this->output_sensors);
-            $where       = '("key" = \''.$device->key.'\' OR "key" = \''.strtolower($device->key).'\' OR "key" = \''.strtoupper($device->key).'\') AND time >= \''.$startString.'\' AND time <= \''.$endString.'\'';
+            $where       = $device->influxWhereKeys().' AND time >= \''.$startString.'\' AND time <= \''.$endString.'\'';
 
             $sensor_measurements = Device::getAvailableSensorNamesNoCache($sensors, $where, 'sensors', false);
             //die(print_r([$device->name, $device->key]));
@@ -956,7 +963,7 @@ class MeasurementController extends Controller
         $groupBySelectWeather = null;
         $groupByResolution  = '';
         $limit              = 'LIMIT '.$this->maxDataPoints;
-        $whereKeyAndTime    = '("key" = \''.$device->key.'\' OR "key" = \''.strtolower($device->key).'\' OR "key" = \''.strtoupper($device->key).'\') AND time >= \''.$staTimestampString.'\' AND time <= \''.$endTimestampString.'\'';
+        $whereKeyAndTime    = $device->influxWhereKeys().' AND time >= \''.$staTimestampString.'\' AND time <= \''.$endTimestampString.'\'';
 
 
         if($resolution != null)

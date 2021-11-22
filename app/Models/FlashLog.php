@@ -311,7 +311,7 @@ class FlashLog extends Model
     {
         $matches     = [];
         $device      = Device::find($device_id);
-        $query       = 'SELECT * FROM "sensors" WHERE ("key" = \''.$device->key.'\' OR "key" = \''.strtolower($device->key).'\' OR "key" = \''.strtoupper($device->key).'\') AND time >= \''.$start_time.'\' ORDER BY time ASC LIMIT '.min(100, max($matches_min, $db_records));
+        $query       = 'SELECT * FROM "sensors" WHERE '.$device->influxWhereKeys().' AND time >= \''.$start_time.'\' ORDER BY time ASC LIMIT '.min(100, max($matches_min, $db_records));
         $db_data     = Device::getInfluxQuery($query, 'flashlog');
         $fl_index    = $start_index;
         $fl_index_end= $end_index;

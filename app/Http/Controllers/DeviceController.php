@@ -66,6 +66,7 @@ class DeviceController extends Controller
             $devices = $devices->where('hive_id', 'LIKE', "%$keyword%")
                                 ->orWhere('name', 'LIKE', "%$keyword%")
                                 ->orWhere('key', 'LIKE', "%$keyword%")
+                                ->orWhere('former_key_list', 'LIKE', "%$keyword%")
                                 ->orWhere('last_message_received', 'LIKE', "%$keyword%")
                                 ->orWhere('hardware_id', 'LIKE', "%$keyword%")
                                 ->orWhere('firmware_version', 'LIKE', "%$keyword%")

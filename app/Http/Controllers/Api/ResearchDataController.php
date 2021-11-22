@@ -827,7 +827,7 @@ class ResearchDataController extends Controller
                                 {   
                                     if ($device->created_at < $date_next_consent)
                                     {
-                                        $where= '("key" = \''.$device->key.'\' OR "key" = \''.strtolower($device->key).'\' OR "key" = \''.strtoupper($device->key).'\') AND time >= \''.$date_curr_consent.'\' AND time <= \''.$date_next_consent.'\'';
+                                        $where= $device->influxWhereKeys().' AND time >= \''.$date_curr_consent.'\' AND time <= \''.$date_next_consent.'\'';
                                         $data = array_merge($data, $this->getArrayFromInflux($where, '*', 'sensors', $precision));
                                     }
                                 }

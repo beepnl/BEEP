@@ -51,6 +51,8 @@ Route::group([], function()
 	// normal traffic routes
 	Route::group(['middleware'=>['auth:api', 'verifiedApi', 'throttle:global_rate_limit_per_min,1,normal_traffic']], function()
 	{
+		//Route::post('devices/tts/{step}/{dev_id}/{dev_eui}/{app_key}', 'Api\DeviceController@debugTtsDevice');
+
 		// Authenticate and provide the token
 		Route::post('authenticate', 		'Api\UserController@authenticate');
 
@@ -58,7 +60,7 @@ Route::group([], function()
 		Route::post('devices/multiple',		'Api\DeviceController@storeMultiple');
 		Route::get('devices/ttn/{dev_id}',  'Api\DeviceController@getTTNDevice');
 		Route::post('devices/ttn/{dev_id}', 'Api\DeviceController@postTTNDevice');
-		Route::post('devices/tts/{step}/{dev_id}/{dev_eui}/{app_key}', 'Api\DeviceController@debugTtsDevice');
+
 		Route::get('sensors/measurements', 	'Api\MeasurementController@data');
 		Route::get('sensors/lastvalues', 	'Api\MeasurementController@lastvalues');
 		Route::get('sensors/lastweight', 	'Api\MeasurementController@lastweight');

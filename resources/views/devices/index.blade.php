@@ -119,7 +119,7 @@
 						{{-- <td><button onclick="copyTextToClipboard('{{ $device->name }}\r\n{{ $device->hardware_id }}');">Copy</button></td> --}}
 						<td>{{ $device->name }}</td>
 						<td><label class="label label-default">{{ $device->type }}</label></td>
-						<td>{{ $device->key }} / {{ $device->hardware_id }}</td>
+						<td>{{ $device->key }} <span style="font-size: 10px">{{ isset($device->former_key_list) ? '(former: '.$device->former_key_list.')' : ''}}</span> / {{ $device->hardware_id }}</td>
 						<td>{{ $device->last_message_received }}</td>
 						<td>{{ isset($device->battery_voltage) ? $device->battery_voltage.' V' : '' }}</td>
 						<td><p style="font-size: 10px">{{ $device->hardware_version }}</p></td>

@@ -452,7 +452,7 @@ class ResearchController extends Controller
                 // Add sensor data
                 foreach ($user_devices as $device) 
                 {
-                    $user_device_keys[]= '"key" = \''.$device->key.'\' OR "key" = \''.strtolower($device->key).'\' OR "key" = \''.strtoupper($device->key).'\'';
+                    $user_device_keys[]= $device->influxWhereKeys();
                     $loc = $device->location();
                     if ($loc && isset($loc->coordinate_lat) && isset($loc->coordinate_lon)) 
                         $user_dloc_coords[] = '("lat" = \''.$loc->coordinate_lat.'\' AND "lon" = \''.$loc->coordinate_lon.'\')';
@@ -463,7 +463,9 @@ class ResearchController extends Controller
                 try{
                     $this->cacheRequestRate('influx-get');
                     $this->cacheRequestRate('influx-research');
-                    $points = $this->client::query('SELECT COUNT("bv") as "count" FROM "sensors" WHERE '.$user_device_keys.' AND time >= \''.$date_curr_consent.'\' AND time <= \''.$moment_end->format('Y-m-d H:i:s').'\' GROUP BY time(1d)')->getPoints();
+                    $query  = 'SELECT COUNT("bv") as "count" FROM "sensors" WHERE '.$user_device_keys.' AND time >= \''.$date_curr_consent.'\' AND time <= \''.$moment_end->format('Y-m-d H:i:s').'\' GROUP BY time(1d)';
+                    //die($query); 
+                    $points = $this->client::query($query)->getPoints();
                 } catch (InfluxDB\Exception $e) {
                     // return Response::json('influx-group-by-query-error', 500);
                 }
@@ -573,7 +575,7 @@ class ResearchController extends Controller
                                     $spreadsheet_array[__('export.devices')][] = $this->getDevice($user_id, $device);
                                 
                                     // Export data to file per device / period
-                                    $where    = '("key" = \''.$device->key.'\' OR "key" = \''.strtolower($device->key).'\' OR "key" = \''.strtoupper($device->key).'\') AND time >= \''.$date_curr_consent.'\' AND time <= \''.$date_next_consent.'\'';
+                                    $where    = $device->influxWhereKeys().' AND time >= \''.$date_curr_consent.'\' AND time <= \''.$date_next_consent.'\'';
                                     $fileName = strtolower(env('APP_NAME')).'-export-'.$research->name.'-device-id-'.$device->id.'-sensor-data-'.substr($date_curr_consent,0,10).'-'.substr($date_next_consent,0,10).'-'.Str::random(10).'.csv';
                                     $filePath = $this->exportCsvFromInflux($where, $fileName, '*', 'sensors');
                                     if ($filePath)

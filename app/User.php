@@ -15,6 +15,7 @@ use App\Models\Alert;
 use App\Models\AlertRule;
 
 use DB;
+use Auth;
 
 class User extends Authenticatable
 {

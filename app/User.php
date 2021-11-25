@@ -290,7 +290,7 @@ class User extends Authenticatable
     {
         if (Auth::user()->hasRole('superadmin'))
         {
-            $users = User::orderBy('name')->all();
+            $users = User::orderBy('name')->get();
             $array = [];
             foreach ($users as $u) 
             {

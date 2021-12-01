@@ -150,7 +150,7 @@
                                         @if (isset($bl['match']['message'])) 
                                             <div style="font-size: 9px;">{{ $bl['match']['message'] }}</div>
                                         @else 
-                                            {{ count($bl['matches']).' / '.count(array_values($bl['matches'])[0])-4 }}
+                                            {{ count($bl['matches']) }}  /  {{ count(array_values($bl['matches'])[0])-4 }}
                                         @endif
                                     </td>
                                     <td {!! $td_attr !!}>{{ isset($bl['time_start']) ? $bl['time_start'] : '-' }}</td>

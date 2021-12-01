@@ -31,6 +31,7 @@ class DeviceController extends Controller
         if (!empty($search_res)) 
         {
             $researches = Research::where('name', 'LIKE', "%$search_res%")
+                            ->orWhere('id', 'LIKE', "%$search_res%")
                             ->orWhere('institution', 'LIKE', "%$search_res%")
                             ->orWhere('description', 'LIKE', "%$search_res%")
                             ->orWhere('type', 'LIKE', "%$search_res%")
@@ -64,6 +65,7 @@ class DeviceController extends Controller
         if (!empty($keyword)) 
         {
             $devices = $devices->where('hive_id', 'LIKE', "%$keyword%")
+                                ->orWhere('id', 'LIKE', "%$keyword%")
                                 ->orWhere('name', 'LIKE', "%$keyword%")
                                 ->orWhere('key', 'LIKE', "%$keyword%")
                                 ->orWhere('former_key_list', 'LIKE', "%$keyword%")

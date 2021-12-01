@@ -10,6 +10,7 @@ use Cache;
 use Auth;
 use InfluxDB;
 use App\Models\Alert;
+use App\Models\FlashLog;
 use Moment\Moment;
 
 class Device extends Model
@@ -179,6 +180,11 @@ class Device extends Model
     public function alerts()
     {
         return $this->hasMany(Alert::class);
+    }
+
+    public function flashLogs()
+    {
+        return $this->hasMany(FlashLog::class);
     }
 
     public function getRefreshMin()

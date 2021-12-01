@@ -53,7 +53,20 @@ class FlashLog extends Model
         return $this->belongsTo(User::class);
     }
     
-    public function log($data='', $log_bytes=null, $save=true, $fill=false, $show=false)
+    public function getFileContent($type='log_file')
+    {
+        if(isset($this->{$type}))
+        {
+            $file = 'flashlog/'.last(explode('/',$this->{$type}));
+            //die(print_r($file));
+            $disk = env('FLASHLOG_STORAGE', 'public');
+            if (Storage::disk($disk)->exists($file))
+                return Storage::disk($disk)->get($file);
+        }
+        return null;
+    }
+
+    public function log($data='', $log_bytes=null, $save=true, $fill=false, $show=false, $matches_min_override=null, $match_props_override=null, $db_records_override=null)
     {
         if (!isset($this->device_id) || !isset($this->device))
             return ['error'=>'No device set, cannot parse Flashlog because need device key to get data from database'];
@@ -218,7 +231,7 @@ class FlashLog extends Model
 
         if ($fill && count($out) > 0)
         {
-            $flashlog_filled = $this->fillDataGaps($device, $out, $save, $show); // ['time_percentage'=>$time_percentage, 'records_timed'=>$records_timed, 'records_flashlog'=>$records_flashlog, 'time_insert_count'=>$setCount, 'flashlog'=>$flashlog];
+            $flashlog_filled = $this->fillDataGaps($device, $out, $save, $show, $matches_min_override, $match_props_override, $db_records_override); // ['time_percentage'=>$time_percentage, 'records_timed'=>$records_timed, 'records_flashlog'=>$records_flashlog, 'time_insert_count'=>$setCount, 'flashlog'=>$flashlog];
             
             if ($flashlog_filled)
             {
@@ -246,7 +259,10 @@ class FlashLog extends Model
                 }
                 else
                 {
-                    $result['time_percentage'] .= ', previous time percentage ('.$this->time_percentage.'%) > new ('.$time_percentage.'%), so filled file not saved.';
+                    $result['time_percentage'] .= ', previous time percentage ('.$this->time_percentage.'%) > new ('.$time_percentage.'%)';
+                    if ($save)
+                        $result['time_percentage'] .= ', so filled file not saved';
+
                     $time_percentage = $this->time_percentage;
                     $f_par           = $this->log_file_parsed;
                 }
@@ -452,12 +468,21 @@ class FlashLog extends Model
     3. Align the Flash log time for all 'blocks' of port 3 (measurements) between port 2 (on/off) records  
     4. Save as a filled file
     */
-    private function fillDataGaps($device, $flashlog=null, $save=false, $show=false)
+    private function fillDataGaps($device, $flashlog=null, $save=false, $show=false, $matches_min_override=null, $match_props_override=null, $db_records_override=null)
     {
         $out         = [];
         $matches_min = env('FLASHLOG_MIN_MATCHES', 2); // minimum amount of inline measurements that should be matched 
         $match_props = env('FLASHLOG_MATCH_PROPS', 7); // minimum amount of measurement properties that should match 
         $db_records  = env('FLASHLOG_DB_RECORDS', 15);// amount of DB records to fetch to match each block
+
+        if (isset($matches_min_override))
+            $matches_min = $matches_min_override;
+
+        if (isset($match_props_override))
+            $match_props = $match_props_override;
+
+        if (isset($db_records_override))
+            $db_records = $db_records_override;
 
         if ($flashlog == null || count($flashlog) < $matches_min)
             return null;
@@ -560,7 +585,12 @@ class FlashLog extends Model
         $out = ['time_percentage'=>$time_percentage, 'records_timed'=>$records_timed, 'weight_percentage'=>$weight_percentage, 'records_flashlog'=>$records_flashlog, 'time_insert_count'=>$setCount, 'flashlog'=>$flashlog];
 
         if ($show)
+        {
             $out['log'] = $log;
+            $out['matches_min'] = $matches_min;
+            $out['match_props'] = $match_props;
+            $out['db_records']  = $db_records;
+        }
 
         return $out;
     }

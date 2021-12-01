@@ -24,6 +24,7 @@ return [
     'sure'          => 'Weet je zeker dat je :item :name wilt verwijderen?',
     'create'        => 'Maak een nieuwe :item',
     'created'       => 'aangemaakt',
+    'created_at'    => 'Aangemaakt op',
     'add'           => 'Voeg een nieuwe :item toe',
     'add_a'         => 'Voeg een nieuw :item toe',
     'added'         => 'toegevoegd',

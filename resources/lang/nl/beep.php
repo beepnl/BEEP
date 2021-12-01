@@ -58,4 +58,5 @@ return [
     'abs'               => 'absolute waarde',
     'abs_dif'           => 'verandering',
 
+    'Flash_logs'        => 'Flash log bestanden',
 ];

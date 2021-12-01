@@ -38,7 +38,7 @@
                 @slot('title') {{ __('beep.Flash_logs') }} @endslot
 
                 @slot('body')
-                    <table id="table-sensors" class="table table-striped">
+                    <table id="table-flashlogs" class="table table-striped">
                         <thead>
                             <tr>
                                 <th>#</th>
@@ -115,22 +115,44 @@
                     </div>
                     {!! Form::close() !!}
 
+
+
                     @if (isset($log))
+
+                    <script type="text/javascript">
+                        $(document).ready(function() {
+                            $("#table-blocks").DataTable(
+                            {
+                                "pageLength": 50,
+                                "language": 
+                                    @php
+                                        echo File::get(public_path('js/datatables/i18n/'.LaravelLocalization::getCurrentLocaleName().'.lang'));
+                                    @endphp
+                                ,
+                                "order": 
+                                [
+                                    [ 0, "asc" ]
+                                ],
+                            });
+                        });
+
+                    </script>
+
                     <div class="col-xs-12">
                         <hr>
                         <h4>
                             Time match: {{ $log['time_percentage'] }}, Weight match: {{ $log['weight_percentage'] }}, On/off blocks: {{ count($log) }}, Lines: {{ $log['lines_received'] }}, Messages: {{ $log['log_messages'] }} 
                         </h4>
                     </div>
-                    <table id="table-sensors" class="table table-striped">
+                    <table id="table-blocks" class="table table-striped">
                         <thead>
                             <tr>
                                 <th>#</th>
                                 <th>FW version</th>
-                                <th>Line # Start-end / pointer</th>
+                                <th>Line # Start-end / lines</th>
                                 <th>DB requset from</th>
                                 <th>Length (days)</th>
-                                <th>Interval (min)</th>
+                                <th>Interval : ratio (min)</th>
                                 <th>Matches / Number of measurements</th>
                                 <th>Start time match</th>
                                 <th>End time match</th>
@@ -138,22 +160,46 @@
                         </thead>
                         <tbody>
                             @foreach ($log['log'] as $bl)
-                                @php $td_attr = isset($bl['no_matches']) ? ' style="color:#999"' : '' @endphp
+                                @php 
+                                    $td_attr    = isset($bl['no_matches']) ? ' style="color:#999"' : '';
+                                    $interv_min = isset($bl['interval_min']) ? max(1, $bl['interval_min']) : null; // min
+                                    $interv_rat = isset($bl['transmission_ratio']) ? max(1, $bl['transmission_ratio']) : null; // % 
+                                    $interval_m = isset($interv_min) && isset($interv_rat) ? $interv_min * $interv_rat : null;
+                                    $meas_p_day = null;
+                                    $data_days  = null;
+                                    $data_rows  = $bl['end_i'] - $bl['start_i'];
+                                    if ($interval_m)
+                                    {
+                                        $meas_p_day = round(24 * 60 / $interval_m);
+                                        $data_days  = round($bl['duration_hours']/$meas_p_day, 1);
+                                    }
+                                @endphp
                                 <tr>
                                     <td {!! $td_attr !!}>{{ $bl['block'] }}</td>
                                     <td {!! $td_attr !!}>{{ $bl['fw_version'] }}</td>
-                                    <td {!! $td_attr !!}>{{ $bl['start_i'] }}-{{ $bl['end_i'] }} / {{ $bl['fl_i'] }}</td>
+                                    <td {!! $td_attr !!}>{{ $bl['start_i'] }}->{{ $bl['end_i'] }}<br>= {{ $data_rows }} lines</td>
                                     <td {!! $td_attr !!}>{{ isset($bl['db_time']) ? $bl['db_time'] : '-' }}</td>
-                                    <td {!! $td_attr !!}>{{ round($bl['duration_hours']/24) }}</td>
-                                    <td {!! $td_attr !!}>{{ $bl['interval_min'] }}</td>
+                                    <td {!! $td_attr !!}>{{ $data_days }}<br>{{ $meas_p_day }} p/day</td>
+                                    <td {!! $td_attr !!}>{{ $interval_m }} (= {{ $interv_min }} x {{ $interv_rat}})</td>
                                     <td {!! $td_attr !!}>
+                                        <div style="font-size: 10px;">
                                         @if (isset($bl['match']['message'])) 
-                                            <div style="font-size: 9px;">{{ $bl['match']['message'] }}</div>
+                                            {{ $bl['match']['message'] }}
                                         @elseif (isset($bl['matches']))
-                                            {{ count($bl['matches']) }}  /  {{ count(array_values($bl['matches'])[0])-4 }}
+                                            @foreach($bl['matches'] as $i => $match)
+                                            <div style="width: 200px; display: inline-block; font-size: 11px;">
+                                                <h5>Match i={{ $i }}:</h5>
+                                                <ol>
+                                                    @foreach($match as $par => $val)
+                                                    <li><span style="{{ $par != 'time' ? 'width:100px; text-align: right;' : ''}} display: inline-block;">{{ $par }}:</span> {{ $val }}</li>
+                                                    @endforeach
+                                                </ol>
+                                            </div>
+                                            @endforeach
                                         @else
                                             -
                                         @endif
+                                        </div>
                                     </td>
                                     <td {!! $td_attr !!}>{{ isset($bl['time_start']) ? $bl['time_start'] : '-' }}</td>
                                     <td {!! $td_attr !!}>{{ isset($bl['time_end']) ? $bl['time_end'] : '-' }}</td>

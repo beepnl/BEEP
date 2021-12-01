@@ -159,7 +159,7 @@ class DeviceController extends Controller
             {
                 $data = $flashlog->getFileContent('log_file');
                 if (isset($data))
-                    $log = $flashlog->log($data, null, $save_result, true, true, $matches_min, $match_props, $db_records); // $data, $log_bytes=null, $save=true, $fill=false, $show=false
+                    $log = $flashlog->log($data, null, $save_result, true, true, $matches_min, $match_props, $db_records, $save_result); // $data, $log_bytes=null, $save=true, $fill=false, $show=false
                 else
                     return redirect()->route('devices.show', $id)->with('error', 'Flashlog file \''.$flashlog->log_file.'\' not found');
             }

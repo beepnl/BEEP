@@ -66,7 +66,7 @@ class FlashLog extends Model
         return null;
     }
 
-    public function log($data='', $log_bytes=null, $save=true, $fill=false, $show=false, $matches_min_override=null, $match_props_override=null, $db_records_override=null)
+    public function log($data='', $log_bytes=null, $save=true, $fill=false, $show=false, $matches_min_override=null, $match_props_override=null, $db_records_override=null, $save_override=false)
     {
         if (!isset($this->device_id) || !isset($this->device))
             return ['error'=>'No device set, cannot parse Flashlog because need device key to get data from database'];
@@ -248,7 +248,7 @@ class FlashLog extends Model
                 $time_percentage             = round($flashlog_filled['time_percentage'], 2);
                 $result['time_percentage']   = $time_percentage.'%';
 
-                if (isset($this->time_percentage) == false || min(100, $this->time_percentage) <= $time_percentage || $this->time_percentage > 100)
+                if (isset($this->time_percentage) == false || (min(100, $this->time_percentage*0.9) <= $time_percentage || $save_override) || $this->time_percentage > 100)
                 {
                     if ($save && isset($flashlog_filled['flashlog']) && count($flashlog_filled['flashlog']) > 0 && $flashlog_filled['time_insert_count'] > 0)
                     {

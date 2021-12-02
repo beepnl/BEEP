@@ -149,25 +149,37 @@
                             <tr>
                                 <th>#</th>
                                 <th>FW version</th>
-                                <th>Line # Start-end / lines</th>
-                                <th>DB requset from</th>
+                                <th>Line # Start-end / rows</th>
+                                <th>DB rows / % of log</th>
+                                <th>DB request from</th>
                                 <th>Length (days)</th>
                                 <th>Interval : ratio (min)</th>
-                                <th>Matches / Number of measurements</th>
                                 <th>Start time match</th>
                                 <th>End time match</th>
+                                <th>Matches / Number of measurements</th>
                             </tr>
                         </thead>
                         <tbody>
                             @foreach ($log['log'] as $bl)
                                 @php 
-                                    $td_attr    = isset($bl['no_matches']) ? ' style="color:#999"' : '';
                                     $interv_min = isset($bl['interval_min']) ? max(1, $bl['interval_min']) : null; // min
                                     $interv_rat = isset($bl['transmission_ratio']) ? max(1, $bl['transmission_ratio']) : null; // % 
                                     $interval_m = isset($interv_min) && isset($interv_rat) ? $interv_min * $interv_rat : null;
+                                    $data_rows  = $bl['end_i'] - $bl['start_i'];
+                                    $db_row_cnt = isset($bl['dbCount']) ? $bl['dbCount'] : 0;
+                                    $db_row_perc= $data_rows > 0 ? round(100 * $db_row_cnt / $data_rows) : 0;
                                     $meas_p_day = null;
                                     $data_days  = null;
-                                    $data_rows  = $bl['end_i'] - $bl['start_i'];
+
+                                    // row color
+                                    if ($db_row_perc >= 90)
+                                        $td_attr = ' style="color:#007700"';
+                                    else if ($db_row_perc > 0)
+                                        $td_attr = ' style="color:#AA0000"';
+                                    else
+                                        $td_attr = ' style="color:#999"';
+
+                                    // interval calculation
                                     if ($interval_m)
                                     {
                                         $meas_p_day = round(24 * 60 / $interval_m);
@@ -177,10 +189,13 @@
                                 <tr>
                                     <td {!! $td_attr !!}>{{ $bl['block'] }}</td>
                                     <td {!! $td_attr !!}>{{ $bl['fw_version'] }}</td>
-                                    <td {!! $td_attr !!}>{{ $bl['start_i'] }}->{{ $bl['end_i'] }}<br>= {{ $data_rows }} lines</td>
+                                    <td {!! $td_attr !!}>{{ $bl['start_i'] }}->{{ $bl['end_i'] }}<br>={{ $data_rows }} rows</td>
+                                    <td {!! $td_attr !!}>{{ $db_row_cnt }}<br><span style="font-weight: bold;">={{ $db_row_perc }}% in DB</span></td>
                                     <td {!! $td_attr !!}>{{ isset($bl['db_time']) ? $bl['db_time'] : '-' }}</td>
                                     <td {!! $td_attr !!}>{{ $data_days }}<br>{{ $meas_p_day }} p/day</td>
-                                    <td {!! $td_attr !!}>{{ $interval_m }} (= {{ $interv_min }} x {{ $interv_rat}})</td>
+                                    <td {!! $td_attr !!}>{{ $interval_m }} (={{ $interv_min }} x {{ $interv_rat}})</td>
+                                    <td {!! $td_attr !!}>{{ isset($bl['time_start']) ? $bl['time_start'] : '-' }}</td>
+                                    <td {!! $td_attr !!}>{{ isset($bl['time_end']) ? $bl['time_end'] : '-' }}</td>
                                     <td {!! $td_attr !!}>
                                         <div style="font-size: 10px;">
                                         @if (isset($bl['match']['message'])) 
@@ -201,8 +216,6 @@
                                         @endif
                                         </div>
                                     </td>
-                                    <td {!! $td_attr !!}>{{ isset($bl['time_start']) ? $bl['time_start'] : '-' }}</td>
-                                    <td {!! $td_attr !!}>{{ isset($bl['time_end']) ? $bl['time_end'] : '-' }}</td>
                                 </tr>
                             @endforeach
                         </tbody>

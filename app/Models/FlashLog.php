@@ -194,7 +194,10 @@ class FlashLog extends Model
                 foreach ($sensor_defs as $sd) 
                 {
                     if (isset($sd->output_abbr) && isset($data_array[$sd->input_abbr]) && (!isset($data_array[$sd->output_abbr]) || $sd->input_measurement_id == $sd->output_measurement_id))
+                    {
+                        $date       = isset($data_array['time']) ? $data_array['time'] : null;
                         $data_array = $device->addSensorDefinitionMeasurements($data_array, $data_array[$sd->input_abbr], $sd->input_measurement_id, $data_array['time'], $sensor_defs_all);
+                    }
                 }
 
                 $out[] = $data_array;

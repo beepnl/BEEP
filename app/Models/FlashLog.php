@@ -531,7 +531,7 @@ class FlashLog extends Model
                     $db_max    = max($matches_min, min($db_records, $indexes));
                 }
 
-                $matches = $this->matchFlashLogTime($device_id, $flashlog, $matches_min, $match_props, $start_index, $end_index, $$db_q_time, $db_max);
+                $matches = $this->matchFlashLogTime($device_id, $flashlog, $matches_min, $match_props, $start_index, $end_index, $db_q_time, $db_max);
                 
                 if (count($matches) > 0)
                 {

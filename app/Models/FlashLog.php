@@ -518,16 +518,16 @@ class FlashLog extends Model
 
             if ($start_index >= $fl_index)
             {
-                if ($indexes > 2 * $db_records) // only set time to 1/3rd of interval if > 2 * amount of indexes 
-                {
-                    $db_moment = new Moment($db_time);
-                    $db_time   = $db_moment->addMinutes(round($duration_min/3))->format($this->timeFormat);
-                    $db_max    = max($matches_min, min($db_records, $indexes/2));
-                }
-                else
-                {
-                    $db_max  = max($matches_min, min($db_records, $indexes));
-                }
+                // if ($indexes > 2 * $db_records) // only set time to 1/2 of interval if > 2 * amount of indexes 
+                // {
+                //     $db_time   = $db_moment->addMinutes(round($duration_min/2))->format($this->timeFormat);
+                //     $db_max    = max($matches_min, min($db_records, $indexes/2));
+                // }
+                // else
+                // {
+                $db_moment = new Moment($db_time);
+                $db_max    = max($matches_min, min($db_records, $indexes));
+                // }
 
                 $matches = $this->matchFlashLogTime($device_id, $flashlog, $matches_min, $match_props, $start_index, $end_index, $db_time, $db_max);
                 
@@ -544,7 +544,7 @@ class FlashLog extends Model
 
                         if (isset($block['index_end']))
                         {
-                            
+                            // A match is found
                             if ($show)
                                 $log[] = ['fillDataGaps', 'block'=> $i, 'block_i'=>$block_index, 'start_i'=>$start_index, 'end_i'=>$end_index, 'duration_hours'=>$duration_hrs, 'fl_i'=>$fl_index, 'fw_version'=>$on['firmware_version'], 'interval_min'=>$on['measurement_interval_min'], 'transmission_ratio'=>$on['measurement_transmission_ratio'], 'index_start'=>$block['index_start'], 'index_end'=>$block['index_end'], 'time_start'=>$block['time_start'], 'time_end'=>$block['time_end'], 'setCount'=>$block['setCount'], 'matches'=>$matches, 'dbCount'=>$block['dbCount']];
 
@@ -556,6 +556,8 @@ class FlashLog extends Model
                         {
                             if ($show)
                                 $log[] = ['block'=> $i, 'block_i'=>$block_index, 'start_i'=>$start_index, 'end_i'=>$end_index, 'duration_hours'=>$duration_hrs, 'fl_i'=>$fl_index, 'db_time'=>$db_time, 'fw_version'=>$on['firmware_version'], 'interval_min'=>$on['measurement_interval_min'], 'transmission_ratio'=>$on['measurement_transmission_ratio']];
+
+                            $db_time = $db_moment->addMinutes($duration_min)->format($this->timeFormat);
                         }
                     }
                     else
@@ -563,12 +565,16 @@ class FlashLog extends Model
                         //die(print_r($matches));
                         if ($show)
                             $log[] = ['block'=> $i, 'block_i'=>$block_index, 'start_i'=>$start_index, 'end_i'=>$end_index, 'duration_hours'=>$duration_hrs, 'fl_i'=>$fl_index, 'db_time'=>$db_time, 'fw_version'=>$on['firmware_version'], 'interval_min'=>$on['measurement_interval_min'], 'transmission_ratio'=>$on['measurement_transmission_ratio'], 'no_matches'=>'fl_i and time of match not set', 'match'=>$matches];
+
+                        $db_time = $db_moment->addMinutes($duration_min)->format($this->timeFormat);
                     }
                 }
                 else
                 {
                     if ($show)
                         $log[] = ['block'=> $i, 'block_i'=>$block_index, 'start_i'=>$start_index, 'end_i'=>$end_index, 'duration_hours'=>$duration_hrs, 'fl_i'=>$fl_index, 'db_time'=>$db_time, 'fw_version'=>$on['firmware_version'], 'interval_min'=>$on['measurement_interval_min'], 'transmission_ratio'=>$on['measurement_transmission_ratio'], 'no_matches'=>$matches];
+
+                    $db_time = $db_moment->addMinutes($duration_min)->format($this->timeFormat);
                 }
             }
             else

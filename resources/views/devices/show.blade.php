@@ -153,7 +153,7 @@
                                 <th>DB rows / % of log</th>
                                 <th>DB request from</th>
                                 <th>Length (days)</th>
-                                <th>Interval : ratio (min)</th>
+                                <th>Interval : send ratio (min)</th>
                                 <th>Start time match</th>
                                 <th>End time match</th>
                                 <th>Matches / Number of measurements</th>

@@ -441,10 +441,13 @@ class FlashLog extends Model
                     }
 
                     // Add sensor definition measurement if not yet present (or if input_measurement_id == output_measurement_id) 
-                    foreach ($sensor_defs as $sd) 
+                    if (isset($fl['time']))
                     {
-                        if (isset($sd->output_abbr) && isset($fl[$sd->input_abbr]) && (!isset($fl[$sd->output_abbr]) || $sd->input_measurement_id == $sd->output_measurement_id))
-                            $fl = $device->addSensorDefinitionMeasurements($fl, $fl[$sd->input_abbr], $sd->input_measurement_id, $fl['time'], $sensor_defs_all);
+                        foreach ($sensor_defs as $sd) 
+                        {
+                            if (isset($sd->output_abbr) && isset($fl[$sd->input_abbr]) && (!isset($fl[$sd->output_abbr]) || $sd->input_measurement_id == $sd->output_measurement_id))
+                                $fl = $device->addSensorDefinitionMeasurements($fl, $fl[$sd->input_abbr], $sd->input_measurement_id, $fl['time'], $sensor_defs_all);
+                        }
                     }
                     
                     if ($fl['port'] == 3)
@@ -515,13 +518,17 @@ class FlashLog extends Model
 
             if ($start_index >= $fl_index)
             {
-                if ($indexes > 2 * $db_records) // only set time to middle of interval if > 2 * amount of indexes 
+                if ($indexes > 2 * $db_records) // only set time to 1/3rd of interval if > 2 * amount of indexes 
                 {
                     $db_moment = new Moment($db_time);
-                    $db_time   = $db_moment->addMinutes(round($duration_min/2))->format($this->timeFormat);
+                    $db_time   = $db_moment->addMinutes(round($duration_min/3))->format($this->timeFormat);
+                    $db_max    = max($matches_min, min($db_records, $indexes/2));
+                }
+                else
+                {
+                    $db_max  = max($matches_min, min($db_records, $indexes));
                 }
 
-                $db_max  = max($matches_min, min($db_records, $indexes));
                 $matches = $this->matchFlashLogTime($device_id, $flashlog, $matches_min, $match_props, $start_index, $end_index, $db_time, $db_max);
                 
                 if (count($matches) > 0)

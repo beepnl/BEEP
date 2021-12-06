@@ -330,7 +330,7 @@ class FlashLog extends Model
     {
         $matches     = [];
         $device      = Device::find($device_id);
-        $query       = 'SELECT * FROM "sensors" WHERE '.$device->influxWhereKeys().' AND time >= \''.$start_time.'\' ORDER BY time ASC LIMIT '.min(100, max($matches_min, $db_records));
+        $query       = 'SELECT * FROM "sensors" WHERE '.$device->influxWhereKeys().' AND time >= \''.$start_time.'\' ORDER BY time ASC LIMIT '.min(500, max($matches_min, $db_records));
         $db_data     = Device::getInfluxQuery($query, 'flashlog');
         $fl_index    = $start_index;
         $fl_index_end= $end_index;
@@ -518,18 +518,20 @@ class FlashLog extends Model
 
             if ($start_index >= $fl_index)
             {
-                // if ($indexes > 2 * $db_records) // only set time to 1/2 of interval if > 2 * amount of indexes 
-                // {
-                //     $db_time   = $db_moment->addMinutes(round($duration_min/2))->format($this->timeFormat);
-                //     $db_max    = max($matches_min, min($db_records, $indexes/2));
-                // }
-                // else
-                // {
                 $db_moment = new Moment($db_time);
-                $db_max    = max($matches_min, min($db_records, $indexes));
-                // }
 
-                $matches = $this->matchFlashLogTime($device_id, $flashlog, $matches_min, $match_props, $start_index, $end_index, $db_time, $db_max);
+                if ($indexes > 2 * $db_records) // only set time to 1/2 of interval if > 2 * amount of indexes 
+                {
+                    $db_q_time = $db_moment->addMinutes(round($duration_min/2))->format($this->timeFormat);
+                    $db_max    = max($matches_min, min($db_records, $indexes/2));
+                }
+                else
+                {
+                    $db_q_time = $db_time;
+                    $db_max    = max($matches_min, min($db_records, $indexes));
+                }
+
+                $matches = $this->matchFlashLogTime($device_id, $flashlog, $matches_min, $match_props, $start_index, $end_index, $$db_q_time, $db_max);
                 
                 if (count($matches) > 0)
                 {

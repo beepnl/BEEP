@@ -25,7 +25,7 @@ class DeviceController extends Controller
         $keyword     = $request->get('search');
         $search_user = $request->get('user');
         $search_res  = $request->get('research');
-        $perPage     = 50;
+        $perPage     = 100;
         $devices     = Device::where('id', '!=', null);
 
         $research_id = null;

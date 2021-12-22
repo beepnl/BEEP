@@ -84,10 +84,10 @@
                             <th class="row-header"><span><i class="fa fa-2x fa-feed"></i> Devices ({{ $totals['devices'] }})</span></th> 
                         </tr>
                         <tr>
-                            <th class="row-header"><span><i class="fa fa-2x fa-line-chart"></i> Measurements ({{ $totals['measurements'] }})</span></th> 
+                            <th class="row-header"><span><i class="fa fa-2x fa-list"></i> Flash logs ({{ $totals['flashlogs'] }})</span></th> 
                         </tr>
                         <tr>
-                            <th class="row-header"><span><i class="fa fa-2x fa-list"></i> Flash logs ({{ $totals['flashlogs'] }})</span></th> 
+                            <th class="row-header"><span><i class="fa fa-2x fa-line-chart"></i> Measurements ({{ $totals['measurements'] }})</span></th> 
                         </tr>
                         <tr>
                             <th class="row-header"><span><i class="fa fa-2x fa-thermometer"></i> Weather data ({{ $totals['weather'] }})</span></th> 
@@ -137,12 +137,12 @@
                         </tr>
                         <tr>
                             @foreach($dates as $date => $d)
-                                <td>{{ $d['measurements'] > 0 ? $d['measurements'] : '' }}</td>
+                                <td>{{ $d['flashlogs'] > 0 ? $d['flashlogs'] : '' }}</td>
                             @endforeach
                         </tr>
                         <tr>
                             @foreach($dates as $date => $d)
-                                <td>{{ $d['flashlogs'] > 0 ? $d['flashlogs'] : '' }}</td>
+                                <td>{{ $d['measurements'] > 0 ? $d['measurements'] : '' }}</td>
                             @endforeach
                         </tr>
                         <tr>
@@ -177,10 +177,10 @@
 
                             <div class="row">
                                 <div class="col-xs-6">
-                                    <button name="download-meta" value="1" class="btn btn-default btn-block loading-spinner" type="submit" data-loading-text="<i class='fa fa-circle-o-notch fa-spin'></i>"><i class="fa fa-file-excel-o" aria-hidden="true"></i> Download selected Meta data (Excel)</button>
+                                    <button name="download-meta" value="1" class="btn btn-info btn-block loading-spinner" type="submit" data-loading-text="<i class='fa fa-circle-o-notch fa-spin'></i>"><i class="fa fa-download" aria-hidden="true"></i> Download selected Meta data Excel (faster)</button>
                                 </div>
                                 <div class="col-xs-6">
-                                    <button name="download-all" value="1" class="btn btn-default btn-block loading-spinner" type="submit" data-loading-text="<i class='fa fa-circle-o-notch fa-spin'></i>"><i class="fa fa-download" aria-hidden="true"></i> Download all data meta + measurements (Excel + CSVs)</button>
+                                    <button name="download-all" value="1" class="btn btn-danger btn-block loading-spinner" type="submit" data-loading-text="<i class='fa fa-circle-o-notch fa-spin'></i>"><i class="fa fa-download" aria-hidden="true"></i> Download all Meta + Measurements data Excel + CSVs (cam take a few minutes)</button>
                                 </div>
                             </div>
                         </div>
@@ -193,7 +193,7 @@
                     <a href="{{$download_url}}" target="_blank"><i class="fa fa-download"></i> <i class="fa fa-file-excel-o"></i> Download selected meta data Excel file</a>
                     <div style="display:block; height: 10px;"></div>
                     @if(count($sensor_urls) > 0)
-                        <h4>Sensor and weather data (CSV)</h4>
+                        <h4>Measurements and Weather data (CSV)</h4>
                         <p>Exported CSV files are saved per device/location per consent period. 
                             All data per device in the highest possible resolution as comma separated (,) .csv file that you can open in Excel, or SPSS.
                             <br>

@@ -50,7 +50,7 @@
                     <div class="col-xs-12">
                         <div class="form-group">
                             <br>
-                            <button class="btn btn-primary btn-block" type="submit"><i class="fa fa-refresh" aria-hidden="true"></i> Reload consent data table</button>
+                            <button class="btn btn-primary btn-block loading-spinner" type="submit" data-loading-text="<i class='fa fa-circle-o-notch fa-spin'></i>"><i class="fa fa-refresh" aria-hidden="true"></i> Reload consent data table</button>
                         </div>
                     </div>
                 </form>
@@ -177,7 +177,7 @@
 
                             <div class="row">
                                 <div class="col-xs-6">
-                                    <button name="download-meta" value="1" class="btn btn-info btn-block loading-spinner" type="submit" data-loading-text="<i class='fa fa-circle-o-notch fa-spin'></i>"><i class="fa fa-download" aria-hidden="true"></i> Download selected Meta data Excel (faster)</button>
+                                    <button name="download-meta" value="1" class="btn btn-success btn-block loading-spinner" type="submit" data-loading-text="<i class='fa fa-circle-o-notch fa-spin'></i>"><i class="fa fa-download" aria-hidden="true"></i> Download selected Meta data Excel (faster)</button>
                                 </div>
                                 <div class="col-xs-6">
                                     <button name="download-all" value="1" class="btn btn-danger btn-block loading-spinner" type="submit" data-loading-text="<i class='fa fa-circle-o-notch fa-spin'></i>"><i class="fa fa-download" aria-hidden="true"></i> Download all Meta + Measurements data Excel + CSVs (can take a few minutes)</button>

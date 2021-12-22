@@ -78,6 +78,9 @@
                             <th class="row-header"><span><i class="fa fa-2x fa-edit"></i> Inspections ({{ $totals['inspections'] }})</span></th> 
                         </tr>
                         <tr>
+                            <th class="row-header"><span><i class="fa fa-2x fa-qrcode"></i> Sample codes ({{ $totals['samplecodes'] }})</span></th> 
+                        </tr>
+                        <tr>
                             <th class="row-header"><span><i class="fa fa-2x fa-feed"></i> Devices ({{ $totals['devices'] }})</span></th> 
                         </tr>
                         <tr>
@@ -88,9 +91,6 @@
                         </tr>
                         <tr>
                             <th class="row-header"><span><i class="fa fa-2x fa-thermometer"></i> Weather data ({{ $totals['weather'] }})</span></th> 
-                        </tr>
-                        <tr>
-                            <th class="row-header"><span><i class="fa fa-2x fa-qrcode"></i> Sample codes ({{ $totals['samplecodes'] }})</span></th> 
                         </tr>
                     </tbody>
                 </table>
@@ -127,6 +127,11 @@
                         </tr>
                         <tr>
                             @foreach($dates as $date => $d)
+                                <td>{{ $d['samplecodes'] > 0 ? $d['samplecodes'] : '' }}</td>
+                            @endforeach
+                        </tr>
+                        <tr>
+                            @foreach($dates as $date => $d)
                                 <td>{{ $d['devices'] > 0 ? $d['devices'] : '' }}</td>
                             @endforeach
                         </tr>
@@ -143,11 +148,6 @@
                         <tr>
                             @foreach($dates as $date => $d)
                                 <td>{{ $d['weather'] > 0 ? $d['weather'] : '' }}</td>
-                            @endforeach
-                        </tr>
-                        <tr>
-                            @foreach($dates as $date => $d)
-                                <td>{{ $d['samplecodes'] > 0 ? $d['samplecodes'] : '' }}</td>
                             @endforeach
                         </tr>
                     </tbody>

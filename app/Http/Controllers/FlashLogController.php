@@ -93,15 +93,12 @@ class FlashLogController extends Controller
     public function parse($id)
     {
         $flashlog = FlashLog::findOrFail($id);
-        $disk     = env('FLASHLOG_STORAGE', 'public');
         $out      = [];
         if(isset($flashlog->log_file))
         {
-            $file = 'flashlog/'.last(explode('/',$flashlog->log_file));
-            //die(print_r($file));
-            if (Storage::disk($disk)->exists($file))
+            $data = $flashlog->getFileContent('log_file');
+            if (isset($data))
             {
-                $data = Storage::disk($disk)->get($file);
                 $res  = $flashlog->log($data, null, true, true);
                 foreach ($res as $key => $value) {
                     $out[] = $key.'='.$value; 

@@ -24,6 +24,7 @@ return [
     'sure'          => 'Are you sure you want to delete :item :name?',
     'create'        => 'Create a new :item',
     'created'       => 'created',
+    'created_at'    => 'Created at',
     'add'           => 'Add a new :item',
     'add_a'         => 'Add a new :item',
     'none'          => 'None available',

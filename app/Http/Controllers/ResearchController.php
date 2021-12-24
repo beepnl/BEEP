@@ -147,6 +147,14 @@ class ResearchController extends Controller
     {
         $this->checkAuthorization($request);
 
+        $this->validate($request, [
+            'date_start'    => 'nullable|date',
+            'date_until'    => 'nullable|date|after:date_start',
+            'user_ids.*'    => 'nullable|exists:users,id',
+        ]);
+
+        //die(print_r($request->all()));
+
         if ($request->user()->hasRole('superadmin'))
             $research = Research::findOrFail($id);
         else
@@ -154,8 +162,8 @@ class ResearchController extends Controller
 
         $download_url = null;
         $sensor_urls  = [];
-        $download     = $request->has('download');
-        $sensordata   = true; //$request->has('sensordata');
+        $download     = $request->has('download-meta') || $request->has('download-all') ? true : false;
+        $sensordata   = $request->has('download-all');
 
         // Make dates table
         $dates  = [];
@@ -196,6 +204,8 @@ class ResearchController extends Controller
         // select users
         if ($request->has('user_ids'))
             $consent_users_selected = $request->input('user_ids');
+        else if ($id == 1)
+            $consent_users_selected = [2152,2100,2554,2759,1592,2713,2142,2383]; // B-GOOD WP1 T1 users
         else if (count($consent_users_select) > 0)
             $consent_users_selected = [array_keys($consent_users_select)[0]];
 
@@ -210,7 +220,7 @@ class ResearchController extends Controller
 
         //die(print_r([$request->input('user_ids'), $consent_users_selected, $users]));
         // Fill dates array
-        $assets = ["users"=>0, "apiaries"=>0, "hives"=>0, "inspections"=>0, "devices"=>0, "measurements"=>0, "weather"=>0, "flashlogs"=>0];
+        $assets = ["users"=>0, "apiaries"=>0, "hives"=>0, "inspections"=>0, "devices"=>0, "measurements"=>0, "weather"=>0, "flashlogs"=>0, "samplecodes"=>0];
 
         $moment = $moment_start;
         while($moment < $moment_end)
@@ -287,6 +297,7 @@ class ResearchController extends Controller
                             __('export.type'),
                             'Location_id',
                             __('export.color'),
+                            'Queen_id',
                             __('export.queen'),
                             __('export.queen_color'),
                             __('export.queen_born'),
@@ -297,6 +308,25 @@ class ResearchController extends Controller
                             __('export.frames'),
                             __('export.created_at'),
                             __('export.deleted_at')]
+                        ];
+
+            $spreadsheet_array['Sample codes'] = [
+                           ['User_id',
+                            'Sample code',
+                            'Sample date',
+                            'Country code',
+                            'Location_id',
+                            'Location_name',
+                            'Hive_id',
+                            'Hive_name',
+                            'Queen_id',
+                            'Sample note',
+                            'Test type',
+                            'Test date',
+                            'Test result',
+                            'Test lab name',
+                            __('export.updated_at'),
+                            __('export.created_at')]
                         ];
 
             $spreadsheet_array[__('export.inspections')] = [
@@ -425,9 +455,12 @@ class ResearchController extends Controller
             $user_hives        = $user->hives()->where('created_at', '<', $date_until)->orderBy('created_at')->get();
             $user_devices      = $user->devices()->where('created_at', '<', $date_until)->orderBy('created_at')->get();
             $user_flashlogs    = FlashLog::where('user_id', $user_id)->where('created_at', '>=', $date_start)->where('created_at', '<', $date_until)->orderBy('created_at')->get();
+            $user_samplecodes  = $user->samplecodes()->where('sample_date', '>=', $date_start)->where('sample_date', '<', $date_until)->orderBy('sample_date')->get();
             $user_measurements = [];
             $user_weather_data = [];
             
+            //die(print_r($user_samplecodes->toArray()));
+
             // add hive inspections (also from collaborators)
             $hive_inspection_ids = [];
             foreach ($user_hives as $hive)
@@ -564,6 +597,9 @@ class ResearchController extends Controller
                         foreach ($flash as $fla)
                             $spreadsheet_array['Sensor Flashlogs'][] = $fla;
                         
+                        $sampe = $this->getSampleCodes($user_id, $user_samplecodes, $date_curr_consent, $date_next_consent);
+                        foreach ($sampe as $sam)
+                            $spreadsheet_array['Sample codes'][] = $sam;
 
                         if ($sensordata && $user_devices->count() > 0)
                         {
@@ -618,6 +654,9 @@ class ResearchController extends Controller
                     
                     $flashlogs_today          = $user_flashlogs->where('created_at', '>=', $d_start)->where('created_at', '<=', $d_end)->count();
                     $dates[$d]['flashlogs']   = $v['flashlogs'] + $flashlogs_today;
+
+                    $samplecodes_today        = $user_samplecodes->where('sample_date', '>=', $d_start)->where('sample_date', '<=', $d_end)->count();
+                    $dates[$d]['samplecodes'] = $v['samplecodes'] + $samplecodes_today;
                     
                     if (in_array($d, array_keys($user_measurements)))
                         $dates[$d]['measurements']= $v['measurements'] + $user_measurements[$d];
@@ -641,7 +680,7 @@ class ResearchController extends Controller
         {
             foreach ($day_arr as $asset => $count) 
             {
-                if ($asset == 'inspections' || $asset == 'measurements' || $asset == 'weather')
+                if ($asset == 'inspections' || $asset == 'measurements' || $asset == 'weather' || $asset == 'samplecodes')
                     $totals[$asset] += $count;
                 else
                     $totals[$asset] = max($totals[$asset], $count);
@@ -853,6 +892,7 @@ class ResearchController extends Controller
                 $item->type,
                 $item->location_id,
                 $item->color,
+                isset($queen) ? $queen->id : '',
                 isset($queen) ? $queen->name : '',
                 isset($queen) ? $queen->color : '',
                 isset($queen) ? $queen->created_at : '',
@@ -862,7 +902,46 @@ class ResearchController extends Controller
                 $item->getHoneylayersAttribute(),
                 $item->frames()->count(),
                 $item->created_at,
-                $item->deleted_at,
+                $item->deleted_at
+            ];
+        });
+    }
+
+    private function getSampleCodes($user_id, $samplecodes, $date_start=null, $date_until=null)
+    {
+        return $samplecodes->where('sample_date', '<=', $date_until)->sortByDesc('sample_date')->sortByDesc('sample_date')->sortBy('hive_id')->map(function($item) use ($user_id)
+        {
+            $hive      = $item->hive;
+            $hive_name = isset($hive) ? $hive->name : '';
+            $loc_id    = '';
+            $loc_name  = '';
+            $loc_cc    = '';
+
+            if (isset($hive->location_id))
+            {
+                $loc_id    = $hive->location_id;
+                $loc_name  = $hive->location;
+                $loc       = Location::find($hive->location_id);
+                $loc_cc    = strtoupper($loc->country_code);
+            }
+
+            return [
+                $user_id,
+                $item->sample_code, 
+                $item->sample_date,
+                $loc_cc,
+                $loc_id,
+                $loc_name,
+                $item->hive_id,
+                $hive_name,
+                $item->queen_id,
+                $item->smple_note,
+                $item->test,
+                $item->test_date,
+                $item->test_result,
+                $item->test_lab_name,
+                $item->created_at,
+                $item->updated_at
             ];
         });
     }
@@ -894,7 +973,7 @@ class ResearchController extends Controller
 
     private function getFlashlogs($user_id, $flashlogs, $date_start=null, $date_until=null)
     {
-        return $flashlogs->where('created_at', '<=', $date_until)->sortBy('name')->map(function($item) use ($user_id)
+        return $flashlogs->where('created_at', '<=', $date_until)->sortByDesc('created_at')->sortBy('device_id')->map(function($item) use ($user_id)
         {
             return [
                 $user_id,
@@ -909,7 +988,7 @@ class ResearchController extends Controller
                 $item->log_file_stripped,
                 $item->log_file_parsed,
                 $item->created_at,
-                $item->deleted_at,
+                $item->deleted_at
             ];
         });
     }

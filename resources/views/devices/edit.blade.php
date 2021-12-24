@@ -44,7 +44,7 @@
         <div class="col-xs-12 col-sm-6 col-md-4">
             <div class="form-group">
                 <label>{{ __('general.User') }}</label>
-                {!! Form::select('user_id', $users, $item->user_id, array('placeholder'=>__('crud.select', ['item'=>__('general.user')]),'class' => 'form-control select2')) !!}
+                {!! Form::select('user_id', App\User::selectlist(), $item->user_id, array('placeholder'=>__('crud.select', ['item'=>__('general.user')]),'class' => 'form-control select2')) !!}
             </div>
         </div>
         <div class="col-xs-12 col-sm-6 col-md-4">

@@ -10,6 +10,7 @@ use Cache;
 use Auth;
 use InfluxDB;
 use App\Models\Alert;
+use App\Models\FlashLog;
 use Moment\Moment;
 
 class Device extends Model
@@ -181,6 +182,11 @@ class Device extends Model
         return $this->hasMany(Alert::class);
     }
 
+    public function flashLogs()
+    {
+        return $this->hasMany(FlashLog::class);
+    }
+
     public function getRefreshMin()
     {
         $int_min = isset($this->measurement_interval_min) ? $this->measurement_interval_min : 0;
@@ -268,7 +274,7 @@ class Device extends Model
 
         // Get values from Influx
         $where_limit   = isset($limit) ? ' LIMIT '.$limit : '';
-        $where         = '("key" = \''.$this->key.'\' OR "key" = \''.strtolower($this->key).'\' OR "key" = \''.strtoupper($this->key).'\')';
+        $where         = $this->influxWhereKeys();
         $where_time    = isset($start) ? 'AND time >= \''.$start.'\' ' : '';
         $group_by_time = 'GROUP BY time('.$time_int_min.'m) ';
 
@@ -433,7 +439,7 @@ class Device extends Model
         $output = null;
         try
         {
-            $query  = 'SELECT '.$fields.' from "sensors" WHERE ("key" = \''.$this->key.'\' OR "key" = \''.strtolower($this->key).'\' OR "key" = \''.strtoupper($this->key).'\') AND time > now() - 365d '.$groupby.' ORDER BY time DESC LIMIT '.$limit;
+            $query  = 'SELECT '.$fields.' from "sensors" WHERE '.$this->influxWhereKeys().' AND time > now() - 365d '.$groupby.' ORDER BY time DESC LIMIT '.$limit;
             //die(print_r($query));
             $values = Device::getInfluxQuery($query, 'last');
             //die(print_r($values));
@@ -449,6 +455,22 @@ class Device extends Model
         Cache::put('last-values-'.$cache_name, $output, 86400);
 
         return $output;
+    }
+
+    public function getMeasurementCount($from='2019-01-01 00:00:00', $to=null)
+    {
+        $where       = $this->influxWhereKeys();
+        $where_time  = isset($from) ? 'AND time >= \''.$from.'\' ' : '';
+        $where_time .= isset($to) ?  'AND time <= \''.$to.'\' ' : 'AND time <= \''.date('Y-m-d H:i:s').'\' ';
+        $group_by_time = 'GROUP BY time(24h) ';
+
+        $query = 'SELECT count("bv") AS "cnt" FROM "sensors" WHERE '.$where.' '.$where_time;
+        $cnt = Device::getInfluxQuery($query, 'measurement_count');
+        //die(print_r($cnt));
+        if (isset($cnt) && isset($cnt[0]['cnt']))
+            return intval($cnt[0]['cnt']);
+
+        return 0;
     }
 
     public function addSensorDefinitionMeasurements($data_array, $value, $input_measurement_id=null, $date=null, $sensor_defs=null)

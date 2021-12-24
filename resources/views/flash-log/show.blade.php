@@ -22,6 +22,8 @@
                     <tr>
                         <th>ID</th><td>{{ $flashlog->id }}</td>
                     </tr>
+                    <tr><th> Created at </th><td> {{ $flashlog->created_at }} </td></tr>
+                    <tr><th> Updated at </th><td> {{ $flashlog->updated_at }} </td></tr>
                     <tr><th> User Id </th><td> {{ $flashlog->user_id }} </td></tr>
                     <tr><th> Device Id </th><td> {{ $flashlog->device_id }} </td></tr>
                     <tr><th> Hive Id </th><td> {{ $flashlog->hive_id }} </td></tr>

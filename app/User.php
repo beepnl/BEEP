@@ -15,6 +15,7 @@ use App\Models\Alert;
 use App\Models\AlertRule;
 
 use DB;
+use Auth;
 
 class User extends Authenticatable
 {
@@ -285,8 +286,22 @@ class User extends Authenticatable
         $this->notify(new ResetPassword($token)); // my notification
     }
 
-    public static function selectList()
+    public static function selectList($index='id')
     {
-        return User::orderBy('name')->pluck('name','id');
+        if (Auth::user()->hasRole('superadmin'))
+        {
+            $users = User::orderBy('name')->get();
+            $array = [];
+            foreach ($users as $u) 
+            {
+                if ($u->name != $u->email)
+                    $array[$u[$index]] = $u->name.' ('.$u->email.')';
+                else
+                    $array[$u[$index]] = $u->email;
+            }
+            return $array;
+        }
+        
+        return Auth::user()->pluck('name','id');
     }
 }

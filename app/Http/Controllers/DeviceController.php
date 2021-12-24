@@ -10,6 +10,7 @@ use App\User;
 use App\Research;
 use App\Hive;
 use App\Location;
+use App\Models\FlashLog;
 
 class DeviceController extends Controller
 {
@@ -24,13 +25,14 @@ class DeviceController extends Controller
         $keyword     = $request->get('search');
         $search_user = $request->get('user');
         $search_res  = $request->get('research');
-        $perPage     = 50;
+        $perPage     = 100;
         $devices     = Device::where('id', '!=', null);
 
         $research_id = null;
         if (!empty($search_res)) 
         {
             $researches = Research::where('name', 'LIKE', "%$search_res%")
+                            ->orWhere('id', 'LIKE', "%$search_res%")
                             ->orWhere('institution', 'LIKE', "%$search_res%")
                             ->orWhere('description', 'LIKE', "%$search_res%")
                             ->orWhere('type', 'LIKE', "%$search_res%")
@@ -64,6 +66,7 @@ class DeviceController extends Controller
         if (!empty($keyword)) 
         {
             $devices = $devices->where('hive_id', 'LIKE', "%$keyword%")
+                                ->orWhere('id', 'LIKE', "%$keyword%")
                                 ->orWhere('name', 'LIKE', "%$keyword%")
                                 ->orWhere('key', 'LIKE', "%$keyword%")
                                 ->orWhere('former_key_list', 'LIKE', "%$keyword%")
@@ -136,6 +139,37 @@ class DeviceController extends Controller
     {
         $item = Device::find($id);
         return view('devices.show',compact('item'));
+    }
+
+
+    public function flashlog(Request $request, $id, $fl_id)
+    {
+        $matches_min = $request->input('matches_min', env('FLASHLOG_MIN_MATCHES', 2)); // minimum amount of inline measurements that should be matched 
+        $match_props = $request->input('match_props', env('FLASHLOG_MATCH_PROPS', 7)); // minimum amount of measurement properties that should match 
+        $db_records  = $request->input('db_records', env('FLASHLOG_DB_RECORDS', 15));// amount of DB records to fetch to match each block
+        $save_result = boolval($request->input('save_result', false));
+
+        $item     = Device::find($id);
+        $flashlog = FlashLog::find($fl_id);
+        $log      = null;
+
+        if ($flashlog)
+        {
+            if(isset($flashlog->log_file))
+            {
+                $data = $flashlog->getFileContent('log_file');
+                if (isset($data))
+                    $log = $flashlog->log($data, null, $save_result, true, true, $matches_min, $match_props, $db_records, $save_result); // $data, $log_bytes=null, $save=true, $fill=false, $show=false
+                else
+                    return redirect()->route('devices.show', $id)->with('error', 'Flashlog file \''.$flashlog->log_file.'\' not found');
+            }
+            else
+            {
+                return redirect()->route('devices.show', $id)->with('error', 'No flashlog file present, nothing to parse');
+            }
+        }
+
+        return view('devices.show',compact('item','flashlog','log', 'matches_min', 'match_props', 'db_records', 'save_result'));
     }
 
     /**

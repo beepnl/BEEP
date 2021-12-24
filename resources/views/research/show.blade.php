@@ -1,6 +1,9 @@
 @extends('layouts.app')
 
 @section('page-title') {{ __('beep.Research').': '.(isset($research->name) ? $research->name : __('general.Item')).' (ID: '.$research->id.')' }}
+    @permission('role-edit')
+        <a href="{{ route('research.edit', $research->id) }}" title="{{ __('crud.edit') }}"><button class="btn btn-primary pull-right"><i class="fa fa-pencil" aria-hidden="true"></i></button></a>
+    @endpermission
 @endsection
 
 @section('content')
@@ -10,9 +13,6 @@
         @endslot
 
         @slot('action')
-            @permission('role-edit')
-                <a href="{{ route('research.edit', $research->id) }}" title="{{ __('crud.edit') }}"><button class="btn btn-primary"><i class="fa fa-pencil" aria-hidden="true"></i></button></a>
-            @endpermission
         @endslot
 
         @slot('body')
@@ -30,7 +30,7 @@
                     <div class="col-md-1"></div>
                     <div class="col-xs-12 col-md-3">
                         <div class="form-group {{ $errors->has('date_start') ? 'has-error' : ''}}">
-                            <label for="date_start" control-label>{{ 'From date (filters inspections/measurements/weather data)' }}</label>
+                            <label for="date_start" control-label>{{ 'From date (filters insp./meas./weather data)' }}</label>
                             <div>
                                 <input class="form-control" name="date_start" type="date" id="date_start" min="{{substr($research->start_date, 0, 10)}}" max="{{substr($research->end_date, 0, 10)}}" value="{{ isset($date_start) ? substr($date_start, 0, 10) : '' }}" >
                                 {!! $errors->first('date_start', '<p class="help-block">:message</p>') !!}
@@ -40,7 +40,7 @@
                     <div class="col-md-1"></div>
                     <div class="col-xs-12 col-md-3">
                         <div class="form-group {{ $errors->has('date_until') ? 'has-error' : ''}}">
-                            <label for="date_until" control-label>{{ 'Until date (filters inspections/measurements/weather data)' }}</label>
+                            <label for="date_until" control-label>{{ 'Until date (filters insp./meas./weather data)' }}</label>
                             <div>
                                 <input class="form-control" name="date_until" type="date" id="date_until" min="{{substr($research->start_date, 0, 10)}}" max="{{substr($research->end_date, 0, 10)}}" value="{{ isset($date_until) ? substr($date_until, 0, 10) : '' }}" >
                                 {!! $errors->first('date_until', '<p class="help-block">:message</p>') !!}
@@ -50,7 +50,7 @@
                     <div class="col-xs-12">
                         <div class="form-group">
                             <br>
-                            <button class="btn btn-primary btn-block" type="submit"><i class="fa fa-refresh" aria-hidden="true"></i> Reload consent data table</button>
+                            <button class="btn btn-primary btn-block loading-spinner" type="submit" data-loading-text="<i class='fa fa-circle-o-notch fa-spin'></i>"><i class="fa fa-refresh" aria-hidden="true"></i> Reload consent data table</button>
                         </div>
                     </div>
                 </form>
@@ -78,13 +78,16 @@
                             <th class="row-header"><span><i class="fa fa-2x fa-edit"></i> Inspections ({{ $totals['inspections'] }})</span></th> 
                         </tr>
                         <tr>
+                            <th class="row-header"><span><i class="fa fa-2x fa-qrcode"></i> Sample codes ({{ $totals['samplecodes'] }})</span></th> 
+                        </tr>
+                        <tr>
                             <th class="row-header"><span><i class="fa fa-2x fa-feed"></i> Devices ({{ $totals['devices'] }})</span></th> 
                         </tr>
                         <tr>
-                            <th class="row-header"><span><i class="fa fa-2x fa-line-chart"></i> Measurements ({{ $totals['measurements'] }})</span></th> 
+                            <th class="row-header"><span><i class="fa fa-2x fa-list"></i> Flash logs ({{ $totals['flashlogs'] }})</span></th> 
                         </tr>
                         <tr>
-                            <th class="row-header"><span><i class="fa fa-2x fa-list"></i> Flash logs ({{ $totals['flashlogs'] }})</span></th> 
+                            <th class="row-header"><span><i class="fa fa-2x fa-line-chart"></i> Measurements ({{ $totals['measurements'] }})</span></th> 
                         </tr>
                         <tr>
                             <th class="row-header"><span><i class="fa fa-2x fa-thermometer"></i> Weather data ({{ $totals['weather'] }})</span></th> 
@@ -124,17 +127,22 @@
                         </tr>
                         <tr>
                             @foreach($dates as $date => $d)
+                                <td>{{ $d['samplecodes'] > 0 ? $d['samplecodes'] : '' }}</td>
+                            @endforeach
+                        </tr>
+                        <tr>
+                            @foreach($dates as $date => $d)
                                 <td>{{ $d['devices'] > 0 ? $d['devices'] : '' }}</td>
                             @endforeach
                         </tr>
                         <tr>
                             @foreach($dates as $date => $d)
-                                <td>{{ $d['measurements'] > 0 ? $d['measurements'] : '' }}</td>
+                                <td>{{ $d['flashlogs'] > 0 ? $d['flashlogs'] : '' }}</td>
                             @endforeach
                         </tr>
                         <tr>
                             @foreach($dates as $date => $d)
-                                <td>{{ $d['flashlogs'] > 0 ? $d['flashlogs'] : '' }}</td>
+                                <td>{{ $d['measurements'] > 0 ? $d['measurements'] : '' }}</td>
                             @endforeach
                         </tr>
                         <tr>
@@ -166,20 +174,27 @@
                             @if(isset($date_until))
                                 <input name="date_until" type="hidden" value="{{substr($date_until, 0, 10)}}" >
                             @endif
-                            <input type="hidden" name="download" value="1">
-                            <button class="btn btn-default btn-block loading-spinner" type="submit" data-loading-text="<i class='fa fa-circle-o-notch fa-spin'></i>"><i class="fa fa-download" aria-hidden="true"></i> Download selected consent data set</button>
+
+                            <div class="row">
+                                <div class="col-xs-6">
+                                    <button name="download-meta" value="1" class="btn btn-success btn-block loading-spinner" type="submit" data-loading-text="<i class='fa fa-circle-o-notch fa-spin'></i>"><i class="fa fa-download" aria-hidden="true"></i> Download selected Meta data Excel (faster)</button>
+                                </div>
+                                <div class="col-xs-6">
+                                    <button name="download-all" value="1" class="btn btn-danger btn-block loading-spinner" type="submit" data-loading-text="<i class='fa fa-circle-o-notch fa-spin'></i>"><i class="fa fa-download" aria-hidden="true"></i> Download all Meta + Measurements data Excel + CSVs (can take a few minutes)</button>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </form>
                 @else
                     <h3 control-label>Download dataset</h3>
                     <br>
-                    <h4>Inspection data</h4>
-                    <a href="{{$download_url}}" target="_blank"><i class="fa fa-download"></i> Download selected consent data set</a>
+                    <h4>Meta data (Excel)</h4>
+                    <a href="{{$download_url}}" target="_blank"><i class="fa fa-download"></i> <i class="fa fa-file-excel-o"></i> Download selected meta data Excel file</a>
                     <div style="display:block; height: 10px;"></div>
                     @if(count($sensor_urls) > 0)
-                        <h4>Sensor and weather data</h4>
-                        <p>Export files are saved per device/location per consent period. 
+                        <h4>Measurements and Weather data (CSV)</h4>
+                        <p>Exported CSV files are saved per device/location per consent period. 
                             All data per device in the highest possible resolution as comma separated (,) .csv file that you can open in Excel, or SPSS.
                             <br>
                             <em>NB: The date time data in the 'time' column is in GMT time (this differs from what you see in the BEEP app), formatted by the RFC 3339 date-time standard.</em>

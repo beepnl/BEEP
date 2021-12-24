@@ -1042,6 +1042,16 @@ class MeasurementController extends Controller
         if (!isset($device))
             return Response::json('sensor-none-error', 500);
 
+        // add sensorDefinition names
+        $sensorDefinitions = [];
+        foreach ($names as $name)
+        {
+            $measurement_id   = Measurement::getIdByAbbreviation($name);
+            $sensordefinition = $device->sensorDefinitions->where('output_measurement_id', $measurement_id)->sortByDesc('updated_at')->first();
+            if ($sensordefinition)
+                $sensorDefinitions["$name"] = ['name'=>$sensordefinition->name, 'inside'=>$sensordefinition->inside];
+        }
+
         $location= $device->location();
         $names   = $request->input('names', $this->output_sensors);
         $names_w = $this->output_weather;

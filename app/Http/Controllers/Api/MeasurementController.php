@@ -1057,6 +1057,10 @@ class MeasurementController extends Controller
         $cache_sensor_names   = $intervalArr['cacheSensorNames'];
         $start_date           = $intervalArr['start'];
         $end_date             = $intervalArr['end'];
+        $interval             = $intervalArr['interval'];
+        $index                = $intervalArr['index'];
+        $timeGroup            = $intervalArr['timeGroup'];
+        $timeZone             = $intervalArr['timeZone'];
         $whereKeyAndTime      = '"key" = \''.$device->key.'\' AND time >= \''.$start_date.'\' AND time <= \''.$end_date.'\'';
 
         //die(print_r(['names'=>$names, 'names_w'=>$names_w, 'q'=>$whereKeyAndTime]));

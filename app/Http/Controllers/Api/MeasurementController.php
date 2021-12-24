@@ -1042,6 +1042,13 @@ class MeasurementController extends Controller
         if (!isset($device))
             return Response::json('sensor-none-error', 500);
 
+        $location= $device->location();
+        $names   = $request->input('names', $this->output_sensors);
+        $names_w = $this->output_weather;
+
+        if (count($names) == 0)
+            return Response::json('sensor-no-measurements-error', 500);
+
         // add sensorDefinition names
         $sensorDefinitions = [];
         foreach ($names as $name)
@@ -1052,12 +1059,6 @@ class MeasurementController extends Controller
                 $sensorDefinitions["$name"] = ['name'=>$sensordefinition->name, 'inside'=>$sensordefinition->inside];
         }
 
-        $location= $device->location();
-        $names   = $request->input('names', $this->output_sensors);
-        $names_w = $this->output_weather;
-
-        if (count($names) == 0)
-            return Response::json('sensor-no-measurements-error', 500);
 
         $groupBySelect        = null;
         $groupBySelectWeather = null;

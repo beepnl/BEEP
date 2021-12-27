@@ -32,10 +32,10 @@ class GroupController extends Controller
 
     public function checktoken(Request $request)
     {
-        $validator = Validator::make($request->only('token','group_id'), [
+        $validator = Validator::make($request->only('token','group_id','decline'), [
             'token'     => 'required|exists:group_user,token',
             'group_id'  => 'required|exists:group_user,group_id',
-            'decline'    => 'nullable|boolean',
+            'decline'   => 'nullable|boolean',
         ]);
 
         if ($validator->fails())

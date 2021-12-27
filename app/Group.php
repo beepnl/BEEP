@@ -36,13 +36,14 @@ class Group extends Model
 
     public function getUsersAttribute()
     {
-        return $this->users()->withPivot('admin', 'creator', 'invited', 'accepted', 'token')->get()->map(function ($item, $key)
+        return $this->users()->withPivot('admin', 'creator', 'invited', 'accepted', 'declined', 'token')->get()->map(function ($item, $key)
         {
             $user            = $item->only(['id','name','avatar','email']);
             $user['admin']   = (bool)$item->pivot->admin;
             $user['creator'] = (bool)$item->pivot->creator;
             $user['invited'] = $item->pivot->invited;
             $user['accepted']= $item->pivot->accepted;
+            $user['declined']= $item->pivot->declined;
             $user['token']   = ($user['id'] == Auth::user()->id) ? $item->pivot->token : null; // only if yourself, add tokens to accept group invites
 
             return $user; 

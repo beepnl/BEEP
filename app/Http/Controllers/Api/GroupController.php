@@ -30,6 +30,13 @@ class GroupController extends Controller
         return response()->json(['invitations'=>$invite, 'groups'=>$groups, 'message'=>$message, 'error'=>$error], $code);
     }
 
+    /**
+     * api/groups/checktoken POST
+     * Check a token for a group id, and accept or decline the invite
+     * @authenticated
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
     public function checktoken(Request $request)
     {
         $validator = Validator::make($request->only('token','group_id','decline'), [
@@ -47,7 +54,7 @@ class GroupController extends Controller
             $valid_data     = $validator->validated();
             $group_user_id  = DB::table('group_user')->where('token',$valid_data['token'])->where('group_id',$valid_data['group_id'])->value('user_id');
             $user_name      = User::where('id',$group_user_id)->value('name');
-            $decline        = (isset($valid_data['decline']) && $valid_data['decline']);
+            $decline        = (isset($valid_data['decline']) && boolval($valid_data['decline']) === true) ? true : false;
 
             if ($decline)
                 $res = DB::table('group_user')->where('token',$valid_data['token'])->where('group_id',$valid_data['group_id'])->update(['invited'=>null,'accepted'=>null,'declined'=>now(),'token'=>null]);
@@ -57,7 +64,8 @@ class GroupController extends Controller
             if ($res)
             {
                 $this->sendAcceptMailToGroupAdmins($valid_data['group_id'], $user_name, $group_user_id, $decline);
-                return response()->json(['message'=>'group_activated']);
+                $msg = $decline ? 'group_declined' : 'group_activated'; 
+                return response()->json(['message'=>$msg]);
             }
         }
         return response()->json('token_error',500);

@@ -6,6 +6,7 @@ use App\Models\FlashLog;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Moment\Moment;
+use Storage;
 
 /**
  * @group Api\FlashLogController
@@ -13,9 +14,9 @@ use Moment\Moment;
 class FlashLogController extends Controller
 {
     /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
+     * api/flashlogs GET
+     * Provide a list of the available flashlogs
+     * @authenticated
      */
     public function index(Request $request)
     {
@@ -23,7 +24,42 @@ class FlashLogController extends Controller
         return response()->json($flashlogs);
     }
 
+    /**
+     * api/flashlogs/{id} GET
+     * Provide the contents of the log_file_parsed property of the flashlog
+     * @authenticated
+     */
+    public function show(Request $request, $id)
+    {
+        $flashlog = $request->user()->flashlogs()->find($id);
+        $disk     = env('FLASHLOG_STORAGE', 'public');
+        $out      = [];
+        if(isset($flashlog->log_file_parsed))
+        {
+            $file = 'flashlog/'.last(explode('/',$flashlog->log_file_parsed));
+            //die(print_r($file));
+            if (Storage::disk($disk)->exists($file))
+            {
+                $data_json = Storage::disk($disk)->get($file);
+                if ($data_json)
+                    return response($data_json)->header('Content-Type', 'application/json');
+            }
+            else
+            {
+                return response()->json(['error'=>1,'message'=>'Flashlog file \''.$flashlog->log_file_parsed.'\' not found']);
+            }
+        }
+        else
+        {
+            return response()->json(['error'=>1,'message'=>'No parsed file present, first try parsing the flashlog file']);
+        }
+    }
 
+    /**
+     * api/flashlogs/{id}/try POST
+     * Provide the contents of the log_file_parsed property of the flashlog
+     * @authenticated
+     */
     public function try(Request $request, $id)
     {
         /** Check
@@ -33,7 +69,7 @@ class FlashLogController extends Controller
          * 3. Is the amount of data in the database less?
          * 4. 
          */
-        $flashlog = FlashLog::findOrFail($id);
+        $flashlog = $request->user()->flashlogs()->find($id);
         $disk     = env('FLASHLOG_STORAGE', 'public');
         $out      = [];
         if(isset($flashlog->log_file_parsed))
@@ -45,7 +81,7 @@ class FlashLogController extends Controller
                 $data_json = Storage::disk($disk)->get($file);
                 if ($data_json)
                 {
-                    $data_array = json_decode($data_array);
+                    $data_array = json_decode($data_json);
                     $data_length= count($data_array)-1;
                     
                     if ($data_length < 2)

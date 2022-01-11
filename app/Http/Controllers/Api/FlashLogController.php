@@ -28,32 +28,67 @@ class FlashLogController extends Controller
      * api/flashlogs/{id} GET
      * Provide the contents of the log_file_parsed property of the flashlog
      * @authenticated
+     * @bodyParam id integer required Flashlog ID to parse
+     * @bodyParam matches_min integer Flashlog minimum amount of inline measurements that should be matched. Default: 2. Example: 2  
+     * @bodyParam match_props integer Flashlog minimum amount of measurement properties that should match. Default: 7. Example: 7  
+     * @bodyParam db_records integer Flashlog minimum amount of inline measurements that should be matched. Default: 15. Example: 15 
+     * @bodyParam save_result boolean Flashlog save the parsed result as new log_file_parsed. Default: false. Example: false
      */
     public function show(Request $request, $id)
     {
+        $out = $this->parse($request, $id);
+        return response()->json($out, isset($out['error']) ? 500 : 200);
+        // $out      = [];
+        // if(isset($flashlog->log_file_parsed))
+        // {
+        //     $file = 'flashlog/'.last(explode('/',$flashlog->log_file_parsed));
+        //     //die(print_r($file));
+        //     if (Storage::disk($disk)->exists($file))
+        //     {
+        //         $data_json = Storage::disk($disk)->get($file);
+        //         if ($data_json)
+        //             return response($data_json)->header('Content-Type', 'application/json');
+        //     }
+        //     else
+        //     {
+        //         return response()->json(['error'=>1,'message'=>'Flashlog file \''.$flashlog->log_file_parsed.'\' not found']);
+        //     }
+        // }
+        // else
+        // {
+        //     return response()->json(['error'=>1,'message'=>'No parsed file present, first try parsing the flashlog file']);
+        // }
+    }
+
+
+    private function parse(Request $request, $id)
+    {
+        $matches_min = $request->input('matches_min', env('FLASHLOG_MIN_MATCHES', 2)); // minimum amount of inline measurements that should be matched 
+        $match_props = $request->input('match_props', env('FLASHLOG_MATCH_PROPS', 7)); // minimum amount of measurement properties that should match 
+        $db_records  = $request->input('db_records', env('FLASHLOG_DB_RECORDS', 15));// amount of DB records to fetch to match each block
+        $save_result = boolval($request->input('save_result', false));
+
         $flashlog = $request->user()->flashlogs()->find($id);
-        $disk     = env('FLASHLOG_STORAGE', 'public');
-        $out      = [];
-        if(isset($flashlog->log_file_parsed))
+        $out      = ['error'=>'no_flashlog_found'];
+
+        if ($flashlog)
         {
-            $file = 'flashlog/'.last(explode('/',$flashlog->log_file_parsed));
-            //die(print_r($file));
-            if (Storage::disk($disk)->exists($file))
+            if(isset($flashlog->log_file))
             {
-                $data_json = Storage::disk($disk)->get($file);
-                if ($data_json)
-                    return response($data_json)->header('Content-Type', 'application/json');
+                $data = $flashlog->getFileContent('log_file');
+                if (isset($data))
+                    $out = $flashlog->log($data, null, $save_result, true, true, $matches_min, $match_props, $db_records, $save_result); // $data, $out_bytes=null, $save=true, $fill=false, $show=false
+                else
+                    $out = ['error'=>'no_flashlog_data'];
             }
             else
             {
-                return response()->json(['error'=>1,'message'=>'Flashlog file \''.$flashlog->log_file_parsed.'\' not found']);
+                $out = ['error'=>'no_flashlog_file'];
             }
         }
-        else
-        {
-            return response()->json(['error'=>1,'message'=>'No parsed file present, first try parsing the flashlog file']);
-        }
+        return $out;
     }
+
 
     /**
      * api/flashlogs/{id}/try POST

@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Measurement;
+use App\Device;
 use App\Models\FlashLog;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
@@ -29,10 +31,12 @@ class FlashLogController extends Controller
      * api/flashlogs/{id} GET
      * Provide the contents of the log_file_parsed property of the flashlog
      * @authenticated
-     * @bodyParam id integer required Flashlog ID to parse
-     * @bodyParam matches_min integer Flashlog minimum amount of inline measurements that should be matched. Default: 2. Example: 2  
-     * @bodyParam match_props integer Flashlog minimum amount of measurement properties that should match. Default: 7. Example: 7  
-     * @bodyParam db_records integer Flashlog minimum amount of inline measurements that should be matched. Default: 15. Example: 15 
+     * @queryParam id integer required Flashlog ID to parse
+     * @bodyParam matches_min integer Flashlog minimum amount of inline measurements that should be matched. Default: 5. Example: 2  
+     * @bodyParam match_props integer Flashlog minimum amount of measurement properties that should match. Default: 9. Example: 7  
+     * @bodyParam db_records integer Flashlog minimum amount of inline measurements that should be matched. Default: 80. Example: 15 
+     * @bodyParam block_id integer Flashlog blobk index to get both Flashlog as database data from. Example: 1
+     * @bodyParam from_cache boolean get Flashlog parse result from cache (24 hours). Default: true. Example: false
      * @bodyParam save_result boolean Flashlog save the parsed result as new log_file_parsed. Default: false. Example: false
      */
     public function show(Request $request, $id)
@@ -75,6 +79,8 @@ class FlashLogController extends Controller
         $flashlog    = $request->user()->flashlogs()->find($id);
         $out         = ['error'=>'no_flashlog_found'];
 
+        $measurements= Measurement::getValidMeasurements(true);
+
         if ($flashlog)
         {
             if(isset($flashlog->log_file))
@@ -83,10 +89,28 @@ class FlashLogController extends Controller
                 if (isset($data))
                 {
                     $out = $flashlog->log($data, null, $save_result, true, true, $matches_min, $match_props, $db_records, $save_result, $from_cache);
-                    
+
                     // get the data from a single Flashlog block
-                    if (isset($block_id) && isset($out[$block_id]))
-                        $out = $out[$block_id];
+                    if (isset($block_id) && isset($out['log'][$block_id]))
+                    {
+                        $block       = $out['log'][$block_id];
+                        $out         = ['flashlog'=>[], 'database'=>[]];
+                        
+                        $start_index = $block['start_i'];
+                        $start_time  = $block['time_start'];
+                        $end_index   = $block['end_i'];
+                        $end_time    = $block['time_end'];
+                        
+                        // Add flashlog measurement data
+                        $block_data  = json_decode($flashlog->getFileContent('log_file_parsed'));
+                        for ($i=$start_index; $i <= $end_index; $i++) 
+                        { 
+                            $out['flashlog'][] = $block_data[$i];
+                        }
+                        // Add Database data
+                        $query       = 'SELECT "'.implode('","', $measurements).'" FROM "sensors" WHERE '.$flashlog->device->influxWhereKeys().' AND time >= \''.$start_time.'\' AND time >= \''.$end_time.'\' ORDER BY time ASC LIMIT 5000';
+                        $out['database'] = Device::getInfluxQuery($query, 'flashlog');
+                    }
                 }
                 else
                 {

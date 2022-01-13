@@ -141,7 +141,7 @@
                     <div class="col-xs-12">
                         <hr>
                         <h4>
-                            Time match: {{ $log['time_percentage'] }}, Weight match: {{ $log['weight_percentage'] }}, On/off blocks: {{ count($log) }}, Lines: {{ $log['lines_received'] }}, Messages: {{ $log['log_messages'] }} 
+                            Time match: {{ $log['time_percentage'] }}, Weight match: {{ $log['weight_percentage'] }}, On/off blocks: {{ count($log['log']) }}, Lines: {{ $log['lines_received'] }}, Messages: {{ $log['log_messages'] }} 
                         </h4>
                     </div>
                     <table id="table-blocks" class="table table-striped">
@@ -172,9 +172,9 @@
                                     $data_days  = null;
 
                                     // row color
-                                    if ($db_row_perc >= 90)
+                                    if (isset($bl['matches']['matches']) && $db_row_perc < 90)
                                         $td_attr = ' style="color:#007700"';
-                                    else if ($db_row_perc > 0)
+                                    else if (isset($bl['matches']['matches']) && $db_row_perc > 0)
                                         $td_attr = ' style="color:#AA0000"';
                                     else
                                         $td_attr = ' style="color:#999"';
@@ -198,10 +198,10 @@
                                     <td {!! $td_attr !!}>{{ isset($bl['time_end']) ? $bl['time_end'] : '-' }}</td>
                                     <td {!! $td_attr !!}>
                                         <div style="font-size: 10px;">
-                                        @if (isset($bl['match']['message'])) 
-                                            {{ $bl['match']['message'] }}
-                                        @elseif (isset($bl['matches']))
-                                            @foreach($bl['matches'] as $i => $match)
+                                        @if (isset($bl['matches']['message'])) 
+                                            {{ $bl['matches']['message'] }}
+                                        @elseif (isset($bl['matches']['matches']))
+                                            @foreach($bl['matches']['matches'] as $i => $match)
                                             <div style="width: 200px; display: inline-block; font-size: 11px;">
                                                 <h5>Match i={{ $i }}:</h5>
                                                 <ol>

@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Moment\Moment;
 use Storage;
+use Cache;
 
 /**
  * @group Api\FlashLogController
@@ -66,10 +67,13 @@ class FlashLogController extends Controller
         $matches_min = $request->input('matches_min', env('FLASHLOG_MIN_MATCHES', 2)); // minimum amount of inline measurements that should be matched 
         $match_props = $request->input('match_props', env('FLASHLOG_MATCH_PROPS', 7)); // minimum amount of measurement properties that should match 
         $db_records  = $request->input('db_records', env('FLASHLOG_DB_RECORDS', 15));// amount of DB records to fetch to match each block
+        
         $save_result = boolval($request->input('save_result', false));
-
-        $flashlog = $request->user()->flashlogs()->find($id);
-        $out      = ['error'=>'no_flashlog_found'];
+        $from_cache  = boolval($request->input('from_cache', true));
+        $block_id    = $request->input('block_id');
+        
+        $flashlog    = $request->user()->flashlogs()->find($id);
+        $out         = ['error'=>'no_flashlog_found'];
 
         if ($flashlog)
         {
@@ -77,9 +81,17 @@ class FlashLogController extends Controller
             {
                 $data = $flashlog->getFileContent('log_file');
                 if (isset($data))
-                    $out = $flashlog->log($data, null, $save_result, true, true, $matches_min, $match_props, $db_records, $save_result); // $data, $out_bytes=null, $save=true, $fill=false, $show=false
+                {
+                    $out = $flashlog->log($data, null, $save_result, true, true, $matches_min, $match_props, $db_records, $save_result, $from_cache);
+                    
+                    // get the data from a single Flashlog block
+                    if (isset($block_id) && isset($out[$block_id]))
+                        $out = $out[$block_id];
+                }
                 else
+                {
                     $out = ['error'=>'no_flashlog_data'];
+                }
             }
             else
             {
@@ -88,6 +100,8 @@ class FlashLogController extends Controller
         }
         return $out;
     }
+
+
 
 
     /**

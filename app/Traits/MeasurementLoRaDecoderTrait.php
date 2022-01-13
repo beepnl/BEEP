@@ -253,22 +253,26 @@ trait MeasurementLoRaDecoderTrait
             }
             else if ($port == 3 || $port == 4)
             {
-                if (($port == 3 && substr($pu, 0, 2) == '1B') || ($port == 4 && substr($pu, 2, 2) == '1B'))  // BEEP base fw 1.2.0+ measurement message, and alarm message
+                if (($port == 3 && substr($pu, 0, 2) == '1B') || ($port == 4 && substr($pu, 2, 2) == '1B'))  // BEEP base fw 1.2.0+ measurement message, and alarm message starts with battery voltage (1B)
                 {
                     $out['beep_base'] = true;
 
-                    // Flashlog:    1B 0D 2D 0D 2F 64  0A001 0F D2 1D 04 02 07 7E 06 2D  0C 0A 00 FF 00 6C 00 18 00 28 00 0E 00 0B 00 0A 00 0B 00 1B 00 0A 00 07  07 00 00 00 00 00 00 0A
-                    // Flashlog:    1B 0D 2A 0D 1C 64  0A001 13 8A CB 04 02 0D 99 06 07  0C 0A 09 46 00 C9 01 67 00 30 00 6F 00 87 00 49 00 67 00 2C 00 23 00 0C  07 00 00 00 00 00 00 0A
-                    // Flashlog:    1B 0D 21 0D 1B 64  0A001 13 8B 09 04 02 0D 93 05 EE  
-                    // Flashlog:    1B 0D 67 0D 59 64  0A001 FF FB EB 04 01 08 34        0C 0A 09 46 00 0C 00 07 00 06 00 04 00 02 00 03 00 03 00 02 00 03 00 00  07 00 00 00 00 00 00 25 60 AD 41 03 0A
+                    // Value        Batt (1B)          Weight (0A)     Temp (04)          FFT (0C)                                                                 BME280 (07)           Device time (25)
+                    // Bytes        0  1  2  3  4  5   6  7  8  9  10  11 12              13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36  37 38 39 40 41 42 43
+                    // Characters   0  2  4  6  8  10  12 14 16 18 20  22 24              26 28 30 32 34 36 38 40 42 44 46 48 50 52 54 56 58 60 62 64 66 68 70 72  74 76 78 80 82 84 86
+
+                    // raw pl       1B 0C 4B 0C 44 64  0A 01 01 2D 2D  04 01 07 D6
+                    // Flashlog:    1B 0D 2D 0D 2F 64  0A001 0F D2 1D  04 02 07 7E 06 2D  0C 0A 00 FF 00 6C 00 18 00 28 00 0E 00 0B 00 0A 00 0B 00 1B 00 0A 00 07  07 00 00 00 00 00 00 0A
+                    // Flashlog:    1B 0D 2A 0D 1C 64  0A001 13 8A CB  04 02 0D 99 06 07  0C 0A 09 46 00 C9 01 67 00 30 00 6F 00 87 00 49 00 67 00 2C 00 23 00 0C  07 00 00 00 00 00 00 0A
+                    // Flashlog:    1B 0D 21 0D 1B 64  0A001 13 8B 09  04 02 0D 93 05 EE  
+                    // Flashlog:    1B 0D 67 0D 59 64  0A001 FF FB EB  04 01 08 34        0C 0A 09 46 00 0C 00 07 00 06 00 04 00 02 00 03 00 03 00 02 00 03 00 00  07 00 00 00 00 00 00  25 60 AD 41 03 0A
                     
+                    // <1.5.11:0333 1B 0C 9E 0C 9B 64  0A 01 02 0D 3F  04 01 07 D6        0C 0A 09 46 00 0A 00 06 00 05 00 05 00 03 00 04 00 05 00 04 00 03 00 01  07 00 00 00 00 00 00  25 60 22 AB E9 0A
+                    // >1.5.11:0333 1B 0D C1 0D BC 64  0A001 00 25 64  04 01 09 7F        0C 0A 09 46 00 0B 00 07 00 06 00 15 00 05 00 06 00 0A 00 06 00 05 00 01  07 00 00 00 00 00 00  25 61 2C A9 0B 0A
+
                     // LoRa:        1B 0C 1B 0C 0E 64  0A 01 FF F6 98  04 02 0A D7 0A DD  0C 0A 00 FF 00 58 00 12 00 10 00 0C 00 0D 00 0A 00 0A 00 09 00 08 00 07  07 00 00 00 00 00 00
                     // pl incl fft: 1B 0D 15 0D 0A 64  0A 01 00 00 93  04 00              0C 0A 00 FF 00 20 00 05 00 0C 00 03 00 05 00 09 00 04 00 11 00 06 00 02  07 00 00 00 00 00 00
-                    //              0  1  2  3  4  5   6  7  8  9  10  11 12              13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36  37 38 39 40 41 42 43
-                    //              0  2  4  6  8  10  12 14 16 18 20  22 24              26 28 30 32 34 36 38 40 42 44 46 48 50 52 54 56 58 60 62 64 66 68 70 72  74 76 78 80 82 84 86
-                    //                 Batt            Weight          Temp               FFT                                                                      BME280
-                    // raw pl  1B0C4B0C44640A01012D2D040107D6
-                    // Payload 1B 0C4B0C4464 0A 01 012D2D 04 01 07D6
+                    // Payload      1B 0C 4B 0C 44 64  0A 01 01 2D 2D  04 01 07D6
                     //         6  batt       5  1 weight  5 1-5 temp (1 to 5)
 
                     $sb = $port == 4 ? 2 : 0; // start byte
@@ -395,7 +399,7 @@ trait MeasurementLoRaDecoderTrait
                     {
                         $time_start = $sb+2;
                         $unixts = hexdec(substr($p, $time_start, 8));
-                        if ($unixts)
+                        if ($unixts && $unixts > 1546300800) // unix timestamp > Tue Jan 01 2019 00:00:00 GMT+0000
                         {
                             $out['time_device'] = $unixts;
                         }

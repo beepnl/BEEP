@@ -1,4 +1,0 @@
-# Crontab for nightly backup
-
-59 23 * * * /home/bitnami/apps/BEEP/backup.sh >> /home/bitnami/backups/cron.log 2>&1 
-0 0 1 * * /home/bitnami/apps/BEEP/renew_cert_api.sh 2> /dev/null

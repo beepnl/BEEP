@@ -1,131 +1,81 @@
-# BEEP - Open source bee monitoring (v2.2.1)
+# BEEP - Open source bee monitoring (v3.0.1)
+BEEP is open source combination of a bee monitoring app + automatic bee hive measurement device. It's key feature is to integrate a user friendly responsive app for manual inspections with automatically measured sensor data.
+Check the website https://beep.nl/index.php/home-english for more information.
 
-
-BEEP is a combination of a bee monitoring (Laravel PHP) framework API + an (Angular JS) app and a (Influx) time series sensor data database. There are also first steps of creating cost efficient measurement hardware.
-
-It's key feature is to integrate a user friendly responsive app for manual inspections with automatically measured sensor data.
-
+## App
+The [BEEP app](https://github.com/beepnl/beep-vue-app) consists of a (VUE JS) app, (Laravel PHP) API + an InfluxDB time series database. The VUE (v3) app replaced the Angular JS (v2) app in 2021.
 Create a login and check the live app at: https://app.beep.nl
+
+## Measurements
+BEEP created an open source hardware system, called the [BEEP base](https://beep.nl/index.php/home-english), that measures weight, temperature and sound. You can also use your own measurement device with the BEEP app.
+
 
 # System overview
 ![BEEP System overview](https://github.com/beepnl/BEEP/raw/master/BEEP-system-overview.png)
 
-You are free to use the BEEP app, it's free and it will be developed further in the near future. If you would like to install it on your own server, or contribute; please read on below.
+You are free to use the BEEP app.
 
-# Installation of API and APP (on your own server)
+If you would like to install it on your own server, or contribute; please read on below.
+
+# Installation of API on your own server
+
+You can use the [BEEP api](https://api.beep.nl/docs/) on our live server, or set up your own server running the API.
 
 ## 0. Server specs
 
 * Linux Debian (8+)
 * Software installed
-  * PHP 7.1+
+  * PHP 7.4+
   * MariaDB/MySQL
   * Apache 2 (or Nginx, creating Nginx 'server blocks' in step 4)
   * InfluxDB (https://docs.influxdata.com/influxdb/v1.7/introduction/installation/)
   * [Composer](https://getcomposer.org/download/) - Installation tool for PHP/Laravel dependencies for API
-  * [npm](https://www.npmjs.com/get-npm) - Installation tool for Javascript/Angular dependencies for App
 * Optional: Letsencrypt SSL certificate generation
 
 
-**NB: You can use this gist to install all the software you need: [LAMP PHP 7.2](https://gist.github.com/pvgennip/84f935e13207db71259f1f57c2667bbd)**
+**NB: We recommend to use [Laravel Forge](https://forge.laravel.com) to easily install all the software you need on any Linux based server**
 
 
-## 1. Clone this repo anywhere you like
-```git clone https://github.com/beepnl/BEEP.git```
+## 1. Clone this repo
+```
+git clone https://github.com/beepnl/BEEP.git
+cd BEEP
+```
 
 ## 2. Database
 
-Create a MySQL database (type: InnoDB, encoding: UTF_8, collation: utf8_unicode_ci) called: 
+Create a MySQL database (type: InnoDB, encoding: UTF_8, collation: utf8mb4_unicode_ci) called: 
 
 ```bee_data```
 
 **NB: Make sure to pass the user and credentials to the newly made .env file after step 3.**
 
 
-## 3. Install required vendor libraries 
+## 3. Install dependencies 
 
-a. Make the ```run_actions.sh``` file executable by ```chmod +x run_actions.sh```. This bash script will install all the packages and vendor dependencies that you need at once.
-
-b. Then run it: ```./run_actions.sh```
+```
+if [ ! -f '.env' ]; then cp .env.example .env && php artisan key:generate; fi
+composer install && sudo chmod -R 777 storage && sudo chmod -R 777 bootstrap/cache && php artisan storage:link && php artisan migrate --force
+```
 
 NB: To stick to a certain PHP version (on the server e.g. 7.1.25), use ```composer install --ignore-platform-reqs``` or ```composer update --ignore-platform-reqs```
 
 ## 4. Set up your end-points
 
-a. Make sure your server has 2 different virtual hosts for the API and the APP
+### Laravel Forge
+Simply use the default Nginx template and install Let's Encrypt SSL certificate via the interface.
 
-NB: On Amazon AWS (Bitnami LAMP_7.1): 
-a. Make sure your Bitnami server includes your apps/apache_vhost.conf in 
-```
-sudo nano /opt/bitnami/apache2/conf/bitnami/bitnami-apps-vhosts.conf
-```
-
-Contains one or more Includes:
-```
-# Bitnami applications installed in a Virtual Host
-Include "/opt/bitnami/apps/apache/portal-vhost.conf"
-```
-
-Bitnami restart apache server:
-```
-sudo /opt/bitnami/ctlscript.sh restart apache
-```
+### Apache
+Install the desired config files from [/apache](https://github.com/beepnl/BEEP/tree/master/apache) to your ```apache/sites-available``` folder and enable them with ```a2ensite [config file name]```
 
 
-API (replace 'beep.nl' with your own server/test domain)
-```
-<VirtualHost api.beep.nl:80>
-    
-    DocumentRoot /var/www/bee/public
-    ServerName "api.beep.nl"
-
-    <Directory /var/www/bee/public/>
-        Options Indexes FollowSymLinks MultiViews
-        AllowOverride All
-        Order allow,deny
-        allow from all
-    </Directory>
-
-</VirtualHost>
-```
-
-APP (replace 'beep.nl' with your own server)
-```
-<VirtualHost app.beep.nl:80>
-    
-    DocumentRoot /var/www/bee/public/webapp
-    ServerName "app.beep.nl"
-
-    <Directory /var/www/bee/public/webapp/>
-        Options Indexes FollowSymLinks MultiViews
-        AllowOverride All
-        Order allow,deny
-        allow from all
-    </Directory>
-
-</VirtualHost>
-```
-
-b. Optionally, install SSL certificates to your endpoints with [Let's Encrypt](https://letsencrypt.org/getting-started/)
-
-On AWS:
-```
-sudo /opt/bitnami/letsencrypt/scripts/generate-certificate.sh -m pim@iconize.nl -d api.beep.nl -d app.beep.nl
-```
-
-On other servers with command: ```sudo certbot --authenticator webroot --installer apache```
+Install SSL certificates to your endpoints with [Let's Encrypt](https://letsencrypt.org/getting-started/)
 
 ## 5. Add Influx database
-```
-influx
-> CREATE USER user_influx WITH PASSWORD 'pass_influx' WITH ALL PRIVILEGES
-> CREATE DATABASE bee_data
-> exit
-```
-**NB: Make sure to pass the user and credentials to the .env file that has been created in step 3.**
-**NB: If your Influx version was < 1.1.x (no TSI support), when using backups to transfer data: first install the old version that you are currently using on a new server, import the backups, then update to the newest Influx version!**
+### Installati
+Install [InfluxDB](https://www.influxdata.com/) or set up an account at [InfluxCloud](https://cloud2.influxdata.com/signup)
 
-### Optional: migrate from local Influx v1.7.3 db to managed InfluxDB Cloud
+#### Optional: migrate from local Influx v1.7.3 db to managed InfluxDB Cloud
 
 - https://docs.influxdata.com/influxdb/cloud/upgrade/v1-to-cloud/
 - NB: If you have inlfux already installed, use ```./influx``` for the commands from inside the installation folder
@@ -141,29 +91,29 @@ sudo tail -n +4 test_beep_nl_temp.lp > test_beep_nl.lp
 ./influx write --bucket-id [copy-from-influx-cloud] --file test_beep_nl.lp --rate-limit "300 MB / 5 min" --skipRowOnError
 ```
 
+### Setup
+Create a databse and user
+```
+influx
+> CREATE USER user_influx WITH PASSWORD 'pass_influx' WITH ALL PRIVILEGES
+> CREATE DATABASE bee_data
+> exit
+```
+**NB: Make sure to pass the user and credentials to the .env file that has been created in step 3.**
+**NB: If your Influx version was < 1.1.x (no TSI support), when using backups to transfer data: first install the old version that you are currently using on a new server, import the backups, then update to the newest Influx version!**
 
-## 6. If you would like to easily deploy your fork (or this repo), 
 
-a. Make sure to add your repo to git remote: ```git remote set url https://github.com/beepnl/BEEP.git```
+# Configuring your own back-end system
 
-b. Run ```./deploy.sh``` to update your clone on any server
-
-
-# Configuring the back-end system
-
-## 1. Check database tables
-
-If you did not run ```./run_actions```, please do so, to install all the database tables and set up the default categorization.
-
-## 2. Set up valid credentials
+## 1. Set up valid credentials
 
 a. Set up e-mail credentials in the ```.env``` config file
 
-b. For the webapp to reach the API, rename the file 'public/webapp/js/constants.js.example' to 'public/webapp/js/constants.js' and edit it to change the 'api_url' to your own back-end API end-point
+b. (Angular JS webapp v2) For the webapp to reach the API, rename the file 'public/webapp/js/constants.js.example' to 'public/webapp/js/constants.js' and edit it to change the 'api_url' to your own back-end API end-point
 
 c. To enable schedules (e.g. for loading weather data), install a crontab with ```sudo crontab -e``` and add: ```* * * * * cd /home/bitnami/apps/appdir && /opt/bitnami/php/bin/php artisan schedule:run >> /dev/null 2>&1```
 
-## 3. Register new user
+## 2. Register new user
 
 a. Go to ```api.[your_domain]/webapp#!/login/create```
 
@@ -219,9 +169,8 @@ Please request access to our slack community at https://beep-global.slack.com if
 ## Adding a language
 
 1. Create a Beep user account at https://app.beep.nl/#!/login/create
-2. Fork this repo
-3. Send an e-mail to support@beep.nl with you user e-mail address, asking to become a translator for a certain language
-4. Log into the backend to start translating
+2. Send an e-mail to support@beep.nl with you user e-mail address, asking to become a translator for a certain language
+3. Log into the backend to start translating
 
 
 # Roadmap

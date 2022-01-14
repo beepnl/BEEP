@@ -10,7 +10,7 @@ You are free to use our BEEP app and API.
 ### BEEP App
 The [BEEP app](https://beep.nl/index.php/beep-app) is a [VUE app](https://vuejs.org), communicating with a ([Laravel PHP](https://laravel.com/docs/6.x)) BEEP API (this repository).
 
-NB: The [BEEP VUE app](https://github.com/beepnl/beep-vue-app) (v3) app replaced the [BEEP Angular JS (v2) app](https://github.com/beepnl/BEEP/tree/master/resources/views) in 2021.
+NB: The [BEEP VUE (v3) app](https://github.com/beepnl/beep-vue-app) replaced the [BEEP Angular JS (v2) app](https://github.com/beepnl/BEEP/tree/master/resources/assets) in 2021.
 
 The BEEP app is publicly available at: https://app.beep.nl. It has about 5000+ users worldwide and is available in 9 languages (Jan 2022).
 

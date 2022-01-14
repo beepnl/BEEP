@@ -18,7 +18,9 @@ The BEEP app is publicly available at: https://app.beep.nl. It has about 5000+ u
 This repository. Serving both app v3 as app v2. Publicly available at https://api.beep.nl 
 
 ### BEEP base
-The [BEEP base v3](https://beep.nl/index.php/home-english) is an open source ultra low power automatic hive monitoring system. Design of the device and PCB (with accompanying firmware) be found at [this repository]](https://github.com/beepnl/measurement-system-v3). It measures weight, temperature and sound. We produce a yearly batch of BEEP bases for the European (868MHz LoRaWAN) market, that are sold via the [BEEP webshop](https://www.beep-shop.nl/en_GB/). The BEEP base sends it's data through [The Things Network](https://www.thethingsnetwork.org) LoRaWAN to the BEEP API. You can also use your own measurement device with the BEEP app by POSTing your measurement data to the [BEEP API](https://api.beep.nl/docs/#apisensors-post). 
+The [BEEP base v3](https://beep.nl/index.php/home-english) is an open source ultra low power automatic hive monitoring system. Design of the device and PCB (with [accompanying firmware](https://github.com/beepnl/beep-base-firmware)) be found at [this repository]](https://github.com/beepnl/measurement-system-v3). It measures weight, temperature and sound. We produce a yearly batch of BEEP bases for the European (868MHz LoRaWAN) market, that are sold via the [BEEP webshop](https://www.beep-shop.nl/en_GB/). The BEEP base sends it's data through [The Things Network](https://www.thethingsnetwork.org) LoRaWAN to the BEEP API. 
+
+You can also use your own measurement device with the BEEP app by POSTing your measurement data to the [BEEP API](https://api.beep.nl/docs/#apisensors-post). 
 
 The BEEP base can be configured by Bluetooth using our native BEEP base apps for [Android](https://play.google.com/store/apps/details?id=appinventor.ai_app_beep_nl.BEEP_commissioning_V06&gl=NL) and [iOS](https://apps.apple.com/us/app/beep-base/id1495605010). 
 

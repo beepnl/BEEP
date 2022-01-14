@@ -2,24 +2,27 @@
 BEEP is open source combination of a bee monitoring app + automatic bee hive measurement device. It's key feature is to integrate a user friendly responsive app for manual inspections with automatically measured sensor data.
 Check the website https://beep.nl/index.php/home-english for more information.
 
-## App
-The [BEEP app](https://github.com/beepnl/beep-vue-app) consists of a (VUE JS) app, (Laravel PHP) API + an InfluxDB time series database. The VUE (v3) app replaced the Angular JS (v2) app in 2021.
-Create a login and check the live app at: https://app.beep.nl
-
-## Measurements
-BEEP created an open source hardware system, called the [BEEP base](https://beep.nl/index.php/home-english), that measures weight, temperature and sound. You can also use your own measurement device with the BEEP app.
-
-
-# System overview
+## BEEP System overview
 ![BEEP System overview](https://github.com/beepnl/BEEP/raw/master/BEEP-system-overview.png)
 
-You are free to use the BEEP app.
+You are free to use our BEEP app and API.
 
-If you would like to install it on your own server, or contribute; please read on below.
+### BEEP App
+The [BEEP app](https://beep.nl/index.php/beep-app) is a [VUE app](https://github.com/beepnl/beep-vue-app), communicating with the ([Laravel PHP](https://laravel.com/docs/6.x)) BEEP API (this repository).
 
-# Installation of API on your own server
+NB: The [VUE app](https://github.com/beepnl/beep-vue-app) (v3) app replaced the Angular JS (v2) app in 2021.
 
-You can use the [BEEP api](https://api.beep.nl/docs/) on our live server, or set up your own server running the API.
+The BEEP app is publicly available at: https://app.beep.nl. It has about 5000+ users worldwide and is available in 9 languages (Jan 2022).
+
+### BEEP API / Backend
+This repository. Publicly available at https://api.beep.nl 
+
+### BEEP base
+BEEP developed an open source automatic hive monitoring system, called the [BEEP base](https://beep.nl/index.php/home-english). It measures weight, temperature and sound. You can also use your own measurement device with the BEEP app. We produce a yearly batch of a few hundred devices. these devices currently have 868MHz LoRaWAN connection to transmit their data, which It is also sold via in our
+
+
+# BEEP API Installation 
+If you would like to install this BEEP API (the code in this) repo on your own server, or contribute; please read on below.
 
 ## 0. Server specs
 
@@ -72,7 +75,7 @@ Install the desired config files from [/apache](https://github.com/beepnl/BEEP/t
 Install SSL certificates to your endpoints with [Let's Encrypt](https://letsencrypt.org/getting-started/)
 
 ## 5. Add Influx database
-### Installati
+### Installation
 Install [InfluxDB](https://www.influxdata.com/) or set up an account at [InfluxCloud](https://cloud2.influxdata.com/signup)
 
 #### Optional: migrate from local Influx v1.7.3 db to managed InfluxDB Cloud

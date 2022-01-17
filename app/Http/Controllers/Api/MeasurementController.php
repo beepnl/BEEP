@@ -968,13 +968,14 @@ class MeasurementController extends Controller
                         break;
                 }
         }
-        //}
+        
+        // Relative
         if ($relative_interval)
         {
             $start = $staTimestamp->setTimezone('UTC')->format($this->timeFormat);
             $end   = $endTimestamp->setTimezone('UTC')->format($this->timeFormat);   
         }
-        else
+        else // absolute time intervals
         {
             $start = $staTimestamp->startOf($interval)->setTimezone('UTC')->format($this->timeFormat);
             $end   = $endTimestamp->endOf($interval)->setTimezone('UTC')->format($this->timeFormat);    

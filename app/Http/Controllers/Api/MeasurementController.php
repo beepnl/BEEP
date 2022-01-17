@@ -867,7 +867,7 @@ class MeasurementController extends Controller
     }
 
 
-    private function interval(Request $request, $wholeInterval=true, $download=false)
+    private function interval(Request $request, $relative_interval=false, $download=false)
     {
         $interval  = $request->input('interval','day');
         $index     = intval($request->input('index',0));
@@ -880,11 +880,11 @@ class MeasurementController extends Controller
         
         if ($request->filled('start') && $request->filled('end'))
         {
-            $interval      = null;
-            $timeGroup     = null;
-            $wholeInterval = false;
-            $staDate = $request->input('start');
-            $endDate = $request->input('end');
+            $interval          = null;
+            $timeGroup         = null;
+            $relative_interval = true;
+            $staDate           = $request->input('start');
+            $endDate           = $request->input('end');
         }
         else
         {
@@ -897,14 +897,14 @@ class MeasurementController extends Controller
         }
         
         // set start/end of interval
-        if ($wholeInterval)
+        if ($relative_interval)
         {
-            $staIndex = $index;
+            $staIndex = $index+1;
             $endIndex = $index;
         }
         else
         {
-            $staIndex = $index+1;
+            $staIndex = $index;
             $endIndex = $index;
         }
 
@@ -941,8 +941,8 @@ class MeasurementController extends Controller
                 $endTimestamp->subtractHours($endIndex);
                 break;
 
-            default: // provide data from total research, or rental period
-                $wholeInterval= false;
+            default: // provide data from total period
+                $relative_interval = true;
                 $staTimestamp = new Moment($staDate, $timeZone);
                 $endTimestamp = new Moment($endDate, $timeZone);
                 $durationDays = abs($staTimestamp->from($endTimestamp)->getDays());
@@ -969,18 +969,18 @@ class MeasurementController extends Controller
                 }
         }
         //}
-        if ($wholeInterval)
-        {
-            $start = $staTimestamp->startOf($interval)->setTimezone('UTC')->format($this->timeFormat);
-            $end   = $endTimestamp->endOf($interval)->setTimezone('UTC')->format($this->timeFormat);    
-        }
-        else
+        if ($relative_interval)
         {
             $start = $staTimestamp->setTimezone('UTC')->format($this->timeFormat);
             $end   = $endTimestamp->setTimezone('UTC')->format($this->timeFormat);   
         }
+        else
+        {
+            $start = $staTimestamp->startOf($interval)->setTimezone('UTC')->format($this->timeFormat);
+            $end   = $endTimestamp->endOf($interval)->setTimezone('UTC')->format($this->timeFormat);    
+        }
 
-        return ['start'=>$start, 'end'=>$end, 'interval'=>$interval, 'whole'=>$wholeInterval, 'index'=>$index, 'resolution'=>$resolution, 'timeGroup'=>$timeGroup, 'timeZone'=>$timeZone, 'cacheSensorNames'=>$cache_sensor_names];
+        return ['start'=>$start, 'end'=>$end, 'interval'=>$interval, 'relative_interval'=>$relative_interval, 'index'=>$index, 'resolution'=>$resolution, 'timeGroup'=>$timeGroup, 'timeZone'=>$timeZone, 'cacheSensorNames'=>$cache_sensor_names];
     }
 
 
@@ -993,7 +993,7 @@ class MeasurementController extends Controller
     @bodyParam hive_id integer Hive ID to look up the sensor (Device)
     @bodyParam names string comma separated list of Measurement abbreviations to filter request data (weight_kg, t, h, etc.)
     @bodyParam interval string Data interval for interpolation of measurement values: hour (2min), day (10min), week (1 hour), month (3 hours), year (1 day). Default: day.
-    @bodyParam whole integer Load data from the selected interval relative to (0), or load data in whole intervals (from start of day/week/etc) (1). Default: 1.
+    @bodyParam relative_interval integer Load data from the selected interval relative to current time (1), or load data in absolute intervals (from start-end of hour/day/week/etc) (0). Default: 0.
     @bodyParam index integer Interval index (>=0; 0=until now, 1=previous interval, etc.). Default: 0.
     @bodyParam start date Date for start of measurements. Required without interval & index. Example: 2020-05-27 16:16
     @bodyParam end date Date for end of measurements. Required without interval & index. Example: 2020-05-30 00:00
@@ -1015,8 +1015,8 @@ class MeasurementController extends Controller
             'timeGroup'   => 'nullable|string',
             'names'       => 'nullable|string',
             'weather'     => 'nullable|integer',
-            'whole'       => 'nullable|integer',
             'timezone'    => 'nullable|timezone',
+            'relative_interval' => 'nullable|integer',
         ]);
 
         if ($validator->fails())
@@ -1046,14 +1046,15 @@ class MeasurementController extends Controller
         }
 
         //Get the data interval
-        $wholeInterval = boolval($request->input('wholeInterval', 1)); 
-        $loadWeather   = boolval($request->input('weather', 1)); 
-        $intervalArr   = $this->interval($request, $wholeInterval);
+        $relative_interval    = boolval($request->input('relative_interval', 0)); 
+        $loadWeather          = boolval($request->input('weather', 1)); 
+        $intervalArr          = $this->interval($request, $relative_interval);
 
         $groupBySelect        = null;
         $groupBySelectWeather = null;
         $groupByResolution    = '';
         $limit                = 'LIMIT '.$this->maxDataPoints;
+        $relative_interval    = $intervalArr['relative_interval'];
         $resolution           = $intervalArr['resolution'];
         $cache_sensor_names   = $intervalArr['cacheSensorNames'];
         $start_date           = $intervalArr['start'];
@@ -1128,6 +1129,6 @@ class MeasurementController extends Controller
         if (count($sensors_out) == 0 && count($weather_out) == 0)
             return Response::json('sensor-no-data-error', 500);
 
-        return Response::json( ['id'=>$device->id, 'interval'=>$interval, 'whole'=>$wholeInterval, 'index'=>$index, 'timeGroup'=>$timeGroup, 'resolution'=>$resolution, 'measurements'=>$sensors_out, 'sensorDefinitions'=>$sensorDefinitions, 'cacheSensorNames'=>$cache_sensor_names] );
+        return Response::json( ['id'=>$device->id, 'interval'=>$interval, 'relative_interval'=>$relative_interval, 'index'=>$index, 'timeGroup'=>$timeGroup, 'resolution'=>$resolution, 'measurements'=>$sensors_out, 'sensorDefinitions'=>$sensorDefinitions, 'cacheSensorNames'=>$cache_sensor_names] );
     }
 }

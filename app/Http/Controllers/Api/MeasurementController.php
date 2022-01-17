@@ -971,20 +971,8 @@ class MeasurementController extends Controller
         //}
         if ($wholeInterval)
         {
-            $startOfInt = $staTimestamp->startOf($interval);
-            $endOfInt   = $endTimestamp->endOf($interval);
-
-            $staMom = new Moment($staDate, $timeZone);
-            $endMom = new Moment($endDate, $timeZone);
-
-            if ($staMom->from($startOfInt)->getSeconds() < 0)
-                $startOfInt = $staMom; // limit start of interval by start of rental
-
-            if ($endOfInt->from($endMom)->getSeconds() < 0)
-                $endOfInt = $endMom; // limit end of interval by end of rental
-
-            $start = $startOfInt->setTimezone('UTC')->format($this->timeFormat);
-            $end   = $endOfInt->setTimezone('UTC')->format($this->timeFormat);   
+            $start = $staTimestamp->startOf($interval)->setTimezone('UTC')->format($this->timeFormat);
+            $end   = $endTimestamp->endOf($interval)->setTimezone('UTC')->format($this->timeFormat);    
         }
         else
         {
@@ -992,7 +980,7 @@ class MeasurementController extends Controller
             $end   = $endTimestamp->setTimezone('UTC')->format($this->timeFormat);   
         }
 
-        return ['start'=>$start, 'end'=>$end, 'interval'=>$interval, 'index'=>$index, 'resolution'=>$resolution, 'timeGroup'=>$timeGroup, 'timeZone'=>$timeZone, 'cacheSensorNames'=>$cache_sensor_names];
+        return ['start'=>$start, 'end'=>$end, 'interval'=>$interval, 'whole'=>$wholeInterval, 'index'=>$index, 'resolution'=>$resolution, 'timeGroup'=>$timeGroup, 'timeZone'=>$timeZone, 'cacheSensorNames'=>$cache_sensor_names];
     }
 
 
@@ -1005,6 +993,7 @@ class MeasurementController extends Controller
     @bodyParam hive_id integer Hive ID to look up the sensor (Device)
     @bodyParam names string comma separated list of Measurement abbreviations to filter request data (weight_kg, t, h, etc.)
     @bodyParam interval string Data interval for interpolation of measurement values: hour (2min), day (10min), week (1 hour), month (3 hours), year (1 day). Default: day.
+    @bodyParam whole integer Load data from the selected interval relative to (0), or load data in whole intervals (from start of day/week/etc) (1). Default: 1.
     @bodyParam index integer Interval index (>=0; 0=until now, 1=previous interval, etc.). Default: 0.
     @bodyParam start date Date for start of measurements. Required without interval & index. Example: 2020-05-27 16:16
     @bodyParam end date Date for end of measurements. Required without interval & index. Example: 2020-05-30 00:00
@@ -1026,6 +1015,7 @@ class MeasurementController extends Controller
             'timeGroup'   => 'nullable|string',
             'names'       => 'nullable|string',
             'weather'     => 'nullable|integer',
+            'whole'       => 'nullable|integer',
             'timezone'    => 'nullable|timezone',
         ]);
 
@@ -1033,18 +1023,14 @@ class MeasurementController extends Controller
             return response()->json(['errors'=>$validator->errors()]);
 
         //Get the sensor
-        $intervalArr = $this->interval($request);
-        $loadWeather = boolval($request->input('weather', 0)); 
-
-        //Get the sensor
         $device  = $this->get_user_device($request);
 
         if (!isset($device))
             return Response::json('sensor-none-error', 500);
 
-        $location= $device->location();
-        $names   = $request->input('names', $this->output_sensors);
-        $names_w = $this->output_weather;
+        $location      = $device->location();
+        $names         = $request->input('names', $this->output_sensors);
+        $names_w       = $this->output_weather;
 
         if (count($names) == 0)
             return Response::json('sensor-no-measurements-error', 500);
@@ -1059,6 +1045,10 @@ class MeasurementController extends Controller
                 $sensorDefinitions["$name"] = ['name'=>$sensordefinition->name, 'inside'=>$sensordefinition->inside];
         }
 
+        //Get the data interval
+        $wholeInterval = boolval($request->input('wholeInterval', 1)); 
+        $loadWeather   = boolval($request->input('weather', 1)); 
+        $intervalArr   = $this->interval($request, $wholeInterval);
 
         $groupBySelect        = null;
         $groupBySelectWeather = null;
@@ -1072,10 +1062,7 @@ class MeasurementController extends Controller
         $index                = $intervalArr['index'];
         $timeGroup            = $intervalArr['timeGroup'];
         $timeZone             = $intervalArr['timeZone'];
-        $whereKeyAndTime      = '"key" = \''.$device->key.'\' AND time >= \''.$start_date.'\' AND time <= \''.$end_date.'\'';
-
-        //die(print_r(['names'=>$names, 'names_w'=>$names_w, 'q'=>$whereKeyAndTime]));
-        //$names = ['am2315_t', 'am2315_h'];
+        $whereKeyAndTime      = $device->influxWhereKeys().' AND time >= \''.$start_date.'\' AND time <= \''.$end_date.'\'';
 
         if($resolution != null)
         {
@@ -1084,16 +1071,12 @@ class MeasurementController extends Controller
                 $fill              = env('INFLUX_FILL') !== null ? env('INFLUX_FILL') : 'null';
                 $groupByResolution = 'GROUP BY time('.$resolution.') fill('.$fill.')';
                 $queryList         = Device::getAvailableSensorNamesFromData($device->id, $names, $whereKeyAndTime, 'sensors', true, $cache_sensor_names);
-                //$queryList = $names;
-                //die(print_r(['ql'=>$queryList, 'gbr'=>$groupByResolution]));
                 
                 foreach ($queryList as $i => $name) 
                     $queryList[$i] = 'MEAN("'.$name.'") AS "'.$name.'"';
                 
                 $groupBySelect = implode(', ', $queryList);
             }
-
-            //die(print_r(['ql'=>$groupBySelect, 'gbs'=>gettype($groupBySelect)]));
 
             // Add weather
             if ($location && isset($location->coordinate_lat) && isset($location->coordinate_lon))
@@ -1118,7 +1101,7 @@ class MeasurementController extends Controller
         }
 
         // Add weather data
-        if ($loadWeather && $device->enable_weather() && $groupBySelectWeather != null && $location && isset($location->coordinate_lat) && isset($location->coordinate_lon))
+        if ($loadWeather && $groupBySelectWeather != null && $location && isset($location->coordinate_lat) && isset($location->coordinate_lon))
         {
             $weatherQuery = 'SELECT '.$groupBySelectWeather.' FROM "weather" WHERE "lat" = \''.$location->coordinate_lat.'\' AND "lon" = \''.$location->coordinate_lon.'\' AND time >= \''.$start_date.'\' AND time <= \''.$end_date.'\' '.$groupByResolution.' '.$limit;
 
@@ -1143,8 +1126,8 @@ class MeasurementController extends Controller
 
 
         if (count($sensors_out) == 0 && count($weather_out) == 0)
-            return Response::json('sensor-none-error', 500);
+            return Response::json('sensor-no-data-error', 500);
 
-        return Response::json( ['id'=>$device->id, 'interval'=>$interval, 'index'=>$index, 'timeGroup'=>$timeGroup, 'resolution'=>$resolution, 'measurements'=>$sensors_out, 'sensorDefinitions'=>$sensorDefinitions, 'cacheSensorNames'=>$cache_sensor_names] );
+        return Response::json( ['id'=>$device->id, 'interval'=>$interval, 'whole'=>$wholeInterval, 'index'=>$index, 'timeGroup'=>$timeGroup, 'resolution'=>$resolution, 'measurements'=>$sensors_out, 'sensorDefinitions'=>$sensorDefinitions, 'cacheSensorNames'=>$cache_sensor_names] );
     }
 }

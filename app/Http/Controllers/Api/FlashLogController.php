@@ -16,6 +16,9 @@ use Cache;
  */
 class FlashLogController extends Controller
 {
+    
+    protected $timeFormat = 'Y-m-d H:i:s';
+
     /**
      * api/flashlogs GET
      * Provide a list of the available flashlogs
@@ -35,7 +38,9 @@ class FlashLogController extends Controller
      * @bodyParam matches_min integer Flashlog minimum amount of inline measurements that should be matched. Default: 5. Example: 2  
      * @bodyParam match_props integer Flashlog minimum amount of measurement properties that should match. Default: 9. Example: 7  
      * @bodyParam db_records integer Flashlog minimum amount of inline measurements that should be matched. Default: 80. Example: 15 
-     * @bodyParam block_id integer Flashlog blobk index to get both Flashlog as database data from. Example: 1
+     * @bodyParam block_id integer Flashlog block index to get both Flashlog as database data from. Example: 1
+     * @bodyParam block_data_index integer Flashlog data index to get both Flashlog as database data from. Example: 0
+     * @bodyParam data_minutes integer Flashlog data amount of minutes to show data from. Default: 10080 (1 week).
      * @bodyParam from_cache boolean get Flashlog parse result from cache (24 hours). Default: true. Example: false
      * @bodyParam save_result boolean Flashlog save the parsed result as new log_file_parsed. Default: false. Example: false
      */
@@ -74,12 +79,15 @@ class FlashLogController extends Controller
         
         $save_result = boolval($request->input('save_result', false));
         $from_cache  = boolval($request->input('from_cache', true));
-        $block_id    = $request->input('block_id');
+        $block_id    = intval($request->input('block_id'));
+        $block_data_i= intval($request->input('block_data_index', 0));
+        $data_minutes= intval($request->input('data_minutes', 10080));
         
         $flashlog    = $request->user()->flashlogs()->find($id);
         $out         = ['error'=>'no_flashlog_found'];
 
-        $measurements= Measurement::getValidMeasurements(true);
+        //$measurements= Measurement::getValidMeasurements(true);
+        $measurements= Measurement::getMatchingMeasurements();
 
         if ($flashlog)
         {
@@ -88,28 +96,48 @@ class FlashLogController extends Controller
                 $data = $flashlog->getFileContent('log_file');
                 if (isset($data))
                 {
-                    $out = $flashlog->log($data, null, $save_result, true, true, $matches_min, $match_props, $db_records, $save_result, $from_cache);
+                    $out = $flashlog->log($data, null, $save_result, true, true, $matches_min, $match_props, $db_records, $save_result, $from_cache); // $data='', $log_bytes=null, $save=true, $fill=false, $show=false, $matches_min_override=null, $match_props_override=null, $db_records_override=null, $save_override=false, $from_cache=true, $match_days_offset=0
 
                     // get the data from a single Flashlog block
-                    if (isset($block_id) && isset($out['log'][$block_id]))
+                    if (isset($block_id) && isset($out['log'][$block_id]) && isset($out['log'][$block_id]['matches']))
                     {
                         $block       = $out['log'][$block_id];
-                        $out         = ['flashlog'=>[], 'database'=>[]];
+                        $match_date  = $block['db_time'];
+                        $match_index = $block['fl_i'];
+                        $interval_min= $block['interval_min'];
+
+                        $interval_tra= isset($block['transmission_ratio']) ? $block['transmission_ratio'] : 1;
+                        $interval_tot= $interval_min * $interval_tra;
+                        $index_amount= round($data_minutes / $interval_tot);
                         
-                        $start_index = $block['start_i'];
-                        $start_time  = $block['time_start'];
-                        $end_index   = $block['end_i'];
-                        $end_time    = $block['time_end'];
-                        
+                        // select portion of the data
+                        $start_index = $match_index + ($index_amount * $block_data_i);
+                        $end_index   = $match_index + ($index_amount * ($block_data_i+1));
+                        $out         = ['match_date'=>$match_date, 'block_data_index'=>$block_data_i, 'index_amount'=>$index_amount, 'block_data_i'=>$block_data_i, 'match_index'=>$match_index, 'start_index'=>$start_index, 'end_index'=>$end_index, 'flashlog'=>[], 'database'=>[]];
+
                         // Add flashlog measurement data
                         $block_data  = json_decode($flashlog->getFileContent('log_file_parsed'));
-                        for ($i=$start_index; $i <= $end_index; $i++) 
+                        for ($i=$start_index; $i<$end_index; $i++) 
                         { 
-                            $out['flashlog'][] = $block_data[$i];
+                            $block_data_item = $block_data[$i];
+                            unset($block_data_item->payload_hex);
+                            unset($block_data_item->pl);
+                            unset($block_data_item->len);
+                            unset($block_data_item->pl_bytes);
+                            $out['flashlog'][] = $block_data_item;
                         }
+
                         // Add Database data
-                        $query       = 'SELECT "'.implode('","', $measurements).'" FROM "sensors" WHERE '.$flashlog->device->influxWhereKeys().' AND time >= \''.$start_time.'\' AND time >= \''.$end_time.'\' ORDER BY time ASC LIMIT 5000';
+                        $start_mom   = new Moment($match_date);
+                        $end_mom     = new Moment($match_date);
+                        $start_time  = $start_mom->addMinutes($block_data_i * $data_minutes)->format($this->timeFormat);
+                        $end_time    = $end_mom->addMinutes($block_data_i+1 * $data_minutes)->format($this->timeFormat);
+                        $query       = 'SELECT "'.implode('","', $measurements).'" FROM "sensors" WHERE '.$flashlog->device->influxWhereKeys().' AND time >= \''.$start_time.'\' AND time >= \''.$end_time.'\' ORDER BY time ASC LIMIT '.$index_amount;
                         $out['database'] = Device::getInfluxQuery($query, 'flashlog');
+                    }
+                    else
+                    {
+                        $out = ['error'=>'no_matches_for_block_'.$block_id];
                     }
                 }
                 else

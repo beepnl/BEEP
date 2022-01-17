@@ -74,9 +74,17 @@ class FlashLog extends Model
 
         $cache_name = 'flashlog-'.$this->id.'-fill-'.$fill.'-show-'.$show.'-matches-'.$matches_min_override.'-props-'.$match_props_override.'-dbrecs-'.$db_records_override;
         
-        if ($from_cache === true && Cache::has($cache_name))
-            return Cache::get($cache_name);
-
+        // get result from cache only if it contains any matches
+        if ($from_cache === true && Cache::has($cache_name) && $save === false && $fill === true)
+        {
+            $result = Cache::get($cache_name);
+            foreach ($result['log'] as $block_i => $block) 
+            {
+                if (isset($block['matches']))
+                    return $result;
+            }
+        }
+        
         $result   = null;
         $parsed   = false;
         $saved    = false;
@@ -343,15 +351,14 @@ class FlashLog extends Model
         if ($flashlog == null || $fl_items < $matches_min)
             return ['fl_index'=>$fl_index, 'fl_index_end'=>$fl_index_end, 'db_start_time'=>$start_time, 'db_data'=>[], 'db_data_count'=>0, 'message'=>'too few flashlog items to match: '.$fl_items];
         
-        $measurements= Measurement::getValidMeasurements(true);
+        //$measurements= Measurement::getValidMeasurements(true);
+        $measurements= Measurement::getMatchingMeasurements();
         $query       = 'SELECT "'.implode('","', $measurements).'" FROM "sensors" WHERE '.$device->influxWhereKeys().' AND time >= \''.$start_time.'\' ORDER BY time ASC LIMIT '.min(500, max($matches_min, $db_records));
         $db_data     = Device::getInfluxQuery($query, 'flashlog');
 
         $database_log= [];
         foreach ($db_data as $d)
         {
-            unset($d['rssi']);
-            unset($d['snr']);
             $clean_d = array_filter($d);
             if (count($clean_d) > $match_props && array_sum(array_values($clean_d)) != 0)
                 $database_log[] = $clean_d;
@@ -365,7 +372,7 @@ class FlashLog extends Model
         //     $db_data_show = $database_log;
 
         if (count($database_log) < $matches_min)
-            return ['fl_index'=>$fl_index, 'fl_index_end'=>$fl_index_end, 'db_start_time'=>$start_time, 'db_data'=>$db_data_show, 'db_data_count'=>count($database_log), 'message'=>'too few database items to match from query: '.$query];
+            return ['fl_index'=>$fl_index, 'fl_index_end'=>$fl_index_end, 'db_start_time'=>$start_time, 'db_data'=>$db_data_show, 'db_data_count'=>count($database_log), 'message'=>'too few database items to match: '.count($database_log)];
 
         // look for the measurement value(s) in $database_log in the remainder of $flashlog
         $matches     = [];
@@ -593,9 +600,9 @@ class FlashLog extends Model
     private function fillDataGaps($device, $flashlog=null, $save=false, $show=false, $matches_min_override=null, $match_props_override=null, $db_records_override=null, $match_days_offset=0)
     {
         $out         = [];
-        $matches_min = env('FLASHLOG_MIN_MATCHES', 2); // minimum amount of inline measurements that should be matched 
-        $match_props = env('FLASHLOG_MATCH_PROPS', 7); // minimum amount of measurement properties that should match 
-        $db_records  = env('FLASHLOG_DB_RECORDS', 15);// amount of DB records to fetch to match each block
+        $matches_min = env('FLASHLOG_MIN_MATCHES', 5); // minimum amount of inline measurements that should be matched 
+        $match_props = env('FLASHLOG_MATCH_PROPS', 9); // minimum amount of measurement properties that should match 
+        $db_records  = env('FLASHLOG_DB_RECORDS', 80);// amount of DB records to fetch to match each block
 
         if (isset($matches_min_override))
             $matches_min = $matches_min_override;

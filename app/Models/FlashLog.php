@@ -342,29 +342,65 @@ class FlashLog extends Model
         return array_values($onoffs);
     }
 
-    private function matchFlashLogTime($device, $flashlog, $matches_min=1, $match_props=9, $start_index=0, $end_index=0, $start_time='2018-01-01 00:00:00', $db_records=20, $show=false)
+    private function matchFlashLogTime($device, $flashlog, $matches_min=1, $match_props=9, $start_index=0, $end_index=0, $duration_hrs=0, $interval_min=15, $start_time='2018-01-01 00:00:00', $db_records=80, $show=false)
     {
         $fl_index    = $start_index;
         $fl_index_end= $end_index;
         $fl_items    = max(0, $end_index - $start_index);
+        $day_props_m = isset($interval_min) ? 24 * 60 / $interval_min : 96; // max total measurements per match prop on a full data day
+        $day_total_m = $match_props * $day_props_m; // max total measurements for all match_props on a full data day
         
         if ($flashlog == null || $fl_items < $matches_min)
             return ['fl_index'=>$fl_index, 'fl_index_end'=>$fl_index_end, 'db_start_time'=>$start_time, 'db_data'=>[], 'db_data_count'=>0, 'message'=>'too few flashlog items to match: '.$fl_items];
         
-        //$measurements= Measurement::getValidMeasurements(true);
-        $measurements= Measurement::getMatchingMeasurements();
-        $query       = 'SELECT "'.implode('","', $measurements).'" FROM "sensors" WHERE '.$device->influxWhereKeys().' AND time >= \''.$start_time.'\' ORDER BY time ASC LIMIT '.min(500, max($matches_min, $db_records));
+        // Check the amount of data per day over the full length of the period, check for the date with the maximum amount of measurements
+        $start_mom   = new Moment($start_time);
+        $end_time    = $start_mom->addHours(round($duration_hrs))->format($this->timeFormat);
+
+        $count_query = 'SELECT COUNT(*) FROM "sensors" WHERE '.$device->influxWhereKeys().' AND time >= \''.$start_time.'\' AND time <= \''.$end_time.'\' GROUP BY time(24h) ORDER BY time ASC LIMIT 500';
+        $data_count  = Device::getInfluxQuery($count_query, 'flashlog');
+        $day_sum_max = 0;
+        foreach ($data_count as $day_i => $count_array) 
+        {
+            $data_date = $count_array['time'];
+            unset($count_array['time']);
+            $day_sum   = array_sum($count_array);
+            $day_valid = ($day_sum > 0.3*$day_total_m);
+            if ($day_valid)
+                if ($day_sum > $day_sum_max)
+                    $start_time = $data_date;
+
+        }
+        
+        //die(print_r([$start_time, $end_time, $duration_hrs, count($data_count), $data_count]));
+
+        // get data from the day with max amount of measurements
+        $query       = 'SELECT * FROM "sensors" WHERE '.$device->influxWhereKeys().' AND time >= \''.$start_time.'\' ORDER BY time ASC LIMIT '.min(500, max($matches_min, $db_records));
         $db_data     = Device::getInfluxQuery($query, 'flashlog');
 
+        //die(print_r([$start_time, $db_data]));
+        
         $database_log= [];
         foreach ($db_data as $d)
         {
             $clean_d = array_filter($d);
+            unset($clean_d['hardware_id']);
+            unset($clean_d['device_name']);
+            unset($clean_d['key']);
+            unset($clean_d['user_id']);
+            unset($clean_d['rssi']);
+            unset($clean_d['snr']);
+
             if (count($clean_d) > $match_props && array_sum(array_values($clean_d)) != 0)
+            {
                 $database_log[] = $clean_d;
 
-            // if (count($database_log) >= $matches_min)
-            //     break;
+                if (count($database_log) >= 2 * $matches_min)
+                    break;
+
+                //die(print_r([$start_time, $clean_d, count($clean_d), $db_data]));
+            }
+
         }
 
         $db_data_show = null;
@@ -504,9 +540,9 @@ class FlashLog extends Model
 
     private function matchFlashLogBlock($i, $fl_index, $end_index, $on, $flashlog, $setCount, $device, $log, $db_time, $matches_min, $match_props, $db_records, $show=false)
     {
-        $block_index  = $on['i'];
-        $start_index  = $block_index+1;
-        $interval     = $on['measurement_interval_min'];
+        $block_index     = $on['i'];
+        $start_index     = $block_index+1;
+        $interval        = intval($on['measurement_interval_min']); // transmission ratio is not of importance here, because log contains all measurements
 
         $db_moment       = new Moment($db_time);
         
@@ -522,25 +558,27 @@ class FlashLog extends Model
             $device_time   = $device_moment->format($this->timeFormat);
             if ($device_time > $db_time)
             {
-                $db_time = $device_time;
+                $db_time         = $device_time;
+                $db_moment       = new Moment($db_time);
                 $use_device_time = true;
             }
         }
-            
+        
+        // Disable half time checking, because will be solved in matchFlashLogTime
         // set time to 1/2 of interval if > 2 * amount of indexes 
-        if ($indexes > 2 * $db_records && $use_device_time == false) 
-        {
-            $db_q_time = $db_moment->addMinutes(round($duration_min/2))->format($this->timeFormat);
-            $db_max    = max($matches_min, min($db_records, $indexes/2));
-        }
-        else
-        {
+        // if ($indexes > 2 * $db_records && $use_device_time === false) 
+        // {
+        //     $db_q_time = $db_moment->addMinutes(round($duration_min/2))->format($this->timeFormat);
+        //     $db_max    = max($matches_min, min($db_records, $indexes/2));
+        // }
+        // else
+        // {
             $db_q_time = $db_time;
             $db_max    = max($matches_min, min($db_records, $indexes));
-        }
+        // }
 
         // matchFlashLogTime returns: ['fl_index'=>$fl_index, 'fl_index_end'=>$fl_index_end, 'fl_match_tries'=>$tries, 'db_start_time'=>$start_time, 'db_data'=>$db_data, 'db_data_count'=>count($db_data), 'matches'=>$matches];
-        $matches = $this->matchFlashLogTime($device, $flashlog, $matches_min, $match_props, $start_index, $end_index, $db_q_time, $db_max, $show);
+        $matches = $this->matchFlashLogTime($device, $flashlog, $matches_min, $match_props, $start_index, $end_index, $duration_hrs, $interval, $db_q_time, $db_max, $show);
         
         if (isset($matches['matches']))
         {

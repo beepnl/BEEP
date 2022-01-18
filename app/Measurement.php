@@ -124,6 +124,11 @@ class Measurement extends Model
         return null;
     }
 
+    public static function getMatchingMeasurements()
+    {
+        return ['bv','w_v','weight_kg','t_i','t_0','t_1','s_bin_71_122','s_bin_173_224','s_bin_224_276','s_bin_276_327','s_bin_327_378','s_bin_378_429','s_bin_429_480','s_bin_480_532','s_bin_532_583'];
+    }
+
     public static function getValidMeasurements($output=false, $weather=false, $locale=null)
     {
         $name_table = $weather ? 'weather' : 'sensors';

@@ -12,6 +12,7 @@ use App\Hive;
 use App\User;
 use App\Mail\GroupInvitation;
 use App\Mail\GroupAcceptation;
+use App\Mail\GroupRefusal;
 
 use DB;
 use Validator;
@@ -29,11 +30,19 @@ class GroupController extends Controller
         return response()->json(['invitations'=>$invite, 'groups'=>$groups, 'message'=>$message, 'error'=>$error], $code);
     }
 
+    /**
+     * api/groups/checktoken POST
+     * Check a token for a group id, and accept or decline the invite
+     * @authenticated
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
     public function checktoken(Request $request)
     {
-        $validator = Validator::make($request->only('token','group_id'), [
+        $validator = Validator::make($request->only('token','group_id','decline'), [
             'token'     => 'required|exists:group_user,token',
             'group_id'  => 'required|exists:group_user,group_id',
+            'decline'   => 'nullable|boolean',
         ]);
 
         if ($validator->fails())
@@ -45,18 +54,24 @@ class GroupController extends Controller
             $valid_data     = $validator->validated();
             $group_user_id  = DB::table('group_user')->where('token',$valid_data['token'])->where('group_id',$valid_data['group_id'])->value('user_id');
             $user_name      = User::where('id',$group_user_id)->value('name');
-            
-            $res = DB::table('group_user')->where('token',$valid_data['token'])->where('group_id',$valid_data['group_id'])->update(['invited'=>null,'accepted'=>now(),'declined'=>null,'token'=>null]);
+            $decline        = (isset($valid_data['decline']) && boolval($valid_data['decline']) === true) ? true : false;
+
+            if ($decline)
+                $res = DB::table('group_user')->where('token',$valid_data['token'])->where('group_id',$valid_data['group_id'])->update(['invited'=>null,'accepted'=>null,'declined'=>now(),'token'=>null]);
+            else
+                $res = DB::table('group_user')->where('token',$valid_data['token'])->where('group_id',$valid_data['group_id'])->update(['invited'=>null,'accepted'=>now(),'declined'=>null,'token'=>null]);
+
             if ($res)
             {
-                $this->sendAcceptMailToGroupAdmins($valid_data['group_id'], $user_name, $group_user_id);
-                return response()->json(['message'=>'group_activated']);
+                $this->sendAcceptMailToGroupAdmins($valid_data['group_id'], $user_name, $group_user_id, $decline);
+                $msg = $decline ? 'group_declined' : 'group_activated'; 
+                return response()->json(['message'=>$msg]);
             }
         }
         return response()->json('token_error',500);
     }
 
-    private function sendAcceptMailToGroupAdmins($group_id, $user_name, $group_user_id)
+    private function sendAcceptMailToGroupAdmins($group_id, $user_name, $group_user_id, $decline=false)
     {
         $group_name  = Group::where('id', $group_id)->value('name');
         $group_admin = DB::table('group_user')->where('user_id', '!=', $group_user_id)->where('group_id',$group_id)->where('admin',1)->pluck('user_id')->toArray();
@@ -64,7 +79,10 @@ class GroupController extends Controller
         
         foreach ($admin_mails as $email => $name) 
         {
-            Mail::to($email)->send(new GroupAcceptation($name, $group_name, $user_name));
+            if ($decline)
+                Mail::to($email)->send(new GroupRefusal($name, $group_name, $user_name));
+            else
+                Mail::to($email)->send(new GroupAcceptation($name, $group_name, $user_name));
         }
     }
 

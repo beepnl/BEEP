@@ -88,7 +88,7 @@ class AlertRule extends Model
 
     public function getUnit()
     {
-        return $this->calculation == 'cnt' || $this->calculation == 'der' ? '' : ''.$this->measurement->unit;
+        return $this->calculation == 'cnt' || $this->calculation == 'der' || $this->measurement->unit == '-' ? '' : ''.$this->measurement->unit;
     }
 
     public function measurement()

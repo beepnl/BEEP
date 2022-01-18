@@ -79,7 +79,7 @@ class FlashLogController extends Controller
         
         $save_result = boolval($request->input('save_result', false));
         $from_cache  = boolval($request->input('from_cache', true));
-        $block_id    = intval($request->input('block_id'));
+        $block_id    = $request->input('block_id');
         $block_data_i= intval($request->input('block_data_index', 0));
         $data_minutes= intval($request->input('data_minutes', 10080));
         
@@ -99,45 +99,48 @@ class FlashLogController extends Controller
                     $out = $flashlog->log($data, null, $save_result, true, true, $matches_min, $match_props, $db_records, $save_result, $from_cache); // $data='', $log_bytes=null, $save=true, $fill=false, $show=false, $matches_min_override=null, $match_props_override=null, $db_records_override=null, $save_override=false, $from_cache=true, $match_days_offset=0
 
                     // get the data from a single Flashlog block
-                    if (isset($block_id) && isset($out['log'][$block_id]) && isset($out['log'][$block_id]['matches']))
+                    if (isset($block_id))
                     {
-                        $block       = $out['log'][$block_id];
-                        $match_date  = $block['db_time'];
-                        $match_index = $block['fl_i'];
-                        $interval_min= $block['interval_min'];
+                        if (isset($out['log'][$block_id]) && isset($out['log'][$block_id]['matches']))
+                        {
+                            $block       = $out['log'][$block_id];
+                            $match_date  = $block['db_time'];
+                            $match_index = $block['fl_i'];
+                            $interval_min= $block['interval_min'];
 
-                        $interval_tra= isset($block['transmission_ratio']) ? $block['transmission_ratio'] : 1;
-                        $interval_tot= $interval_min * $interval_tra;
-                        $index_amount= round($data_minutes / $interval_tot);
-                        
-                        // select portion of the data
-                        $start_index = $match_index + ($index_amount * $block_data_i);
-                        $end_index   = $match_index + ($index_amount * ($block_data_i+1));
-                        $out         = ['match_date'=>$match_date, 'block_data_index'=>$block_data_i, 'index_amount'=>$index_amount, 'block_data_i'=>$block_data_i, 'match_index'=>$match_index, 'start_index'=>$start_index, 'end_index'=>$end_index, 'flashlog'=>[], 'database'=>[]];
+                            $interval_tra= isset($block['transmission_ratio']) ? $block['transmission_ratio'] : 1;
+                            $interval_tot= $interval_min * $interval_tra;
+                            $index_amount= round($data_minutes / $interval_tot);
+                            
+                            // select portion of the data
+                            $start_index = $match_index + ($index_amount * $block_data_i);
+                            $end_index   = $match_index + ($index_amount * ($block_data_i+1));
+                            $out         = ['match_date'=>$match_date, 'block_data_index'=>$block_data_i, 'index_amount'=>$index_amount, 'block_data_i'=>$block_data_i, 'match_index'=>$match_index, 'start_index'=>$start_index, 'end_index'=>$end_index, 'flashlog'=>[], 'database'=>[]];
 
-                        // Add flashlog measurement data
-                        $block_data  = json_decode($flashlog->getFileContent('log_file_parsed'));
-                        for ($i=$start_index; $i<$end_index; $i++) 
-                        { 
-                            $block_data_item = $block_data[$i];
-                            unset($block_data_item->payload_hex);
-                            unset($block_data_item->pl);
-                            unset($block_data_item->len);
-                            unset($block_data_item->pl_bytes);
-                            $out['flashlog'][] = $block_data_item;
+                            // Add flashlog measurement data
+                            $block_data  = json_decode($flashlog->getFileContent('log_file_parsed'));
+                            for ($i=$start_index; $i<$end_index; $i++) 
+                            { 
+                                $block_data_item = $block_data[$i];
+                                unset($block_data_item->payload_hex);
+                                unset($block_data_item->pl);
+                                unset($block_data_item->len);
+                                unset($block_data_item->pl_bytes);
+                                $out['flashlog'][] = $block_data_item;
+                            }
+
+                            // Add Database data
+                            $start_mom   = new Moment($match_date);
+                            $end_mom     = new Moment($match_date);
+                            $start_time  = $start_mom->addMinutes($block_data_i * $data_minutes)->format($this->timeFormat);
+                            $end_time    = $end_mom->addMinutes($block_data_i+1 * $data_minutes)->format($this->timeFormat);
+                            $query       = 'SELECT "'.implode('","', $measurements).'" FROM "sensors" WHERE '.$flashlog->device->influxWhereKeys().' AND time >= \''.$start_time.'\' AND time >= \''.$end_time.'\' ORDER BY time ASC LIMIT '.$index_amount;
+                            $out['database'] = Device::getInfluxQuery($query, 'flashlog');
                         }
-
-                        // Add Database data
-                        $start_mom   = new Moment($match_date);
-                        $end_mom     = new Moment($match_date);
-                        $start_time  = $start_mom->addMinutes($block_data_i * $data_minutes)->format($this->timeFormat);
-                        $end_time    = $end_mom->addMinutes($block_data_i+1 * $data_minutes)->format($this->timeFormat);
-                        $query       = 'SELECT "'.implode('","', $measurements).'" FROM "sensors" WHERE '.$flashlog->device->influxWhereKeys().' AND time >= \''.$start_time.'\' AND time >= \''.$end_time.'\' ORDER BY time ASC LIMIT '.$index_amount;
-                        $out['database'] = Device::getInfluxQuery($query, 'flashlog');
-                    }
-                    else
-                    {
-                        $out = ['error'=>'no_matches_for_block_'.$block_id];
+                        else
+                        {
+                            $out = ['error'=>'no_matches_for_block_'.$block_id];
+                        }
                     }
                 }
                 else

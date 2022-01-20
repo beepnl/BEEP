@@ -133,6 +133,10 @@ class FlashLogController extends Controller
                                 unset($block_data_item->port);
                                 unset($block_data_item->minute_interval);
                                 unset($block_data_item->i);
+                                unset($block_data_item->bat_perc);
+                                unset($block_data_item->fft_bin_amount);
+                                unset($block_data_item->fft_start_bin);
+                                unset($block_data_item->fft_stop_bin);
 
                                 $out['flashlog'][] = $block_data_item;
                             }

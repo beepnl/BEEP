@@ -79,7 +79,7 @@ class FlashLogController extends Controller
         $save_result = boolval($request->input('save_result', false));
         $from_cache  = boolval($request->input('from_cache', true));
         $block_id    = $request->input('block_id');
-        $block_data_i= intval($request->input('block_data_index', 0));
+        $block_data_i= intval($request->input('block_data_index', -1));
         $data_minutes= intval($request->input('data_minutes', 10080));
         
         $flashlog    = $request->user()->flashlogs()->find($id);
@@ -102,24 +102,28 @@ class FlashLogController extends Controller
                     {
                         if (isset($out['log'][$block_id]) && isset($out['log'][$block_id]['matches']))
                         {
-                            $block       = $out['log'][$block_id];
-                            $match_index = $block['fl_i'];
-                            $interval_min= $block['interval_min'];
-
-                            $interval_tra= isset($block['transmission_ratio']) ? $block['transmission_ratio'] : 1;
-                            $interval_tot= $interval_min * $interval_tra;
-                            $index_amount= round($data_minutes / $interval_tot);
+                            $block         = $out['log'][$block_id];
+                            $match_index   = $block['fl_i'];
+                            $interval_min  = $block['interval_min'];
+                            $index_amount  = round($data_minutes / $interval_min);
                             
+                            $block_start_i = $block['start_i'];
+                            $block_end_i   = $block['end_i'];
+                            $data_i_max    = floor(($block_end_i - $block_start_i) / $index_amount);
+                            
+                            if ($block_data_i == -1)
+                                $block_data_i= floor($match_index / $index_amount);
+
                             // select portion of the data
-                            $start_index = $match_index + ($index_amount * $block_data_i);
-                            $end_index   = $match_index + ($index_amount * ($block_data_i+1));
-                            $out         = ['block_data_index'=>$block_data_i, 'index_amount'=>$index_amount, 'block_data_i'=>$block_data_i, 'match_index'=>$match_index, 'start_index'=>$start_index, 'end_index'=>$end_index, 'flashlog'=>[], 'database'=>[]];
+                            $start_index = $block_start_i + ($index_amount * $block_data_i);
+                            $end_index   = min($block_end_i, $block_start_i + ($index_amount * ($block_data_i+1)));
+
+                            $out         = ['block_start_i'=>$block_start_i, 'block_end_i'=>$block_end_i, 'match_index'=>$match_index, 'block_data_index'=>$block_data_i, 'block_data_index_max'=>$data_i_max, 'block_data_index_amount'=>$index_amount, 'block_data_start'=>$start_index, 'block_data_end'=>$end_index, 'flashlog'=>[], 'database'=>[]];
 
                             // Add flashlog measurement data
                             $block_data  = json_decode($flashlog->getFileContent('log_file_parsed'));
                             for ($i=$start_index; $i<$end_index; $i++) 
                             { 
-                                
                                 $block_data_item = $block_data[$i];
                                 $block_data_item->time .= 'Z'; // display as UTC
                                 unset($block_data_item->payload_hex);
@@ -132,11 +136,11 @@ class FlashLogController extends Controller
                                 unset($block_data_item->ds18b20_sensor_amount);
                                 unset($block_data_item->port);
                                 unset($block_data_item->minute_interval);
-                                unset($block_data_item->i);
                                 unset($block_data_item->bat_perc);
                                 unset($block_data_item->fft_bin_amount);
                                 unset($block_data_item->fft_start_bin);
                                 unset($block_data_item->fft_stop_bin);
+                                //unset($block_data_item->i);
 
                                 $out['flashlog'][] = $block_data_item;
                             }

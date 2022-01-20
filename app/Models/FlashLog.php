@@ -414,9 +414,6 @@ class FlashLog extends Model
 
                 $database_log[] = $clean_d;
 
-                // if (count($database_log) >= 2 * $matches_min)
-                //     break;
-
                 //die(print_r([$start_time, $clean_d, count($clean_d), $db_data]));
             }
 

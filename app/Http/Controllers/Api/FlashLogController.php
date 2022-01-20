@@ -87,7 +87,7 @@ class FlashLogController extends Controller
         $out         = ['error'=>'no_flashlog_found'];
 
         //$measurements= Measurement::getValidMeasurements(true);
-        $measurements= Measurement::getMatchingMeasurements();
+        $measurements = Measurement::getMatchingMeasurements();
 
         if ($flashlog)
         {
@@ -104,7 +104,6 @@ class FlashLogController extends Controller
                         if (isset($out['log'][$block_id]) && isset($out['log'][$block_id]['matches']))
                         {
                             $block       = $out['log'][$block_id];
-                            $match_date  = $block['db_time'];
                             $match_index = $block['fl_i'];
                             $interval_min= $block['interval_min'];
 
@@ -115,27 +114,40 @@ class FlashLogController extends Controller
                             // select portion of the data
                             $start_index = $match_index + ($index_amount * $block_data_i);
                             $end_index   = $match_index + ($index_amount * ($block_data_i+1));
-                            $out         = ['match_date'=>$match_date, 'block_data_index'=>$block_data_i, 'index_amount'=>$index_amount, 'block_data_i'=>$block_data_i, 'match_index'=>$match_index, 'start_index'=>$start_index, 'end_index'=>$end_index, 'flashlog'=>[], 'database'=>[]];
+                            $out         = ['block_data_index'=>$block_data_i, 'index_amount'=>$index_amount, 'block_data_i'=>$block_data_i, 'match_index'=>$match_index, 'start_index'=>$start_index, 'end_index'=>$end_index, 'flashlog'=>[], 'database'=>[]];
 
                             // Add flashlog measurement data
                             $block_data  = json_decode($flashlog->getFileContent('log_file_parsed'));
                             for ($i=$start_index; $i<$end_index; $i++) 
                             { 
+                                
                                 $block_data_item = $block_data[$i];
                                 unset($block_data_item->payload_hex);
                                 unset($block_data_item->pl);
                                 unset($block_data_item->len);
+                                unset($block_data_item->vcc);
                                 unset($block_data_item->pl_bytes);
+                                unset($block_data_item->beep_base);
+                                unset($block_data_item->weight_sensor_amount);
+                                unset($block_data_item->ds18b20_sensor_amount);
+                                unset($block_data_item->port);
+                                unset($block_data_item->minute_interval);
+                                unset($block_data_item->i);
+
                                 $out['flashlog'][] = $block_data_item;
                             }
 
+                            $data_values = count($out['flashlog']);
                             // Add Database data
-                            $start_mom   = new Moment($match_date);
-                            $end_mom     = new Moment($match_date);
-                            $start_time  = $start_mom->addMinutes($block_data_i * $data_minutes)->format($this->timeFormat);
-                            $end_time    = $end_mom->addMinutes($block_data_i+1 * $data_minutes)->format($this->timeFormat);
-                            $query       = 'SELECT "'.implode('","', $measurements).'" FROM "sensors" WHERE '.$flashlog->device->influxWhereKeys().' AND time >= \''.$start_time.'\' AND time >= \''.$end_time.'\' ORDER BY time ASC LIMIT '.$index_amount;
-                            $out['database'] = Device::getInfluxQuery($query, 'flashlog');
+                            if ($data_values > 0)
+                            {
+                                $first_obj   = $out['flashlog'][0];
+                                $last_obj    = $out['flashlog'][$data_values-1];
+                                $start_time  = $first_obj->time;
+                                $end_time    = $last_obj->time;
+                                $query       = 'SELECT "'.implode('","', $measurements).'" FROM "sensors" WHERE '.$flashlog->device->influxWhereKeys().' AND time >= \''.$start_time.'\' AND time <= \''.$end_time.'\' ORDER BY time ASC LIMIT '.$index_amount;
+                                $out['database'] = Device::getInfluxQuery($query, 'flashlog');
+                            }
                         }
                         else
                         {

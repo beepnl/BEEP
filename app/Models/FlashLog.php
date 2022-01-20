@@ -360,15 +360,23 @@ class FlashLog extends Model
         $count_query = 'SELECT COUNT(*) FROM "sensors" WHERE '.$device->influxWhereKeys().' AND time >= \''.$start_time.'\' AND time <= \''.$end_time.'\' GROUP BY time(24h) ORDER BY time ASC LIMIT 500';
         $data_count  = Device::getInfluxQuery($count_query, 'flashlog');
         $day_sum_max = 0;
+        $days_valid  = 0;
+
         foreach ($data_count as $day_i => $count_array) 
         {
             $data_date = $count_array['time'];
             unset($count_array['time']);
             $day_sum   = array_sum($count_array);
-            $day_valid = ($day_sum > 0.3*$day_total_m);
+            $day_valid = ($day_sum > 0.7*$day_total_m);
             if ($day_valid)
-                if ($day_sum > $day_sum_max)
+            {
+                $days_valid++;
+                if ($days_valid > 1)
+                {
                     $start_time = $data_date;
+                    break;
+                }
+            }
 
         }
         
@@ -380,7 +388,8 @@ class FlashLog extends Model
 
         //die(print_r([$start_time, $db_data]));
         
-        $database_log= [];
+        $database_log  = [];
+        $db_first_unix = 0;
         foreach ($db_data as $d)
         {
             $clean_d = array_filter($d);
@@ -393,10 +402,20 @@ class FlashLog extends Model
 
             if (count($clean_d) > $match_props && array_sum(array_values($clean_d)) != 0)
             {
+                if (count($database_log) == 0) // first entry
+                {
+                    $db_first_unix      = strtotime($clean_d['time']);
+                    $clean_d['unix']    = $db_first_unix;
+                    $clean_d['seconds'] = 0;
+                }
+
+                $clean_d['unix']    = strtotime($clean_d['time']);
+                $clean_d['seconds'] = $clean_d['unix'] - $db_first_unix;
+
                 $database_log[] = $clean_d;
 
-                if (count($database_log) >= 2 * $matches_min)
-                    break;
+                // if (count($database_log) >= 2 * $matches_min)
+                //     break;
 
                 //die(print_r([$start_time, $clean_d, count($clean_d), $db_data]));
             }
@@ -411,9 +430,11 @@ class FlashLog extends Model
             return ['fl_index'=>$fl_index, 'fl_index_end'=>$fl_index_end, 'db_start_time'=>$start_time, 'db_data'=>$db_data_show, 'db_data_count'=>count($database_log), 'message'=>'too few database items to match: '.count($database_log)];
 
         // look for the measurement value(s) in $database_log in the remainder of $flashlog
-        $matches     = [];
-        $tries       = 0;
-        $match_count = 0;
+        $matches            = [];
+        $tries              = 0;
+        $match_count        = 0;
+        $match_first_min_fl = 0;
+        $match_first_sec_db = 0;
         foreach ($database_log as $d)
         {
             if ($match_count >= $matches_min)
@@ -428,6 +449,25 @@ class FlashLog extends Model
                     $match = array_intersect_assoc($d, $f);
                     if ($match != null && count($match) >= $match_props)
                     {
+                        if ($match_count == 0)
+                        {
+                            $match_first_min_fl = $f['minute'];
+                            $match_first_sec_db = $d['seconds'];
+                        }
+                        else if ($match_count == 1) // check the time interval of the match in 2nd match
+                        {
+                            $match_increase_min = $f['minute'] - $match_first_min_fl;
+                            $datab_increase_min = round( ($d['seconds'] - $match_first_sec_db) / 60);
+
+                            //die(print_r([$match_increase_min, $datab_increase_min, $matches]));
+
+                            if ($match_increase_min != $datab_increase_min) // if this does not match, remove first match and replace by this one
+                            {
+                                $matches     = [];
+                                $match_count = 0;
+                            }
+                        }
+
                         $fl_index                 = $i;
                         $match['time']            = $d['time'];
                         $match['minute']          = $f['minute'];
@@ -435,7 +475,7 @@ class FlashLog extends Model
                         $match['flashlog_index']  = $i;
                         $matches[$i]              = $match;
                         $match_count++;
-                        continue 2; // break the for loop and continue with the next database item
+                        continue 2; // next foreach loop to continue with the next database item
 
                         // TODO: do not break the loop to check how many matches there are
                     }

@@ -83,6 +83,8 @@ class FlashLogController extends Controller
         $data_minutes= intval($request->input('data_minutes', 10080));
         
         $flashlog    = $request->user()->flashlogs()->find($id);
+        $device_id   = isset($flashlog->device) ? $flashlog->device->id : null;
+        $hive_id     = isset($flashlog->hive) ? $flashlog->hive->id : null;
         $out         = ['error'=>'no_flashlog_found'];
 
         //$measurements= Measurement::getValidMeasurements(true);
@@ -96,6 +98,9 @@ class FlashLogController extends Controller
                 if (isset($data))
                 {
                     $out = $flashlog->log($data, null, $save_result, true, true, $matches_min, $match_props, $db_records, $save_result, $from_cache); // $data='', $log_bytes=null, $save=true, $fill=false, $show=false, $matches_min_override=null, $match_props_override=null, $db_records_override=null, $save_override=false, $from_cache=true, $match_days_offset=0
+
+                    $out['device_id'] = $device_id;
+                    $out['hive_id']   = $hive_id;
 
                     // get the data from a single Flashlog block
                     if (isset($block_id))
@@ -124,7 +129,7 @@ class FlashLogController extends Controller
                                 $start_index = $block_start_i + ($index_amount * $block_data_i);
                                 $end_index   = min($block_end_i, $block_start_i + ($index_amount * ($block_data_i+1)));
 
-                                $out = ['block_start_i'=>$block_start_i, 'block_end_i'=>$block_end_i, 'match_index'=>$match_index, 'block_data_index'=>$block_data_i, 'block_data_index_max'=>$data_i_max, 'block_data_index_amount'=>$index_amount, 'block_data_start'=>$start_index, 'block_data_end'=>$end_index, 'flashlog'=>[], 'database'=>[]];
+                                $out = ['device_id'=>$device_id, 'hive_id'=>$hive_id, 'block_start_i'=>$block_start_i, 'block_end_i'=>$block_end_i, 'match_index'=>$match_index, 'block_data_index'=>$block_data_i, 'block_data_index_max'=>$data_i_max, 'block_data_index_amount'=>$index_amount, 'block_data_start'=>$start_index, 'block_data_end'=>$end_index, 'flashlog'=>[], 'database'=>[]];
 
                                 // Add flashlog measurement data
                                 $block_data  = json_decode($flashlog->getFileContent('log_file_parsed'));

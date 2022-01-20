@@ -444,29 +444,31 @@ class FlashLog extends Model
             {
                 $f = $flashlog[$i];
 
-                if ($f['port'] == 3 && count($matches) < $matches_min) // keep looking if found matches are < min matches
+                if ($f['port'] == 3 && $match_count < $matches_min) // keep looking if found matches are < min matches
                 {
                     $match = array_intersect_assoc($d, $f);
                     if ($match != null && count($match) >= $match_props)
                     {
-                        // if ($match_count == 0)
-                        // {
-                        //     $match_first_min_fl = $f['minute'];
-                        //     $match_first_sec_db = $d['seconds'];
-                        // }
-                        // else if ($match_count == 1) // check the time interval of the match in 2nd match
-                        // {
-                        //     $match_increase_min = $f['minute'] - $match_first_min_fl;
-                        //     $datab_increase_min = round( ($d['seconds'] - $match_first_sec_db) / 60);
+                        if ($match_count == 0)
+                        {
+                            $match_first_min_fl = $f['minute'];
+                            $match_first_sec_db = $d['seconds'];
+                        }
+                        else if ($match_count == 1) // check the time interval of the match in 2nd match
+                        {
+                            $match_increase_min = $f['minute'] - $match_first_min_fl;
+                            $datab_increase_min = round( ($d['seconds'] - $match_first_sec_db) / 60);
 
-                        //     //die(print_r([$match_increase_min, $datab_increase_min, $matches]));
+                            //print_r([$match_increase_min, $datab_increase_min, $matches]);
 
-                        //     if ($match_increase_min != $datab_increase_min) // if this does not match, remove first match and replace by this one
-                        //     {
-                        //         $matches     = [];
-                        //         $match_count = 0;
-                        //     }
-                        // }
+                            if ($match_increase_min != $datab_increase_min) // if this does not match, remove first match and replace by this one
+                            {
+                                $match_first_sec_db = $d['seconds'];
+                                $match_first_min_fl = $f['minute'];
+                                $matches            = [];
+                                $match_count        = 0;
+                            }
+                        }
 
                         $fl_index                 = $i;
                         $match['time']            = $d['time'];
@@ -485,7 +487,7 @@ class FlashLog extends Model
 
             }
         }
-
+        //die();
         return ['fl_index'=>$fl_index, 'fl_index_end'=>$fl_index_end, 'fl_match_tries'=>$tries, 'db_start_time'=>$start_time, 'db_data'=>$db_data_show, 'db_data_count'=>count($db_data), 'message'=>'no matches found'];
     }
 
@@ -516,7 +518,7 @@ class FlashLog extends Model
                 $sensor_defs     = $device->activeSensorDefinitions();
                 $sensor_defs_all = $device->sensorDefinitions;
 
-                //die(print_r(['matchTime'=>$matchTime, 'matchMinInt'=>$matchMinInt, 'startInd'=>$startInd, 'blockStaDate'=>$blockStaDate, 'blockEndDate'=>$blockEndDate]));
+                //die(print_r(['matchTime'=>$matchTime, 'matchMinInt'=>$matchMinInt, 'startInd'=>$startInd, 'blockStaDate'=>$blockStaDate, 'blockEndDate'=>$blockEndDate, 'match'=>$match]));
                 // add time to flashlog block
                 $setTimeStart = '';
                 $setTimeEnd   = '';

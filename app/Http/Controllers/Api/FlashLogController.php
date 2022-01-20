@@ -26,7 +26,11 @@ class FlashLogController extends Controller
      */
     public function index(Request $request)
     {
-        $flashlogs = $request->user()->flashlogs()->orderByDesc('created_at')->get();
+        if ($request->user()->hasRole('superadmin'))
+            $flashlogs = FlashLog::orderByDesc('created_at')->get();
+        else
+            $flashlogs = $request->user()->flashlogs()->orderByDesc('created_at')->get();
+
         return response()->json($flashlogs);
     }
 
@@ -82,7 +86,11 @@ class FlashLogController extends Controller
         $block_data_i= intval($request->input('block_data_index', -1));
         $data_minutes= intval($request->input('data_minutes', 10080));
         
-        $flashlog    = $request->user()->flashlogs()->find($id);
+        if ($request->user()->hasRole('superadmin'))
+            $flashlog = Flashlog::find($id);
+        else
+            $flashlog = $request->user()->flashlogs()->find($id);
+
         $device_id   = isset($flashlog->device) ? $flashlog->device->id : null;
         $hive_id     = isset($flashlog->hive) ? $flashlog->hive->id : null;
         $out         = ['error'=>'no_flashlog_found'];

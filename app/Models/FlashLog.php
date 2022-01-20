@@ -449,24 +449,24 @@ class FlashLog extends Model
                     $match = array_intersect_assoc($d, $f);
                     if ($match != null && count($match) >= $match_props)
                     {
-                        if ($match_count == 0)
-                        {
-                            $match_first_min_fl = $f['minute'];
-                            $match_first_sec_db = $d['seconds'];
-                        }
-                        else if ($match_count == 1) // check the time interval of the match in 2nd match
-                        {
-                            $match_increase_min = $f['minute'] - $match_first_min_fl;
-                            $datab_increase_min = round( ($d['seconds'] - $match_first_sec_db) / 60);
+                        // if ($match_count == 0)
+                        // {
+                        //     $match_first_min_fl = $f['minute'];
+                        //     $match_first_sec_db = $d['seconds'];
+                        // }
+                        // else if ($match_count == 1) // check the time interval of the match in 2nd match
+                        // {
+                        //     $match_increase_min = $f['minute'] - $match_first_min_fl;
+                        //     $datab_increase_min = round( ($d['seconds'] - $match_first_sec_db) / 60);
 
-                            //die(print_r([$match_increase_min, $datab_increase_min, $matches]));
+                        //     //die(print_r([$match_increase_min, $datab_increase_min, $matches]));
 
-                            if ($match_increase_min != $datab_increase_min) // if this does not match, remove first match and replace by this one
-                            {
-                                $matches     = [];
-                                $match_count = 0;
-                            }
-                        }
+                        //     if ($match_increase_min != $datab_increase_min) // if this does not match, remove first match and replace by this one
+                        //     {
+                        //         $matches     = [];
+                        //         $match_count = 0;
+                        //     }
+                        // }
 
                         $fl_index                 = $i;
                         $match['time']            = $d['time'];

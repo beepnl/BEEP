@@ -30,7 +30,7 @@ class User extends Authenticatable
 
     //protected $cascadeDeletes = ['hives','checklists','inspections','locations','sensors']; // for soft deletes
 
-    protected $appends  = ['app_debug'];
+    protected $appends  = ['app_debug', 'is_admin'];
 
 
     // Fix for Trebol\Entrust permissions that do not check 
@@ -57,6 +57,11 @@ class User extends Authenticatable
     public function getAppDebugAttribute()
     {
         return $this->can('app-debug');
+    }
+
+    public function getIsAdminAttribute()
+    {
+        return $this->hasRole('superadmin');
     }
 
     // links

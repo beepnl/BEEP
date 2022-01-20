@@ -121,6 +121,7 @@ class FlashLogController extends Controller
                             { 
                                 
                                 $block_data_item = $block_data[$i];
+                                $block_data_item->time .= 'Z'; // display as UTC
                                 unset($block_data_item->payload_hex);
                                 unset($block_data_item->pl);
                                 unset($block_data_item->len);

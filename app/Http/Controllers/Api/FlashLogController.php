@@ -143,8 +143,8 @@ class FlashLogController extends Controller
                             {
                                 $first_obj   = $out['flashlog'][0];
                                 $last_obj    = $out['flashlog'][$data_values-1];
-                                $start_time  = $first_obj->time;
-                                $end_time    = $last_obj->time;
+                                $start_time  = substr($first_obj->time, 0, 19); // cut off Z
+                                $end_time    = substr($last_obj->time, 0, 19); // cut off Z
                                 $query       = 'SELECT "'.implode('","', $measurements).'" FROM "sensors" WHERE '.$flashlog->device->influxWhereKeys().' AND time >= \''.$start_time.'\' AND time <= \''.$end_time.'\' ORDER BY time ASC LIMIT '.$index_amount;
                                 $out['database'] = Device::getInfluxQuery($query, 'flashlog');
                             }

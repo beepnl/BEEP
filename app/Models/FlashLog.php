@@ -383,7 +383,7 @@ class FlashLog extends Model
         //die(print_r([$start_time, $end_time, $duration_hrs, count($data_count), $db_data_cnt]));
 
         // get data from the day with max amount of measurements
-        $query       = 'SELECT * FROM "sensors" WHERE '.$device->influxWhereKeys().' AND time >= \''.$start_time.'\' ORDER BY time ASC LIMIT '.min(500, max($matches_min, $db_records));
+        $query       = 'SELECT * FROM "sensors" WHERE '.$device->influxWhereKeys().' AND time >= \''.$start_time.'\' ORDER BY time ASC LIMIT '.min(1000, max($matches_min, $db_records));
         $db_data     = Device::getInfluxQuery($query, 'flashlog');
 
         //die(print_r([$start_time, $db_data]));

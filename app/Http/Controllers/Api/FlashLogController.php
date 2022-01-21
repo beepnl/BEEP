@@ -106,24 +106,27 @@ class FlashLogController extends Controller
         
         foreach ($data_arrays as $data_array) 
         {
-            $time  = strtotime($data_array['time']);
-            $array = array_intersect_key($data_array, $this->valid_sensors);
-
-            foreach ($array as $key => $value) {
-                $array[$key] = floatval($value);
-            }
-
-            if (count($array) > 0)
+            if (isset($data_array['time']))
             {
-                array_push($points, 
-                    new \InfluxDB\Point(
-                        'sensors',             // name of the measurement
-                        null,                  // the measurement value
-                        $sensor_tags,          // optional tags
-                        $array,                // key value pairs
-                        $time                  // Time precision has to be set to InfluxDB\Database::PRECISION_SECONDS!
-                    )
-                );
+                $time  = strtotime($data_array['time']);
+                $array = array_intersect_key($data_array, $this->valid_sensors);
+
+                foreach ($array as $key => $value) {
+                    $array[$key] = floatval($value);
+                }
+
+                if (count($array) > 0)
+                {
+                    array_push($points, 
+                        new \InfluxDB\Point(
+                            'sensors',             // name of the measurement
+                            null,                  // the measurement value
+                            $sensor_tags,          // optional tags
+                            $array,                // key value pairs
+                            $time                  // Time precision has to be set to InfluxDB\Database::PRECISION_SECONDS!
+                        )
+                    );
+                }
             }
         }
         //die(print_r($points));

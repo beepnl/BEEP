@@ -373,12 +373,10 @@ class FlashLog extends Model
             $day_valid    = ($day_sum > 0.7*$day_total_m); // magic factor 0.7
             $db_data_cnt += $day_sum; // fill db_data_cnt for providing insight in where to fill flashlog data (sum == 0)
             
-            if ($day_valid && $days_valid < 2)
+            if ($day_valid && $days_valid < 2) // take the second, or first valid dates
             {
+                $start_time = $data_date;
                 $days_valid++;
-                if ($days_valid == 2) // day after first valid day
-                    $start_time = $data_date;
-
             }
         }
         

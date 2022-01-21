@@ -102,7 +102,7 @@ class FlashLogController extends Controller
         // store posted data
         $client      = $this->client;
         $points      = [];
-        $sensor_tags = ['key' => strtolower($device->key), 'device_name' => $device->name, 'hardware_id' => strtolower($device->hardware_id), 'user_id' => $device->user_id]; 
+        $sensor_tags = ['key' => strtolower($device->key), 'device_name' => $device->name, 'hardware_id' => strtolower($device->hardware_id), 'user_id' => $device->user_id, 'from_flashlog'=>1]; 
         
         foreach ($data_arrays as $data_array) 
         {

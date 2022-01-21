@@ -215,6 +215,7 @@ class FlashLogController extends Controller
                             $block_data   = json_decode($flashlog->getFileContent('log_file_parsed'));
                             $block_start_i= $block['start_i'];
                             $block_end_i  = $block['end_i'];
+                            $block_length = $block_end_i - $block_start_i;
                             $block_start_t= $block['time_start'];
                             $block_end_t  = $block['time_end'];
                             $indexes_24h  = 24 * 60 / $interval_min;
@@ -281,7 +282,7 @@ class FlashLogController extends Controller
                                 $data_i_max    = floor(($block_end_i - $block_start_i) / $index_amount);
                                 
                                 if ($block_data_i == -1)
-                                    $block_data_i= floor($match_index / $index_amount);
+                                    $block_data_i= floor( $data_i_max * (($match_index - $block_start_i) / $block_length) );
 
                                 if ($block_data_i < 0 || $block_data_i > $data_i_max)
                                     $block_data_i = 0;

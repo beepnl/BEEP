@@ -40,6 +40,9 @@ class FlashLog extends Model
      * @var array
      */
     protected $fillable = ['user_id', 'device_id', 'hive_id', 'log_messages', 'log_saved', 'log_parsed', 'log_has_timestamps', 'bytes_received', 'log_file', 'log_file_stripped', 'log_file_parsed', 'log_size_bytes', 'log_erased', 'time_percentage'];
+    protected $hidden   = ['device', 'hive'];
+
+    protected $appends  = ['device_name', 'hive_name'];
 
     public function hive()
     {
@@ -52,6 +55,20 @@ class FlashLog extends Model
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+    public function getDeviceNameAttribute()
+    {
+        if (isset($this->device))
+            return $this->device->name;
+
+        return null;
+    }
+    public function getHiveNameAttribute()
+    {
+        if (isset($this->hive))
+            return $this->hive->name;
+
+        return null;
     }
     
     public function getFileContent($type='log_file')
@@ -373,19 +390,17 @@ class FlashLog extends Model
             $day_valid    = ($day_sum > 0.7*$day_total_m); // magic factor 0.7
             $db_data_cnt += $day_sum; // fill db_data_cnt for providing insight in where to fill flashlog data (sum == 0)
             
-            if ($day_valid && $days_valid < 2)
+            if ($day_valid && $days_valid < 2) // take the second, or first valid dates
             {
+                $start_time = $data_date;
                 $days_valid++;
-                if ($days_valid == 2) // day after first valid day
-                    $start_time = $data_date;
-
             }
         }
         
         //die(print_r([$start_time, $end_time, $duration_hrs, count($data_count), $db_data_cnt]));
 
         // get data from the day with max amount of measurements
-        $query       = 'SELECT * FROM "sensors" WHERE '.$device->influxWhereKeys().' AND time >= \''.$start_time.'\' ORDER BY time ASC LIMIT '.min(500, max($matches_min, $db_records));
+        $query       = 'SELECT * FROM "sensors" WHERE '.$device->influxWhereKeys().' AND time >= \''.$start_time.'\' ORDER BY time ASC LIMIT '.min(1000, max($matches_min, $db_records));
         $db_data     = Device::getInfluxQuery($query, 'flashlog');
 
         //die(print_r([$start_time, $db_data]));
@@ -634,7 +649,7 @@ class FlashLog extends Model
                     // A match is found
                     $has_matches = true;
                     if ($show)
-                        $log[] = ['fillDataGaps', 'block'=> $i, 'block_i'=>$block_index, 'start_i'=>$start_index, 'end_i'=>$end_index, 'duration_hours'=>$duration_hrs, 'fl_i'=>$fl_index, 'db_time'=>$db_time, 'fw_version'=>$on['firmware_version'], 'interval_min'=>$on['measurement_interval_min'], 'transmission_ratio'=>$on['measurement_transmission_ratio'], 'index_start'=>$block['index_start'], 'index_end'=>$block['index_end'], 'time_start'=>$block['time_start'], 'time_end'=>$block['time_end'], 'setCount'=>$block['setCount'], 'matches'=>$matches, 'dbCount'=>$block['dbCount']];
+                        $log[] = ['block'=> $i, 'block_i'=>$block_index, 'start_i'=>$start_index, 'end_i'=>$end_index, 'duration_hours'=>$duration_hrs, 'fl_i'=>$fl_index, 'db_time'=>$db_time, 'fw_version'=>$on['firmware_version'], 'interval_min'=>$on['measurement_interval_min'], 'transmission_ratio'=>$on['measurement_transmission_ratio'], 'index_start'=>$block['index_start'], 'index_end'=>$block['index_end'], 'time_start'=>$block['time_start'], 'time_end'=>$block['time_end'], 'setCount'=>$block['setCount'], 'matches'=>$matches, 'dbCount'=>$block['dbCount']];
 
                     $setCount += $block['setCount'];
                     $db_time  = $block['time_end'];

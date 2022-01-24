@@ -187,132 +187,144 @@ class FlashLogController extends Controller
 
         if ($flashlog)
         {
-            $device      = $flashlog->device;
-            $device_id   = isset($device) ? $device->id : null;
-            $hive_id     = isset($flashlog->hive) ? $flashlog->hive->id : null;
-            //$measurements= Measurement::getValidMeasurements(true);
-            $measurements = Measurement::getMatchingMeasurements();
+            $device = $flashlog->device;
             
-            if(isset($flashlog->log_file))
+            if ($device)
             {
-                $data = $flashlog->getFileContent('log_file');
-                if (isset($data))
+                $device_id   = $flashlog->device_id;
+                $hive_id     = $flashlog->hive_id;
+                //$measurements= Measurement::getValidMeasurements(true);
+                $measurements = Measurement::getMatchingMeasurements();
+                
+                if(isset($flashlog->log_file))
                 {
-                    $out = $flashlog->log($data, null, $save_result, true, true, $matches_min, $match_props, $db_records, $save_result, $from_cache); // $data='', $log_bytes=null, $save=true, $fill=false, $show=false, $matches_min_override=null, $match_props_override=null, $db_records_override=null, $save_override=false, $from_cache=true, $match_days_offset=0
-
-                    $out['device_id'] = $device_id;
-                    $out['hive_id']   = $hive_id;
-
-                    // get the data from a single Flashlog block
-                    if (isset($block_id))
+                    $data = $flashlog->getFileContent('log_file');
+                    if (isset($data))
                     {
-                        // Check if there are matches
-                        if (isset($out['log'][$block_id]) && isset($out['log'][$block_id]['matches']))
+                        $out = $flashlog->log($data, null, $save_result, true, true, $matches_min, $match_props, $db_records, $save_result, $from_cache); // $data='', $log_bytes=null, $save=true, $fill=false, $show=false, $matches_min_override=null, $match_props_override=null, $db_records_override=null, $save_override=false, $from_cache=true, $match_days_offset=0
+
+                        $out['device_id'] = $device_id;
+                        $out['hive_id']   = $hive_id;
+
+                        // get the data from a single Flashlog block
+                        if (isset($block_id))
                         {
-                            $block        = $out['log'][$block_id];
-                            $matches      = $block['matches']; 
-                            $interval_min = $block['interval_min'];
-                            $block_data   = json_decode($flashlog->getFileContent('log_file_parsed'));
-                            $block_start_i= $block['start_i'];
-                            $block_end_i  = $block['end_i'];
-                            $block_start_t= $block['time_start'];
-                            $block_end_t  = $block['time_end'];
-                            $indexes_24h  = 24 * 60 / $interval_min;
-
-                            if ($persist) // Save missing data to DB
+                            // Check if there are matches
+                            if (isset($out['log'][$block_id]) && isset($out['log'][$block_id]['matches']))
                             {
-                                // run through the db data array to define which data to add 
-                                $count_query  = 'SELECT COUNT(*) FROM "sensors" WHERE '.$device->influxWhereKeys().' AND time >= \''.$block_start_t.'\' AND time <= \''.$block_end_t.'\' GROUP BY time(24h) ORDER BY time ASC LIMIT 1000';
-                                $data_count   = Device::getInfluxQuery($count_query, 'flashlog');
-                                
-                                $persist_count= 0;
-                                $block_start_u= strtotime($block_start_t);
-                                //$data_count_d = [];
-                                
-                                foreach ($data_count as $day_i => $count_array) 
+                                $block        = $out['log'][$block_id];
+                                $matches      = $block['matches']; 
+                                $interval_min = $block['interval_min'];
+                                $block_data   = json_decode($flashlog->getFileContent('log_file_parsed'));
+                                $block_start_i= $block['start_i'];
+                                $block_end_i  = $block['end_i'];
+                                $block_length = $block_end_i - $block_start_i;
+                                $block_start_t= $block['time_start'];
+                                $block_end_t  = $block['time_end'];
+                                $indexes_24h  = 24 * 60 / $interval_min;
+
+                                if ($persist) // Save missing data to DB
                                 {
-                                    $missing_data = [];
-                                    $day_start    = $count_array['time'];
-                                    unset($count_array['time']); // don't include time in sum
-                                    $day_sum      = array_sum($count_array);
-                                    //$data_count_d[$day_start] = $day_sum;
+                                    // run through the db data array to define which data to add 
+                                    $count_query  = 'SELECT COUNT(*) FROM "sensors" WHERE '.$device->influxWhereKeys().' AND time >= \''.$block_start_t.'\' AND time <= \''.$block_end_t.'\' GROUP BY time(24h) ORDER BY time ASC LIMIT 1000';
+                                    $data_count   = Device::getInfluxQuery($count_query, 'flashlog');
                                     
-                                    if ($day_sum === 0)
+                                    $persist_count= 0;
+                                    $block_start_u= strtotime($block_start_t);
+                                    //$data_count_d = [];
+                                    
+                                    foreach ($data_count as $day_i => $count_array) 
                                     {
-                                        // define index start-end of day
-                                        $secOfDayStart   = strtotime($day_start);
-                                        $minDifWithStart = round(($secOfDayStart - $block_start_u) / 60);
-                                        $indexFlogStart  = $block_start_i + round($minDifWithStart / $interval_min);
-                                        $indexFlogEnd    = $indexFlogStart + $indexes_24h;
-                                        $indexFlogStart  = max(0, $indexFlogStart);
-
-                                        //print_r([$day_start, $indexFlogStart, $indexFlogEnd, $block_data[$indexFlogEnd-1]]);
-
-                                        for ($i=$indexFlogStart; $i < $indexFlogEnd; $i++)
+                                        $missing_data = [];
+                                        $day_start    = $count_array['time'];
+                                        unset($count_array['time']); // don't include time in sum
+                                        $day_sum      = array_sum($count_array);
+                                        //$data_count_d[$day_start] = $day_sum;
+                                        
+                                        if ($day_sum === 0)
                                         {
-                                            $data_item = $block_data[$i];
-                                            if (isset($data_item->port) && $data_item->port == 3)
-                                                $missing_data[] = (array)$this->cleanFlashlogItem($data_item);
+                                            // define index start-end of day
+                                            $secOfDayStart   = strtotime($day_start);
+                                            $minDifWithStart = round(($secOfDayStart - $block_start_u) / 60);
+                                            $indexFlogStart  = $block_start_i + round($minDifWithStart / $interval_min);
+                                            $indexFlogEnd    = $indexFlogStart + $indexes_24h;
+                                            $indexFlogStart  = max(0, $indexFlogStart);
+
+                                            //print_r([$day_start, $indexFlogStart, $indexFlogEnd, $block_data[$indexFlogEnd-1]]);
+
+                                            for ($i=$indexFlogStart; $i < $indexFlogEnd; $i++)
+                                            {
+                                                $data_item = $block_data[$i];
+                                                if (isset($data_item->port) && $data_item->port == 3)
+                                                    $missing_data[] = (array)$this->cleanFlashlogItem($data_item);
+                                            }
+                                        }
+                                        if (count($missing_data) > 0)
+                                        {
+                                            $stored = $this->storeInfluxDataArrays($missing_data, $device);
+                                            if ($stored)
+                                                $persist_count += count($missing_data);
+                                            
+                                            //die(print_r([$persist_count, $block_start_t, $missing_data]));
                                         }
                                     }
-                                    if (count($missing_data) > 0)
+
+                                    $persist_days = $persist_count*$interval_min/(60*24);
+                                    //die(print_r([$persist_count, $persist_days.' days', $block_start_t, $data_count_d, $missing_data]));
+                                    
+                                    if ($persist_count > 0)
+                                        $out = ['device_id'=>$device_id, 'hive_id'=>$hive_id, 'block_id'=>$block_id, 'data_stored'=>true, 'persist_count'=>$persist_count, 'persist_days'=>$persist_days];
+                                    else
+                                        $out = ['device_id'=>$device_id, 'hive_id'=>$hive_id, 'block_id'=>$block_id, 'data_stored'=>false, 'persist_count'=>$persist_count, 'persist_days'=>0, 'error'=>'data_not_stored'];
+                                }
+                                else // Show data content per week
+                                {
+                                    // select portion of the data
+                                    $match_index   = $block['fl_i'];
+                                    $index_amount  = round($data_minutes / $interval_min);
+                                    $data_i_max    = floor(($block_end_i - $block_start_i) / $index_amount);
+                                    
+                                    if ($block_data_i == -1)
+                                        $block_data_i= floor( $data_i_max * (($match_index - $block_start_i) / $block_length) );
+
+                                    if ($block_data_i < 0 || $block_data_i > $data_i_max)
+                                        $block_data_i = 0;
+
+                                    $start_index = $block_start_i + ($index_amount * $block_data_i);
+                                    $end_index   = min($block_end_i, $block_start_i + ($index_amount * ($block_data_i+1)));
+
+                                    $out = ['device_id'=>$device_id, 'hive_id'=>$hive_id, 'block_id'=>$block_id, 'block_start_i'=>$block_start_i, 'block_end_i'=>$block_end_i, 'match_index'=>$match_index, 'block_data_index'=>$block_data_i, 'block_data_index_max'=>$data_i_max, 'block_data_index_amount'=>$index_amount, 'block_data_start'=>$start_index, 'block_data_end'=>$end_index, 'flashlog'=>[], 'database'=>[]];
+
+                                    // Add flashlog measurement data
+                                    for ($i=$start_index; $i<$end_index; $i++) 
+                                    { 
+                                        $block_data_item = $this->cleanFlashlogItem($block_data[$i]);
+                                        $block_data_item->time .= 'Z'; // display as UTC
+                                        $out['flashlog'][] = $block_data_item;
+                                    }
+
+                                    $data_values = count($out['flashlog']);
+                                    // Add Database data
+                                    if ($data_values > 0)
                                     {
-                                        $stored = $this->storeInfluxDataArrays($missing_data, $device);
-                                        if ($stored)
-                                            $persist_count += count($missing_data);
-                                        
-                                        //die(print_r([$persist_count, $block_start_t, $missing_data]));
+                                        $first_obj   = $out['flashlog'][0];
+                                        $last_obj    = $out['flashlog'][$data_values-1];
+                                        $start_time  = substr($first_obj->time, 0, 19); // cut off Z
+                                        $end_time    = substr($last_obj->time, 0, 19); // cut off Z
+                                        $query       = 'SELECT "'.implode('","', $measurements).'" FROM "sensors" WHERE '.$flashlog->device->influxWhereKeys().' AND time >= \''.$start_time.'\' AND time <= \''.$end_time.'\' ORDER BY time ASC LIMIT '.$index_amount;
+                                        $out['database'] = Device::getInfluxQuery($query, 'flashlog');
                                     }
                                 }
-
-                                $persist_days = $persist_count*$interval_min/(60*24);
-                                //die(print_r([$persist_count, $persist_days.' days', $block_start_t, $data_count_d, $missing_data]));
-                                
-                                if ($persist_count > 0)
-                                    $out = ['device_id'=>$device_id, 'hive_id'=>$hive_id, 'block_id'=>$block_id, 'data_stored'=>true, 'persist_count'=>$persist_count, 'persist_days'=>$persist_days];
-                                else
-                                    $out = ['device_id'=>$device_id, 'hive_id'=>$hive_id, 'block_id'=>$block_id, 'data_stored'=>false, 'persist_count'=>$persist_count, 'persist_days'=>0, 'error'=>'data_not_stored'];
                             }
-                            else // Show data content per week
+                            else
                             {
-                                // select portion of the data
-                                $match_index   = $block['fl_i'];
-                                $index_amount  = round($data_minutes / $interval_min);
-                                $data_i_max    = floor(($block_end_i - $block_start_i) / $index_amount);
-                                
-                                if ($block_data_i == -1)
-                                    $block_data_i= floor($match_index / $index_amount);
-
-                                $start_index = $block_start_i + ($index_amount * $block_data_i);
-                                $end_index   = min($block_end_i, $block_start_i + ($index_amount * ($block_data_i+1)));
-
-                                $out = ['device_id'=>$device_id, 'hive_id'=>$hive_id, 'block_id'=>$block_id, 'block_start_i'=>$block_start_i, 'block_end_i'=>$block_end_i, 'match_index'=>$match_index, 'block_data_index'=>$block_data_i, 'block_data_index_max'=>$data_i_max, 'block_data_index_amount'=>$index_amount, 'block_data_start'=>$start_index, 'block_data_end'=>$end_index, 'flashlog'=>[], 'database'=>[]];
-
-                                // Add flashlog measurement data
-                                for ($i=$start_index; $i<$end_index; $i++) 
-                                { 
-                                    $block_data_item = $this->cleanFlashlogItem($block_data[$i]);
-                                    $block_data_item->time .= 'Z'; // display as UTC
-                                    $out['flashlog'][] = $block_data_item;
-                                }
-
-                                $data_values = count($out['flashlog']);
-                                // Add Database data
-                                if ($data_values > 0)
-                                {
-                                    $first_obj   = $out['flashlog'][0];
-                                    $last_obj    = $out['flashlog'][$data_values-1];
-                                    $start_time  = substr($first_obj->time, 0, 19); // cut off Z
-                                    $end_time    = substr($last_obj->time, 0, 19); // cut off Z
-                                    $query       = 'SELECT "'.implode('","', $measurements).'" FROM "sensors" WHERE '.$flashlog->device->influxWhereKeys().' AND time >= \''.$start_time.'\' AND time <= \''.$end_time.'\' ORDER BY time ASC LIMIT '.$index_amount;
-                                    $out['database'] = Device::getInfluxQuery($query, 'flashlog');
-                                }
+                                $out = ['error'=>'no_matches_for_block_'.$block_id];
                             }
                         }
-                        else
-                        {
-                            $out = ['error'=>'no_matches_for_block_'.$block_id];
-                        }
+                    }
+                    else
+                    {
+                        $out = ['error'=>'no_flashlog_data'];
                     }
                 }
                 else
@@ -322,8 +334,12 @@ class FlashLogController extends Controller
             }
             else
             {
-                $out = ['error'=>'no_flashlog_file'];
+                $out = ['error'=>'no_device'];
             }
+        }
+        else
+        {
+            $out = ['error'=>'no_flashlog_file'];
         }
         return $out;
     }

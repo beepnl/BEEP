@@ -216,13 +216,13 @@ class FlashLogController extends Controller
     private function parse(Request $request, $id, $persist=false)
     {
         $flashlog_id = intval($id);
-        $matches_min = $request->input('matches_min', env('FLASHLOG_MIN_MATCHES', 2)); // minimum amount of inline measurements that should be matched 
-        $match_props = $request->input('match_props', env('FLASHLOG_MATCH_PROPS', 7)); // minimum amount of measurement properties that should match 
-        $db_records  = $request->input('db_records', env('FLASHLOG_DB_RECORDS', 15));// amount of DB records to fetch to match each block
+        $matches_min = intval($request->input('matches_min', env('FLASHLOG_MIN_MATCHES', 2))); // minimum amount of inline measurements that should be matched 
+        $match_props = intval($request->input('match_props', env('FLASHLOG_MATCH_PROPS', 7))); // minimum amount of measurement properties that should match 
+        $db_records  = intval($request->input('db_records', env('FLASHLOG_DB_RECORDS', 15)));// amount of DB records to fetch to match each block
         
         $save_result = boolval($request->input('save_result', false));
         $from_cache  = boolval($request->input('from_cache', true));
-        $block_id    = $request->input('block_id');
+        $block_id    = intval($request->input('block_id', -1));
         $block_data_i= intval($request->input('block_data_index', -1));
         $data_minutes= intval($request->input('data_minutes', 10080));
         
@@ -254,7 +254,7 @@ class FlashLogController extends Controller
                         $out = $flashlog->log($data, null, $save_result, true, true, $matches_min, $match_props, $db_records, $save_result, $from_cache); // $data='', $log_bytes=null, $save=true, $fill=false, $show=false, $matches_min_override=null, $match_props_override=null, $db_records_override=null, $save_override=false, $from_cache=true, $match_days_offset=0
 
                         // get the data from a single Flashlog block
-                        if (isset($block_id))
+                        if ($block_id > -1)
                         {
                             // Check if there are matches
                             if (isset($out['log'][$block_id]) && isset($out['log'][$block_id]['matches']))
@@ -385,7 +385,7 @@ class FlashLogController extends Controller
                 {
                     $out = ['error'=>'no_flashlog_data'];
                 }
-                
+
                 // Add properties
                 $out['device_id']   = $device_id;
                 $out['device_name'] = $device_name;

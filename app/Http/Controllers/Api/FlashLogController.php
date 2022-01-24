@@ -253,12 +253,6 @@ class FlashLogController extends Controller
                     {
                         $out = $flashlog->log($data, null, $save_result, true, true, $matches_min, $match_props, $db_records, $save_result, $from_cache); // $data='', $log_bytes=null, $save=true, $fill=false, $show=false, $matches_min_override=null, $match_props_override=null, $db_records_override=null, $save_override=false, $from_cache=true, $match_days_offset=0
 
-                        $out['flashlog_id'] = $flashlog_id;
-                        $out['device_id']   = $device_id;
-                        $out['hive_id']     = $hive_id;
-                        $out['device_name'] = $device_name;
-                        $out['hive_name']   = $hive_name;
-
                         // get the data from a single Flashlog block
                         if (isset($block_id))
                         {
@@ -326,9 +320,9 @@ class FlashLogController extends Controller
                                     //die(print_r([$persist_count, $persist_days.' days', $block_start_t, $data_count_d, $missing_data]));
                                     
                                     if ($persist_count > 0)
-                                        $out = ['flashlog_id'=>$flashlog_id, 'device_id'=>$device_id, 'hive_id'=>$hive_id, 'device_name'=>$device_name, 'hive_name'=>$hive_name, 'block_id'=>$block_id, 'data_stored'=>true, 'persist_count'=>$persist_count, 'persist_days'=>$persist_days];
+                                        $out = ['data_stored'=>true, 'persist_count'=>$persist_count, 'persist_days'=>$persist_days];
                                     else
-                                        $out = ['flashlog_id'=>$flashlog_id, 'device_id'=>$device_id, 'hive_id'=>$hive_id, 'device_name'=>$device_name, 'hive_name'=>$hive_name, 'block_id'=>$block_id, 'data_stored'=>false, 'persist_count'=>$persist_count, 'persist_days'=>0, 'error'=>'data_not_stored'];
+                                        $out = ['data_stored'=>false, 'persist_count'=>$persist_count, 'persist_days'=>0, 'error'=>'data_not_stored'];
                                 }
                                 else // Show data content per week
                                 {
@@ -346,7 +340,7 @@ class FlashLogController extends Controller
                                     $start_index = $block_start_i + ($index_amount * $block_data_i);
                                     $end_index   = min($block_end_i, $block_start_i + ($index_amount * ($block_data_i+1)));
 
-                                    $out = ['flashlog_id'=>$flashlog_id, 'device_id'=>$device_id, 'hive_id'=>$hive_id, 'device_name'=>$device_name, 'hive_name'=>$hive_name, 'block_id'=>$block_id, 'block_start_i'=>$block_start_i, 'block_end_i'=>$block_end_i, 'match_index'=>$match_index, 'block_data_index'=>$block_data_i, 'block_data_index_max'=>$data_i_max, 'block_data_index_amount'=>$index_amount, 'block_data_start'=>$start_index, 'block_data_end'=>$end_index, 'flashlog'=>[], 'database'=>[]];
+                                    $out = ['block_start_i'=>$block_start_i, 'block_end_i'=>$block_end_i, 'match_index'=>$match_index, 'block_data_index'=>$block_data_i, 'block_data_index_max'=>$data_i_max, 'block_data_index_amount'=>$index_amount, 'block_data_start'=>$start_index, 'block_data_end'=>$end_index, 'flashlog'=>[], 'database'=>[]];
 
                                     // Add flashlog measurement data
                                     for ($i=$start_index; $i<$end_index; $i++) 
@@ -373,6 +367,8 @@ class FlashLogController extends Controller
                                     $out['block_data_match_percentage']  = $match_percentage['perc_match'];
                                     $out['block_data_flashlog_sec_diff'] = $match_percentage['sec_diff'];
                                 }
+                                // Add properties
+                                $out['block_id'] = $block_id;
                             }
                             else
                             {
@@ -389,16 +385,30 @@ class FlashLogController extends Controller
                 {
                     $out = ['error'=>'no_flashlog_data'];
                 }
+                
+                // Add properties
+                $out['device_id']   = $device_id;
+                $out['device_name'] = $device_name;
+                $out['hive_id']     = $hive_id;
+                $out['hive_name']   = $hive_name;
             }
             else
             {
                 $out = ['error'=>'no_device'];
             }
+
         }
         else
         {
             $out = ['error'=>'no_flashlog_file'];
         }
+        
+        // Add properties
+        $out['matches_min'] = $matches_min;
+        $out['match_props'] = $match_props;
+        $out['db_records']  = $db_records;
+        $out['flashlog_id'] = $flashlog_id;
+        
         return $out;
     }
 

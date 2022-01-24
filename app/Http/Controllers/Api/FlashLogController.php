@@ -252,9 +252,9 @@ class FlashLogController extends Controller
                     {
                         $out = $flashlog->log($data, null, $save_result, true, true, $matches_min, $match_props, $db_records, $save_result, $from_cache); // $data='', $log_bytes=null, $save=true, $fill=false, $show=false, $matches_min_override=null, $match_props_override=null, $db_records_override=null, $save_override=false, $from_cache=true, $match_days_offset=0
 
+                        $out['flashlog_id'] = $id;
                         $out['device_id']   = $device_id;
                         $out['hive_id']     = $hive_id;
-                        $out['flashlog_id'] = $id;
                         $out['device_name'] = $device_name;
                         $out['hive_name']   = $hive_name;
 

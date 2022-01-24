@@ -179,11 +179,11 @@ class FlashLogController extends Controller
         {
             $f = (array)$array1[$i];
             
-
-
             for ($j=$array2_index; $j < $array2_length; $j++) 
             {   
                 $d           = array_filter($array2[$j]);
+                $d_time      = $d['time'];
+                unset($d['time']); // remove time for count
                 $d_val_count = count($d);
                 
                 if ($d_val_count < $match_props)
@@ -196,8 +196,9 @@ class FlashLogController extends Controller
                 {
                     $match = array_intersect_assoc($d, $f);
 
-                    if ($match != null && count($match) >= $match_props)
+                    if ($match != null && count($match) >= $d_val_count-1)
                     {
+                        $d['time'] = $d_time; // put back tima
                         $matches[] = ['d'=>$d, 'f'=>$f, 'm'=>$match];
                         $secDiff[] = strtotime($f['time']) - strtotime($d['time']);
                         $array2_index = $j;
@@ -360,12 +361,13 @@ class FlashLogController extends Controller
                                         $end_time    = substr($last_obj->time, 0, 19); // cut off Z
                                         $query       = 'SELECT "'.implode('","', $measurements).'" FROM "sensors" WHERE '.$flashlog->device->influxWhereKeys().' AND time >= \''.$start_time.'\' AND time <= \''.$end_time.'\' ORDER BY time ASC LIMIT '.$index_amount;
                                         $out['database'] = Device::getInfluxQuery($query, 'flashlog');
+
+                                        // Run through the data to see how many % of the data matches
+                                        $match_percentage = $this->matchPercentage($out['flashlog'], $out['database'], $match_props);
+                                        $out['block_data_match_percentage']  = $match_percentage['perc_match'];
+                                        $out['block_data_flashlog_sec_diff'] = $match_percentage['sec_diff'];
                                     }
 
-                                    // Run through the data to see how many % of the data matches
-                                    $match_percentage = $this->matchPercentage($out['flashlog'], $out['database'], $match_props);
-                                    $out['block_data_match_percentage']  = $match_percentage['perc_match'];
-                                    $out['block_data_flashlog_sec_diff'] = $match_percentage['sec_diff'];
                                 }
                                 // Add properties
                                 $out['block_id'] = $block_id;

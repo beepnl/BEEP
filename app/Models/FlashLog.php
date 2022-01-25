@@ -39,7 +39,7 @@ class FlashLog extends Model
      *
      * @var array
      */
-    protected $fillable = ['user_id', 'device_id', 'hive_id', 'log_messages', 'log_saved', 'log_parsed', 'log_has_timestamps', 'bytes_received', 'log_file', 'log_file_stripped', 'log_file_parsed', 'log_size_bytes', 'log_erased', 'time_percentage'];
+    protected $fillable = ['user_id', 'device_id', 'hive_id', 'log_messages', 'log_saved', 'log_parsed', 'log_has_timestamps', 'bytes_received', 'log_file', 'log_file_stripped', 'log_file_parsed', 'log_size_bytes', 'log_erased', 'time_percentage', 'persisted_days', 'persisted_measurements'];
     protected $hidden   = ['device', 'hive'];
 
     protected $appends  = ['device_name', 'hive_name'];
@@ -84,12 +84,17 @@ class FlashLog extends Model
         return null;
     }
 
+    public function getLogCacheName($fill=false, $show=false, $matches_min_override=null, $match_props_override=null, $db_records_override=null)
+    {
+        return 'flashlog-'.$this->id.'-fill-'.$fill.'-show-'.$show.'-matches-'.$matches_min_override.'-props-'.$match_props_override.'-dbrecs-'.$db_records_override;
+    }
+
     public function log($data='', $log_bytes=null, $save=true, $fill=false, $show=false, $matches_min_override=null, $match_props_override=null, $db_records_override=null, $save_override=false, $from_cache=true, $match_days_offset=0)
     {
         if (!isset($this->device_id) || !isset($this->device))
             return ['error'=>'No device set, cannot parse Flashlog because need device key to get data from database'];
 
-        $cache_name = 'flashlog-'.$this->id.'-fill-'.$fill.'-show-'.$show.'-matches-'.$matches_min_override.'-props-'.$match_props_override.'-dbrecs-'.$db_records_override;
+        $cache_name = $this->getLogCacheName($fill, $show, $matches_min_override, $match_props_override, $db_records_override);
         
         // get result from cache only if it contains any matches
         if ($from_cache === true && Cache::has($cache_name) && $save === false && $fill === true)

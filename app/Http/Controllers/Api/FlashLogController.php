@@ -272,36 +272,39 @@ class FlashLogController extends Controller
                                 $block_length = $block_end_i - $block_start_i;
                                 $block_start_t= $block['time_start'];
                                 $block_end_t  = $block['time_end'];
-                                $indexes_24h  = 24 * 60 / $interval_min;
+                                $interval_db  = 60; // min
+                                $interval_len = $interval_db / $interval_min; // db indexes vs fl indexes
 
                                 if ($persist) // Save missing data to DB
                                 {
                                     // run through the db data array to define which data to add 
-                                    $count_query  = 'SELECT COUNT(*) FROM "sensors" WHERE '.$device->influxWhereKeys().' AND time >= \''.$block_start_t.'\' AND time <= \''.$block_end_t.'\' GROUP BY time(24h) ORDER BY time ASC LIMIT 1000';
-                                    $data_count   = Device::getInfluxQuery($count_query, 'flashlog');
+                                    $count_query  = 'SELECT COUNT(*) FROM "sensors" WHERE '.$device->influxWhereKeys().' AND time >= \''.$block_start_t.'\' AND time <= \''.$block_end_t.'\' GROUP BY time('.$interval_db.'m) ORDER BY time ASC LIMIT '.$this->maxDataPoints;
+                                    $data_per_int = Device::getInfluxQuery($count_query, 'flashlog');
                                     
                                     $persist_count= 0;
                                     $block_start_u= strtotime($block_start_t);
-                                    //$data_count_d = [];
+                                    //$data_per_int_d = [];
                                     
-                                    foreach ($data_count as $day_i => $count_array) 
+                                    $data_per_int_max_i = count($data_per_int) - 1;
+                                    $missing_data       = [];
+                                    
+                                    foreach ($data_per_int as $db_data_i => $db_data) 
                                     {
-                                        $missing_data = [];
-                                        $day_start    = $count_array['time'];
-                                        unset($count_array['time']); // don't include time in sum
-                                        $day_sum      = array_sum($count_array);
-                                        //$data_count_d[$day_start] = $day_sum;
+                                        $time_start   = $db_data['time'];
+                                        unset($db_data['time']); // don't include time in sum
+                                        $data_sum      = array_sum($db_data);
+                                        //$data_per_int_d[$time_start] = $data_sum;
                                         
-                                        if ($day_sum === 0)
+                                        if ($data_sum === 0)
                                         {
                                             // define index start-end of day
-                                            $secOfDayStart   = strtotime($day_start);
+                                            $secOfDayStart   = strtotime($time_start);
                                             $minDifWithStart = round(($secOfDayStart - $block_start_u) / 60);
                                             $indexFlogStart  = $block_start_i + round($minDifWithStart / $interval_min);
-                                            $indexFlogEnd    = $indexFlogStart + $indexes_24h;
+                                            $indexFlogEnd    = $indexFlogStart + $interval_len;
                                             $indexFlogStart  = max(0, $indexFlogStart);
 
-                                            //print_r([$day_start, $indexFlogStart, $indexFlogEnd, $block_data[$indexFlogEnd-1]]);
+                                            //print_r([$time_start, $indexFlogStart, $indexFlogEnd, $block_data[$indexFlogEnd-1]]);
 
                                             for ($i=$indexFlogStart; $i < $indexFlogEnd; $i++)
                                             {
@@ -310,23 +313,47 @@ class FlashLogController extends Controller
                                                     $missing_data[] = (array)$this->cleanFlashlogItem($data_item);
                                             }
                                         }
-                                        if (count($missing_data) > 0)
+
+                                        $missing_data_count = count($missing_data);
+                                        if ($missing_data_count > 100 || $db_data_i == $data_per_int_max_i) // persist at every 100 items, or at last item
                                         {
+                                            //die(print_r([$missing_data_count, $block_start_t, $data_per_int_d, $data_per_int, $missing_data]));
+                                            
                                             $stored = $this->storeInfluxDataArrays($missing_data, $device);
                                             if ($stored)
-                                                $persist_count += count($missing_data);
+                                            {
+                                                $missing_data = [];
+                                                $persist_count += $missing_data_count;
+                                            }
                                             
-                                            //die(print_r([$persist_count, $block_start_t, $missing_data]));
                                         }
                                     }
 
-                                    $persist_days = $persist_count*$interval_min/(60*24);
-                                    //die(print_r([$persist_count, $persist_days.' days', $block_start_t, $data_count_d, $missing_data]));
+                                    //die(print_r([$persist_count, $persist_days.' days', $block_start_t, $data_per_int_d, $missing_data]));
                                     
                                     if ($persist_count > 0)
-                                        $out = ['data_stored'=>true, 'persist_count'=>$persist_count, 'persist_days'=>$persist_days];
+                                    {
+                                        Cache::forget($flashlog->getLogCacheName(true, true, $matches_min, $match_props, $db_records)); // remove cached result, because import has changed it
+                                        
+                                        $persist_days = round($persist_count*$interval_min/(60*24), 1);
+                                        $out          = ['data_stored'=>true, 'persisted_measurements'=>$persist_count, 'persisted_days'=>$persist_days];
+
+                                        if (isset($flashlog->persisted_days))
+                                            $flashlog->persisted_days += $persist_days;
+                                        else
+                                            $flashlog->persisted_days = $persist_days;
+
+                                        if (isset($flashlog->persisted_measurements))
+                                            $flashlog->persisted_measurements += $persist_count;
+                                        else
+                                            $flashlog->persisted_measurements = $persist_count;
+
+                                        $flashlog->save();
+                                    }
                                     else
-                                        $out = ['data_stored'=>false, 'persist_count'=>$persist_count, 'persist_days'=>0, 'error'=>'data_not_stored'];
+                                    {
+                                        $out = ['data_stored'=>false, 'persisted_measurements'=>$persist_count, 'persisted_days'=>0, 'error'=>'no_data_stored'];
+                                    }
                                 }
                                 else // Show data content per week
                                 {

@@ -336,10 +336,13 @@ class FlashLogController extends Controller
                                     $data_i_max    = floor(($block_end_i - $block_start_i) / $index_amount);
                                     
                                     if ($block_data_i == -1)
-                                        $block_data_i= floor( $data_i_max * (($match_index - $block_start_i) / $block_length) );
+                                        $block_data_i = round( $data_i_max * (($match_index - $block_start_i) / $block_length) );
 
-                                    if ($block_data_i < 0 || $block_data_i > $data_i_max)
+                                    if ($block_data_i < 0)
                                         $block_data_i = 0;
+
+                                    if ($block_data_i > $data_i_max)
+                                        $block_data_i = $data_i_max;
 
                                     $start_index = $block_start_i + ($index_amount * $block_data_i);
                                     $end_index   = min($block_end_i, $block_start_i + ($index_amount * ($block_data_i+1)));

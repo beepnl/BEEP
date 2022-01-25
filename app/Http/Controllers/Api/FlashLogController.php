@@ -175,41 +175,44 @@ class FlashLogController extends Controller
         $array1_length = count($array1);
         $array2_length = count($array2);
 
-        for ($i=0; $i < $array1_length; $i++) 
+        if ($array1_length > 0 && $array2_length > 0)
         {
-            $f = (array)$array1[$i];
-            
-            for ($j=$array2_index; $j < $array2_length; $j++) 
-            {   
-                $d           = array_filter($array2[$j]);
-                $d_time      = $d['time'];
-                unset($d['time']); // remove time for count
-                $d_val_count = count($d);
+            for ($i=0; $i < $array1_length; $i++) 
+            {
+                $f = (array)$array1[$i];
                 
-                if ($d_val_count < $match_props)
-                {
-                    $array2_index = $j;
-                    continue;
-                }
-
-                if (isset($f['bv']) && isset($d['bv']) && $f['bv'] == $d['bv']) // first fast check
-                {
-                    $match = array_intersect_assoc($d, $f);
-
-                    if ($match != null && count($match) >= $d_val_count-1)
+                for ($j=$array2_index; $j < $array2_length; $j++) 
+                {   
+                    $d           = array_filter($array2[$j]);
+                    $d_time      = $d['time'];
+                    unset($d['time']); // remove time for count
+                    $d_val_count = count($d);
+                    
+                    if ($d_val_count < $match_props)
                     {
-                        $d['time'] = $d_time; // put back tima
-                        $matches[] = ['d'=>$d, 'f'=>$f, 'm'=>$match];
-                        $secDiff[] = strtotime($f['time']) - strtotime($d['time']);
                         $array2_index = $j;
-                        $match_count++;
-                        continue 2; // next foreach loop to continue with the next database item
+                        continue;
+                    }
+
+                    if (isset($f['bv']) && isset($d['bv']) && $f['bv'] == $d['bv']) // first fast check
+                    {
+                        $match = array_intersect_assoc($d, $f);
+
+                        if ($match != null && count($match) >= $d_val_count-1)
+                        {
+                            $d['time'] = $d_time; // put back tima
+                            $matches[] = ['d'=>$d, 'f'=>$f, 'm'=>$match];
+                            $secDiff[] = strtotime($f['time']) - strtotime($d['time']);
+                            $array2_index = $j;
+                            $match_count++;
+                            continue 2; // next foreach loop to continue with the next database item
+                        }
                     }
                 }
             }
         }
         $secDiffAvg = count($secDiff) > 0 ? array_sum($secDiff)/count($secDiff) : null;
-        $percMatch  = $array1_length > 0 ? round(100 * ($match_count / $array1_length), 1): 0;
+        $percMatch  = $array1_length > 0 ? round(100 * ($match_count / $array2_length), 1): 0;
         //die(print_r([$percMatch, $secDiffAvg, $matches]));
         return ['sec_diff'=>$secDiffAvg, 'perc_match'=>$percMatch];
     }

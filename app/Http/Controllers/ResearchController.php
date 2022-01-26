@@ -109,6 +109,7 @@ class ResearchController extends Controller
             'start_date'    => 'nullable|date',
             'end_date'      => 'nullable|date|after:start',
             'checklist_ids' => 'nullable|exists:checklists,id',
+            'default_user_ids.*' => 'nullable|exists:users,id',
             'viewer_ids'    => 'nullable|exists:users,id',
             'user_id'       => 'nullable|exists:users,id',
         ]);
@@ -204,8 +205,8 @@ class ResearchController extends Controller
         // select users
         if ($request->has('user_ids'))
             $consent_users_selected = $request->input('user_ids');
-        else if ($id == 1)
-            $consent_users_selected = [2152,2100,2554,2759,1592,2713,2142,2383]; // B-GOOD WP1 T1 users
+        else if (isset($research->default_user_ids))
+            $consent_users_selected = $research->default_user_ids;
         else if (count($consent_users_select) > 0)
             $consent_users_selected = [array_keys($consent_users_select)[0]];
 
@@ -734,6 +735,7 @@ class ResearchController extends Controller
             'start_date'    => 'nullable|date',
             'end_date'      => 'nullable|date|after:start',
             'user_id'       => 'nullable|exists:users,id',
+            'default_user_ids.*' => 'nullable|exists:users,id',
             'viewer_ids'    => 'nullable|exists:users,id',
             'checklist_ids' => 'nullable|exists:checklists,id',
         ]);

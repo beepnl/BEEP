@@ -106,7 +106,7 @@
 	    <label for="checklist_ids" control-label>{{ 'Checklists' }}</label>
 	    <div>
 	        {{-- <input class="form-control" name="checklist_id" type="number" id="checklist_id" value="{{ isset($research->checklist_id) ? $research->checklist_id : '' }}" > --}}
-	        {!! Form::select('checklist_ids[]', App\Checklist::selectList(), ($research->checklists->count() > 0) ? $research->checklists->pluck('id') : null, array('id'=>'checklist_ids','class' => 'form-control select2', 'multiple')) !!}
+	        {!! Form::select('checklist_ids[]', App\Checklist::selectList(), $research->checklists->count() > 0 ? $research->checklists->pluck('id') : null, array('id'=>'checklist_ids','class' => 'form-control select2', 'multiple')) !!}
 	        {!! $errors->first('checklist_ids', '<p class="help-block">:message</p>') !!}
 	    </div>
 	</div>
@@ -117,8 +117,19 @@
 	    <label for="viewer_ids" control-label>{{ 'Viewers' }}</label>
 	    <div>
 	        {{-- <input class="form-control" name="checklist_id" type="number" id="checklist_id" value="{{ isset($research->checklist_id) ? $research->checklist_id : '' }}" > --}}
-	        {!! Form::select('viewer_ids[]', App\User::selectList(), ($research->viewers->count() > 0) ? $research->viewers->pluck('id') : null, array('id'=>'viewer_ids','class' => 'form-control select2', 'multiple')) !!}
+	        {!! Form::select('viewer_ids[]', App\User::selectList(), $research->viewers->count() > 0 ? $research->viewers->pluck('id') : null, array('id'=>'viewer_ids','class' => 'form-control select2', 'multiple')) !!}
 	        {!! $errors->first('viewer_ids', '<p class="help-block">:message</p>') !!}
+	    </div>
+	</div>
+</div>
+
+<div class="col-xs-12">
+	<div class="form-group {{ $errors->has('default_user_ids') ? 'has-error' : ''}}">
+	    <label for="default_user_ids" control-label>{{ 'Most important consented (end) users' }}</label>
+	    <div>
+	        {{-- <input class="form-control" name="checklist_id" type="number" id="checklist_id" value="{{ isset($research->checklist_id) ? $research->checklist_id : '' }}" > --}}
+	        {!! Form::select('default_user_ids[]', App\User::selectList(), isset($research->default_user_ids) ? $research->default_user_ids : null, array('id'=>'default_user_ids','class' => 'form-control select2', 'multiple')) !!}
+	        {!! $errors->first('default_user_ids', '<p class="help-block">:message</p>') !!}
 	    </div>
 	</div>
 </div>

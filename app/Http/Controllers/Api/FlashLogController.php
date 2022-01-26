@@ -10,6 +10,7 @@ use App\Http\Controllers\Controller;
 use Moment\Moment;
 use Storage;
 use Cache;
+use Auth;
 
 /**
  * @group Api\FlashLogController
@@ -42,6 +43,48 @@ class FlashLogController extends Controller
 
     }
 
+
+    private function getUserFlashlogs($id=null)
+    {
+        if (Auth::check() === false)
+            return [];
+
+        if (Auth::user()->hasRole('superadmin'))
+        {
+            if (isset($id))
+                return Flashlog::find($id);
+
+            return Flashlog::orderByDesc('id')->get();
+        }
+        else
+        {
+            if (Auth::user()->researchesOwned->count() > 0) // research owners: show flashlogs from all owned researches default_user_ids
+            {
+                // get own + consented users->devices->flashlogs
+                $user_ids = [Auth::user()->id];
+                foreach (Auth::user()->allResearches()->get() as $research) 
+                {
+                    if (isset($research->default_user_ids))
+                        $user_ids = array_merge($user_ids, $research->default_user_ids);
+                 
+                }
+                $user_ids = array_unique($user_ids);
+
+                if (isset($id))
+                    return Flashlog::whereIn('user_id', $user_ids)->find($id);
+
+                return Flashlog::whereIn('user_id', $user_ids)->orderByDesc('id')->get();
+            }
+            else // normal users, show your own flashlogs
+            {
+                if (isset($id))
+                    return Auth::user()->flashlogs()->find($id);
+
+                return Auth::user()->flashlogs()->orderByDesc('id')->get();
+            }
+        }
+    }
+
     /**
      * api/flashlogs GET
      * Provide a list of the available flashlogs
@@ -49,12 +92,7 @@ class FlashLogController extends Controller
      */
     public function index(Request $request)
     {
-        if ($request->user()->hasRole('superadmin'))
-            $flashlogs = FlashLog::orderByDesc('created_at')->get();
-        else
-            $flashlogs = $request->user()->flashlogs()->orderByDesc('created_at')->get();
-
-        return response()->json($flashlogs);
+        return response()->json($this->getUserFlashlogs());
     }
 
     /**
@@ -230,12 +268,9 @@ class FlashLogController extends Controller
         $block_data_i= intval($request->input('block_data_index', -1));
         $data_minutes= intval($request->input('data_minutes', 10080));
         
-        if ($request->user()->hasRole('superadmin'))
-            $flashlog = Flashlog::find($flashlog_id);
-        else
-            $flashlog = $request->user()->flashlogs()->find($flashlog_id);
-
         $out = ['error'=>'no_flashlog_found'];
+
+        $flashlog = $this->getUserFlashlogs($id);
 
         if ($flashlog)
         {
@@ -432,10 +467,6 @@ class FlashLogController extends Controller
                 $out = ['error'=>'no_device'];
             }
 
-        }
-        else
-        {
-            $out = ['error'=>'no_flashlog_file'];
         }
         
         // Add properties

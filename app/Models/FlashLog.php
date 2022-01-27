@@ -529,23 +529,23 @@ class FlashLog extends Model
             {
                 $blockStaOff = $startInd - $matchInd;
                 $blockEndOff = $endInd - $matchInd;
-                $matchMinInt = $match['minute_interval'];
-                $matchSecInt = isset($sec_diff_per_index) ? $sec_diff_per_index : $matchMinInt*60;
+                $matchSecInt = isset($sec_diff_per_index) ? $sec_diff_per_index : $match['minute_interval']*60;
+                
                 $matchTime   = $match['time'];
                 $matchMoment = new Moment($matchTime);
                 $startMoment = new Moment($matchTime);
                 $endMoment   = new Moment($matchTime);
-                $matchTime   = $matchMoment->format($this->timeFormat);
-                $blockStart  = $startMoment->addMinutes($blockStaOff * $matchMinInt);
+                
+                $blockStart  = $startMoment->addSeconds(round($blockStaOff * $matchSecInt));
                 $blockStaDate= $blockStart->format($this->timeFormat);
-                $blockEnd    = $endMoment->addMinutes($blockEndOff * $matchMinInt);
+                $blockEnd    = $endMoment->addSeconds(round($blockEndOff * $matchSecInt));
                 $blockEndDate= $blockEnd->format($this->timeFormat);
 
                 // load device sensor definitions
                 $sensor_defs     = $device->activeSensorDefinitions();
                 $sensor_defs_all = $device->sensorDefinitions;
 
-                //die(print_r(['matchTime'=>$matchTime, 'matchMinInt'=>$matchMinInt, 'startInd'=>$startInd, 'blockStaDate'=>$blockStaDate, 'blockEndDate'=>$blockEndDate, 'match'=>$match]));
+                //die(print_r(['matchTime'=>$matchTime, 'matchSecInt'=>$matchSecInt, 'startInd'=>$startInd, 'blockStaDate'=>$blockStaDate, 'blockEndDate'=>$blockEndDate, 'match'=>$match]));
                 // add time to flashlog block
                 $setTimeStart = '';
                 $setTimeEnd   = '';
@@ -558,7 +558,7 @@ class FlashLog extends Model
                     // if (!isset($fl['time']))
                     // {
                         $startMoment= new Moment($blockStaDate);
-                        $indexMoment= $startMoment->addSeconds($addCounter * $matchSecInt);
+                        $indexMoment= $startMoment->addSeconds(round($addCounter * $matchSecInt));
                         $fl['time'] = $indexMoment->format($this->timeFormat);
 
                         // check for time_device, replace time with device time if less than 60 seconds off
@@ -657,25 +657,28 @@ class FlashLog extends Model
             $match_first = reset($matches_arr); // take first match for matching the time
             if (isset($match_first['flashlog_index']) && isset($match_first['time']))
             {
-                $fl_index = $match_first['flashlog_index'];
+                $fl_index   = $match_first['flashlog_index'];
+                $match_last = end($matches_arr); // take last match
                 //die(print_r($match));
-                $match_last  = end($matches_arr); // take last match
 
                 $match_first_time   = $match_first['db_sec'];
                 $match_last_time    = $match_last['db_sec'];
-                $sec_diff_per_index = round(($match_last_time - $match_first_time) / count($matches_arr));
+                $match_total_count  = count($matches_arr);
+                $sec_diff_per_index = ($match_last_time - $match_first_time) / ($match_total_count-1);
 
+                $matches_display    = array_slice($matches_arr, 0, $matches_min);
+                $matches['matches'] = $matches_display;
                 //die(print_r([$match_first_time, $match_last_time, $sec_diff_per_index, $match_first, $match_last]));
 
-                $block       = $this->setFlashBlockTimes($match_first, $block_index, $start_index, $end_index, $flashlog, $device, $show, $sec_diff_per_index);
-                $flashlog    = $block['flashlog'];
+                $block    = $this->setFlashBlockTimes($match_first, $block_index, $start_index, $end_index, $flashlog, $device, $show, $sec_diff_per_index);
+                $flashlog = $block['flashlog'];
 
                 if (isset($block['index_end']))
                 {
                     // A match is found
                     $has_matches = true;
                     if ($show)
-                        $log[] = ['block'=> $i, 'block_i'=>$block_index, 'start_i'=>$start_index, 'end_i'=>$end_index, 'duration_hours'=>$duration_hrs, 'fl_i'=>$fl_index, 'db_time'=>$db_time, 'fw_version'=>$on['firmware_version'], 'interval_min'=>$on['measurement_interval_min'], 'transmission_ratio'=>$on['measurement_transmission_ratio'], 'index_start'=>$block['index_start'], 'index_end'=>$block['index_end'], 'time_start'=>$block['time_start'], 'time_end'=>$block['time_end'], 'setCount'=>$block['setCount'], 'matches'=>$matches, 'dbCount'=>$block['dbCount']];
+                        $log[] = ['block'=> $i, 'block_i'=>$block_index, 'start_i'=>$start_index, 'end_i'=>$end_index, 'duration_hours'=>$duration_hrs, 'fl_i'=>$fl_index, 'db_time'=>$db_time, 'fw_version'=>$on['firmware_version'], 'interval_min'=>$on['measurement_interval_min'], 'transmission_ratio'=>$on['measurement_transmission_ratio'], 'index_start'=>$block['index_start'], 'index_end'=>$block['index_end'], 'time_start'=>$block['time_start'], 'time_end'=>$block['time_end'], 'setCount'=>$block['setCount'], 'matches'=>$matches, 'dbCount'=>$block['dbCount'], 'interval_sec_db'=>$sec_diff_per_index, 'match_first_db_sec'=>$match_first_time, 'match_last_db_sec'=>$match_last_time, 'match_total_count'=>$match_total_count];
 
                     $setCount += $block['setCount'];
                     $db_time  = $block['time_end'];

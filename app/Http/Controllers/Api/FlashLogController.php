@@ -302,7 +302,6 @@ class FlashLogController extends Controller
                             if (isset($out['log'][$block_id]) && isset($out['log'][$block_id]['matches']))
                             {
                                 $block        = $out['log'][$block_id];
-                                $matches      = $block['matches']; 
                                 $interval_min = $block['interval_min'];
                                 $block_data   = json_decode($flashlog->getFileContent('log_file_parsed'));
                                 $block_start_i= $block['start_i'];

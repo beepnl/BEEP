@@ -212,6 +212,7 @@ class FlashLogController extends Controller
         $array2_index  = 0;
         $array1_length = count($array1);
         $array2_length = count($array2);
+        $array_min_len = min($array1_length, $array2_length);
 
         if ($array1_length > 0 && $array2_length > 0)
         {
@@ -250,7 +251,7 @@ class FlashLogController extends Controller
             }
         }
         $secDiffAvg = count($secDiff) > 0 ? round(array_sum($secDiff)/count($secDiff)) : null;
-        $percMatch  = $array2_length > 0 ? round(100 * ($match_count / $array2_length), 1): 0;
+        $percMatch  = $array_min_len > 0 ? round(100 * ($match_count / $array_min_len), 1): 0;
         //die(print_r([$percMatch, $secDiffAvg, $matches]));
         return ['sec_diff'=>$secDiffAvg, 'perc_match'=>$percMatch];
     }
@@ -372,7 +373,7 @@ class FlashLogController extends Controller
                                             $missing_data_count = count($missing_data);
                                             if ($missing_data_count > 100 || ($missing_data_count > 0 && $db_count_i == $data_per_int_max_i)) // persist at every 100 items, or at last item
                                             {
-                                                //die(print_r([$missing_data_count, $block_start_t, $data_per_int_d, $data_per_int, $missing_data]));
+                                                die(print_r([$missing_data_count, $block_start_t, $data_per_int_d, $data_per_int, $missing_data]));
                                                 
                                                 $stored = $this->storeInfluxDataArrays($missing_data, $device);
                                                 if ($stored)

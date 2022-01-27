@@ -40,9 +40,9 @@ class FlashLog extends Model
      * @var array
      */
     protected $fillable = ['user_id', 'device_id', 'hive_id', 'log_messages', 'log_saved', 'log_parsed', 'log_has_timestamps', 'bytes_received', 'log_file', 'log_file_stripped', 'log_file_parsed', 'log_size_bytes', 'log_erased', 'time_percentage', 'persisted_days', 'persisted_measurements'];
-    protected $hidden   = ['device', 'hive'];
+    protected $hidden   = ['device', 'hive', 'user'];
 
-    protected $appends  = ['device_name', 'hive_name'];
+    protected $appends  = ['device_name', 'hive_name', 'user_name'];
 
     public function hive()
     {
@@ -67,6 +67,13 @@ class FlashLog extends Model
     {
         if (isset($this->hive))
             return $this->hive->name;
+
+        return null;
+    }
+    public function getUserNameAttribute()
+    {
+        if (isset($this->user))
+            return $this->user->name;
 
         return null;
     }

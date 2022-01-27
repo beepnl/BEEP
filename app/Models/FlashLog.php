@@ -40,9 +40,9 @@ class FlashLog extends Model
      * @var array
      */
     protected $fillable = ['user_id', 'device_id', 'hive_id', 'log_messages', 'log_saved', 'log_parsed', 'log_has_timestamps', 'bytes_received', 'log_file', 'log_file_stripped', 'log_file_parsed', 'log_size_bytes', 'log_erased', 'time_percentage', 'persisted_days', 'persisted_measurements'];
-    protected $hidden   = ['device', 'hive'];
+    protected $hidden   = ['device', 'hive', 'user'];
 
-    protected $appends  = ['device_name', 'hive_name'];
+    protected $appends  = ['device_name', 'hive_name', 'user_name'];
 
     public function hive()
     {
@@ -67,6 +67,13 @@ class FlashLog extends Model
     {
         if (isset($this->hive))
             return $this->hive->name;
+
+        return null;
+    }
+    public function getUserNameAttribute()
+    {
+        if (isset($this->user))
+            return $this->user->name;
 
         return null;
     }
@@ -166,7 +173,7 @@ class FlashLog extends Model
             
             $replace = "\n\${1}1B\${2}0A0\${3}0A";
             
-            $data    = preg_replace($payload, $replace, $data);
+            $data  = preg_replace($payload, $replace, $data);
 
             // fix missing battery hex code
             $data  = preg_replace('/0A03([A-Fa-f0-9]{2})([A-Fa-f0-9]{2})0D/', "0A\n03\${1}1B0D\${2}0D", $data);
@@ -174,7 +181,8 @@ class FlashLog extends Model
             $data  = preg_replace('/03([A-Fa-f0-9]{90,120})0A([A-Fa-f0-9]{0,4})03([A-Fa-f0-9]{90,120})0A/', "03\${1}0A\${2}\n03\${3}0A", $data);
             $data  = preg_replace('/03([A-Fa-f0-9]{90,120})0A1B([A-Fa-f0-9]{90,120})0A/', "03\${1}0A\n031E1B\${2}0A", $data); // missing 031E
             $data  = preg_replace('/02([A-Fa-f0-9]{76})0A03([A-Fa-f0-9]{90,120})0A/', "02\${1}0A\n03\${2}0A", $data);
-
+            // remove empty rows
+            $data  = preg_replace('/^\h*\v+/m', '', $data);
 
             if ($save)
             {

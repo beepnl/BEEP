@@ -664,7 +664,12 @@ class FlashLog extends Model
                 $match_first_time   = $match_first['db_sec'];
                 $match_last_time    = $match_last['db_sec'];
                 $match_total_count  = count($matches_arr);
-                $sec_diff_per_index = ($match_last_time - $match_first_time) / ($match_total_count-1);
+                $sec_diff_per_match = ($match_last_time - $match_first_time) / ($match_total_count-1);
+
+                if (abs($sec_diff_per_match - $interval) > 120) // deviation is too far off
+                    $sec_diff_per_index = $interval;
+                else
+                    $sec_diff_per_index = $sec_diff_per_match;
 
                 $matches_display    = array_slice($matches_arr, 0, $matches_min);
                 $matches['matches'] = $matches_display;
@@ -678,7 +683,7 @@ class FlashLog extends Model
                     // A match is found
                     $has_matches = true;
                     if ($show)
-                        $log[] = ['block'=> $i, 'block_i'=>$block_index, 'start_i'=>$start_index, 'end_i'=>$end_index, 'duration_hours'=>$duration_hrs, 'fl_i'=>$fl_index, 'db_time'=>$db_time, 'fw_version'=>$on['firmware_version'], 'interval_min'=>$on['measurement_interval_min'], 'transmission_ratio'=>$on['measurement_transmission_ratio'], 'index_start'=>$block['index_start'], 'index_end'=>$block['index_end'], 'time_start'=>$block['time_start'], 'time_end'=>$block['time_end'], 'setCount'=>$block['setCount'], 'matches'=>$matches, 'dbCount'=>$block['dbCount'], 'interval_sec_db'=>$sec_diff_per_index, 'match_first_db_sec'=>$match_first_time, 'match_last_db_sec'=>$match_last_time, 'match_total_count'=>$match_total_count];
+                        $log[] = ['block'=> $i, 'block_i'=>$block_index, 'start_i'=>$start_index, 'end_i'=>$end_index, 'duration_hours'=>$duration_hrs, 'fl_i'=>$fl_index, 'db_time'=>$db_time, 'fw_version'=>$on['firmware_version'], 'interval_min'=>$interval, 'transmission_ratio'=>$on['measurement_transmission_ratio'], 'index_start'=>$block['index_start'], 'index_end'=>$block['index_end'], 'time_start'=>$block['time_start'], 'time_end'=>$block['time_end'], 'setCount'=>$block['setCount'], 'matches'=>$matches, 'dbCount'=>$block['dbCount'], 'interval_sec_db'=>$sec_diff_per_index, 'match_first_db_sec'=>$match_first_time, 'match_last_db_sec'=>$match_last_time, 'match_total_count'=>$match_total_count];
 
                     $setCount += $block['setCount'];
                     $db_time  = $block['time_end'];

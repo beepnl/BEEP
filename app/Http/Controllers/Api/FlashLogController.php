@@ -447,7 +447,13 @@ class FlashLogController extends Controller
                                         $start_time  = substr($first_obj->time, 0, 19); // cut off Z
                                         $end_time    = substr($last_obj->time, 0, 19); // cut off Z
                                         $query       = 'SELECT "'.implode('","', $measurements).'" FROM "sensors" WHERE '.$flashlog->device->influxWhereKeys().' AND time >= \''.$start_time.'\' AND time <= \''.$end_time.'\' ORDER BY time ASC LIMIT '.$index_amount;
-                                        $out['database'] = Device::getInfluxQuery($query, 'flashlog');
+                                        $db_data_vals= Device::getInfluxQuery($query, 'flashlog');
+                                        $db_data_cleaned = [];
+                                        foreach ($db_data_vals as $db_value) 
+                                        {
+                                            $db_data_cleaned = array_filter($db_value);
+                                        }
+                                        $out['database'] = $db_data_cleaned;
 
                                         // Run through the data to see how many % of the data matches
                                         $match_percentage = $this->matchPercentage($out['flashlog'], $out['database'], $match_props);

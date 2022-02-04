@@ -614,6 +614,7 @@ class FlashLog extends Model
         $block_index     = $on['i'];
         $start_index     = $block_index+1;
         $interval        = intval($on['measurement_interval_min']); // transmission ratio is not of importance here, because log contains all measurements
+        $interval_sec    = $interval * 60; // transmission ratio is not of importance here, because log contains all measurements
 
         $db_moment       = new Moment($db_time);
         
@@ -666,8 +667,8 @@ class FlashLog extends Model
                 $match_total_count  = count($matches_arr);
                 $sec_diff_per_match = ($match_last_time - $match_first_time) / ($match_total_count-1);
 
-                if (abs($sec_diff_per_match - $interval) > 120) // deviation is too far off
-                    $sec_diff_per_index = $interval;
+                if (abs($sec_diff_per_match - $interval_sec) > 120) // deviation is too far off
+                    $sec_diff_per_index = $interval_sec;
                 else
                     $sec_diff_per_index = $sec_diff_per_match;
 
@@ -692,7 +693,7 @@ class FlashLog extends Model
                 else
                 {
                     if ($show)
-                        $log[] = ['block'=> $i, 'block_i'=>$block_index, 'start_i'=>$start_index, 'end_i'=>$end_index, 'duration_hours'=>$duration_hrs, 'fl_i'=>$fl_index, 'db_time'=>$db_time, 'fw_version'=>$on['firmware_version'], 'interval_min'=>$on['measurement_interval_min'], 'transmission_ratio'=>$on['measurement_transmission_ratio']];
+                        $log[] = ['block'=> $i, 'block_i'=>$block_index, 'start_i'=>$start_index, 'end_i'=>$end_index, 'duration_hours'=>$duration_hrs, 'fl_i'=>$fl_index, 'db_time'=>$db_time, 'fw_version'=>$on['firmware_version'], 'interval_min'=>$interval, 'transmission_ratio'=>$on['measurement_transmission_ratio']];
 
                     $db_time = $db_moment->addMinutes($duration_min)->format($this->timeFormat);
                 }
@@ -701,7 +702,7 @@ class FlashLog extends Model
             {
                 //die(print_r($matches));
                 if ($show)
-                    $log[] = ['block'=> $i, 'block_i'=>$block_index, 'start_i'=>$start_index, 'end_i'=>$end_index, 'duration_hours'=>$duration_hrs, 'fl_i'=>$fl_index, 'db_time'=>$db_time, 'fw_version'=>$on['firmware_version'], 'interval_min'=>$on['measurement_interval_min'], 'transmission_ratio'=>$on['measurement_transmission_ratio'], 'no_matches'=>'fl_i and time of match not set', 'match'=>$matches];
+                    $log[] = ['block'=> $i, 'block_i'=>$block_index, 'start_i'=>$start_index, 'end_i'=>$end_index, 'duration_hours'=>$duration_hrs, 'fl_i'=>$fl_index, 'db_time'=>$db_time, 'fw_version'=>$on['firmware_version'], 'interval_min'=>$interval, 'transmission_ratio'=>$on['measurement_transmission_ratio'], 'no_matches'=>'fl_i and time of match not set', 'match'=>$matches];
 
                 $db_time = $db_moment->addMinutes($duration_min)->format($this->timeFormat);
             }
@@ -709,7 +710,7 @@ class FlashLog extends Model
         else
         {
             if ($show)
-                $log[] = ['block'=> $i, 'block_i'=>$block_index, 'start_i'=>$start_index, 'end_i'=>$end_index, 'duration_hours'=>$duration_hrs, 'fl_i'=>$fl_index, 'db_time'=>$db_time, 'fw_version'=>$on['firmware_version'], 'interval_min'=>$on['measurement_interval_min'], 'transmission_ratio'=>$on['measurement_transmission_ratio'], 'no_matches'=>$matches];
+                $log[] = ['block'=> $i, 'block_i'=>$block_index, 'start_i'=>$start_index, 'end_i'=>$end_index, 'duration_hours'=>$duration_hrs, 'fl_i'=>$fl_index, 'db_time'=>$db_time, 'fw_version'=>$on['firmware_version'], 'interval_min'=>$interval, 'transmission_ratio'=>$on['measurement_transmission_ratio'], 'no_matches'=>$matches];
 
             $db_time = $db_moment->addMinutes($duration_min)->format($this->timeFormat);
         }

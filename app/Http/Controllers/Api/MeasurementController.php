@@ -897,16 +897,11 @@ class MeasurementController extends Controller
         }
         
         // set start/end of interval
+        $staIndex = $index;
+        $endIndex = $index;
+        
         if ($relative_interval)
-        {
-            $staIndex = $index+1;
-            $endIndex = $index;
-        }
-        else
-        {
-            $staIndex = $index;
-            $endIndex = $index;
-        }
+            $staIndex += 1;
 
         $cache_sensor_names = $index < 7 ? true : false;
         

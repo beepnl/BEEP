@@ -285,8 +285,8 @@ class FlashLogController extends Controller
                 $hive_name   = $flashlog->hive_name;
                 $user_id     = $flashlog->user_id;
                 $user_name   = $flashlog->user_name;
-                //$measurements= Measurement::getValidMeasurements(true);
-                $measurements = Measurement::getMatchingMeasurements();
+                $measurements= Measurement::getValidMeasurements(true);
+                //$measurements = Measurement::getMatchingMeasurements();
                 
                 if(isset($flashlog->log_file))
                 {

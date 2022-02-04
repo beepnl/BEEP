@@ -222,7 +222,7 @@ class FlashLogController extends Controller
                 
                 for ($j=$array2_index; $j < $array2_length; $j++) 
                 {   
-                    $d           = array_filter($array2[$j]);
+                    $d           = $array2[$j];
                     $d_time      = $d['time'];
                     unset($d['time']); // remove time for count
                     $d_val_count = count($d);
@@ -447,10 +447,15 @@ class FlashLogController extends Controller
                                         $start_time  = substr($first_obj->time, 0, 19); // cut off Z
                                         $end_time    = substr($last_obj->time, 0, 19); // cut off Z
                                         $query       = 'SELECT "'.implode('","', $measurements).'" FROM "sensors" WHERE '.$flashlog->device->influxWhereKeys().' AND time >= \''.$start_time.'\' AND time <= \''.$end_time.'\' ORDER BY time ASC LIMIT '.$index_amount;
-                                        $out['database'] = Device::getInfluxQuery($query, 'flashlog');
+                                        $db_data_week= Device::getInfluxQuery($query, 'flashlog');
+                                        $db_data_cln = [];
+                                        foreach ($db_data_week as $db_value)
+                                            $db_data_cln[] = array_filter($db_value);
+                                        
+                                        $out['database'] = $db_data_cln;
 
                                         // Run through the data to see how many % of the data matches
-                                        $match_percentage = $this->matchPercentage($out['flashlog'], $out['database'], $match_props);
+                                        $match_percentage = $this->matchPercentage($out['flashlog'], $db_data_cln, $match_props);
                                         $out['block_data_match_percentage']  = $match_percentage['perc_match'];
                                         $out['block_data_flashlog_sec_diff'] = $match_percentage['sec_diff'];
                                     }

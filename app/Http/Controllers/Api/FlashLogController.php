@@ -214,6 +214,7 @@ class FlashLogController extends Controller
         $array2_length = count($array2);
         $array_min_len = min($array1_length, $array2_length);
 
+
         if ($array1_length > 0 && $array2_length > 0)
         {
             for ($i=0; $i < $array1_length; $i++) 
@@ -224,7 +225,9 @@ class FlashLogController extends Controller
                 {   
                     $d           = $array2[$j];
                     $d_time      = $d['time'];
-                    unset($d['time']); // remove time for count
+                    unset($d['time']); // remove for count
+                    unset($d['rssi']); // remove for count
+                    unset($d['snr']); // remove for count
                     $d_val_count = count($d);
                     
                     if ($d_val_count < $match_props)
@@ -237,7 +240,7 @@ class FlashLogController extends Controller
                     {
                         $match = array_intersect_assoc($d, $f);
 
-                        if ($match != null && count($match) >= $d_val_count-1)
+                        if ($match !== null && count($match) >= $d_val_count-1)
                         {
                             $d['time'] = $d_time; // put back tima
                             $matches[] = ['d'=>$d, 'f'=>$f, 'm'=>$match];

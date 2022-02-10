@@ -2,8 +2,8 @@
    {
     "version": "1.5.11",
     "release_date": "2021-08-10T13:19:00Z",
-    "release_notes": "BEEP base 1.5.11 offers the ability to program it's hardware (ATECC) id by cable, if the BEEP base PCB (v3.3) does not contain the (currently unavailable) ATECC chip. This is a new firmware version for BEEP base v3.3 or higher, but will also run normally on older versions of the BEEP base.",
-    "stability": "test",
+    "release_notes": "BEEP base 1.5.11 offers log file rotation and the ability to program it's hardware (ATECC) id by cable (in case the BEEP base PCB (v3.3) does not contain the (currently unavailable) ATECC chip). This is a new firmware version for BEEP base v3.3 or higher, but will also run normally on older versions of the BEEP base.",
+    "stability": "stable",
     "size": 348200,
     "download_url": "https://assets.beep.nl/firmware/basev3/1.5.11/Beepbase_sd_boot_app.zip"
    },

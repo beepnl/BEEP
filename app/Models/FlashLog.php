@@ -624,14 +624,14 @@ class FlashLog extends Model
 
         // check if database query should be based on the device time, or the cached time from the 
         $use_device_time = false;
-        if (isset($flashlog[$start_index]['time_device']))   
+        if (isset($flashlog[$start_index]['time_device']) && intval($flashlog[$start_index]['time_device']) > 1546297200)   
         {
             $device_moment = new Moment($flashlog[$start_index]['time_device']);
             $device_time   = $device_moment->format($this->timeFormat);
             if ($device_time > $db_time)
             {
                 $db_time         = $device_time;
-                $db_moment       = new Moment($db_time);
+                $db_moment       = $device_moment;
                 $use_device_time = true;
             }
         }

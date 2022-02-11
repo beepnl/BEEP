@@ -213,7 +213,7 @@ class FlashLogController extends Controller
         $array1_length = count($array1);
         $array2_length = count($array2);
         $array_min_len = min($array1_length, $array2_length);
-
+        $errors        = [];
 
         if ($array1_length > 0 && $array2_length > 0)
         {
@@ -240,11 +240,21 @@ class FlashLogController extends Controller
 
                         if ($match !== null && count($match) >= $d_val_count-1)
                         {
-                            if ((isset($d['weight_kg']) && isset($f['weight_kg']) && $d['weight_kg'] !== $f['weight_kg']) || (isset($d['t_i']) && isset($f['t_i']) && $d['t_i'] !== $f['t_i']) || (isset($d['t_0']) && isset($f['t_0']) && $d['t_0'] !== $f['t_0']) || (isset($d['t_1']) && isset($f['t_1']) && $d['t_1'] !== $f['t_1']))
+                            $should_match = ['weight_kg','t_i','t_0','t_1'];
+                            $match_ok     = false;
+                            foreach ($should_match as $m_key)
                             {
                                 // reject match, because weight_kg, t_i, t_0, or t_1 does not match
+                                if (isset($d[$m_key]) && isset($f[$m_key]) && $d[$m_key] !== $f[$m_key])
+                                {
+                                    $match_ok = false;
+                                    
+                                    if (in_array($m_key.'_different', $errors) == false)
+                                        $errors[] = $m_key.'_different';
+                                }
                             }
-                            else
+
+                            if ($match_ok)
                             {
                                 $d['time'] = $d_time; // put back tima
                                 //$matches[] = ['d'=>$d, 'f'=>$f, 'm'=>$match];
@@ -263,7 +273,7 @@ class FlashLogController extends Controller
         $secDiffAvg = count($secDiff) > 0 ? round(array_sum($secDiff)/count($secDiff)) : null;
         $percMatch  = $array_min_len > 0 ? round(100 * ($match_count / $array_min_len), 1): 0;
         //die(print_r([$percMatch, $secDiffAvg, $matches]));
-        return ['sec_diff'=>$secDiffAvg, 'perc_match'=>$percMatch];
+        return ['sec_diff'=>$secDiffAvg, 'perc_match'=>$percMatch, 'errors'=>implode(', ', $errors)];
     }
 
     private function parse(Request $request, $id, $persist=false)
@@ -467,6 +477,7 @@ class FlashLogController extends Controller
                                     $match_percentage = $this->matchPercentage($out['flashlog'], $db_data_cln, $match_props);
                                     $out['block_data_match_percentage']  = $match_percentage['perc_match'];
                                     $out['block_data_flashlog_sec_diff'] = $match_percentage['sec_diff'];
+                                    $out['block_data_match_errors']      = $match_percentage['errors'];
                                 }
 
                             }

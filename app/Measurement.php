@@ -126,7 +126,7 @@ class Measurement extends Model
 
     public static function getMatchingMeasurements()
     {
-        return ['bv','w_v','weight_kg','t_i','t_0','t_1','s_bin_71_122','s_bin_122_173','s_bin_173_224','s_bin_224_276','s_bin_276_327','s_bin_327_378','s_bin_378_429','s_bin_429_480','s_bin_480_532','s_bin_532_583'];
+        return ['bv','w_v','weight_kg','t_i','t_0','t_1','s_bin_71_122','s_bin_122_173','s_bin_173_224','s_bin_224_276','s_bin_276_327','s_bin_327_378','s_bin_378_429','s_bin_429_480','s_bin_480_532','s_bin_532_583','s_bin_0_201','s_bin_201_402','s_bin_402_602','s_bin_602_803','s_bin_803_1004','s_bin_1004_1205','s_bin_1205_1406','s_bin_1406_1607','s_bin_1607_1807','s_bin_1807_2008'];
     }
 
     public static function getValidMeasurements($output=false, $weather=false, $locale=null)

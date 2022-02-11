@@ -206,7 +206,7 @@ class FlashLogController extends Controller
 
     private function matchPercentage($array1, $array2, $match_props=9)
     {
-        $matches       = [];
+        //$matches       = [];
         $secDiff       = [];
         $match_count   = 0;
         $array2_index  = 0;
@@ -242,17 +242,8 @@ class FlashLogController extends Controller
 
                         if ($match !== null && count($match) >= $d_val_count-1)
                         {
-                            if (isset($match['weight_kg']) && $d['weight_kg'] != $f['weight_kg'])
-                                continue;
-                            if (isset($match['t_i']) && $d['t_i'] != $f['t_i'])
-                                continue;
-                            if (isset($match['t_0']) && $d['t_0'] != $f['t_0'])
-                                continue;
-                            if (isset($match['t_1']) && $d['t_1'] != $f['t_1'])
-                                continue;
-
                             $d['time'] = $d_time; // put back tima
-                            $matches[] = ['d'=>$d, 'f'=>$f, 'm'=>$match];
+                            //$matches[] = ['d'=>$d, 'f'=>$f, 'm'=>$match];
                             $secDiff[] = strtotime($f['time']) - strtotime($d['time']);
                             $array2_index = $j;
                             $match_count++;
@@ -297,8 +288,7 @@ class FlashLogController extends Controller
                 $hive_name   = $flashlog->hive_name;
                 $user_id     = $flashlog->user_id;
                 $user_name   = $flashlog->user_name;
-                $measurements= Measurement::getValidMeasurements(true);
-                //$measurements = Measurement::getMatchingMeasurements();
+                $measurements= Measurement::getMatchingMeasurements();
                 
                 if(isset($flashlog->log_file))
                 {
@@ -357,8 +347,8 @@ class FlashLogController extends Controller
                                         
                                         foreach ($data_per_int as $db_count_i => $db_count) 
                                         {
-                                            $time_start   = $db_count['time'];
-                                            unset($db_count['time']); // don't include time in sum
+                                            $time_start    = $db_count['time'];
+                                            $db_count      = array_intersect_key($db_count, array_flip($measurements)); // only keep the key counts from valid matching measurements
                                             $count_sum     = array_sum($db_count);
                                             $data_per_int_d[$time_start] = $count_sum;
                                             
@@ -375,6 +365,9 @@ class FlashLogController extends Controller
 
                                                 for ($i=$indexFlogStart; $i < $indexFlogEnd; $i++)
                                                 {
+                                                    // TODO: check if these values do match somewhere: weight_kg, t_i, t_0, t_1
+                                                    // To not fill any wrong sensordefinition 
+
                                                     $data_item = $block_data[$i];
                                                     if (isset($data_item->port) && $data_item->port == 3)
                                                         $missing_data[] = (array)$this->cleanFlashlogItem($data_item);

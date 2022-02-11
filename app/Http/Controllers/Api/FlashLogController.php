@@ -242,6 +242,15 @@ class FlashLogController extends Controller
 
                         if ($match !== null && count($match) >= $d_val_count-1)
                         {
+                            if (isset($match['weight_kg']) && $d['weight_kg'] != $f['weight_kg'])
+                                continue;
+                            if (isset($match['t_i']) && $d['t_i'] != $f['t_i'])
+                                continue;
+                            if (isset($match['t_0']) && $d['t_0'] != $f['t_0'])
+                                continue;
+                            if (isset($match['t_1']) && $d['t_1'] != $f['t_1'])
+                                continue;
+
                             $d['time'] = $d_time; // put back tima
                             $matches[] = ['d'=>$d, 'f'=>$f, 'm'=>$match];
                             $secDiff[] = strtotime($f['time']) - strtotime($d['time']);

@@ -245,7 +245,7 @@ class FlashLogController extends Controller
                             foreach ($should_match as $m_key)
                             {
                                 // reject match, because weight_kg, t_i, t_0, or t_1 does not match
-                                if (isset($d[$m_key]) && isset($f[$m_key]) && $d[$m_key] !== $f[$m_key])
+                                if (isset($d[$m_key]) && isset($f[$m_key]) && round($d[$m_key], 1) !== round($f[$m_key], 1))
                                 {
                                     if ($m_key == 'weight_kg' && $d[$m_key] > 200 && $f[$m_key] < 200) // can still be ok, because uncalibrated db values can be replaced
                                     {

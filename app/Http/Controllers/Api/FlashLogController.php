@@ -240,11 +240,9 @@ class FlashLogController extends Controller
 
                         if ($match !== null && count($match) >= $d_val_count-1)
                         {
-
-                            if ((isset($match['weight_kg']) && $d['weight_kg'] !== $f['weight_kg']) || (isset($match['t_i']) && $d['t_i'] !== $f['t_i']) || (isset($match['t_0']) && $d['t_0'] !== $f['t_0']) || (isset($match['t_1']) && $d['t_1'] !== $f['t_1']))
+                            if ((isset($d['weight_kg']) && isset($f['weight_kg']) && $d['weight_kg'] !== $f['weight_kg']) || (isset($d['t_i']) && isset($f['t_i']) && $d['t_i'] !== $f['t_i']) || (isset($d['t_0']) && isset($f['t_0']) && $d['t_0'] !== $f['t_0']) || (isset($d['t_1']) && isset($f['t_1']) && $d['t_1'] !== $f['t_1']))
                             {
                                 // reject match, because weight_kg, t_i, t_0, or t_1 does not match
-                                //die(print_r([$match, $d, $f]));
                             }
                             else
                             {

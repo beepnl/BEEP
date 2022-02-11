@@ -135,7 +135,20 @@ class FlashLog extends Model
         $sid    = $this->device_id; 
         $time   = date("YmdHis");
 
-        if ($data && isset($sid))
+        if (empty($data)) // get data from parsed flashlog file, or unparsed log_file
+        {
+            if (isset($this->log_file_parsed) && $from_cache)
+            {
+                $out = json_decode($this->getFileContent('log_file_parsed'), true);
+                $messages = count($out);
+            }
+
+            if (empty($out) && isset($this->log_file))
+                $data = $this->getFileContent('log_file');
+        }
+        
+        // parse the data
+        if (empty($out) && isset($data) && isset($sid))
         {
             $data    = preg_replace('/[\r\n|\r|\n]+|\)\(|FEFEFEFE/i', "\n", $data);
             // interpret every line as a standard LoRa message

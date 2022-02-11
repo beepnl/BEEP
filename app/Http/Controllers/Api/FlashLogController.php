@@ -461,7 +461,7 @@ class FlashLogController extends Controller
                                 for ($i=$start_index; $i<$end_index; $i++) 
                                 { 
                                     $block_data_item = $this->cleanFlashlogItem($block_data[$i]);
-                                    $block_data_item->time .= 'Z'; // display as UTC
+                                    $block_data_item['time'] .= 'Z'; // display as UTC
                                     $out['flashlog'][] = $block_data_item;
                                 }
 

@@ -226,8 +226,6 @@ class FlashLogController extends Controller
                     $d           = $array2[$j];
                     $d_time      = $d['time'];
                     unset($d['time']); // remove for count
-                    unset($d['rssi']); // remove for count
-                    unset($d['snr']); // remove for count
                     $d_val_count = count($d);
                     
                     if ($d_val_count < $match_props)
@@ -242,12 +240,22 @@ class FlashLogController extends Controller
 
                         if ($match !== null && count($match) >= $d_val_count-1)
                         {
-                            $d['time'] = $d_time; // put back tima
-                            //$matches[] = ['d'=>$d, 'f'=>$f, 'm'=>$match];
-                            $secDiff[] = strtotime($f['time']) - strtotime($d['time']);
+
+                            if ((isset($match['weight_kg']) && $d['weight_kg'] !== $f['weight_kg']) || (isset($match['t_i']) && $d['t_i'] !== $f['t_i']) || (isset($match['t_0']) && $d['t_0'] !== $f['t_0']) || (isset($match['t_1']) && $d['t_1'] !== $f['t_1']))
+                            {
+                                // reject match, because weight_kg, t_i, t_0, or t_1 does not match
+                            }
+                            else
+                            {
+                                $d['time'] = $d_time; // put back tima
+                                //$matches[] = ['d'=>$d, 'f'=>$f, 'm'=>$match];
+                                $secDiff[] = strtotime($f['time']) - strtotime($d['time']);
+                                $match_count++;
+                            }
+                            
                             $array2_index = $j;
-                            $match_count++;
                             continue 2; // next foreach loop to continue with the next database item
+                            
                         }
                     }
                 }

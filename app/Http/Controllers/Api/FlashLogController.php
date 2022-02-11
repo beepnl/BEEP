@@ -247,10 +247,18 @@ class FlashLogController extends Controller
                                 // reject match, because weight_kg, t_i, t_0, or t_1 does not match
                                 if (isset($d[$m_key]) && isset($f[$m_key]) && $d[$m_key] !== $f[$m_key])
                                 {
-                                    $match_ok = false;
-                                    
-                                    if (in_array($m_key.'_different', $errors) == false)
-                                        $errors[] = $m_key.'_different';
+                                    if ($m_key == 'weight_kg' && $d[$m_key] > 200 && $f[$m_key] < 200) // can still be ok, because uncalibrated db values can be replaced
+                                    {
+                                        if (in_array($m_key.'_uncalibrated', $errors) == false)
+                                            $errors[] = $m_key.'_uncalibrated';
+                                    }
+                                    else
+                                    {
+                                        $match_ok = false;
+                                        
+                                        if (in_array($m_key.'_different', $errors) == false)
+                                            $errors[] = $m_key.'_different';
+                                    }
                                 }
                             }
 

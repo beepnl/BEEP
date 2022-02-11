@@ -241,7 +241,7 @@ class FlashLogController extends Controller
                         if ($match !== null && count($match) >= $d_val_count-1)
                         {
                             $should_match = ['weight_kg','t_i','t_0','t_1'];
-                            $match_ok     = false;
+                            $match_ok     = true;
                             foreach ($should_match as $m_key)
                             {
                                 // reject match, because weight_kg, t_i, t_0, or t_1 does not match

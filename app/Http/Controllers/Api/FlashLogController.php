@@ -184,24 +184,24 @@ class FlashLogController extends Controller
         return $stored;
     }
 
-    private function cleanFlashlogItem($object)
+    private function cleanFlashlogItem($data_array)
     {
-        unset($object->payload_hex);
-        unset($object->pl);
-        unset($object->len);
-        unset($object->vcc);
-        unset($object->pl_bytes);
-        unset($object->beep_base);
-        unset($object->weight_sensor_amount);
-        unset($object->ds18b20_sensor_amount);
-        unset($object->port);
-        unset($object->minute_interval);
-        unset($object->bat_perc);
-        unset($object->fft_bin_amount);
-        unset($object->fft_start_bin);
-        unset($object->fft_stop_bin);
-        //unset($object->i);
-        return $object;
+        unset($data_array['payload_hex']);
+        unset($data_array['pl']);
+        unset($data_array['len']);
+        unset($data_array['vcc']);
+        unset($data_array['pl_bytes']);
+        unset($data_array['beep_base']);
+        unset($data_array['weight_sensor_amount']);
+        unset($data_array['ds18b20_sensor_amount']);
+        unset($data_array['port']);
+        unset($data_array['minute_interval']);
+        unset($data_array['bat_perc']);
+        unset($data_array['fft_bin_amount']);
+        unset($data_array['fft_start_bin']);
+        unset($data_array['fft_stop_bin']);
+        //unset($data_array->i);
+        return $data_array;
     }
 
     private function matchPercentage($array1, $array2, $match_props=9)
@@ -327,7 +327,7 @@ class FlashLogController extends Controller
                         {
                             $block        = $out['log'][$block_id];
                             $interval_min = $block['interval_min'];
-                            $block_data   = json_decode($flashlog->getFileContent('log_file_parsed'));
+                            $block_data   = json_decode($flashlog->getFileContent('log_file_parsed'), true);
                             $block_start_i= $block['start_i'];
                             $block_end_i  = $block['end_i'];
                             $block_length = $block_end_i - $block_start_i;
@@ -392,7 +392,7 @@ class FlashLogController extends Controller
 
                                                 $data_item = $block_data[$i];
                                                 if (isset($data_item->port) && $data_item->port == 3)
-                                                    $missing_data[] = (array)$this->cleanFlashlogItem($data_item);
+                                                    $missing_data[] = $this->cleanFlashlogItem($data_item);
                                             }
                                         }
 
@@ -410,7 +410,7 @@ class FlashLogController extends Controller
                                     }
                                 }
 
-                                //die(print_r([$persist_count, $persist_days.' days', $block_start_t, $data_per_int_d, $missing_data]));
+                                //die(print_r([$persist_count, $block_start_t, $data_per_int_d, $missing_data]));
                                 
                                 if ($persist_count > 0)
                                 {

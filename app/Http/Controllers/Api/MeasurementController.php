@@ -867,7 +867,7 @@ class MeasurementController extends Controller
     }
 
 
-    private function interval(Request $request, $relative_interval=false, $download=false)
+    private function interval(Request $request, $relative_interval=false, $download=false, $min_interval_min=1)
     {
         $interval  = $request->input('interval','day');
         $index     = intval($request->input('index',0));
@@ -914,24 +914,24 @@ class MeasurementController extends Controller
                 $cache_sensor_names = false;
                 break;
             case 'month':
-                $resolution = '3h'; // 240 values
+                $resolution = $min_interval_min > 180 ? $min_interval_min.'m' : '3h'; // 240 values
                 $staTimestamp->subtractMonths($staIndex);
                 $endTimestamp->subtractMonths($endIndex);
                 $cache_sensor_names = false;
                 break;
             case 'week':
-                $resolution = '1h'; // 168 values
+                $resolution = $min_interval_min > 60 ? $min_interval_min.'m' : '1h'; // 168 values
                 $staTimestamp->subtractWeeks($staIndex);
                 $endTimestamp->subtractWeeks($endIndex);
                 $cache_sensor_names = false;
                 break;
             case 'day':
-                $resolution = '10m'; // 144 values
+                $resolution = $min_interval_min > 10 ? $min_interval_min.'m' : '10m'; // 144 values
                 $staTimestamp->subtractDays($staIndex);
                 $endTimestamp->subtractDays($endIndex);
                 break;
             case 'hour':
-                $resolution = '1m'; // 60 values
+                $resolution = $min_interval_min > 1 ? $min_interval_min.'m' : '1m'; // 60 values
                 $staTimestamp->subtractHours($staIndex);
                 $endTimestamp->subtractHours($endIndex);
                 break;
@@ -944,22 +944,22 @@ class MeasurementController extends Controller
                 switch(true)
                 {
                     case $durationDays > 90:
-                        $resolution = $download ? '1h' : '1d'; // 90+ values
+                        $resolution = $download ? ($min_interval_min > 60 ? $min_interval_min.'m' : '1h') : '1d'; // 90+ values
                         break;
                     case $durationDays > 30:
-                        $resolution = $download ? '30m' : '6h'; // 90-270 values
+                        $resolution = $download ? ($min_interval_min > 30 ? $min_interval_min.'m' : '30m') : '6h'; // 90-270 values
                         break;
                     case $durationDays > 7:
-                        $resolution = $download ? '10m' : '3h'; // 84-360 values
+                        $resolution = $download ? ($min_interval_min > 10 ? $min_interval_min.'m' : '10m') : '3h'; // 84-360 values
                         break;
                     case $durationDays > 2:
-                        $resolution = $download ? null : '30m'; // 96-336 values
+                        $resolution = $download ? null : ($min_interval_min > 30 ? $min_interval_min.'m' : '30m'); // 96-336 values
                         break;
                     case $durationDays > 6/24: // 6 hours
-                        $resolution = $download ? null : '10m'; // 60-240 values
+                        $resolution = $download ? null : ($min_interval_min > 10 ? $min_interval_min.'m' : '10m'); // 60-240 values
                         break;
                     default:
-                        $resolution = $download ? null : '1m'; // 0-360 values
+                        $resolution = $download ? null : ($min_interval_min > 1 ? $min_interval_min.'m' : '1m'); // 0-360 values
                         break;
                 }
         }
@@ -1042,9 +1042,10 @@ class MeasurementController extends Controller
         }
 
         //Get the data interval
+        $min_interval_min     = isset($device->measurement_interval_min) ? $device->measurement_interval_min : 1; 
         $relative_interval    = boolval($request->input('relative_interval', 0)); 
         $loadWeather          = boolval($request->input('weather', 1)); 
-        $intervalArr          = $this->interval($request, $relative_interval);
+        $intervalArr          = $this->interval($request, $relative_interval, false, $min_interval_min);
 
         $groupBySelect        = null;
         $groupBySelectWeather = null;

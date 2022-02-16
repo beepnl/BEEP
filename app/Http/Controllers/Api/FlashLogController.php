@@ -6,6 +6,7 @@ use App\Measurement;
 use App\Device;
 use App\Models\FlashLog;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
 use Moment\Moment;
 use Storage;
@@ -178,6 +179,7 @@ class FlashLogController extends Controller
             }
             catch(\Exception $e)
             {
+                Log::error($e->getMessage());
                 //die(print_r($e->getMessage()));
             }
         }

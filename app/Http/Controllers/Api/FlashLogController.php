@@ -338,7 +338,7 @@ class FlashLogController extends Controller
                                 $block_end_t  = $block['time_end'];
                                 $block_start_u= strtotime($block_start_t);
                                 
-                                $interval_db  = 15; // min
+                                $interval_db  = 15; // db request minute interval
                                 $rows_per_db  = $interval_db / $interval_min; // amount of flashlog items in 1 database interval
                                 $req_points_db= $block_length / $rows_per_db;  
                                 $req_cnt_db   = ceil($req_points_db / $this->maxDataPoints);
@@ -357,7 +357,7 @@ class FlashLogController extends Controller
                                     // run through the db data array to define which data to add 
                                     $count_query  = 'SELECT COUNT(*) FROM "sensors" WHERE '.$device->influxWhereKeys().' AND time >= \''.$req_start_time.'\' AND time <= \''.$req_end_time.'\' GROUP BY time('.$interval_db.'m) ORDER BY time ASC LIMIT '.$points_p_req;
                                     
-                                    //die(print_r([$req_start_unix, $req_start_time, $req_end_unix, $req_end_time, $count_query]));
+                                    //print_r(['req_start_unix'=>$req_start_unix, 'req_start_time'=>$req_start_time, 'req_end_unix'=>$req_end_unix, 'req_end_time'=>$req_end_time, 'count_query'=>$count_query]);
                                     
                                     $data_per_int = Device::getInfluxQuery($count_query, 'flashlog');
                                     
@@ -367,31 +367,35 @@ class FlashLogController extends Controller
                                     $data_per_int_max_i = count($data_per_int) - 1;
                                     $missing_data       = [];
                                     
-                                    foreach ($data_per_int as $db_count_i => $db_count) 
+                                    // per Influx time group (15 min)  
+                                    for($db_count_i=0 ; $db_count_i < $data_per_int_max_i; $db_count_i++) 
                                     {
+                                        $db_count      = $data_per_int[$db_count_i];
+                                        $db_count_next = $data_per_int[$db_count_i+1];
                                         $time_start    = $db_count['time'];
+                                        $time_end      = $db_count_next['time'];
                                         $db_count      = array_intersect_key($db_count, array_flip($measurements)); // only keep the key counts from valid matching measurements
                                         $count_sum     = array_sum($db_count);
                                         $data_per_int_d[$time_start] = $count_sum;
                                         
-                                        if ($count_sum < $match_props)
+                                        if ($count_sum < $match_props) // Database data has less data than flashlog 
                                         {
                                             // define index start-end of day
-                                            $secOfDayStart   = strtotime($time_start);
-                                            $minDifWithStart = round(($secOfDayStart - $block_start_u) / 60);
-                                            $indexFlogStart  = $block_start_i + round($minDifWithStart / $interval_min);
+                                            $secOfCountStart = strtotime($time_start);
+                                            $secOfCountEnd   = strtotime($time_end);
+                                            $minDifWithStart = round(($secOfCountStart - $block_start_u) / 60);
+                                            $indexFlogStart  = $block_start_i + ceil($minDifWithStart / $interval_min);
                                             $indexFlogEnd    = min($block_end_i, $indexFlogStart + $rows_per_db);
                                             $indexFlogStart  = max(0, $indexFlogStart);
 
-                                            //print_r([$time_start, $indexFlogStart, $indexFlogEnd, $block_data[$indexFlogEnd-1]]);
-
                                             for ($i=$indexFlogStart; $i < $indexFlogEnd; $i++)
                                             {
-                                                // TODO: check if these values do match somewhere: weight_kg, t_i, t_0, t_1
-                                                // To not fill any wrong sensordefinition 
-
-                                                $data_item = $block_data[$i];
-                                                if (isset($data_item->port) && $data_item->port == 3)
+                                                $data_item   = $block_data[$i];
+                                                $secDataItem = strtotime($data_item['time']);
+                                                
+                                                //print_r(['count_sum'=>$count_sum, 'time_start'=>$time_start, 'time_end'=>$time_end, 'minDifWithStart'=>$minDifWithStart, 'indexFlogStart'=>$indexFlogStart, 'indexFlogEnd'=>$indexFlogEnd, 'indexFlog'=>$i, 'data_item'=>$data_item]);
+                                                
+                                                if (isset($data_item['port']) && $data_item['port'] == 3 && $secDataItem >= $secOfCountStart && $secDataItem < $secOfCountEnd) // time from flashlog should be between start and end of this interval
                                                     $missing_data[] = $this->cleanFlashlogItem($data_item);
                                             }
                                         }
@@ -399,7 +403,7 @@ class FlashLogController extends Controller
                                         $missing_data_count = count($missing_data);
                                         if ($missing_data_count > 100 || ($missing_data_count > 0 && $db_count_i == $data_per_int_max_i)) // persist at every 100 items, or at last item
                                         {
-                                            //die(print_r([$missing_data_count, $block_start_t, $data_per_int_d, $data_per_int, $missing_data]));
+                                            //die(print_r(['missing_data_count'=>$missing_data_count, 'block_start_t'=>$block_start_t, 'data_per_int_d'=>$data_per_int_d, 'missing_data'=>$missing_data]));
                                             
                                             $stored = $this->storeInfluxDataArrays($missing_data, $device);
                                             if ($stored)

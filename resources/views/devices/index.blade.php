@@ -61,36 +61,6 @@
                     ],
                 });
             });
-
-            function fallbackCopyTextToClipboard(text) {
-			  var textArea = document.createElement("textarea");
-			  textArea.value = text;
-			  textArea.style.position="fixed";  //avoid scrolling to bottom
-			  document.body.appendChild(textArea);
-			  textArea.focus();
-			  textArea.select();
-
-			  try {
-			    var successful = document.execCommand('copy');
-			    var msg = successful ? 'successful' : 'unsuccessful';
-			    console.log('Fallback: Copying text command was ' + msg);
-			  } catch (err) {
-			    console.error('Fallback: Oops, unable to copy', err);
-			  }
-
-			  document.body.removeChild(textArea);
-			}
-			function copyTextToClipboard(text) {
-			  if (!navigator.clipboard) {
-			    fallbackCopyTextToClipboard(text);
-			    return;
-			  }
-			  navigator.clipboard.writeText(text).then(function() {
-			    console.log('Async: Copying to clipboard was successful!');
-			  }, function(err) {
-			    console.error('Async: Could not copy text: ', err);
-			  });
-			}
         </script>
 
 			<table id="table-sensors" class="table table-striped">
@@ -105,11 +75,11 @@
 						<th><img src="/img/icn_bat.svg" style="width: 20px;"></th>
 						<th>Hardware version</th>
 						<th style="min-width: 100px;">Firmware version</th>
-						<th>Inerval (min) / ratio</th>
+						<th>Interval (min) / ratio</th>
 						<th>{{ __('general.User') }} / {{ __('beep.Hive') }}</th>
 						<th>Research</th>
 						<th>Last downlink result</th>
-						<th style="min-width: 100px;">{{ __('crud.actions') }}</th>
+						<th style="min-width: 150px;">{{ __('crud.actions') }}</th>
 					</tr>
 				</thead>
 				<tbody>
@@ -130,6 +100,7 @@
 						<td style="max-width: 200px; max-height: 60px; overflow: hidden;" title="{{ $device->last_downlink_result }}">{{ $device->last_downlink_result }}</td>
 						<td>
 							<a class="btn btn-default" href="{{ route('devices.show',$device->id) }}" title="{{ __('crud.show') }}"><i class="fa fa-eye"></i></a>
+							<a class="btn btn-default" href="{{ route('devices.data',$device->id) }}" title="{{ __('crud.data') }}"><i class="fa fa-line-chart"></i></a>
 							@permission('sensor-edit')
 							<a class="btn btn-primary" href="{{ route('devices.edit',$device->id) }}" title="{{ __('crud.edit') }}"><i class="fa fa-pencil"></i></a>
 							@endpermission

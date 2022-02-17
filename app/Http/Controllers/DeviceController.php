@@ -87,6 +87,106 @@ class DeviceController extends Controller
     }
 
     /**
+     * Display the data from all selected devices.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function data(Request $request)
+    {
+        $keyword     = $request->get('search');
+        $search_user = $request->get('user');
+        $search_res  = $request->get('research');
+        $perPage     = 10;
+        $devices     = Device::where('id', '!=', null);
+
+        $research_id = null;
+        if (!empty($search_res)) 
+        {
+            $researches = Research::where('name', 'LIKE', "%$search_res%")
+                            ->orWhere('id', 'LIKE', "%$search_res%")
+                            ->orWhere('institution', 'LIKE', "%$search_res%")
+                            ->orWhere('description', 'LIKE', "%$search_res%")
+                            ->orWhere('type', 'LIKE', "%$search_res%")
+                            ->get();
+
+            if (count($researches) > 0)
+            {
+                $device_ids = [];
+                foreach ($researches as $res)
+                { 
+                    foreach ($res->users as $user) 
+                        $device_ids = array_merge($device_ids, $user->devices->pluck('id')->toArray());
+                }
+                $devices = $devices->whereIn('id', $device_ids);
+            }
+        }
+
+        if (!empty($search_user)) 
+        {
+            $user_ids = User::where('name', 'LIKE', "%$search_user%")
+                        ->orWhere('email', 'LIKE', "%$search_user%")
+                        ->orWhere('locale', 'LIKE', "%$search_user%")
+                        ->orWhere('id', 'LIKE', "%$search_user%")
+                        ->pluck('id');
+            
+            if (count($user_ids) > 0)
+                $devices = $devices->whereIn('user_id', $user_ids);
+
+        }
+
+        if (!empty($keyword)) 
+        {
+            $devices = $devices->where('hive_id', 'LIKE', "%$keyword%")
+                                ->orWhere('id', 'LIKE', "%$keyword%")
+                                ->orWhere('name', 'LIKE', "%$keyword%")
+                                ->orWhere('key', 'LIKE', "%$keyword%")
+                                ->orWhere('former_key_list', 'LIKE', "%$keyword%")
+                                ->orWhere('last_message_received', 'LIKE', "%$keyword%")
+                                ->orWhere('hardware_id', 'LIKE', "%$keyword%")
+                                ->orWhere('firmware_version', 'LIKE', "%$keyword%")
+                                ->orWhere('hardware_version', 'LIKE', "%$keyword%")
+                                ->orWhere('measurement_interval_min', 'LIKE', "%$keyword%")
+                                ->orWhere('battery_voltage', 'LIKE', "%$keyword%")
+                                ->orWhere('datetime', 'LIKE', "%$keyword%")
+                                ->orWhere('datetime_offset_sec', 'LIKE', "%$keyword%");
+        }
+
+
+        $devices = $devices->orderBy('name')->paginate($perPage);
+        $thisyear= date('Y');
+        $year    = intval($request->input('year', $thisyear));
+        if ($year < 2019)
+            $year = $thisyear;
+        
+        $start   = $year.'-01-01 00:00:00';
+        $end     = $year == $thisyear ? date('Y-m-d H:i:s') : $year.'-12-31 23:59:59';
+
+        foreach($devices as $di => $device)
+        {
+            $devices[$di]['data_points']   = 0;
+            $devices[$di]['data_imported'] = 0;
+
+            $device_start_date = $start < $device->created_at ? $device->created_at : $start;
+            $count_query       = 'SELECT COUNT("bv") as "count" FROM "sensors" WHERE '.$device->influxWhereKeys().' AND time >= \''.$device_start_date.'\' AND time <= \''.$end.'\' GROUP BY time(365d),from_flashlog LIMIT 100';
+            $count_result      = Device::getInfluxQuery($count_query, 'flashlog');
+            foreach ($count_result as $count_obj) 
+            {
+                if ($count_obj['from_flashlog'] === '1')
+                    $devices[$di]['data_imported'] += $count_obj['count'];
+                else
+                    $devices[$di]['data_points'] += $count_obj['count'];
+            }
+
+            $sec_year = strtotime($end) - strtotime($device_start_date);
+            $sec_data = ($devices[$di]['data_points'] + $devices[$di]['data_imported']) * $device->measurement_interval_min * 60;
+            $devices[$di]['completeness'] = $sec_year > 0 ? 100 * round($sec_data / $sec_year, 1) : 0;
+        }
+        //die(print_r([$start, $end, $devices->toArray()]));
+
+        return view('devices.data',compact('devices'));
+    }
+
+    /**
      * Show the form for creating a new resource.
      *
      * @return \Illuminate\Http\Response

@@ -75,6 +75,7 @@ Route::group(
 				
 				Route::get('devices',				['as'=>'devices.index','uses'=>'DeviceController@index','middleware' => ['permission:sensor-list|sensor-create|sensor-edit|sensor-delete']]);
 				Route::get('devices/create',		['as'=>'devices.create','uses'=>'DeviceController@create','middleware' => ['permission:sensor-create']]);
+				Route::get('devices/data',		    ['as'=>'devices.data','uses'=>'DeviceController@data']);
 				Route::post('devices/create',		['as'=>'devices.store','uses'=>'DeviceController@store','middleware' => ['permission:sensor-create']]);
 				Route::get('devices/{id}',			['as'=>'devices.show','uses'=>'DeviceController@show']);
 				Route::get('devices/{id}/edit',		['as'=>'devices.edit','uses'=>'DeviceController@edit','middleware' => ['permission:sensor-edit']]);

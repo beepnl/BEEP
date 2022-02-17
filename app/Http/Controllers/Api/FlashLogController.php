@@ -188,21 +188,24 @@ class FlashLogController extends Controller
 
     private function cleanFlashlogItem($data_array)
     {
-        unset($data_array['payload_hex']);
-        unset($data_array['pl']);
-        unset($data_array['len']);
-        unset($data_array['vcc']);
-        unset($data_array['pl_bytes']);
-        unset($data_array['beep_base']);
-        unset($data_array['weight_sensor_amount']);
-        unset($data_array['ds18b20_sensor_amount']);
-        unset($data_array['port']);
-        unset($data_array['minute_interval']);
-        unset($data_array['bat_perc']);
-        unset($data_array['fft_bin_amount']);
-        unset($data_array['fft_start_bin']);
-        unset($data_array['fft_stop_bin']);
-        //unset($data_array->i);
+        unset(
+            $data_array['payload_hex'],
+            $data_array['pl'],
+            $data_array['len'],
+            $data_array['vcc'],
+            $data_array['pl_bytes'],
+            $data_array['beep_base'],
+            $data_array['weight_sensor_amount'],
+            $data_array['ds18b20_sensor_amount'],
+            $data_array['port'],
+            $data_array['minute_interval'],
+            $data_array['bat_perc'],
+            $data_array['fft_bin_amount'],
+            $data_array['fft_start_bin'],
+            $data_array['fft_stop_bin'],
+            $data_array['i'],
+            $data_array['minute']
+        );
         return $data_array;
     }
 
@@ -336,6 +339,8 @@ class FlashLogController extends Controller
 
                             if ($persist) // Save missing data to DB
                             {
+                                $persist_count= 0;
+
                                 $block_start_t= $block['time_start'];
                                 $block_end_t  = $block['time_end'];
                                 $block_start_u= strtotime($block_start_t);
@@ -346,7 +351,6 @@ class FlashLogController extends Controller
                                 $req_cnt_db   = ceil($req_points_db / $this->maxDataPoints);
                                 $points_p_req = round($req_points_db / $req_cnt_db);
                                 $secs_per_req = $points_p_req * $interval_db * 60;
-
 
                                 for ($req_ind=0; $req_ind <= $req_cnt_db; $req_ind++) 
                                 { 
@@ -361,11 +365,9 @@ class FlashLogController extends Controller
                                     
                                     //print_r(['req_start_unix'=>$req_start_unix, 'req_start_time'=>$req_start_time, 'req_end_unix'=>$req_end_unix, 'req_end_time'=>$req_end_time, 'count_query'=>$count_query]);
                                     
-                                    $data_per_int = Device::getInfluxQuery($count_query, 'flashlog');
-                                    
-                                    $persist_count= 0;
-                                    $data_per_int_d = [];
-                                    
+                                    $data_per_int       = Device::getInfluxQuery($count_query, 'flashlog');
+                                    $data_per_int_d     = [];
+
                                     $data_per_int_max_i = count($data_per_int) - 1;
                                     $missing_data       = [];
                                     
@@ -395,17 +397,19 @@ class FlashLogController extends Controller
                                                 $data_item   = $block_data[$i];
                                                 $secDataItem = strtotime($data_item['time']);
                                                 
-                                                //print_r(['count_sum'=>$count_sum, 'time_start'=>$time_start, 'time_end'=>$time_end, 'minDifWithStart'=>$minDifWithStart, 'indexFlogStart'=>$indexFlogStart, 'indexFlogEnd'=>$indexFlogEnd, 'indexFlog'=>$i, 'data_item'=>$data_item]);
-                                                
                                                 if (isset($data_item['port']) && $data_item['port'] == 3 && $secDataItem >= $secOfCountStart && $secDataItem < $secOfCountEnd) // time from flashlog should be between start and end of this interval
+                                                {
                                                     $missing_data[] = $this->cleanFlashlogItem($data_item);
+                                                    // print_r(['count_sum'=>$count_sum, 'time_start'=>$time_start, 'secStart'=>$secOfCountStart, 'time_end'=>$time_end, 'secEnd'=>$secOfCountEnd, 'minDifWithStart'=>$minDifWithStart, 'indexFlogStart'=>$indexFlogStart, 'indexFlogEnd'=>$indexFlogEnd, 'indexFlog'=>$i, 'secFlog'=>$secDataItem, 'missing_data'=>$missing_data, 'data_item'=>$data_item]);
+                                                    // die();
+                                                }
                                             }
                                         }
 
                                         $missing_data_count = count($missing_data);
                                         if ($missing_data_count > 100 || ($missing_data_count > 0 && $db_count_i == $data_per_int_max_i)) // persist at every 100 items, or at last item
                                         {
-                                            //die(print_r(['missing_data_count'=>$missing_data_count, 'block_start_t'=>$block_start_t, 'data_per_int_d'=>$data_per_int_d, 'missing_data'=>$missing_data]));
+                                            //die(print_r(['missing_data_count'=>$missing_data_count, 'block_start_t'=>$block_start_t, 'device'=>$device->toArray(), 'data_per_int_d'=>$data_per_int_d, 'missing_data'=>$missing_data]));
                                             
                                             $stored = $this->storeInfluxDataArrays($missing_data, $device);
                                             if ($stored)

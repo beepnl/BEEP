@@ -66,7 +66,7 @@
             $(document).ready(function() {
                 $("#table-devices").DataTable(
                 {
-                    "pageLength": 50,
+                    "pageLength": 10,
                     "language": 
                         @php
                             echo File::get(public_path('js/datatables/i18n/'.LaravelLocalization::getCurrentLocaleName().'.lang'));
@@ -74,14 +74,14 @@
                     ,
                     "order": 
                     [
-                        [ 1, "asc" ]
+                        [ 2, "asc" ]
                     ],
                 });
             });
 
         </script>
 
-            <table id="table-devices" class="table table-striped">
+            <table id="table-devices" class="table table-responsive table-striped">
                 <thead>
                     <tr>
                         <th>{{ __('crud.id') }}</th>
@@ -114,7 +114,6 @@
                         <td><strong>{{ $device->completeness }} %</strong><br>({{ $device->data_days }} / {{ $device->total_days }} d)</td>
                         <td>{{ $device->user->name }} / {{ isset($device->hive) ? $device->hive->name : '' }}</td>
                         <td><p style="font-size: 10px">{{ $device->researchNames() }}</p></td>
-                        <td style="max-width: 200px; max-height: 60px; overflow: hidden;" title="{{ $device->last_downlink_result }}">{{ $device->last_downlink_result }}</td>
                         <td>
                             <a class="btn btn-default" href="{{ route('devices.show',$device->id) }}" title="{{ __('crud.show') }}"><i class="fa fa-eye"></i></a>
                         </td>

@@ -187,7 +187,7 @@ class DeviceController extends Controller
                 }
 
                 $int_min  = isset($interval) ? $interval : $device->measurement_interval_min;
-                $sec_year = strtotime($end) - strtotime($device_start_date);
+                $sec_year = max(0, strtotime($end) - strtotime($device_start_date));
                 $sec_data = ($devices[$di]['data_points'] + $devices[$di]['data_imported']) * $int_min * 60;
 
                 $devices[$di]['total_days'] = round($sec_year / 86400);

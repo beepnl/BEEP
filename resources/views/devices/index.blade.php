@@ -43,8 +43,6 @@
 
 		@slot('body')
 
-
-
 		<script type="text/javascript">
             $(document).ready(function() {
                 $("#table-sensors").DataTable(
@@ -79,7 +77,7 @@
 						<th>{{ __('general.User') }} / {{ __('beep.Hive') }}</th>
 						<th>Research</th>
 						<th>Last downlink result</th>
-						<th style="min-width: 150px;">{{ __('crud.actions') }}</th>
+						<th style="min-width: 120px;">{{ __('crud.actions') }}</th>
 					</tr>
 				</thead>
 				<tbody>
@@ -100,7 +98,6 @@
 						<td style="max-width: 200px; max-height: 60px; overflow: hidden;" title="{{ $device->last_downlink_result }}">{{ $device->last_downlink_result }}</td>
 						<td>
 							<a class="btn btn-default" href="{{ route('devices.show',$device->id) }}" title="{{ __('crud.show') }}"><i class="fa fa-eye"></i></a>
-							<a class="btn btn-default" href="{{ route('devices.data',$device->id) }}" title="{{ __('crud.data') }}"><i class="fa fa-line-chart"></i></a>
 							@permission('sensor-edit')
 							<a class="btn btn-primary" href="{{ route('devices.edit',$device->id) }}" title="{{ __('crud.edit') }}"><i class="fa fa-pencil"></i></a>
 							@endpermission
@@ -114,6 +111,8 @@
 					@endforeach
 				</tbody>
 			</table>
+
+			<div class="pagination-wrapper"> {!! $sensors->appends(request()->except('page'))->render() !!} </div>
 		@endslot
 	@endcomponent
 @endsection

@@ -21,6 +21,20 @@
                     <button type="submit" class="btn btn-deafult"><i class="fa fa-calendar"></i></button>
                 </span>
             </div>
+            <div class="input-group" title="Overrules the device interval (to correct if it changed over the years)" style="display: inline-block; width: 200px;">
+                <select class="form-control" style="max-width: 160px;" name="interval_min" value="{{ request('interval_min') }}">
+                    <option value="" @if(request('interval_min') == '') selected @endif>Use device interval</option>
+                    <option value="1" @if(request('interval_min') == 1) selected @endif>1 min</option>
+                    <option value="5" @if(request('interval_min') == 5) selected @endif>5 min</option>
+                    <option value="10" @if(request('interval_min') == 10) selected @endif>10 min</option>
+                    <option value="15" @if(request('interval_min') == 15) selected @endif>15 min</option>
+                    <option value="30" @if(request('interval_min') == 30) selected @endif>30 min</option>
+                    <option value="60" @if(request('interval_min') == 60) selected @endif>1 hour</option>
+                </select>
+                <span class="input-group-btn">
+                    <button type="submit" class="btn btn-deafult"><i class="fa fa-clock-o"></i></button>
+                </span>
+            </div>
             <div class="input-group" style="display: inline-block;">
                 <input type="text" class="form-control" style="max-width: 160px;" name="research" placeholder="Research..." value="{{ request('research') }}">
                 <span class="input-group-btn">
@@ -40,14 +54,13 @@
                 </span>
             </div>
             {!! Form::close() !!}
-            <span><h5><em>NB: De 'Research', 'User' & 'Device properties' filter velden filteren max 10 devices op volgorde van het laatste contact uit de database</em></h5></span>
+            <span><h5><em>NB: Fill at least one of the 'Research', 'User' & 'Device properties' filter properties to show Data and Completeness. The filter shows 10 items per page.</em></h5></span>
         @endslot
 
         @slot('$bodyClass')
         @endslot
 
         @slot('body')
-
 
         <script type="text/javascript">
             $(document).ready(function() {
@@ -61,7 +74,7 @@
                     ,
                     "order": 
                     [
-                        [ 0, "asc" ]
+                        [ 1, "asc" ]
                     ],
                 });
             });
@@ -98,7 +111,7 @@
                         <td>{{ $device->data_points }}<br>({{ round($device->measurement_interval_min * $device->data_points / 1440) }} d)</td>
                         <td>{{ $device->data_imported }}<br>({{ round($device->measurement_interval_min * $device->data_imported / 1440) }} d)</td>
                         <td>{{ $device->measurement_interval_min }} / {{ $device->measurement_transmission_ratio }} @if(isset($device->measurement_interval_min)) (=send 1x/{{ $device->measurement_interval_min * max(1,$device->measurement_transmission_ratio) }}min) @endif</td>
-                        <td>{{ $device->completeness }} %</td>
+                        <td><strong>{{ $device->completeness }} %</strong><br>({{ $device->data_days }} / {{ $device->total_days }} d)</td>
                         <td>{{ $device->user->name }} / {{ isset($device->hive) ? $device->hive->name : '' }}</td>
                         <td><p style="font-size: 10px">{{ $device->researchNames() }}</p></td>
                         <td style="max-width: 200px; max-height: 60px; overflow: hidden;" title="{{ $device->last_downlink_result }}">{{ $device->last_downlink_result }}</td>
@@ -109,6 +122,8 @@
                     @endforeach
                 </tbody>
             </table>
+
+            <div class="pagination-wrapper"> {!! $devices->appends(request()->except('page'))->render() !!} </div>
         @endslot
     @endcomponent
 @endsection

@@ -97,7 +97,7 @@ class DeviceController extends Controller
         $search_user = $request->get('user');
         $search_res  = $request->get('research');
         $perPage     = 10;
-        $devices     = Device::where('id', '!=', null);
+        $devices     = Device::withTrashed()->where('id', '!=', null);
 
         $search_active = false;
 
@@ -175,24 +175,39 @@ class DeviceController extends Controller
                 $devices[$di]['data_points']   = 0;
                 $devices[$di]['data_imported'] = 0;
 
-                $device_start_date = $start < $device->created_at ? $device->created_at : $start;
-                $count_query       = 'SELECT COUNT("bv") as "count" FROM "sensors" WHERE '.$device->influxWhereKeys().' AND time >= \''.$device_start_date.'\' AND time <= \''.$end.'\' GROUP BY time(365d),from_flashlog LIMIT 100';
-                $count_result      = Device::getInfluxQuery($count_query, 'flashlog');
-                foreach ($count_result as $count_obj) 
+                $first_data_this_yr = substr($device->created_at, 0, 4) == $year ? true : false;
+                if ($first_data_this_yr)
                 {
-                    if ($count_obj['from_flashlog'] === '1')
-                        $devices[$di]['data_imported'] += $count_obj['count'];
-                    else
-                        $devices[$di]['data_points'] += $count_obj['count'];
+                    $first_battery_date = Device::getInfluxQuery('SELECT "bv" FROM "sensors" WHERE '.$device->influxWhereKeys().' ORDER BY time ASC LIMIT 1', 'device'); // get first sensor date
+                    $first_data_date    = isset($first_battery_date[0]['time']) ? str_replace('T', ' ', substr($first_battery_date[0]['time'], 0, 19)) : null;
+                }
+                else
+                {
+                    $first_data_date    = $start < $device->created_at ? $device->created_at : $start;
                 }
 
-                $int_min  = isset($interval) ? $interval : $device->measurement_interval_min;
-                $sec_year = max(0, strtotime($end) - strtotime($device_start_date));
-                $sec_data = ($devices[$di]['data_points'] + $devices[$di]['data_imported']) * $int_min * 60;
+                if ($first_data_date)
+                {
+                    $count_query       = 'SELECT COUNT("bv") as "count" FROM "sensors" WHERE '.$device->influxWhereKeys().' AND time >= \''.$first_data_date.'\' AND time <= \''.$end.'\' GROUP BY time(365d),from_flashlog LIMIT 100';
+                    $count_result      = Device::getInfluxQuery($count_query, 'device');
+                    foreach ($count_result as $count_obj) 
+                    {
+                        if ($count_obj['from_flashlog'] === '1')
+                            $devices[$di]['data_imported'] += $count_obj['count'];
+                        else
+                            $devices[$di]['data_points'] += $count_obj['count'];
+                    }
 
-                $devices[$di]['total_days'] = round($sec_year / 86400);
-                $devices[$di]['data_days']  = round($sec_data / 86400);
-                $devices[$di]['completeness'] = $sec_year > 0 ? 100 * min(1, max(0, round($sec_data / $sec_year, 2))) : 0;
+                    $int_min  = isset($interval) ? $interval : $device->measurement_interval_min;
+                    $sec_year = max(0, strtotime($end) - strtotime($first_data_date));
+                    $sec_data = ($devices[$di]['data_points'] + $devices[$di]['data_imported']) * $int_min * 60;
+
+                    $devices[$di]['date_data_start'] = $first_data_date;
+                    $devices[$di]['date_data_end']   = $end;
+                    $devices[$di]['total_days']      = round($sec_year / 86400);
+                    $devices[$di]['data_days']       = round($sec_data / 86400);
+                    $devices[$di]['completeness']    = $sec_year > 0 ? 100 * min(1, max(0, round($sec_data / $sec_year, 2))) : 0;
+                }
             }
             //die(print_r([$start, $end, $devices->toArray()]));
         }

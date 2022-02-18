@@ -87,7 +87,8 @@
                         <th>{{ __('crud.id') }}</th>
                         {{-- <th>Sticker</th> --}}
                         <th>{{ __('crud.name') }}</th>
-                        <th>{{ __('crud.created_at') }}</th>
+                        <th>Data start date</th>
+                        <th>Data end date</th>
                         <th>{{ __('crud.type') }}</th>
                         <th style="min-width: 140px;">DEV EUI ({{ __('crud.key') }}) / HW ID</th>
                         <th>Data points</th>
@@ -105,7 +106,8 @@
                         <td>{{ $device->id }}</td>
                         {{-- <td><button onclick="copyTextToClipboard('{{ $device->name }}\r\n{{ $device->hardware_id }}');">Copy</button></td> --}}
                         <td>{{ $device->name }}</td>
-                        <td>{{ $device->created_at }}</td>
+                        <td>{{ $device->date_data_start }}</td>
+                        <td>{{ $device->date_data_end }}</td>
                         <td><label class="label label-default">{{ $device->type }}</label></td>
                         <td>{{ $device->key }} <span style="font-size: 10px">{{ isset($device->former_key_list) ? '(former: '.str_replace(',', ', ', $device->former_key_list).')' : ''}}</span> / {{ $device->hardware_id }}</td>
                         <td>{{ $device->data_points }}<br>({{ round($device->measurement_interval_min * $device->data_points / 1440) }} d)</td>

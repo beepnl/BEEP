@@ -395,13 +395,18 @@ class FlashLogController extends Controller
                                             for ($i=$indexFlogStart; $i < $indexFlogEnd; $i++)
                                             {
                                                 $data_item   = $block_data[$i];
-                                                $secDataItem = strtotime($data_item['time']);
-                                                
-                                                if (isset($data_item['port']) && $data_item['port'] == 3 && $secDataItem >= $secOfCountStart && $secDataItem < $secOfCountEnd) // time from flashlog should be between start and end of this interval
+
+                                                if (isset($data_item['time']))
                                                 {
-                                                    $missing_data[] = $this->cleanFlashlogItem($data_item);
-                                                    // print_r(['count_sum'=>$count_sum, 'time_start'=>$time_start, 'secStart'=>$secOfCountStart, 'time_end'=>$time_end, 'secEnd'=>$secOfCountEnd, 'minDifWithStart'=>$minDifWithStart, 'indexFlogStart'=>$indexFlogStart, 'indexFlogEnd'=>$indexFlogEnd, 'indexFlog'=>$i, 'secFlog'=>$secDataItem, 'missing_data'=>$missing_data, 'data_item'=>$data_item]);
-                                                    // die();
+                                                    $secDataItem = strtotime($data_item['time']);
+                                                    
+                                                    if (isset($data_item['port']) && $data_item['port'] == 3 && $secDataItem >= $secOfCountStart && $secDataItem < $secOfCountEnd) // time from flashlog should be between start and end of this interval
+                                                    {
+                                                        $missing_data[] = $this->cleanFlashlogItem($data_item);
+                                                        
+                                                        // print_r(['count_sum'=>$count_sum, 'time_start'=>$time_start, 'secStart'=>$secOfCountStart, 'time_end'=>$time_end, 'secEnd'=>$secOfCountEnd, 'minDifWithStart'=>$minDifWithStart, 'indexFlogStart'=>$indexFlogStart, 'indexFlogEnd'=>$indexFlogEnd, 'indexFlog'=>$i, 'secFlog'=>$secDataItem, 'missing_data'=>$missing_data, 'data_item'=>$data_item]);
+                                                        // die();
+                                                    }
                                                 }
                                             }
                                         }

@@ -424,7 +424,7 @@ class FlashLogController extends Controller
                                 
                                 if ($persist_count > 0)
                                 {
-                                    Cache::forget($flashlog->getLogCacheName(true, true, $matches_min, $match_props, $db_records)); // remove cached result, because import has changed it
+                                    //Cache::forget($flashlog->getLogCacheName(true, true, $matches_min, $match_props, $db_records)); // remove cached result, because import has changed it
                                     
                                     $persist_days = round($persist_count*$interval_min/(60*24), 1);
                                     $out          = ['data_stored'=>true, 'persisted_measurements'=>$persist_count, 'persisted_days'=>$persist_days];

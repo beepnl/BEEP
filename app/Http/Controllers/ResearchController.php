@@ -452,9 +452,9 @@ class ResearchController extends Controller
             //die(print_r([$user_consents, $date_curr_consent, $date_next_consent, $index]));
 
             // add user data
-            $user_apiaries     = $user->locations()->where('created_at', '<', $date_until)->orderBy('created_at')->get();
-            $user_hives        = $user->hives()->where('created_at', '<', $date_until)->orderBy('created_at')->get();
-            $user_devices      = $user->devices()->where('created_at', '<', $date_until)->orderBy('created_at')->get();
+            $user_apiaries     = $user->locations()->withTrashed()->where('created_at', '<', $date_until)->orderBy('created_at')->get();
+            $user_hives        = $user->hives()->withTrashed()->where('created_at', '<', $date_until)->orderBy('created_at')->get();
+            $user_devices      = $user->devices()->withTrashed()->where('created_at', '<', $date_until)->orderBy('created_at')->get();
             $user_flashlogs    = FlashLog::where('user_id', $user_id)->where('created_at', '>=', $date_start)->where('created_at', '<', $date_until)->orderBy('created_at')->get();
             $user_samplecodes  = $user->samplecodes()->where('sample_date', '>=', $date_start)->where('sample_date', '<', $date_until)->orderBy('sample_date')->get();
             $user_measurements = [];
@@ -613,7 +613,7 @@ class ResearchController extends Controller
                                 
                                     // Export data to file per device / period
                                     $where    = $device->influxWhereKeys().' AND time >= \''.$date_curr_consent.'\' AND time <= \''.$date_next_consent.'\'';
-                                    $fileName = strtolower(env('APP_NAME')).'-export-'.$research->name.'-device-id-'.$device->id.'-sensor-data-'.substr($date_curr_consent,0,10).'-'.substr($date_next_consent,0,10).'-'.Str::random(10).'.csv';
+                                    $fileName = strtolower(env('APP_NAME')).'-export-'.$research->name.'-device-id-'.$device->id.'-name-'.urlencode($device->name).'-sensor-data-'.substr($date_curr_consent,0,10).'-'.substr($date_next_consent,0,10).'-'.Str::random(10).'.csv';
                                     $filePath = $this->exportCsvFromInflux($where, $fileName, '*', 'sensors');
                                     if ($filePath)
                                     {
@@ -626,7 +626,7 @@ class ResearchController extends Controller
                                     if ($loc && isset($loc->coordinate_lat) && isset($loc->coordinate_lon)) 
                                     {
                                         $where    = '"lat" = \''.$loc->coordinate_lat.'\' AND "lon" = \''.$loc->coordinate_lon.'\' AND time >= \''.$date_curr_consent.'\' AND time <= \''.$date_next_consent.'\'';
-                                        $fileName = strtolower(env('APP_NAME')).'-export-'.$research->name.'-device-id-'.$device->id.'-weather-data-'.substr($date_curr_consent,0,10).'-'.substr($date_next_consent,0,10).'-'.Str::random(10).'.csv';
+                                        $fileName = strtolower(env('APP_NAME')).'-export-'.$research->name.'-device-id-'.$device->id.'-name-'.urlencode($device->name).'-weather-data-'.substr($date_curr_consent,0,10).'-'.substr($date_next_consent,0,10).'-'.Str::random(10).'.csv';
                                         $filePath = $this->exportCsvFromInflux($where, $fileName, '*', 'weather');
                                         if ($filePath)
                                         {
@@ -867,7 +867,7 @@ class ResearchController extends Controller
                 $item->id,
                 $item->name,
                 $item->type,
-                $item->hives()->count(),
+                $item->hives()->withTrashed()->count(),
                 $item->coordinate_lat,
                 $item->coordinate_lon,
                 $item->street.' '.$item->street_no,
@@ -923,7 +923,7 @@ class ResearchController extends Controller
             {
                 $loc_id    = $hive->location_id;
                 $loc_name  = $hive->location;
-                $loc       = Location::find($hive->location_id);
+                $loc       = Location::withTrashed()->find($hive->location_id);
                 $loc_cc    = strtoupper($loc->country_code);
             }
 
@@ -1013,7 +1013,7 @@ class ResearchController extends Controller
                     $inspection_data[$array_key] = $inspectionItem->humanReadableValue();
                 }
             }
-            $locationId = ($inspection->locations()->count() > 0 ? $inspection->locations()->first()->id : ($inspection->hives()->count() > 0 ? $inspection->hives()->first()->location()->first()->id : ''));
+            $locationId = ($inspection->locations()->withTrashed()->count() > 0 ? $inspection->locations()->withTrashed()->first()->id : ($inspection->hives()->withTrashed()->count() > 0 ? $inspection->hives()->withTrashed()->first()->location()->first()->id : ''));
             
             $reminder_date= '';
             if (isset($inspection->reminder_date) && $inspection->reminder_date != null)
@@ -1030,7 +1030,7 @@ class ResearchController extends Controller
                 'user_id' => $user_id,
                 'inspection_id' => $inspection->id,
                 __('export.created_at') => $inspection->created_at,
-                __('export.hive') => $inspection->hives()->count() > 0 ? $inspection->hives()->first()->id : '', 
+                __('export.hive') => $inspection->hives()->withTrashed()->count() > 0 ? $inspection->hives()->withTrashed()->first()->id : '', 
                 __('export.location') => $locationId, 
                 __('export.impression') => $inspection->impression > -1 &&  $inspection->impression < count($smileys) ? $smileys[$inspection->impression] : '',
                 __('export.attention') => $inspection->attention > -1 &&  $inspection->attention < count($boolean) ? $boolean[$inspection->attention] : '',

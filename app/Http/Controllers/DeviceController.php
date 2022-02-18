@@ -25,7 +25,7 @@ class DeviceController extends Controller
         $keyword     = $request->get('search');
         $search_user = $request->get('user');
         $search_res  = $request->get('research');
-        $perPage     = 100;
+        $perPage     = 50;
         $devices     = Device::where('id', '!=', null);
 
         $research_id = null;
@@ -99,9 +99,12 @@ class DeviceController extends Controller
         $perPage     = 10;
         $devices     = Device::where('id', '!=', null);
 
+        $search_active = false;
+
         $research_id = null;
         if (!empty($search_res)) 
         {
+            $search_active = true;
             $researches = Research::where('name', 'LIKE', "%$search_res%")
                             ->orWhere('id', 'LIKE', "%$search_res%")
                             ->orWhere('institution', 'LIKE', "%$search_res%")
@@ -123,6 +126,7 @@ class DeviceController extends Controller
 
         if (!empty($search_user)) 
         {
+            $search_active = true;
             $user_ids = User::where('name', 'LIKE', "%$search_user%")
                         ->orWhere('email', 'LIKE', "%$search_user%")
                         ->orWhere('locale', 'LIKE', "%$search_user%")
@@ -136,6 +140,7 @@ class DeviceController extends Controller
 
         if (!empty($keyword)) 
         {
+            $search_active = true;
             $devices = $devices->where('hive_id', 'LIKE', "%$keyword%")
                                 ->orWhere('id', 'LIKE', "%$keyword%")
                                 ->orWhere('name', 'LIKE', "%$keyword%")
@@ -153,35 +158,44 @@ class DeviceController extends Controller
 
 
         $devices = $devices->orderBy('name')->paginate($perPage);
-        $thisyear= date('Y');
-        $year    = intval($request->input('year', $thisyear));
-        if ($year < 2019)
-            $year = $thisyear;
         
-        $start   = $year.'-01-01 00:00:00';
-        $end     = $year == $thisyear ? date('Y-m-d H:i:s') : $year.'-12-31 23:59:59';
-
-        foreach($devices as $di => $device)
+        if ($search_active)
         {
-            $devices[$di]['data_points']   = 0;
-            $devices[$di]['data_imported'] = 0;
+            $thisyear= date('Y');
+            $year    = intval($request->input('year', $thisyear));
+            if ($year < 2019)
+                $year = $thisyear;
+            
+            $start   = $year.'-01-01 00:00:00';
+            $end     = $year == $thisyear ? date('Y-m-d H:i:s') : $year.'-12-31 23:59:59';
+            $interval= $request->filled('interval_min') ? $request->input('interval_min') : null;
 
-            $device_start_date = $start < $device->created_at ? $device->created_at : $start;
-            $count_query       = 'SELECT COUNT("bv") as "count" FROM "sensors" WHERE '.$device->influxWhereKeys().' AND time >= \''.$device_start_date.'\' AND time <= \''.$end.'\' GROUP BY time(365d),from_flashlog LIMIT 100';
-            $count_result      = Device::getInfluxQuery($count_query, 'flashlog');
-            foreach ($count_result as $count_obj) 
+            foreach($devices as $di => $device)
             {
-                if ($count_obj['from_flashlog'] === '1')
-                    $devices[$di]['data_imported'] += $count_obj['count'];
-                else
-                    $devices[$di]['data_points'] += $count_obj['count'];
-            }
+                $devices[$di]['data_points']   = 0;
+                $devices[$di]['data_imported'] = 0;
 
-            $sec_year = strtotime($end) - strtotime($device_start_date);
-            $sec_data = ($devices[$di]['data_points'] + $devices[$di]['data_imported']) * $device->measurement_interval_min * 60;
-            $devices[$di]['completeness'] = $sec_year > 0 ? 100 * round($sec_data / $sec_year, 1) : 0;
+                $device_start_date = $start < $device->created_at ? $device->created_at : $start;
+                $count_query       = 'SELECT COUNT("bv") as "count" FROM "sensors" WHERE '.$device->influxWhereKeys().' AND time >= \''.$device_start_date.'\' AND time <= \''.$end.'\' GROUP BY time(365d),from_flashlog LIMIT 100';
+                $count_result      = Device::getInfluxQuery($count_query, 'flashlog');
+                foreach ($count_result as $count_obj) 
+                {
+                    if ($count_obj['from_flashlog'] === '1')
+                        $devices[$di]['data_imported'] += $count_obj['count'];
+                    else
+                        $devices[$di]['data_points'] += $count_obj['count'];
+                }
+
+                $int_min  = isset($interval) ? $interval : $device->measurement_interval_min;
+                $sec_year = strtotime($end) - strtotime($device_start_date);
+                $sec_data = ($devices[$di]['data_points'] + $devices[$di]['data_imported']) * $int_min * 60;
+
+                $devices[$di]['total_days'] = round($sec_year / 86400);
+                $devices[$di]['data_days']  = round($sec_data / 86400);
+                $devices[$di]['completeness'] = $sec_year > 0 ? 100 * min(1, max(0, round($sec_data / $sec_year, 2))) : 0;
+            }
+            //die(print_r([$start, $end, $devices->toArray()]));
         }
-        //die(print_r([$start, $end, $devices->toArray()]));
 
         return view('devices.data',compact('devices'));
     }

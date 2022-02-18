@@ -744,9 +744,9 @@ class ResearchDataController extends Controller
             $this->cacheRequestRate('get-measurements-research');
         
         // Get all user data
-        $user_apiaries     = Location::where('user_id', $user_id)->where('created_at', '<', $date_until)->orderBy('created_at')->get();
-        $user_hives        = Hive::where('user_id', $user_id)->where('created_at', '<', $date_until)->orderBy('created_at')->get();
-        $user_devices      = Device::with('sensorDefinitions')->where('user_id', $user_id)->where('created_at', '<', $date_until)->orderBy('created_at')->get();
+        $user_apiaries     = Location::withTrashed()->where('user_id', $user_id)->where('created_at', '<', $date_until)->orderBy('created_at')->get();
+        $user_hives        = Hive::withTrashed()->where('user_id', $user_id)->where('created_at', '<', $date_until)->orderBy('created_at')->get();
+        $user_devices      = Device::withTrashed()->with('sensorDefinitions')->where('user_id', $user_id)->where('created_at', '<', $date_until)->orderBy('created_at')->get();
         $user_flashlogs    = FlashLog::where('user_id', $user_id)->where('created_at', '<', $date_until)->orderBy('created_at')->get();
         $user_measurements = [];
 

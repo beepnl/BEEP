@@ -172,8 +172,10 @@ class DeviceController extends Controller
 
             foreach($devices as $di => $device)
             {
-                $devices[$di]['data_points']   = 0;
-                $devices[$di]['data_imported'] = 0;
+                $int_min                           = isset($interval) ? $interval : $device->measurement_interval_min;
+                $devices[$di]['data_interval_min'] = $int_min;
+                $devices[$di]['data_points']       = 0;
+                $devices[$di]['data_imported']     = 0;
 
                 $first_data_this_yr = substr($device->created_at, 0, 4) == $year ? true : false;
                 if ($first_data_this_yr)
@@ -198,15 +200,14 @@ class DeviceController extends Controller
                             $devices[$di]['data_points'] += $count_obj['count'];
                     }
 
-                    $int_min  = isset($interval) ? $interval : $device->measurement_interval_min;
                     $sec_year = max(0, strtotime($end) - strtotime($first_data_date));
                     $sec_data = ($devices[$di]['data_points'] + $devices[$di]['data_imported']) * $int_min * 60;
 
-                    $devices[$di]['date_data_start'] = $first_data_date;
-                    $devices[$di]['date_data_end']   = $end;
-                    $devices[$di]['total_days']      = round($sec_year / 86400);
-                    $devices[$di]['data_days']       = round($sec_data / 86400);
-                    $devices[$di]['completeness']    = $sec_year > 0 ? 100 * min(1, max(0, round($sec_data / $sec_year, 2))) : 0;
+                    $devices[$di]['date_data_start']   = $first_data_date;
+                    $devices[$di]['date_data_end']     = $end;
+                    $devices[$di]['total_days']        = round($sec_year / 86400);
+                    $devices[$di]['data_days']         = round($sec_data / 86400);
+                    $devices[$di]['completeness']      = $sec_year > 0 ? 100 * min(1, max(0, round($sec_data / $sec_year, 2))) : 0;
                 }
             }
             //die(print_r([$start, $end, $devices->toArray()]));

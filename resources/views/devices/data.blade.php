@@ -93,7 +93,7 @@
                         <th style="min-width: 140px;">DEV EUI ({{ __('crud.key') }}) / HW ID</th>
                         <th>Data points</th>
                         <th>Data imported</th>
-                        <th>Interval (min) / ratio</th>
+                        <th>Interval (min) * ratio</th>
                         <th>Completeness</th>
                         <th>{{ __('general.User') }} / {{ __('beep.Hive') }}</th>
                         <th>Research</th>
@@ -110,9 +110,9 @@
                         <td>{{ $device->date_data_end }}</td>
                         <td><label class="label label-default">{{ $device->type }}</label></td>
                         <td>{{ $device->key }} <span style="font-size: 10px">{{ isset($device->former_key_list) ? '(former: '.str_replace(',', ', ', $device->former_key_list).')' : ''}}</span> / {{ $device->hardware_id }}</td>
-                        <td>{{ $device->data_points }}<br>({{ round($device->measurement_interval_min * $device->data_points / 1440) }} d)</td>
-                        <td>{{ $device->data_imported }}<br>({{ round($device->measurement_interval_min * $device->data_imported / 1440) }} d)</td>
-                        <td>{{ $device->measurement_interval_min }} / {{ $device->measurement_transmission_ratio }} @if(isset($device->measurement_interval_min)) (=send 1x/{{ $device->measurement_interval_min * max(1,$device->measurement_transmission_ratio) }}min) @endif</td>
+                        <td>{{ $device->data_points }}<br>({{ round($device->data_interval_min * $device->data_points / 1440) }} d)</td>
+                        <td>{{ $device->data_imported }}<br>({{ round($device->data_interval_min * $device->data_imported / 1440) }} d)</td>
+                        <td>{{ $device->data_interval_min }} * {{ $device->measurement_transmission_ratio }}</td>
                         <td><strong>{{ $device->completeness }} %</strong><br>({{ $device->data_days }} / {{ $device->total_days }} d)</td>
                         <td>{{ $device->user->name }} / {{ isset($device->hive) ? $device->hive->name : '' }}</td>
                         <td><p style="font-size: 10px">{{ $device->researchNames() }}</p></td>
@@ -127,4 +127,25 @@
             <div class="pagination-wrapper"> {!! $devices->appends(request()->except('page'))->render() !!} </div>
         @endslot
     @endcomponent
+
+    @component('components/box')
+        @slot('title')
+            CSV Data
+        @endslot
+
+        @slot('$bodyClass')
+        @endslot
+
+        @slot('body')
+
+<textarea style="width: 100%;" rows="15">
+User name, Hive name, Device ID, Device name, Data start date, Data end date, Data size (timestamps), Data length (days), Data size imported (timestamps), Data length imported (days), Data interval (min), LoRa transmission ratio (x interval), Data completeness (%), Researches
+@foreach ($devices as $key => $device)
+"{{ $device->user->name }}","{{ isset($device->hive) ? $device->hive->name : '' }}",{{ $device->id }},"{{ $device->name }}",{{ $device->date_data_start }},{{ $device->date_data_end }},{{ $device->data_points }},{{ round($device->data_interval_min * $device->data_points / 1440, 1) }},{{ $device->data_imported }},{{ round($device->data_interval_min * $device->data_imported / 1440, 1) }},{{ $device->data_interval_min }},{{ $device->measurement_transmission_ratio }},{{ $device->completeness }},"{{ $device->researchNames() }}"
+@endforeach
+</textarea>
+
+        @endslot
+    @endcomponent
+
 @endsection

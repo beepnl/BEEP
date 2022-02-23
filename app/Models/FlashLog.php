@@ -40,9 +40,9 @@ class FlashLog extends Model
      * @var array
      */
     protected $fillable = ['user_id', 'device_id', 'hive_id', 'log_messages', 'log_saved', 'log_parsed', 'log_has_timestamps', 'bytes_received', 'log_file', 'log_file_stripped', 'log_file_parsed', 'log_size_bytes', 'log_erased', 'time_percentage', 'persisted_days', 'persisted_measurements', 'persisted_block_ids'];
-    protected $hidden   = ['device', 'hive', 'user'];
+    protected $hidden   = ['device', 'hive', 'user', 'persisted_block_ids'];
 
-    protected $appends  = ['device_name', 'hive_name', 'user_name'];
+    protected $appends  = ['device_name', 'hive_name', 'user_name', 'persisted_block_ids_array'];
 
 
     public function hive()
@@ -94,16 +94,30 @@ class FlashLog extends Model
 
     public function getPersistedBlockIdsArrayAttribute($value)
     {
-        if (isset($value))
-            return explode(',', $value);
+        if (isset($value) == false)
+            $value = $this->persisted_block_ids;
 
-        return [];
+        $array = [];
+
+        if (isset($value))
+        {
+            $array = explode(',', $value);
+
+            foreach ($array as $key => $value) 
+            {
+                $array[$key] = intval($value);
+            }
+        }
+
+        return $array;
     }
 
     public function setPersistedBlockIdsArrayAttribute($value)
     {
         $this->persisted_block_ids = implode(',', $value);
         $this->save();
+
+        return $value;
     }
 
 
@@ -351,7 +365,7 @@ class FlashLog extends Model
         // create Flashlog entity
         if ($save)
         {
-            if (isset($this->log_size_bytes) == false) // first upload 
+            if (isset($this->log_size_bytes) == false && isset($log_bytes)) // first upload 
                 $this->log_size_bytes = $log_bytes;
 
             if (isset($this->hive_id) == false) // first upload 

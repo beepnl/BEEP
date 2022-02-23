@@ -220,19 +220,19 @@ class MeasurementController extends Controller
             // store device metadata
             if (isset($data_array['beep_base']) && boolval($data_array['beep_base']) && isset($data_array['hardware_id'])) // store hardware id
             {
-                $device = $this->storeDeviceMeta($device, 'hardware_id', $data_array['hardware_id']);
+                $device = $this->addDeviceMeta($device, 'hardware_id', $data_array['hardware_id']);
                 if (isset($data_array['measurement_transmission_ratio']))
-                    $device = $this->storeDeviceMeta($device, 'measurement_transmission_ratio', $data_array['measurement_transmission_ratio']);
+                    $device = $this->addDeviceMeta($device, 'measurement_transmission_ratio', $data_array['measurement_transmission_ratio']);
                 if (isset($data_array['measurement_interval_min']))
-                    $device = $this->storeDeviceMeta($device, 'measurement_interval_min', $data_array['measurement_interval_min']);
+                    $device = $this->addDeviceMeta($device, 'measurement_interval_min', $data_array['measurement_interval_min']);
                 if (isset($data_array['hardware_version']))
-                    $device = $this->storeDeviceMeta($device, 'hardware_version', $data_array['hardware_version']);
+                    $device = $this->addDeviceMeta($device, 'hardware_version', $data_array['hardware_version']);
                 if (isset($data_array['firmware_version']))
-                    $device = $this->storeDeviceMeta($device, 'firmware_version', $data_array['firmware_version']);
+                    $device = $this->addDeviceMeta($device, 'firmware_version', $data_array['firmware_version']);
                 if (isset($data_array['bootcount']))
-                    $device = $this->storeDeviceMeta($device, 'bootcount', $data_array['bootcount']);
+                    $device = $this->addDeviceMeta($device, 'bootcount', $data_array['bootcount']);
                 if (isset($data_array['time_device']))
-                    $device = $this->storeDeviceMeta($device, 'time_device', $data_array['time_device']);
+                    $device = $this->addDeviceMeta($device, 'time_device', $data_array['time_device']);
             }
             // store metadata from sensor
             $device->last_message_received = date('Y-m-d H:i:s');
@@ -241,7 +241,7 @@ class MeasurementController extends Controller
         else
         {
             if (isset($data_array['beep_base']) && boolval($data_array['beep_base']) && isset($data_array['hardware_id'])) // store hardware id
-                $device = $this->storeDeviceMeta($device, 'hardware_id', $data_array['hardware_id']); // create device if ALLOW_DEVICE_CREATION == 'true'
+                $device = $this->addDeviceMeta($device, 'hardware_id', $data_array['hardware_id']); // create device if ALLOW_DEVICE_CREATION == 'true'
 
             if ($device) // new device created from hw id?
             {
@@ -292,7 +292,8 @@ class MeasurementController extends Controller
                 $battery_voltage = $battery_voltage / 1000;
                 $data_array['bv'] = $battery_voltage;
             }
-            $device = $this->storeDeviceMeta($device, 'battery_voltage', $battery_voltage);
+            $device = $this->addDeviceMeta($device, 'battery_voltage', $battery_voltage);
+            $device->save();
         } 
         
         // Legacy weight calculation from 2-4 load cells
@@ -483,7 +484,7 @@ class MeasurementController extends Controller
         return $data_array;
     }
     
-    private function storeDeviceMeta($device=null, $field=null, $value=null)
+    private function addDeviceMeta($device=null, $field=null, $value=null)
     {
         if ($device == null && $field == 'hardware_id' && $value !== null && env('ALLOW_DEVICE_CREATION') == 'true' && Auth::user() && Auth::user()->hasRole('sensor-data')) // no device with this key available, so create new device by hardware id
         {

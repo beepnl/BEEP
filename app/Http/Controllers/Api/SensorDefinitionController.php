@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Storage;
 use App\SensorDefinition;
 use App\Measurement;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 /**
  * @group Api\SensorDefinitionController
@@ -149,7 +150,9 @@ class SensorDefinitionController extends Controller
             return response()->json($sensordefinition, 201);
         }
 
-        Storage::disk('local')->put('sensordefinitions/def_no_dev.log', $request->getContent());
+        Log::error('sensordefinition_storage_error');
+        Log::error($request->getContent());
+
         return response()->json('no_device_found', 404);
     }
 

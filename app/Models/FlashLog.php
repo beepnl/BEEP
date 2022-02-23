@@ -39,10 +39,11 @@ class FlashLog extends Model
      *
      * @var array
      */
-    protected $fillable = ['user_id', 'device_id', 'hive_id', 'log_messages', 'log_saved', 'log_parsed', 'log_has_timestamps', 'bytes_received', 'log_file', 'log_file_stripped', 'log_file_parsed', 'log_size_bytes', 'log_erased', 'time_percentage', 'persisted_days', 'persisted_measurements'];
+    protected $fillable = ['user_id', 'device_id', 'hive_id', 'log_messages', 'log_saved', 'log_parsed', 'log_has_timestamps', 'bytes_received', 'log_file', 'log_file_stripped', 'log_file_parsed', 'log_size_bytes', 'log_erased', 'time_percentage', 'persisted_days', 'persisted_measurements', 'persisted_block_ids'];
     protected $hidden   = ['device', 'hive', 'user'];
 
     protected $appends  = ['device_name', 'hive_name', 'user_name'];
+
 
     public function hive()
     {
@@ -90,6 +91,21 @@ class FlashLog extends Model
         }
         return null;
     }
+
+    public function getPersistedBlockIdsArrayAttribute($value)
+    {
+        if (isset($value))
+            return explode(',', $value);
+
+        return [];
+    }
+
+    public function setPersistedBlockIdsArrayAttribute($value)
+    {
+        $this->persisted_block_ids = implode(',', $value);
+        $this->save();
+    }
+
 
     public function getLogCacheName($fill=false, $show=false, $matches_min_override=null, $match_props_override=null, $db_records_override=null)
     {

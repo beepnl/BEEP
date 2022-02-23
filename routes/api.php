@@ -123,7 +123,7 @@ Route::group([], function()
 		Route::get('flashlogs',				'Api\FlashLogController@index');
 		Route::get('flashlogs/{id}',		'Api\FlashLogController@show');
 		Route::post('flashlogs/{id}',		'Api\FlashLogController@persist');
-		Route::delete('flashlogs/{id}',		'Api\FlashLogController@destroy');
+		Route::delete('flashlogs/{id}',		'Api\FlashLogController@delete');
 	});
 
 

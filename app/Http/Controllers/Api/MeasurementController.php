@@ -256,9 +256,18 @@ class MeasurementController extends Controller
                 return Response::json('No valid key provided', 401);
             }
         }
+        
+        if(!isset($device))
+            return Response::json('no-device-defined');
 
         // Save data
         unset($data_array['key']);
+        unset($data_array['hardware_id']);
+        unset($data_array['beep_base']);
+
+        if(count($data_array) == 0)
+            return Response::json('no-data-to-write');
+
 
         $time = time();
         if (isset($data_array['time']))
@@ -503,7 +512,7 @@ class MeasurementController extends Controller
                 {
                     case 'hardware_id':
                         if (isset($device->hardware_id)) 
-                            return;
+                            return $device;
                         else
                             $device->hardware_id = $value;
                         break;
@@ -571,7 +580,7 @@ class MeasurementController extends Controller
             $data_array = $this->decode_ttn_payload($request_data);
         else if (isset($request_data['uplink_message']) && isset($request_data['end_device_ids'])) // TTN v3 (Things cloud)
             $data_array = $this->decode_ttn_payload($request_data);
-        else if (isset($request_data['uplink_message']) && isset($request_data['end_device_ids'])) // TTN v3 (Things cloud)
+        else if (isset($request_data['join_accept']) && isset($request_data['end_device_ids'])) // TTN v3 (Things cloud)
             $data_array = $this->decode_ttn_payload($request_data);
 
         // process downlink
@@ -633,6 +642,7 @@ class MeasurementController extends Controller
         $this->cacheRequestRate('store-lora-sensors-'.$payload_type);
         
         //die(print_r([$payload_type, $data_array, 'r'=>$request_data]));
+        
         if (env('APP_ENV') == 'test')
         {
             $port        = isset($data_array['port']) ? '_port'.$data_array['port'] : '';

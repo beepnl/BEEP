@@ -385,7 +385,7 @@ class FlashLogController extends Controller
                                     $flashlog->save();
                                 }
                                 
-                                $out = ['data_deleted'=>$data_influx_deleted, 'deleted_measurements'=>$delete_count_sum, 'deleted_days'=>$deleted_days, 'persisted_block_ids'=>$flashlog->persisted_block_ids_array, 'data_deleted'=>$data_deleted];    
+                                $out = ['data_deleted'=>$data_influx_deleted, 'deleted_measurements'=>$delete_count_sum, 'deleted_days'=>$deleted_days, 'data_deleted'=>$data_deleted];    
                             }
                             else if ($persist) // Save missing data to DB
                             {
@@ -496,7 +496,7 @@ class FlashLogController extends Controller
                                         $flashlog->persisted_block_ids_array = $persisted_block_ids;
                                     }
 
-                                    $out = ['data_stored'=>true, 'persisted_measurements'=>$persist_count, 'persisted_days'=>$persist_days, 'persisted_block_ids'=>$persisted_block_ids];
+                                    $out = ['data_stored'=>true, 'persisted_measurements'=>$persist_count, 'persisted_days'=>$persist_days];
                                     $flashlog->save();
                                 }
                                 else
@@ -591,6 +591,7 @@ class FlashLogController extends Controller
         $out['match_props'] = $match_props;
         $out['db_records']  = $db_records;
         $out['flashlog_id'] = $flashlog_id;
+        $out['persisted_block_ids_array'] = $flashlog->persisted_block_ids_array;
         
         return $out;
     }

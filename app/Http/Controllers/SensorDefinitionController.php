@@ -26,7 +26,7 @@ class SensorDefinitionController extends Controller
         $search_dev  = $request->get('device');
         $search_mid  = $request->get('measurement_id');
         $perPage     = 50;
-        $defs        = SensorDefinition::where('id', '!=', null)->orderByDesc('id');
+        $defs        = SensorDefinition::where('id', '!=', null);
 
         if (!empty($search_mid)) 
         {
@@ -75,7 +75,7 @@ class SensorDefinitionController extends Controller
             $defs = $defs->where('name', 'LIKE', "%$keyword%");
         }
 
-        $sensordefinition = $defs->orderBy('name')->paginate($perPage);
+        $sensordefinition = $defs->orderByDesc('id')->paginate($perPage);
 
 
         return view('sensordefinition.index', compact('sensordefinition','search_mid','page'));

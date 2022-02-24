@@ -42,7 +42,7 @@ class FlashLog extends Model
     protected $fillable = ['user_id', 'device_id', 'hive_id', 'log_messages', 'log_saved', 'log_parsed', 'log_has_timestamps', 'bytes_received', 'log_file', 'log_file_stripped', 'log_file_parsed', 'log_size_bytes', 'log_erased', 'time_percentage', 'persisted_days', 'persisted_measurements', 'persisted_block_ids'];
     protected $hidden   = ['device', 'hive', 'user', 'persisted_block_ids'];
 
-    protected $appends  = ['device_name', 'hive_name', 'user_name', 'persisted_block_ids_array'];
+    protected $appends  = ['device_name', 'hive_name', 'user_name'];
 
 
     public function hive()
@@ -112,12 +112,12 @@ class FlashLog extends Model
         return $array;
     }
 
-    public function setPersistedBlockIdsArrayAttribute($value)
+    public function setPersistedBlockIdsArrayAttribute($array)
     {
-        $this->persisted_block_ids = implode(',', $value);
+        $this->persisted_block_ids = implode(',', $array);
         $this->save();
 
-        return $value;
+        return $array;
     }
 
 

@@ -69,6 +69,7 @@
             <thead>
                 <tr>
                     <th>#</th>
+                    <th>Created</th>
                     <th>Name</th>
                     <th>Inside</th>
                     <th>Zero Value</th>
@@ -83,6 +84,7 @@
             @foreach($sensordefinition as $item)
                 <tr>
                     <td>{{ $item->id }}</td>
+                    <td>{{ $item->created_at }}</td>
                     <td>{{ $item->name }}</td>
                     <td>{{ $item->inside }}</td>
                     <td>{{ $item->offset }}</td>

@@ -141,6 +141,8 @@ class SensorDefinitionController extends Controller
      */
     public function store(Request $request)
     {
+        Log::debug('sensordefinition_post');
+        Log::debug($request->getContent());
         $device = $this->getDeviceFromRequest($request);
 
         if ($device)

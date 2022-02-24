@@ -24,13 +24,13 @@
         "league/flysystem-aws-s3-v3": "~1.0",
         "league/flysystem-cached-adapter": "~1.0",
         "mcamara/laravel-localization": "1.5.*",
-        "mpociot/laravel-apidoc-generator": "^3.17",
         "phpoffice/phpspreadsheet": "^1.2",
         "predis/predis": "^1.1",
         "trebol/entrust": "^0.6",
         "tray-labs/laravel-influxdb": "*"
     },
     "require-dev": {
+        "mpociot/laravel-apidoc-generator": "^3.17",
         "appzcoder/crud-generator": "^3.0",
         "filp/whoops": "^2.0",
         "mockery/mockery": "^1.0",

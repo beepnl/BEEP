@@ -7,29 +7,32 @@
     @component('components/box')
         @slot('title')
             {{ __('crud.overview', ['item'=>__('beep.SensorDefinition')]) }}
+            
             {!! Form::open(['method' => 'GET', 'route' => 'sensordefinition.index', 'class' => 'form-inline', 'role' => 'search'])  !!}
-            <div class="input-group" style="display: inline-block;">
-                <input type="text" class="form-control" style="max-width: 100px;" name="user" placeholder="User..." value="{{ request('user') }}">
-                <span class="input-group-btn">
-                    <button type="submit" class="btn btn-deafult"><i class="fa fa-search"></i></button>
-                </span>
-            </div>
-            <div class="input-group" style="display: inline-block;">
-                <input type="text" class="form-control" style="max-width: 100px;" name="device" placeholder="Device..." value="{{ request('device') }}">
-                <span class="input-group-btn">
-                    <button type="submit" class="btn btn-deafult"><i class="fa fa-search"></i></button>
-                </span>
-            </div>
-            <div class="input-group" style="display: inline-block;">
-                {!! Form::select('measurement_id', App\Measurement::selectList(), e($search_mid ?? null), array('style'=>'max-width: 300px; font-size:10px;', 'onchange'=>'this.form.submit()', 'placeholder'=>__('crud.select', ['item'=>__('beep.measurement')]),'class' => 'form-control select2')) !!}
-            </div>
-            <div class="input-group" style="display: inline-block;">
-                <input type="text" class="form-control" style="max-width: 160px;" name="search" placeholder="Sensor def prop..." value="{{ request('search') }}">
-                <span class="input-group-btn">
-                    <button type="submit" class="btn btn-deafult"><i class="fa fa-search"></i></button>
-                </span>
-            </div>
-            {!! Form::hidden('page', $page) !!}
+                
+                <div class="input-group" style="display: inline-block;">
+                    {!! Form::select('measurement_id', App\Measurement::selectList(), e($search_mid ?? null), array('style'=>'max-width: 300px; font-size:10px;', 'onchange'=>'this.form.submit()', 'placeholder'=>__('crud.select', ['item'=>__('beep.measurement')]),'class' => 'form-control select2')) !!}
+                </div>
+                <div class="input-group" style="display: inline-block;">
+                    <input type="text" class="form-control" style="max-width: 100px;" name="device" placeholder="Device..." value="{{ request('device') }}">
+                    <span class="input-group-btn">
+                        <button type="submit" class="btn btn-deafult"><i class="fa fa-search"></i></button>
+                    </span>
+                </div>
+                <div class="input-group" style="display: inline-block;">
+                    <input type="text" class="form-control" style="max-width: 100px;" name="user" placeholder="User..." value="{{ request('user') }}">
+                    <span class="input-group-btn">
+                        <button type="submit" class="btn btn-deafult"><i class="fa fa-search"></i></button>
+                    </span>
+                </div>
+                <div class="input-group" style="display: inline-block;">
+                    <input type="text" class="form-control" style="max-width: 160px;" name="search" placeholder="Sensor def prop..." value="{{ request('search') }}">
+                    <span class="input-group-btn">
+                        <button type="submit" class="btn btn-deafult"><i class="fa fa-search"></i></button>
+                    </span>
+                </div>
+                {!! Form::hidden('page', $page) !!}
+            
             {!! Form::close() !!}
         @endslot
 
@@ -58,7 +61,7 @@
                     ,
                     "order": 
                     [
-                        [ 1, "asc" ]
+                        [ 0, "desc" ]
                     ],
                 });
             });
@@ -69,6 +72,7 @@
             <thead>
                 <tr>
                     <th>#</th>
+                    <th>Created</th>
                     <th>Name</th>
                     <th>Inside</th>
                     <th>Zero Value</th>
@@ -83,6 +87,7 @@
             @foreach($sensordefinition as $item)
                 <tr>
                     <td>{{ $item->id }}</td>
+                    <td>{{ $item->created_at }}</td>
                     <td>{{ $item->name }}</td>
                     <td>{{ $item->inside }}</td>
                     <td>{{ $item->offset }}</td>

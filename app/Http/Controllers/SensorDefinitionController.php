@@ -35,29 +35,37 @@ class SensorDefinitionController extends Controller
  
         if (!empty($search_dev)) 
         {
-            $dev_ids = Device::where('name', 'LIKE', "%$search_dev%")
+            $dev_ids = Device::where('hive_id', 'LIKE', "%$search_dev%")
+                            ->orWhere('id', 'LIKE', "%$search_dev%")
+                            ->orWhere('name', 'LIKE', "%$search_dev%")
                             ->orWhere('key', 'LIKE', "%$search_dev%")
+                            ->orWhere('former_key_list', 'LIKE', "%$search_dev%")
+                            ->orWhere('last_message_received', 'LIKE', "%$search_dev%")
                             ->orWhere('hardware_id', 'LIKE', "%$search_dev%")
+                            ->orWhere('firmware_version', 'LIKE', "%$search_dev%")
                             ->orWhere('hardware_version', 'LIKE', "%$search_dev%")
-                            ->pluck('id')
-                            ->toArray();
+                            ->orWhere('measurement_interval_min', 'LIKE', "%$search_dev%")
+                            ->orWhere('battery_voltage', 'LIKE', "%$search_dev%")
+                            ->orWhere('datetime', 'LIKE', "%$search_dev%")
+                            ->orWhere('datetime_offset_sec', 'LIKE', "%$search_dev%")
+                            ->pluck('id');
             if ($dev_ids)
-                $defs = $defs->whereIn('id', $dev_ids);
+                $defs = $defs->whereIn('device_id', $dev_ids);
             
         }
 
         if (!empty($search_user)) 
         {
-            $user = User::where('name', 'LIKE', "%$search_user%")
+            $user_ids = User::where('name', 'LIKE', "%$search_user%")
                         ->orWhere('email', 'LIKE', "%$search_user%")
                         ->orWhere('locale', 'LIKE', "%$search_user%")
                         ->orWhere('id', 'LIKE', "%$search_user%")
-                        ->first();
+                        ->pluck('id');
             
-            if ($user)
+            if (count($user_ids) > 0)
             {
-                $dev_ids = $user->devices()->pluck('id')->toArray();
-                $defs       = $defs->whereIn('device_id', $dev_ids);
+                $dev_ids = Device::whereIn('user_id', $user_ids)->pluck('id');
+                $defs    = $defs->whereIn('device_id', $dev_ids);
             }
 
         }
@@ -67,7 +75,7 @@ class SensorDefinitionController extends Controller
             $defs = $defs->where('name', 'LIKE', "%$keyword%");
         }
 
-        $sensordefinition = $defs->orderBy('name')->paginate($perPage);
+        $sensordefinition = $defs->orderByDesc('id')->paginate($perPage);
 
 
         return view('sensordefinition.index', compact('sensordefinition','search_mid','page'));

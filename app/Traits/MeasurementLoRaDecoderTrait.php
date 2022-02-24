@@ -38,7 +38,16 @@ trait MeasurementLoRaDecoderTrait
 
 
         }
-        else if (isset($data['end_device_ids']['dev_eui']) && isset($data['uplink_message']['frm_payload']) && isset($data['uplink_message']['f_port'])) // ttn v3 uplink
+        else if (isset($data['end_device_ids']['dev_eui']) && isset($data['end_device_ids']['device_id']) && isset($data['join_accept']['received_at'])) // TTN v3 Join accept
+        {
+            $data_array['hardware_id'] = $data['end_device_ids']['device_id'];
+            $data_array['key'] = $data['end_device_ids']['dev_eui'];
+
+            if (isset($data['end_device_ids']['application_ids']['application_id']) && $data['end_device_ids']['application_ids']['application_id'] == 'beep-base-production')
+                $data_array['beep_base'] = true;
+
+        }
+        else if (isset($data['end_device_ids']['dev_eui']) && isset($data['uplink_message']['frm_payload']) && isset($data['uplink_message']['f_port'])) // ttn v3 Uplink
         {
             $port = $data['uplink_message']['f_port'];
             
@@ -63,26 +72,44 @@ trait MeasurementLoRaDecoderTrait
             // add meta data
             if (isset($data['end_device_ids']['device_id']) && !isset($data_array['key']))
                 $data_array['key'] = $data['end_device_ids']['device_id']; // LoRa WAN == Device EUI
+
             if (isset($data['uplink_message']['f_cnt']))
                 $data_array['f_cnt'] = $data['uplink_message']['f_cnt'];
+
             if (isset($data['uplink_message']['rx_metadata'][0]['rssi']))
                 $data_array['rssi'] = $data['uplink_message']['rx_metadata'][0]['rssi'];
+
             if (isset($data['uplink_message']['rx_metadata'][0]['snr']))
                 $data_array['snr'] = $data['uplink_message']['rx_metadata'][0]['snr'];
+
+            if (isset($data['uplink_message']['rx_metadata'][0]['location']['longitude']))
+                $data_array['lon'] = $data['uplink_message']['rx_metadata'][0]['location']['longitude'];
+
+            if (isset($data['uplink_message']['rx_metadata'][0]['location']['latitude']))
+                $data_array['lat'] = $data['uplink_message']['rx_metadata'][0]['location']['latitude'];
+
             if (isset($data['uplink_message']['settings']['data_rate']['lora']['bandwidth']))
                 $data_array['lora_bandwidth'] = $data['uplink_message']['settings']['data_rate']['lora']['bandwidth'];
+
             if (isset($data['uplink_message']['settings']['data_rate']['lora']['spreading_factor']))
                 $data_array['lora_spf'] = $data['uplink_message']['settings']['data_rate']['lora']['spreading_factor'];
+
             if (isset($data['uplink_message']['settings']['data_rate_index']))
                 $data_array['lora_data_rate'] = $data['uplink_message']['settings']['data_rate_index'];
+
             if (isset($data['uplink_message']['settings']['frequency']))
                 $data_array['lora_frequency'] = $data['uplink_message']['settings']['frequency'];
+
             if (isset($data['uplink_message']['locations']['user']['latitude']))
                 $data_array['lat'] = $data['uplink_message']['locations']['user']['latitude'];
+
             if (isset($data['uplink_message']['locations']['user']['longitude']))
                 $data_array['lon'] = $data['uplink_message']['locations']['user']['longitude'];
+
             if (isset($data['uplink_message']['locations']['user']['altitude']))
                 $data_array['alt'] = $data['uplink_message']['locations']['user']['altitude'];
+
+            //die(print_r($data_array));
 
         }
 
@@ -191,7 +218,8 @@ trait MeasurementLoRaDecoderTrait
                     // 0100010003000402935685E6FFFF94540E01237A26A67D24D8EE1D000001 (60)
                     // 010001000300050293569434FFFF94540E012385039722D342EE1F0000000803091D0000010A (76 -> 74 + 0A) (or + time = 86)
                     // 0100010005000902C350B359FFFF60090E0123EEC27300DF41EE1D010005 25 607061A9 (70) (60 + time) // From 1.5.9 time is added to startup message
-                    //
+                    // 7ECDD9423C26E3237497841B5F12915F5CD681E554FC1C2B7466ACBBEDE44C8670162B
+
                     //                                                 0e01236dada5c40a28ee
                     // 01 00 01 00 03 00 04 02 93 56 85 E6 FF FF 94 54 0E 01 23 7A 26 A6 7D 24 D8 EE 1D 00 00 01 25 60 70 61 A9 
                     // 0  1  2  3  4  5  6  7  8  9  10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 (length == 35 bytes = 70 char)

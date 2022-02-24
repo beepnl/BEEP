@@ -142,7 +142,8 @@ class SensorDefinitionController extends Controller
     public function store(Request $request)
     {
         Log::debug('sensordefinition_post');
-        Log::debug($request->getContent());
+        Log::debug($request->input());
+        
         $device = $this->getDeviceFromRequest($request);
 
         if ($device)
@@ -153,7 +154,6 @@ class SensorDefinitionController extends Controller
         }
 
         Log::error('sensordefinition_storage_error');
-        Log::error($request->getContent());
 
         return response()->json('no_device_found', 404);
     }

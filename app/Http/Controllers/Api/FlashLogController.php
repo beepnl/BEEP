@@ -572,7 +572,7 @@ class FlashLogController extends Controller
                             // Add properties
                             $out['block_id'] = $block_id;
                         }
-                        else
+                        else // Show only flashlog data without matched time
                         {
                             // select portion of the data
                             $match_index   = $block['fl_i'];
@@ -612,7 +612,7 @@ class FlashLogController extends Controller
                                     $clean_data_item['fft_stop_bin'],
                                 );
                                 $block_data_item = $clean_data_item;
-                                $block_data_item['time'] = date('Y-m-d\TH:i:s\Z', $block_data_item['minute']*60); // display as UTC
+                                $block_data_item['time'] = date('Y-m-d\TH:i:s\Z', 946681200 + $block_data_item['minute'] * 60); // display as UTC
                                 $out['flashlog'][] = $block_data_item;
                             }
                             $out['block_data_match_percentage']  = 0;

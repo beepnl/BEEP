@@ -615,6 +615,9 @@ class FlashLogController extends Controller
                                 $block_data_item['time'] = date('Y-m-d\TH:i:s\Z', $block_data_item['minute']*60); // display as UTC
                                 $out['flashlog'][] = $block_data_item;
                             }
+                            $out['block_data_match_percentage']  = 0;
+                            $out['block_data_flashlog_sec_diff'] = '? ';
+                            $out['block_data_match_errors']      = '';
                         }
                     }
                     else

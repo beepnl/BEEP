@@ -135,6 +135,27 @@ class FlashLogController extends Controller
         return response()->json($out, isset($out['error']) ? 500 : 200);
     }
 
+    /**
+     * api/flashlogs/{id} DELETE
+     * Delete a block of data (block_id filled), or the whole Flashlog file
+     * @authenticated
+     * @queryParam id integer required Flashlog ID to delete the complete Flashlog file
+     * @bodyParam block_id integer Flashlog block index to delete (only the) previously persisted data from the database
+     */
+    public function delete(Request $request, $id)
+    {
+        if ($request->filled('block_id'))
+        {
+            $out = $this->parse($request, $id, false, true);
+            return response()->json($out, isset($out['error']) ? 500 : 200);
+        }
+        else
+        {
+            return response()->json(["error"=>"deleting complete flashlog file ($id) not yet supported"], 500);
+            //return $this->destroy($request, $id);
+        }
+    }
+
     // requires at least ['name'=>value] to be set
     private function storeInfluxDataArrays($data_arrays, $device)
     {
@@ -289,7 +310,7 @@ class FlashLogController extends Controller
         return ['sec_diff'=>$secDiffAvg, 'perc_match'=>$percMatch, 'errors'=>implode(', ', $errors)];
     }
 
-    private function parse(Request $request, $id, $persist=false)
+    private function parse(Request $request, $id, $persist=false, $delete=false)
     {
         $flashlog_id = intval($id);
         $matches_min = intval($request->input('matches_min', env('FLASHLOG_MIN_MATCHES', 2))); // minimum amount of inline measurements that should be matched 
@@ -336,15 +357,39 @@ class FlashLogController extends Controller
                             $block_start_i= $block['start_i'];
                             $block_end_i  = $block['end_i'];
                             $block_length = $block_end_i - $block_start_i;
+                            $block_start_t= $block['time_start'];
+                            $block_end_t  = $block['time_end'];
+                            $block_start_u= strtotime($block_start_t);  
+                            $block_end_u  = strtotime($block_end_t);  
 
-                            if ($persist) // Save missing data to DB
+                            if ($delete)
+                            {
+                                $data_influx_deleted= false;
+                                $data_deleted       = 'no_data_to_delete';
+                                $delete_count_query = 'SELECT COUNT(*) FROM "sensors" WHERE "from_flashlog" = \'1\' AND "key" = \''.strtolower($device->key).'\' AND time >= \''.$block_start_t.'\' AND time <= \''.$block_end_t.'\'';
+                                $delete_count       = Device::getInfluxQuery($delete_count_query, 'flashlog');
+                                $delete_count_sum   = isset($delete_count[0]) ? array_sum($delete_count[0]) : 0;
+                                $delete_count_bv    = isset($delete_count[0]['bv']) ? $delete_count[0]['bv'] : 0;
+                                $deleted_days       = round(($block_end_u - $block_start_u)/86400, 1); 
+
+                                //die(print_r(['q'=>$delete_count_query, 'sum'=>$delete_count_sum, 'delete_count_sum'=>$delete_count_sum, 'deleted_days'=>$deleted_days]));
+
+                                if ($delete_count_sum > 0 && $deleted_days > 0)
+                                {
+                                    $delete_query        = 'DELETE FROM "sensors" WHERE "from_flashlog" = \'1\' AND "key" = "'.strtolower($device->key).'" AND time >= \''.$block_start_t.'\' AND time <= \''.$block_end_t.'\'';
+                                    //die(print_r($delete_query));
+                                    $data_deleted        = $this->client::query($delete_query);
+                                    $data_influx_deleted = true;
+                                    $flashlog->persisted_block_ids_array = array_diff($flashlog->persisted_block_ids_array, [$block_id]);
+                                    $flashlog->persisted_measurements -= $delete_count_bv;
+                                    $flashlog->save();
+                                }
+                                
+                                $out = ['data_deleted'=>$data_influx_deleted, 'deleted_measurements'=>$delete_count_sum, 'deleted_days'=>$deleted_days, 'data_deleted'=>$data_deleted];    
+                            }
+                            else if ($persist) // Save missing data to DB
                             {
                                 $persist_count= 0;
-
-                                $block_start_t= $block['time_start'];
-                                $block_end_t  = $block['time_end'];
-                                $block_start_u= strtotime($block_start_t);
-                                
                                 $interval_db  = 15; // db request minute interval
                                 $rows_per_db  = $interval_db / $interval_min; // amount of flashlog items in 1 database interval
                                 $req_points_db= $block_length / $rows_per_db;  
@@ -432,7 +477,6 @@ class FlashLogController extends Controller
                                     //Cache::forget($flashlog->getLogCacheName(true, true, $matches_min, $match_props, $db_records)); // remove cached result, because import has changed it
                                     
                                     $persist_days = round($persist_count*$interval_min/(60*24), 1);
-                                    $out          = ['data_stored'=>true, 'persisted_measurements'=>$persist_count, 'persisted_days'=>$persist_days];
 
                                     if (isset($flashlog->persisted_days))
                                         $flashlog->persisted_days += $persist_days;
@@ -444,6 +488,15 @@ class FlashLogController extends Controller
                                     else
                                         $flashlog->persisted_measurements = $persist_count;
 
+                                    $persisted_block_ids = $flashlog->persisted_block_ids_array;
+
+                                    if (!in_array($block_id, $persisted_block_ids)) // add persisted block id
+                                    {
+                                        $persisted_block_ids[] = $block_id;
+                                        $flashlog->persisted_block_ids_array = $persisted_block_ids;
+                                    }
+
+                                    $out = ['data_stored'=>true, 'persisted_measurements'=>$persist_count, 'persisted_days'=>$persist_days];
                                     $flashlog->save();
                                 }
                                 else
@@ -538,14 +591,14 @@ class FlashLogController extends Controller
         $out['match_props'] = $match_props;
         $out['db_records']  = $db_records;
         $out['flashlog_id'] = $flashlog_id;
+        $out['persisted_block_ids_array'] = $flashlog->persisted_block_ids_array;
         
         return $out;
     }
 
     public function destroy(Request $request, $id)
     {
-        return response()->json(['error'=>'destroy_not_yet_implemented']);
-        //return response()->json($request->user()->flashlogs()->findOrFail($id)->delete());
+        return response()->json($request->user()->flashlogs()->findOrFail($id)->delete());
     }
 
 }

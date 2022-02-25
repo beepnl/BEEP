@@ -622,7 +622,7 @@ class FlashLogController extends Controller
                     }
                     else
                     {
-                        $out = ['error'=>'unexisting_data_block_'.$block_id];
+                        // Show blocks
                     }
                 }
                 else

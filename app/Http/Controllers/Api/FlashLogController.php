@@ -346,17 +346,18 @@ class FlashLogController extends Controller
                     $out = $flashlog->log(null, null, $save_result, true, true, $matches_min, $match_props, $db_records, $save_result, $from_cache); // $data='', $log_bytes=null, $save=true, $fill=false, $show=false, $matches_min_override=null, $match_props_override=null, $db_records_override=null, $save_override=false, $from_cache=true, $match_days_offset=0
 
                     // get the data from a single Flashlog block
-                    if ($block_id > -1)
+                    if ($block_id > -1 && isset($out['log'][$block_id]))
                     {
+                        $block        = $out['log'][$block_id];
+                        $interval_min = $block['interval_min'];
+                        $block_data   = json_decode($flashlog->getFileContent('log_file_parsed'), true);
+                        $block_start_i= $block['start_i'];
+                        $block_end_i  = $block['end_i'];
+                        $block_length = $block_end_i - $block_start_i;
+
                         // Check if there are matches
-                        if (isset($out['log'][$block_id]) && isset($out['log'][$block_id]['matches']))
+                        if (isset($out['log'][$block_id]['matches']))
                         {
-                            $block        = $out['log'][$block_id];
-                            $interval_min = $block['interval_min'];
-                            $block_data   = json_decode($flashlog->getFileContent('log_file_parsed'), true);
-                            $block_start_i= $block['start_i'];
-                            $block_end_i  = $block['end_i'];
-                            $block_length = $block_end_i - $block_start_i;
                             $block_start_t= $block['time_start'];
                             $block_end_t  = $block['time_end'];
                             $block_start_u= strtotime($block_start_t);  
@@ -573,8 +574,52 @@ class FlashLogController extends Controller
                         }
                         else
                         {
-                            $out = ['error'=>'no_matches_for_block_'.$block_id];
+                            // select portion of the data
+                            $match_index   = $block['fl_i'];
+                            $index_amount  = round($data_minutes / $interval_min);
+                            $data_i_max    = floor(($block_end_i - $block_start_i) / $index_amount);
+                            
+                            if ($block_data_i == -1)
+                                $block_data_i = round( $data_i_max * (($match_index - $block_start_i) / $block_length) );
+
+                            if ($block_data_i < 0)
+                                $block_data_i = 0;
+
+                            if ($block_data_i > $data_i_max)
+                                $block_data_i = $data_i_max;
+
+                            $start_index = $block_start_i + ($index_amount * $block_data_i);
+                            $end_index   = min($block_end_i, $block_start_i + ($index_amount * ($block_data_i+1)));
+
+                            $out = ['block_start_i'=>$block_start_i, 'block_end_i'=>$block_end_i, 'match_index'=>$match_index, 'block_data_index'=>$block_data_i, 'block_data_index_max'=>$data_i_max, 'block_data_index_amount'=>$index_amount, 'block_data_start'=>$start_index, 'block_data_end'=>$end_index, 'flashlog'=>[], 'database'=>[]];
+
+                            // Add flashlog measurement data
+                            for ($i=$start_index; $i<$end_index; $i++) 
+                            { 
+                                $clean_data_item = $block_data[$i];
+                                unset(
+                                    $clean_data_item['payload_hex'],
+                                    $clean_data_item['pl'],
+                                    $clean_data_item['len'],
+                                    $clean_data_item['vcc'],
+                                    $clean_data_item['pl_bytes'],
+                                    $clean_data_item['beep_base'],
+                                    $clean_data_item['weight_sensor_amount'],
+                                    $clean_data_item['ds18b20_sensor_amount'],
+                                    $clean_data_item['port'],
+                                    $clean_data_item['fft_bin_amount'],
+                                    $clean_data_item['fft_start_bin'],
+                                    $clean_data_item['fft_stop_bin'],
+                                );
+                                $block_data_item = $clean_data_item;
+                                $block_data_item['time'] = date('Y-m-d\TH:i:s\Z', $block_data_item['minute']*60); // display as UTC
+                                $out['flashlog'][] = $block_data_item;
+                            }
                         }
+                    }
+                    else
+                    {
+                        $out = ['error'=>'unexisting_data_block_'.$block_id];
                     }
                 }
                 else

@@ -397,6 +397,10 @@ class FlashLogController extends Controller
                                 $points_p_req = round($req_points_db / $req_cnt_db);
                                 $secs_per_req = $points_p_req * $interval_db * 60;
 
+                                $count_measurements = [];
+                                foreach ($measurements as $key => $value) 
+                                    $count_measurements['count_'.$value] = $key; // compare keys with 'count_' included, alse everything in excluded and sum is always 0
+
                                 for ($req_ind=0; $req_ind <= $req_cnt_db; $req_ind++) 
                                 { 
                                     $req_start_unix = $block_start_u + ($secs_per_req * $req_ind);
@@ -404,11 +408,10 @@ class FlashLogController extends Controller
                                     $req_end_unix   = $block_start_u + ($secs_per_req * ($req_ind+1)) -1;
                                     $req_end_time   = date('Y-m-d H:i:s', $req_end_unix);
                                     
-
                                     // run through the db data array to define which data to add 
                                     $count_query  = 'SELECT COUNT(*) FROM "sensors" WHERE '.$device->influxWhereKeys().' AND time >= \''.$req_start_time.'\' AND time <= \''.$req_end_time.'\' GROUP BY time('.$interval_db.'m) ORDER BY time ASC LIMIT '.$points_p_req;
                                     
-                                    //print_r(['req_start_unix'=>$req_start_unix, 'req_start_time'=>$req_start_time, 'req_end_unix'=>$req_end_unix, 'req_end_time'=>$req_end_time, 'count_query'=>$count_query]);
+                                    //print_r(['interval_db'=>$interval_db, 'req_start_unix'=>$req_start_unix, 'req_start_time'=>$req_start_time, 'req_end_unix'=>$req_end_unix, 'req_end_time'=>$req_end_time, 'count_query'=>$count_query]);
                                     
                                     $data_per_int       = Device::getInfluxQuery($count_query, 'flashlog');
                                     $data_per_int_d     = [];
@@ -416,6 +419,8 @@ class FlashLogController extends Controller
                                     $data_per_int_max_i = count($data_per_int) - 1;
                                     $missing_data       = [];
                                     
+                                    //die(print_r($data_per_int));
+
                                     // per Influx time group (15 min)  
                                     for($db_count_i=0 ; $db_count_i < $data_per_int_max_i; $db_count_i++) 
                                     {
@@ -423,8 +428,14 @@ class FlashLogController extends Controller
                                         $db_count_next = $data_per_int[$db_count_i+1];
                                         $time_start    = $db_count['time'];
                                         $time_end      = $db_count_next['time'];
-                                        $db_count      = array_intersect_key($db_count, array_flip($measurements)); // only keep the key counts from valid matching measurements
+
+                                        //print_r(['db_count'=>$db_count, 'm'=>$count_measurements]);
+
+                                        $db_count      = array_intersect_key($db_count, $count_measurements); // only keep the key counts from valid matching measurements
                                         $count_sum     = array_sum($db_count);
+                                        
+                                        //die(print_r(['db_count'=>$db_count, 'c'=>$count_sum]));
+
                                         $data_per_int_d[$time_start] = $count_sum;
                                         
                                         if ($count_sum < $match_props) // Database data has less data than flashlog 

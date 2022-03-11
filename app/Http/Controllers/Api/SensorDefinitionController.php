@@ -68,7 +68,7 @@ class SensorDefinitionController extends Controller
                 $request_data['inside'] = $request_data['inside'] === "true" || $request_data['inside'] === true || $request_data['inside'] == 1 ? 1 : 0;
         }
 
-        if (empty($request_data['name']) && isset($measurement_out))
+        if ((empty($request_data['name']) || $request_data['name'] == '') && isset($measurement_out))
             $request_data['name'] = $measurement_out->pq_name().' '.__('beep.calibrated');
 
         return $request_data;

@@ -308,11 +308,19 @@ trait MeasurementLegacyCalculationsTrait
         if ($validator->fails())
             return Response::json('validation-error', 500);
 
-        $device           = $this->get_user_device($request, true); // requires id, key, hive_id, or nothing (if only one sensor) to be set
-        $next_measurement = $request->filled('next_measurement') ? $request->input('next_measurement') : true;
-        $weight_kg        = floatval($request->filled('weight_kg') ? $request->input('weight_kg') : $device->last_sensor_measurement_time_value('calibrating_weight'));
-        $calibrated       = $this->calibrate_weight_sensors($device, $weight_kg, $next_measurement);
+        $device     = $this->get_user_device($request, true); // requires id, key, hive_id, or nothing (if only one sensor) to be set
+        $calibrated = false;
 
+        if ($device)
+        {
+            $next_measurement = $request->filled('next_measurement') ? $request->input('next_measurement') : true;
+            $weight_kg        = floatval($request->filled('weight_kg') ? $request->input('weight_kg') : $device->last_sensor_measurement_time_value('calibrating_weight'));
+            $calibrated       = $this->calibrate_weight_sensors($device, $weight_kg, $next_measurement);
+        }
+        else
+        {
+            $calibrated = 'no_device_found';
+        }
         if($calibrated === true)
         {
             if ($next_measurement)
@@ -327,7 +335,11 @@ trait MeasurementLegacyCalculationsTrait
     public function offsetweight(Request $request)
     {
         $device = $this->get_user_device($request, true); // requires id, key, hive_id, or nothing (if only one sensor) to be set
-        $offset = $this->offset_weight_sensors($device);
+        
+        if ($device)
+            $offset = $this->offset_weight_sensors($device);
+        else
+            $offset = 'no_device_found';
 
         if($offset === true)
             return Response::json("offset_weight", 201);
@@ -347,7 +359,11 @@ trait MeasurementLegacyCalculationsTrait
     {
         $weight = ['w_fl', 'w_fr', 'w_bl', 'w_br', 'w_v', 'weight_kg', 'weight_kg_corrected', 'calibrating_weight', 'w_v_offset', 'w_v_kg_per_val', 'w_fl_offset', 'w_fr_offset', 'w_bl_offset', 'w_br_offset'];
         $device = $this->get_user_device($request);
-        $output = $device->last_sensor_values_array(implode('","',$weight));
+
+        if ($device)
+            $output = $device->last_sensor_values_array(implode('","',$weight));
+        else
+            $output = false;
 
         if ($output === false)
             return Response::json('sensor-get-error', 500);

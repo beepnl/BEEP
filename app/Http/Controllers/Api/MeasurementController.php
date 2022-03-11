@@ -110,7 +110,7 @@ class MeasurementController extends Controller
             if(isset($check_device))
                 return $check_device;
         }
-        return Response::json('no_device_found', 404);
+        return null;
     }
 
     

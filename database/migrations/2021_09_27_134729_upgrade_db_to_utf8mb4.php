@@ -69,7 +69,7 @@ private function convertDb($connection, $charset, $collate, $dryRun)
     $query = "SET FOREIGN_KEY_CHECKS = 0";
     $this->dbExec($query, $dryRun, $connection);
 
-    $query = "ALTER SCHEMA {$dbName} DEFAULT CHARACTER SET {$charset} DEFAULT COLLATE {$collate}";
+    $query = "ALTER SCHEMA `{$dbName}` DEFAULT CHARACTER SET {$charset} DEFAULT COLLATE {$collate}";
     $this->dbExec($query, $dryRun, $connection);
 
     $tableChanges = [];

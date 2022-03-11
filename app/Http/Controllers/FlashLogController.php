@@ -99,7 +99,7 @@ class FlashLogController extends Controller
             $data = $flashlog->getFileContent('log_file');
             if (isset($data))
             {
-                $res  = $flashlog->log($data, null, true, true);
+                $res  = $flashlog->log($data, null, true, true, false, null, null, null, false, false);
                 foreach ($res as $key => $value) {
                     $out[] = $key.'='.$value; 
                 }

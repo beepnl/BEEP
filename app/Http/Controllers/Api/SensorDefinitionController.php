@@ -58,7 +58,7 @@ class SensorDefinitionController extends Controller
         $request_data = $request->only('name', 'inside', 'offset', 'multiplier', 'input_measurement_id', 'output_measurement_id', 'device_id');
 
         $request_data['input_measurement_id']  = isset($measurement_in) ? $measurement_in->id : null;
-        $request_data['output_measurement_id'] = isset($measurement_out) ? $measurement_out->id : null;
+        $request_data['output_measurement_id'] = isset($measurement_out) ? $measurement_out->id : (isset($measurement_in) ? $measurement_in->id : null);
 
         if ($request->filled('inside'))
         {
@@ -141,8 +141,8 @@ class SensorDefinitionController extends Controller
      */
     public function store(Request $request)
     {
-        Log::debug('sensordefinition_post');
-        Log::debug($request->input());
+        //Log::debug('sensordefinition_post');
+        //Log::debug($request->input());
         
         $device = $this->getDeviceFromRequest($request);
 

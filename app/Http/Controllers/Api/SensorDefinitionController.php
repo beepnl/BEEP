@@ -69,7 +69,7 @@ class SensorDefinitionController extends Controller
         }
 
         if (!isset($request_data['name']) && isset($measurement_out))
-            $request_data['name'] = $measurement_out->pq_name().' '.__('beep.calibration');
+            $request_data['name'] = $measurement_out->pq_name().' '.__('beep.calibrated');
 
         return $request_data;
     }
@@ -192,16 +192,16 @@ class SensorDefinitionController extends Controller
         if ($device)
         {
             $sensordefinition = $device->sensorDefinitions()->findOrFail($id);
-            //$request_data     = $this->makeRequestDataArray($request);
-            $request_data = $request->only('name', 'inside', 'offset', 'multiplier', 'input_measurement_id', 'output_measurement_id', 'device_id'); 
+            $request_data     = $this->makeRequestDataArray($request);
+            // $request_data = $request->only('name', 'inside', 'offset', 'multiplier', 'input_measurement_id', 'output_measurement_id', 'device_id'); 
             
-            if ($request->filled('inside'))
-            {
-                if ($request_data['inside'] === -1)
-                    $request_data['inside'] = null;
-                else
-                    $request_data['inside'] = $request_data['inside'] === "true" || $request_data['inside'] === true || $request_data['inside'] == 1 ? 1 : 0;
-            }
+            // if ($request->filled('inside'))
+            // {
+            //     if ($request_data['inside'] === -1)
+            //         $request_data['inside'] = null;
+            //     else
+            //         $request_data['inside'] = $request_data['inside'] === "true" || $request_data['inside'] === true || $request_data['inside'] == 1 ? 1 : 0;
+            // }
 
             $sensordefinition->update($request_data);
             return response()->json($sensordefinition, 200);

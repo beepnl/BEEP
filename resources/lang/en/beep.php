@@ -38,6 +38,7 @@ return [
     'Research'          => 'Research',
     'Researches'        => 'Researches',
     'calibration'       => 'calibration',
+    'calibrated'        => 'calibrated',
     'SensorDefinition'  => 'Sensor definition',
     'SampleCode'        => 'Sample code',
 

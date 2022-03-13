@@ -143,6 +143,16 @@ class Measurement extends Model
         });
     }
 
+    public static function getWeightMeasurementIds()
+    {
+        return Cache::remember('measurement-weight-ids', env('CACHE_TIMEOUT_LONG'), function ()
+        { 
+            $input_id  = Measurement::where('abbreviation','w_v')->value('id');
+            $output_id = Measurement::where('abbreviation','weight_kg')->value('id');
+            return ['input_id'=>$input_id, 'output_id'=>$output_id];
+        });
+    }
+
     public static function selectList()
     {
         $list = [];

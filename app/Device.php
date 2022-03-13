@@ -151,7 +151,36 @@ class Device extends Model
 
     public function activeSensorDefinitions()
     {
-        return $this->hasMany(SensorDefinition::class)->orderBy('updated_at', 'desc')->get()->unique('input_measurement_id', 'output_measurement_id');
+        return $this->sensorDefinitions()->orderBy('updated_at', 'desc')->get()->unique('input_measurement_id', 'output_measurement_id');
+    }
+
+    public function activeTypeDateSensorDefinitions($input_measurement_id, $output_measurement_id, $start, $end)
+    {
+        // Check if multiple during timespan
+        $sds    = collect();
+        $io_sds = $this->sensorDefinitions()->where('input_measurement_id', $input_measurement_id)->where('output_measurement_id', $output_measurement_id)->get();
+
+        $sd = $io_sds->whereBetween('updated_at', [$start, $end])->sortByDesc('updated_at')->unique('input_measurement_id', 'output_measurement_id');
+
+        if ($sd->count() > 0)
+            $sds->push($sd);
+
+        // Add first before or at start
+        $sd = $io_sds->where('updated_at', '<=', $start)->sortByDesc('updated_at')->unique('input_measurement_id', 'output_measurement_id')->first();
+
+        if ($sd)
+            $sds->push($sd);
+
+        // If none, add first after end
+        if ($sds->count() == 0)
+        {
+            $sd = $io_sds->where('updated_at', '>=', $end)->sortBy('updated_at')->unique('input_measurement_id', 'output_measurement_id')->first();
+
+            if ($sd)
+                $sds->push($sd);
+        }
+
+        return $sds;
     }
 
 	public function hive()

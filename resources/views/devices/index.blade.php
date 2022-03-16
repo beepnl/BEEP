@@ -98,7 +98,7 @@
 						<td style="max-width: 200px; max-height: 60px; overflow: hidden;" title="{{ $device->last_downlink_result }}">{{ $device->last_downlink_result }}</td>
 						<td>
 							@if (isset($device->deleted_at)) 
-								<a class="btn btn-danger" title="Undelete this devive deleted at: {{$device->deleted_at}}" href="{{ route('devices.undelete',$device->id) }}"><i class="fa fa-refresh"></i></a>
+								<a class="btn btn-danger pull-right" title="Undelete this devive deleted at: {{$device->deleted_at}}" href="{{ route('devices.undelete',$device->id) }}"><i class="fa fa-refresh"></i></a>
 							@else 
 								
 								<a class="btn btn-default" href="{{ route('devices.show',$device->id) }}" title="{{ __('crud.show') }}"><i class="fa fa-eye"></i></a>

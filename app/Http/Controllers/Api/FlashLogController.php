@@ -340,10 +340,11 @@ class FlashLogController extends Controller
                 $user_id     = $flashlog->user_id;
                 $user_name   = $flashlog->user_name;
                 $measurements= Measurement::getMatchingMeasurements();
+                $add_weight  = $from_cache === false && isset($flashlog->log_messages) && $flashlog->log_messages > 50000 ? false : true; // prevent server crash
                 
                 if(isset($flashlog->log_file))
                 {
-                    $out = $flashlog->log(null, null, $save_result, true, true, $matches_min, $match_props, $db_records, $save_result, $from_cache); // $data='', $log_bytes=null, $save=true, $fill=false, $show=false, $matches_min_override=null, $match_props_override=null, $db_records_override=null, $save_override=false, $from_cache=true, $match_days_offset=0
+                    $out = $flashlog->log(null, null, $save_result, true, true, $matches_min, $match_props, $db_records, $save_result, $from_cache, 0, $add_weight); // $data='', $log_bytes=null, $save=true, $fill=false, $show=false, $matches_min_override=null, $match_props_override=null, $db_records_override=null, $save_override=false, $from_cache=true, $match_days_offset=0, $add_sensordefinitions=true
 
                     // get the data from a single Flashlog block
                     if ($block_id > -1 && isset($out['log'][$block_id]))
@@ -612,7 +613,7 @@ class FlashLogController extends Controller
                                     $clean_data_item['fft_stop_bin'],
                                 );
                                 $block_data_item = $clean_data_item;
-                                $block_data_item['time'] = date('Y-m-d\TH:i:s\Z', 946681200 + $block_data_item['minute'] * 60); // display as UTC
+                                $block_data_item['time'] = date('Y-m-d\TH:i:s\Z', 946681200 + $block_data_item['minute'] * 60); // display as UTC from 2000-01-01 00:00:00
                                 $out['flashlog'][] = $block_data_item;
                             }
                             $out['block_data_match_percentage']  = 0;

@@ -154,33 +154,37 @@ class Device extends Model
         return $this->sensorDefinitions()->orderBy('updated_at', 'desc')->get()->unique('input_measurement_id', 'output_measurement_id');
     }
 
+    // provide sensorfdefinitions in descending in order
     public function activeTypeDateSensorDefinitions($input_measurement_id, $output_measurement_id, $start, $end)
     {
         // Check if multiple during timespan
-        $sds    = collect();
+        $sd_ids = [];
         $io_sds = $this->sensorDefinitions()->where('input_measurement_id', $input_measurement_id)->where('output_measurement_id', $output_measurement_id)->get();
 
-        $sd = $io_sds->whereBetween('updated_at', [$start, $end])->sortByDesc('updated_at')->unique('input_measurement_id', 'output_measurement_id');
+        $sd_during = $io_sds->whereBetween('updated_at', [$start, $end])->sortByDesc('updated_at')->unique('input_measurement_id', 'output_measurement_id');
 
-        if ($sd->count() > 0)
-            $sds->push($sd);
-
-        // Add first before or at start
-        $sd = $io_sds->where('updated_at', '<=', $start)->sortByDesc('updated_at')->unique('input_measurement_id', 'output_measurement_id')->first();
-
-        if ($sd)
-            $sds->push($sd);
-
-        // If none, add first after end
-        if ($sds->count() == 0)
+        if ($sd_during->count() > 0)
         {
-            $sd = $io_sds->where('updated_at', '>=', $end)->sortBy('updated_at')->unique('input_measurement_id', 'output_measurement_id')->first();
-
-            if ($sd)
-                $sds->push($sd);
+            foreach($sd_during as $sd)
+                $sd_ids[] = $sd->id;
         }
 
-        return $sds;
+        // Add first before or at start
+        $sd_before = $io_sds->where('updated_at', '<=', $start)->sortByDesc('updated_at')->first();
+
+        if ($sd_before)
+            $sd_ids[] = $sd_before->id;
+
+        // If none, add first after end
+        if (count($sd_ids) == 0)
+        {
+            $sd_next = $io_sds->where('updated_at', '>=', $end)->sortBy('updated_at')->first();
+
+            if ($sd_next)
+                $sd_ids[] = $sd_next->id;
+        }
+
+        return $this->sensorDefinitions()->whereIn('id', $sd_ids)->orderBy('updated_at', 'desc')->get();
     }
 
 	public function hive()

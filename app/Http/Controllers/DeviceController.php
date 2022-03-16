@@ -26,7 +26,7 @@ class DeviceController extends Controller
         $search_user = $request->get('user');
         $search_res  = $request->get('research');
         $perPage     = 50;
-        $devices     = Device::where('id', '!=', null);
+        $devices     = Device::withTrashed()->where('id', '!=', null);
 
         $research_id = null;
         if (!empty($search_res)) 
@@ -359,6 +359,14 @@ class DeviceController extends Controller
 
         return redirect()->route('devices.index')
                         ->with('success','Device updated successfully');
+    }
+
+    // /devices/{id}/undelete
+    public function undelete($id)
+    {
+        Device::withTrashed()->findOrFail($id)->restore();
+        return redirect()->route('devices.index')
+                        ->with('success','Device restored successfully');
     }
 
     /**

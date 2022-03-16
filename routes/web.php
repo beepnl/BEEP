@@ -78,6 +78,7 @@ Route::group(
 				Route::get('devices/data',		    ['as'=>'devices.data','uses'=>'DeviceController@data']);
 				Route::post('devices/create',		['as'=>'devices.store','uses'=>'DeviceController@store','middleware' => ['permission:sensor-create']]);
 				Route::get('devices/{id}',			['as'=>'devices.show','uses'=>'DeviceController@show']);
+				Route::get('devices/{id}/undelete',	['as'=>'devices.undelete','uses'=>'DeviceController@undelete']);
 				Route::get('devices/{id}/edit',		['as'=>'devices.edit','uses'=>'DeviceController@edit','middleware' => ['permission:sensor-edit']]);
 				Route::get('devices/{id}/flashlog/{fl_id}',	['as'=>'devices.flashlog','uses'=>'DeviceController@flashlog','middleware' => ['permission:sensor-edit']]);
 				Route::patch('devices/{id}',		['as'=>'devices.update','uses'=>'DeviceController@update','middleware' => ['permission:sensor-edit']]);

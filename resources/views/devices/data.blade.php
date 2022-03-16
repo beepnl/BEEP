@@ -102,7 +102,7 @@
                 </thead>
                 <tbody>
                     @foreach ($devices as $key => $device)
-                    <tr>
+                    <tr @if (isset($device->deleted_at)) style="color: #AAA;" @endif>
                         <td>{{ $device->id }}</td>
                         {{-- <td><button onclick="copyTextToClipboard('{{ $device->name }}\r\n{{ $device->hardware_id }}');">Copy</button></td> --}}
                         <td>{{ $device->name }}</td>
@@ -117,7 +117,7 @@
                         <td>{{ $device->user->name }} / {{ isset($device->hive) ? $device->hive->name : '' }}</td>
                         <td><p style="font-size: 10px">{{ $device->researchNames() }}</p></td>
                         <td>
-                            <a class="btn btn-default" href="{{ route('devices.show',$device->id) }}" title="{{ __('crud.show') }}"><i class="fa fa-eye"></i></a>
+                            @if (isset($device->deleted_at)) <p>Deleted: {{$device->deleted_at}}</p> @else <a class="btn btn-default" href="{{ route('devices.show',$device->id) }}" title="{{ __('crud.show') }}"><i class="fa fa-eye"></i></a> @endif
                         </td>
                     </tr>
                     @endforeach

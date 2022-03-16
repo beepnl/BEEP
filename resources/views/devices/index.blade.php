@@ -82,7 +82,7 @@
 				</thead>
 				<tbody>
 					@foreach ($sensors as $key => $device)
-					<tr>
+					<tr @if (isset($device->deleted_at)) style="color: #AAA;" @endif>
 						<td>{{ $device->id }}</td>
 						{{-- <td><button onclick="copyTextToClipboard('{{ $device->name }}\r\n{{ $device->hardware_id }}');">Copy</button></td> --}}
 						<td>{{ $device->name }}</td>
@@ -97,15 +97,20 @@
 						<td><p style="font-size: 10px">{{ $device->researchNames() }}</p></td>
 						<td style="max-width: 200px; max-height: 60px; overflow: hidden;" title="{{ $device->last_downlink_result }}">{{ $device->last_downlink_result }}</td>
 						<td>
-							<a class="btn btn-default" href="{{ route('devices.show',$device->id) }}" title="{{ __('crud.show') }}"><i class="fa fa-eye"></i></a>
-							@permission('sensor-edit')
-							<a class="btn btn-primary" href="{{ route('devices.edit',$device->id) }}" title="{{ __('crud.edit') }}"><i class="fa fa-pencil"></i></a>
-							@endpermission
-							@permission('sensor-delete')
-							{!! Form::open(['method' => 'DELETE','route' => ['devices.destroy', $device->id], 'style'=>'display:inline', 'onsubmit'=>'return confirm("'.__('crud.sure',['item'=>__('general.sensor'),'name'=>'\''.$device->name.'\'']).'")']) !!}
-				            {!! Form::button('<i class="fa fa-trash-o"></i>', ['type'=>'submit', 'class' => 'btn btn-danger pull-right']) !!}
-				        	{!! Form::close() !!}
-				        	@endpermission
+							@if (isset($device->deleted_at)) 
+								<a class="btn btn-danger" title="Undelete this devive deleted at: {{$device->deleted_at}}" href="{{ route('devices.undelete',$device->id) }}"><i class="fa fa-refresh"></i></a>
+							@else 
+								
+								<a class="btn btn-default" href="{{ route('devices.show',$device->id) }}" title="{{ __('crud.show') }}"><i class="fa fa-eye"></i></a>
+								@permission('sensor-edit')
+								<a class="btn btn-primary" href="{{ route('devices.edit',$device->id) }}" title="{{ __('crud.edit') }}"><i class="fa fa-pencil"></i></a>
+								@endpermission
+								@permission('sensor-delete')
+								{!! Form::open(['method' => 'DELETE','route' => ['devices.destroy', $device->id], 'style'=>'display:inline', 'onsubmit'=>'return confirm("'.__('crud.sure',['item'=>__('general.sensor'),'name'=>'\''.$device->name.'\'']).'")']) !!}
+					            {!! Form::button('<i class="fa fa-trash-o"></i>', ['type'=>'submit', 'class' => 'btn btn-danger pull-right']) !!}
+					        	{!! Form::close() !!}
+					        	@endpermission
+					        @endif
 						</td>
 					</tr>
 					@endforeach

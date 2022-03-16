@@ -340,7 +340,7 @@ class FlashLogController extends Controller
                 $user_id     = $flashlog->user_id;
                 $user_name   = $flashlog->user_name;
                 $measurements= Measurement::getMatchingMeasurements();
-                $add_weight  = $from_cache === false && isset($flashlog->log_messages) && $flashlog->log_messages > 50000 ? false : true; // prevent server crash
+                $add_weight  = true; //$from_cache === false && isset($flashlog->log_messages) && $flashlog->log_messages > 50000 ? false : true; // prevent server crash
                 
                 if(isset($flashlog->log_file))
                 {

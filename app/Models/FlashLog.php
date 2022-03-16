@@ -269,17 +269,17 @@ class FlashLog extends Model
                 }
 
                 // Add time if not present
-                // if (!isset($data_array['time']) && isset($data_array['time_device']))
-                // {
-                //     $logtm++;
-                //     $ts = intval($data_array['time_device']);
+                if (!isset($data_array['time']) && isset($data_array['time_device']))
+                {
+                    $logtm++;
+                    $ts = intval($data_array['time_device']);
 
-                //     if ($ts > 1546297200 && $ts < $max_time) // > 2019-01-01 00:00:00 < now
-                //     {
-                //         $time_device = new Moment($ts);
-                //         $data_array['time'] = $time_device->format($this->timeFormat);
-                //     }
-                // }
+                    if ($ts > 1546297200 && $ts < $max_time) // > 2019-01-01 00:00:00 < now
+                    {
+                        $time_device = new Moment($ts);
+                        $data_array['time'] = $time_device->format($this->timeFormat);
+                    }
+                }
 
                 $out[] = $data_array;
             }

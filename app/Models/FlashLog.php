@@ -623,7 +623,7 @@ class FlashLog extends Model
                     // Add sensor definition measurement if not yet present (or if input_measurement_id == output_measurement_id) 
                     if ($fl['port'] == 3)
                     {
-                        if ($add_sensordefinitions && $sensor_defs_c > 0 && isset($fl['time']) && isset($fl['w_v'] && !isset($fl['weight_kg'])))
+                        if ($add_sensordefinitions && $sensor_defs_c > 0 && isset($fl['time']) && isset($fl['w_v']) && !isset($fl['weight_kg'])))
                         {
                             if ($sensor_defs_c > 1) // select appropriate $sensor_def for multiple sensor_defs
                             {

@@ -251,7 +251,7 @@ class FlashLog extends Model
             foreach ($in as $line)
             {
                 $counter++;
-                $data_array = $this->decode_flashlog_payload($line, $show);
+                $data_array = $this->decode_flashlog_payload($line);
                 $data_array['i'] = $counter;
 
                 if ($data_array['port'] == 3) // port 3 message is log message

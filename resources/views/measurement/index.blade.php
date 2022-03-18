@@ -87,4 +87,24 @@
 
         @endslot
     @endcomponent
+
+    @component('components/box')
+        @slot('title')
+            CSV Data (paste this in a text file, call it something.csv and open in Excel)
+        @endslot
+
+        @slot('$bodyClass')
+        @endslot
+
+        @slot('body')
+
+<textarea style="width: 100%;" rows="15">
+"Abbreviation","Physical quantity","Unit","Min","Max","HEX Color","Weather related","Show in charts","Show in Dials","Show in alerts"
+@foreach ($measurement->sortBy('abbreviation') as $m)
+"{{ $m->abbreviation }}","{{ $m->pq }}","{{ $m->unit }}",{{ $m->min_value }},{{ $m->max_value }},"#{{ $m->hex_color }}",{{ $m->weather }},{{ $m->show_in_charts }},{{ $m->show_in_dials }},{{ $m->show_in_alerts }}
+@endforeach
+</textarea>
+
+        @endslot
+    @endcomponent
 @endsection

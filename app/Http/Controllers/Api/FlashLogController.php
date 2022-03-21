@@ -613,7 +613,10 @@ class FlashLogController extends Controller
                                     $clean_data_item['fft_stop_bin'],
                                 );
                                 $block_data_item = $clean_data_item;
-                                $block_data_item['time'] = date('Y-m-d\TH:i:s\Z', 946681200 + $block_data_item['minute'] * 60); // display as UTC from 2000-01-01 00:00:00
+
+                                if (isset($block_data_item['minute']))
+                                    $block_data_item['time'] = date('Y-m-d\TH:i:s\Z', 946681200 + $block_data_item['minute'] * 60); // display as UTC from 2000-01-01 00:00:00
+                                
                                 $out['flashlog'][] = $block_data_item;
                             }
                             $out['block_data_match_percentage']  = 0;

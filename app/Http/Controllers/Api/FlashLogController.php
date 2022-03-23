@@ -12,6 +12,7 @@ use Moment\Moment;
 use Storage;
 use Cache;
 use Auth;
+use Str;
 
 /**
  * @group Api\FlashLogController

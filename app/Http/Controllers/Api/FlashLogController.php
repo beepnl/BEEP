@@ -392,7 +392,7 @@ class FlashLogController extends Controller
         $from_cache  = boolval($request->input('from_cache', true));
         $export_csv  = boolval($request->input('csv', false)); // if filled, only save data and return a download link 
         $export_json = boolval($request->input('json', false));  // if filled, only save data and return a download link 
-        $block_id    = intval($request->input('block_id', -1));
+        $block_id    = $request->filled('block_id') ? intval($request->input('block_id')) : -1;
         $block_data_i= intval($request->input('block_data_index', -1));
         $data_minutes= intval($request->input('data_minutes', 10080));
         

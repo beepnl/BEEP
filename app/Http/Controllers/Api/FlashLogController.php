@@ -430,7 +430,7 @@ class FlashLogController extends Controller
                         $block_length = $block_end_i - $block_start_i;
 
                         if ($export_csv || $export_json)
-                            return $this->exportData($block_data, "user-$user_id-$device_name-fl-$id-block-$block_id", $export_csv);
+                            return $this->exportData(array_slice($block_data, $block_start_i, $block_length), "user-$user_id-$device_name-fl-$id-block-$block_id", $export_csv);
 
                         // Check if there are matches
                         if (isset($out['log'][$block_id]['matches']))

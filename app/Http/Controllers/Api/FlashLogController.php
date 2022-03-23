@@ -210,7 +210,7 @@ class FlashLogController extends Controller
         return $stored;
     }
 
-    private function cleanFlashlogItem($data_array)
+    private function cleanFlashlogItem($data_array, $unset_time=true)
     {
         unset(
             $data_array['payload_hex'],
@@ -222,14 +222,19 @@ class FlashLogController extends Controller
             $data_array['weight_sensor_amount'],
             $data_array['ds18b20_sensor_amount'],
             $data_array['port'],
-            $data_array['minute_interval'],
             $data_array['bat_perc'],
             $data_array['fft_bin_amount'],
             $data_array['fft_start_bin'],
-            $data_array['fft_stop_bin'],
-            $data_array['i'],
-            $data_array['minute']
+            $data_array['fft_stop_bin']
         );
+        
+        if ($unset_time)
+            unset(
+                $data_array['i'],
+                $data_array['minute_interval'],
+                $data_array['minute']
+            );
+
         return $data_array;
     }
 
@@ -320,42 +325,60 @@ class FlashLogController extends Controller
         $file_mime= $csv ? 'text/csv' : 'application/json';
         $filePath = 'exports/flashlog-export-'.$name.'-'.Str::random(20).$file_ext;
         $filePath = str_replace(' ', '', $filePath);
-        $fileBody = "";
+        $fileBody = '';
 
-        if ($csv)
+        if ($data && gettype($data) == 'array' && count($data) > 0)
         {
-            // format CSV header row: time, sensor1 (unit2), sensor2 (unit2), etc. Excluse the 'sensor' and 'key' columns
-            $csv_sens = array_keys($data[0]);
-            $csv_head = [];
-            foreach ($csv_sens as $header) 
+            if ($csv)
             {
-                $meas       = Measurement::where('abbreviation', $header)->first();
-                $col_head   = $meas ? $meas->pq_name_unit() : $header;
-                if (in_array($col_head, $csv_head) && $col_head != $header) // two similar heads, so add $header
-                    $col_head .= ' - '.$header;
+                // format CSV header row: time, sensor1 (unit2), sensor2 (unit2), etc. Excluse the 'sensor' and 'key' columns
+                $header_item = null;
+                for ($i=0; $i < count($data); $i++) 
+                { 
+                    $data_item = $block_data[$i];
+                    if (isset($data_item['port']) && $data_item['port'] == 3)
+                    {
+                        $header_item = $this->cleanFlashlogItem($data_item, false);
+                        break;
+                    }
+                }
 
-                $csv_head[] = $col_head;
+                if (isset($header_item) && gettype($header_item) == 'array')
+                {
+                    $csv_sens = array_keys($header_item);
+                    $csv_head = [];
+                    foreach ($csv_sens as $header) 
+                    {
+                        $meas       = Measurement::where('abbreviation', $header)->first();
+                        $col_head   = $meas ? $meas->pq_name_unit() : $header;
+                        if (in_array($col_head, $csv_head) && $col_head != $header) // two similar heads, so add $header
+                            $col_head .= ' - '.$header;
+
+                        $csv_head[] = $col_head;
+                    }
+                    $csv_head = '"'.implode('"'.$separator.'"', $csv_head).'"'."\r\n";
+
+                    // format CSV file body
+                    $csv_body = [];
+                    foreach ($data as $data_item) 
+                    {
+                        if (isset($data_item['port']) && $data_item['port'] == 3)
+                            $csv_body[] = implode($separator, $this->cleanFlashlogItem($data_item, false));
+                    }
+                    $fileBody = $csv_head.implode("\r\n", $csv_body);
+                }
             }
-            $csv_head = '"'.implode('"'.$separator.'"', $csv_head).'"'."\r\n";
-
-            // format CSV file body
-            $csv_body = [];
-            foreach ($data as $sensor_values) 
+            else // JSON
             {
-                $csv_body[] = implode($separator, $sensor_values);
+                $fileBody = json_encode($data);
             }
-            $fileBody = $csv_head.implode("\r\n", $csv_body);
-        }
-        else // JSON
-        {
-            $fileBody = json_encode($data);
-        }
         
-        // return the file content in a file on disk
-        if (Storage::disk($disk)->put($filePath, $fileBody, ['mimetype' => $file_mime]))
-            return ['link'=>Storage::disk($disk)->url($filePath)];
-        
-        return ['error'=>'export_not_saved'];
+            // return the file content in a file on disk
+            if ($fileBody !== '' && Storage::disk($disk)->put($filePath, $fileBody, ['mimetype' => $file_mime]))
+                return ['link'=>Storage::disk($disk)->url($filePath)];
+            
+            return ['error'=>'export_not_saved'];
+        }
     }
 
     private function parse(Request $request, $id, $persist=false, $delete=false)
@@ -650,27 +673,16 @@ class FlashLogController extends Controller
                             // Add flashlog measurement data
                             for ($i=$start_index; $i<$end_index; $i++) 
                             { 
-                                $clean_data_item = $block_data[$i];
-                                unset(
-                                    $clean_data_item['payload_hex'],
-                                    $clean_data_item['pl'],
-                                    $clean_data_item['len'],
-                                    $clean_data_item['vcc'],
-                                    $clean_data_item['pl_bytes'],
-                                    $clean_data_item['beep_base'],
-                                    $clean_data_item['weight_sensor_amount'],
-                                    $clean_data_item['ds18b20_sensor_amount'],
-                                    $clean_data_item['port'],
-                                    $clean_data_item['fft_bin_amount'],
-                                    $clean_data_item['fft_start_bin'],
-                                    $clean_data_item['fft_stop_bin'],
-                                );
-                                $block_data_item = $clean_data_item;
+                                $data_item = $block_data[$i];
+                                if (isset($data_item['port']) && $data_item['port'] == 3)
+                                {
+                                    $block_data_item = $this->cleanFlashlogItem($data_item, false);
 
-                                if (isset($block_data_item['minute']))
-                                    $block_data_item['time'] = date('Y-m-d\TH:i:s\Z', 946681200 + $block_data_item['minute'] * 60); // display as UTC from 2000-01-01 00:00:00
-                                
-                                $out['flashlog'][] = $block_data_item;
+                                    if (isset($block_data_item['minute']))
+                                        $block_data_item['time'] = date('Y-m-d\TH:i:s\Z', 946681200 + $block_data_item['minute'] * 60); // display as UTC from 2000-01-01 00:00:00
+                                    
+                                    $out['flashlog'][] = $block_data_item;
+                                }
                             }
                             $out['block_data_match_percentage']  = 0;
                             $out['block_data_flashlog_sec_diff'] = '? ';

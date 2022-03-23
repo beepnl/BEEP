@@ -173,9 +173,12 @@ class FlashLog extends Model
         {
             if (isset($this->log_file_parsed) && $from_cache)
             {
-                $out = json_decode($this->getFileContent('log_file_parsed'), true);
-                $messages = count($out);
-                $lines    = $messages;
+                $out = json_decode($this->getFileContent('log_file_parsed'), true); // decode ar associative array
+                if (isset($out) && gettype($out) == 'array')
+                {
+                    $messages = count($out);
+                    $lines    = $messages;
+                }
             }
 
             if (empty($out) && isset($this->log_file))

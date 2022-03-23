@@ -97,7 +97,7 @@ class DeviceController extends Controller
         
         if ($request->filled('hardware_id'))
         {
-            $hw_id   = $request->input('hardware_id');
+            $hw_id   = strtolower($request->input('hardware_id'));
             $devices = $request->user()->allDevices()->where('hardware_id', $hw_id)->with('sensorDefinitions');
 
             // TODO: Exception for old hardware id's (including 0e as first byte) that have been stored, can be removed after implementation of issue #36 (correct hw_id in native apps, LoRa message parsers and database update of old id's)
@@ -112,10 +112,14 @@ class DeviceController extends Controller
         // Check for device hijacking
         if ($devices->count() == 0)
         {
-            if ($request->filled('hardware_id') && Device::where('hardware_id', $request->input('hardware_id'))->count() > 0)
+            if ($this->canUserClaimDeviceFromRequest($request, false) === false)
+            {
                 return Response::json('device_not_yours', 403);
-            else if ($request->filled('hardware_id')) // Provide less confusing message to Android App listing of unexisting BEEP base 
+            }
+            else if ($request->filled('hardware_id')) // Provide less confusing message to Android App listing of unexisting BEEP base
+            {
                 return Response::json('New BEEP base found', 404);
+            }
 
             return Response::json('no_devices_found', 404);
         }
@@ -130,7 +134,7 @@ class DeviceController extends Controller
     */
     public function getTTNDevice(Request $request, $dev_id)
     {
-        if ($this->canUserClaimDeviceFromRequest($request) === false)
+        if ($this->canUserClaimDeviceFromRequest($request, false) === false)
             return Response::json("device_not_yours", 403);
 
         $response = $this->doTTNRequest($dev_id);
@@ -387,7 +391,7 @@ class DeviceController extends Controller
         }
     }
 
-    private function canUserClaimDevice($id=null, $key=null, $hwi=null)
+    private function canUserClaimDevice($id=null, $key=null, $hwi=null, $undeleteTrashed=true)
     {
         $can_claim     = 0;
         $device_exists = 0;
@@ -425,7 +429,7 @@ class DeviceController extends Controller
                 else // user does not have hw_id, but it exists in database, so check if it is deleted and undelete it if it belonged to the user
                 {
                     $check_device = Device::onlyTrashed()->where('hardware_id', $hwi)->first();
-                    if ($check_device && $check_device->user_id == Auth::user()->id) // undelete device
+                    if ($undeleteTrashed && $check_device && $check_device->user_id == Auth::user()->id) // undelete device
                     {
                         $check_device->restore();
                         $can_claim += 1;
@@ -440,13 +444,13 @@ class DeviceController extends Controller
         return false;
     }
 
-    private function canUserClaimDeviceFromRequest(Request $request)
+    private function canUserClaimDeviceFromRequest(Request $request, $undeleteTrashed=true)
     {
         $id  = $request->filled('id') ? $request->input('id') : null;
         $key = $request->filled('key') ? strtolower($request->input('key')) : null;
         $hwi = $request->filled('hardware_id') ? strtolower($request->input('hardware_id')) : null;
         
-        return $this->canUserClaimDevice($id, $key, $hwi);
+        return $this->canUserClaimDevice($id, $key, $hwi, $undeleteTrashed);
     }
 
 

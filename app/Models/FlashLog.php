@@ -141,10 +141,13 @@ class FlashLog extends Model
         if ($from_cache === true && Cache::has($cache_name) && $save === false && $fill === true)
         {
             $result = Cache::get($cache_name);
-            foreach ($result['log'] as $block_i => $block) 
+            if (isset($result['log']))
             {
-                if (isset($block['matches']))
-                    return $result;
+                foreach ($result['log'] as $block_i => $block) 
+                {
+                    if (isset($block['matches']))
+                        return $result; // return cache result if it has a block with matches
+                }
             }
         }
         

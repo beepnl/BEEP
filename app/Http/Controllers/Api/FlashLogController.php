@@ -323,7 +323,7 @@ class FlashLogController extends Controller
         $disk     = env('EXPORT_STORAGE', 'public');
         $file_ext = $csv ? '.csv' : '.json';
         $file_mime= $csv ? 'text/csv' : 'application/json';
-        $filePath = 'exports/flashlog-export-'.$name.'-'.Str::random(20).$file_ext;
+        $filePath = 'exports/flashlog/beep-base-log-export-'.$name.'-'.Str::random(20).$file_ext;
         $filePath = str_replace(' ', '', $filePath);
         $fileBody = '';
 
@@ -428,12 +428,13 @@ class FlashLogController extends Controller
                         $block_start_i= $block['start_i'];
                         $block_end_i  = $block['end_i'];
                         $block_length = $block_end_i - $block_start_i;
+                        $has_matches  = isset($out['log'][$block_id]['matches']) ? true : false;
 
                         if ($export_csv || $export_json)
-                            return $this->exportData(array_slice($block_data, $block_start_i, $block_length), "user-$user_id-$device_name-fl-$id-block-$block_id", $export_csv);
+                            return $this->exportData(array_slice($block_data, $block_start_i, $block_length), "user-$user_id-$device_name-log-file-$id-block-$block_id-matches-$has_matches", $export_csv);
 
                         // Check if there are matches
-                        if (isset($out['log'][$block_id]['matches']))
+                        if ($has_matches)
                         {
                             $block_start_t= $block['time_start'];
                             $block_end_t  = $block['time_end'];
@@ -689,9 +690,13 @@ class FlashLogController extends Controller
                             $out['block_data_match_errors']      = '';
                         }
                     }
-                    else
+                    else // no block_id set, so show all blocks, or download all data in the flashlog
                     {
-                        // Show blocks
+                        if ($export_csv || $export_json)
+                        {
+                            $all_log_data = json_decode($flashlog->getFileContent('log_file_parsed'), true);
+                            return $this->exportData($all_log_data, "user-$user_id-$device_name-log-file-$id-all-data", $export_csv);
+                        }
                     }
                 }
                 else

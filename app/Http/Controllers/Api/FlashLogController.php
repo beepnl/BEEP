@@ -335,7 +335,7 @@ class FlashLogController extends Controller
                 $header_item = null;
                 for ($i=0; $i < count($data); $i++) 
                 { 
-                    $data_item = $block_data[$i];
+                    $data_item = $data[$i];
                     if (isset($data_item['port']) && $data_item['port'] == 3)
                     {
                         $header_item = $this->cleanFlashlogItem($data_item, false);

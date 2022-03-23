@@ -173,9 +173,12 @@ class FlashLog extends Model
         {
             if (isset($this->log_file_parsed) && $from_cache)
             {
-                $out = json_decode($this->getFileContent('log_file_parsed'), true);
-                $messages = count($out);
-                $lines    = $messages;
+                $out = json_decode($this->getFileContent('log_file_parsed'), true); // decode ar associative array
+                if (isset($out) && gettype($out) == 'array')
+                {
+                    $messages = count($out);
+                    $lines    = $messages;
+                }
             }
 
             if (empty($out) && isset($this->log_file))
@@ -314,7 +317,7 @@ class FlashLog extends Model
         // fill time in unknown time data 
         $time_percentage = $messages > 0 ? round(100 * $logtm / $messages, 2) : 0;
 
-        if ($fill && count($out) > 0)
+        if ($fill && isset($out) && gettype($out) == 'array' && count($out) > 0)
         {
             $flashlog_filled = $this->fillTimeFromInflux($device, $out, $save, $show, $matches_min_override, $match_props_override, $db_records_override, $match_days_offset, $add_sensordefinitions); // ['time_percentage'=>$time_percentage, 'records_timed'=>$records_timed, 'records_flashlog'=>$records_flashlog, 'time_insert_count'=>$setCount, 'flashlog'=>$flashlog];
             unset($out);

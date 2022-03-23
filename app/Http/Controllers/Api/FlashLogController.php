@@ -109,6 +109,8 @@ class FlashLogController extends Controller
      * @bodyParam data_minutes integer Flashlog data amount of minutes to show data from. Default: 10080 (1 week).
      * @bodyParam from_cache boolean get Flashlog parse result from cache (24 hours). Default: true. Example: false
      * @bodyParam save_result boolean Flashlog save the parsed result as new log_file_parsed. Default: false. Example: false
+     * @bodyParam csv integer Save the Flashlog block_id data as a CSV file (1) and return a link. Default: 0. Example: 0
+     * @bodyParam json integer Save the Flashlog block_id data as a JSON file (1) and return a link. Default: 0. Example: 0
      */
     public function show(Request $request, $id)
     {
@@ -310,6 +312,51 @@ class FlashLogController extends Controller
         return ['sec_diff'=>$secDiffAvg, 'perc_match'=>$percMatch, 'errors'=>implode(', ', $errors)];
     }
 
+    private function exportData($data, $name, $csv=true, $separator=';')
+    {
+        $disk     = env('EXPORT_STORAGE', 'public');
+        $file_ext = $csv ? '.csv' : '.json';
+        $file_mime= $csv ? 'text/csv' : 'application/json';
+        $filePath = 'exports/flashlog-export-'.$name.'-'.Str::random(20).$file_ext;
+        $filePath = str_replace(' ', '', $filePath);
+        $fileBody = "";
+
+        if ($csv)
+        {
+            // format CSV header row: time, sensor1 (unit2), sensor2 (unit2), etc. Excluse the 'sensor' and 'key' columns
+            $csv_sens = array_keys($data[0]);
+            $csv_head = [];
+            foreach ($csv_sens as $header) 
+            {
+                $meas       = Measurement::where('abbreviation', $header)->first();
+                $col_head   = $meas ? $meas->pq_name_unit() : $header;
+                if (in_array($col_head, $csv_head) && $col_head != $header) // two similar heads, so add $header
+                    $col_head .= ' - '.$header;
+
+                $csv_head[] = $col_head;
+            }
+            $csv_head = '"'.implode('"'.$separator.'"', $csv_head).'"'."\r\n";
+
+            // format CSV file body
+            $csv_body = [];
+            foreach ($data as $sensor_values) 
+            {
+                $csv_body[] = implode($separator, $sensor_values);
+            }
+            $fileBody = $csv_head.implode("\r\n", $csv_body);
+        }
+        else // JSON
+        {
+            $fileBody = json_encode($data);
+        }
+        
+        // return the file content in a file on disk
+        if (Storage::disk($disk)->put($filePath, $fileBody, ['mimetype' => $file_mime]))
+            return ['link'=>Storage::disk($disk)->url($filePath)];
+        
+        return ['error'=>'export_not_saved'];
+    }
+
     private function parse(Request $request, $id, $persist=false, $delete=false)
     {
         $flashlog_id = intval($id);
@@ -319,6 +366,8 @@ class FlashLogController extends Controller
         
         $save_result = boolval($request->input('save_result', false));
         $from_cache  = boolval($request->input('from_cache', true));
+        $export_csv  = boolval($request->input('csv', false)); // if filled, only save data and return a download link 
+        $export_json = boolval($request->input('json', false));  // if filled, only save data and return a download link 
         $block_id    = intval($request->input('block_id', -1));
         $block_data_i= intval($request->input('block_data_index', -1));
         $data_minutes= intval($request->input('data_minutes', 10080));
@@ -355,6 +404,9 @@ class FlashLogController extends Controller
                         $block_start_i= $block['start_i'];
                         $block_end_i  = $block['end_i'];
                         $block_length = $block_end_i - $block_start_i;
+
+                        if ($export_csv || $export_json)
+                            return $this->exportData($block_data, "user-$user_id-$device_name-fl-$id-block-$block_id", $export_csv);
 
                         // Check if there are matches
                         if (isset($out['log'][$block_id]['matches']))

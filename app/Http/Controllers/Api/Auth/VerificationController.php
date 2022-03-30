@@ -9,7 +9,7 @@ use Illuminate\Auth\Events\Verified;
 use App\User;
 
 /**
- * @group Api\VerificationController
+ * @group Api\Auth\VerificationController
  * User verification functions
  */
 class VerificationController extends Controller

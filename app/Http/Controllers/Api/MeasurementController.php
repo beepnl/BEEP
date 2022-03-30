@@ -813,7 +813,7 @@ class MeasurementController extends Controller
                 $logtm = 0;
                 $erase = -1;
                 
-                if ($request->hasFile('file') && $request->file('file')->isValid())
+                if ($request->hasFile('file'))
                 {
                     $files= true;
                     $file = $request->file('file');

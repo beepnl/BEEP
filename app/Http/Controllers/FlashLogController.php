@@ -33,9 +33,10 @@ class FlashLogController extends Controller
                 ->orWhere('log_file', 'LIKE', "%$keyword%")
                 ->orWhere('log_file_stripped', 'LIKE', "%$keyword%")
                 ->orWhere('log_file_parsed', 'LIKE', "%$keyword%")
+                ->orderByDesc('updated_at');
                 ->paginate($perPage);
         } else {
-            $flashlog = FlashLog::paginate($perPage);
+            $flashlog = FlashLog::orderByDesc('updated_at')->paginate($perPage);
         }
 
         return view('flash-log.index', compact('flashlog'));

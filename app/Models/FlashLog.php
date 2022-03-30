@@ -171,6 +171,8 @@ class FlashLog extends Model
         $device = $this->device;
         $sid    = $this->device_id; 
         $time   = date("YmdHis");
+        $mime_t = ['mimetype' => 'text/plain'];
+        $mime_j = ['mimetype' => 'application/json'];
 
         if (empty($data)) // get data from parsed flashlog file, or unparsed log_file
         {
@@ -243,7 +245,7 @@ class FlashLog extends Model
             if ($save)
             {
                 $logFileName =  $f_dir."/sensor_".$sid."_flash_stripped_$time.log";
-                $saved = Storage::disk($disk)->put($logFileName, $data);
+                $saved = Storage::disk($disk)->put($logFileName, $data, $mime_t);
                 $f_str = Storage::disk($disk)->url($logFileName); 
             }
 
@@ -296,7 +298,7 @@ class FlashLog extends Model
                 if ($save)
                 {
                     $logFileName = $f_dir."/sensor_".$sid."_flash_parsed_$time.json";
-                    $saved = Storage::disk($disk)->put($logFileName, json_encode($out));
+                    $saved = Storage::disk($disk)->put($logFileName, json_encode($out), $mime_j);
                     $f_par = Storage::disk($disk)->url($logFileName);
                 }
             }
@@ -347,7 +349,7 @@ class FlashLog extends Model
                     {
                         $save        = true;
                         $logFileName = $f_dir."/sensor_".$sid."_flash_filled_$time.json";
-                        $saved       = Storage::disk($disk)->put($logFileName, json_encode($flashlog_filled['flashlog']));
+                        $saved       = Storage::disk($disk)->put($logFileName, json_encode($flashlog_filled['flashlog']), $mime_j);
                         $f_par       = Storage::disk($disk)->url($logFileName);
                     }
                 }

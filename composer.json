@@ -8,11 +8,11 @@
     "type": "project",
     "require": {
         "php": ">=7.4",
-        "fruitcake/laravel-cors": "^2.0.4",
         "doctrine/dbal": "^2.9",
         "ellipsesynergie/api-response": "0.12.*",
         "fideloper/proxy": "^4.0",
         "fightbulc/moment": "*",
+        "fruitcake/laravel-cors": "^2.0.4",
         "guzzlehttp/guzzle": "^6.5",
         "iatstuti/laravel-cascade-soft-deletes": "^2.0.0",
         "influxdb/influxdb-php": "1.*",
@@ -26,8 +26,8 @@
         "mcamara/laravel-localization": "1.5.*",
         "phpoffice/phpspreadsheet": "^1.2",
         "predis/predis": "^1.1",
-        "trebol/entrust": "^0.6",
-        "tray-labs/laravel-influxdb": "*"
+        "tray-labs/laravel-influxdb": "*",
+        "trebol/entrust": "^0.6"
     },
     "require-dev": {
         "appzcoder/crud-generator": "^3.0",

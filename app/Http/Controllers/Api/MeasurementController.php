@@ -812,13 +812,14 @@ class MeasurementController extends Controller
                 $bytes = 0; 
                 $logtm = 0;
                 $erase = -1;
+                $mime  = ['mimetype' => 'text/plain'];
                 
-                if ($request->hasFile('file'))
+                if ($request->hasFile('file') && $request->file('file')->isValid())
                 {
                     $files= true;
                     $file = $request->file('file');
                     $name = "sensor_".$sid."_flash_$time.log";
-                    $f_log= Storage::disk($disk)->putFileAs($f_dir, $file, $name); 
+                    $f_log= Storage::disk($disk)->putFileAs($f_dir, $file, $name, $mime); 
                     $saved= $f_log ? true : false; 
                     $data = Storage::disk($disk)->get($f_dir.'/'.$name);
                     $f_log= Storage::disk($disk)->url($f_dir.'/'.$name); 
@@ -834,7 +835,7 @@ class MeasurementController extends Controller
                     if ($save)
                     {
                         $logFileName = $f_dir."/sensor_".$sid."_flash_$time.log";
-                        $saved = Storage::disk($disk)->put($logFileName, $data);
+                        $saved = Storage::disk($disk)->put($logFileName, $data, $mime);
                         $f_log = Storage::disk($disk)->url($logFileName); 
                     }
                 }

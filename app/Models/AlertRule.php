@@ -111,11 +111,11 @@ class AlertRule extends Model
         $hive_ids_array = $this->exclude_hive_ids;
         $array_index    = array_search($hive_id, $hive_ids_array);
         
-        Log::debug('remove_hive_id: '.$hive_id.' from_exclude_hive_ids: '.implode(",", $hive_ids_array).', index: '.$array_index);
         
         if ($array_index !== false)
         {
-            $hive_ids_array         = array_splice($hive_ids_array, $array_index, 1);
+            Log::debug('remove_hive_id: '.$hive_id.' from_exclude_hive_ids: '.implode(",", $hive_ids_array).', index: '.$array_index);
+            array_splice($hive_ids_array, $array_index, 1);
             $this->exclude_hive_ids = implode(",", $hive_ids_array);
             $this->save();
         }

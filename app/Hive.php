@@ -40,11 +40,7 @@ class Hive extends Model
             if (isset($ars) && count($ars) > 0)
             {
                 foreach ($ars as $a)
-                {
-                    Log::debug('ar_id: '.$a->id.' exclude_hive_ids: ');
-                    Log::debug($a->exclude_hive_ids);
                     $a->remove_hive_id_from_exclude_hive_ids($h->id);
-                }
             }
             
         });

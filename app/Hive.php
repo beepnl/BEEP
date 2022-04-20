@@ -33,9 +33,9 @@ class Hive extends Model
                 $d->save();
             };
             // remove hive id from AlertRules exclude_hive_ids
-            if (isset($h->user->alert_rules))
+            if (isset($h->user()->alert_rules))
             {
-                foreach ($h->user->alert_rules as $a)
+                foreach ($h->user()->alert_rules as $a)
                     $a->remove_hive_id_from_exclude_hive_ids($h->id);
             }
             

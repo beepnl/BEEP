@@ -20,6 +20,29 @@ class Hive extends Model
 
     public $timestamps = false;
 
+    public static function boot()
+    {
+        parent::boot();
+
+        static::deleting(function($h)
+        {
+            // remove device-hive link
+            foreach ($h->devices as $d)
+            {
+                $d->hive_id = null;
+                $d->save();
+            };
+            // remove hive id from AlertRules exclude_hive_ids
+            if (isset($h->user->alert_rules))
+            {
+                foreach ($h->user->alert_rules as $a)
+                    $a->remove_hive_id_from_exclude_hive_ids($h->id);
+            }
+            
+        });
+    }
+
+
 	// Relations
 	public function getTypeAttribute()
     {

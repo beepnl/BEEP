@@ -81,7 +81,7 @@ class AlertRuleController extends Controller
             'calculation_minutes'   => ['required', Rule::in(AlertRule::$calc_minutes)],
             'exclude_months.*'      => ['nullable', 'integer', Rule::in(array_keys(AlertRule::$exclude_months))],
             'exclude_hours.*'       => ['nullable', 'integer', Rule::in(array_keys(AlertRule::$exclude_hours))],
-            'exclude_hive_ids.*'    => ['nullable', 'integer', Rule::in($request->user()->allHives()->pluck('id'))],
+            // 'exclude_hive_ids.*'    => ['nullable', 'integer', Rule::in($request->user()->allHives()->pluck('id'))],
             'alert_on_occurrences'  => 'nullable|integer',
             'alert_via_email'       => 'nullable|boolean',
             'webhook_url'           => 'nullable|url',

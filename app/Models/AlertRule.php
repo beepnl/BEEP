@@ -49,13 +49,13 @@ class AlertRule extends Model
     {
         parent::boot();
 
-        AlertRule::created(function($r)
+        static::created(function($r)
         {
             $a = new Alert(['alert_rule_id'=>$r->id, 'alert_function'=>'alert_rule_created', 'alert_value'=>$r->readableFunction(), 'measurement_id'=>$r->measurement_id, 'user_id'=>$r->user_id]);
             $a->save();
         });
 
-        // AlertRule::updated(function($r)
+        // static::updated(function($r)
         // {
         //     $alert_func = $r->measurement->pq.' '.$r->comparator.' '.$r->threshold_value.' '.$r->measurement->unit;
         //     $activated  = $r->active ? 'activated' : 'deactivated';
@@ -63,7 +63,7 @@ class AlertRule extends Model
         //     $a->save();
         // });
 
-        // AlertRule::deleting(function($r)
+        // static::deleting(function($r)
         // {
         //     $a = new Alert(['alert_rule_id'=>$r->id, 'alert_function'=>$r->readableFunction(), 'alert_value'=>'alert_rule_deleted', 'measurement_id'=>$r->measurement_id, 'user_id'=>$r->user_id]);
         //     $a->save();
@@ -104,6 +104,20 @@ class AlertRule extends Model
     {
         return AlertRule::orderBy('name')->pluck('name','id');
     }
+
+    public function remove_hive_id_from_exclude_hive_ids($hive_id)
+    {
+        $hive_ids_array = $this->exclude_hive_ids;
+        $array_index    = array_search($hive_id, $hive_ids_array);
+        if ($array_index !== false)
+        {
+            $hive_ids_array         = array_splice($hive_ids_array, $array_index, 1);
+            $this->exclude_hive_ids = implode(",", $hive_ids_array);
+            $this->save();
+        }
+    }
+
+
 
     public static function cacheRequestRate($name, $amount=1)
     {

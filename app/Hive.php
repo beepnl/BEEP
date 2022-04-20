@@ -35,7 +35,8 @@ class Hive extends Model
             };
             // remove hive id from AlertRules exclude_hive_ids
             $ars = $h->user->alert_rules;
-            Log::debug('deleting hive_id: '.$h->id.' from user: '.$h->user->id.' with ar_ids: '.implode(",", $ars->pluck('id')) );
+            Log::debug('deleting hive_id: '.$h->id.' from user: '.$h->user->id.' with ar_ids: ');
+            Log::debug($ars);
 
             if (isset($ars) && count($ars) > 0)
             {

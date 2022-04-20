@@ -34,11 +34,12 @@ class Hive extends Model
                 $d->save();
             };
             // remove hive id from AlertRules exclude_hive_ids
-            Log::debug('deleting hive_id: '.$h->id.' from user: '.$h->user->id.' with ar_ids: '.implode(",", $h->user()->alert_rules->pluck('id')) );
+            $ars = $h->user->alert_rules;
+            Log::debug('deleting hive_id: '.$h->id.' from user: '.$h->user->id.' with ar_ids: '.implode(",", $ars->pluck('id')) );
 
-            if (isset($h->user()->alert_rules))
+            if (isset($ars) && count($ars) > 0)
             {
-                foreach ($h->user()->alert_rules as $a)
+                foreach ($ars as $a)
                     $a->remove_hive_id_from_exclude_hive_ids($h->id);
             }
             

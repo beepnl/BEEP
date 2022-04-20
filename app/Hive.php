@@ -5,6 +5,7 @@ namespace App;
 use Iatstuti\Database\Support\CascadeSoftDeletes;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\Log;
 
 use Auth;
 
@@ -33,6 +34,8 @@ class Hive extends Model
                 $d->save();
             };
             // remove hive id from AlertRules exclude_hive_ids
+            Log::debug('deleting hive_id: '.$h->id.' from user: '.$h->user->id.' with ar_ids: '.implode(",", $h->user()->alert_rules->pluck('id')) );
+
             if (isset($h->user()->alert_rules))
             {
                 foreach ($h->user()->alert_rules as $a)

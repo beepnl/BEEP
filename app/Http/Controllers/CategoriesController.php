@@ -110,11 +110,64 @@ class CategoriesController extends Controller {
         // assume text area with lines that are indented by one or multiple spaces in front
         $parent               = isset($inputArray['parent_id']) ? Category::find($inputArray['parent_id']) : null;
         $category_input_id    = isset($inputArray['category_input_id']) ? $inputArray['category_input_id'] : null;
-        $category_input       = isset($inputArray['category_input_id']) ? CategoryInput::find($inputArray['category_input_id']) : null;
         $physical_quantity_id = isset($inputArray['physical_quantity_id']) ? $inputArray['physical_quantity_id'] : null;
-        $type                 = isset($inputArray['type']) ? $inputArray['type'] : array_keys(Category::$types)[0];
 
-        $child_category_input_id = null;
+        $assoc_array             = $this->parseLinesToArray($inputArray['names']);
+
+        if (count($assoc_array) > 0)
+        {
+            foreach ($assoc_array as $name => $children) 
+            {
+                $cat_array         = $this->splitLineIntoCategoryArray($name, $category_input_id, $physical_quantity_id);
+                $base_cat_input_id = $cat_array['category_input_id'];
+                $temp_parent       = Category::create($cat_array, $parent);
+                Translation::createTranslations($cat_array['name'], 'category');
+
+                if(count($children) > 0) // holds children
+                {
+                    foreach ($children as $child_name => $sub_children) 
+                    {
+                        $sub_cat_input_id= $this->getChildInputTypeId($base_cat_input_id); 
+                        $cat_array       = $this->splitLineIntoCategoryArray($child_name, $sub_cat_input_id, $physical_quantity_id);
+                        $sub_cat_input_id= $cat_array['category_input_id'];
+                        $sub_temp_parent = Category::create($cat_array, $temp_parent);
+                        Translation::createTranslations($cat_array['name'], 'category');
+
+                        if(count($sub_children) > 0) // holds children
+                        {
+                            foreach ($sub_children as $sub_child_name => $sub_sub_children) 
+                            {
+                                $sub_sub_cat_input_id = $this->getChildInputTypeId($sub_cat_input_id); 
+                                $cat_array            = $this->splitLineIntoCategoryArray($sub_child_name, $sub_sub_cat_input_id);
+                                $sub_sub_cat_input_id = $cat_array['category_input_id'];
+                                $sub_sub_temp_parent  = Category::create($cat_array, $sub_temp_parent);
+                                Translation::createTranslations($cat_array['name'], 'category');
+
+                                if(count($sub_sub_children) > 0) // holds children
+                                {
+                                    foreach ($sub_sub_children as $sub_sub_child_name => $sub_sub_sub_children) 
+                                    {
+                                        $sub_sub_sub_cat_input_id = $this->getChildInputTypeId($sub_sub_cat_input_id); 
+                                        $cat_array                = $this->splitLineIntoCategoryArray($sub_sub_child_name, $sub_sub_sub_cat_input_id);
+                                        Category::create($cat_array, $sub_sub_temp_parent);
+                                        Translation::createTranslations($cat_array['name'], 'category');
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            return $parent;
+        }
+        return null;
+    }
+
+
+    private function getChildInputTypeId($category_input_id)
+    {
+        $category_input          = CategoryInput::find($category_input_id);
+        $child_category_input_id = CategoryInput::getTypeId('label');
 
         if ($category_input)
         {
@@ -130,62 +183,61 @@ class CategoriesController extends Controller {
                     $child_category_input_id = CategoryInput::getTypeId('list_item');
                     break;
                 default:
-                    $child_category_input_id = CategoryInput::getTypeId('text');
+                    $child_category_input_id = CategoryInput::getTypeId('text_short');
+                    break;
 
             }
         }
-        
-        $assoc_array = $this->parseLinesToArray($inputArray['names']);
 
-        if (count($assoc_array) > 0)
+        return $child_category_input_id;
+    }
+    
+
+    private function splitLineIntoCategoryArray($line, $ci_id=null, $pq_id=null)
+    {
+        $out = ['name'=>'', 'category_input_id'=>$ci_id, 'physical_quantity_id'=>$pq_id, 'description'=>null, 'source'=>null];
+
+        // check for category input type, physical quantity (pq), and description (d)
+        $line_arr    = explode('|', $line);
+        $out['name'] = str_replace(' ', '_', $line_arr[0]);
+
+        $var_num = count($line_arr);
+        if ($var_num > 0)
         {
-            foreach ($assoc_array as $name => $children) 
-            {
-                $cat_array = [];
-                $cat_array['name'] = $name;
-                $cat_array['type'] = $type;
-                $cat_array['category_input_id'] = $category_input_id;
-                $cat_array['physical_quantity_id'] = $physical_quantity_id;
-                $temp_parent = Category::create($cat_array, $parent);
-                Translation::createTranslations($name, 'category');
-
-                if(count($children) > 0) // holds children
+            for ($i=1; $i < $var_num; $i++) 
+            { 
+                $var_arr = explode('=', $line_arr[$i]);
+                if (count($var_arr) == 2)
                 {
-                    foreach ($children as $child_name => $sub_children) 
-                    {
-                        $cat_array = [];
-                        $cat_array['name'] = $child_name;
-                        $cat_array['type'] = $type;
-                        $cat_array['category_input_id'] = $child_category_input_id;
-                        $cat_array['physical_quantity_id'] = $physical_quantity_id;
-                        $sub_temp_parent = Category::create($cat_array, $temp_parent);
-                        Translation::createTranslations($child_name, 'category');
-
-                        if(count($sub_children) > 0) // holds children
-                        {
-                            foreach ($sub_children as $sub_child_name => $sub_sub_children) 
-                            {
-                                $cat_array = [];
-                                $cat_array['name'] = $child_name;
-                                $cat_array['type'] = $type;
-                                $cat_array['category_input_id'] = $child_category_input_id;
-                                $cat_array['physical_quantity_id'] = $physical_quantity_id;
-                                Category::create($cat_array, $sub_temp_parent);
-                                Translation::createTranslations($sub_child_name, 'category');
-                            }
-                        }
+                    switch ($var_arr[0]) {
+                        case 't':
+                           $out['category_input_id'] = CategoryInput::getTypeId($var_arr[1]);
+                           break;
+                        case 'pq':
+                           $out['physical_quantity_id'] = PhysicalQuantity::getAbbreviationId($var_arr[1]);
+                           break;
+                        case 'pq_id':
+                           $out['physical_quantity_id'] = $var_arr[1];
+                           break;
+                        case 'd':
+                           $out['description'] = $var_arr[1];
+                           break;
+                        case 's':
+                           $out['source'] = $var_arr[1];
+                           break;
+                        default:
+                           # code...
+                           break;
                     }
                 }
             }
-            return $parent;
         }
-        return null;
+        return $out;
     }
 
-    private function parseLinesToArray($list, $indentation = ' ') 
-    {
+    private function parseLinesToArray($list, $indentation = "\t") {
       $result = array();
-      $path   = array();
+      $path = array();
 
       foreach (explode("\r\n", $list) as $line) {
         // get depth and label
@@ -201,8 +253,7 @@ class CategoriesController extends Controller {
         }
 
         // keep label (at depth)
-        $name = str_replace(' ', '_', $line);
-        $path[$depth] = $name;
+        $path[$depth] = $line;
 
         // traverse path and add label to result
         $parent =& $result;
@@ -210,7 +261,7 @@ class CategoriesController extends Controller {
         {
           if (!isset($parent[$key])) 
           {
-            $parent[$name] = array();
+            $parent[$line] = array();
             break;
           }
 

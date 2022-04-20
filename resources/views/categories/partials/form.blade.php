@@ -5,7 +5,7 @@
 </div>
 
 <div class="form-group">
-    {!! Form::label('names', 'OR multiple textual rows with categories (EN, lowercase, no spaces). Use a space indent as a new child category:') !!}
+    {!! Form::label('names', 'OR multiple textual rows with categories (EN). Use a TAB to indicate a new child category:') !!}
     {!! Form::textarea('names', null, [ 'class' => 'form-control' ]) !!}
     {!! $errors->first('names') !!}
 </div>

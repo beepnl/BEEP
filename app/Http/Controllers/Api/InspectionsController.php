@@ -220,7 +220,7 @@ class InspectionsController extends Controller
     api/inspections POST
     Register a new hive inspection the 'inspection' object. The object reflects only the general inspection data.
     @authenticated
-    @bodyParam date date required The date of the inspection. Example: 2020-05-18 16:16
+    @bodyParam date date required The (local time) date time of the inspection. Example: 2020-05-18 16:16
     @bodyParam items object required An object of category id's containing their inspected values (id's in case of lists, otherwise numeric/textual values). Example: {"547":0,"595":1,"845":"814"}
     @bodyParam hive_ids array required Array of Hive ids to which this inspection should be linked. Example: 42
     @bodyParam location_id Location id to which this inspection should be linked. Example: 2
@@ -228,7 +228,7 @@ class InspectionsController extends Controller
     @bodyParam impression integer Numeric impression value -1 (unfilled) to 1-3 (smileys). Example: -1
     @bodyParam attention integer Numeric impression value -1 (unfilled) to 0-1 (needs attention). Example: 1
     @bodyParam reminder string Textual value of the reminder fields. Example: This is an inspection reminder
-    @bodyParam reminder_date date Date for an optional reminder that can be fed to the users calender. Example: 2020-05-27 16:16
+    @bodyParam reminder_date date The (local time) date time for an optional reminder that can be fed to the users calender. Example: 2020-05-27 16:16
     @bodyParam notes string Textual value of the notes fields. Example: This is an inspection note
     @bodyParam checklist_id integer Id of the user checklist for generating this inspection. Example: 829
     **/

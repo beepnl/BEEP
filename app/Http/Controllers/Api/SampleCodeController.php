@@ -39,7 +39,8 @@ class SampleCodeController extends Controller
         if($request->filled('hive_id') && $request->user()->hives()->find($request->input('hive_id')))
         {
             $code = $request->only('hive_id', 'queen_id');
-            $code['sample_date'] = $request->filled('sample_date') ? $request->input('sample_date') : date('Y-m-d H:i:m');
+            $sample_time = $request->filled('sample_date') ? strtotime($request->input('sample_date')) : time();
+            $code['sample_date'] = date('Y-m-d H:i:s', $sample_time);
             $code['sample_code'] = SampleCode::generate_code();
             $code['user_id']     = $request->user()->id;
             $samplecode          = SampleCode::create($code);

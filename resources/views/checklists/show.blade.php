@@ -28,7 +28,7 @@
                     <tr><th> Categories </th>
                         <td style="border-left: 1px solid #999;">
                             <div>
-                                @include('categories.partials.tree', ['categories'=>$items, 'selected'=>$selected])
+                                @include('categories.partials.tree-export', ['categories'=>$items])
                             </div>
                         </td>
                     </tr>

@@ -21,29 +21,36 @@ class CategoryInput extends Model
         return $this->belongsTo(Category::class, 'category_id');
     }
 
+    public function name_plus()
+    {
+        $out = $this->name;
+
+        if (isset($this->min))
+            $out .= ' | min:'.$this->min;
+
+        if (isset($this->max))
+            $out .= ' | max:'.$this->max;
+
+        if (isset($this->decimals))
+            $out .= ' | decimals:'.$this->decimals;
+
+        return $out;
+    }
+
+
     public static function getTypeId($type)
     {
         return CategoryInput::where('type', $type)->value('id');
     }
+
 
     public static function selectList()
     {
     	$list = [];
 
     	foreach(CategoryInput::orderBy('name')->get() as $ci)
-		{
-			$list[$ci->id] = $ci->name;
-
-			if (isset($ci->min))
-				$list[$ci->id] .= ' | min:'.$ci->min;
-
-			if (isset($ci->max))
-				$list[$ci->id] .= ' | max:'.$ci->max;
-
-			if (isset($ci->decimals))
-				$list[$ci->id] .= ' | decimals:'.$ci->decimals;
-
-		}
+			$list[$ci->id] = $ci->name_plus();
+		
 		return $list;
     }
 

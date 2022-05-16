@@ -395,45 +395,54 @@ class DeviceController extends Controller
     {
         $can_claim     = 0;
         $device_exists = 0;
-
+        $user_devices  = Auth::user()->devices; // device collection
+        $user_id       = Auth::user()->id;
+        
         if (isset($id))
         {
-            $device_exists += Device::where('id', $id)->count();
-            $can_claim += Auth::user()->devices->where('id', $id)->count();
+            $device_exists += Device::withTrashed()->where('id', $id)->count();
+            $can_claim += $user_devices->where('id', $id)->count();
         }
         
         if (isset($key))
         {
             $device_exists += Device::where('key', $key)->count();
-            $can_claim += Auth::user()->devices->where('key', $key)->count();
-
+            $can_claim += $user_devices->where('key', $key)->count();
         }
         
         if (isset($hwi))
         {
-            $hwid_exists    = Device::withTrashed()->where('hardware_id', $hwi)->count();
-            $device_exists += $hwid_exists;
-            $can_claim_hw   = Auth::user()->devices->where('hardware_id', $hwi)->count();
-            
-            if ($can_claim_hw > 0) // device does not (yet) belong to user
+            $device_exists += Device::withTrashed()->where('hardware_id', $hwi)->count();
+            $can_claim += $user_devices->where('hardware_id', $key)->count();
+
+            if ($can_claim == 0)
             {
-                $can_claim += $can_claim_hw;
-            }
-            else
-            {
-                if ($hwid_exists == 0)
+                // $device is probably deleted 
+                if ($device_exists > 0)
                 {
-                    if ($this->doTTNRequest($hwi)->getStatusCode() == 404)
-                        $can_claim += 1; // if hardware_id does not exist yet, user can claim it
-                }
-                else // user does not have hw_id, but it exists in database, so check if it is deleted and undelete it if it belonged to the user
-                {
-                    $check_device = Device::onlyTrashed()->where('hardware_id', $hwi)->first();
-                    if ($undeleteTrashed && $check_device && $check_device->user_id == Auth::user()->id) // undelete device
+                    $device = Device::onlyTrashed()->where('hardware_id', $hwi)->orWhere('id', $id)->first();
+                    if ($device)
                     {
-                        $check_device->restore();
-                        $can_claim += 1;
+                        if ($device->user_id == $user_id) // If deleted device is owned by user, undelete it
+                        {
+                            $device->restore();
+                            $can_claim = 1;
+                        }
+                        else // reset device and assign to user
+                        {
+                            $device->dev_eui = null;
+                            $device->former_key_list = null;
+                            $device->hive_id = null;
+                            $device->user_id = $user_id;
+                            $device->deleted_at = null;
+                            $device->save();
+                            $can_claim = 1;
+                        }
                     }
+                }
+                else 
+                {
+                    // device exists, but is bound to another user   
                 }
             }
         }
@@ -544,7 +553,7 @@ class DeviceController extends Controller
             $device = $result;
         }
 
-        if (gettype($device) == 'array' && isset($device['http_response_code']))
+        if (gettype($device) == 'array' && isset($device['http_response_code'])) // error code from TTN
         {
             $http_response_code = $device['http_response_code'];
             unset($device['http_response_code']);

@@ -86,10 +86,10 @@ class AlertController extends Controller
      */
     public function destroy(Request $request, $id)
     {
-        if ($id === 'all')
-            Auth::user()->alerts()->delete();
-        else if ($request->filled('alert_ids'))
+        if ($request->filled('alert_ids'))
             Auth::user()->alerts()->whereIn('id', $request->input('alert_ids'))->delete();
+        else if ($id === 'all')
+            Auth::user()->alerts()->delete();
         else
             Auth::user()->alerts()->findOrFail($id)->delete();
 

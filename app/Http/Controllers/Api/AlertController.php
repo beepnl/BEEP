@@ -80,7 +80,7 @@ class AlertController extends Controller
 
     /**
      * api/alerts/{id} DELETE
-     * Delete the specified user alert, or all if id === 'all'
+     * Delete the specified user alert, or all if id === 'all', or specific id's when provided &alert_ids=1,4,7
      * @authenticated
      * @return \Illuminate\Http\Response
      */

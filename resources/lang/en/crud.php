@@ -39,5 +39,6 @@ return [
     'item'          => 'item',
     'min'           => 'min',
     'max'           => 'max',
+    'upload'        => 'Upload :item',
 
 ];

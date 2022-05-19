@@ -215,12 +215,12 @@ class DashboardController extends Controller
                                     ->get()
                                     ->toArray();
 
-            $transscription                 = [];
-            $transscription['smileys_3']    = __('taxonomy.smileys');
-            $transscription['boolean']      = __('taxonomy.boolean');
-            $transscription['boolean_yes_red'] = __('taxonomy.boolean');
-            $transscription['score_quality']= __('taxonomy.quality');
-            $transscription['score_amount'] = __('taxonomy.amounts');
+            $transscription                    = [];
+            $transscription['smileys_3']       = __('taxonomy.smileys_3');
+            $transscription['boolean']         = __('taxonomy.boolean');
+            $transscription['boolean_yes_red'] = __('taxonomy.boolean_yes_red');
+            $transscription['score_quality']   = __('taxonomy.score_quality');
+            $transscription['score_amount']    = __('taxonomy.score_amount');
 
             $data['terms'] = [];
             foreach ($inspection_terms as $value) 

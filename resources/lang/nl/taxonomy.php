@@ -13,9 +13,10 @@ return [
     |
     */
 
-    'quality'      => ['','Slecht','Matig','Gemiddeld','Goed','Zeer goed'],
-    'amounts'      => ['','Laag','Gemiddeld','Hoog','Extreem'],
-    'smileys'      => ['','8-(','8-|','8-)'],
-    'boolean'      => ['Nee','Ja'],
+    'score_quality'   => ['','Slecht','Matig','Gemiddeld','Goed','Zeer goed'],
+    'score_amount'    => ['','Laag','Gemiddeld','Hoog','Extreem'],
+    'smileys_3'       => ['','8-(','8-|','8-)'],
+    'boolean'         => ['Nee','Ja'],
+    'boolean_yes_red' => ['Nee','Ja'],
 
 ];

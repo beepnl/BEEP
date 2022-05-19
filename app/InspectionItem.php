@@ -67,6 +67,14 @@ class InspectionItem extends Model
         return null;
     }
 
+    public function inputType()
+    {
+        if (isset($this->category))
+            return $this->category->inputType;
+
+        return null;
+    }
+
     public function inspection()
     {
         return $this->hasOne(Inspection::class, 'id', 'inspection_id');
@@ -95,98 +103,13 @@ class InspectionItem extends Model
 
     public function val($locale = null)
     {
-        $val = $this->value;
+        $val   = $this->value;
+        $input = $this->inputType;
 
-        if (!isset($val) || $val == null)
+        if (!isset($val) || $val === null || $input === null)
             return null;
 
-        if ($locale == null)
-            $locale = LaravelLocalization::getCurrentLocale();
-
-        $intVal = $val;
-
-        $amounts  = __('taxonomy.amounts');
-        $quality  = __('taxonomy.quality');
-        $smileys  = __('taxonomy.smileys');
-        $boolean  = __('taxonomy.boolean');
-
-        switch($this->type)
-        {
-            case 'select':
-            case 'options':
-            case 'list_item':
-                $name = null;
-                $cat = Category::find($intVal);
-                if ($cat)
-                    $name = $cat->transName($locale);
-
-                if ($name)
-                    $val = $name;
-
-                break;
-
-            case 'list':
-                $optionNames = [];
-                foreach(explode(',', $val) as $option)
-                {
-                    $name = null;
-                    $cat = Category::find($option);
-                    if ($cat)
-                        $name = $cat->transName($locale);
-
-                    if ($name)
-                        array_push($optionNames, $name);
-                }
-                $val = implode(',',$optionNames);
-                break;
-
-            case 'date':
-                if (isset($val) && $val != null)
-                {
-                    $moment = new Moment($val);
-                    $val = $moment->format('Y-m-d H:i:s');
-                }
-                break;
-
-            case 'boolean':
-            case 'boolean_yes_red':
-                if ($intVal > -1 && $intVal < count($boolean))
-                    $val = $boolean[$intVal];
-
-                break;
-
-            case 'score_quality':
-                if ($intVal > -1 && $intVal < count($quality))
-                    $val = $quality[$intVal];
-                break;
-
-            case 'score_amounts':
-                if ($intVal > -1 && $intVal < count($amounts))
-                    $val = $amounts[$intVal];
-                break;
-
-            case 'smileys_3':
-                if ($intVal > -1 && $intVal < count($smileys))
-                    $val = $smileys[$intVal];
-                break;
-
-            case 'select_hive':
-                $hive = Hive::find($intVal);
-                if ($hive)
-                    $val = $hive->name;
-
-                break;
-
-            case 'select_apiary':
-            case 'select_location':
-                $loc = Location::find($intVal);
-                if ($loc)
-                    $val = $loc->name;
-
-                break;
-
-        }
-        return $val;
+        return $input->render($val, $locale);
     }
 
     public function unit()

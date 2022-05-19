@@ -152,7 +152,7 @@ class SampleCodeController extends Controller
 
                 }
 
-                $cols = max($cols, count($col_array))-1;
+                $cols = max($cols, count($col_array));
             }
         }
         //dd($lines);

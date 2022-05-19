@@ -91,6 +91,13 @@
         {{-- <li class="{{ Route::currentRouteNamed('groups.index') ? 'active' : '' }}"><a href="{{ route('groups.index') }}"><i class="fa fa-cubes"></i><span>{{ __('general.Groups') }}</span></a></li> --}}
       @endrole
 
+      @role(['superadmin','admin','lab'])
+        <li class="header">LAB results</li>
+        <li class="{{ Route::currentRouteNamed('sample-code.upload') ? 'active' : '' }}"><a href="{{ route('sample-code.upload') }}"><i class="fa fa-qrcode "></i><span>Upload results</span></a></li>
+        
+        {{-- <li class="{{ Route::currentRouteNamed('groups.index') ? 'active' : '' }}"><a href="{{ route('groups.index') }}"><i class="fa fa-cubes"></i><span>{{ __('general.Groups') }}</span></a></li> --}}
+      @endrole
+
 
       <li class="header">{{ __('general.User').' '.__('general.menu') }}</li>
       <li class="{{ Route::currentRouteNamed('checklists.index') ? 'active' : '' }}"><a href="{{ route('checklists.index') }}"><i class="fa fa-list"></i><span>{{ __('beep.Checklists') }}</span></a></li>

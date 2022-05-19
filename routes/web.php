@@ -47,7 +47,7 @@ Route::group(
 	function() 
 	{
 		Route:: group(
-			['middleware' => ['role:superadmin|admin|translator']],
+			['middleware' => ['role:superadmin|admin|lab']],
 			function()
 			{		
 				Route::get('code-upload', 	 	 ['as'=>'sample-code.upload','uses'=>'SampleCodeController@upload']);

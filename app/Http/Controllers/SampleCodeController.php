@@ -197,7 +197,7 @@ class SampleCodeController extends Controller
         // vertical borders 
         $styleArrayVertLine = [
             'borders' => [
-                'right' => [
+                'left' => [
                     'borderStyle' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN,
                     'color' => ['argb' => 'FF000000'],
                 ],

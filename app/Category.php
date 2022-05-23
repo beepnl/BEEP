@@ -61,22 +61,16 @@ class Category extends Model
     public function getUnitAttribute($value='abbreviation')
     {
         if ($this->physical_quantity_id != null)
-        {
-            $unit = $this->physicalQuantity()->value($value);
-            if ($unit)
-                return $unit;
-        }
+            return $this->physicalQuantity()->value($value);
+
         return null;
     }
 
     public function getPhysicalQuantityNameAttribute()
     {
         if ($this->physical_quantity_id != null)
-        {
-            $name = $this->physicalQuantity()->value('name');
-            if ($name)
-                return $name;
-        }
+            return $this->physicalQuantity()->value('name');
+
         return null;
     }
    

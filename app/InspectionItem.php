@@ -104,7 +104,7 @@ class InspectionItem extends Model
     public function val($locale = null)
     {
         $val   = $this->value;
-        $input = $this->inputType;
+        $input = $this->inputType();
 
         if (!isset($val) || $val === null || $input === null)
             return null;

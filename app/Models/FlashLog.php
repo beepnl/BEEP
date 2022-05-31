@@ -193,6 +193,7 @@ class FlashLog extends Model
         // parse the data from the unparsed log file
         if (empty($out) && isset($data) && isset($sid))
         {
+            $data    = strtoupper($data);
             $data    = preg_replace('/[\r\n|\r|\n]+|\)\(|FEFEFEFE/i', "\n", $data);
             // interpret every line as a standard LoRa message
             $in      = explode("\n", $data);

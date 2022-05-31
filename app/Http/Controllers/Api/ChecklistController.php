@@ -35,7 +35,7 @@ class ChecklistController extends Controller
             $categories = explode(',', $request->input('categories'));
             $checklist->syncCategories($categories);
         }
-        return response()->json(null, 201);
+        return response()->json($checklist, 201);
     }
 
 

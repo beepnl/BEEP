@@ -110,14 +110,24 @@ class DeviceController extends Controller
         }
 
         // Check for device hijacking
+        $reactNativeApp = false;
+        if ($request->hasHeader('X-ClientId') && ($request->header('X-ClientId') == 'android' || $request->header('X-ClientId') == 'ios')) 
+            $reactNativeApp = true;
+
         if ($devices->count() == 0)
         {
             if ($this->canUserClaimDeviceFromRequest($request, false) === false)
             {
+                if ($reactNativeApp)
+                    return Response::json(['info'=>'device_not_yours'], 200);
+
                 return Response::json('device_not_yours', 403);
             }
             else if ($request->filled('hardware_id')) // Provide less confusing message to Android App listing of unexisting BEEP base
             {
+                if ($reactNativeApp)
+                    return Response::json([], 200);
+
                 return Response::json('New BEEP base found', 404);
             }
 

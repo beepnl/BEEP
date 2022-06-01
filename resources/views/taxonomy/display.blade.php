@@ -20,6 +20,22 @@
 
         @slot('body')
         <div class="row">
+            
+            <div class="col-sm-12">
+                <h4>
+                    {{__('general.Categories')}} ({{ $count }}) visual flat JSON basis. Items are sorted by {{ $locale_name }} translations. Categories fixed: {{ $fixed }}. 
+                    <button onclick="createVisual()">Create visual</button>
+                </h4>
+                <textarea id="visual_data_source" onload="createVisual()" rows="20" style="width: 100%">{!! $catsJson !!}</textarea>
+            </div>
+
+            <div class="col-sm-12">
+                <h4>
+                    {{__('general.Category')}} tree JSON. Items are sorted by {{ $locale_name }} translations; (trans) parameter. 
+                </h4>
+                <textarea rows="20" style="width: 100%">{!! $filtered_json !!}</textarea>
+            </div>
+
             <div class="col-sm-12">
                 <h4>
                     {{__('general.Categories')}} ({{ $count }})
@@ -99,7 +115,7 @@
                 
                 </style>
 
-                <svg width="600" height="600"></svg>
+                <svg width="1600" height="1600"></svg>
                 <script src="https://d3js.org/d3.v4.min.js"></script>
                 <script>
                 function project(x, y) {
@@ -155,21 +171,6 @@
                 }
                 
                 </script>
-            </div>
-
-            <div class="col-sm-12">
-                <h4>
-                    {{__('general.Categories')}} ({{ $count }}) visual flat JSON basis. Items are sorted by {{ $locale_name }} translations. Categories fixed: {{ $fixed }}. 
-                    <button onclick="createVisual()">Create visual</button>
-                </h4>
-                <textarea id="visual_data_source" onload="createVisual()" rows="20" style="width: 100%">{!! $catsJson !!}</textarea>
-            </div>
-
-            <div class="col-sm-12">
-                <h4>
-                    {{__('general.Category')}} tree JSON. Items are sorted by {{ $locale_name }} translations; (trans) parameter. 
-                </h4>
-                <textarea rows="20" style="width: 100%">{!! $filtered_json !!}</textarea>
             </div>
 
         </div>

@@ -46,7 +46,7 @@
                   fill: #999;
                 }
                 .node text {
-                  font-size: 11px;
+                  font-size: 9px;
                 }
                 .node--internal circle {
                   fill: #555;

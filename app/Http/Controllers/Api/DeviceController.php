@@ -440,7 +440,7 @@ class DeviceController extends Controller
                         }
                         else // reset device and assign to user
                         {
-                            $device->dev_eui = null;
+                            $device->key = null;
                             $device->former_key_list = null;
                             $device->hive_id = null;
                             $device->user_id = $user_id;

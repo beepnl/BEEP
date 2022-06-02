@@ -69,10 +69,10 @@
                 }
 
                 .disorder text, .disorder circle{
-                    fill: #296387;
+                    fill: #7D1E0C;
                 }
                 .link.disorder{
-                    stroke: #296387;
+                    stroke: #7D1E0C;
                 }
 
                 .hive text, .hive circle{
@@ -83,10 +83,10 @@
                 }
 
                 .food text, .food circle{
-                    fill: #7D1E0C;
+                    fill: #0D5308;
                 }
                 .link.food{
-                    stroke: #7D1E0C;
+                    stroke: #0D5308;
                 }
 
                 .production text, .production circle{
@@ -110,7 +110,19 @@
                     stroke: #40114A;
                 }
 
+                .space text, .space circle{
+                    fill: #40114A;
+                }
+                .link.space{
+                    stroke: #40114A;
+                }
 
+                .weather text, .weather circle{
+                    fill: #296387;
+                }
+                .link.weather{
+                    stroke: #296387;
+                }
 
                 
                 </style>

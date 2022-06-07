@@ -14,6 +14,7 @@ return [
     'deleted_at'    => 'Verwijderd op',
     'type'          => 'Type',
     'hive'          => 'Kast',
+    'hive_name'     => 'Kastnaam',
     'hives'         => 'Kasten',
     'devices'       => 'Meetapparaten',
     'location'      => 'Bijenstand',

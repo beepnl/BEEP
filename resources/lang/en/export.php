@@ -14,6 +14,7 @@ return [
     'deleted_at'    => 'Deleted at',
     'type'          => 'Type',
     'hive'          => 'Hive',
+    'hive_name'     => 'Hive name',
     'hives'         => 'Hives',
     'devices'       => 'Sensor devices',
     'location'      => 'Apiary',

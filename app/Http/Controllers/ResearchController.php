@@ -1022,7 +1022,7 @@ class ResearchController extends Controller
                 $reminder_date = $reminder_mom->format('Y-m-d H:i:s');
             }
 
-            $smileys  = __('taxonomy.smileys');
+            $smileys  = __('taxonomy.smileys_3');
             $boolean  = __('taxonomy.boolean');
             
             // add general inspection data columns

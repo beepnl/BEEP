@@ -123,11 +123,12 @@ class DeviceController extends Controller
 
                 return Response::json('device_not_yours', 403);
             }
+            else if ($reactNativeApp)
+            {
+                return Response::json([], 200);
+            }
             else if ($request->filled('hardware_id')) // Provide less confusing message to Android App listing of unexisting BEEP base
             {
-                if ($reactNativeApp)
-                    return Response::json([], 200);
-
                 return Response::json('New BEEP base found', 404);
             }
 

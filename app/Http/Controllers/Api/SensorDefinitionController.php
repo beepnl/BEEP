@@ -138,10 +138,9 @@ class SensorDefinitionController extends Controller
      * @bodyParam input_measurement_abbreviation string Abbreviation of the Measurement that represents the input value (e.g. w_v, or t_i). Example: w_v
      * @bodyParam output_measurement_id integer Measurement that represents the output Measurement value (e.g. 6, 3). Example: 6
      * @bodyParam output_measurement_abbreviation string Abbreviation of the Measurement that represents the output (calculated with (raw_value - offset) * multiplier) value (e.g. weight_kg, or t_i), Example: t_i
-     * @bodyParam device_id integer Device that the Measurement value belongs to
-     * @bodyParam device_hardware_id string required Device that the Measurement values belong to
-     * @param \Illuminate\Http\Request $request
-     *
+     * @bodyParam device_id integer Device ID that the Sensordefinition belongs to. Required if hardware_id, and device_hardware_id are not set.
+     * @bodyParam hardware_id string Device hardware ID that the Sensordefinition belongs to. Required if device_id, and device_hardware_id are not set.
+     * @bodyParam device_hardware_id string Device hardware ID that the Sensordefinition belongs to. Required if hardware_id, and device_id are not set.
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
@@ -166,10 +165,11 @@ class SensorDefinitionController extends Controller
     /**
      * api/sensordefinition/{id} GET
      * Display the specified resource.
-     *
-     * @param  int  $id
-     *
-     * @return \Illuminate\Http\Response
+     * @authenticated
+     * @urlParam id integer Sensordefinition ID
+     * @bodyParam device_id integer Device ID that the Sensordefinition belongs to. Required if hardware_id, and device_hardware_id are not set.
+     * @bodyParam hardware_id string Device hardware ID that the Sensordefinition belongs to. Required if device_id, and device_hardware_id are not set.
+     * @bodyParam device_hardware_id string Device hardware ID that the Sensordefinition belongs to. Required if hardware_id, and device_id are not set.
      */
     public function show(Request $request, $id)
     {
@@ -185,11 +185,11 @@ class SensorDefinitionController extends Controller
     /**
      * api/sensordefinition PATCH
      * Update the specified resource in storage.
-     *
-     * @param \Illuminate\Http\Request $request
-     * @param  int  $id
-     *
-     * @return \Illuminate\Http\Response
+     * @authenticated
+     * @urlParam id integer Sensordefinition ID
+     * @bodyParam device_id integer Device ID that the Sensordefinition belongs to. Required if hardware_id, and device_hardware_id are not set.
+     * @bodyParam hardware_id string Device hardware ID that the Sensordefinition belongs to. Required if device_id, and device_hardware_id are not set.
+     * @bodyParam device_hardware_id string Device hardware ID that the Sensordefinition belongs to. Required if hardware_id, and device_id are not set.
      */
     public function update(Request $request, $id)
     {
@@ -217,10 +217,10 @@ class SensorDefinitionController extends Controller
     /**
      * api/sensordefinition DELETE
      * Remove the specified resource from storage.
-     *
-     * @param  int  $id
-     *
-     * @return \Illuminate\Http\Response
+     * @authenticated
+     * @bodyParam device_id integer Device ID that the Sensordefinition belongs to. Required if hardware_id, and device_hardware_id are not set.
+     * @bodyParam hardware_id string Device hardware ID that the Sensordefinition belongs to. Required if device_id, and device_hardware_id are not set.
+     * @bodyParam device_hardware_id string Device hardware ID that the Sensordefinition belongs to. Required if hardware_id, and device_id are not set.
      */
     public function destroy(Request $request, $id)
     {

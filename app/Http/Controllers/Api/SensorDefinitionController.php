@@ -82,11 +82,11 @@ class SensorDefinitionController extends Controller
 
     /**
      * api/sensordefinition GET
-     * Display a listing of the resource.
-     *
+     * Display a listing of all sensordefinitions that belong to a device
      * @authenticated
-     * @bodyParam device_id integer Either device_id, or device_hardware_id is required. Device that the definition value belongs to.
-     * @bodyParam device_hardware_id string Either device_id, or device_hardware_id is required. Device that the definition values belong to.
+     * @bodyParam device_id integer Device ID that the Sensordefinition belongs to. Required if hardware_id, and device_hardware_id are not set.
+     * @bodyParam hardware_id string Device hardware ID that the Sensordefinition belongs to. Required if device_id, and device_hardware_id are not set.
+     * @bodyParam device_hardware_id string Device hardware ID that the Sensordefinition belongs to. Required if hardware_id, and device_id are not set.
      * @bodyParam input_measurement_abbreviation string Filter sensordefinitions by provided input abbreviation.
      * @bodyParam limit integer If input_abbr is set, limit the amount of results provided by more than 1 to get all historic sensordefinitions of this type.
      *
@@ -127,7 +127,7 @@ class SensorDefinitionController extends Controller
 
     /**
      * api/sensordefinition POST
-     * Store a newly created resource in storage.
+     * Store a newly created sensordefinition
      *
      * @authenticated
      * @bodyParam name string Name of the sensorinstance (e.g. temperature frame 1)
@@ -164,9 +164,9 @@ class SensorDefinitionController extends Controller
 
     /**
      * api/sensordefinition/{id} GET
-     * Display the specified resource.
+     * Display the specified sensordefinition
      * @authenticated
-     * @urlParam id integer Sensordefinition ID
+     * @urlParam id Sensordefinition ID
      * @bodyParam device_id integer Device ID that the Sensordefinition belongs to. Required if hardware_id, and device_hardware_id are not set.
      * @bodyParam hardware_id string Device hardware ID that the Sensordefinition belongs to. Required if device_id, and device_hardware_id are not set.
      * @bodyParam device_hardware_id string Device hardware ID that the Sensordefinition belongs to. Required if hardware_id, and device_id are not set.
@@ -183,10 +183,10 @@ class SensorDefinitionController extends Controller
     }
 
     /**
-     * api/sensordefinition PATCH
-     * Update the specified resource in storage.
+     * api/sensordefinition/{id} PATCH
+     * Update the specified sensordefinition
      * @authenticated
-     * @urlParam id integer Sensordefinition ID
+     * @urlParam id Sensordefinition ID
      * @bodyParam device_id integer Device ID that the Sensordefinition belongs to. Required if hardware_id, and device_hardware_id are not set.
      * @bodyParam hardware_id string Device hardware ID that the Sensordefinition belongs to. Required if device_id, and device_hardware_id are not set.
      * @bodyParam device_hardware_id string Device hardware ID that the Sensordefinition belongs to. Required if hardware_id, and device_id are not set.
@@ -215,9 +215,10 @@ class SensorDefinitionController extends Controller
     }
 
     /**
-     * api/sensordefinition DELETE
-     * Remove the specified resource from storage.
+     * api/sensordefinition/{id} DELETE
+     * Remove the specified sensordefinition
      * @authenticated
+     * @urlParam id Sensordefinition ID
      * @bodyParam device_id integer Device ID that the Sensordefinition belongs to. Required if hardware_id, and device_hardware_id are not set.
      * @bodyParam hardware_id string Device hardware ID that the Sensordefinition belongs to. Required if device_id, and device_hardware_id are not set.
      * @bodyParam device_hardware_id string Device hardware ID that the Sensordefinition belongs to. Required if hardware_id, and device_id are not set.

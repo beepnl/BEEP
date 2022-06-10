@@ -11,6 +11,7 @@ use App\Category;
 
 /**
  * @group Api\SettingController
+ * @authenticated
  */
 class SettingController extends Controller
 {

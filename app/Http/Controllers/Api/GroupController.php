@@ -19,6 +19,8 @@ use Validator;
 
 /**
  * @group Api\GroupController
+ * Manage collaboration groups
+ * @authenticated
  */
 class GroupController extends Controller
 {

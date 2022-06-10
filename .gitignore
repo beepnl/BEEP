@@ -27,6 +27,7 @@ Homestead.yaml
 .DS_Store
 .phpintel
 .log
+.scribe
 
 npm-debug.log
 yarn-error.log

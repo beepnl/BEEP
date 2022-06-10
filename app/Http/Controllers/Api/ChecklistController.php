@@ -9,6 +9,8 @@ use Moment\Moment;
 
 /**
  * @group Api\ChecklistController
+ * Manage your personal inspection checklists
+ * @authenticated
  */
 class ChecklistController extends Controller
 {

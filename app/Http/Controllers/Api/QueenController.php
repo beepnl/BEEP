@@ -9,6 +9,7 @@ use App\Http\Controllers\Controller;
 /**
  * @group Api\QueenController
  * Not used
+ * @authenticated
  */
 class QueenController extends Controller
 {

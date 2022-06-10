@@ -13,6 +13,8 @@ use Illuminate\Support\Facades\Log;
 
 /**
  * @group Api\SensorDefinitionController
+ * Manage your sensor definitions
+ * @authenticated
  */
 class SensorDefinitionController extends Controller
 {
@@ -166,7 +168,7 @@ class SensorDefinitionController extends Controller
      * api/sensordefinition/{id} GET
      * Display the specified sensordefinition
      * @authenticated
-     * @urlParam id Sensordefinition ID
+     * @urlParam id required Sensordefinition ID
      * @bodyParam device_id integer Device ID that the Sensordefinition belongs to. Required if hardware_id, and device_hardware_id are not set.
      * @bodyParam hardware_id string Device hardware ID that the Sensordefinition belongs to. Required if device_id, and device_hardware_id are not set.
      * @bodyParam device_hardware_id string Device hardware ID that the Sensordefinition belongs to. Required if hardware_id, and device_id are not set.
@@ -186,7 +188,7 @@ class SensorDefinitionController extends Controller
      * api/sensordefinition/{id} PATCH
      * Update the specified sensordefinition
      * @authenticated
-     * @urlParam id Sensordefinition ID
+     * @urlParam id required Sensordefinition ID
      * @bodyParam device_id integer Device ID that the Sensordefinition belongs to. Required if hardware_id, and device_hardware_id are not set.
      * @bodyParam hardware_id string Device hardware ID that the Sensordefinition belongs to. Required if device_id, and device_hardware_id are not set.
      * @bodyParam device_hardware_id string Device hardware ID that the Sensordefinition belongs to. Required if hardware_id, and device_id are not set.
@@ -218,7 +220,7 @@ class SensorDefinitionController extends Controller
      * api/sensordefinition/{id} DELETE
      * Remove the specified sensordefinition
      * @authenticated
-     * @urlParam id Sensordefinition ID
+     * @urlParam id required Sensordefinition ID
      * @bodyParam device_id integer Device ID that the Sensordefinition belongs to. Required if hardware_id, and device_hardware_id are not set.
      * @bodyParam hardware_id string Device hardware ID that the Sensordefinition belongs to. Required if device_id, and device_hardware_id are not set.
      * @bodyParam device_hardware_id string Device hardware ID that the Sensordefinition belongs to. Required if hardware_id, and device_id are not set.

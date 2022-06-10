@@ -29,6 +29,7 @@ use Validator;
 /**
  * @group Api\ExportController
  * Export all data to an Excel file by email (GDPR)
+ * @authenticated
  */
 class ExportController extends Controller
 {

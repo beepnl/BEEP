@@ -20,6 +20,7 @@ use App\InspectionItem;
 /**
  * @group Api\DeviceController
  * Store and retreive Devices that produce measurements
+ * @authenticated
  */
 class DeviceController extends Controller
 {

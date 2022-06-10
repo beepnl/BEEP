@@ -13,6 +13,8 @@ use App\Http\Controllers\Controller;
 
 /**
  * @group Api\HiveController
+ * Manage your hives
+ * @authenticated
  */
 class HiveController extends Controller
 {

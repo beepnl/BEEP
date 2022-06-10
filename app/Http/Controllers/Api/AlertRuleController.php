@@ -14,6 +14,8 @@ use Validator;
 
 /**
  * @group Api\AlertRuleController
+ * Manage your alert rules
+ * @authenticated
  */
 class AlertRuleController extends Controller
 {

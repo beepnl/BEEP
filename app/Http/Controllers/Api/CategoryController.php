@@ -11,6 +11,7 @@ use App\Http\Controllers\Controller;
  * @group Api\CategoryController
  * All categories in the categorization tree used for hive inspections
  * Only used to get listing (index) or one category (show)
+ * @authenticated
  */
 class CategoryController extends Controller
 {

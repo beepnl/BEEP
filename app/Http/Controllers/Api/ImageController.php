@@ -12,6 +12,7 @@ use Illuminate\Http\Request;
 /**
  * @group Api\ImageController
  * Store and retreive image metadata (image_url, thumb_url, width, category_id, etc.)
+ * @authenticated
  */
 class ImageController extends Controller
 {

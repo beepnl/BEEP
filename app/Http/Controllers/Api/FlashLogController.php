@@ -16,6 +16,7 @@ use Str;
 
 /**
  * @group Api\FlashLogController
+ * @authenticated
  */
 class FlashLogController extends Controller
 {

@@ -11,6 +11,8 @@ use DB;
 
 /**
  * @group Api\ResearchController
+ * Manage your research consent
+ * @authenticated
  */
 class ResearchController extends Controller
 {

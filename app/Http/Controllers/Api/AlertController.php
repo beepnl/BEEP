@@ -11,6 +11,8 @@ use Auth;
 
 /**
  * @group Api\AlertController
+ * Manage your alerts
+ * @authenticated
  */
 class AlertController extends Controller
 {

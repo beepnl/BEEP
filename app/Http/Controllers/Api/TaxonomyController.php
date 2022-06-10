@@ -13,6 +13,7 @@ use Cache;
 
 /**
  * @group Api\TaxonomyController
+ * @authenticated
  */
 class TaxonomyController extends Controller
 {

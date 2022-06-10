@@ -8,8 +8,8 @@ use Illuminate\Http\Request;
 
 /**
  * @group Api\SampleCodeController
- *
  * Research lab result sample code controller
+ * @authenticated
  */
 class SampleCodeController extends Controller
 {
@@ -50,10 +50,7 @@ class SampleCodeController extends Controller
     }
 
     /**
-     * Display the specified resource.
-     *
-     * @param  \App\SampleCode  $sampleCode
-     * @return \Illuminate\Http\Response
+     * Show not used
      */
     public function show(SampleCode $sampleCode)
     {
@@ -61,11 +58,7 @@ class SampleCodeController extends Controller
     }
 
     /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\SampleCode  $sampleCode
-     * @return \Illuminate\Http\Response
+     * Update not used
      */
     public function update(Request $request, SampleCode $sampleCode)
     {

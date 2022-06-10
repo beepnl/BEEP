@@ -16,6 +16,8 @@ use LaravelLocalization;
 
 /**
  * @group Api\InspectionsController
+ * Manage manual hive inspections
+ * @authenticated
  */
 class InspectionsController extends Controller
 {

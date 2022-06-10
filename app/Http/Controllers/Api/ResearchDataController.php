@@ -21,6 +21,7 @@ use Cache;
 /**
  * @group Api\ResearchDataController
  * Retreive owned or viewable Research data
+ * @authenticated
  */
 class ResearchDataController extends Controller
 {

@@ -425,7 +425,7 @@ class DeviceController extends Controller
         if (isset($hwi))
         {
             $device_exists += Device::withTrashed()->where('hardware_id', $hwi)->count();
-            $can_claim += $user_devices->where('hardware_id', $key)->count();
+            $can_claim += $user_devices->where('hardware_id', $hwi)->count();
 
             if ($can_claim == 0)
             {

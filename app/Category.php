@@ -337,7 +337,7 @@ class Category extends Model
         return Category::whereIsRoot()->whereNotIn('type', ['system'])->get()->pluck('id')->toArray();
     }
 
-    public static function getTaxonomy($rootNodes=null, $order=true, $flat=false)
+    public static function getTaxonomy($rootNodes=null, $order=true, $flat=false, $whereNotInTypes=['system'])
     {
         $locale = LaravelLocalization::getCurrentLocale();
 
@@ -354,17 +354,17 @@ class Category extends Model
         foreach ($rootNodes as $node)
         {
             if ($flat == true && ($order === null || $order === false))
-                $taxonomy = $taxonomy->merge(Category::whereNotIn('type', ['system'])->descendantsAndSelf($node) );
+                $taxonomy = $taxonomy->merge(Category::whereNotIn('type', $whereNotInTypes)->descendantsAndSelf($node) );
             else if ($flat == true && $order === true)
-                $taxonomy = $taxonomy->merge(Category::whereNotIn('type', ['system'])->descendantsAndSelf($node)->sortBy("trans.$locale", SORT_NATURAL|SORT_FLAG_CASE) );
+                $taxonomy = $taxonomy->merge(Category::whereNotIn('type', $whereNotInTypes)->descendantsAndSelf($node)->sortBy("trans.$locale", SORT_NATURAL|SORT_FLAG_CASE) );
             else if ($flat == false && $order === null)
-                $taxonomy = $taxonomy->merge(Category::whereNotIn('type', ['system'])->descendantsAndSelf($node)->toTree() );
+                $taxonomy = $taxonomy->merge(Category::whereNotIn('type', $whereNotInTypes)->descendantsAndSelf($node)->toTree() );
             else if ($flat == false)
             {
                 if (gettype($order) == 'array' && count($order) > 0)
-                    $taxonomy = $taxonomy->merge(Category::descendantsAndSelf($node)->whereNotIn('type', ['system'])->sortBy(function($cat, $key) use ($order) { return array_search($cat->id, $order); })->toTree());
+                    $taxonomy = $taxonomy->merge(Category::descendantsAndSelf($node)->whereNotIn('type', $whereNotInTypes)->sortBy(function($cat, $key) use ($order) { return array_search($cat->id, $order); })->toTree());
                 else
-                    $taxonomy = $taxonomy->merge(Category::descendantsAndSelf($node)->whereNotIn('type', ['system'])->sortBy("trans.$locale", SORT_NATURAL|SORT_FLAG_CASE)->toTree());
+                    $taxonomy = $taxonomy->merge(Category::descendantsAndSelf($node)->whereNotIn('type', $whereNotInTypes)->sortBy("trans.$locale", SORT_NATURAL|SORT_FLAG_CASE)->toTree());
             }
         }
 

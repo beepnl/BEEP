@@ -13,7 +13,7 @@ return [
     |
     */
 
-    'password' => 'Wachtwoorden moeten minimaal 6 tekens lang zijn en gelijk zijn aan het bevestigingswachtwoord.',
+    'password' => 'Wachtwoorden moeten minimaal 8 tekens lang zijn en gelijk zijn aan het bevestigingswachtwoord.',
     'reset' => 'Uw wachtwoord is gereset!',
     'sent' => 'We hebben u een wachtwoord-reset-link gestuurd!',
     'token' => 'Het wachtwoord-reset-token is ongeldig.',

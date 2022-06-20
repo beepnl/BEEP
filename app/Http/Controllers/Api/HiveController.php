@@ -117,8 +117,8 @@ class HiveController extends Controller
      * api/hives POST
      * Store a newly created Hive in storage for the authenticated user.
      * @authenticated
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
+     * @param  \App\Requests\PostHiveRequest $request
+     * @return \App\Hive
      */
     public function store(PostHiveRequest $request)
     {
@@ -138,8 +138,9 @@ class HiveController extends Controller
         $honeyLayerAmount = $request->input('honey_layers', 1);
         $frameAmount      = $request->input('frames', 10);
         $layers           = $request->input('layers', null);
+        $timeZone         = $request->input('timezone', 'Europe/Amsterdam');
 
-        $hive = $this->hiveFactory->createHive($user_id, $location, $name, $hive_type_id, $color, $broodLayerAmount, $honeyLayerAmount, $frameAmount, $bb_width_cm, $bb_depth_cm, $bb_height_cm, $fr_width_cm, $fr_height_cm, $order, $layers);
+        $hive = $this->hiveFactory->createHive($user_id, $location, $name, $hive_type_id, $color, $broodLayerAmount, $honeyLayerAmount, $frameAmount, $bb_width_cm, $bb_depth_cm, $bb_height_cm, $fr_width_cm, $fr_height_cm, $order, $layers, $timeZone);
         $hive = $this->saveQueen($request, $hive);
 
         return $this->show($request, $hive);
@@ -150,7 +151,7 @@ class HiveController extends Controller
      * Display the specified resource.
      * @authenticated
      * @param  \App\Hive  $hive
-     * @return \Illuminate\Http\Response
+     * @return \App\Hive
      */
     public function show(Request $request, Hive $hive)
     {
@@ -162,9 +163,9 @@ class HiveController extends Controller
      * api/hives/{id} PATCH
      * Update the specified user Hive in storage.
      * @authenticated
-     * @param  \Illuminate\Http\Request  $request
+     * @param  \App\Requests\PostHiveRequest $request
      * @param  \App\Hive  $hive
-     * @return \Illuminate\Http\Response
+     * @return \App\Hive
      */
     public function update(PostHiveRequest $request, Hive $hive)
     {

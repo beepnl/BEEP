@@ -10,7 +10,7 @@
     ],
     "info": {
         "name": "BEEP",
-        "_postman_id": "8a0cdba6-c833-40ae-bd93-6249721610c4",
+        "_postman_id": "084033ce-e5a9-4554-8c0c-3b17c9a45973",
         "description": "",
         "schema": "https:\/\/schema.getpostman.com\/json\/collection\/v2.1.0\/collection.json"
     },
@@ -37,6 +37,10 @@
                             {
                                 "key": "Accept",
                                 "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept-language",
+                                "value": "en"
                             }
                         ],
                         "body": null,
@@ -82,11 +86,15 @@
                             {
                                 "key": "Accept",
                                 "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept-language",
+                                "value": "en"
                             }
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"alert_rule_id\":9,\"measurement_id\":2,\"alert_value\":\"omnis\",\"show\":false}"
+                            "raw": "{\"alert_rule_id\":3,\"measurement_id\":17,\"alert_value\":\"rem\",\"show\":false}"
                         },
                         "description": ""
                     },
@@ -104,7 +112,7 @@
                                 {
                                     "id": "id",
                                     "key": "id",
-                                    "value": "12",
+                                    "value": "20",
                                     "description": "The ID of the alert."
                                 }
                             ]
@@ -118,6 +126,10 @@
                             {
                                 "key": "Accept",
                                 "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept-language",
+                                "value": "en"
                             }
                         ],
                         "body": null,
@@ -157,7 +169,7 @@
                                 {
                                     "id": "id",
                                     "key": "id",
-                                    "value": "10",
+                                    "value": "20",
                                     "description": "The ID of the alert."
                                 }
                             ]
@@ -171,6 +183,10 @@
                             {
                                 "key": "Accept",
                                 "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept-language",
+                                "value": "en"
                             }
                         ],
                         "body": {
@@ -193,7 +209,7 @@
                                 {
                                     "id": "id",
                                     "key": "id",
-                                    "value": "5",
+                                    "value": "6",
                                     "description": "The ID of the alert."
                                 }
                             ]
@@ -207,6 +223,10 @@
                             {
                                 "key": "Accept",
                                 "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept-language",
+                                "value": "en"
                             }
                         ],
                         "body": null,
@@ -238,6 +258,10 @@
                             {
                                 "key": "Accept",
                                 "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept-language",
+                                "value": "en"
                             }
                         ],
                         "body": null,
@@ -283,11 +307,15 @@
                             {
                                 "key": "Accept",
                                 "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept-language",
+                                "value": "en"
                             }
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"name\":\"unde\",\"description\":\"ea\",\"measurement_id\":14,\"calculation\":\"suscipit\",\"comparator\":\"ex\",\"comparison\":\"pariatur\",\"threshold_value\":6574.72941,\"calculation_minutes\":12,\"alert_on_occurrences\":12,\"alert_via_email\":true,\"webhook_url\":\"veritatis\",\"active\":false,\"exclude_months\":[1,2,3,11,12],\"exclude_hours\":[0,1,2,3,22,23],\"exclude_hive_ids\":[\"qui\"]}"
+                            "raw": "{\"name\":\"ipsa\",\"description\":\"inventore\",\"measurement_id\":4,\"calculation\":\"omnis\",\"comparator\":\"cum\",\"comparison\":\"eos\",\"threshold_value\":36.3091,\"calculation_minutes\":20,\"alert_on_occurrences\":11,\"alert_via_email\":false,\"webhook_url\":\"animi\",\"active\":false,\"exclude_months\":[1,2,3,11,12],\"exclude_hours\":[0,1,2,3,22,23],\"exclude_hive_ids\":[\"ea\"]}"
                         },
                         "description": ""
                     },
@@ -305,7 +333,7 @@
                                 {
                                     "id": "id",
                                     "key": "id",
-                                    "value": "illo",
+                                    "value": "aut",
                                     "description": "The ID of the alert rule."
                                 }
                             ]
@@ -319,6 +347,10 @@
                             {
                                 "key": "Accept",
                                 "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept-language",
+                                "value": "en"
                             }
                         ],
                         "body": null,
@@ -358,7 +390,7 @@
                                 {
                                     "id": "id",
                                     "key": "id",
-                                    "value": "minima",
+                                    "value": "inventore",
                                     "description": "The ID of the alert rule."
                                 }
                             ]
@@ -372,11 +404,15 @@
                             {
                                 "key": "Accept",
                                 "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept-language",
+                                "value": "en"
                             }
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"name\":\"ut\",\"description\":\"est\",\"measurement_id\":19,\"calculation\":\"eius\",\"comparator\":\"dolorum\",\"comparison\":\"quas\",\"threshold_value\":10.322,\"calculation_minutes\":6,\"alert_on_occurrences\":9,\"alert_via_email\":true,\"webhook_url\":\"suscipit\",\"active\":false,\"exclude_months\":[1,2,3,11,12],\"exclude_hours\":[0,1,2,3,22,23],\"exclude_hive_ids\":[\"fugiat\"]}"
+                            "raw": "{\"name\":\"similique\",\"description\":\"rem\",\"measurement_id\":7,\"calculation\":\"ut\",\"comparator\":\"minima\",\"comparison\":\"totam\",\"threshold_value\":0.611502,\"calculation_minutes\":17,\"alert_on_occurrences\":1,\"alert_via_email\":true,\"webhook_url\":\"ea\",\"active\":false,\"exclude_months\":[1,2,3,11,12],\"exclude_hours\":[0,1,2,3,22,23],\"exclude_hive_ids\":[\"consequuntur\"]}"
                         },
                         "description": ""
                     },
@@ -394,7 +430,7 @@
                                 {
                                     "id": "id",
                                     "key": "id",
-                                    "value": "a",
+                                    "value": "qui",
                                     "description": "The ID of the alert rule."
                                 }
                             ]
@@ -408,6 +444,10 @@
                             {
                                 "key": "Accept",
                                 "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept-language",
+                                "value": "en"
                             }
                         ],
                         "body": null,
@@ -433,6 +473,10 @@
                             {
                                 "key": "Accept",
                                 "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept-language",
+                                "value": "en"
                             }
                         ],
                         "body": null,
@@ -484,6 +528,10 @@
                             {
                                 "key": "Accept",
                                 "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept-language",
+                                "value": "en"
                             }
                         ],
                         "body": null,
@@ -524,6 +572,10 @@
                             {
                                 "key": "Accept",
                                 "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept-language",
+                                "value": "en"
                             }
                         ],
                         "body": null,
@@ -569,6 +621,10 @@
                             {
                                 "key": "Accept",
                                 "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept-language",
+                                "value": "en"
                             }
                         ],
                         "body": null,
@@ -607,6 +663,10 @@
                             {
                                 "key": "Accept",
                                 "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept-language",
+                                "value": "en"
                             }
                         ],
                         "body": null,
@@ -652,6 +712,10 @@
                             {
                                 "key": "Accept",
                                 "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept-language",
+                                "value": "en"
                             }
                         ],
                         "body": null,
@@ -671,7 +735,7 @@
                                 {
                                     "id": "id",
                                     "key": "id",
-                                    "value": "11",
+                                    "value": "1",
                                     "description": "The ID of the checklist."
                                 }
                             ]
@@ -685,6 +749,10 @@
                             {
                                 "key": "Accept",
                                 "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept-language",
+                                "value": "en"
                             }
                         ],
                         "body": null,
@@ -724,7 +792,7 @@
                                 {
                                     "id": "id",
                                     "key": "id",
-                                    "value": "10",
+                                    "value": "11",
                                     "description": "The ID of the checklist."
                                 }
                             ]
@@ -738,6 +806,10 @@
                             {
                                 "key": "Accept",
                                 "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept-language",
+                                "value": "en"
                             }
                         ],
                         "body": null,
@@ -757,7 +829,7 @@
                                 {
                                     "id": "id",
                                     "key": "id",
-                                    "value": "14",
+                                    "value": "16",
                                     "description": "The ID of the checklist."
                                 }
                             ]
@@ -771,6 +843,10 @@
                             {
                                 "key": "Accept",
                                 "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept-language",
+                                "value": "en"
                             }
                         ],
                         "body": null,
@@ -802,11 +878,15 @@
                             {
                                 "key": "Accept",
                                 "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept-language",
+                                "value": "en"
                             }
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"id\":15,\"key\":\"et\",\"hardware_id\":\"dolores\",\"name\":\"eos\",\"hive_id\":13,\"type\":\"iste\",\"last_message_received\":\"et\",\"firmware_version\":\"quibusdam\",\"hardware_version\":\"incidunt\",\"boot_count\":11,\"measurement_interval_min\":2151.5343,\"measurement_transmission_ratio\":542406.1,\"ble_pin\":\"incidunt\",\"battery_voltage\":188.3714353,\"next_downlink_message\":\"totam\",\"last_downlink_result\":\"exercitationem\"}"
+                            "raw": "{\"id\":19,\"key\":\"incidunt\",\"hardware_id\":\"inventore\",\"name\":\"magni\",\"hive_id\":16,\"type\":\"dolore\",\"last_message_received\":\"dolor\",\"firmware_version\":\"ea\",\"hardware_version\":\"beatae\",\"boot_count\":14,\"measurement_interval_min\":340378,\"measurement_transmission_ratio\":118143409.97,\"ble_pin\":\"et\",\"battery_voltage\":7133,\"next_downlink_message\":\"non\",\"last_downlink_result\":\"et\"}"
                         },
                         "description": ""
                     },
@@ -824,7 +904,7 @@
                                 {
                                     "id": "dev_id",
                                     "key": "dev_id",
-                                    "value": "accusamus",
+                                    "value": "voluptate",
                                     "description": "The ID of the dev."
                                 }
                             ]
@@ -838,6 +918,10 @@
                             {
                                 "key": "Accept",
                                 "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept-language",
+                                "value": "en"
                             }
                         ],
                         "body": null,
@@ -877,7 +961,7 @@
                                 {
                                     "id": "dev_id",
                                     "key": "dev_id",
-                                    "value": "magnam",
+                                    "value": "nihil",
                                     "description": "The ID of the dev."
                                 }
                             ]
@@ -891,11 +975,15 @@
                             {
                                 "key": "Accept",
                                 "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept-language",
+                                "value": "en"
                             }
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"lorawan_device\":{\"dev_eui\":\"vbwertiqmccvqudh\",\"app_key\":\"yldwyybaokbniyrsjvbyvdcnwhwmhtui\"}}"
+                            "raw": "{\"lorawan_device\":{\"dev_eui\":\"kdqoyqezpjkkiuux\",\"app_key\":\"nmqetciddzoqrhefopunpnbckiqktesq\"}}"
                         },
                         "description": ""
                     },
@@ -919,11 +1007,15 @@
                             {
                                 "key": "Accept",
                                 "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept-language",
+                                "value": "en"
                             }
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"hardware_id\":\"tempora\"}"
+                            "raw": "{\"hardware_id\":\"quia\"}"
                         },
                         "description": ""
                     },
@@ -954,11 +1046,15 @@
                             {
                                 "key": "Accept",
                                 "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept-language",
+                                "value": "en"
                             }
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"id\":4,\"key\":\"aut\",\"hardware_id\":\"sint\",\"name\":\"incidunt\",\"hive_id\":17,\"type\":\"quia\",\"last_message_received\":\"ad\",\"firmware_version\":\"saepe\",\"hardware_version\":\"id\",\"boot_count\":19,\"measurement_interval_min\":3.09777115,\"measurement_transmission_ratio\":4.41,\"ble_pin\":\"consequuntur\",\"battery_voltage\":285632907.2,\"next_downlink_message\":\"sint\",\"last_downlink_result\":\"non\",\"create_ttn_device\":true,\"app_key\":\"asperiores\"}"
+                            "raw": "{\"id\":9,\"key\":\"sed\",\"hardware_id\":\"quisquam\",\"name\":\"ut\",\"hive_id\":12,\"type\":\"qui\",\"last_message_received\":\"laboriosam\",\"firmware_version\":\"corrupti\",\"hardware_version\":\"doloremque\",\"boot_count\":9,\"measurement_interval_min\":12837.434521184,\"measurement_transmission_ratio\":358.01,\"ble_pin\":\"eos\",\"battery_voltage\":48954.773942254,\"next_downlink_message\":\"accusamus\",\"last_downlink_result\":\"eaque\",\"create_ttn_device\":true,\"app_key\":\"architecto\"}"
                         },
                         "description": ""
                     },
@@ -976,7 +1072,7 @@
                                 {
                                     "id": "id",
                                     "key": "id",
-                                    "value": "4",
+                                    "value": "6",
                                     "description": "The ID of the device."
                                 }
                             ]
@@ -990,6 +1086,10 @@
                             {
                                 "key": "Accept",
                                 "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept-language",
+                                "value": "en"
                             }
                         ],
                         "body": null,
@@ -1029,7 +1129,7 @@
                                 {
                                     "id": "id",
                                     "key": "id",
-                                    "value": "2",
+                                    "value": "20",
                                     "description": "The ID of the device."
                                 }
                             ]
@@ -1043,11 +1143,15 @@
                             {
                                 "key": "Accept",
                                 "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept-language",
+                                "value": "en"
                             }
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"id\":16,\"key\":\"architecto\",\"hardware_id\":\"ut\",\"name\":\"quam\",\"hive_id\":1,\"type\":\"quam\",\"delete\":true,\"last_message_received\":\"voluptatibus\",\"firmware_version\":\"earum\",\"hardware_version\":\"enim\",\"boot_count\":18,\"measurement_interval_min\":59104180.11,\"measurement_transmission_ratio\":372806.7125864,\"ble_pin\":\"quod\",\"battery_voltage\":70761.8,\"next_downlink_message\":\"aut\",\"last_downlink_result\":\"omnis\"}"
+                            "raw": "{\"id\":19,\"key\":\"nobis\",\"hardware_id\":\"harum\",\"name\":\"asperiores\",\"hive_id\":2,\"type\":\"distinctio\",\"delete\":false,\"last_message_received\":\"odio\",\"firmware_version\":\"pariatur\",\"hardware_version\":\"eveniet\",\"boot_count\":2,\"measurement_interval_min\":2005,\"measurement_transmission_ratio\":238.886602947,\"ble_pin\":\"amet\",\"battery_voltage\":187826,\"next_downlink_message\":\"veniam\",\"last_downlink_result\":\"aut\"}"
                         },
                         "description": ""
                     },
@@ -1077,11 +1181,15 @@
                             {
                                 "key": "Accept",
                                 "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept-language",
+                                "value": "en"
                             }
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"device_id\":\"illum\",\"start\":\"2020-05-27 16:16\",\"end\":\"2020-05-30 00:00\",\"separator\":\";\",\"measurements\":\"'am2315_t,am2315_h,mhz_co2'\",\"link\":false}"
+                            "raw": "{\"device_id\":\"cum\",\"start\":\"2020-05-27 16:16\",\"end\":\"2020-05-30 00:00\",\"separator\":\";\",\"measurements\":\"'am2315_t,am2315_h,mhz_co2'\",\"link\":false}"
                         },
                         "description": ""
                     },
@@ -1105,6 +1213,10 @@
                             {
                                 "key": "Accept",
                                 "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept-language",
+                                "value": "en"
                             }
                         ],
                         "body": null,
@@ -1156,6 +1268,10 @@
                             {
                                 "key": "Accept",
                                 "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept-language",
+                                "value": "en"
                             }
                         ],
                         "body": null,
@@ -1192,17 +1308,17 @@
                             "query": [
                                 {
                                     "key": "id",
-                                    "value": "1",
+                                    "value": "11",
                                     "description": "Flashlog ID to parse",
                                     "disabled": false
                                 }
                             ],
-                            "raw": "{{baseUrl}}\/api\/flashlogs\/:id?id=1",
+                            "raw": "{{baseUrl}}\/api\/flashlogs\/:id?id=11",
                             "variable": [
                                 {
                                     "id": "id",
                                     "key": "id",
-                                    "value": "9",
+                                    "value": "6",
                                     "description": "The ID of the flashlog."
                                 }
                             ]
@@ -1216,11 +1332,15 @@
                             {
                                 "key": "Accept",
                                 "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept-language",
+                                "value": "en"
                             }
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"matches_min\":2,\"match_props\":7,\"db_records\":15,\"block_id\":1,\"block_data_index\":0,\"data_minutes\":9,\"from_cache\":false,\"save_result\":false,\"csv\":0,\"json\":0}"
+                            "raw": "{\"matches_min\":2,\"match_props\":7,\"db_records\":15,\"block_id\":1,\"block_data_index\":0,\"data_minutes\":17,\"from_cache\":false,\"save_result\":false,\"csv\":0,\"json\":0}"
                         },
                         "description": ""
                     },
@@ -1255,17 +1375,17 @@
                             "query": [
                                 {
                                     "key": "id",
-                                    "value": "14",
+                                    "value": "16",
                                     "description": "Flashlog ID to parse",
                                     "disabled": false
                                 }
                             ],
-                            "raw": "{{baseUrl}}\/api\/flashlogs\/:id?id=14",
+                            "raw": "{{baseUrl}}\/api\/flashlogs\/:id?id=16",
                             "variable": [
                                 {
                                     "id": "id",
                                     "key": "id",
-                                    "value": "8",
+                                    "value": "6",
                                     "description": "The ID of the flashlog."
                                 }
                             ]
@@ -1279,6 +1399,10 @@
                             {
                                 "key": "Accept",
                                 "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept-language",
+                                "value": "en"
                             }
                         ],
                         "body": {
@@ -1298,17 +1422,17 @@
                             "query": [
                                 {
                                     "key": "id",
-                                    "value": "19",
+                                    "value": "6",
                                     "description": "Flashlog ID to delete the complete Flashlog file",
                                     "disabled": false
                                 }
                             ],
-                            "raw": "{{baseUrl}}\/api\/flashlogs\/:id?id=19",
+                            "raw": "{{baseUrl}}\/api\/flashlogs\/:id?id=6",
                             "variable": [
                                 {
                                     "id": "id",
                                     "key": "id",
-                                    "value": "19",
+                                    "value": "15",
                                     "description": "The ID of the flashlog."
                                 }
                             ]
@@ -1322,11 +1446,15 @@
                             {
                                 "key": "Accept",
                                 "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept-language",
+                                "value": "en"
                             }
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"block_id\":10}"
+                            "raw": "{\"block_id\":9}"
                         },
                         "description": ""
                     },
@@ -1356,11 +1484,15 @@
                             {
                                 "key": "Accept",
                                 "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept-language",
+                                "value": "en"
                             }
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"token\":\"esse\",\"group_id\":\"amet\",\"decline\":true}"
+                            "raw": "{\"token\":\"quo\",\"group_id\":\"quis\",\"decline\":true}"
                         },
                         "description": ""
                     },
@@ -1384,6 +1516,10 @@
                             {
                                 "key": "Accept",
                                 "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept-language",
+                                "value": "en"
                             }
                         ],
                         "body": null,
@@ -1429,6 +1565,10 @@
                             {
                                 "key": "Accept",
                                 "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept-language",
+                                "value": "en"
                             }
                         ],
                         "body": null,
@@ -1448,7 +1588,7 @@
                                 {
                                     "id": "id",
                                     "key": "id",
-                                    "value": "13",
+                                    "value": "14",
                                     "description": "The ID of the group."
                                 }
                             ]
@@ -1462,6 +1602,10 @@
                             {
                                 "key": "Accept",
                                 "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept-language",
+                                "value": "en"
                             }
                         ],
                         "body": null,
@@ -1501,7 +1645,7 @@
                                 {
                                     "id": "id",
                                     "key": "id",
-                                    "value": "3",
+                                    "value": "13",
                                     "description": "The ID of the group."
                                 }
                             ]
@@ -1515,6 +1659,10 @@
                             {
                                 "key": "Accept",
                                 "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept-language",
+                                "value": "en"
                             }
                         ],
                         "body": null,
@@ -1534,7 +1682,7 @@
                                 {
                                     "id": "id",
                                     "key": "id",
-                                    "value": "18",
+                                    "value": "11",
                                     "description": "The ID of the group."
                                 }
                             ]
@@ -1548,6 +1696,10 @@
                             {
                                 "key": "Accept",
                                 "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept-language",
+                                "value": "en"
                             }
                         ],
                         "body": null,
@@ -1567,7 +1719,7 @@
                                 {
                                     "id": "id",
                                     "key": "id",
-                                    "value": "sint",
+                                    "value": "totam",
                                     "description": "The ID of the detach."
                                 }
                             ]
@@ -1581,6 +1733,10 @@
                             {
                                 "key": "Accept",
                                 "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept-language",
+                                "value": "en"
                             }
                         ],
                         "body": null,
@@ -1612,6 +1768,10 @@
                             {
                                 "key": "Accept",
                                 "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept-language",
+                                "value": "en"
                             }
                         ],
                         "body": null,
@@ -1644,11 +1804,15 @@
                             {
                                 "key": "Accept",
                                 "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept-language",
+                                "value": "en"
                             }
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"name\":\"quod\",\"location_id\":9,\"hive_type_id\":2,\"queen\":{\"race_id\":12,\"created_at\":\"2022-06-10T11:33:54\",\"name\":\"qui\"}}"
+                            "raw": "{\"name\":\"occaecati\",\"location_id\":16,\"brood_layers\":0,\"honey_layers\":0,\"frames\":0,\"order\":14,\"layers\":\"[\\\"impedit\\\",\\\"eveniet\\\"]\",\"color\":\"qolstd\",\"hive_type_id\":15,\"bb_width_cm\":0,\"bb_depth_cm\":0,\"bb_height_cm\":0,\"fr_width_cm\":0,\"fr_height_cm\":0,\"queen\":{\"race_id\":1,\"birth_date\":\"2022-06-20T11:50:20\",\"name\":\"voluptate\",\"description\":\"aut\",\"line\":\"id\",\"tree\":\"eos\",\"color\":\"qt\",\"clipped\":14,\"fertilized\":12},\"timezone\":\"Asia\\\/Karachi\"}"
                         },
                         "description": ""
                     },
@@ -1680,6 +1844,10 @@
                             {
                                 "key": "Accept",
                                 "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept-language",
+                                "value": "en"
                             }
                         ],
                         "body": null,
@@ -1733,11 +1901,15 @@
                             {
                                 "key": "Accept",
                                 "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept-language",
+                                "value": "en"
                             }
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"name\":\"omnis\",\"location_id\":15,\"hive_type_id\":6,\"queen\":{\"race_id\":11,\"created_at\":\"2022-06-10T11:33:54\",\"name\":\"beatae\"}}"
+                            "raw": "{\"name\":\"nihil\",\"location_id\":14,\"brood_layers\":0,\"honey_layers\":0,\"frames\":0,\"order\":20,\"layers\":\"[\\\"ullam\\\",\\\"distinctio\\\"]\",\"color\":\"qzskbt\",\"hive_type_id\":11,\"bb_width_cm\":0,\"bb_depth_cm\":0,\"bb_height_cm\":0,\"fr_width_cm\":0,\"fr_height_cm\":0,\"queen\":{\"race_id\":13,\"birth_date\":\"2022-06-20T11:50:20\",\"name\":\"voluptatum\",\"description\":\"odit\",\"line\":\"saepe\",\"tree\":\"atque\",\"color\":\"qkidrgr\",\"clipped\":8,\"fertilized\":20},\"timezone\":\"Africa\\\/Accra\"}"
                         },
                         "description": ""
                     },
@@ -1769,6 +1941,10 @@
                             {
                                 "key": "Accept",
                                 "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept-language",
+                                "value": "en"
                             }
                         ],
                         "body": null,
@@ -1800,6 +1976,10 @@
                             {
                                 "key": "Accept",
                                 "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept-language",
+                                "value": "en"
                             }
                         ],
                         "body": null,
@@ -1845,6 +2025,10 @@
                             {
                                 "key": "Accept",
                                 "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept-language",
+                                "value": "en"
                             }
                         ],
                         "body": null,
@@ -1864,7 +2048,7 @@
                                 {
                                     "id": "id",
                                     "key": "id",
-                                    "value": "16",
+                                    "value": "14",
                                     "description": "The ID of the image."
                                 }
                             ]
@@ -1878,6 +2062,10 @@
                             {
                                 "key": "Accept",
                                 "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept-language",
+                                "value": "en"
                             }
                         ],
                         "body": null,
@@ -1917,7 +2105,7 @@
                                 {
                                     "id": "id",
                                     "key": "id",
-                                    "value": "3",
+                                    "value": "13",
                                     "description": "The ID of the image."
                                 }
                             ]
@@ -1931,6 +2119,10 @@
                             {
                                 "key": "Accept",
                                 "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept-language",
+                                "value": "en"
                             }
                         ],
                         "body": null,
@@ -1956,6 +2148,10 @@
                             {
                                 "key": "Accept",
                                 "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept-language",
+                                "value": "en"
                             }
                         ],
                         "body": null,
@@ -1987,6 +2183,10 @@
                             {
                                 "key": "Accept",
                                 "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept-language",
+                                "value": "en"
                             }
                         ],
                         "body": null,
@@ -2032,11 +2232,15 @@
                             {
                                 "key": "Accept",
                                 "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept-language",
+                                "value": "en"
                             }
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"id\":16}"
+                            "raw": "{\"id\":11}"
                         },
                         "description": ""
                     },
@@ -2061,7 +2265,7 @@
                                 {
                                     "id": "id",
                                     "key": "id",
-                                    "value": "non",
+                                    "value": "porro",
                                     "description": "The id of the inspection."
                                 }
                             ]
@@ -2075,6 +2279,10 @@
                             {
                                 "key": "Accept",
                                 "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept-language",
+                                "value": "en"
                             }
                         ],
                         "body": null,
@@ -2114,7 +2322,7 @@
                                 {
                                     "id": "hive_id",
                                     "key": "hive_id",
-                                    "value": "repellat",
+                                    "value": "aperiam",
                                     "description": "The hive to request inspections from."
                                 }
                             ]
@@ -2128,6 +2336,10 @@
                             {
                                 "key": "Accept",
                                 "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept-language",
+                                "value": "en"
                             }
                         ],
                         "body": null,
@@ -2160,6 +2372,10 @@
                             {
                                 "key": "Accept",
                                 "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept-language",
+                                "value": "en"
                             }
                         ],
                         "body": {
@@ -2182,7 +2398,7 @@
                                 {
                                     "id": "id",
                                     "key": "id",
-                                    "value": "15",
+                                    "value": "16",
                                     "description": "The ID of the inspection."
                                 }
                             ]
@@ -2196,6 +2412,10 @@
                             {
                                 "key": "Accept",
                                 "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept-language",
+                                "value": "en"
                             }
                         ],
                         "body": null,
@@ -2227,6 +2447,10 @@
                             {
                                 "key": "Accept",
                                 "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept-language",
+                                "value": "en"
                             }
                         ],
                         "body": null,
@@ -2272,11 +2496,15 @@
                             {
                                 "key": "Accept",
                                 "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept-language",
+                                "value": "en"
                             }
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"name\":\"qui\",\"hive_type_id\":7}"
+                            "raw": "{\"name\":\"quisquam\",\"hive_type_id\":17}"
                         },
                         "description": ""
                     },
@@ -2308,6 +2536,10 @@
                             {
                                 "key": "Accept",
                                 "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept-language",
+                                "value": "en"
                             }
                         ],
                         "body": null,
@@ -2347,7 +2579,7 @@
                                 {
                                     "id": "id",
                                     "key": "id",
-                                    "value": "16",
+                                    "value": "15",
                                     "description": "The ID of the location."
                                 }
                             ]
@@ -2361,11 +2593,15 @@
                             {
                                 "key": "Accept",
                                 "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept-language",
+                                "value": "en"
                             }
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"name\":\"provident\",\"hive_type_id\":2}"
+                            "raw": "{\"name\":\"sint\",\"hive_type_id\":4}"
                         },
                         "description": ""
                     },
@@ -2397,6 +2633,10 @@
                             {
                                 "key": "Accept",
                                 "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept-language",
+                                "value": "en"
                             }
                         ],
                         "body": null,
@@ -2419,12 +2659,12 @@
                             "query": [
                                 {
                                     "key": "key%2Fdata",
-                                    "value": "voluptas",
+                                    "value": "est",
                                     "description": "Measurement formatted as URL query: key=your_beep_device_key&t=18.4&t_i=34.5&weight_kg=57.348&h=58&bv=3.54",
                                     "disabled": false
                                 }
                             ],
-                            "raw": "{{baseUrl}}\/api\/sensors?key%2Fdata=voluptas"
+                            "raw": "{{baseUrl}}\/api\/sensors?key%2Fdata=est"
                         },
                         "method": "POST",
                         "header": [
@@ -2435,11 +2675,15 @@
                             {
                                 "key": "Accept",
                                 "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept-language",
+                                "value": "en"
                             }
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"key\\\/data\":\"eum\"}"
+                            "raw": "{\"key\\\/data\":\"delectus\"}"
                         },
                         "description": "",
                         "auth": {
@@ -2466,11 +2710,15 @@
                             {
                                 "key": "Accept",
                                 "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept-language",
+                                "value": "en"
                             }
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"key\":\"eos\",\"payload_raw\":\"omnis\",\"payload_fields\":\"neque\",\"DevEUI_uplink\":\"dolorem\"}"
+                            "raw": "{\"key\":\"et\",\"payload_raw\":\"pariatur\",\"payload_fields\":\"eum\",\"DevEUI_uplink\":\"sed\"}"
                         },
                         "description": "",
                         "auth": {
@@ -2504,6 +2752,10 @@
                             {
                                 "key": "Accept",
                                 "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept-language",
+                                "value": "en"
                             }
                         ],
                         "body": null,
@@ -2529,7 +2781,7 @@
                                 },
                                 {
                                     "key": "x-ratelimit-remaining",
-                                    "value": "0"
+                                    "value": "2"
                                 },
                                 {
                                     "key": "access-control-allow-origin",
@@ -2551,12 +2803,12 @@
                             "query": [
                                 {
                                     "key": "key%2Fdata",
-                                    "value": "hic",
+                                    "value": "voluptates",
                                     "description": "Measurement formatted as URL query: key=your_beep_device_key&t=18.4&t_i=34.5&weight_kg=57.348&h=58&bv=3.54",
                                     "disabled": false
                                 }
                             ],
-                            "raw": "{{baseUrl}}\/api\/sensors_auth?key%2Fdata=hic"
+                            "raw": "{{baseUrl}}\/api\/sensors_auth?key%2Fdata=voluptates"
                         },
                         "method": "POST",
                         "header": [
@@ -2567,11 +2819,15 @@
                             {
                                 "key": "Accept",
                                 "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept-language",
+                                "value": "en"
                             }
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"key\\\/data\":\"quis\"}"
+                            "raw": "{\"key\\\/data\":\"labore\"}"
                         },
                         "description": "",
                         "auth": {
@@ -2598,11 +2854,15 @@
                             {
                                 "key": "Accept",
                                 "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept-language",
+                                "value": "en"
                             }
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"key\":\"doloribus\",\"payload_raw\":\"quis\",\"payload_fields\":\"quo\",\"DevEUI_uplink\":\"consequatur\"}"
+                            "raw": "{\"key\":\"voluptas\",\"payload_raw\":\"sit\",\"payload_fields\":\"harum\",\"DevEUI_uplink\":\"dolorum\"}"
                         },
                         "description": "",
                         "auth": {
@@ -2629,11 +2889,15 @@
                             {
                                 "key": "Accept",
                                 "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept-language",
+                                "value": "en"
                             }
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"id\":10,\"key\":\"dolores\",\"hive_id\":6,\"start\":\"2020-05-27 16:16\",\"end\":\"2020-05-30 00:00\",\"index\":5,\"interval\":\"cupiditate\",\"timeGroup\":\"quibusdam\",\"names\":\"officia\",\"weather\":1,\"timezone\":\"Europe\\\/Amsterdam\",\"relative_interval\":9}"
+                            "raw": "{\"id\":9,\"key\":\"repellendus\",\"hive_id\":19,\"start\":\"2020-05-27 16:16\",\"end\":\"2020-05-30 00:00\",\"index\":5,\"interval\":\"aspernatur\",\"timeGroup\":\"accusantium\",\"names\":\"velit\",\"weather\":1,\"timezone\":\"Europe\\\/Amsterdam\",\"relative_interval\":1}"
                         },
                         "description": ""
                     },
@@ -2677,11 +2941,15 @@
                             {
                                 "key": "Accept",
                                 "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept-language",
+                                "value": "en"
                             }
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"key\":\"cupiditate\",\"id\":7,\"hive_id\":2}"
+                            "raw": "{\"key\":\"tempore\",\"id\":3,\"hive_id\":9}"
                         },
                         "description": ""
                     },
@@ -2725,11 +2993,15 @@
                             {
                                 "key": "Accept",
                                 "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept-language",
+                                "value": "en"
                             }
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"key\":\"et\",\"id\":18,\"hive_id\":20}"
+                            "raw": "{\"key\":\"ullam\",\"id\":14,\"hive_id\":2}"
                         },
                         "description": ""
                     },
@@ -2773,11 +3045,15 @@
                             {
                                 "key": "Accept",
                                 "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept-language",
+                                "value": "en"
                             }
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"next_measurement\":false,\"weight_kg\":1.1051}"
+                            "raw": "{\"next_measurement\":false,\"weight_kg\":13524.299}"
                         },
                         "description": "At the next measurement coming in, calibrate each weight sensor with it's part of a given weight.\nBecause the measurements can come in only each hour\/ 3hrs, set a value to trigger the calculation on next measurement\n\n1. If $next_measurement == true: save 'calibrating' = true in Influx with the sensor key\n2. If $next_measurement == false: save 'calibrating' = false in Influx with the sensor key and...\n3.   Get the last measured weight values for this sensor key,\n     Divide the given weight (in kg) with the amount of sensor values > 1.0 (assuming the weight is evenly distributed)\n     Calculate the multiplier per sensor by dividing the multiplier = weight_part \/ (value - offset)\n     Save the multiplier as $device_name.'_kg_per_val' in Influx",
                         "auth": {
@@ -2804,6 +3080,10 @@
                             {
                                 "key": "Accept",
                                 "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept-language",
+                                "value": "en"
                             }
                         ],
                         "body": null,
@@ -2832,6 +3112,10 @@
                             {
                                 "key": "Accept",
                                 "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept-language",
+                                "value": "en"
                             }
                         ],
                         "body": null,
@@ -2871,30 +3155,30 @@
                             "query": [
                                 {
                                     "key": "show",
-                                    "value": "19",
+                                    "value": "16",
                                     "description": "1 for displaying info in result JSON, 0 for not displaying (default).",
                                     "disabled": false
                                 },
                                 {
                                     "key": "save",
-                                    "value": "9",
+                                    "value": "4",
                                     "description": "1 for saving the data to a file (default), 0 for not save log file.",
                                     "disabled": false
                                 },
                                 {
                                     "key": "fill",
-                                    "value": "6",
+                                    "value": "20",
                                     "description": "1 for filling data gaps in the database, 0 for not filling gaps (default).",
                                     "disabled": false
                                 },
                                 {
                                     "key": "log_size_bytes",
-                                    "value": "12",
+                                    "value": "4",
                                     "description": "0x22 decimal result of log size requested from BEEP base.",
                                     "disabled": false
                                 }
                             ],
-                            "raw": "{{baseUrl}}\/api\/sensors\/flashlog?show=19&save=9&fill=6&log_size_bytes=12"
+                            "raw": "{{baseUrl}}\/api\/sensors\/flashlog?show=16&save=4&fill=20&log_size_bytes=4"
                         },
                         "method": "POST",
                         "header": [
@@ -2905,11 +3189,15 @@
                             {
                                 "key": "Accept",
                                 "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept-language",
+                                "value": "en"
                             }
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"id\":18,\"key\":\"error\",\"hardware_id\":\"consequatur\",\"data\":\"dolore\",\"file\":\"ut\"}"
+                            "raw": "{\"id\":4,\"key\":\"voluptatibus\",\"hardware_id\":\"consequatur\",\"data\":\"debitis\",\"file\":\"et\"}"
                         },
                         "description": ""
                     },
@@ -2934,13 +3222,13 @@
                                 {
                                     "id": "port",
                                     "key": "port",
-                                    "value": "nihil",
+                                    "value": "voluptas",
                                     "description": ""
                                 },
                                 {
                                     "id": "payload",
                                     "key": "payload",
-                                    "value": "hic",
+                                    "value": "odit",
                                     "description": ""
                                 }
                             ]
@@ -2954,6 +3242,10 @@
                             {
                                 "key": "Accept",
                                 "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept-language",
+                                "value": "en"
                             }
                         ],
                         "body": null,
@@ -3008,6 +3300,10 @@
                             {
                                 "key": "Accept",
                                 "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept-language",
+                                "value": "en"
                             }
                         ],
                         "body": null,
@@ -3047,7 +3343,7 @@
                                 {
                                     "id": "id",
                                     "key": "id",
-                                    "value": "13",
+                                    "value": "17",
                                     "description": "The ID of the research."
                                 }
                             ]
@@ -3061,6 +3357,10 @@
                             {
                                 "key": "Accept",
                                 "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept-language",
+                                "value": "en"
                             }
                         ],
                         "body": null,
@@ -3080,7 +3380,7 @@
                                 {
                                     "id": "id",
                                     "key": "id",
-                                    "value": "16",
+                                    "value": "15",
                                     "description": "The ID of the research."
                                 }
                             ]
@@ -3094,6 +3394,10 @@
                             {
                                 "key": "Accept",
                                 "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept-language",
+                                "value": "en"
                             }
                         ],
                         "body": null,
@@ -3113,13 +3417,13 @@
                                 {
                                     "id": "id",
                                     "key": "id",
-                                    "value": "18",
+                                    "value": "12",
                                     "description": "The ID of the research."
                                 },
                                 {
                                     "id": "consent_id",
                                     "key": "consent_id",
-                                    "value": "perferendis",
+                                    "value": "libero",
                                     "description": "The ID of the consent."
                                 }
                             ]
@@ -3133,6 +3437,10 @@
                             {
                                 "key": "Accept",
                                 "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept-language",
+                                "value": "en"
                             }
                         ],
                         "body": null,
@@ -3152,13 +3460,13 @@
                                 {
                                     "id": "id",
                                     "key": "id",
-                                    "value": "4",
+                                    "value": "7",
                                     "description": "The ID of the research."
                                 },
                                 {
                                     "id": "consent_id",
                                     "key": "consent_id",
-                                    "value": "possimus",
+                                    "value": "et",
                                     "description": "The ID of the consent."
                                 }
                             ]
@@ -3172,6 +3480,10 @@
                             {
                                 "key": "Accept",
                                 "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept-language",
+                                "value": "en"
                             }
                         ],
                         "body": null,
@@ -3203,6 +3515,10 @@
                             {
                                 "key": "Accept",
                                 "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept-language",
+                                "value": "en"
                             }
                         ],
                         "body": null,
@@ -3229,7 +3545,7 @@
                                 {
                                     "id": "id",
                                     "key": "id",
-                                    "value": "consequatur",
+                                    "value": "officia",
                                     "description": "The research ID to request data from."
                                 }
                             ]
@@ -3243,6 +3559,10 @@
                             {
                                 "key": "Accept",
                                 "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept-language",
+                                "value": "en"
                             }
                         ],
                         "body": null,
@@ -3295,6 +3615,10 @@
                             {
                                 "key": "Accept",
                                 "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept-language",
+                                "value": "en"
                             }
                         ],
                         "body": {
@@ -3336,6 +3660,10 @@
                             {
                                 "key": "Accept",
                                 "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept-language",
+                                "value": "en"
                             }
                         ],
                         "body": null,
@@ -3381,6 +3709,10 @@
                             {
                                 "key": "Accept",
                                 "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept-language",
+                                "value": "en"
                             }
                         ],
                         "body": null,
@@ -3414,6 +3746,10 @@
                             {
                                 "key": "Accept",
                                 "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept-language",
+                                "value": "en"
                             }
                         ],
                         "body": null,
@@ -3467,6 +3803,10 @@
                             {
                                 "key": "Accept",
                                 "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept-language",
+                                "value": "en"
                             }
                         ],
                         "body": null,
@@ -3492,6 +3832,10 @@
                             {
                                 "key": "Accept",
                                 "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept-language",
+                                "value": "en"
                             }
                         ],
                         "body": null,
@@ -3523,11 +3867,15 @@
                             {
                                 "key": "Accept",
                                 "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept-language",
+                                "value": "en"
                             }
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"device_id\":17,\"hardware_id\":\"qui\",\"device_hardware_id\":\"fuga\",\"input_measurement_abbreviation\":\"aut\",\"limit\":17}"
+                            "raw": "{\"device_id\":15,\"hardware_id\":\"repudiandae\",\"device_hardware_id\":\"fugit\",\"input_measurement_abbreviation\":\"sed\",\"limit\":5}"
                         },
                         "description": ""
                     },
@@ -3571,11 +3919,15 @@
                             {
                                 "key": "Accept",
                                 "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept-language",
+                                "value": "en"
                             }
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"name\":\"sequi\",\"inside\":false,\"offset\":3.596971,\"multiplier\":606156321.9165485,\"input_measurement_id\":5,\"input_measurement_abbreviation\":\"w_v\",\"output_measurement_id\":6,\"output_measurement_abbreviation\":\"t_i\",\"device_id\":3,\"hardware_id\":\"rerum\",\"device_hardware_id\":\"occaecati\"}"
+                            "raw": "{\"name\":\"corrupti\",\"inside\":true,\"offset\":310,\"multiplier\":3960421.2,\"input_measurement_id\":5,\"input_measurement_abbreviation\":\"w_v\",\"output_measurement_id\":6,\"output_measurement_abbreviation\":\"t_i\",\"device_id\":15,\"hardware_id\":\"eligendi\",\"device_hardware_id\":\"deleniti\"}"
                         },
                         "description": ""
                     },
@@ -3593,7 +3945,7 @@
                                 {
                                     "id": "id",
                                     "key": "id",
-                                    "value": "et",
+                                    "value": "nobis",
                                     "description": "Sensordefinition ID"
                                 }
                             ]
@@ -3607,11 +3959,15 @@
                             {
                                 "key": "Accept",
                                 "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept-language",
+                                "value": "en"
                             }
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"device_id\":19,\"hardware_id\":\"iure\",\"device_hardware_id\":\"ipsum\"}"
+                            "raw": "{\"device_id\":15,\"hardware_id\":\"laborum\",\"device_hardware_id\":\"et\"}"
                         },
                         "description": ""
                     },
@@ -3649,7 +4005,7 @@
                                 {
                                     "id": "id",
                                     "key": "id",
-                                    "value": "deleniti",
+                                    "value": "perferendis",
                                     "description": "Sensordefinition ID"
                                 }
                             ]
@@ -3663,11 +4019,15 @@
                             {
                                 "key": "Accept",
                                 "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept-language",
+                                "value": "en"
                             }
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"device_id\":5,\"hardware_id\":\"vero\",\"device_hardware_id\":\"consequuntur\"}"
+                            "raw": "{\"device_id\":6,\"hardware_id\":\"atque\",\"device_hardware_id\":\"omnis\"}"
                         },
                         "description": ""
                     },
@@ -3685,7 +4045,7 @@
                                 {
                                     "id": "id",
                                     "key": "id",
-                                    "value": "aut",
+                                    "value": "dolorum",
                                     "description": "Sensordefinition ID"
                                 }
                             ]
@@ -3699,11 +4059,15 @@
                             {
                                 "key": "Accept",
                                 "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept-language",
+                                "value": "en"
                             }
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"device_id\":3,\"hardware_id\":\"voluptatum\",\"device_hardware_id\":\"omnis\"}"
+                            "raw": "{\"device_id\":9,\"hardware_id\":\"magnam\",\"device_hardware_id\":\"ut\"}"
                         },
                         "description": ""
                     },
@@ -3733,6 +4097,10 @@
                             {
                                 "key": "Accept",
                                 "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept-language",
+                                "value": "en"
                             }
                         ],
                         "body": null,
@@ -3769,7 +4137,7 @@
                             "query": [
                                 {
                                     "key": "locale",
-                                    "value": "ab",
+                                    "value": "aut",
                                     "description": "Two character language code to translate taxonomy",
                                     "disabled": false
                                 },
@@ -3786,7 +4154,7 @@
                                     "disabled": true
                                 }
                             ],
-                            "raw": "{{baseUrl}}\/api\/taxonomy\/taxonomy?locale=ab&flat=1&order="
+                            "raw": "{{baseUrl}}\/api\/taxonomy\/taxonomy?locale=aut&flat=1&order="
                         },
                         "method": "GET",
                         "header": [
@@ -3797,6 +4165,10 @@
                             {
                                 "key": "Accept",
                                 "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept-language",
+                                "value": "en"
                             }
                         ],
                         "body": null,
@@ -3848,6 +4220,10 @@
                             {
                                 "key": "Accept",
                                 "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept-language",
+                                "value": "en"
                             }
                         ],
                         "body": {
@@ -3886,6 +4262,10 @@
                             {
                                 "key": "Accept",
                                 "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept-language",
+                                "value": "en"
                             }
                         ],
                         "body": null,
@@ -3918,11 +4298,15 @@
                             {
                                 "key": "Accept",
                                 "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept-language",
+                                "value": "en"
                             }
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"locale\":\"dolorem\"}"
+                            "raw": "{\"locale\":\"placeat\"}"
                         },
                         "description": ""
                     },

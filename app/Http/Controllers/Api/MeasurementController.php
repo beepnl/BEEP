@@ -410,7 +410,7 @@ class MeasurementController extends Controller
     api/sensors/lastvalues GET
     Request last measurement values of all sensor measurements from a Device
     @authenticated
-    @bodyParam key string DEV EUI to look up the Device. Exanple: 0000000000000000
+    @bodyParam key string DEV EUI to look up the Device.
     @bodyParam id integer ID to look up the Device
     @bodyParam hive_id integer Hive ID to look up the Device
     */
@@ -996,7 +996,7 @@ class MeasurementController extends Controller
     api/sensors/measurements GET
     Request all sensor measurements from a certain interval (hour, day, week, month, year) and index (0=until now, 1=previous interval, etc.)
     @authenticated
-    @bodyParam key string DEV EUI to look up the sensor (Device)
+    @bodyParam key string DEV EUI to look up the sensor (Device).
     @bodyParam id integer ID to look up the sensor (Device)
     @bodyParam hive_id integer Hive ID to look up the sensor (Device)
     @bodyParam names string comma separated list of Measurement abbreviations to filter request data (weight_kg, t, h, etc.)

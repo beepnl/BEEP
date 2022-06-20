@@ -43,14 +43,14 @@
         <table id="table-hive-tags" class="table table-responsive table-striped">
             <thead>
                 <tr>
-                    <th>#</th><th>User Id</th><th>Tag</th><th>Hive Id</th><th>Url</th><th>Description</th><th>Router</th><th>Actions</th>
+                    <th>#</th><th>User Id</th><th>Tag</th><th>Hive Id</th><th>Description</th><th>Router Link</th><th>Actions</th>
                 </tr>
             </thead>
             <tbody>
             @foreach($hivetags as $item)
                 <tr>
                     <td>{{ $item->id }}</td>
-                    <td>{{ $item->user_id }}</td><td>{{ $item->tag }}</td><td>{{ $item->hive_id }}</td><td>{{ $item->url }}</td><td>{{ $item->description }}</td><td>{{ $item->router }}</td>
+                    <td>{{ $item->user_id }}</td><td>{{ $item->tag }}</td><td>{{ $item->hive_id }}</td><td>{{ $item->description }}</td><td>{{ $item->router_link }}</td>
                     <td col-sm-1>
                         <a href="{{ route('hive-tags.show', $item->id) }}" title="{{ __('crud.show') }}"><button class="btn btn-default"><i class="fa fa-eye" aria-hidden="true"></i></button></a>
 

@@ -22,7 +22,7 @@
                     <tr>
                         <th>ID</th><td>{{ $hivetag->id }}</td>
                     </tr>
-                    <tr><th> User Id </th><td> {{ $hivetag->user_id }} </td></tr><tr><th> Tag </th><td> {{ $hivetag->tag }} </td></tr><tr><th> Hive Id </th><td> {{ $hivetag->hive_id }} </td></tr><tr><th> Url </th><td> {{ $hivetag->url }} </td></tr><tr><th> Description </th><td> {{ $hivetag->description }} </td></tr><tr><th> Router </th><td> {{ $hivetag->router }} </td></tr>
+                    <tr><th> User Id </th><td> {{ $hivetag->user_id }} </td></tr><tr><th> Tag </th><td> {{ $hivetag->tag }} </td></tr><tr><th> Hive Id </th><td> {{ $hivetag->hive_id }} </td></tr><tr><th> Description </th><td> {{ $hivetag->description }} </td></tr><tr><th> Router Link </th><td> {{ $hivetag->router_link }} </td></tr>
                 </tbody>
             </table>
 

@@ -23,14 +23,6 @@
 	    </div>
 	</div>
 </div><div class="col-xs-12">
-	<div class="form-group {{ $errors->has('url') ? 'has-error' : ''}}">
-	    <label for="url" control-label>{{ 'Url' }}</label>
-	    <div>
-	        <input class="form-control" name="url" type="text" id="url" value="{{ $hivetag->url ?? ''}}" >
-	        {!! $errors->first('url', '<p class="help-block">:message</p>') !!}
-	    </div>
-	</div>
-</div><div class="col-xs-12">
 	<div class="form-group {{ $errors->has('description') ? 'has-error' : ''}}">
 	    <label for="description" control-label>{{ 'Description' }}</label>
 	    <div>
@@ -39,11 +31,11 @@
 	    </div>
 	</div>
 </div><div class="col-xs-12">
-	<div class="form-group {{ $errors->has('router') ? 'has-error' : ''}}">
-	    <label for="router" control-label>{{ 'Router' }}</label>
+	<div class="form-group {{ $errors->has('router_link') ? 'has-error' : ''}}">
+	    <label for="router_link" control-label>{{ 'Router Link' }}</label>
 	    <div>
-	        <textarea class="form-control" rows="5" name="router" type="textarea" id="router" >{{ $hivetag->router ?? ''}}</textarea>
-	        {!! $errors->first('router', '<p class="help-block">:message</p>') !!}
+	        <textarea class="form-control" rows="5" name="router_link" type="textarea" id="router_link" >{{ $hivetag->router_link ?? ''}}</textarea>
+	        {!! $errors->first('router_link', '<p class="help-block">:message</p>') !!}
 	    </div>
 	</div>
 </div>

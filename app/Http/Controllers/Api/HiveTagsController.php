@@ -34,11 +34,10 @@ class HiveTagsController extends Controller
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'tag'         => 'required|string',
-            'hive_id'     => 'required|integer|exists:hives,id',
-            'url'         => 'nullable|url',
-            'router'      => 'nullable|json',
-            'description' => 'nullable|string',
+            'tag'          => 'required|string',
+            'router_link'  => 'required',
+            'hive_id'      => 'nullable|integer|exists:hives,id',
+            'description'  => 'nullable|string',
         ]);
 
         if ($validator->fails())
@@ -81,11 +80,10 @@ class HiveTagsController extends Controller
     public function update(Request $request, $id)
     {
         $validator = Validator::make($request->all(), [
-            'tag'         => 'required|string',
-            'hive_id'     => 'required|integer|exists:hives,id',
-            'url'         => 'nullable|url',
-            'router'      => 'nullable|json',
-            'description' => 'nullable|string',
+            'tag'          => 'required|string',
+            'router_link'  => 'required',
+            'hive_id'      => 'nullable|integer|exists:hives,id',
+            'description'  => 'nullable|string',
         ]);
 
         if ($validator->fails())

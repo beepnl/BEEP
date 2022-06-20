@@ -74,7 +74,7 @@ class MeasurementController extends Controller
     {
         $this->validate($request, [
             'id'        => 'nullable|integer|exists:sensors,id',
-            'key'       => 'nullable|integer|exists:sensors,key',
+            'key'       => 'nullable|string|exists:sensors,key',
             'hive_id'   => 'nullable|integer|exists:hives,id',
         ]);
         
@@ -410,7 +410,7 @@ class MeasurementController extends Controller
     api/sensors/lastvalues GET
     Request last measurement values of all sensor measurements from a Device
     @authenticated
-    @bodyParam key string DEV EUI to look up the Device
+    @bodyParam key string DEV EUI to look up the Device. Exanple: 0000000000000000
     @bodyParam id integer ID to look up the Device
     @bodyParam hive_id integer Hive ID to look up the Device
     */
@@ -1014,7 +1014,7 @@ class MeasurementController extends Controller
 
         $validator = Validator::make($request->all(), [
             'id'          => 'nullable|integer|exists:sensors,id',
-            'key'         => 'nullable|integer|exists:sensors,key',
+            'key'         => 'nullable|string|exists:sensors,key',
             'hive_id'     => 'nullable|integer|exists:hives,id',
             'start'       => 'required_without:index|date',
             'end'         => 'required_without:index|date',

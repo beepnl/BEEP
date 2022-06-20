@@ -33,7 +33,7 @@ class HiveController extends Controller
         if ($request->filled('queen.race_id') || $request->filled('queen.name') || $request->filled('queen.birth_date') || $request->filled('queen.color') || $request->filled('queen.clipped') || $request->filled('queen.fertilized') || $request->filled('queen.description') || $request->filled('queen.line') || $request->filled('queen.tree'))
         {
             $race_id = Category::findCategoryIdByParentAndName('subspecies', 'other');
-            $date  = $request->filled('queen.birth_date') ? date('Y-m-d', strtotime($request->input('queen.birth_date'))) : date("Y-m-d");
+            $date  = $request->filled('queen.birth_date') ? date('Y-m-d', strtotime($request->input('queen.birth_date'))) : null;
             $queen = [
                     'name'          =>$request->input('queen.name'),
                     'description'   =>$request->input('queen.description'),

@@ -30,7 +30,7 @@ class PostHiveRequest extends Request {
 			'honey_layers'			=> 'nullable|required_without:layers|integer|min:0',
 			'frames'				=> 'nullable|integer|min:0',
 			'order' 				=> 'nullable|integer',
-			'layers'				=> 'nullable|required_without_all:brood_layers,honey_layers|json',
+			'layers'				=> 'nullable|required_without_all:brood_layers,honey_layers|array',
 			'color'					=> 'nullable|string|max:7',
 			'hive_type_id'			=> 'nullable|integer|exists:categories,id',
 			'bb_width_cm'			=> 'nullable|integer|min:0',

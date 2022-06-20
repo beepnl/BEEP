@@ -154,9 +154,10 @@ Route::group(
 		// Open research routes based on database access
 		Route::get('dashboard', ['as'=>'dashboard.index','uses'=>'DashboardController@index']);
 
-		Route::resource('checklists', 'ChecklistController');
-		Route::resource('inspections', 'InspectionsController');
-		Route::resource('users', 'UserController');		
+		Route::resource('checklists', 	'ChecklistController');
+		Route::resource('inspections', 	'InspectionsController');
+		Route::resource('users', 		'UserController');		
+		Route::resource('hive-tags', 	'HiveTagsController');
 
 		Route::get('research', 				['as'=>'research.index','uses'=>'ResearchController@index']);
 		Route::get('research/{id}', 		['as'=>'research.show','uses'=>'ResearchController@show']);

@@ -104,6 +104,7 @@ Route::group([], function()
 		Route::resource('categories', 		'Api\CategoryController',		 		['except'=>['create','edit','store','update','destroy']]);
 		Route::resource('groups', 			'Api\GroupController', 			 		['except'=>['create','edit']]);
 		Route::resource('hives', 			'Api\HiveController', 			 		['except'=>['create','edit']]);
+		Route::resource('hive-tags',		'Api\HiveTagsController', 			 	['except'=>['create','edit']]);
 		Route::resource('locations', 		'Api\LocationController', 	 			['except'=>['create','edit']]);
 		Route::resource('queens', 			'Api\QueenController',		 			['except'=>['create','edit']]);
 		Route::resource('images', 			'Api\ImageController', 					['except'=>['create','edit','destroy']]);

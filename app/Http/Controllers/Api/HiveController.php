@@ -30,17 +30,17 @@ class HiveController extends Controller
 
     private function saveQueen(Request $request, $hive)
     {
-        if ($request->filled('queen.race_id') || $request->filled('queen.name') || $request->filled('queen.created_at') || $request->filled('queen.color') || $request->filled('queen.clipped') || $request->filled('queen.fertilized') || $request->filled('queen.description') || $request->filled('queen.line') || $request->filled('queen.tree'))
+        if ($request->filled('queen.race_id') || $request->filled('queen.name') || $request->filled('queen.birth_date') || $request->filled('queen.color') || $request->filled('queen.clipped') || $request->filled('queen.fertilized') || $request->filled('queen.description') || $request->filled('queen.line') || $request->filled('queen.tree'))
         {
             $race_id = Category::findCategoryIdByParentAndName('subspecies', 'other');
-            $date  = $request->filled('queen.created_at') ? $request->input('queen.created_at') : date("Y-m-d");
+            $date  = $request->filled('queen.birth_date') ? date('Y-m-d', strtotime($request->input('queen.birth_date'))) : date("Y-m-d");
             $queen = [
                     'name'          =>$request->input('queen.name'),
                     'description'   =>$request->input('queen.description'),
                     'line'          =>$request->input('queen.line'),
                     'tree'          =>$request->input('queen.tree'),
                     'race_id'       =>$request->input('queen.race_id', $race_id),
-                    'created_at'    =>date('Y-m-d H:i:s', strtotime($date)),
+                    'birth_date'    =>$date,
                     'color'         =>$request->input('queen.color'),
                     'clipped'       =>boolval($request->input('queen.clipped')),
                     'fertilized'    =>boolval($request->input('queen.fertilized')),

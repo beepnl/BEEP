@@ -33,7 +33,8 @@ class HiveTagsController extends Controller
      */
     public function store(Request $request)
     {
-        $validator = Validator::make($request->all(), [
+        $data      = $request->all();
+        $validator = Validator::make($data, [
             'tag'          => 'required|string',
             'router_link'  => 'required',
             'hive_id'      => 'nullable|integer|exists:hives,id',
@@ -50,7 +51,7 @@ class HiveTagsController extends Controller
         if ($existing->count() > 0)
             return $this->update($request, $existing->first()->id);
 
-        $hive_tag = $user->hive_tags()->create($request->all());
+        $hive_tag = $user->hive_tags()->create($data);
 
         return response()->json($hive_tag, 201);
     }
@@ -79,7 +80,8 @@ class HiveTagsController extends Controller
      */
     public function update(Request $request, $id)
     {
-        $validator = Validator::make($request->all(), [
+        $data      = $request->all();
+        $validator = Validator::make($data, [
             'tag'          => 'required|string',
             'router_link'  => 'required',
             'hive_id'      => 'nullable|integer|exists:hives,id',
@@ -90,7 +92,7 @@ class HiveTagsController extends Controller
             return response()->json(['errors'=>$validator->errors()]);
 
         $hive_tag = $request->user()->hive_tags()->findOrFail($id);
-        $hive_tag->update($request->all());
+        $hive_tag->update($data);
 
         return response()->json($hive_tag, 200);
     }

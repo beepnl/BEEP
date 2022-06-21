@@ -29,6 +29,7 @@ class HiveTag extends Model
      */
     protected $fillable = ['user_id', 'tag', 'hive_id', 'description', 'router_link'];
     protected $hidden   = ['id', 'created_at', 'updated_at', 'user_id'];
+    protected $casts    = ['router_link'=>'array'];
 
     public function hive()
     {

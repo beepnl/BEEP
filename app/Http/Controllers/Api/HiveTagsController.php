@@ -82,7 +82,7 @@ class HiveTagsController extends Controller
     {
         $data      = $request->all();
         $validator = Validator::make($data, [
-            'tag'          => 'required|string|exists:hive-tags,tag',
+            'tag'          => 'required|string',
             'router_link'  => 'required',
             'hive_id'      => 'nullable|integer|exists:hives,id',
             'action_id'    => 'nullable|integer',

@@ -78,11 +78,11 @@ class HiveTagsController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function update(Request $request, $tag)
     {
         $data      = $request->all();
         $validator = Validator::make($data, [
-            'tag'          => 'required|string',
+            'tag'          => 'required|string|exists:hive-tags,tag',
             'router_link'  => 'required',
             'hive_id'      => 'nullable|integer|exists:hives,id',
             'action_id'    => 'nullable|integer',
@@ -91,8 +91,10 @@ class HiveTagsController extends Controller
         if ($validator->fails())
             return response()->json(['errors'=>$validator->errors()]);
 
-        $hive_tag = $request->user()->hive_tags()->findOrFail($id);
-        $hive_tag->update($data);
+        $hive_tag = $request->user()->hive_tags()->where('tag', $tag)->first();
+        
+        if ($hive_tag)
+            $hive_tag->update($data);
 
         return response()->json($hive_tag, 200);
     }

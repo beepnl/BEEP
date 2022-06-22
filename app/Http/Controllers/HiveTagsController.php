@@ -25,7 +25,7 @@ class HiveTagsController extends Controller
                 ->orWhere('tag', 'LIKE', "%$keyword%")
                 ->orWhere('hive_id', 'LIKE', "%$keyword%")
                 ->orWhere('url', 'LIKE', "%$keyword%")
-                ->orWhere('description', 'LIKE', "%$keyword%")
+                ->orWhere('acrion_id', 'LIKE', "%$keyword%")
                 ->orWhere('router', 'LIKE', "%$keyword%")
                 ->paginate($perPage);
         } else {

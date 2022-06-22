@@ -38,14 +38,14 @@ class HiveTagsController extends Controller
             'tag'          => 'required|string',
             'router_link'  => 'required',
             'hive_id'      => 'nullable|integer|exists:hives,id',
-            'description'  => 'nullable|string',
+            'action_id'    => 'nullable|integer',
         ]);
 
         if ($validator->fails())
             return response()->json(['errors'=>$validator->errors()]);
         
         $user      = $request->user(); 
-        $hive_tags = $user->hive_tags;
+        $hive_tags = $user->hive_tags();
         $existing  = $hive_tags->where('tag', $request->input('tag'));
 
         if ($existing->count() > 0)
@@ -85,7 +85,7 @@ class HiveTagsController extends Controller
             'tag'          => 'required|string',
             'router_link'  => 'required',
             'hive_id'      => 'nullable|integer|exists:hives,id',
-            'description'  => 'nullable|string',
+            'action_id'    => 'nullable|integer',
         ]);
 
         if ($validator->fails())

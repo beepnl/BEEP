@@ -23,11 +23,11 @@
 	    </div>
 	</div>
 </div><div class="col-xs-12">
-	<div class="form-group {{ $errors->has('description') ? 'has-error' : ''}}">
-	    <label for="description" control-label>{{ 'Description' }}</label>
+	<div class="form-group {{ $errors->has('action_id') ? 'has-error' : ''}}">
+	    <label for="action_id" control-label>{{ 'Action Id (App code)' }}</label>
 	    <div>
-	        <input class="form-control" name="description" type="text" id="description" value="{{ $hivetag->description ?? ''}}" >
-	        {!! $errors->first('description', '<p class="help-block">:message</p>') !!}
+	        <input class="form-control" name="action_id" type="number" id="action_id" value="{{ $hivetag->action_id ?? ''}}" >
+	        {!! $errors->first('action_id', '<p class="help-block">:message</p>') !!}
 	    </div>
 	</div>
 </div><div class="col-xs-12">

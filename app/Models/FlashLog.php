@@ -306,7 +306,11 @@ class FlashLog extends Model
         }
         unset($in);
 
-        $erase = $log_bytes != null && $log_bytes == $bytes ? true : false;
+        if (env('FLASHLOG_NEVER_DELETE', false))
+            $erase = false;
+        else
+            $erase = $log_bytes != null && $log_bytes == $bytes ? true : false;
+        
         $result = [
             'lines_received'=>$lines,
             'bytes_received'=>$bytes,

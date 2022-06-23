@@ -10,6 +10,7 @@ use Trebol\Entrust\Traits\EntrustUserTrait;
 use App\Notifications\VerifyEmail;
 use App\Notifications\ResetPassword;
 
+use App\Models\HiveTag;
 use App\Models\FlashLog;
 use App\Models\Alert;
 use App\Models\AlertRule;
@@ -73,6 +74,11 @@ class User extends Authenticatable
     public function hives()
     {
         return $this->hasMany(Hive::class);
+    }
+
+    public function hive_tags()
+    {
+        return $this->hasMany(HiveTag::class);
     }
 
     public function checklists()

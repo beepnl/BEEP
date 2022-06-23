@@ -15,7 +15,7 @@ class AddInspectionChecklistId extends Migration
     {
         Schema::table('inspections', function (Blueprint $table) 
         {
-            if (!Schema::hasColumn('inspection','checklist_id'))
+            if (!Schema::hasColumn('inspections','checklist_id'))
             {
                 $table->integer('checklist_id')->unsigned()->nullable();
                 $table->foreign('checklist_id')->references('id')->on('checklists')

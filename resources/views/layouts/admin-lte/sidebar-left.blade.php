@@ -108,7 +108,7 @@
 
       @role('superadmin')
       <li class="header">{{ __('general.superadmin').' '.__('general.menu') }} <i class="fa fa-warning" title="NB: ONLY USE IF YOU ARE ABSOLUTELY SURE WHAT YOU ARE DOING!"></i></li>
-      <li class="treeview {{ preg_match('(users|roles|permissions|image|alert-rule|alert|sample-code)', Request::url()) === 1 ? 'active' : '' }}">
+      <li class="treeview {{ preg_match('(users|roles|permissions|image|alert-rule|alert|sample-code|hive-tags)', Request::url()) === 1 ? 'active' : '' }}">
           <a href="#">
             <span><i class="fa fa-list"></i></span>
             <span>{{ __('general.superadmin').' '.__('general.menu') }}</span>
@@ -124,6 +124,7 @@
             <li class="{{ Route::currentRouteNamed('alert-rule.index') ? 'active' : '' }}"><a href="{{ route('alert-rule.index') }}"><i class="fa fa-exclamation-circle"></i><span>{{ __('general.AlertRules') }}</span></a></li>
             <li class="{{ Route::currentRouteNamed('alert.index') ? 'active' : '' }}"><a href="{{ route('alert.index') }}"><i class="fa fa-bell"></i><span>{{ __('general.Alerts') }}</span></a></li>
             <li class="{{ Route::currentRouteNamed('sample-code.index') ? 'active' : '' }}"><a href="{{ route('sample-code.index') }}"><i class="fa fa-qrcode"></i><span>Sample codes</span></a></li>
+            <li class="{{ Route::currentRouteNamed('hive-tags.index') ? 'active' : '' }}"><a href="{{ route('hive-tags.index') }}"><i class="fa fa-qrcode"></i><span>Hive tags</span></a></li>
           </ul>
         </li>
         @endrole

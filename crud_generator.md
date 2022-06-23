@@ -67,3 +67,7 @@ php artisan crud:generate SampleCode --fields="sample_code#string#unique; sample
 
 # FlashLog
 php artisan crud:generate FlashLog --fields="user_id#integer#unsigned; device_id#integer#unsigned; hive_id#integer#unsigned#nullable; log_messages#integer#unsigned#nullable; log_saved#boolean; log_parsed#boolean; log_has_timestamps#boolean; bytes_received#integer#unsigned#nullable; log_file#string#nullable; log_file_stripped#string#nullable; log_file_parsed#string#nullable" --relationships='hive#belongsTo#Hive::class; device#belongsTo#Device::class; user#belongsTo#User::class;' --form-helper=html
+
+# HiveTags
+php artisan crud:generate HiveTags --fields="user_id#integer#unsigned; tag#string; hive_id#integer#unsigned#nullable; action_id#integer#unsigned#nullable; router_link#json#nullable" --relationships='hive#belongsTo#Hive::class; user#belongsTo#User::class;' --form-helper=html --validations="tag#required; user_id#required"
+php artisan crud:api-controller Api\\HiveTagsController --crud-name=hive_tags --model-name=Models\\HiveTag

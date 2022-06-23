@@ -23,6 +23,7 @@ storage/logs/*
 Homestead.json
 Homestead.yaml
 .env
+.env.docs
 .phpunit.result.cache
 .DS_Store
 .phpintel

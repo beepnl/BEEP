@@ -412,7 +412,7 @@ class FlashLog extends Model
         for ($i=$fl_index; $i < $fl_index_end; $i++) 
         {
             $f = $flashlog[$i];
-            if ($f['port'] == 2 && isset($f['beep_base'])) // check for port 2 messages (switch on/off) in between 'before' and 'after' matches
+            if (isset($f['port']) && $f['port'] == 2 && isset($f['beep_base'])) // check for port 2 messages (switch on/off) in between 'before' and 'after' matches
             {
                 $onoffs[$i] = $f;
                 $onoffs[$i]['block_count'] = 1;

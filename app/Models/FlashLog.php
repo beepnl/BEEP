@@ -849,7 +849,7 @@ class FlashLog extends Model
         $records_weight   = 0;
         foreach ($flashlog as $f) 
         {
-            if ($f['port'] == 3)
+            if (isset($f['port']) && $f['port'] == 3)
             {
                 $records_flashlog++;
                 

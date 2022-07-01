@@ -165,7 +165,7 @@ class DeviceController extends Controller
         ]);
 
         if ($validator->fails())
-            return ['errors'=>$validator->errors()];
+            return Response::json(['errors'=>$validator->errors()], 422);
 
         $dev_eui = $request->input('lorawan_device.dev_eui');
         $app_key = $request->input('lorawan_device.app_key');

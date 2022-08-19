@@ -365,6 +365,18 @@ class ResearchController extends Controller
                             __('export.deleted_at')]
                         ];
 
+            $spreadsheet_array[__('beep.SensorDefinition')] = [
+                           ['Name',
+                            'Device_id',
+                            'inside_hive',
+                            'offset',
+                            'multiplier',
+                            'input_measurement',
+                            'output_measurement',
+                            __('export.created_at'),
+                            __('export.deleted_at')]
+                        ];
+
             if ($sensordata)
                 $spreadsheet_array['Sensor data'] = [
                             ['User_id',
@@ -610,7 +622,13 @@ class ResearchController extends Controller
                                 if ($device->created_at < $date_next_consent)
                                 {
                                     $spreadsheet_array[__('export.devices')][] = $this->getDevice($user_id, $device);
-                                
+                                    
+                                    // Add sensor definitions
+                                    
+                                    $sensor_defs = $this->getSensorDefinitions($device);
+                                    foreach ($sensor_defs as $sdef)
+                                        $spreadsheet_array[__('beep.SensorDefinition')][] = $sdef;
+
                                     // Export data to file per device / period
                                     $where    = $device->influxWhereKeys().' AND time >= \''.$date_curr_consent.'\' AND time <= \''.$date_next_consent.'\'';
                                     $fileName = strtolower(env('APP_NAME')).'-export-'.$research->name.'-device-id-'.$device->id.'-name-'.urlencode($device->name).'-sensor-data-'.substr($date_curr_consent,0,10).'-'.substr($date_next_consent,0,10).'-'.Str::random(10).'.csv';
@@ -971,6 +989,24 @@ class ResearchController extends Controller
             $item->created_at,
             $item->deleted_at
         ];
+    }
+
+    private function getSensorDefinitions($device)
+    {
+        return $device->sensorDefinitions()->sortByAsc('created_at')->map(function($item)
+        {
+            return [
+                $item->name,
+                $item->device_id, 
+                $item->inside,
+                $item->offset,
+                $item->multiplier,
+                $item->input_abbr,
+                $item->output_abbr,
+                $item->created_at,
+                $item->deleted_at
+            ];
+        });
     }
 
     private function getFlashlogs($user_id, $flashlogs, $date_start=null, $date_until=null)

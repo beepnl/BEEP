@@ -40,6 +40,7 @@ return [
     'calibration'       => 'calibratie',
     'calibrated'        => 'gecalibreerd',
     'SensorDefinition'  => 'Sensordefinitie',
+    'SensorDefinitions' => 'Sensordefinities',
     'SampleCode'        => 'Sample code',
     'SampleCodes'       => 'Sample codes',
 

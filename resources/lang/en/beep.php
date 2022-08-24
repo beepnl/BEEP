@@ -40,6 +40,7 @@ return [
     'calibration'       => 'calibration',
     'calibrated'        => 'calibrated',
     'SensorDefinition'  => 'Sensor definition',
+    'SensorDefinitions' => 'Sensor definitions',
     'SampleCode'        => 'Sample code',
     'SampleCodes'       => 'Sample codes',
 

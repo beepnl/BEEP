@@ -365,7 +365,7 @@ class ResearchController extends Controller
                             __('export.deleted_at')]
                         ];
 
-            $spreadsheet_array[__('beep.SensorDefinitions')] = [
+            $spreadsheet_array[__('export.sensordefs')] = [
                            ['Name',
                             'Device_id',
                             'inside_hive',
@@ -507,7 +507,7 @@ class ResearchController extends Controller
                     // Add sensor definitions
                     $sensor_defs = $this->getSensorDefinitions($device, $date_next_consent);
                     foreach ($sensor_defs as $sdef)
-                        $spreadsheet_array[__('beep.SensorDefinitions')][] = $sdef;
+                        $user_sensor_defs[] = $sdef;
 
                 }
                 
@@ -598,7 +598,7 @@ class ResearchController extends Controller
                     $user_data_counts['hives']              = $user_hives->where('created_at', '<=', $date_next_consent)->count();
                     $user_data_counts['devices']            = $user_devices->where('created_at', '<=', $date_next_consent)->count();
                     $user_data_counts['flashlogs']          = $user_flashlogs->where('created_at', '<=', $date_next_consent)->count();
-                    $user_data_counts['sensor_definitions'] = count($spreadsheet_array[__('beep.SensorDefinitions')]);
+                    $user_data_counts['sensor_definitions'] = count($user_sensor_defs);
 
                     //print_r([$i, $index, $user_consent, $date_curr_consent, $date_next_consent, $user_data_counts, $user_devices->toArray()]);
 
@@ -624,6 +624,10 @@ class ResearchController extends Controller
                         $sampe = $this->getSampleCodes($user_id, $user_samplecodes, $date_curr_consent, $date_next_consent);
                         foreach ($sampe as $sam)
                             $spreadsheet_array['Sample codes'][] = $sam;
+
+                        if (count($user_sensor_defs) > 0)
+                            foreach ($user_sensor_defs as $sdef) 
+                                $spreadsheet_array[__('export.sensordefs')][] = $sdef;
 
                         if ($user_devices->count() > 0)
                         {
@@ -718,7 +722,7 @@ class ResearchController extends Controller
         // Export data, show download link
         if ($download)
         {
-            //die(print_r([$consents, $totals, $spreadsheet_array[__('export.devices')], $spreadsheet_array[__('beep.SensorDefinitions')]]));
+            //die(print_r([$consents, $totals, $spreadsheet_array[__('export.devices')], $spreadsheet_array[__('export.sensordefs')]]));
             $fileName     = strtolower(env('APP_NAME')).'-export-'.$research->name;
             $download_url = $this->export($spreadsheet_array, $fileName, $date_start, $date_until);
         }

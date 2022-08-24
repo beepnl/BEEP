@@ -47,5 +47,6 @@ return [
     'enjoy'         => 'Have fun with it!',
     'reminder'      => 'Reminder',
     'reminder_date' => 'Reminder date',
+    'sensordefs'    => 'Sensor definitions',
 
 ];

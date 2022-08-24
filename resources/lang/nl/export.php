@@ -47,5 +47,6 @@ return [
     'enjoy'         => 'Veel plezier ermee!',
     'reminder'      => 'Herinnering',
     'reminder_date' => 'Herinneringsdatum',
+    'sensordefs'    => 'Sensordefinities',
 
 ];

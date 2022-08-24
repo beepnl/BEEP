@@ -84,7 +84,7 @@ return [
     'Measurements'  => 'Sensormetingen',
     'Error'         => 'Fout',
 
-    'SensorDefinitions' => 'Sensor definities',
+    'SensorDefinitions' => 'Sensordefinities',
     'Images'        => 'Foto\'s',
     'Alerts'        => 'Alerts',
     'AlertRules'    => 'Alertregels',

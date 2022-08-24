@@ -880,7 +880,7 @@ class ResearchDataController extends Controller
             else 
                 $groupBySelect = '"'.implode('","',$names).'"';
 
-            $query = 'SELECT "key",'.$groupBySelect.' FROM "'.$database.'" WHERE '.$where;
+            $query = 'SELECT '.$groupBySelect.',"key","from_flashlog" FROM "'.$database.'" WHERE '.$where;
         }
         else // i.e. weather data
         {

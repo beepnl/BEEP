@@ -1102,9 +1102,6 @@ class ResearchController extends Controller
                 $names = $measurements;
             else
                 $names = $this->output_sensors;
-            
-            // Add from_flahlog to output
-            $names[] = 'from_flashlog';
 
             $queryList = Device::getAvailableSensorNamesNoCache($names, $where, $database);
             
@@ -1113,7 +1110,7 @@ class ResearchController extends Controller
             else 
                 $groupBySelect = '"'.implode('","',$names).'"';
 
-            $query = 'SELECT '.$groupBySelect.' FROM "'.$database.'" WHERE '.$where;
+            $query = 'SELECT '.$groupBySelect.',"from_flashlog" FROM "'.$database.'" WHERE '.$where;
         }
         else // i.e. weather data
         {
@@ -1143,8 +1140,15 @@ class ResearchController extends Controller
         $csv_head = [];
         foreach ($csv_sens as $sensor_name) 
         {
-            $meas       = Measurement::where('abbreviation', $sensor_name)->first();
-            $csv_head[] = $meas ? $meas->pq_name_unit().' ('.$sensor_name.')' : $sensor_name;
+            if ($sensor_name == 'from_flashlog')
+            {
+                $csv_head[] = 'Imported from device flash log';
+            }
+            else
+            {
+                $meas       = Measurement::where('abbreviation', $sensor_name)->first();
+                $csv_head[] = $meas ? $meas->pq_name_unit().' ('.$sensor_name.')' : $sensor_name;
+            }
         }
         $csv_head = '"'.implode('"'.$separator.'"', $csv_head).'"'."\r\n";
 

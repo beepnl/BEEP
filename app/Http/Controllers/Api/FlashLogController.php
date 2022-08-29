@@ -376,7 +376,7 @@ class FlashLogController extends Controller
             
             // Return data directly to Frontend to store in a file from GUI
             if ($fileBody !== '')
-                return $fileBody
+                return $fileBody;
             
             return ['error'=>'export_not_saved'];
         }

@@ -371,17 +371,12 @@ class FlashLogController extends Controller
             }
             else // JSON
             {
-                $fileBody = json_encode($data);
+                $fileBody = $data;
             }
-        
-            // return the file content in a file on disk
-            if ($fileBody !== '' && Storage::disk($disk)->put($filePath, $fileBody, ['mimetype' => $file_mime]))
-            {
-                if ($csv)
-                    return ['link'=>Storage::disk($disk)->url($filePath)];
-                else
-                    return $data; // return json as body
-            }
+            
+            // Return data directly to Frontend to store in a file from GUI
+            if ($fileBody !== '')
+                return $fileBody
             
             return ['error'=>'export_not_saved'];
         }
@@ -451,10 +446,9 @@ class FlashLogController extends Controller
                             {
                                 $data_influx_deleted= false;
                                 $data_deleted       = 'no_data_to_delete';
-                                $delete_count_query = 'SELECT COUNT(*) FROM "sensors" WHERE "from_flashlog" = \'1\' AND "key" = \''.strtolower($device->key).'\' AND time >= \''.$block_start_t.'\' AND time <= \''.$block_end_t.'\'';
+                                $delete_count_query = 'SELECT COUNT("bv") AS "count" FROM "sensors" WHERE "from_flashlog" = \'1\' AND "key" = \''.strtolower($device->key).'\' AND time >= \''.$block_start_t.'\' AND time <= \''.$block_end_t.'\'';
                                 $delete_count       = Device::getInfluxQuery($delete_count_query, 'flashlog');
                                 $delete_count_sum   = isset($delete_count[0]) ? array_sum($delete_count[0]) : 0;
-                                $delete_count_bv    = isset($delete_count[0]['bv']) ? $delete_count[0]['bv'] : 0;
                                 $deleted_days       = round(($block_end_u - $block_start_u)/86400, 1); 
 
                                 //die(print_r(['q'=>$delete_count_query, 'sum'=>$delete_count_sum, 'delete_count_sum'=>$delete_count_sum, 'deleted_days'=>$deleted_days]));
@@ -466,7 +460,7 @@ class FlashLogController extends Controller
                                     $data_deleted        = $this->client::query($delete_query);
                                     $data_influx_deleted = true;
                                     $flashlog->persisted_block_ids_array = array_diff($flashlog->persisted_block_ids_array, [$block_id]);
-                                    $flashlog->persisted_measurements -= $delete_count_bv;
+                                    $flashlog->persisted_measurements -= $delete_count_sum;
                                     $flashlog->save();
                                 }
                                 

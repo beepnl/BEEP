@@ -18,9 +18,12 @@ class QueenController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
-        //
+        if ($request->user()->queens()->count() > 0)
+            return response()->json(['queens'=>$request->user()->queens()->get()]);
+
+        return response()->json(['error'=>'no queens available'],404);
     }
 
     /**
@@ -31,7 +34,22 @@ class QueenController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $race_id = $request->filled('race_id') ? $request->input('race_id') : Category::findCategoryIdByParentAndName('subspecies', 'other');
+        $date    = $request->filled('birth_date') ? date('Y-m-d', strtotime($request->input('birth_date'))) : null;
+        $queen   = [
+            'name'          =>$request->input('name'),
+            'description'   =>$request->input('description'),
+            'line'          =>$request->input('line'),
+            'tree'          =>$request->input('tree'),
+            'hive_id'       =>$request->input('hive_id'),
+            'race_id'       =>$race_id,
+            'birth_date'    =>$date,
+            'color'         =>$request->input('color'),
+            'clipped'       =>boolval($request->input('clipped')),
+            'fertilized'    =>boolval($request->input('fertilized')),
+        ];
+
+        return $user->queens()->updateOrCreate(['id'=>$request->input('id', null)], $queen);
     }
 
     /**
@@ -40,9 +58,9 @@ class QueenController extends Controller
      * @param  \App\Queen  $queen
      * @return \Illuminate\Http\Response
      */
-    public function show(Queen $queen)
+    public function show(Request $request, Queen $queen)
     {
-        //
+        return response()->json(['queens'=>$request->user()->queens()->findorFail($queen->id)]);
     }
 
     /**
@@ -54,7 +72,7 @@ class QueenController extends Controller
      */
     public function update(Request $request, Queen $queen)
     {
-        //
+        return $this->store($request);
     }
 
     /**
@@ -63,8 +81,10 @@ class QueenController extends Controller
      * @param  \App\Queen  $queen
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Queen $queen)
+    public function destroy(Request $request, Queen $queen)
     {
-        //
+        $queen = $request->user()->queens()->findorFail($queen->id);
+        $queen->delete();
+        return response()->json(null, 204);
     }
 }

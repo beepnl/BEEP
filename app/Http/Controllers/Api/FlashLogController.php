@@ -424,39 +424,38 @@ class FlashLogController extends Controller
                         if ($export_csv || $export_json)
                             return $this->exportData(array_slice($block_data, $block_start_i, $block_length), "user-$user_id-$device_name-log-file-$id-block-$block_id-matches-$has_matches", $export_csv);
 
-                        // Check if there are matches
-                        if ($has_matches)
+                        $block_start_t= $block['time_start'];
+                        $block_end_t  = $block['time_end'];
+                        $block_start_u= strtotime($block_start_t);  
+                        $block_end_u  = strtotime($block_end_t);  
+
+                        if ($delete) // Undo import Flashlog data 
                         {
-                            $block_start_t= $block['time_start'];
-                            $block_end_t  = $block['time_end'];
-                            $block_start_u= strtotime($block_start_t);  
-                            $block_end_u  = strtotime($block_end_t);  
+                            $data_influx_deleted= false;
+                            $data_deleted       = 'no_data_to_delete';
+                            $delete_count_query = 'SELECT COUNT("bv") AS "count" FROM "sensors" WHERE "from_flashlog" = \'1\' AND "key" = \''.strtolower($device->key).'\' AND time >= \''.$block_start_t.'\' AND time <= \''.$block_end_t.'\'';
+                            $delete_count       = Device::getInfluxQuery($delete_count_query, 'flashlog');
+                            $delete_count_sum   = isset($delete_count[0]) ? array_sum($delete_count[0]) : 0;
+                            $deleted_days       = round(($block_end_u - $block_start_u)/86400, 1); 
 
-                            if ($delete)
+                            //die(print_r(['q'=>$delete_count_query, 'sum'=>$delete_count_sum, 'delete_count_sum'=>$delete_count_sum, 'deleted_days'=>$deleted_days]));
+
+                            if ($delete_count_sum > 0 && $deleted_days > 0)
                             {
-                                $data_influx_deleted= false;
-                                $data_deleted       = 'no_data_to_delete';
-                                $delete_count_query = 'SELECT COUNT("bv") AS "count" FROM "sensors" WHERE "from_flashlog" = \'1\' AND "key" = \''.strtolower($device->key).'\' AND time >= \''.$block_start_t.'\' AND time <= \''.$block_end_t.'\'';
-                                $delete_count       = Device::getInfluxQuery($delete_count_query, 'flashlog');
-                                $delete_count_sum   = isset($delete_count[0]) ? array_sum($delete_count[0]) : 0;
-                                $deleted_days       = round(($block_end_u - $block_start_u)/86400, 1); 
-
-                                //die(print_r(['q'=>$delete_count_query, 'sum'=>$delete_count_sum, 'delete_count_sum'=>$delete_count_sum, 'deleted_days'=>$deleted_days]));
-
-                                if ($delete_count_sum > 0 && $deleted_days > 0)
-                                {
-                                    $delete_query        = 'DELETE FROM "sensors" WHERE "from_flashlog"=\'1\' AND "key"=\''.strtolower($device->key).'\' AND time >= \''.$block_start_t.'\' AND time <= \''.$block_end_t.'\'';
-                                    //die(print_r($delete_query));
-                                    $data_deleted        = $this->client::query($delete_query);
-                                    $data_influx_deleted = true;
-                                    $flashlog->persisted_block_ids_array = array_diff($flashlog->persisted_block_ids_array, [$block_id]);
-                                    $flashlog->persisted_measurements -= $delete_count_sum;
-                                    $flashlog->save();
-                                }
-                                
-                                $out = ['data_deleted'=>$data_influx_deleted, 'deleted_measurements'=>$delete_count_sum, 'deleted_days'=>$deleted_days, 'data_deleted'=>$data_deleted];    
+                                $delete_query        = 'DELETE FROM "sensors" WHERE "from_flashlog"=\'1\' AND "key"=\''.strtolower($device->key).'\' AND time >= \''.$block_start_t.'\' AND time <= \''.$block_end_t.'\'';
+                                //die(print_r($delete_query));
+                                $data_deleted        = $this->client::query($delete_query);
+                                $data_influx_deleted = true;
+                                $flashlog->persisted_block_ids_array = array_diff($flashlog->persisted_block_ids_array, [$block_id]);
+                                $flashlog->persisted_measurements -= $delete_count_sum;
+                                $flashlog->save();
                             }
-                            else if ($persist) // Save missing data to DB
+                            
+                            $out = ['data_deleted'=>$data_influx_deleted, 'deleted_measurements'=>$delete_count_sum, 'deleted_days'=>$deleted_days, 'data_deleted'=>$data_deleted];    
+                        }
+                        else if ($has_matches) // Check if there are matches
+                        {
+                            if ($persist) // Save missing data to DB
                             {
                                 $persist_count= 0;
                                 $interval_db  = 15; // db request minute interval

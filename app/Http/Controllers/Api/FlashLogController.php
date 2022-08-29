@@ -642,7 +642,7 @@ class FlashLogController extends Controller
                         }
                         else if ($delete) // no matches but delete button pressed
                         {
-                            $out = ['data_deleted'=>false, 'deleted_measurements'=>0, 'deleted_days'=>0];    
+                            $out = ['data_deleted'=>false, 'deleted_measurements'=>0, 'deleted_days'=>0, 'error'=>'no_data_deleted_because_no_matches_found'];  
                         }
                         else // Show only flashlog data without matched time
                         {

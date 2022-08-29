@@ -376,7 +376,12 @@ class FlashLogController extends Controller
         
             // return the file content in a file on disk
             if ($fileBody !== '' && Storage::disk($disk)->put($filePath, $fileBody, ['mimetype' => $file_mime]))
-                return ['link'=>Storage::disk($disk)->url($filePath)];
+            {
+                if ($csv)
+                    return ['link'=>Storage::disk($disk)->url($filePath)];
+                else
+                    return $data; // return json as body
+            }
             
             return ['error'=>'export_not_saved'];
         }

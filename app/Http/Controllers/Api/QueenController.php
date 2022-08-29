@@ -49,7 +49,7 @@ class QueenController extends Controller
             'fertilized'    =>boolval($request->input('fertilized')),
         ];
 
-        return $user->queens()->updateOrCreate(['id'=>$request->input('id', null)], $queen);
+        return response()->json($request->user()->queens()->updateOrCreate(['queens.id'=>$request->input('id', null)], $queen));
     }
 
     /**
@@ -60,7 +60,7 @@ class QueenController extends Controller
      */
     public function show(Request $request, Queen $queen)
     {
-        return response()->json(['queens'=>$request->user()->queens()->findorFail($queen->id)]);
+        return response()->json($request->user()->queens()->findorFail($queen->id));
     }
 
     /**

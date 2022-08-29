@@ -321,13 +321,6 @@ class FlashLogController extends Controller
 
     private function exportData($data, $name, $csv=true, $separator=';')
     {
-        $disk     = env('EXPORT_STORAGE', 'public');
-        $file_ext = $csv ? '.csv' : '.json';
-        $file_mime= $csv ? 'text/csv' : 'application/json';
-        $filePath = 'exports/flashlog/beep-base-log-export-'.$name.'-'.Str::random(20).$file_ext;
-        $filePath = str_replace(' ', '', $filePath);
-        $fileBody = '';
-
         if ($data && gettype($data) == 'array' && count($data) > 0)
         {
             if ($csv)
@@ -367,21 +360,16 @@ class FlashLogController extends Controller
                             $csv_body[] = implode($separator, $this->cleanFlashlogItem($data_item, false));
                     }
                     $fileBody = $csv_head.implode("\r\n", $csv_body);
+                    return $fileBody;
                 }
             }
-            
-            // return the file content in a file on disk
-            if ($csv && $fileBody !== '' && Storage::disk($disk)->put($filePath, $fileBody, ['mimetype' => $file_mime]))
-            {
-                return ['link'=>Storage::disk($disk)->url($filePath)];
-            }
-            else if ($csv === false) // return JSON 
+            else
             {
                 return $data; // return json as body
             }
             
-            return ['error'=>'export_not_saved'];
         }
+        return ['error'=>'export_not_saved'];
     }
 
     private function parse(Request $request, $id, $persist=false, $delete=false)

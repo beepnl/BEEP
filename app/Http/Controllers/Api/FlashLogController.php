@@ -369,14 +369,16 @@ class FlashLogController extends Controller
                     $fileBody = $csv_head.implode("\r\n", $csv_body);
                 }
             }
-            else // JSON
-            {
-                $fileBody = $data;
-            }
             
-            // Return data directly to Frontend to store in a file from GUI
-            if ($fileBody !== '')
-                return $fileBody;
+            // return the file content in a file on disk
+            if ($csv && $fileBody !== '' && Storage::disk($disk)->put($filePath, $fileBody, ['mimetype' => $file_mime]))
+            {
+                return ['link'=>Storage::disk($disk)->url($filePath)];
+            }
+            else if ($csv === false) // return JSON 
+            {
+                return $data; // return json as body
+            }
             
             return ['error'=>'export_not_saved'];
         }

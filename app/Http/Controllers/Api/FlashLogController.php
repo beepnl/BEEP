@@ -454,7 +454,7 @@ class FlashLogController extends Controller
                                     $flashlog->save();
                                 }
                                 
-                                $out = ['data_deleted'=>$data_influx_deleted, 'deleted_measurements'=>$delete_count_sum, 'deleted_days'=>$deleted_days, 'data_deleted'=>$data_deleted];    
+                                $out = ['data_deleted'=>$data_influx_deleted, 'deleted_measurements'=>$delete_count_sum, 'deleted_days'=>$deleted_days, 'data_deleted_log'=>$data_deleted];    
                             }
                             else if ($persist) // Save missing data to DB
                             {
@@ -639,6 +639,10 @@ class FlashLogController extends Controller
                             }
                             // Add properties
                             $out['block_id'] = $block_id;
+                        }
+                        else if ($delete) // no matches but delete button pressed
+                        {
+                            $out = ['data_deleted'=>false, 'deleted_measurements'=>0, 'deleted_days'=>0];    
                         }
                         else // Show only flashlog data without matched time
                         {

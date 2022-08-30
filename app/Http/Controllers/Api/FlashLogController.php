@@ -521,28 +521,36 @@ class FlashLogController extends Controller
                                             $indexFlogStart  = max(0, $indexFlogStart);
                                             
 
-                                            $date_first_fl = $block_data[$indexFlogStart]['time'];
-                                            $date_last_fl  = $block_data[$indexFlogEnd]['time'];
+                                            $date_first_fl   = isset($block_data[$indexFlogStart]) ? $block_data[$indexFlogStart]['time'] : null;
+                                            $date_last_fl    = isset($block_data[$indexFlogEnd]) ? $block_data[$indexFlogEnd]['time'] : null;
 
-                                            $time_first_fl = strtotime($date_first_fl);
-                                            $time_last_fl  = strtotime($date_last_fl);
+                                            $time_first_fl   = isset($date_first_fl) ? strtotime($date_first_fl) : 0;
+                                            $time_last_fl    = isset($date_last_fl) ? strtotime($date_last_fl) : 0;
 
-                                            Log::debug("db_count_i=$db_count_i, count_sum=$count_sum < mp=$match_props, indexFlS=$indexFlogStart, indexFlE=$indexFlogEnd, secOfCS=$secOfCountStart, secOfCE=$secOfCountEnd, date_ffl=$date_first_fl, date_lfl=$date_last_fl, time_ffl=$time_first_fl, time_lfl=$time_last_fl");
+                                            $ffl_sec_cs      = ($time_first_fl >= $secOfCountStart) ? '>' : '<';
+                                            $ffl_sec_ce      = ($time_first_fl >= $secOfCountEnd) ? '>' : '<';
+                                            $lfl_sec_cs      = ($time_last_fl >= $secOfCountStart) ? '>' : '<';
+                                            $lfl_sec_ce      = ($time_last_fl >= $secOfCountEnd) ? '>' : '<';
+
+                                            Log::debug("db_count_i=$db_count_i, count_sum=$count_sum < mp=$match_props, iFlS=$indexFlogStart, iFlE=$indexFlogEnd, secOfCS=$secOfCountStart, secOfCE=$secOfCountEnd, ffl $ffl_sec_cs cs, ffl $ffl_sec_ce ce, lfl $lfl_sec_cs cs, lfl $lfl_sec_ce ce");
                                             
                                             for ($i=$indexFlogStart; $i < $indexFlogEnd; $i++)
                                             {
-                                                $data_item   = $block_data[$i];
-
-                                                if (isset($data_item['time']))
+                                                if (isset($block_data[$i]))
                                                 {
-                                                    $secDataItem = strtotime($data_item['time']);
-                                                    
-                                                    if (isset($data_item['port']) && $data_item['port'] == 3 && $secDataItem >= $secOfCountStart && $secDataItem < $secOfCountEnd) // time from flashlog should be between start and end of this interval
+                                                    $data_item = $block_data[$i];
+
+                                                    if (isset($data_item['time']))
                                                     {
-                                                        $missing_data[] = $this->cleanFlashlogItem($data_item);
+                                                        $secDataItem = strtotime($data_item['time']);
                                                         
-                                                        // print_r(['count_sum'=>$count_sum, 'time_start'=>$time_start, 'secStart'=>$secOfCountStart, 'time_end'=>$time_end, 'secEnd'=>$secOfCountEnd, 'minDifWithStart'=>$minDifWithStart, 'indexFlogStart'=>$indexFlogStart, 'indexFlogEnd'=>$indexFlogEnd, 'indexFlog'=>$i, 'secFlog'=>$secDataItem, 'missing_data'=>$missing_data, 'data_item'=>$data_item]);
-                                                        // die();
+                                                        if (isset($data_item['port']) && $data_item['port'] == 3 && $secDataItem >= $secOfCountStart && $secDataItem < $secOfCountEnd) // time from flashlog should be between start and end of this interval
+                                                        {
+                                                            $missing_data[] = $this->cleanFlashlogItem($data_item);
+                                                            
+                                                            // print_r(['count_sum'=>$count_sum, 'time_start'=>$time_start, 'secStart'=>$secOfCountStart, 'time_end'=>$time_end, 'secEnd'=>$secOfCountEnd, 'minDifWithStart'=>$minDifWithStart, 'indexFlogStart'=>$indexFlogStart, 'indexFlogEnd'=>$indexFlogEnd, 'indexFlog'=>$i, 'secFlog'=>$secDataItem, 'missing_data'=>$missing_data, 'data_item'=>$data_item]);
+                                                            // die();
+                                                        }
                                                     }
                                                 }
                                             }

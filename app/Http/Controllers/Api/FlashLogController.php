@@ -445,7 +445,7 @@ class FlashLogController extends Controller
                                 $delete_count_sum   = isset($delete_count[0]) ? array_sum($delete_count[0]) : 0;
                                 $deleted_days       = round(($block_end_u - $block_start_u)/86400, 1); 
 
-                                //die(print_r(['q'=>$delete_count_query, 'sum'=>$delete_count_sum, 'delete_count_sum'=>$delete_count_sum, 'deleted_days'=>$deleted_days]));
+                                Log::debug(['q'=>$delete_count_query, 'delete_count_items'=>count($delete_count), 'delete_count_sum'=>$delete_count_sum, 'deleted_days'=>$deleted_days]);
 
                                 if ($delete_count_sum > 0 && $deleted_days > 0)
                                 {
@@ -454,11 +454,12 @@ class FlashLogController extends Controller
                                     $data_deleted        = $this->client::query($delete_query);
                                     $data_influx_deleted = true;
                                     $flashlog->persisted_block_ids_array = array_diff($flashlog->persisted_block_ids_array, [$block_id]);
-                                    $flashlog->persisted_measurements -= $delete_count_sum;
+                                    $flashlog->persisted_measurements = max(0, $flashlog->persisted_measurements - $delete_count_sum);
                                     $flashlog->save();
                                 }
                                 
-                                $out = ['data_deleted'=>$data_influx_deleted, 'deleted_measurements'=>$delete_count_sum, 'deleted_days'=>$deleted_days, 'data_deleted_log'=>$data_deleted];    
+                                $out = ['data_deleted'=>$data_influx_deleted, 'deleted_measurements'=>$delete_count_sum, 'deleted_days'=>$deleted_days, 'data_deleted_log'=>$data_deleted];
+                                Log::debug($out);
                             }
                             else if ($persist) // Save missing data to DB
                             {
@@ -572,7 +573,7 @@ class FlashLogController extends Controller
                                             $logMissingDateString = implode(', ', $logMissingDates);
                                             $missing_data = [];
 
-                                            Log::debug("Device: $device->name, block_id=$block_id, time_start=$time_start, stored=$stored, missing_data_count=$missing_data_count, persist_count=$persist_count, missing_dates:\n$logMissingDateString");
+                                            Log::debug("Device: $device_name, block_id=$block_id, time_start=$time_start, stored=$stored, missing_data_count=$missing_data_count, persist_count=$persist_count, missing_dates:\n$logMissingDateString");
                                         }
                                     }
                                 }

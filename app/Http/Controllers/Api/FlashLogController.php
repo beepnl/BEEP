@@ -550,7 +550,7 @@ class FlashLogController extends Controller
                                                             
                                                             // print_r(['count_sum'=>$count_sum, 'time_start'=>$time_start, 'secStart'=>$secOfCountStart, 'time_end'=>$time_end, 'secEnd'=>$secOfCountEnd, 'minDifWithStart'=>$minDifWithStart, 'indexFlogStart'=>$indexFlogStart, 'indexFlogEnd'=>$indexFlogEnd, 'indexFlog'=>$i, 'secFlog'=>$secDataItem, 'missing_data'=>$missing_data, 'data_item'=>$data_item]);
                                                             // die();
-                                                            Log::debug("missing_data db_count_i=$db_count_i, count_sum=$count_sum < mp=$match_props, iFlS=$indexFlogStart, iFlE=$indexFlogEnd, secOfCS=$secOfCountStart, secOfCE=$secOfCountEnd, ffl $ffl_sec_cs cs, ffl $ffl_sec_ce ce, lfl $lfl_sec_cs cs, lfl $lfl_sec_ce ce");
+                                                            //Log::debug("missing_data $i: ".implode(', ', $data_item));
                                             
                                                         }
                                                     }
@@ -559,7 +559,7 @@ class FlashLogController extends Controller
                                         }
 
                                         $missing_data_count = count($missing_data);
-                                        if ($missing_data_count > 100 || ($missing_data_count > 0 && $db_count_i == $data_per_int_max_i)) // persist at every 100 items, or at last item
+                                        if ($missing_data_count > 100 || ($missing_data_count > 0 && $db_count_i == $data_per_int_max_i - 1)) // persist at every 100 items, or at last item
                                         {
                                             Log::debug(['missing_data_count'=>$missing_data_count, 'block_start_t'=>$block_start_t, 'device'=>$device->toArray(), 'data_per_int_d'=>$data_per_int_d, 'missing_data'=>$missing_data]);
                                             

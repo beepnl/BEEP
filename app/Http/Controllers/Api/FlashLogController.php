@@ -559,7 +559,7 @@ class FlashLogController extends Controller
                                         }
 
                                         $missing_data_count = count($missing_data);
-                                        if ($missing_data_count > 100 || ($missing_data_count > 0 && $db_count_i == $data_per_int_max_i - 1)) // persist at every 100 items, or at last item
+                                        if ($missing_data_count > 99 || ($missing_data_count > 0 && $db_count_i == $data_per_int_max_i - 1)) // persist at every 100 items, or at last item
                                         {
                                             $stored = $this->storeInfluxDataArrays($missing_data, $device);
                                             if ($stored)

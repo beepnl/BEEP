@@ -431,6 +431,8 @@ class FlashLogController extends Controller
                         // Check if there are matches (NB: Bug: persisted measurements now can only be deleted in a block with matches)
                         if ($has_matches)
                         {
+                            Log::debug("FlashLogController parse device=$device_name, persist=$persist, delete=$delete, flashlog_id=$flashlog_id, block_id=$block_id");
+
                             $block_start_t= $block['time_start'];
                             $block_end_t  = $block['time_end'];
                             $block_start_u= strtotime($block_start_t);  
@@ -474,6 +476,9 @@ class FlashLogController extends Controller
                                 foreach ($measurements as $key => $value) 
                                     $count_measurements['count_'.$value] = $key; // compare keys with 'count_' included, else everything in excluded and sum is always 0
 
+                                Log::debug(['count_measurements'=>$count_measurements]);
+                                
+                                // split the amount of requests in sensible maximum amount of measurements from DB
                                 for ($req_ind=0; $req_ind <= $req_cnt_db; $req_ind++) 
                                 { 
                                     $req_start_unix = $block_start_u + ($secs_per_req * $req_ind);
@@ -491,7 +496,7 @@ class FlashLogController extends Controller
                                     $data_per_int_max_i = count($data_per_int) - 1;
                                     $missing_data       = [];
                                     
-                                    Log::debug(['interval_db'=>$interval_db, 'req_start_unix'=>$req_start_unix, 'req_start_time'=>$req_start_time, 'req_end_unix'=>$req_end_unix, 'req_end_time'=>$req_end_time, 'query_results'=>$data_per_int_max_i, 'count_query'=>$count_query]);
+                                    Log::debug("req_ind=$req_ind, req_start_time=$req_start_time, req_end_time=$req_end_time, query_results=$data_per_int_max_i, count_query=$count_query");
                                     //die(print_r($data_per_int));
 
                                     // per Influx time group (15 min)  
@@ -556,6 +561,11 @@ class FlashLogController extends Controller
                                                     }
                                                 }
                                             }
+                                        }
+                                        else
+                                        {
+                                            Log::debug("already $count_sum measurements for $time_start - $time_end");
+                                            Log::debug($db_count);
                                         }
 
                                         $missing_data_count = count($missing_data);

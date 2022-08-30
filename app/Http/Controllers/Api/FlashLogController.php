@@ -502,6 +502,7 @@ class FlashLogController extends Controller
                                     // Persist Flashlog data to InfluxDB
                                     if ($data_per_int_max_i == 0) // import data where there is NO database data available
                                     {
+                                        $minDifWithStart = round(($req_start_unix - $block_start_u) / 60);
                                         $indexFlogStart  = $block_start_i + ceil($minDifWithStart / $interval_min);
                                         $indexFlogEnd    = min($block_end_i, $indexFlogStart + $rows_per_db);
                                         $indexFlogStart  = max(0, $indexFlogStart);

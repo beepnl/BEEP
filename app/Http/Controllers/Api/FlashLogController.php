@@ -440,7 +440,7 @@ class FlashLogController extends Controller
                             {
                                 $data_influx_deleted= false;
                                 $data_deleted       = 'no_data_to_delete';
-                                $delete_count_query = 'SELECT COUNT("bv") AS "count" FROM "sensors" WHERE "from_flashlog" = \'1\' AND "key" = \''.strtolower($device->key).'\' AND time >= \''.$block_start_t.'\' AND time <= \''.$block_end_t.'\'';
+                                $delete_count_query = 'SELECT COUNT("bv") AS "count" FROM "sensors" WHERE "from_flashlog" = \'1\' AND '.$device->influxWhereKeys().' AND time >= \''.$block_start_t.'\' AND time <= \''.$block_end_t.'\'';
                                 $delete_count       = Device::getInfluxQuery($delete_count_query, 'flashlog');
                                 $delete_count_sum   = isset($delete_count[0]['count']) ? $delete_count[0]['count'] : 0;
                                 $deleted_days       = round($delete_count_sum*$interval_min/(60*24), 1);
@@ -449,7 +449,7 @@ class FlashLogController extends Controller
 
                                 if ($delete_count_sum > 0 && $deleted_days > 0)
                                 {
-                                    $delete_query        = 'DELETE FROM "sensors" WHERE "from_flashlog"=\'1\' AND "key"=\''.strtolower($device->key).'\' AND time >= \''.$block_start_t.'\' AND time <= \''.$block_end_t.'\'';
+                                    $delete_query        = 'DELETE FROM "sensors" WHERE "from_flashlog"=\'1\' AND '.$device->influxWhereKeys().' AND time >= \''.$block_start_t.'\' AND time <= \''.$block_end_t.'\'';
                                     //die(print_r($delete_query));
                                     $data_deleted        = $this->client::query($delete_query);
                                     $data_influx_deleted = true;

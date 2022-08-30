@@ -584,7 +584,7 @@ class FlashLogController extends Controller
                                     $out = ['data_stored'=>false, 'persisted_measurements'=>$persist_count, 'persisted_days'=>0, 'error'=>'no_data_stored'];
                                 }
                             }
-                            else // Show data content per week
+                            else // Show data content per $data_minutes
                             {
                                 // select portion of the data
                                 $match_index   = $block['fl_i'];
@@ -617,23 +617,37 @@ class FlashLogController extends Controller
                                 // Add Database data
                                 if ($data_values > 0)
                                 {
-                                    $first_obj   = $out['flashlog'][0];
-                                    $last_obj    = $out['flashlog'][$data_values-1];
-                                    $start_time  = substr($first_obj['time'], 0, 19); // cut off Z
-                                    $end_time    = substr($last_obj['time'], 0, 19); // cut off Z
-                                    $query       = 'SELECT "'.implode('","', $measurements).'" FROM "sensors" WHERE '.$flashlog->device->influxWhereKeys().' AND time >= \''.$start_time.'\' AND time <= \''.$end_time.'\' ORDER BY time ASC LIMIT '.$index_amount;
-                                    $db_data_week= Device::getInfluxQuery($query, 'flashlog');
-                                    $db_data_cln = [];
+                                    $first_obj     = $out['flashlog'][0];
+                                    $last_obj      = $out['flashlog'][$data_values-1];
+                                    $start_time    = substr($first_obj['time'], 0, 19); // cut off Z
+                                    $end_time      = substr($last_obj['time'], 0, 19); // cut off Z
+                                    $query         = 'SELECT "'.implode('","', $measurements).'" FROM "sensors" WHERE '.$flashlog->device->influxWhereKeys().' AND time >= \''.$start_time.'\' AND time <= \''.$end_time.'\' ORDER BY time ASC LIMIT '.$index_amount;
+                                    $db_data_week  = Device::getInfluxQuery($query, 'flashlog');
+                                    $db_data_cln   = [];
                                     foreach ($db_data_week as $db_value)
                                         $db_data_cln[] = array_filter($db_value);
                                     
-                                    $out['database'] = $db_data_cln;
-
+                                    $out['database']   = $db_data_cln;
+                                    
                                     // Run through the data to see how many % of the data matches
                                     $match_percentage = $this->matchPercentage($out['flashlog'], $db_data_cln, $match_props);
                                     $out['block_data_match_percentage']  = $match_percentage['perc_match'];
                                     $out['block_data_flashlog_sec_diff'] = $match_percentage['sec_diff'];
                                     $out['block_data_match_errors']      = $match_percentage['errors'];
+
+                                    // Add min start / max end time for ChartJS view
+                                    $time_start_db = strtotime($first_obj['time']);
+                                    $time_end_db   = strtotime($last_obj['time']);
+                                    $time_start_fl = strtotime($block_data[$start_index]['time']);
+                                    $time_end_fl   = strtotime($block_data[$end_index-1]['time']);
+
+                                    $out['start_date'] = date(min($time_start_db, $time_start_fl), $timeFormat).'Z';
+                                    $out['end_date']   = date(min($time_start_db, $time_start_fl), $timeFormat).'Z';
+                                }
+                                else // take start and end time of Flashlog
+                                {
+                                    $out['start_date'] = $block_data[$start_index]['time'].'Z';
+                                    $out['end_date']   = $block_data[$end_index-1]['time'].'Z';
                                 }
 
                             }

@@ -507,7 +507,7 @@ class FlashLogController extends Controller
                                         $db_count      = array_intersect_key($db_count, $count_measurements); // only keep the key counts from valid matching measurements
                                         $count_sum     = array_sum($db_count);
                                         
-                                        Log::debug(['db_count'=>$db_count, 'c'=>$count_sum, 'match_props'=>$match_props]));
+                                        Log::debug(['db_count'=>$db_count, 'c'=>$count_sum, 'match_props'=>$match_props]);
 
                                         $data_per_int_d[$time_start] = $count_sum;
                                         

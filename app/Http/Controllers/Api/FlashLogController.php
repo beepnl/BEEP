@@ -641,8 +641,8 @@ class FlashLogController extends Controller
                                     $time_start_fl = strtotime($block_data[$start_index]['time']);
                                     $time_end_fl   = strtotime($block_data[$end_index-1]['time']);
 
-                                    $out['start_date'] = date(min($time_start_db, $time_start_fl), $this->timeFormat).'Z';
-                                    $out['end_date']   = date(min($time_start_db, $time_start_fl), $this->timeFormat).'Z';
+                                    $out['start_date'] = date($this->timeFormat, min($time_start_db, $time_start_fl)).'Z';
+                                    $out['end_date']   = date($this->timeFormat, max($time_end_db, $time_end_fl)).'Z';
                                 }
                                 else // take start and end time of Flashlog
                                 {

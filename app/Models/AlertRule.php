@@ -433,7 +433,7 @@ class AlertRule extends Model
                     }
 
                     // Set locale for date
-                    $created_date_local = new Moment($a->created_at, 'UTC');
+                    $created_date_local = new Moment($a->created_at->toDateTimeString(), 'UTC');
                     $locale_array       = config('laravellocalization.supportedLocales');
                     $locale_identifier  = isset($locale_array[$u->locale]) ? $locale_array[$u->locale]['regional'] : null;
 

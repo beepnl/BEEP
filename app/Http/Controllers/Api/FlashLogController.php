@@ -493,14 +493,14 @@ class FlashLogController extends Controller
                                     $data_per_int       = Device::getInfluxQuery($count_query, 'flashlog');
                                     $data_per_int_d     = [];
 
-                                    $data_per_int_max_i = count($data_per_int);
+                                    $data_per_int_max_i = count($data_per_int)-1;
                                     $missing_data       = [];
                                     
                                     Log::debug("req_ind=$req_ind, req_start_time=$req_start_time, req_end_time=$req_end_time, query_results=$data_per_int_max_i, count_query=$count_query");
                                     //die(print_r($data_per_int));
 
                                     // Persist Flashlog data to InfluxDB
-                                    if ($data_per_int_max_i == 0) // import data where there is NO database data available
+                                    if ($data_per_int_max_i == -1) // import data where there is NO database data available
                                     {
                                         $minDifWithStart = round(($req_start_unix - $block_start_u) / 60);
                                         $indexFlogStart  = $block_start_i + ceil($minDifWithStart / $interval_min);

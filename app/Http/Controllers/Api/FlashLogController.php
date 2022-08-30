@@ -472,7 +472,7 @@ class FlashLogController extends Controller
 
                                 $count_measurements = [];
                                 foreach ($measurements as $key => $value) 
-                                    $count_measurements['count_'.$value] = $key; // compare keys with 'count_' included, alse everything in excluded and sum is always 0
+                                    $count_measurements['count_'.$value] = $key; // compare keys with 'count_' included, else everything in excluded and sum is always 0
 
                                 for ($req_ind=0; $req_ind <= $req_cnt_db; $req_ind++) 
                                 { 
@@ -484,7 +484,6 @@ class FlashLogController extends Controller
                                     // run through the db data array to define which data to add 
                                     $count_query  = 'SELECT COUNT(*) FROM "sensors" WHERE '.$device->influxWhereKeys().' AND time >= \''.$req_start_time.'\' AND time <= \''.$req_end_time.'\' GROUP BY time('.$interval_db.'m) ORDER BY time ASC LIMIT '.$points_p_req;
                                     
-                                    //print_r(['interval_db'=>$interval_db, 'req_start_unix'=>$req_start_unix, 'req_start_time'=>$req_start_time, 'req_end_unix'=>$req_end_unix, 'req_end_time'=>$req_end_time, 'count_query'=>$count_query]);
                                     
                                     $data_per_int       = Device::getInfluxQuery($count_query, 'flashlog');
                                     $data_per_int_d     = [];
@@ -492,6 +491,7 @@ class FlashLogController extends Controller
                                     $data_per_int_max_i = count($data_per_int) - 1;
                                     $missing_data       = [];
                                     
+                                    Log::debug(['interval_db'=>$interval_db, 'req_start_unix'=>$req_start_unix, 'req_start_time'=>$req_start_time, 'req_end_unix'=>$req_end_unix, 'req_end_time'=>$req_end_time, 'query_results'=>$data_per_int_max_i, 'count_query'=>$count_query]);
                                     //die(print_r($data_per_int));
 
                                     // per Influx time group (15 min)  

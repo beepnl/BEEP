@@ -443,7 +443,7 @@ class FlashLogController extends Controller
                                 $delete_count_query = 'SELECT COUNT("bv") AS "count" FROM "sensors" WHERE "from_flashlog" = \'1\' AND "key" = \''.strtolower($device->key).'\' AND time >= \''.$block_start_t.'\' AND time <= \''.$block_end_t.'\'';
                                 $delete_count       = Device::getInfluxQuery($delete_count_query, 'flashlog');
                                 $delete_count_sum   = isset($delete_count[0]) ? array_sum($delete_count[0]) : 0;
-                                $deleted_days       = round(($block_end_u - $block_start_u)/86400, 1); 
+                                $deleted_days       = round($delete_count_sum*$interval_min/(60*24), 1);
 
                                 Log::debug(['q'=>$delete_count_query, 'delete_count_items'=>count($delete_count), 'delete_count_sum'=>$delete_count_sum, 'deleted_days'=>$deleted_days]);
 

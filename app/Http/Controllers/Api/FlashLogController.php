@@ -550,6 +550,8 @@ class FlashLogController extends Controller
                                                             
                                                             // print_r(['count_sum'=>$count_sum, 'time_start'=>$time_start, 'secStart'=>$secOfCountStart, 'time_end'=>$time_end, 'secEnd'=>$secOfCountEnd, 'minDifWithStart'=>$minDifWithStart, 'indexFlogStart'=>$indexFlogStart, 'indexFlogEnd'=>$indexFlogEnd, 'indexFlog'=>$i, 'secFlog'=>$secDataItem, 'missing_data'=>$missing_data, 'data_item'=>$data_item]);
                                                             // die();
+                                                            Log::debug("missing_data db_count_i=$db_count_i, count_sum=$count_sum < mp=$match_props, iFlS=$indexFlogStart, iFlE=$indexFlogEnd, secOfCS=$secOfCountStart, secOfCE=$secOfCountEnd, ffl $ffl_sec_cs cs, ffl $ffl_sec_ce ce, lfl $lfl_sec_cs cs, lfl $lfl_sec_ce ce");
+                                            
                                                         }
                                                     }
                                                 }

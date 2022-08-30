@@ -739,7 +739,7 @@ class FlashLog extends Model
                 $match_first_time   = $match_first['db_sec'];
                 $match_last_time    = $match_last['db_sec'];
                 $match_total_count  = count($matches_arr);
-                $sec_diff_per_match = ($match_last_time - $match_first_time) / ($match_total_count-1);
+                $sec_diff_per_match = ($match_last_time - $match_first_time) / $match_total_count;
 
                 if (abs($sec_diff_per_match - $interval_sec) > 120) // deviation is too far off
                     $sec_diff_per_index = $interval_sec;

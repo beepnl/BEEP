@@ -385,7 +385,7 @@ class FlashLogController extends Controller
         $export_json = boolval($request->input('json', false));  // if filled, only save data and return a download link 
         $block_id    = $request->filled('block_id') ? intval($request->input('block_id')) : -1;
         $block_data_i= intval($request->input('block_data_index', -1));
-        $data_minutes= intval($request->input('data_minutes', 10080));
+        $data_minutes= intval($request->input('data_minutes', env('FLASHLOG_WINDOW_MINUTES', 10080))); // default 1 week 
         
         $out = ['error'=>'no_flashlog_found'];
 

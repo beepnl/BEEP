@@ -520,8 +520,15 @@ class FlashLogController extends Controller
                                             $indexFlogEnd    = min($block_end_i, $indexFlogStart + $rows_per_db);
                                             $indexFlogStart  = max(0, $indexFlogStart);
                                             
-                                            Log::debug("db_count_i=$db_count_i, count_sum=$count_sum, match_props=$match_props, indexFlogStart=$indexFlogStart, indexFlogEnd=$indexFlogEnd, secOfCountStart=$secOfCountStart, secOfCountEnd=$secOfCountEnd");
 
+                                            $date_first_fl = $block_data[$indexFlogStart]['time'];
+                                            $date_last_fl  = $block_data[$indexFlogEnd]['time'];
+
+                                            $time_first_fl = strtotime($date_first_fl);
+                                            $time_last_fl  = strtotime($date_last_fl);
+
+                                            Log::debug("db_count_i=$db_count_i, count_sum=$count_sum < mp=$match_props, indexFlS=$indexFlogStart, indexFlE=$indexFlogEnd, secOfCS=$secOfCountStart, secOfCE=$secOfCountEnd, date_ffl=$date_first_fl, date_lfl=$date_last_fl, time_ffl=$time_first_fl, time_lfl=$time_last_fl");
+                                            
                                             for ($i=$indexFlogStart; $i < $indexFlogEnd; $i++)
                                             {
                                                 $data_item   = $block_data[$i];

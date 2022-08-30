@@ -532,7 +532,7 @@ class FlashLogController extends Controller
                                             $lfl_sec_cs      = ($time_last_fl >= $secOfCountStart) ? '>' : '<';
                                             $lfl_sec_ce      = ($time_last_fl >= $secOfCountEnd) ? '>' : '<';
 
-                                            Log::debug("db_count_i=$db_count_i, count_sum=$count_sum < mp=$match_props, iFlS=$indexFlogStart, iFlE=$indexFlogEnd, secOfCS=$secOfCountStart, secOfCE=$secOfCountEnd, ffl $ffl_sec_cs cs, ffl $ffl_sec_ce ce, lfl $lfl_sec_cs cs, lfl $lfl_sec_ce ce");
+                                            //Log::debug("db_count_i=$db_count_i, count_sum=$count_sum < mp=$match_props, iFlS=$indexFlogStart, iFlE=$indexFlogEnd, secOfCS=$secOfCountStart, secOfCE=$secOfCountEnd, ffl $ffl_sec_cs cs, ffl $ffl_sec_ce ce, lfl $lfl_sec_cs cs, lfl $lfl_sec_ce ce");
                                             
                                             for ($i=$indexFlogStart; $i < $indexFlogEnd; $i++)
                                             {

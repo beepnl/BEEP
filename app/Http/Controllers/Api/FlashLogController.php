@@ -521,16 +521,16 @@ class FlashLogController extends Controller
                                             $indexFlogStart  = max(0, $indexFlogStart);
                                             
 
-                                            $date_first_fl   = isset($block_data[$indexFlogStart]) ? $block_data[$indexFlogStart]['time'] : null;
-                                            $date_last_fl    = isset($block_data[$indexFlogEnd]) ? $block_data[$indexFlogEnd]['time'] : null;
+                                            // $date_first_fl   = isset($block_data[$indexFlogStart]) ? $block_data[$indexFlogStart]['time'] : null;
+                                            // $date_last_fl    = isset($block_data[$indexFlogEnd]) ? $block_data[$indexFlogEnd]['time'] : null;
 
-                                            $time_first_fl   = isset($date_first_fl) ? strtotime($date_first_fl) : 0;
-                                            $time_last_fl    = isset($date_last_fl) ? strtotime($date_last_fl) : 0;
+                                            // $time_first_fl   = isset($date_first_fl) ? strtotime($date_first_fl) : 0;
+                                            // $time_last_fl    = isset($date_last_fl) ? strtotime($date_last_fl) : 0;
 
-                                            $ffl_sec_cs      = ($time_first_fl >= $secOfCountStart) ? '>' : '<';
-                                            $ffl_sec_ce      = ($time_first_fl >= $secOfCountEnd) ? '>' : '<';
-                                            $lfl_sec_cs      = ($time_last_fl >= $secOfCountStart) ? '>' : '<';
-                                            $lfl_sec_ce      = ($time_last_fl >= $secOfCountEnd) ? '>' : '<';
+                                            // $ffl_sec_cs      = ($time_first_fl >= $secOfCountStart) ? '>' : '<';
+                                            // $ffl_sec_ce      = ($time_first_fl >= $secOfCountEnd) ? '>' : '<';
+                                            // $lfl_sec_cs      = ($time_last_fl >= $secOfCountStart) ? '>' : '<';
+                                            // $lfl_sec_ce      = ($time_last_fl >= $secOfCountEnd) ? '>' : '<';
 
                                             //Log::debug("db_count_i=$db_count_i, count_sum=$count_sum < mp=$match_props, iFlS=$indexFlogStart, iFlE=$indexFlogEnd, secOfCS=$secOfCountStart, secOfCE=$secOfCountEnd, ffl $ffl_sec_cs cs, ffl $ffl_sec_ce ce, lfl $lfl_sec_cs cs, lfl $lfl_sec_ce ce");
                                             
@@ -561,13 +561,18 @@ class FlashLogController extends Controller
                                         $missing_data_count = count($missing_data);
                                         if ($missing_data_count > 100 || ($missing_data_count > 0 && $db_count_i == $data_per_int_max_i - 1)) // persist at every 100 items, or at last item
                                         {
-                                            Log::debug(['missing_data_count'=>$missing_data_count, 'block_start_t'=>$block_start_t, 'device'=>$device->toArray(), 'data_per_int_d'=>$data_per_int_d, 'missing_data'=>$missing_data]);
-                                            
                                             $stored = $this->storeInfluxDataArrays($missing_data, $device);
                                             if ($stored)
                                                 $persist_count += $missing_data_count;
                                             
+                                            $logMissingDates = [];
+                                            foreach($missing_data as $item)
+                                                $logMissingDates[] = $item['time'];
+
+                                            $logMissingDateString = implode(', ', $logMissingDates);
                                             $missing_data = [];
+
+                                            Log::debug("Device: $device->name, block_id=$block_id, time_start=$time_start, stored=$stored, missing_data_count=$missing_data_count, persist_count=$persist_count, missing_dates:\n$logMissingDateString");
                                         }
                                     }
                                 }

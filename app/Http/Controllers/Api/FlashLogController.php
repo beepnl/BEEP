@@ -520,7 +520,7 @@ class FlashLogController extends Controller
                                             $indexFlogEnd    = min($block_end_i, $indexFlogStart + $rows_per_db);
                                             $indexFlogStart  = max(0, $indexFlogStart);
                                             
-                                            Log::debug("db_count_i=$db_count_i, count_sum=$count_sum, match_props=$match_props");
+                                            Log::debug("db_count_i=$db_count_i, count_sum=$count_sum, match_props=$match_props, indexFlogStart=$indexFlogStart, indexFlogEnd=$indexFlogEnd, secOfCountStart=$secOfCountStart, secOfCountEnd=$secOfCountEnd");
 
                                             for ($i=$indexFlogStart; $i < $indexFlogEnd; $i++)
                                             {
@@ -544,7 +544,7 @@ class FlashLogController extends Controller
                                         $missing_data_count = count($missing_data);
                                         if ($missing_data_count > 100 || ($missing_data_count > 0 && $db_count_i == $data_per_int_max_i)) // persist at every 100 items, or at last item
                                         {
-                                            //die(print_r(['missing_data_count'=>$missing_data_count, 'block_start_t'=>$block_start_t, 'device'=>$device->toArray(), 'data_per_int_d'=>$data_per_int_d, 'missing_data'=>$missing_data]));
+                                            Log::debug(['missing_data_count'=>$missing_data_count, 'block_start_t'=>$block_start_t, 'device'=>$device->toArray(), 'data_per_int_d'=>$data_per_int_d, 'missing_data'=>$missing_data]));
                                             
                                             $stored = $this->storeInfluxDataArrays($missing_data, $device);
                                             if ($stored)

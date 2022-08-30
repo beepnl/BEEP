@@ -375,19 +375,21 @@ class FlashLogController extends Controller
     private function parse(Request $request, $id, $persist=false, $delete=false)
     {
         $flashlog_id = intval($id);
-        $matches_min = intval($request->input('matches_min', env('FLASHLOG_MIN_MATCHES', 2))); // minimum amount of inline measurements that should be matched 
+        $matches_min = intval($request->input('matches_min', env('FLASHLOG_MIN_MATCHES', 5))); // minimum amount of inline measurements that should be matched 
         $match_props = intval($request->input('match_props', env('FLASHLOG_MATCH_PROPS', 7))); // minimum amount of measurement properties that should match 
         $db_records  = intval($request->input('db_records', env('FLASHLOG_DB_RECORDS', 15)));// amount of DB records to fetch to match each block
         
         $save_result = boolval($request->input('save_result', false));
         $from_cache  = boolval($request->input('from_cache', true));
+        $show_log    = boolval($request->input('show_log', false));
         $export_csv  = boolval($request->input('csv', false)); // if filled, only save data and return a download link 
         $export_json = boolval($request->input('json', false));  // if filled, only save data and return a download link 
         $block_id    = $request->filled('block_id') ? intval($request->input('block_id')) : -1;
         $block_data_i= intval($request->input('block_data_index', -1));
         $data_minutes= intval($request->input('data_minutes', env('FLASHLOG_WINDOW_MINUTES', 10080))); // default 1 week 
         
-        $out = ['error'=>'no_flashlog_found'];
+        $out         = ['error'=>'no_flashlog_found'];
+        $out_log     = [];
 
         $flashlog = $this->getUserFlashlogs($id);
 
@@ -410,16 +412,18 @@ class FlashLogController extends Controller
                 {
                     $out = $flashlog->log(null, null, $save_result, true, true, $matches_min, $match_props, $db_records, $save_result, $from_cache, 0, $add_weight); // $data='', $log_bytes=null, $save=true, $fill=false, $show=false, $matches_min_override=null, $match_props_override=null, $db_records_override=null, $save_override=false, $from_cache=true, $match_days_offset=0, $add_sensordefinitions=true
 
+                    $out_log = $out['log'];
+
                     // get the data from a single Flashlog block
-                    if ($block_id > -1 && isset($out['log'][$block_id]))
+                    if ($block_id > -1 && isset($out_log[$block_id]))
                     {
-                        $block        = $out['log'][$block_id];
+                        $block        = $out_log[$block_id];
                         $interval_min = $block['interval_min'];
                         $block_data   = json_decode($flashlog->getFileContent('log_file_parsed'), true);
                         $block_start_i= $block['start_i'];
                         $block_end_i  = $block['end_i'];
                         $block_length = $block_end_i - $block_start_i;
-                        $has_matches  = isset($out['log'][$block_id]['matches']) ? true : false;
+                        $has_matches  = isset($out_log[$block_id]['matches']) ? true : false;
 
                         if ($export_csv || $export_json)
                             return $this->exportData(array_slice($block_data, $block_start_i, $block_length), "user-$user_id-$device_name-log-file-$id-block-$block_id-matches-$has_matches", $export_csv);
@@ -734,6 +738,9 @@ class FlashLogController extends Controller
         $out['flashlog_id'] = $flashlog_id;
         $out['persisted_block_ids_array'] = $flashlog->persisted_block_ids_array;
         
+        if ($show_log)
+            $out['log'] = $out_log;
+
         return $out;
     }
 

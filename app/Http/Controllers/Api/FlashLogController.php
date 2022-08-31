@@ -245,7 +245,7 @@ class FlashLogController extends Controller
         $rval2= round($val2,$round_decimals);
         $diff = abs($rval1 - $rval2);
         $ave  = ($rval1 + $rval2) / 2;
-        return $ave != 0 ? 100 * $diff / $ave : 0;
+        return $ave != 0 ? round(100 * $diff / $ave, 1) : 0;
     }
 
 
@@ -259,6 +259,7 @@ class FlashLogController extends Controller
         $array2_length = count($array2);
         $array_min_len = min($array1_length, $array2_length);
         $errors        = [];
+        $percDiff      = [];
 
         if ($array1_length > 0 && $array2_length > 0)
         {
@@ -289,6 +290,8 @@ class FlashLogController extends Controller
                             if (isset($d[$m_key]) && isset($f[$m_key]))
                             {
                                 $diff_perc = $this->diff_percentage($d[$m_key], $f[$m_key]);
+                                $percDiff[]= $diff_perc;
+
                                 if ($diff_perc <= $max_diff_percentage)
                                 {
                                     $matches++;
@@ -319,15 +322,17 @@ class FlashLogController extends Controller
                             $match_count++;
 
                             $array2_index = $j;
+                            continue 2;
                         }
                     }
                 }
             }
         }
-        $secDiffAvg = count($secDiff) > 0 ? round(array_sum($secDiff)/count($secDiff)) : null;
-        $percMatch  = $array_min_len > 0 ? round(100 * ($match_count / $array_min_len), 1): 0;
+        $secDiffAvg   = count($secDiff) > 0 ? round(array_sum($secDiff)/count($secDiff)) : null;
+        $matchDiffAvg = count($percDiff) > 0 ? round(array_sum($percDiff)/count($percDiff)) : null;
+        $percMatch    = $array_min_len > 0 ? round(100 * ($match_count / $array_min_len), 1): 0;
         //die(print_r([$percMatch, $secDiffAvg, $matches]));
-        return ['sec_diff'=>$secDiffAvg, 'perc_match'=>$percMatch, 'errors'=>implode(', ', $errors)];
+        return ['sec_diff'=>$secDiffAvg, 'perc_match'=>$percMatch, 'avg_diff'=>$matchDiffAvg, 'errors'=>implode(', ', $errors)];
     }
 
     private function exportData($data, $name, $csv=true, $separator=';')
@@ -732,13 +737,12 @@ class FlashLogController extends Controller
                                             $db_data_cln[] = array_filter($db_data_block[$i]);
                                     }
                                     
-                                    $out['database']   = $db_data_cln;
-                                    
                                     // Run through the data to see how many % of the data matches
                                     $match_percentage = $this->matchPercentage($out['flashlog'], $db_data_cln, $match_props, $max_diff_perc);
                                     $out['block_data_match_percentage']  = $match_percentage['perc_match'];
                                     $out['block_data_flashlog_sec_diff'] = $match_percentage['sec_diff'];
                                     $out['block_data_match_errors']      = $match_percentage['errors'];
+                                    $out['block_data_diff_percentage']   = $match_percentage['avg_diff'];
 
                                     // Add min start / max end time for ChartJS view
                                     $time_start_db = strtotime($first_obj['time']);
@@ -748,6 +752,8 @@ class FlashLogController extends Controller
 
                                     $out['start_date'] = date($this->timeFormat, min($time_start_db, $time_start_fl)).'Z';
                                     $out['end_date']   = date($this->timeFormat, max($time_end_db, $time_end_fl)).'Z';
+                                    // Add DB data
+                                    $out['database']   = $db_data_cln;
                                 }
                                 else // take start and end time of Flashlog
                                 {

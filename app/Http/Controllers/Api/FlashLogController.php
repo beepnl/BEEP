@@ -451,8 +451,9 @@ class FlashLogController extends Controller
 
                                 if ($delete_count_sum > 0 && $deleted_days > 0)
                                 {
+                                    // TODO: Cut in pieces of days
                                     $delete_query        = 'DELETE FROM "sensors" WHERE "from_flashlog"=\'1\' AND '.$device->influxWhereKeys().' AND time >= \''.$block_start_t.'\' AND time <= \''.$block_end_t.'\'';
-                                    //die(print_r($delete_query));
+                                    Log::debug($delete_query);
                                     $data_deleted        = $this->client::query($delete_query);
                                     $data_influx_deleted = true;
                                     $flashlog->persisted_block_ids_array = array_diff($flashlog->persisted_block_ids_array, [$block_id]);

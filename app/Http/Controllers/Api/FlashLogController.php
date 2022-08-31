@@ -279,7 +279,7 @@ class FlashLogController extends Controller
                         continue;
                     }
 
-                    if (isset($f['bv']) && isset($d['bv']) && $this->diff_percentage($f['bv'], $d['bv'], 3) <= $max_diff_percentage) // first fast check
+                    if (isset($f['bv']) && isset($d['bv']) && $this->diff_percentage($f['bv'], $d['bv'], 3) <= $max_diff_percentage) // first fast check on similar battery voltages
                     {
                         $match = array_intersect_assoc($d, $f);
 
@@ -734,7 +734,7 @@ class FlashLogController extends Controller
                                     $out['database']   = $db_data_cln;
                                     
                                     // Run through the data to see how many % of the data matches
-                                    $match_percentage = $this->matchPercentage($out['flashlog'], $db_data_cln, $match_props, 10);
+                                    $match_percentage = $this->matchPercentage($out['flashlog'], $db_data_cln, $match_props, $max_diff_perc);
                                     $out['block_data_match_percentage']  = $match_percentage['perc_match'];
                                     $out['block_data_flashlog_sec_diff'] = $match_percentage['sec_diff'];
                                     $out['block_data_match_errors']      = $match_percentage['errors'];

@@ -523,8 +523,8 @@ class FlashLogController extends Controller
                                     // Persist all non-existing Flashlog data to InfluxDB
                                     if ($data_per_int_max_i == -1) // import data where there is NO database data available
                                     {
-                                        $indexFlogStart  = round($block_start_i + ($req_ind * $points_p_req * $fl_per_db_int;
-                                        $indexFlogEnd    = round($block_start_i + (($req_ind+1) * $points_p_req * $fl_per_db_int;
+                                        $indexFlogStart  = round($block_start_i + ($req_ind * $points_p_req * $fl_per_db_int));
+                                        $indexFlogEnd    = round($block_start_i + (($req_ind+1) * $points_p_req * $fl_per_db_int));
                                         
                                         Log::debug("persist_with_no_db_values: indexFlogStart=$indexFlogStart, indexFlogEnd=$indexFlogEnd");
 
@@ -580,7 +580,7 @@ class FlashLogController extends Controller
                                                 $secOfCountEnd   = strtotime($time_end);
                                                 $minDifWithStart = round(($secOfCountStart - $block_start_u) / 60);
                                                 $indexFlogStart  = $block_start_i + ceil($minDifWithStart / $interval_min);
-                                                $indexFlogEnd    = min($block_end_i, $indexFlogStart + $fl_per_db_int;
+                                                $indexFlogEnd    = min($block_end_i, $indexFlogStart + $fl_per_db_int);
                                                 $indexFlogStart  = max(0, $indexFlogStart);
                                                 
                                                 for ($i=$indexFlogStart; $i < $indexFlogEnd; $i++)

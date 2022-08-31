@@ -447,7 +447,7 @@ class FlashLogController extends Controller
                                 $delete_count_sum   = isset($delete_count[0]['count']) ? $delete_count[0]['count'] : 0;
                                 $deleted_days       = round($delete_count_sum*$interval_min/(60*24), 1);
 
-                                Log::debug(['q'=>$delete_count_query, 'delete_count_items'=>count($delete_count), 'delete_count_sum'=>$delete_count_sum, 'deleted_days'=>$deleted_days, 'delete_count'=>$delete_count]);
+                                Log::debug("delete before: delete_count_sum=$delete_count_sum deleted_days=$deleted_days");
 
                                 if ($delete_count_sum > 0 && $deleted_days > 0)
                                 {
@@ -459,6 +459,7 @@ class FlashLogController extends Controller
                                             $delete_query = 'DELETE FROM "sensors" WHERE "from_flashlog"=\'1\' AND "key" = \''.$device_key.'\' AND time >= \''.$block_start_t.'\' AND time <= \''.$block_end_t.'\'';
                                             $data_deleted = $this->client::query($delete_query);
                                             $data_influx_deleted = true;
+                                            Log::debug("delete all from_flashlog values for key=$device_key between $block_start_t and $block_end_t");
                                         }
                                         catch(\Exception $e)
                                         {
@@ -475,6 +476,10 @@ class FlashLogController extends Controller
                                 }
                                 
                                 $out = ['data_deleted'=>$data_influx_deleted, 'deleted_measurements'=>$delete_count_sum, 'deleted_days'=>$deleted_days];
+
+                                Cache::forget($flashlog->getLogCacheName(true, true, $matches_min, $match_props, $db_records)); // remove cached result, because import has changed it
+                                Log::debug("delete finished: ".implode(',', $out)); 
+
                             }
                             else if ($persist) // Save missing data to DB
                             {

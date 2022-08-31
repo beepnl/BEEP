@@ -260,7 +260,8 @@ class FlashLogController extends Controller
         $array_min_len = min($array1_length, $array2_length);
         $errors        = [];
         $percDiff      = [];
-
+        $should_match  = ['weight_kg','t_i','t_0','t_1']; // reject match, because weight_kg, t_i, t_0, or t_1 do not match
+                            
         if ($array1_length > 0 && $array2_length > 0)
         {
             for ($i=0; $i < $array1_length; $i++) 
@@ -284,7 +285,6 @@ class FlashLogController extends Controller
                     {
                         // loop through both array measurements values
                         $matches      = 0; 
-                        $should_match = ['weight_kg','t_i','t_0','t_1'];
                         foreach (array_keys($d) as $m_key)
                         {
                             if (isset($d[$m_key]) && isset($f[$m_key]))
@@ -293,34 +293,37 @@ class FlashLogController extends Controller
                                 $percDiff[]= $diff_perc;
 
                                 if ($diff_perc <= $max_diff_percentage) // m_key matches
-                                {
-                                    $match_ok = true;
-                                    if (in_array($m_key, $should_match))
-                                    {
-                                        if ($m_key == 'weight_kg' && abs($d[$m_key]) > 200 && abs($f[$m_key]) > 200) // can still be ok, because uncalibrated db values can be replaced
-                                        {
-                                            if (in_array($m_key.'_uncalibrated', $errors) == false)
-                                                $errors[] = $m_key.'_uncalibrated';
-                                        }
-                                        else
-                                        {
-                                            // reject match, because weight_kg, t_i, t_0, or t_1 does not match
-                                            $match_ok = false;
-
-                                            if (in_array($m_key.'_different', $errors) == false)
-                                                $errors[] = $m_key.'_different';
-                                        }
-                                    }
-                                    if ($match_ok) // count this measurement as a match
-                                        $matches++;
-                                }
+                                    $matches++;
+                                
                             }
                         }
-                        // count matches
+                        // chack validity of matches
                         if ($matches >= $d_val_count-1)
                         {
-                            $secDiff[] = strtotime($f['time']) - strtotime($d_time);
-                            $match_count++;
+                            $match_ok = true;
+                            foreach ($should_match as $m_key)
+                            {
+                                if ($m_key == 'weight_kg' && abs($d[$m_key]) > 200 && abs($f[$m_key]) > 200) // can still be ok, because uncalibrated db values can be replaced
+                                {
+                                    if (in_array($m_key.'_uncalibrated', $errors) == false)
+                                        $errors[] = $m_key.'_uncalibrated';
+                                }
+                                else
+                                {
+                                    // reject match, because weight_kg, t_i, t_0, or t_1 does not match
+                                    $match_ok = false;
+
+                                    if (in_array($m_key.'_different', $errors) == false)
+                                        $errors[] = $m_key.'_different';
+
+                                    Log::error("match fl_arr[$i] to db_arr[$j] $m_key diff_perc=$diff_perc: fl=$f[$m_key] db=$d[$m_key] @ $d_time");
+                                }
+                            }
+                            if ($match_ok) // count this measurement as a match
+                            {
+                                $secDiff[] = strtotime($f['time']) - strtotime($d_time);
+                                $match_count++;
+                            }
 
                             $array2_index = $j;
                             continue 2;
@@ -333,7 +336,7 @@ class FlashLogController extends Controller
         $matchDiffAvg = count($percDiff) > 0 ? round(array_sum($percDiff)/count($percDiff), 1) : null;
         $percMatch    = $array_min_len > 0 ? round(100 * ($match_count / $array_min_len), 1): 0;
         //die(print_r([$percMatch, $secDiffAvg, $matches]));
-        return ['sec_diff'=>$secDiffAvg, 'perc_match'=>$percMatch, 'avg_diff'=>$matchDiffAvg, 'errors'=>implode(', ', $errors)];
+        return ['sec_diff'=>$secDiffAvg, 'perc_match'=>$percMatch, 'match_count'=>$match_count, 'avg_diff'=>$matchDiffAvg, 'errors'=>implode(', ', $errors)];
     }
 
     private function exportData($data, $name, $csv=true, $separator=';')
@@ -744,6 +747,7 @@ class FlashLogController extends Controller
                                     $out['block_data_flashlog_sec_diff'] = $match_percentage['sec_diff'];
                                     $out['block_data_match_errors']      = $match_percentage['errors'];
                                     $out['block_data_diff_percentage']   = $match_percentage['avg_diff'];
+                                    $out['block_data_match_count']       = $match_percentage['match_count'];
 
                                     // Add min start / max end time for ChartJS view
                                     $time_start_db = strtotime($first_obj['time']);

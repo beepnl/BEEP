@@ -292,26 +292,27 @@ class FlashLogController extends Controller
                                 $diff_perc = $this->diff_percentage($d[$m_key], $f[$m_key]);
                                 $percDiff[]= $diff_perc;
 
-                                if ($diff_perc <= $max_diff_percentage)
+                                if ($diff_perc <= $max_diff_percentage) // m_key matches
                                 {
-                                    $matches++;
-                                }
-                                else if (in_array($m_key, $should_match))
-                                {
-                                    if ($m_key == 'weight_kg' && abs($d[$m_key]) > 200 && abs($f[$m_key]) > 200) // can still be ok, because uncalibrated db values can be replaced
+                                    $match_ok = true;
+                                    if (in_array($m_key, $should_match))
                                     {
+                                        if ($m_key == 'weight_kg' && abs($d[$m_key]) > 200 && abs($f[$m_key]) > 200) // can still be ok, because uncalibrated db values can be replaced
+                                        {
+                                            if (in_array($m_key.'_uncalibrated', $errors) == false)
+                                                $errors[] = $m_key.'_uncalibrated';
+                                        }
+                                        else
+                                        {
+                                            // reject match, because weight_kg, t_i, t_0, or t_1 does not match
+                                            $match_ok = false;
+
+                                            if (in_array($m_key.'_different', $errors) == false)
+                                                $errors[] = $m_key.'_different';
+                                        }
+                                    }
+                                    if ($match_ok) // count this measurement as a match
                                         $matches++;
-
-                                        if (in_array($m_key.'_uncalibrated', $errors) == false)
-                                            $errors[] = $m_key.'_uncalibrated';
-                                    }
-                                    else
-                                    {
-                                        if (in_array($m_key.'_different', $errors) == false)
-                                            $errors[] = $m_key.'_different';
-
-                                        Log::error("match fl_arr[$i] to db_arr[$j] $m_key diff_perc=$diff_perc: fl=$f[$m_key] db=$d[$m_key] @ $d_time");
-                                    }
                                 }
                             }
                         }

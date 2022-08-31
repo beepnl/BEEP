@@ -260,7 +260,8 @@ class FlashLogController extends Controller
         $array_min_len = min($array1_length, $array2_length);
         $errors        = [];
         $percDiff      = [];
-        $should_match  = ['weight_kg','t_i','t_0','t_1']; // reject match, because weight_kg, t_i, t_0, or t_1 do not match
+        $should_match  = ['weight_kg'=>0,'t_i'=>0,'t_0'=>0,'t_1'=>0]; // reject match, because weight_kg, t_i, t_0, or t_1 do not match
+        $should_m_keys = array_keys($should_match); // reject match, because weight_kg, t_i, t_0, or t_1 do not match
                             
         if ($array1_length > 0 && $array2_length > 0)
         {
@@ -295,31 +296,27 @@ class FlashLogController extends Controller
 
                                 if ($diff_perc <= $max_diff_percentage) // m_key matches
                                     $matches++;
-                                else if (in_array($m_key, $should_match))
+                                else if (in_array($m_key, $should_m_keys))
                                     $should_match_diff[$m_key] = $diff_perc;
                                 
                             }
                         }
-                        // chack validity of matches
+                        // check validity of this match
                         if ($matches >= $d_val_count-1)
                         {
                             $match_ok = true;
                             foreach ($should_match_diff as $m_key => $diff)
                             {
+                                $should_match[$m_key] = $should_match[$m_key] + 1;
                                 if ($m_key == 'weight_kg' && abs($d[$m_key]) > 200 && abs($f[$m_key]) > 200) // can still be ok, because uncalibrated db values can be replaced
                                 {
-                                    if (in_array($m_key.'_uncalibrated', $errors) == false)
-                                        $errors[] = $m_key.'_uncalibrated';
+                                    $errors[$m_key] = "$should_match[$m_key] $m_key values uncalibrated";
                                 }
                                 else
                                 {
                                     // reject match, because weight_kg, t_i, t_0, or t_1 does not match
                                     $match_ok = false;
-
-                                    if (in_array($m_key.'_different', $errors) == false)
-                                        $errors[] = $m_key.'_different';
-
-                                    Log::error("match fl_arr[$i] to db_arr[$j] $m_key diff_perc=$diff: fl=$f[$m_key] db=$d[$m_key] @ $d_time");
+                                    $errors[$m_key] = "$should_match[$m_key] $m_key values different";
                                 }
                             }
                             if ($match_ok) // count this measurement as a match

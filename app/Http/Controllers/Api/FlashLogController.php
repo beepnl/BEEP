@@ -277,7 +277,7 @@ class FlashLogController extends Controller
                         continue;
                     }
 
-                    if (isset($f['bv']) && isset($d['bv']) && diff_percentage($f['bv'], $d['bv']) < $max_diff_percentage) // first fast check
+                    if (isset($f['bv']) && isset($d['bv']) && $this->diff_percentage($f['bv'], $d['bv']) < $max_diff_percentage) // first fast check
                     {
                         $match = array_intersect_assoc($d, $f);
 
@@ -288,7 +288,7 @@ class FlashLogController extends Controller
                             foreach ($should_match as $m_key)
                             {
                                 // reject match, because weight_kg, t_i, t_0, or t_1 does not match
-                                if (isset($d[$m_key]) && isset($f[$m_key]) && diff_percentage($d[$m_key], $f[$m_key]) > $max_diff_percentage)
+                                if (isset($d[$m_key]) && isset($f[$m_key]) && $this->diff_percentage($d[$m_key], $f[$m_key]) > $max_diff_percentage)
                                 {
                                     if ($m_key == 'weight_kg' && $d[$m_key] > 200 && $f[$m_key] < 200) // can still be ok, because uncalibrated db values can be replaced
                                     {

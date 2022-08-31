@@ -664,7 +664,7 @@ class FlashLogController extends Controller
                                 else if ($data_minutes > 1440)
                                     $interval_multi = 4;
                                 
-                                $interval_min  = $interval_min * $interval_multi
+                                $interval_min  = $interval_min * $interval_multi;
                                 $fl_i_modulo   = $fl_per_db_int* $interval_multi;
 
                                 $match_index   = $block['fl_i'];

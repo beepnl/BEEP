@@ -284,7 +284,8 @@ class FlashLogController extends Controller
                     if (isset($f['bv']) && isset($d['bv']) && $this->diff_percentage($f['bv'], $d['bv'], 3) <= $max_diff_percentage) // first fast check on similar battery voltages
                     {
                         // loop through both array measurements values
-                        $matches      = 0; 
+                        $matches           = 0; 
+                        $should_match_diff = [];
                         foreach (array_keys($d) as $m_key)
                         {
                             if (isset($d[$m_key]) && isset($f[$m_key]))
@@ -294,6 +295,8 @@ class FlashLogController extends Controller
 
                                 if ($diff_perc <= $max_diff_percentage) // m_key matches
                                     $matches++;
+                                else if (in_array($m_key, $should_match))
+                                    $should_match_diff[$m_key] = $diff_perc;
                                 
                             }
                         }
@@ -301,7 +304,7 @@ class FlashLogController extends Controller
                         if ($matches >= $d_val_count-1)
                         {
                             $match_ok = true;
-                            foreach ($should_match as $m_key)
+                            foreach ($should_match_diff as $m_key => $diff)
                             {
                                 if ($m_key == 'weight_kg' && abs($d[$m_key]) > 200 && abs($f[$m_key]) > 200) // can still be ok, because uncalibrated db values can be replaced
                                 {
@@ -316,7 +319,7 @@ class FlashLogController extends Controller
                                     if (in_array($m_key.'_different', $errors) == false)
                                         $errors[] = $m_key.'_different';
 
-                                    Log::error("match fl_arr[$i] to db_arr[$j] $m_key diff_perc=$diff_perc: fl=$f[$m_key] db=$d[$m_key] @ $d_time");
+                                    Log::error("match fl_arr[$i] to db_arr[$j] $m_key diff_perc=$diff: fl=$f[$m_key] db=$d[$m_key] @ $d_time");
                                 }
                             }
                             if ($match_ok) // count this measurement as a match

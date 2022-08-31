@@ -431,7 +431,9 @@ class FlashLogController extends Controller
                         // Check if there are matches (NB: Bug: persisted measurements now can only be deleted in a block with matches)
                         if ($has_matches)
                         {
-                            Log::debug("FlashLogController parse device=$device_name, persist=$persist, delete=$delete, flashlog_id=$flashlog_id, block_id=$block_id, block_length=$block_length, block_start_i=$block_start_i, block_end_i=$block_end_i");
+                            $persist_log = $persist ? '1' : '0';
+                            $delete_log  = $delete ? '1' : '0';
+                            Log::debug("FlashLogController parse device=$device_name, persist=$persist_log, delete=$delete_log, flashlog_id=$flashlog_id, block_id=$block_id, block_length=$block_length, block_start_i=$block_start_i, block_end_i=$block_end_i");
 
                             $block_start_t= $block['time_start'];
                             $block_end_t  = $block['time_end'];
@@ -459,7 +461,7 @@ class FlashLogController extends Controller
                                             $delete_query = 'DELETE FROM "sensors" WHERE "from_flashlog"=\'1\' AND "key" = \''.$device_key.'\' AND time >= \''.$block_start_t.'\' AND time <= \''.$block_end_t.'\'';
                                             $data_deleted = $this->client::query($delete_query);
                                             $data_influx_deleted = true;
-                                            Log::debug("delete all from_flashlog values for key=$device_key between $block_start_t and $block_end_t");
+                                            Log::debug("delete all from_flashlog='1' values for key=$device_key between $block_start_t and $block_end_t");
                                         }
                                         catch(\Exception $e)
                                         {
@@ -519,8 +521,8 @@ class FlashLogController extends Controller
                                     // Persist all non-existing Flashlog data to InfluxDB
                                     if ($data_per_int_max_i == -1) // import data where there is NO database data available
                                     {
-                                        $indexFlogStart  = round($block_start_i + ($req_ind * $req_points_db));
-                                        $indexFlogEnd    = round($block_start_i + (($req_ind+1) * $req_points_db));
+                                        $indexFlogStart  = round($block_start_i + ($req_ind * $req_points_db / $rows_per_db));
+                                        $indexFlogEnd    = round($block_start_i + (($req_ind+1) * $req_points_db / $rows_per_db));
                                         
                                         Log::debug("persist_with_no_db_values: indexFlogStart=$indexFlogStart, indexFlogEnd=$indexFlogEnd");
 
@@ -548,7 +550,7 @@ class FlashLogController extends Controller
                                                 $logMissingDates = $missing_data[0]['time'].' -> '.$missing_data[$missing_data_count-1]['time'];
                                                 $missing_data    = [];
 
-                                                Log::debug("persist_with_no_db_values: stored=$stored, missing_data_count=$missing_data_count, persist_count=$persist_count, missing_dates=$logMissingDates");
+                                                Log::debug("persist_with_no_db_values: stored=$stored, missing_data_count=$missing_data_count, persist_count=$persist_count, dates=$logMissingDates");
                                             }
                                         }
                                     }
@@ -599,7 +601,7 @@ class FlashLogController extends Controller
 
                                             // Store batches of data to InfluxDB
                                             $missing_data_count = count($missing_data);
-                                            if ($missing_data_count > $db_insert_rec || ($missing_data_count > 0 && $db_count_i == $data_per_int_max_i - 1)) // persist at every 100 items, or at last item
+                                            if ($missing_data_count > $db_insert_rec || ($missing_data_count > 0 && $db_count_i == $data_per_int_max_i - 1)) // persist at every $db_insert_rec items, or at last item
                                             {
                                                 $stored = $this->storeInfluxDataArrays($missing_data, $device);
                                                 if ($stored)

@@ -686,14 +686,16 @@ class FlashLogController extends Controller
                                 $out = ['block_start_i'=>$block_start_i, 'block_end_i'=>$block_end_i, 'match_index'=>$match_index, 'block_data_index'=>$block_data_i, 'block_data_index_max'=>$data_i_max, 'block_data_index_amount'=>$index_amount, 'block_data_start'=>$start_index, 'block_data_end'=>$end_index, 'flashlog'=>[], 'database'=>[]];
 
                                 // Add flashlog measurement data
+                                $modulo_counter = 0; // counter that starts at 0 (like DB $i)
                                 for ($i=$start_index; $i<$end_index; $i++) 
                                 { 
-                                    if ($fl_i_modulo < 2 || $i % $fl_i_modulo == 0)
+                                    if ($fl_i_modulo < 2 || $modulo_counter % $fl_i_modulo == 0)
                                     {
                                         $block_data_item = $this->cleanFlashlogItem($block_data[$i]);
                                         $block_data_item['time'] .= 'Z'; // display as UTC
                                         $out['flashlog'][] = $block_data_item;
                                     }
+                                    $modulo_counter++;
                                 }
 
                                 $data_values = count($out['flashlog']);
@@ -705,10 +707,15 @@ class FlashLogController extends Controller
                                     $start_time    = substr($first_obj['time'], 0, 19); // cut off Z
                                     $end_time      = substr($last_obj['time'], 0, 19); // cut off Z
                                     $query         = 'SELECT "'.implode('","', $measurements).'" FROM "sensors" WHERE '.$device->influxWhereKeys().' AND time >= \''.$start_time.'\' AND time <= \''.$end_time.'\' ORDER BY time ASC LIMIT '.$index_amount;
-                                    $db_data_week  = Device::getInfluxQuery($query, 'flashlog');
+                                    $db_data_block = Device::getInfluxQuery($query, 'flashlog');
+                                    $db_data_len   = count($db_data_block);
                                     $db_data_cln   = [];
-                                    foreach ($db_data_week as $db_value)
-                                        $db_data_cln[] = array_filter($db_value);
+                                    
+                                    for ($i=0; $i<$db_data_len; $i++) 
+                                    { 
+                                        if ($fl_i_modulo < 2 || $i % $fl_i_modulo == 0)
+                                            $db_data_cln[] = array_filter($db_data_block[$i]);
+                                    }
                                     
                                     $out['database']   = $db_data_cln;
                                     

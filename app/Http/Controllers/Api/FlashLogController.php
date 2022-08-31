@@ -478,7 +478,7 @@ class FlashLogController extends Controller
                                 $out = ['data_deleted'=>$data_influx_deleted, 'deleted_measurements'=>$delete_count_sum, 'deleted_days'=>$deleted_days];
 
                                 Cache::forget($flashlog->getLogCacheName(true, true, $matches_min, $match_props, $db_records)); // remove cached result, because import has changed it
-                                Log::debug("delete finished: ".implode(',', $out)); 
+                                Log::debug("delete finished: ".json_encode($out)); 
 
                             }
                             else if ($persist) // Save missing data to DB
@@ -513,14 +513,14 @@ class FlashLogController extends Controller
                                     $data_per_int_max_i = count($data_per_int)-1;
                                     $missing_data       = [];
                                     
-                                    Log::debug("persist_check $req_cnt_db chunks of $points_p_req interval_db min values: req_ind=$req_ind, req_start_time=$req_start_time, req_end_time=$req_end_time, query_results=$data_per_int_max_i");
+                                    Log::debug("persist_check chunk $req_ind/$req_cnt_db of $points_p_req interval_db min values: req_start_time=$req_start_time, req_end_time=$req_end_time, query_results=$data_per_int_max_i");
                                     //die(print_r($data_per_int));
 
                                     // Persist all non-existing Flashlog data to InfluxDB
                                     if ($data_per_int_max_i == -1) // import data where there is NO database data available
                                     {
-                                        $indexFlogStart  = $block_start_i + ($req_ind * $req_points_db);
-                                        $indexFlogEnd    = $block_start_i + ($req_ind+1 * $req_points_db);
+                                        $indexFlogStart  = round($block_start_i + ($req_ind * $req_points_db));
+                                        $indexFlogEnd    = round($block_start_i + (($req_ind+1) * $req_points_db));
                                         
                                         Log::debug("persist_with_no_db_values: indexFlogStart=$indexFlogStart, indexFlogEnd=$indexFlogEnd");
 
@@ -647,7 +647,7 @@ class FlashLogController extends Controller
                                 {
                                     $out = ['data_stored'=>false, 'persisted_measurements'=>$persist_count, 'persisted_days'=>0, 'error'=>'no_data_stored'];
                                 }
-                                Log::debug("persist finished: ".implode(',', $out)); 
+                                Log::debug("persist finished: ".json_encode($out)); 
                             }
                             else // Show data content per $data_minutes
                             {

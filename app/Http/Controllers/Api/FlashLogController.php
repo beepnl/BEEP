@@ -329,7 +329,7 @@ class FlashLogController extends Controller
             }
         }
         $secDiffAvg   = count($secDiff) > 0 ? round(array_sum($secDiff)/count($secDiff)) : null;
-        $matchDiffAvg = count($percDiff) > 0 ? round(array_sum($percDiff)/count($percDiff)) : null;
+        $matchDiffAvg = count($percDiff) > 0 ? round(array_sum($percDiff)/count($percDiff), 1) : null;
         $percMatch    = $array_min_len > 0 ? round(100 * ($match_count / $array_min_len), 1): 0;
         //die(print_r([$percMatch, $secDiffAvg, $matches]));
         return ['sec_diff'=>$secDiffAvg, 'perc_match'=>$percMatch, 'avg_diff'=>$matchDiffAvg, 'errors'=>implode(', ', $errors)];

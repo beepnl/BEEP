@@ -451,18 +451,27 @@ class FlashLogController extends Controller
 
                                 if ($delete_count_sum > 0 && $deleted_days > 0)
                                 {
-                                    // TODO: Cut in pieces of days
-                                    // $device_keys = [$device->key, ] 
-                                    // foreach ($variable as $key => $value) {
-                                    //     // code...
-                                    // }
-                                    $delete_query        = 'DELETE FROM "sensors" WHERE "from_flashlog"=\'1\' AND "key" = \''.$device->key.'\' AND time >= \''.$block_start_t.'\' AND time <= \''.$block_end_t.'\'';
-                                    Log::debug($delete_query);
-                                    $data_deleted        = $this->client::query($delete_query);
-                                    $data_influx_deleted = true;
-                                    $flashlog->persisted_block_ids_array = array_diff($flashlog->persisted_block_ids_array, [$block_id]);
-                                    $flashlog->persisted_measurements = max(0, $flashlog->persisted_measurements - $delete_count_sum);
-                                    $flashlog->save();
+                                    // Delete for each key separately since OR statements do not work in DELETE statements
+                                    foreach ($device->allKeys() as $device_key) 
+                                    {
+                                        try
+                                        {
+                                            $delete_query = 'DELETE FROM "sensors" WHERE "from_flashlog"=\'1\' AND "key" = \''.$device_key.'\' AND time >= \''.$block_start_t.'\' AND time <= \''.$block_end_t.'\'';
+                                            $data_deleted = $this->client::query($delete_query);
+                                            $data_influx_deleted = true;
+                                        }
+                                        catch(\Exception $e)
+                                        {
+                                            Log::error($e->getMessage());
+                                        }
+                                    }
+                                    
+                                    if ($data_influx_deleted)
+                                    {
+                                        $flashlog->persisted_block_ids_array = array_diff($flashlog->persisted_block_ids_array, [$block_id]);
+                                        $flashlog->persisted_measurements = max(0, $flashlog->persisted_measurements - $delete_count_sum);
+                                        $flashlog->save();
+                                    }
                                 }
                                 
                                 $out = ['data_deleted'=>$data_influx_deleted, 'deleted_measurements'=>$delete_count_sum, 'deleted_days'=>$deleted_days];

@@ -284,7 +284,7 @@ class FlashLogController extends Controller
                         // loop through both array measurements values
                         $matches      = 0; 
                         $should_match = ['weight_kg','t_i','t_0','t_1'];
-                        foreach ($array_keys($d) as $m_key)
+                        foreach (array_keys($d) as $m_key)
                         {
                             if (isset($d[$m_key]) && isset($f[$m_key]))
                             {

@@ -320,6 +320,7 @@ class FlashLogController extends Controller
                             
                         }
                     }
+                    Log::debug("match ($match_ok) fl_arr[$i]: ".json_encode($f)." with db_arr[$j]: ".json_encode($d));
                 }
             }
         }

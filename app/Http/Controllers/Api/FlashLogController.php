@@ -522,8 +522,8 @@ class FlashLogController extends Controller
                                     // Persist all non-existing Flashlog data to InfluxDB
                                     if ($data_per_int_max_i == -1) // import data where there is NO database data available
                                     {
-                                        $indexFlogStart  = round($block_start_i + ($req_ind * $req_points_db / $rows_per_db));
-                                        $indexFlogEnd    = round($block_start_i + (($req_ind+1) * $req_points_db / $rows_per_db));
+                                        $indexFlogStart  = round($block_start_i + ($req_ind * $points_p_req));
+                                        $indexFlogEnd    = round($block_start_i + (($req_ind+1) * $points_p_req));
                                         
                                         Log::debug("persist_with_no_db_values: indexFlogStart=$indexFlogStart, indexFlogEnd=$indexFlogEnd");
 
@@ -533,12 +533,9 @@ class FlashLogController extends Controller
                                             {
                                                 $data_item = $block_data[$i];
 
-                                                if (isset($data_item['time']))
-                                                {
-                                                    if (isset($data_item['port']) && $data_item['port'] == 3) // time from flashlog should be between start and end of this interval
-                                                        $missing_data[] = $this->cleanFlashlogItem($data_item);
+                                                if (isset($data_item['time']) && isset($data_item['port']) && $data_item['port'] == 3) // time from flashlog should be between start and end of this interval
+                                                    $missing_data[] = $this->cleanFlashlogItem($data_item);
 
-                                                }
                                             }
                                             // Store batches of data to InfluxDB
                                             $missing_data_count = count($missing_data);

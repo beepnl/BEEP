@@ -554,7 +554,9 @@ class FlashLogController extends Controller
                                     }
                                     else // import data where there is database data available
                                     {
-                                        Log::debug("persist_in_between_db_values: dbStartDate=$data_per_int[0]['time'], dbEndDate=$data_per_int[$data_per_int_max_i]['time']");
+                                        $dbStartDate = $data_per_int[0]['time'];
+                                        $dbEndDate   = $data_per_int[$data_per_int_max_i]['time'];
+                                        Log::debug("persist_in_between_db_values: dbStartDate=$dbStartDate, dbEndDate=$dbEndDate");
                                         // Run through DB data per Influx time group (15 min)  
                                         for($db_count_i=0 ; $db_count_i < $data_per_int_max_i; $db_count_i++) 
                                         {

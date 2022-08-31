@@ -239,7 +239,7 @@ class FlashLogController extends Controller
         return $data_array;
     }
 
-    private function matchPercentage($array1, $array2, $match_props=9)
+    private function matchPercentage($array1, $array2, $match_props=9) // flashlog_array, database_array
     {
         //$matches       = [];
         $secDiff       = [];
@@ -656,6 +656,23 @@ class FlashLogController extends Controller
                             else // Show data content per $data_minutes
                             {
                                 // select portion of the data
+                                if ($data_minutes > 43200)
+                                {
+                                    $interval_min = 180;
+                                }
+                                else if ($data_minutes > 10080)
+                                {
+                                    $interval_min = 60;
+                                }
+                                else if ($data_minutes > 1440)
+                                {
+                                    $interval_min = 30;
+                                }
+                                else
+                                {
+                                    // leave $interval_min to default (15 min)
+                                }
+
                                 $match_index   = $block['fl_i'];
                                 $index_amount  = round($data_minutes / $interval_min);
                                 $data_i_max    = floor(($block_end_i - $block_start_i) / $index_amount);
@@ -690,7 +707,7 @@ class FlashLogController extends Controller
                                     $last_obj      = $out['flashlog'][$data_values-1];
                                     $start_time    = substr($first_obj['time'], 0, 19); // cut off Z
                                     $end_time      = substr($last_obj['time'], 0, 19); // cut off Z
-                                    $query         = 'SELECT "'.implode('","', $measurements).'" FROM "sensors" WHERE '.$flashlog->device->influxWhereKeys().' AND time >= \''.$start_time.'\' AND time <= \''.$end_time.'\' ORDER BY time ASC LIMIT '.$index_amount;
+                                    $query         = 'SELECT "'.implode('","', $measurements).'" FROM "sensors" WHERE '.$device->influxWhereKeys().' AND time >= \''.$start_time.'\' AND time <= \''.$end_time.'\' ORDER BY time ASC LIMIT '.$index_amount;
                                     $db_data_week  = Device::getInfluxQuery($query, 'flashlog');
                                     $db_data_cln   = [];
                                     foreach ($db_data_week as $db_value)

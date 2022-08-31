@@ -239,15 +239,17 @@ class FlashLogController extends Controller
         return $data_array;
     }
 
-    private function diff_percentage($val1, $val2)
+    private function diff_percentage($val1, $val2, $round_decimals=1)
     {
-        $diff = abs($val1 - $val2);
-        $ave  = ($val1 + $val2) / 2;
+        $rval1= round($val1,$round_decimals);
+        $rval2= round($val2,$round_decimals);
+        $diff = abs($rval1 - $rval2);
+        $ave  = ($rval1 + $rval2) / 2;
         return $ave != 0 ? 100 * $diff / $ave : 0;
     }
 
 
-    private function matchPercentage($array1, $array2, $match_props=9, $max_diff_percentage=1) // flashlog_array, database_array
+    private function matchPercentage($array1, $array2, $match_props=9, $max_diff_percentage=0) // flashlog_array, database_array
     {
         //$matches       = [];
         $secDiff       = [];
@@ -277,7 +279,7 @@ class FlashLogController extends Controller
                         continue;
                     }
 
-                    if (isset($f['bv']) && isset($d['bv']) && $this->diff_percentage($f['bv'], $d['bv']) < $max_diff_percentage) // first fast check
+                    if (isset($f['bv']) && isset($d['bv']) && $this->diff_percentage($f['bv'], $d['bv'], 3) <= $max_diff_percentage) // first fast check
                     {
                         $match = array_intersect_assoc($d, $f);
 
@@ -677,6 +679,7 @@ class FlashLogController extends Controller
                                 
                                 $interval_min  = $interval_min * $interval_multi;
                                 $fl_i_modulo   = $interval_multi;
+                                $max_diff_perc = $interval_multi - 1; // 0-11% diff
 
                                 $match_index   = $block['fl_i'];
                                 $index_amount  = round($data_minutes / $interval_min);
@@ -694,7 +697,7 @@ class FlashLogController extends Controller
                                 $start_index = $block_start_i + ($index_amount * $block_data_i);
                                 $end_index   = min($block_end_i, $block_start_i + ($index_amount * ($block_data_i+1)));
 
-                                $out = ['interval_min'=>$interval_min, 'data_point_modulo'=>$fl_i_modulo, 'block_start_i'=>$block_start_i, 'block_end_i'=>$block_end_i, 'match_index'=>$match_index, 'block_data_index'=>$block_data_i, 'block_data_index_max'=>$data_i_max, 'block_data_index_amount'=>$index_amount, 'block_data_start'=>$start_index, 'block_data_end'=>$end_index, 'flashlog'=>[], 'database'=>[]];
+                                $out = ['interval_min'=>$interval_min, 'data_point_modulo'=>$fl_i_modulo, 'max_diff_perc'=>$max_diff_perc, 'block_start_i'=>$block_start_i, 'block_end_i'=>$block_end_i, 'match_index'=>$match_index, 'block_data_index'=>$block_data_i, 'block_data_index_max'=>$data_i_max, 'block_data_index_amount'=>$index_amount, 'block_data_start'=>$start_index, 'block_data_end'=>$end_index, 'flashlog'=>[], 'database'=>[]];
 
                                 // Add flashlog measurement data
                                 $modulo_counter = 0; // counter that starts at 0 (like DB $i)

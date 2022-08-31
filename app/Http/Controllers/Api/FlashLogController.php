@@ -479,6 +479,7 @@ class FlashLogController extends Controller
                             else if ($persist) // Save missing data to DB
                             {
                                 $persist_count= 0;
+                                $db_insert_rec= 999; // chuck size of records to insert at one POST request
                                 $interval_db  = 15; // db request minute interval
                                 $rows_per_db  = $interval_db / $interval_min; // amount of flashlog items in 1 database interval
                                 $req_points_db= $block_length / $rows_per_db;  
@@ -510,10 +511,10 @@ class FlashLogController extends Controller
                                     $data_per_int_max_i = count($data_per_int)-1;
                                     $missing_data       = [];
                                     
-                                    Log::debug("req_ind=$req_ind, req_start_time=$req_start_time, req_end_time=$req_end_time, query_results=$data_per_int_max_i, count_query=$count_query");
+                                    Log::debug("persist_check $req_cnt_db chunks of $points_p_req interval_db min values: req_ind=$req_ind, req_start_time=$req_start_time, req_end_time=$req_end_time, query_results=$data_per_int_max_i");
                                     //die(print_r($data_per_int));
 
-                                    // Persist Flashlog data to InfluxDB
+                                    // Persist all non-existing Flashlog data to InfluxDB
                                     if ($data_per_int_max_i == -1) // import data where there is NO database data available
                                     {
                                         $minDifWithStart = round(($req_start_unix - $block_start_u) / 60);
@@ -521,6 +522,8 @@ class FlashLogController extends Controller
                                         $indexFlogEnd    = min($block_end_i, $indexFlogStart + $rows_per_db);
                                         $indexFlogStart  = max(0, $indexFlogStart);
                                         
+                                        Log::debug("persist_with_no_db_values: indexFlogStart=$indexFlogStart, indexFlogEnd=$indexFlogEnd");
+
                                         for ($i=$indexFlogStart; $i < $indexFlogEnd; $i++)
                                         {
                                             if (isset($block_data[$i]))
@@ -529,16 +532,14 @@ class FlashLogController extends Controller
 
                                                 if (isset($data_item['time']))
                                                 {
-                                                    $secDataItem = strtotime($data_item['time']);
-                                                    
-                                                    if (isset($data_item['port']) && $data_item['port'] == 3 && $secDataItem >= $req_start_unix && $secDataItem < $req_end_unix) // time from flashlog should be between start and end of this interval
+                                                    if (isset($data_item['port']) && $data_item['port'] == 3) // time from flashlog should be between start and end of this interval
                                                         $missing_data[] = $this->cleanFlashlogItem($data_item);
 
                                                 }
                                             }
                                             // Store batches of data to InfluxDB
                                             $missing_data_count = count($missing_data);
-                                            if ($missing_data_count > 99 || ($missing_data_count > 0 && $i == $indexFlogEnd - 1)) // persist at every 100 items, or at last item
+                                            if ($missing_data_count > $db_insert_rec || ($missing_data_count > 0 && $i == $indexFlogEnd - 1)) // persist at every 100 items, or at last item
                                             {
                                                 $stored = $this->storeInfluxDataArrays($missing_data, $device);
                                                 if ($stored)
@@ -547,7 +548,7 @@ class FlashLogController extends Controller
                                                 $logMissingDates = $missing_data[0]['time'].' -> '.$missing_data[$missing_data_count-1]['time'];
                                                 $missing_data    = [];
 
-                                                Log::debug("persist_with_no_db_values stored=$stored, missing_data_count=$missing_data_count, persist_count=$persist_count, missing_dates=$logMissingDates");
+                                                Log::debug("persist_with_no_db_values: stored=$stored, missing_data_count=$missing_data_count, persist_count=$persist_count, missing_dates=$logMissingDates");
                                             }
                                         }
                                     }
@@ -598,7 +599,7 @@ class FlashLogController extends Controller
 
                                             // Store batches of data to InfluxDB
                                             $missing_data_count = count($missing_data);
-                                            if ($missing_data_count > 999 || ($missing_data_count > 0 && $db_count_i == $data_per_int_max_i - 1)) // persist at every 100 items, or at last item
+                                            if ($missing_data_count > $db_insert_rec || ($missing_data_count > 0 && $db_count_i == $data_per_int_max_i - 1)) // persist at every 100 items, or at last item
                                             {
                                                 $stored = $this->storeInfluxDataArrays($missing_data, $device);
                                                 if ($stored)

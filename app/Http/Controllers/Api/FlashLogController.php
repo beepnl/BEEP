@@ -239,7 +239,15 @@ class FlashLogController extends Controller
         return $data_array;
     }
 
-    private function matchPercentage($array1, $array2, $match_props=9) // flashlog_array, database_array
+    private function diff_percentage($val1, $val2)
+    {
+        $diff = abs($val1 - $val2);
+        $ave  = ($val1 + $val2) / 2;
+        return $ave != 0 ? 100 * $diff / $ave : 0;
+    }
+
+
+    private function matchPercentage($array1, $array2, $match_props=9, $max_diff_percentage=1) // flashlog_array, database_array
     {
         //$matches       = [];
         $secDiff       = [];
@@ -269,7 +277,7 @@ class FlashLogController extends Controller
                         continue;
                     }
 
-                    if (isset($f['bv']) && isset($d['bv']) && $f['bv'] == $d['bv']) // first fast check
+                    if (isset($f['bv']) && isset($d['bv']) && diff_percentage($f['bv'], $d['bv']) < $max_diff_percentage) // first fast check
                     {
                         $match = array_intersect_assoc($d, $f);
 
@@ -280,7 +288,7 @@ class FlashLogController extends Controller
                             foreach ($should_match as $m_key)
                             {
                                 // reject match, because weight_kg, t_i, t_0, or t_1 does not match
-                                if (isset($d[$m_key]) && isset($f[$m_key]) && round($d[$m_key], 1) !== round($f[$m_key], 1))
+                                if (isset($d[$m_key]) && isset($f[$m_key]) && diff_percentage($d[$m_key], $f[$m_key]) > $max_diff_percentage)
                                 {
                                     if ($m_key == 'weight_kg' && $d[$m_key] > 200 && $f[$m_key] < 200) // can still be ok, because uncalibrated db values can be replaced
                                     {
@@ -720,7 +728,7 @@ class FlashLogController extends Controller
                                     $out['database']   = $db_data_cln;
                                     
                                     // Run through the data to see how many % of the data matches
-                                    $match_percentage = $this->matchPercentage($out['flashlog'], $db_data_cln, $match_props);
+                                    $match_percentage = $this->matchPercentage($out['flashlog'], $db_data_cln, $match_props, 10);
                                     $out['block_data_match_percentage']  = $match_percentage['perc_match'];
                                     $out['block_data_flashlog_sec_diff'] = $match_percentage['sec_diff'];
                                     $out['block_data_match_errors']      = $match_percentage['errors'];

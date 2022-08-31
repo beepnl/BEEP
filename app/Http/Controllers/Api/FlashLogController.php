@@ -491,7 +491,7 @@ class FlashLogController extends Controller
                             {
                                 $persist_count= 0;
                                 $db_insert_rec= 4999; // chuck size of records to insert at one POST request
-                                $req_points_db= $block_length / $fl_per_db_int 
+                                $req_points_db= $block_length / $fl_per_db_int;
                                 $req_cnt_db   = ceil($req_points_db / $this->maxDataPoints);
                                 $points_p_req = round($req_points_db / $req_cnt_db);
                                 $secs_per_req = $points_p_req * $interval_db * 60;
@@ -569,7 +569,7 @@ class FlashLogController extends Controller
                                             //print_r(['db_count'=>$db_count, 'm'=>$count_measurements]);
 
                                             $db_count      = array_intersect_key($db_count, $count_measurements); // only keep the key counts from valid matching measurements
-                                            $count_sum     = array_sum($db_count) / $fl_per_db_int                                            
+                                            $count_sum     = array_sum($db_count) / $fl_per_db_int;                                        
                                             $data_per_int_d[$time_start] = $count_sum;
                                             
 
@@ -580,7 +580,7 @@ class FlashLogController extends Controller
                                                 $secOfCountEnd   = strtotime($time_end);
                                                 $minDifWithStart = round(($secOfCountStart - $block_start_u) / 60);
                                                 $indexFlogStart  = $block_start_i + ceil($minDifWithStart / $interval_min);
-                                                $indexFlogEnd    = min($block_end_i, $indexFlogStart + $fl_per_db_int
+                                                $indexFlogEnd    = min($block_end_i, $indexFlogStart + $fl_per_db_int;
                                                 $indexFlogStart  = max(0, $indexFlogStart);
                                                 
                                                 for ($i=$indexFlogStart; $i < $indexFlogEnd; $i++)

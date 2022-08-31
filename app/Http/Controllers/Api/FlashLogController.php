@@ -307,7 +307,7 @@ class FlashLogController extends Controller
                                         if (in_array($m_key.'_different', $errors) == false)
                                             $errors[] = $m_key.'_different';
 
-                                        Log::error("match fl_arr[$i] to db_arr[$j] $m_key diff_perc=$diff_perc: fl=$f[$m_key] db=$d[$m_key]");
+                                        Log::error("match fl_arr[$i] to db_arr[$j] $m_key diff_perc=$diff_perc: fl=$f[$m_key] db=$d[$m_key] @ $d_time");
                                     }
                                 }
                             }

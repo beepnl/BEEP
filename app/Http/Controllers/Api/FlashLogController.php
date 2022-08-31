@@ -281,46 +281,43 @@ class FlashLogController extends Controller
 
                     if (isset($f['bv']) && isset($d['bv']) && $this->diff_percentage($f['bv'], $d['bv'], 3) <= $max_diff_percentage) // first fast check on similar battery voltages
                     {
-                        $match = array_intersect_assoc($d, $f);
-
-                        if ($match !== null && count($match) >= $d_val_count-1)
+                        // loop through both array measurements values
+                        $matches      = 0; 
+                        $should_match = ['weight_kg','t_i','t_0','t_1'];
+                        foreach ($array_keys($d) as $m_key)
                         {
-                            $should_match = ['weight_kg','t_i','t_0','t_1'];
-                            $match_ok     = true;
-                            foreach ($should_match as $m_key)
+                            if (isset($d[$m_key]) && isset($f[$m_key]))
                             {
-                                // reject match, because weight_kg, t_i, t_0, or t_1 does not match
-                                if (isset($d[$m_key]) && isset($f[$m_key]) && $this->diff_percentage($d[$m_key], $f[$m_key]) > $max_diff_percentage)
+                                if ($this->diff_percentage($d[$m_key], $f[$m_key]) <= $max_diff_percentage)
                                 {
-                                    if ($m_key == 'weight_kg' && $d[$m_key] > 200 && $f[$m_key] < 200) // can still be ok, because uncalibrated db values can be replaced
+                                    $matches++;
+                                }
+                                else if (in_array($m_key, $should_match))
+                                {
+                                    if ($m_key == 'weight_kg' && abs($d[$m_key]) > 200 && abs($f[$m_key]) > 200) // can still be ok, because uncalibrated db values can be replaced
                                     {
+                                        $matches++;
+
                                         if (in_array($m_key.'_uncalibrated', $errors) == false)
                                             $errors[] = $m_key.'_uncalibrated';
                                     }
                                     else
                                     {
-                                        $match_ok = false;
-                                        
                                         if (in_array($m_key.'_different', $errors) == false)
                                             $errors[] = $m_key.'_different';
                                     }
                                 }
                             }
-
-                            if ($match_ok)
-                            {
-                                $d['time'] = $d_time; // put back tima
-                                //$matches[] = ['d'=>$d, 'f'=>$f, 'm'=>$match];
-                                $secDiff[] = strtotime($f['time']) - strtotime($d['time']);
-                                $match_count++;
-                            }
+                        }
+                        // count matches
+                        if ($matches >= $d_val_count-1)
+                        {
+                            $secDiff[] = strtotime($f['time']) - strtotime($d_time);
+                            $match_count++;
 
                             $array2_index = $j;
-                            continue 2; // next foreach loop to continue with the next database item
-                            
                         }
                     }
-                    Log::debug("match $match_props props with max $max_diff_percentage%% diff fl_arr[$i]: ".json_encode($f)." with db_arr[$j]: ".json_encode($d));
                 }
             }
         }

@@ -93,7 +93,7 @@ class Device extends Model
     }
 
     // former Dev EUIs (created at redoing automatic LoRa config)
-    public function influxWhereKeys()
+    public function allKeys()
     {
         $keys = [$this->key];
 
@@ -116,6 +116,14 @@ class Device extends Model
         }
         if (count($add_keys) > 0)
             $keys = array_merge($keys, $add_keys);
+
+        //die(print_r($where_keys));
+        return $keys;
+    }
+
+    public function influxWhereKeys()
+    {
+        $keys = $this->allKeys();
 
         $where_keys = '("key" = \''.implode('\' OR "key" = \'', $keys).'\')';
         //die(print_r($where_keys));

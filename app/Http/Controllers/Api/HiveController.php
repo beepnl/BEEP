@@ -203,5 +203,6 @@ class HiveController extends Controller
     {
         $hive = $request->user()->hives()->findOrFail($hive->id);
         $hive->delete();
+        return response()->json(null, 204);
     }
 }

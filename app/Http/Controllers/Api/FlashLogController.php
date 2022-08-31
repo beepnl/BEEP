@@ -433,6 +433,7 @@ class FlashLogController extends Controller
                         {
                             $persist_log = $persist ? '1' : '0';
                             $delete_log  = $delete ? '1' : '0';
+                            Log::debug("");
                             Log::debug("FlashLogController parse device=$device_name, persist=$persist_log, delete=$delete_log, flashlog_id=$flashlog_id, block_id=$block_id, block_length=$block_length, block_start_i=$block_start_i, block_end_i=$block_end_i");
 
                             $block_start_t= $block['time_start'];

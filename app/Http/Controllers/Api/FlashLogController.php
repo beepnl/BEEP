@@ -442,15 +442,15 @@ class FlashLogController extends Controller
                         // Check if there are matches (NB: Bug: persisted measurements now can only be deleted in a block with matches)
                         if ($has_matches)
                         {
-                            $persist_log = $persist ? '1' : '0';
-                            $delete_log  = $delete ? '1' : '0';
-                            Log::debug("");
-                            Log::debug("FlashLogController parse device=$device_name, persist=$persist_log, delete=$delete_log, flashlog_id=$flashlog_id, block_id=$block_id, block_length=$block_length, block_start_i=$block_start_i, block_end_i=$block_end_i");
-
                             $block_start_t= $block['time_start'];
                             $block_end_t  = $block['time_end'];
                             $block_start_u= strtotime($block_start_t);  
                             $block_end_u  = strtotime($block_end_t);  
+                            
+                            Log::debug("");
+                            $persist_log = $persist ? '1' : '0';
+                            $delete_log  = $delete ? '1' : '0';
+                            Log::debug("FlashLogController parse device=$device_name, persist=$persist_log, del=$delete_log, fl_id=$flashlog_id, bl_id=$block_id, bl_len=$block_length, bl_st_tm=$block_start_t, bl_st_i=$block_start_i, bl_end_tm=$block_end_t, bl_end_i=$block_end_i, bl_data_i=$block_data_i");
 
                             if ($delete)
                             {
@@ -673,7 +673,7 @@ class FlashLogController extends Controller
                                     $interval_multi = 4;
                                 
                                 $interval_min  = $interval_min * $interval_multi;
-                                $fl_i_modulo   = $fl_per_db_int* $interval_multi;
+                                $fl_i_modulo   = $interval_multi;
 
                                 $match_index   = $block['fl_i'];
                                 $index_amount  = round($data_minutes / $interval_min);

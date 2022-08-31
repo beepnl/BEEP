@@ -288,7 +288,8 @@ class FlashLogController extends Controller
                         {
                             if (isset($d[$m_key]) && isset($f[$m_key]))
                             {
-                                if ($this->diff_percentage($d[$m_key], $f[$m_key]) <= $max_diff_percentage)
+                                $diff_perc = $this->diff_percentage($d[$m_key], $f[$m_key]);
+                                if ($diff_perc <= $max_diff_percentage)
                                 {
                                     $matches++;
                                 }
@@ -305,6 +306,8 @@ class FlashLogController extends Controller
                                     {
                                         if (in_array($m_key.'_different', $errors) == false)
                                             $errors[] = $m_key.'_different';
+
+                                        Log::error("match fl_arr[$i] to db_arr[$j] $m_key diff_perc=$diff_perc: fl=$f[$m_key] db=$d[$m_key]");
                                     }
                                 }
                             }

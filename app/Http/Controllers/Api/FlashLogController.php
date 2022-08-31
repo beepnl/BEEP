@@ -425,6 +425,9 @@ class FlashLogController extends Controller
                         $block_length = $block_end_i - $block_start_i;
                         $has_matches  = isset($out_log[$block_id]['matches']) ? true : false;
 
+                        $interval_db  = 15; // db request minute interval
+                        $fl_per_db_int= $interval_db / $interval_min; // amount of flashlog items in 1 database interval
+
                         if ($export_csv || $export_json)
                             return $this->exportData(array_slice($block_data, $block_start_i, $block_length), "user-$user_id-$device_name-log-file-$id-block-$block_id-matches-$has_matches", $export_csv);
 
@@ -488,9 +491,7 @@ class FlashLogController extends Controller
                             {
                                 $persist_count= 0;
                                 $db_insert_rec= 4999; // chuck size of records to insert at one POST request
-                                $interval_db  = 15; // db request minute interval
-                                $rows_per_db  = $interval_db / $interval_min; // amount of flashlog items in 1 database interval
-                                $req_points_db= $block_length / $rows_per_db;  
+                                $req_points_db= $block_length / $fl_per_db_int 
                                 $req_cnt_db   = ceil($req_points_db / $this->maxDataPoints);
                                 $points_p_req = round($req_points_db / $req_cnt_db);
                                 $secs_per_req = $points_p_req * $interval_db * 60;
@@ -522,8 +523,8 @@ class FlashLogController extends Controller
                                     // Persist all non-existing Flashlog data to InfluxDB
                                     if ($data_per_int_max_i == -1) // import data where there is NO database data available
                                     {
-                                        $indexFlogStart  = round($block_start_i + ($req_ind * $points_p_req * $rows_per_db));
-                                        $indexFlogEnd    = round($block_start_i + (($req_ind+1) * $points_p_req * $rows_per_db));
+                                        $indexFlogStart  = round($block_start_i + ($req_ind * $points_p_req * $fl_per_db_int;
+                                        $indexFlogEnd    = round($block_start_i + (($req_ind+1) * $points_p_req * $fl_per_db_int;
                                         
                                         Log::debug("persist_with_no_db_values: indexFlogStart=$indexFlogStart, indexFlogEnd=$indexFlogEnd");
 
@@ -568,8 +569,7 @@ class FlashLogController extends Controller
                                             //print_r(['db_count'=>$db_count, 'm'=>$count_measurements]);
 
                                             $db_count      = array_intersect_key($db_count, $count_measurements); // only keep the key counts from valid matching measurements
-                                            $count_sum     = array_sum($db_count) / $rows_per_db;
-                                            
+                                            $count_sum     = array_sum($db_count) / $fl_per_db_int                                            
                                             $data_per_int_d[$time_start] = $count_sum;
                                             
 
@@ -580,7 +580,7 @@ class FlashLogController extends Controller
                                                 $secOfCountEnd   = strtotime($time_end);
                                                 $minDifWithStart = round(($secOfCountStart - $block_start_u) / 60);
                                                 $indexFlogStart  = $block_start_i + ceil($minDifWithStart / $interval_min);
-                                                $indexFlogEnd    = min($block_end_i, $indexFlogStart + $rows_per_db);
+                                                $indexFlogEnd    = min($block_end_i, $indexFlogStart + $fl_per_db_int
                                                 $indexFlogStart  = max(0, $indexFlogStart);
                                                 
                                                 for ($i=$indexFlogStart; $i < $indexFlogEnd; $i++)
@@ -656,22 +656,16 @@ class FlashLogController extends Controller
                             else // Show data content per $data_minutes
                             {
                                 // select portion of the data
+                                $interval_multi = 1;
                                 if ($data_minutes > 43200)
-                                {
-                                    $interval_min = 180;
-                                }
+                                    $interval_multi = 12;
                                 else if ($data_minutes > 10080)
-                                {
-                                    $interval_min = 60;
-                                }
+                                    $interval_multi = 8;
                                 else if ($data_minutes > 1440)
-                                {
-                                    $interval_min = 30;
-                                }
-                                else
-                                {
-                                    // leave $interval_min to default (15 min)
-                                }
+                                    $interval_multi = 4;
+                                
+                                $interval_min  = $interval_min * $interval_multi
+                                $fl_i_modulo   = $fl_per_db_int* $interval_multi;
 
                                 $match_index   = $block['fl_i'];
                                 $index_amount  = round($data_minutes / $interval_min);
@@ -694,9 +688,12 @@ class FlashLogController extends Controller
                                 // Add flashlog measurement data
                                 for ($i=$start_index; $i<$end_index; $i++) 
                                 { 
-                                    $block_data_item = $this->cleanFlashlogItem($block_data[$i]);
-                                    $block_data_item['time'] .= 'Z'; // display as UTC
-                                    $out['flashlog'][] = $block_data_item;
+                                    if ($fl_i_modulo < 2 || $i % $fl_i_modulo == 0)
+                                    {
+                                        $block_data_item = $this->cleanFlashlogItem($block_data[$i]);
+                                        $block_data_item['time'] .= 'Z'; // display as UTC
+                                        $out['flashlog'][] = $block_data_item;
+                                    }
                                 }
 
                                 $data_values = count($out['flashlog']);

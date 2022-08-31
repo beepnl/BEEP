@@ -431,7 +431,7 @@ class FlashLogController extends Controller
                         // Check if there are matches (NB: Bug: persisted measurements now can only be deleted in a block with matches)
                         if ($has_matches)
                         {
-                            Log::debug("FlashLogController parse device=$device_name, persist=$persist, delete=$delete, flashlog_id=$flashlog_id, block_id=$block_id");
+                            Log::debug("FlashLogController parse device=$device_name, persist=$persist, delete=$delete, flashlog_id=$flashlog_id, block_id=$block_id, block_length=$block_length, block_start_i=$block_start_i, block_end_i=$block_end_i");
 
                             $block_start_t= $block['time_start'];
                             $block_end_t  = $block['time_end'];
@@ -479,7 +479,7 @@ class FlashLogController extends Controller
                             else if ($persist) // Save missing data to DB
                             {
                                 $persist_count= 0;
-                                $db_insert_rec= 999; // chuck size of records to insert at one POST request
+                                $db_insert_rec= 4999; // chuck size of records to insert at one POST request
                                 $interval_db  = 15; // db request minute interval
                                 $rows_per_db  = $interval_db / $interval_min; // amount of flashlog items in 1 database interval
                                 $req_points_db= $block_length / $rows_per_db;  
@@ -502,12 +502,9 @@ class FlashLogController extends Controller
                                     $req_end_time   = date('Y-m-d H:i:s', $req_end_unix);
                                     
                                     // run through the db data array to define which data to add 
-                                    $count_query  = 'SELECT COUNT(*) FROM "sensors" WHERE '.$device->influxWhereKeys().' AND time >= \''.$req_start_time.'\' AND time <= \''.$req_end_time.'\' GROUP BY time('.$interval_db.'m) ORDER BY time ASC LIMIT '.$points_p_req;
-                                    
-                                    
+                                    $count_query        = 'SELECT COUNT(*) FROM "sensors" WHERE '.$device->influxWhereKeys().' AND time >= \''.$req_start_time.'\' AND time <= \''.$req_end_time.'\' GROUP BY time('.$interval_db.'m) ORDER BY time ASC LIMIT '.$points_p_req;
                                     $data_per_int       = Device::getInfluxQuery($count_query, 'flashlog');
                                     $data_per_int_d     = [];
-
                                     $data_per_int_max_i = count($data_per_int)-1;
                                     $missing_data       = [];
                                     
@@ -517,10 +514,8 @@ class FlashLogController extends Controller
                                     // Persist all non-existing Flashlog data to InfluxDB
                                     if ($data_per_int_max_i == -1) // import data where there is NO database data available
                                     {
-                                        $minDifWithStart = round(($req_start_unix - $block_start_u) / 60);
-                                        $indexFlogStart  = $block_start_i + ceil($minDifWithStart / $interval_min);
-                                        $indexFlogEnd    = min($block_end_i, $indexFlogStart + $rows_per_db);
-                                        $indexFlogStart  = max(0, $indexFlogStart);
+                                        $indexFlogStart  = $block_start_i + ($req_ind * $req_points_db);
+                                        $indexFlogEnd    = $block_start_i + ($req_ind+1 * $req_points_db);
                                         
                                         Log::debug("persist_with_no_db_values: indexFlogStart=$indexFlogStart, indexFlogEnd=$indexFlogEnd");
 
@@ -618,7 +613,7 @@ class FlashLogController extends Controller
                                 
                                 if ($persist_count > 0)
                                 {
-                                    //Cache::forget($flashlog->getLogCacheName(true, true, $matches_min, $match_props, $db_records)); // remove cached result, because import has changed it
+                                    Cache::forget($flashlog->getLogCacheName(true, true, $matches_min, $match_props, $db_records)); // remove cached result, because import has changed it
                                     
                                     $persist_days = round($persist_count*$interval_min/(60*24), 1);
 
@@ -647,6 +642,7 @@ class FlashLogController extends Controller
                                 {
                                     $out = ['data_stored'=>false, 'persisted_measurements'=>$persist_count, 'persisted_days'=>0, 'error'=>'no_data_stored'];
                                 }
+                                Log::debug("persist finished: ".implode(',', $out)); 
                             }
                             else // Show data content per $data_minutes
                             {

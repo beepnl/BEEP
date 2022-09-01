@@ -693,9 +693,6 @@ class FlashLogController extends Controller
                             }
                             else // Show data content per $data_minutes
                             {
-                                $fl_i_modulo   = $interval_multi;
-                                $max_diff_perc = 0; // 0-11% diff
-
                                 $match_index   = $block['fl_i'];
                                 $index_amount  = round($data_minutes / $interval_min);
                                 $data_i_max    = floor(($block_end_i - $block_start_i) / $index_amount);
@@ -712,27 +709,23 @@ class FlashLogController extends Controller
                                 $start_index   = $block_start_i + ($index_amount * $block_data_i);
                                 $end_index     = min($block_end_i, $block_start_i + ($index_amount * ($block_data_i+1)));
                                 
-                                $out = ['interval_min'=>$interval_min* $interval_multi, 'data_point_modulo'=>$fl_i_modulo, 'max_diff_perc'=>$max_diff_perc, 'block_start_i'=>$block_start_i, 'block_end_i'=>$block_end_i, 'match_index'=>$match_index, 'block_data_index'=>$block_data_i, 'block_data_index_max'=>$data_i_max, 'block_data_index_amount'=>$index_amount, 'block_data_start'=>$start_index, 'block_data_end'=>$end_index, 'flashlog'=>[], 'database'=>[]];
+                                $out = ['interval_min'=>$interval_min* $interval_multi, 'data_point_modulo'=>$fl_i_modulo, 'block_start_i'=>$block_start_i, 'block_end_i'=>$block_end_i, 'match_index'=>$match_index, 'block_data_index'=>$block_data_i, 'block_data_index_max'=>$data_i_max, 'block_data_index_amount'=>$index_amount, 'block_data_start'=>$start_index, 'block_data_end'=>$end_index, 'flashlog'=>[], 'database'=>[]];
 
                                 // Add flashlog measurement data
-                                $modulo_counter = 0; // counter that starts at 0 (like DB $i)
+                                $fl_data_cln    = [];
                                 for ($i=$start_index; $i<$end_index; $i++) 
                                 { 
-                                    if ($fl_i_modulo < 2 || $modulo_counter % $fl_i_modulo == 0)
-                                    {
-                                        $block_data_item = $this->cleanFlashlogItem($block_data[$i]);
-                                        $block_data_item['time'] .= 'Z'; // display as UTC
-                                        $out['flashlog'][] = $block_data_item;
-                                    }
-                                    $modulo_counter++;
+                                    $block_data_item = $this->cleanFlashlogItem($block_data[$i]);
+                                    $block_data_item['time'] .= 'Z'; // display as UTC
+                                    $fl_data_cln[] = $block_data_item;
                                 }
-
-                                $data_values = count($out['flashlog']);
+                                $data_val_count = count($fl_data_cln);
+                                
                                 // Add Database data
-                                if ($data_values > 0)
+                                if ($data_val_count > 0)
                                 {
-                                    $first_obj     = $out['flashlog'][0];
-                                    $last_obj      = $out['flashlog'][$data_values-1];
+                                    $first_obj     = $fl_data_cln[0];
+                                    $last_obj      = $fl_data_cln[$data_val_count-1];
                                     $start_time    = substr($first_obj['time'], 0, 19); // cut off Z
                                     $end_time      = substr($last_obj['time'], 0, 19); // cut off Z
                                     $query         = 'SELECT "'.implode('","', $measurements).'" FROM "sensors" WHERE '.$device->influxWhereKeys().' AND time >= \''.$start_time.'\' AND time <= \''.$end_time.'\' ORDER BY time ASC LIMIT '.$index_amount;
@@ -741,13 +734,10 @@ class FlashLogController extends Controller
                                     $db_data_cln   = [];
                                     
                                     for ($i=0; $i<$db_data_len; $i++) 
-                                    { 
-                                        if ($fl_i_modulo < 2 || $i % $fl_i_modulo == 0)
-                                            $db_data_cln[] = array_filter($db_data_block[$i]);
-                                    }
-                                    
+                                        $db_data_cln[] = array_filter($db_data_block[$i]);
+                                
                                     // Run through the data to see how many % of the data matches
-                                    $match_percentage = $this->matchPercentage($out['flashlog'], $db_data_cln, $match_props, $max_diff_perc);
+                                    $match_percentage = $this->matchPercentage($fl_data_cln, $db_data_cln, $match_props);
                                     $out['block_data_match_percentage']  = $match_percentage['perc_match'];
                                     $out['block_data_flashlog_sec_diff'] = $match_percentage['sec_diff'];
                                     $out['block_data_match_errors']      = $match_percentage['errors'];
@@ -764,12 +754,25 @@ class FlashLogController extends Controller
                                     $out['end_date']   = date($this->timeFormat, max($time_end_db, $time_end_fl)).'Z';
                                     // Add DB data
                                     $out['database']   = $db_data_cln;
+
+                                    // Remove values for ease of charting (in frontend) if $interval_multi > 1 
+                                    $fl_i_modulo = $interval_multi;
+                                    if ($fl_i_modulo > 1)
+                                    {
+                                        for ($i=0; $i < $data_val_count; $i++) 
+                                        { 
+                                            if ($i % $fl_i_modulo != 0)
+                                            {
+                                                unset($fl_data_cln[$i]);
+                                                unset($db_data_cln[$i]);
+                                            }
+                                        }
+                                    }
                                 }
-                                else // take start and end time of Flashlog
-                                {
-                                    $out['start_date'] = $block_data[$start_index]['time'].'Z';
-                                    $out['end_date']   = $block_data[$end_index-1]['time'].'Z';
-                                }
+
+                                // Add data te response
+                                $out['flashlog'] = $fl_data_cln;
+                                $out['database'] = $db_data_cln;
 
                             }
                             // Add properties

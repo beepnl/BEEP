@@ -308,7 +308,7 @@ class FlashLogController extends Controller
                             foreach ($should_match_diff as $m_key => $diff)
                             {
                                 $should_match[$m_key] = $should_match[$m_key] + 1;
-                                if ($m_key == 'weight_kg' && abs($d[$m_key]) < 200 && abs($f[$m_key]) > 200) // can still be ok, because uncalibrated db values can be replaced
+                                if ($m_key == 'weight_kg' && abs($d[$m_key]) > 200 && abs($f[$m_key]) < 200) // are still be ok, because uncalibrated db values can be replaced
                                 {
                                     $errors[$m_key] = "$should_match[$m_key] $m_key values uncalibrated";
                                 }

@@ -800,7 +800,14 @@ class FlashLogController extends Controller
 
                             $out = ['block_start_i'=>$block_start_i, 'block_end_i'=>$block_end_i, 'match_index'=>$match_index, 'block_data_index'=>$block_data_i, 'block_data_index_max'=>$data_i_max, 'block_data_index_amount'=>$index_amount, 'block_data_start'=>$start_index, 'block_data_end'=>$end_index, 'flashlog'=>[], 'database'=>[]];
 
+                            // check if time is set
+                            $device_time_set = false;
+                            if (isset($block_data[$start_index]['time']) && isset($block_data[$end_index-1]['time']))
+                                $device_time_set = true;
+
                             // Add flashlog measurement data
+                            $out['start_date'] = null;
+                            $out['end_date']   = null;
                             for ($i=$start_index; $i<$end_index; $i++) 
                             { 
                                 $data_item = $block_data[$i];
@@ -808,18 +815,20 @@ class FlashLogController extends Controller
                                 {
                                     $block_data_item = $this->cleanFlashlogItem($data_item, false);
 
-                                    if (isset($block_data_item['minute']))
+                                    if ($device_time_set == false && isset($block_data_item['minute']))
                                         $block_data_item['time'] = date('Y-m-d\TH:i:s\Z', 946681200 + $block_data_item['minute'] * 60); // display as UTC from 2000-01-01 00:00:00
                                     
                                     $out['flashlog'][] = $block_data_item;
+
+                                    if (empty($out['start_date'])) // first item
+                                        $out['start_date'] = $block_data_item['time'];
+
+                                    $out['end_date'] = $block_data_item['time']; // last port 3 item
                                 }
                             }
                             $out['block_data_match_percentage']  = 0;
                             $out['block_data_flashlog_sec_diff'] = '? ';
                             $out['block_data_match_errors']      = '';
-
-                            $out['start_date'] = $block_data[$start_index]['time'].'Z';
-                            $out['end_date']   = $block_data[$end_index-1]['time'].'Z';
                         }
                     }
                     else // no block_id set, so show all blocks, or download all data in the flashlog

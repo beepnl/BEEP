@@ -758,7 +758,7 @@ class FlashLogController extends Controller
                                     {
                                         $out['block_data_match_percentage']  = 0;
                                         $out['block_data_flashlog_sec_diff'] = '?';
-                                        $out['block_data_match_errors']      = 'Data not matches for >30 days';
+                                        $out['block_data_match_errors']      = 'Data not matched for >30 days';
                                         $out['block_data_diff_percentage']   = 0;
                                         $out['block_data_match_count']       = 0;
                                     }

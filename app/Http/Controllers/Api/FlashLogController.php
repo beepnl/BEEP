@@ -694,7 +694,7 @@ class FlashLogController extends Controller
                             else // Show data content per $data_minutes
                             {
                                 $fl_i_modulo   = $interval_multi;
-                                $max_diff_perc = $interval_multi * 4; // 0-11% diff
+                                $max_diff_perc = 0; // 0-11% diff
 
                                 $match_index   = $block['fl_i'];
                                 $index_amount  = round($data_minutes / $interval_min);

@@ -817,6 +817,9 @@ class FlashLogController extends Controller
                             $out['block_data_match_percentage']  = 0;
                             $out['block_data_flashlog_sec_diff'] = '? ';
                             $out['block_data_match_errors']      = '';
+
+                            $out['start_date'] = $block_data[$start_index]['time'].'Z';
+                            $out['end_date']   = $block_data[$end_index-1]['time'].'Z';
                         }
                     }
                     else // no block_id set, so show all blocks, or download all data in the flashlog

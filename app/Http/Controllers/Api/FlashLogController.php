@@ -437,6 +437,16 @@ class FlashLogController extends Controller
                     // get the data from a single Flashlog block
                     if ($block_id > -1 && isset($out_log[$block_id]))
                     {
+                        
+                        // select portion of the data
+                        $interval_multi = 1;
+                        if ($data_minutes > 43200)
+                            $interval_multi = 12;
+                        else if ($data_minutes > 10080)
+                            $interval_multi = 8;
+                        else if ($data_minutes > 1440)
+                            $interval_multi = 4;
+                                
                         $block        = $out_log[$block_id];
                         $interval_min = $block['interval_min'];
                         $block_data   = json_decode($flashlog->getFileContent('log_file_parsed'), true);
@@ -683,16 +693,6 @@ class FlashLogController extends Controller
                             }
                             else // Show data content per $data_minutes
                             {
-                                // select portion of the data
-                                $interval_multi = 1;
-                                if ($data_minutes > 43200)
-                                    $interval_multi = 12;
-                                else if ($data_minutes > 10080)
-                                    $interval_multi = 8;
-                                else if ($data_minutes > 1440)
-                                    $interval_multi = 4;
-                                
-                                $interval_min  = $interval_min * $interval_multi;
                                 $fl_i_modulo   = $interval_multi;
                                 $max_diff_perc = $interval_multi - 1; // 0-11% diff
 
@@ -709,10 +709,10 @@ class FlashLogController extends Controller
                                 if ($block_data_i > $data_i_max)
                                     $block_data_i = $data_i_max;
 
-                                $start_index = $block_start_i + ($index_amount * $block_data_i);
-                                $end_index   = min($block_end_i, $block_start_i + ($index_amount * ($block_data_i+1)));
-
-                                $out = ['interval_min'=>$interval_min, 'data_point_modulo'=>$fl_i_modulo, 'max_diff_perc'=>$max_diff_perc, 'block_start_i'=>$block_start_i, 'block_end_i'=>$block_end_i, 'match_index'=>$match_index, 'block_data_index'=>$block_data_i, 'block_data_index_max'=>$data_i_max, 'block_data_index_amount'=>$index_amount, 'block_data_start'=>$start_index, 'block_data_end'=>$end_index, 'flashlog'=>[], 'database'=>[]];
+                                $start_index   = $block_start_i + ($index_amount * $block_data_i);
+                                $end_index     = min($block_end_i, $block_start_i + ($index_amount * ($block_data_i+1)));
+                                
+                                $out = ['interval_min'=>$interval_min* $interval_multi, 'data_point_modulo'=>$fl_i_modulo, 'max_diff_perc'=>$max_diff_perc, 'block_start_i'=>$block_start_i, 'block_end_i'=>$block_end_i, 'match_index'=>$match_index, 'block_data_index'=>$block_data_i, 'block_data_index_max'=>$data_i_max, 'block_data_index_amount'=>$index_amount, 'block_data_start'=>$start_index, 'block_data_end'=>$end_index, 'flashlog'=>[], 'database'=>[]];
 
                                 // Add flashlog measurement data
                                 $modulo_counter = 0; // counter that starts at 0 (like DB $i)
@@ -808,23 +808,31 @@ class FlashLogController extends Controller
                             // Add flashlog measurement data
                             $out['start_date'] = null;
                             $out['end_date']   = null;
+                            $fl_i_modulo       = $interval_multi;
+                            $modulo_counter    = 0; // counter that starts at 0 (like DB $i)
+                                
                             for ($i=$start_index; $i<$end_index; $i++) 
                             { 
-                                $data_item = $block_data[$i];
-                                if (isset($data_item['port']) && $data_item['port'] == 3)
+                                if ($fl_i_modulo < 2 || $modulo_counter % $fl_i_modulo == 0)
                                 {
-                                    $block_data_item = $this->cleanFlashlogItem($data_item, false);
+                                    $data_item = $block_data[$i];
+                                    if (isset($data_item['port']) && $data_item['port'] == 3)
+                                    {
+                                        $block_data_item = $this->cleanFlashlogItem($data_item, false);
 
-                                    if ($device_time_set == false && isset($block_data_item['minute']))
-                                        $block_data_item['time'] = date('Y-m-d\TH:i:s\Z', 946681200 + $block_data_item['minute'] * 60); // display as UTC from 2000-01-01 00:00:00
-                                    
-                                    $out['flashlog'][] = $block_data_item;
+                                        if ($device_time_set == false && isset($block_data_item['minute']))
+                                            $block_data_item['time'] = date('Y-m-d\TH:i:s\Z', 946681200 + $block_data_item['minute'] * 60); // display as UTC from 2000-01-01 00:00:00
+                                        
+                                        $out['flashlog'][] = $block_data_item;
 
-                                    if (empty($out['start_date'])) // first item
-                                        $out['start_date'] = $block_data_item['time'];
+                                        if (empty($out['start_date'])) // first item
+                                            $out['start_date'] = $block_data_item['time'];
 
-                                    $out['end_date'] = $block_data_item['time']; // last port 3 item
+                                        $out['end_date'] = $block_data_item['time']; // last port 3 item
+                                    }
                                 }
+                                $modulo_counter++;
+                                
                             }
                             $out['block_data_match_percentage']  = 0;
                             $out['block_data_flashlog_sec_diff'] = '? ';

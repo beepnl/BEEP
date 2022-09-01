@@ -239,7 +239,17 @@ class FlashLogController extends Controller
         return $data_array;
     }
 
-    private function matchPercentage($array1, $array2, $match_props=9)
+    private function diff_percentage($val1, $val2, $round_decimals=1)
+    {
+        $rval1= round($val1,$round_decimals);
+        $rval2= round($val2,$round_decimals);
+        $diff = abs($rval1 - $rval2);
+        $ave  = ($rval1 + $rval2) / 2;
+        return $ave != 0 ? round(100 * $diff / $ave, 1) : 0;
+    }
+
+
+    private function matchPercentage($array1, $array2, $match_props=9, $max_diff_percentage=0) // flashlog_array, database_array
     {
         //$matches       = [];
         $secDiff       = [];
@@ -249,7 +259,10 @@ class FlashLogController extends Controller
         $array2_length = count($array2);
         $array_min_len = min($array1_length, $array2_length);
         $errors        = [];
-
+        $percDiff      = [];
+        $should_match  = ['weight_kg'=>0,'t_i'=>0,'t_0'=>0,'t_1'=>0]; // reject match, because weight_kg, t_i, t_0, or t_1 do not match
+        $should_m_keys = array_keys($should_match); // reject match, because weight_kg, t_i, t_0, or t_1 do not match
+                            
         if ($array1_length > 0 && $array2_length > 0)
         {
             for ($i=0; $i < $array1_length; $i++) 
@@ -269,54 +282,61 @@ class FlashLogController extends Controller
                         continue;
                     }
 
-                    if (isset($f['bv']) && isset($d['bv']) && $f['bv'] == $d['bv']) // first fast check
+                    if (isset($f['bv']) && isset($d['bv']) && $this->diff_percentage($f['bv'], $d['bv'], 3) <= $max_diff_percentage) // first fast check on similar battery voltages
                     {
-                        $match = array_intersect_assoc($d, $f);
-
-                        if ($match !== null && count($match) >= $d_val_count-1)
+                        // loop through both array measurements values
+                        $matches           = 0; 
+                        $should_match_diff = [];
+                        foreach (array_keys($d) as $m_key)
                         {
-                            $should_match = ['weight_kg','t_i','t_0','t_1'];
-                            $match_ok     = true;
-                            foreach ($should_match as $m_key)
+                            if (isset($d[$m_key]) && isset($f[$m_key]))
                             {
-                                // reject match, because weight_kg, t_i, t_0, or t_1 does not match
-                                if (isset($d[$m_key]) && isset($f[$m_key]) && round($d[$m_key], 1) !== round($f[$m_key], 1))
+                                $diff_perc = $this->diff_percentage($d[$m_key], $f[$m_key]);
+                                $percDiff[]= $diff_perc;
+
+                                if ($diff_perc <= $max_diff_percentage) // m_key matches
+                                    $matches++;
+                                else if (in_array($m_key, $should_m_keys))
+                                    $should_match_diff[$m_key] = $diff_perc;
+                                
+                            }
+                        }
+                        // check validity of this match
+                        if ($matches >= $d_val_count-1)
+                        {
+                            $match_ok = true;
+                            foreach ($should_match_diff as $m_key => $diff)
+                            {
+                                $should_match[$m_key] = $should_match[$m_key] + 1;
+                                if ($m_key == 'weight_kg' && abs($d[$m_key]) > 200 && abs($f[$m_key]) < 200) // are still be ok, because uncalibrated db values can be replaced
                                 {
-                                    if ($m_key == 'weight_kg' && $d[$m_key] > 200 && $f[$m_key] < 200) // can still be ok, because uncalibrated db values can be replaced
-                                    {
-                                        if (in_array($m_key.'_uncalibrated', $errors) == false)
-                                            $errors[] = $m_key.'_uncalibrated';
-                                    }
-                                    else
-                                    {
-                                        $match_ok = false;
-                                        
-                                        if (in_array($m_key.'_different', $errors) == false)
-                                            $errors[] = $m_key.'_different';
-                                    }
+                                    $errors[$m_key] = "$should_match[$m_key] $m_key values uncalibrated";
+                                }
+                                else
+                                {
+                                    // reject match, because weight_kg, t_i, t_0, or t_1 does not match
+                                    $match_ok = false;
+                                    $errors[$m_key] = "$should_match[$m_key] $m_key values differ";
                                 }
                             }
-
-                            if ($match_ok)
+                            if ($match_ok) // count this measurement as a match
                             {
-                                $d['time'] = $d_time; // put back tima
-                                //$matches[] = ['d'=>$d, 'f'=>$f, 'm'=>$match];
-                                $secDiff[] = strtotime($f['time']) - strtotime($d['time']);
+                                $secDiff[] = strtotime($f['time']) - strtotime($d_time);
                                 $match_count++;
                             }
 
                             $array2_index = $j;
-                            continue 2; // next foreach loop to continue with the next database item
-                            
+                            continue 2;
                         }
                     }
                 }
             }
         }
-        $secDiffAvg = count($secDiff) > 0 ? round(array_sum($secDiff)/count($secDiff)) : null;
-        $percMatch  = $array_min_len > 0 ? round(100 * ($match_count / $array_min_len), 1): 0;
+        $secDiffAvg   = count($secDiff) > 0 ? round(array_sum($secDiff)/count($secDiff)) : null;
+        $matchDiffAvg = count($percDiff) > 0 ? round(array_sum($percDiff)/count($percDiff), 1) : null;
+        $percMatch    = $array_min_len > 0 ? round(100 * ($match_count / $array_min_len), 1): 0;
         //die(print_r([$percMatch, $secDiffAvg, $matches]));
-        return ['sec_diff'=>$secDiffAvg, 'perc_match'=>$percMatch, 'errors'=>implode(', ', $errors)];
+        return ['sec_diff'=>$secDiffAvg, 'perc_match'=>$percMatch, 'match_count'=>$match_count, 'avg_diff'=>$matchDiffAvg, 'errors'=>implode(', ', $errors)];
     }
 
     private function exportData($data, $name, $csv=true, $separator=';')
@@ -425,21 +445,27 @@ class FlashLogController extends Controller
                         $block_length = $block_end_i - $block_start_i;
                         $has_matches  = isset($out_log[$block_id]['matches']) ? true : false;
 
+                        $interval_db  = 15; // db request minute interval
+                        $fl_per_db_int= $interval_db / $interval_min; // amount of flashlog items in 1 database interval
+
                         if ($export_csv || $export_json)
                             return $this->exportData(array_slice($block_data, $block_start_i, $block_length), "user-$user_id-$device_name-log-file-$id-block-$block_id-matches-$has_matches", $export_csv);
 
                         // Check if there are matches (NB: Bug: persisted measurements now can only be deleted in a block with matches)
                         if ($has_matches)
                         {
-                            $persist_log = $persist ? '1' : '0';
-                            $delete_log  = $delete ? '1' : '0';
-                            Log::debug("");
-                            Log::debug("FlashLogController parse device=$device_name, persist=$persist_log, delete=$delete_log, flashlog_id=$flashlog_id, block_id=$block_id, block_length=$block_length, block_start_i=$block_start_i, block_end_i=$block_end_i");
-
                             $block_start_t= $block['time_start'];
                             $block_end_t  = $block['time_end'];
                             $block_start_u= strtotime($block_start_t);  
                             $block_end_u  = strtotime($block_end_t);  
+                            
+                            if ($delete || $persist)
+                            {
+                                Log::debug("");
+                                $persist_log = $persist ? '1' : '0';
+                                $delete_log  = $delete ? '1' : '0';
+                                Log::debug("FlashLogController parse device=$device_name, persist=$persist_log, del=$delete_log, fl_id=$flashlog_id, bl_id=$block_id, bl_len=$block_length, bl_st_tm=$block_start_t, bl_st_i=$block_start_i, bl_end_tm=$block_end_t, bl_end_i=$block_end_i, bl_data_i=$block_data_i");
+                            }
 
                             if ($delete)
                             {
@@ -472,7 +498,12 @@ class FlashLogController extends Controller
                                     
                                     if ($data_influx_deleted)
                                     {
-                                        $flashlog->persisted_block_ids_array = array_diff($flashlog->persisted_block_ids_array, [$block_id]);
+                                        $persisted_block_ids_array = $flashlog->persisted_block_ids_array;
+                                        if (count($persisted_block_ids_array) == 0 || (count($persisted_block_ids_array) == 1 && $persisted_block_ids_array[0] == $block_id))
+                                            $flashlog->persisted_block_ids = null;
+                                        else
+                                            $flashlog->persisted_block_ids_array = array_diff($flashlog->persisted_block_ids_array, [$block_id]);
+
                                         $flashlog->persisted_measurements = max(0, $flashlog->persisted_measurements - $delete_count_sum);
                                         $flashlog->save();
                                     }
@@ -488,9 +519,7 @@ class FlashLogController extends Controller
                             {
                                 $persist_count= 0;
                                 $db_insert_rec= 4999; // chuck size of records to insert at one POST request
-                                $interval_db  = 15; // db request minute interval
-                                $rows_per_db  = $interval_db / $interval_min; // amount of flashlog items in 1 database interval
-                                $req_points_db= $block_length / $rows_per_db;  
+                                $req_points_db= $block_length / $fl_per_db_int;
                                 $req_cnt_db   = ceil($req_points_db / $this->maxDataPoints);
                                 $points_p_req = round($req_points_db / $req_cnt_db);
                                 $secs_per_req = $points_p_req * $interval_db * 60;
@@ -522,8 +551,8 @@ class FlashLogController extends Controller
                                     // Persist all non-existing Flashlog data to InfluxDB
                                     if ($data_per_int_max_i == -1) // import data where there is NO database data available
                                     {
-                                        $indexFlogStart  = round($block_start_i + ($req_ind * $points_p_req * $rows_per_db));
-                                        $indexFlogEnd    = round($block_start_i + (($req_ind+1) * $points_p_req * $rows_per_db));
+                                        $indexFlogStart  = round($block_start_i + ($req_ind * $points_p_req * $fl_per_db_int));
+                                        $indexFlogEnd    = round($block_start_i + (($req_ind+1) * $points_p_req * $fl_per_db_int));
                                         
                                         Log::debug("persist_with_no_db_values: indexFlogStart=$indexFlogStart, indexFlogEnd=$indexFlogEnd");
 
@@ -568,8 +597,7 @@ class FlashLogController extends Controller
                                             //print_r(['db_count'=>$db_count, 'm'=>$count_measurements]);
 
                                             $db_count      = array_intersect_key($db_count, $count_measurements); // only keep the key counts from valid matching measurements
-                                            $count_sum     = array_sum($db_count) / $rows_per_db;
-                                            
+                                            $count_sum     = array_sum($db_count) / $fl_per_db_int;                                        
                                             $data_per_int_d[$time_start] = $count_sum;
                                             
 
@@ -580,7 +608,7 @@ class FlashLogController extends Controller
                                                 $secOfCountEnd   = strtotime($time_end);
                                                 $minDifWithStart = round(($secOfCountStart - $block_start_u) / 60);
                                                 $indexFlogStart  = $block_start_i + ceil($minDifWithStart / $interval_min);
-                                                $indexFlogEnd    = min($block_end_i, $indexFlogStart + $rows_per_db);
+                                                $indexFlogEnd    = min($block_end_i, $indexFlogStart + $fl_per_db_int);
                                                 $indexFlogStart  = max(0, $indexFlogStart);
                                                 
                                                 for ($i=$indexFlogStart; $i < $indexFlogEnd; $i++)
@@ -656,6 +684,18 @@ class FlashLogController extends Controller
                             else // Show data content per $data_minutes
                             {
                                 // select portion of the data
+                                $interval_multi = 1;
+                                if ($data_minutes > 43200)
+                                    $interval_multi = 12;
+                                else if ($data_minutes > 10080)
+                                    $interval_multi = 8;
+                                else if ($data_minutes > 1440)
+                                    $interval_multi = 4;
+                                
+                                $interval_min  = $interval_min * $interval_multi;
+                                $fl_i_modulo   = $interval_multi;
+                                $max_diff_perc = $interval_multi - 1; // 0-11% diff
+
                                 $match_index   = $block['fl_i'];
                                 $index_amount  = round($data_minutes / $interval_min);
                                 $data_i_max    = floor(($block_end_i - $block_start_i) / $index_amount);
@@ -672,14 +712,19 @@ class FlashLogController extends Controller
                                 $start_index = $block_start_i + ($index_amount * $block_data_i);
                                 $end_index   = min($block_end_i, $block_start_i + ($index_amount * ($block_data_i+1)));
 
-                                $out = ['block_start_i'=>$block_start_i, 'block_end_i'=>$block_end_i, 'match_index'=>$match_index, 'block_data_index'=>$block_data_i, 'block_data_index_max'=>$data_i_max, 'block_data_index_amount'=>$index_amount, 'block_data_start'=>$start_index, 'block_data_end'=>$end_index, 'flashlog'=>[], 'database'=>[]];
+                                $out = ['interval_min'=>$interval_min, 'data_point_modulo'=>$fl_i_modulo, 'max_diff_perc'=>$max_diff_perc, 'block_start_i'=>$block_start_i, 'block_end_i'=>$block_end_i, 'match_index'=>$match_index, 'block_data_index'=>$block_data_i, 'block_data_index_max'=>$data_i_max, 'block_data_index_amount'=>$index_amount, 'block_data_start'=>$start_index, 'block_data_end'=>$end_index, 'flashlog'=>[], 'database'=>[]];
 
                                 // Add flashlog measurement data
+                                $modulo_counter = 0; // counter that starts at 0 (like DB $i)
                                 for ($i=$start_index; $i<$end_index; $i++) 
                                 { 
-                                    $block_data_item = $this->cleanFlashlogItem($block_data[$i]);
-                                    $block_data_item['time'] .= 'Z'; // display as UTC
-                                    $out['flashlog'][] = $block_data_item;
+                                    if ($fl_i_modulo < 2 || $modulo_counter % $fl_i_modulo == 0)
+                                    {
+                                        $block_data_item = $this->cleanFlashlogItem($block_data[$i]);
+                                        $block_data_item['time'] .= 'Z'; // display as UTC
+                                        $out['flashlog'][] = $block_data_item;
+                                    }
+                                    $modulo_counter++;
                                 }
 
                                 $data_values = count($out['flashlog']);
@@ -690,19 +735,24 @@ class FlashLogController extends Controller
                                     $last_obj      = $out['flashlog'][$data_values-1];
                                     $start_time    = substr($first_obj['time'], 0, 19); // cut off Z
                                     $end_time      = substr($last_obj['time'], 0, 19); // cut off Z
-                                    $query         = 'SELECT "'.implode('","', $measurements).'" FROM "sensors" WHERE '.$flashlog->device->influxWhereKeys().' AND time >= \''.$start_time.'\' AND time <= \''.$end_time.'\' ORDER BY time ASC LIMIT '.$index_amount;
-                                    $db_data_week  = Device::getInfluxQuery($query, 'flashlog');
+                                    $query         = 'SELECT "'.implode('","', $measurements).'" FROM "sensors" WHERE '.$device->influxWhereKeys().' AND time >= \''.$start_time.'\' AND time <= \''.$end_time.'\' ORDER BY time ASC LIMIT '.$index_amount;
+                                    $db_data_block = Device::getInfluxQuery($query, 'flashlog');
+                                    $db_data_len   = count($db_data_block);
                                     $db_data_cln   = [];
-                                    foreach ($db_data_week as $db_value)
-                                        $db_data_cln[] = array_filter($db_value);
                                     
-                                    $out['database']   = $db_data_cln;
+                                    for ($i=0; $i<$db_data_len; $i++) 
+                                    { 
+                                        if ($fl_i_modulo < 2 || $i % $fl_i_modulo == 0)
+                                            $db_data_cln[] = array_filter($db_data_block[$i]);
+                                    }
                                     
                                     // Run through the data to see how many % of the data matches
-                                    $match_percentage = $this->matchPercentage($out['flashlog'], $db_data_cln, $match_props);
+                                    $match_percentage = $this->matchPercentage($out['flashlog'], $db_data_cln, $match_props, $max_diff_perc);
                                     $out['block_data_match_percentage']  = $match_percentage['perc_match'];
                                     $out['block_data_flashlog_sec_diff'] = $match_percentage['sec_diff'];
                                     $out['block_data_match_errors']      = $match_percentage['errors'];
+                                    $out['block_data_diff_percentage']   = $match_percentage['avg_diff'];
+                                    $out['block_data_match_count']       = $match_percentage['match_count'];
 
                                     // Add min start / max end time for ChartJS view
                                     $time_start_db = strtotime($first_obj['time']);
@@ -712,6 +762,8 @@ class FlashLogController extends Controller
 
                                     $out['start_date'] = date($this->timeFormat, min($time_start_db, $time_start_fl)).'Z';
                                     $out['end_date']   = date($this->timeFormat, max($time_end_db, $time_end_fl)).'Z';
+                                    // Add DB data
+                                    $out['database']   = $db_data_cln;
                                 }
                                 else // take start and end time of Flashlog
                                 {

@@ -241,6 +241,9 @@ class FlashLogController extends Controller
 
     private function diff_percentage($val1, $val2, $round_decimals=1)
     {
+        if ($val1 === $val2)
+            return 0;
+        
         $rval1= round($val1,$round_decimals);
         $rval2= round($val2,$round_decimals);
         $diff = abs($rval1 - $rval2);
@@ -453,9 +456,9 @@ class FlashLogController extends Controller
 
                         // show only portion of the data (for charting in ChartJS)
                         $interval_multi = 1;
-                        if ($data_minutes > 43200)
+                        if ($data_minutes > 43200) // month
                             $interval_multi = 12;
-                        else if ($data_minutes > 10080)
+                        else if ($data_minutes > 10080) // week
                             $interval_multi = 8;
                         else if ($data_minutes > 1440)
                             $interval_multi = 4;
@@ -742,12 +745,15 @@ class FlashLogController extends Controller
                                         $db_data_cln[] = array_filter($db_data_block[$i]);
                                 
                                     // Run through the data to see how many % of the data matches
-                                    $match_percentage = $this->matchPercentage($fl_data_cln, $db_data_cln, $match_props);
-                                    $out['block_data_match_percentage']  = $match_percentage['perc_match'];
-                                    $out['block_data_flashlog_sec_diff'] = $match_percentage['sec_diff'];
-                                    $out['block_data_match_errors']      = $match_percentage['errors'];
-                                    $out['block_data_diff_percentage']   = $match_percentage['avg_diff'];
-                                    $out['block_data_match_count']       = $match_percentage['match_count'];
+                                    if ($data_minutes <= 43200)
+                                    {
+                                        $match_percentage = $this->matchPercentage($fl_data_cln, $db_data_cln, $match_props);
+                                        $out['block_data_match_percentage']  = $match_percentage['perc_match'];
+                                        $out['block_data_flashlog_sec_diff'] = $match_percentage['sec_diff'];
+                                        $out['block_data_match_errors']      = $match_percentage['errors'];
+                                        $out['block_data_diff_percentage']   = $match_percentage['avg_diff'];
+                                        $out['block_data_match_count']       = $match_percentage['match_count'];
+                                    }
 
                                     // Add min start / max end time for ChartJS view
                                     $time_start_db = strtotime($first_obj['time']);

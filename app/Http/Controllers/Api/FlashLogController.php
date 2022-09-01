@@ -771,8 +771,8 @@ class FlashLogController extends Controller
                                 }
 
                                 // Add data te response
-                                $out['flashlog'] = $fl_data_cln;
-                                $out['database'] = $db_data_cln;
+                                $out['flashlog'] = array_values($fl_data_cln);
+                                $out['database'] = array_values($db_data_cln);
 
                             }
                             // Add properties

@@ -693,6 +693,7 @@ class FlashLogController extends Controller
                             }
                             else // Show data content per $data_minutes
                             {
+                                $fl_i_modulo   = $interval_multi;
                                 $match_index   = $block['fl_i'];
                                 $index_amount  = round($data_minutes / $interval_min);
                                 $data_i_max    = floor(($block_end_i - $block_start_i) / $index_amount);
@@ -708,8 +709,8 @@ class FlashLogController extends Controller
 
                                 $start_index   = $block_start_i + ($index_amount * $block_data_i);
                                 $end_index     = min($block_end_i, $block_start_i + ($index_amount * ($block_data_i+1)));
-                                
-                                $out = ['interval_min'=>$interval_min* $interval_multi, 'data_point_modulo'=>$fl_i_modulo, 'block_start_i'=>$block_start_i, 'block_end_i'=>$block_end_i, 'match_index'=>$match_index, 'block_data_index'=>$block_data_i, 'block_data_index_max'=>$data_i_max, 'block_data_index_amount'=>$index_amount, 'block_data_start'=>$start_index, 'block_data_end'=>$end_index, 'flashlog'=>[], 'database'=>[]];
+                                    
+                                $out = ['interval_min'=>$interval_min*$interval_multi, 'data_point_modulo'=>$fl_i_modulo, 'block_start_i'=>$block_start_i, 'block_end_i'=>$block_end_i, 'match_index'=>$match_index, 'block_data_index'=>$block_data_i, 'block_data_index_max'=>$data_i_max, 'block_data_index_amount'=>$index_amount, 'block_data_start'=>$start_index, 'block_data_end'=>$end_index, 'flashlog'=>[], 'database'=>[]];
 
                                 // Add flashlog measurement data
                                 $fl_data_cln    = [];
@@ -756,7 +757,6 @@ class FlashLogController extends Controller
                                     $out['database']   = $db_data_cln;
 
                                     // Remove values for ease of charting (in frontend) if $interval_multi > 1 
-                                    $fl_i_modulo = $interval_multi;
                                     if ($fl_i_modulo > 1)
                                     {
                                         for ($i=0; $i < $data_val_count; $i++) 

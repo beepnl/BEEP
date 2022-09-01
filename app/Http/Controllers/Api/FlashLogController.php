@@ -243,7 +243,7 @@ class FlashLogController extends Controller
     {
         if ($val1 === $val2)
             return 0;
-        
+
         $rval1= round($val1,$round_decimals);
         $rval2= round($val2,$round_decimals);
         $diff = abs($rval1 - $rval2);
@@ -753,6 +753,14 @@ class FlashLogController extends Controller
                                         $out['block_data_match_errors']      = $match_percentage['errors'];
                                         $out['block_data_diff_percentage']   = $match_percentage['avg_diff'];
                                         $out['block_data_match_count']       = $match_percentage['match_count'];
+                                    }
+                                    else
+                                    {
+                                        $out['block_data_match_percentage']  = 0;
+                                        $out['block_data_flashlog_sec_diff'] = '?';
+                                        $out['block_data_match_errors']      = 'Data not matches for >30 days';
+                                        $out['block_data_diff_percentage']   = 0;
+                                        $out['block_data_match_count']       = 0;
                                     }
 
                                     // Add min start / max end time for ChartJS view

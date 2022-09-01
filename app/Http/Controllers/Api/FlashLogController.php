@@ -498,7 +498,12 @@ class FlashLogController extends Controller
                                     
                                     if ($data_influx_deleted)
                                     {
-                                        $flashlog->persisted_block_ids_array = array_diff($flashlog->persisted_block_ids_array, [$block_id]);
+                                        $persisted_block_ids_array = $flashlog->persisted_block_ids_array;
+                                        if (count($persisted_block_ids_array) == 0 || (count($persisted_block_ids_array) == 1 && $persisted_block_ids_array[0] == $block_id)))
+                                            $flashlog->persisted_block_ids = null;
+                                        else
+                                            $flashlog->persisted_block_ids_array = array_diff($flashlog->persisted_block_ids_array, [$block_id]);
+
                                         $flashlog->persisted_measurements = max(0, $flashlog->persisted_measurements - $delete_count_sum);
                                         $flashlog->save();
                                     }

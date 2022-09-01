@@ -437,16 +437,6 @@ class FlashLogController extends Controller
                     // get the data from a single Flashlog block
                     if ($block_id > -1 && isset($out_log[$block_id]))
                     {
-                        
-                        // select portion of the data
-                        $interval_multi = 1;
-                        if ($data_minutes > 43200)
-                            $interval_multi = 12;
-                        else if ($data_minutes > 10080)
-                            $interval_multi = 8;
-                        else if ($data_minutes > 1440)
-                            $interval_multi = 4;
-                                
                         $block        = $out_log[$block_id];
                         $interval_min = $block['interval_min'];
                         $block_data   = json_decode($flashlog->getFileContent('log_file_parsed'), true);
@@ -457,6 +447,17 @@ class FlashLogController extends Controller
 
                         $interval_db  = 15; // db request minute interval
                         $fl_per_db_int= $interval_db / $interval_min; // amount of flashlog items in 1 database interval
+
+                        // show only portion of the data (for charting in ChartJS)
+                        $interval_multi = 1;
+                        if ($data_minutes > 43200)
+                            $interval_multi = 12;
+                        else if ($data_minutes > 10080)
+                            $interval_multi = 8;
+                        else if ($data_minutes > 1440)
+                            $interval_multi = 4;
+
+                        $interval_multi = $interval_multi * $fl_per_db_int;
 
                         if ($export_csv || $export_json)
                             return $this->exportData(array_slice($block_data, $block_start_i, $block_length), "user-$user_id-$device_name-log-file-$id-block-$block_id-matches-$has_matches", $export_csv);

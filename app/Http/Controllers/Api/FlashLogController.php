@@ -308,7 +308,7 @@ class FlashLogController extends Controller
                             foreach ($should_match_diff as $m_key => $diff)
                             {
                                 $should_match[$m_key] = $should_match[$m_key] + 1;
-                                if ($m_key == 'weight_kg' && abs($d[$m_key]) > 200 && abs($f[$m_key]) > 200) // can still be ok, because uncalibrated db values can be replaced
+                                if ($m_key == 'weight_kg' && abs($d[$m_key]) < 200 && abs($f[$m_key]) > 200) // can still be ok, because uncalibrated db values can be replaced
                                 {
                                     $errors[$m_key] = "$should_match[$m_key] $m_key values uncalibrated";
                                 }
@@ -316,7 +316,7 @@ class FlashLogController extends Controller
                                 {
                                     // reject match, because weight_kg, t_i, t_0, or t_1 does not match
                                     $match_ok = false;
-                                    $errors[$m_key] = "$should_match[$m_key] $m_key values different";
+                                    $errors[$m_key] = "$should_match[$m_key] $m_key values differ";
                                 }
                             }
                             if ($match_ok) // count this measurement as a match

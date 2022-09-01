@@ -245,7 +245,7 @@ class FlashLogController extends Controller
         $rval2= round($val2,$round_decimals);
         $diff = abs($rval1 - $rval2);
         $ave  = ($rval1 + $rval2) / 2;
-        return $ave != 0 ? round(100 * $diff / $ave, 1) : 0;
+        return $ave != 0 ? min(100, max(0, round(100 * $diff / $ave, 1))) : 0;
     }
 
 
@@ -259,7 +259,8 @@ class FlashLogController extends Controller
         $array2_length = count($array2);
         $array_min_len = min($array1_length, $array2_length);
         $errors        = [];
-        $percDiff      = [];
+        $perc_diff_sum = 0;
+        $perc_diff_cnt = 0;
         $should_match  = ['weight_kg'=>0,'t_i'=>0,'t_0'=>0,'t_1'=>0]; // reject match, because weight_kg, t_i, t_0, or t_1 do not match
         $should_m_keys = array_keys($should_match); // reject match, because weight_kg, t_i, t_0, or t_1 do not match
                             
@@ -292,7 +293,8 @@ class FlashLogController extends Controller
                             if (isset($d[$m_key]) && isset($f[$m_key]))
                             {
                                 $diff_perc = $this->diff_percentage($d[$m_key], $f[$m_key]);
-                                $percDiff[]= $diff_perc;
+                                $perc_diff_sum += $diff_perc;
+                                $perc_diff_cnt++;
 
                                 if ($diff_perc <= $max_diff_percentage) // m_key matches
                                     $matches++;
@@ -333,7 +335,7 @@ class FlashLogController extends Controller
             }
         }
         $secDiffAvg   = count($secDiff) > 0 ? round(array_sum($secDiff)/count($secDiff)) : null;
-        $matchDiffAvg = count($percDiff) > 0 ? round(array_sum($percDiff)/count($percDiff), 1) : null;
+        $matchDiffAvg = $perc_diff_cnt > 0 ? round($perc_diff_sum/$perc_diff_cnt, 1) : null;
         $percMatch    = $array_min_len > 0 ? round(100 * ($match_count / $array_min_len), 1): 0;
         //die(print_r([$percMatch, $secDiffAvg, $matches]));
         return ['sec_diff'=>$secDiffAvg, 'perc_match'=>$percMatch, 'match_count'=>$match_count, 'avg_diff'=>$matchDiffAvg, 'errors'=>implode(', ', $errors)];

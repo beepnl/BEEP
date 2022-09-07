@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 
 use Auth;
 use Storage;
+use Session;
 use App\SampleCode;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
@@ -16,6 +17,7 @@ use Moment\Moment;
 use App\Category;
 use App\Inspection;
 use App\InspectionItem;
+use PhpOffice\PhpSpreadsheet\IOFactory;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 
@@ -27,20 +29,119 @@ class SampleCodeController extends Controller
         return view('sample-code.code');
     }
 
+    // Get excel template to fill out
     public function upload()
     {
         $template_url = $this->createExcelTemplate();
-        return view('sample-code.upload', compact('template_url'));
+        $data         = Session::get('data');
+        $col_names    = Session::get('col_names');
+
+        return view('sample-code.upload', compact('template_url', 'data', 'col_names'));
     }
 
+    // Upload filled excel template to input
     public function upload_store(Request $request)
     {
-        
-        return view('sample-code.upload');
+        $msg        = 'No file found';
+        $res        = 'error';
+        $data       = [];
+        $col_names  = [];
+
+        if ($request->has('checked') && $request->has('data'))
+        {
+            $data = json_decode($request->input('data'), true);
+            dd($request->input('checked'), $data);
+        }
+        else if ($request->has('sample-code-excel') && $request->hasFile('sample-code-excel'))
+        {
+            $file = $request->file('sample-code-excel');
+            if ($file->isValid())
+            {
+                $msg  = 'File uploaded';
+                $res  = 'success';
+                $path = $request->file('sample-code-excel')->getRealPath();
+                
+                $reader = IOFactory::createReader('Xlsx');
+                $reader->setReadDataOnly(true);
+                $reader->setReadEmptyCells(false);
+                $sheet  = $reader->load($path);
+                //dd($sheet);
+
+                $sheets = $sheet->getSheetCount();
+                $wsheet = $sheet->getSheet(0); // get first sheet
+
+                $template = $this->createExcelTemplate(true); // array[row[0 -> 6]=>[col_0, ..., col_n]] (col0 being the explanation column)
+                $t_sheet  = reset($template);
+                $t_headers= count($t_sheet)-1; // one blank row is the first entry row
+                $cat_ids  = $t_sheet[0];
+
+                if ($cat_ids[0] == 'CATEGORY ID')
+                    unset($cat_ids[0]);
+
+                // Create data array to show and persist
+                $cat_ids_valid   = [];
+                $col_names_valid = [];
+                foreach ($wsheet->getRowIterator() as $row_num => $row) 
+                {
+                    $cellIterator = $row->getCellIterator();
+                    $cellIterator->setIterateOnlyExistingCells(true);
+
+                    // map header row to template category_id
+                    if ($row_num == 1)
+                    {
+                        $col_index = 0;
+                        foreach ($cellIterator as $col_name => $cell)
+                        {
+                            $cat_id = $cell->getValue();
+                            if (isset($cat_id) && in_array($cat_id, $cat_ids))
+                            {
+                                $cat_ids_valid[$col_name] = $cat_id;
+                                $col_names[$cat_id] = $t_sheet[1][$col_index].$t_sheet[2][$col_index];
+                            }
+                            $col_index++;
+                        }
+                        $col_names_valid = array_keys($cat_ids_valid);
+                    }
+                    else if ($row_num > $t_headers) // entered values
+                    {
+
+                        foreach ($cellIterator as $col_name => $cell)
+                        {
+                            if (in_array($col_name, $col_names_valid)) // valid cat_id col
+                            {
+                                $value = $cell->getValue(); 
+                                $cat_id= $cat_ids_valid[$col_name]; 
+                                if (isset($value))
+                                {
+                                    if (!isset($data[$row_num]))
+                                        $data[$row_num] = [];
+
+                                    $data[$row_num][$cat_id] = $value;
+                                }
+                            }
+                        }
+                    }
+                }
+                $cols   = $wsheet->getHighestColumn();
+                $rows   = $wsheet->getHighestRow();
+                $entries= count($data);
+                $editor = $sheet->getProperties()->getLastModifiedBy();
+                $lastmo = date('Y-m-d H:i:s', $sheet->getProperties()->getModified());
+                $msg   .= ". $sheets Tabs, First tab: $entries entries ($rows rows up to col $cols), Last modified by: $editor @ $lastmo";
+            }
+            else
+            {
+                $msg  = 'File uploaded, but invalid';
+            }
+        }
+
+        //dd($col_names, $data);
+
+        return redirect('code-upload')->with(["$res"=>$msg, 'data'=>$data, 'col_names'=>$col_names]);
     }
 
     
-    private function createExcelTemplate()
+    private function createExcelTemplate($array_only = false)
     {
         $locale            = LaravelLocalization::getCurrentLocale();
         $spreadsheet_array = [];
@@ -90,6 +191,9 @@ class SampleCodeController extends Controller
         }
 
         $spreadsheet_array[$sheet_title] = $rows;
+
+        if ($array_only)
+            return $spreadsheet_array;
 
         // $spreadsheet_array[$sheet_title][0][] = __('export.deleted_at');
 

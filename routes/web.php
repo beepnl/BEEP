@@ -51,7 +51,7 @@ Route::group(
 			function()
 			{		
 				Route::get('code-upload', 	 	 ['as'=>'sample-code.upload','uses'=>'SampleCodeController@upload']);
-				Route::get('code-upload-store',  ['as'=>'sample-code.upload-store','uses'=>'SampleCodeController@upload_store']);
+				Route::post('code-upload-store', ['as'=>'sample-code.upload-store','uses'=>'SampleCodeController@upload_store']);
 			});
 
 		Route::group(

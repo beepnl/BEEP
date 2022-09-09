@@ -51,6 +51,10 @@ class SampleCodeController extends Controller
         {
             $data = json_decode($request->input('data'), true);
             dd($request->input('checked'), $data);
+            
+            // Add this data as inspection items to the inspection where the corresponding sample code has been generated
+            
+
         }
         else if ($request->has('sample-code-excel') && $request->hasFile('sample-code-excel'))
         {

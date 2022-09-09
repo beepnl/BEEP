@@ -642,7 +642,7 @@ class ResearchController extends Controller
                                     {
                                         // Export data to file per device / period
                                         $where    = $device->influxWhereKeys().' AND time >= \''.$date_curr_consent.'\' AND time <= \''.$date_next_consent.'\'';
-                                        $fileName = strtolower(env('APP_NAME')).'-export-'.$research->name.'-device-id-'.$device->id.'-name-'.urlencode($device->name).'-sensor-data-'.substr($date_curr_consent,0,10).'-'.substr($date_next_consent,0,10).'-'.Str::random(10).'.csv';
+                                        $fileName = strtolower(env('APP_NAME')).'-export-research-'.$research->id.'-device-id-'.$device->id.'-sensor-data-'.substr($date_curr_consent,0,10).'-'.substr($date_next_consent,0,10).'-'.Str::random(10).'.csv';
                                         $filePath = $this->exportCsvFromInflux($where, $fileName, '*', 'sensors');
                                         if ($filePath)
                                         {
@@ -655,7 +655,7 @@ class ResearchController extends Controller
                                         if ($loc && isset($loc->coordinate_lat) && isset($loc->coordinate_lon)) 
                                         {
                                             $where    = '"lat" = \''.$loc->coordinate_lat.'\' AND "lon" = \''.$loc->coordinate_lon.'\' AND time >= \''.$date_curr_consent.'\' AND time <= \''.$date_next_consent.'\'';
-                                            $fileName = strtolower(env('APP_NAME')).'-export-'.$research->name.'-device-id-'.$device->id.'-name-'.urlencode($device->name).'-weather-data-'.substr($date_curr_consent,0,10).'-'.substr($date_next_consent,0,10).'-'.Str::random(10).'.csv';
+                                            $fileName = strtolower(env('APP_NAME')).'-export-research-'.$research->id.'-device-id-'.$device->id.'-weather-data-'.substr($date_curr_consent,0,10).'-'.substr($date_next_consent,0,10).'-'.Str::random(10).'.csv';
                                             $filePath = $this->exportCsvFromInflux($where, $fileName, '*', 'weather');
                                             if ($filePath)
                                             {
@@ -723,7 +723,7 @@ class ResearchController extends Controller
         if ($download)
         {
             //die(print_r([$consents, $totals, $spreadsheet_array[__('export.devices')], $spreadsheet_array[__('export.sensordefs')]]));
-            $fileName     = strtolower(env('APP_NAME')).'-export-'.$research->name;
+            $fileName     = strtolower(env('APP_NAME')).'-export-research-'.$research->id;
             $download_url = $this->export($spreadsheet_array, $fileName, $date_start, $date_until);
         }
 

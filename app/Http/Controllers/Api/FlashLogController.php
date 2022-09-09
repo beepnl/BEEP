@@ -412,7 +412,7 @@ class FlashLogController extends Controller
             }
             else
             {
-                return $fileBody
+                return $fileBody;
             }
         }
         return ['error'=>'export_not_saved'];

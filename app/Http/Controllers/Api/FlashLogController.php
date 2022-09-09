@@ -347,7 +347,7 @@ class FlashLogController extends Controller
     private function exportData($data, $name, $csv=true, $separator=';')
     {
         $link = env('FLASHLOG_EXPORT_LINK', true);
-        
+
         if ($data && gettype($data) == 'array' && count($data) > 0)
         {
             $fileBody = null;
@@ -406,7 +406,7 @@ class FlashLogController extends Controller
                     $filePath = 'exports/flashlog/beep-base-log-export-'.$name.'-'.Str::random(20).$file_ext;
                     $filePath = str_replace(' ', '', $filePath);
 
-                    Storage::disk($disk)->put($filePath, $fileBody, ['mimetype' => $file_mime]));
+                    Storage::disk($disk)->put($filePath, $fileBody, ['mimetype' => $file_mime]);
                     return ['link'=>Storage::disk($disk)->url($filePath)];
                 }
             }

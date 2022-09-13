@@ -31,7 +31,7 @@ class PostHiveRequest extends Request {
 			'frames'				=> 'nullable|integer|min:0',
 			'order' 				=> 'nullable|integer',
 			'layers'				=> 'nullable|required_without_all:brood_layers,honey_layers|array',
-			'color'					=> 'nullable|string|max:7',
+			'color'					=> 'nullable|string|max:9', // #754B1F32 extra 2 characters are opacity
 			'hive_type_id'			=> 'nullable|integer|exists:categories,id',
 			'bb_width_cm'			=> 'nullable|numeric|min:0',
 			'bb_depth_cm'			=> 'nullable|numeric|min:0',
@@ -44,7 +44,7 @@ class PostHiveRequest extends Request {
 			'queen.description'		=> 'nullable|string',
 			'queen.line'			=> 'nullable|string',
 			'queen.tree'			=> 'nullable|string',
-			'queen.color'			=> 'nullable|string|max:7',
+			'queen.color'			=> 'nullable|string|max:9', // #754B1F32 extra 2 characters are opacity
 			'queen.clipped'			=> 'nullable|integer',
 			'queen.fertilized'		=> 'nullable|integer',
 			'timezone' 				=> 'nullable|timezone',

@@ -306,10 +306,10 @@ class FlashLog extends Model
         }
         unset($in);
 
-        if (env('FLASHLOG_NEVER_DELETE', false))
+        if (env('FLASHLOG_NEVER_DELETE', false) === true)
             $erase = false;
         else
-            $erase = $log_bytes != null && $log_bytes == $bytes ? true : false;
+            $erase = $log_bytes != null && $this->diff_percentage($log_bytes, $bytes, 2) < 0.1 ? true : false;
         
         $result = [
             'lines_received'=>$lines,
@@ -567,6 +567,18 @@ class FlashLog extends Model
                 return ['fl_index'=>$fl_index, 'fl_index_end'=>$fl_index_end, 'fl_match_tries'=>$tries, 'db_start_time'=>$start_time, 'db_data_measurements'=>$db_data_cnt, 'db_data_count'=>count($database_log), 'matches'=>$matches];
 
         return ['fl_index'=>$fl_index, 'fl_index_end'=>$fl_index_end, 'fl_match_tries'=>$tries, 'db_start_time'=>$start_time, 'db_data_measurements'=>$db_data_cnt, 'db_data_count'=>count($db_data), 'message'=>'no matches found'];
+    }
+
+    private function diff_percentage($val1, $val2, $round_decimals=1)
+    {
+        if ($val1 === $val2)
+            return 0;
+
+        $rval1= round($val1,$round_decimals);
+        $rval2= round($val2,$round_decimals);
+        $diff = abs($rval1 - $rval2);
+        $ave  = ($rval1 + $rval2) / 2;
+        return $ave != 0 ? min(100, max(0, round(100 * $diff / $ave, 1))) : 0;
     }
 
     private function setFlashBlockTimes($match, $blockInd, $startInd, $endInd, $flashlog, $device, $show=false, $sec_diff_per_index=null, $add_sensordefinitions=true)

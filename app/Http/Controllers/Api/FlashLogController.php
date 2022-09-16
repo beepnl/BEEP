@@ -346,8 +346,12 @@ class FlashLogController extends Controller
 
     private function exportData($data, $name, $csv=true, $separator=';')
     {
+        $link = env('FLASHLOG_EXPORT_LINK', true);
+
         if ($data && gettype($data) == 'array' && count($data) > 0)
         {
+            $fileBody = null;
+            
             if ($csv)
             {
                 // format CSV header row: time, sensor1 (unit2), sensor2 (unit2), etc. Excluse the 'sensor' and 'key' columns
@@ -385,14 +389,31 @@ class FlashLogController extends Controller
                             $csv_body[] = implode($separator, $this->cleanFlashlogItem($data_item, false));
                     }
                     $fileBody = $csv_head.implode("\r\n", $csv_body);
-                    return $fileBody;
                 }
             }
             else
             {
-                return $data; // return json as body
+                $fileBody = $data; // return json as body
             }
-            
+
+            if ($link)
+            {
+                if (isset($fileBody) && $fileBody !== '')
+                {
+                    $disk     = env('EXPORT_STORAGE', 'public');
+                    $file_ext = $csv ? '.csv' : '.json';
+                    $file_mime= $csv ? 'text/csv' : 'application/json';
+                    $filePath = 'exports/flashlog/beep-base-log-export-'.$name.'-'.Str::random(20).$file_ext;
+                    $filePath = str_replace(' ', '', $filePath);
+
+                    Storage::disk($disk)->put($filePath, $fileBody, ['mimetype' => $file_mime]);
+                    return ['link'=>Storage::disk($disk)->url($filePath)];
+                }
+            }
+            else
+            {
+                return $fileBody;
+            }
         }
         return ['error'=>'export_not_saved'];
     }

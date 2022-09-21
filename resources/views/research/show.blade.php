@@ -57,7 +57,7 @@
             </div>
 
             <!-- Data table -->
-            <div style="display: inline-block;">
+            <div style="display: inline-block; width: 300px;">
                 <table class="table table-responsive table-striped table-header-rotated">
                     <thead>
                         <tr>
@@ -87,7 +87,16 @@
                             <th class="row-header"><span><i class="fa fa-2x fa-list"></i> Flash logs ({{ $totals['flashlogs'] }})</span></th> 
                         </tr>
                         <tr>
-                            <th class="row-header"><span><i class="fa fa-2x fa-line-chart"></i> Measurements ({{ $totals['measurements'] }})</span></th> 
+                            <th class="row-header" title="Total amount of time stamps that have been wirelessly transferred via LoRa"><span><i class="fa fa-2x fa-line-chart"></i> Measurements ({{ $totals['measurements'] }})</span></th> 
+                        </tr>
+                        <tr>
+                            <th class="row-header" title="Total amount of time stamps that have been imported by matching FlashLog data from the BEEP base memory to the database"><span><i class="fa fa-2x fa-line-chart"></i> Measurements imported ({{ $totals['measurements_imported'] }})</span></th> 
+                        </tr>
+                        <tr>
+                            <th class="row-header" title="Sum of all time stamps in the database"><span><i class="fa fa-2x fa-line-chart"></i> Measurements total ({{ $totals['measurements_total'] }})</span></th> 
+                        </tr>
+                        <tr>
+                            <th class="row-header" title="Total amount 15 min based time stamps devided by the amount of devices per day"><span><i class="fa fa-2x fa-line-chart"></i> Data completeness (%) ({{ $totals['data_completeness'] }})</span></th> 
                         </tr>
                         <tr>
                             <th class="row-header"><span><i class="fa fa-2x fa-thermometer"></i> Weather data ({{ $totals['weather'] }})</span></th> 
@@ -95,7 +104,7 @@
                     </tbody>
                 </table>
             </div>
-            <div style="display: inline-block; width: calc( 100% - 242px); overflow-y: hidden; overflow-x: auto;">
+            <div style="display: inline-block; width: calc( 100% - 310px); overflow-y: hidden; overflow-x: auto;">
                 <table class="table table-responsive table-striped table-header-rotated">
                     <thead>
                         <tr>
@@ -143,6 +152,21 @@
                         <tr>
                             @foreach($dates as $date => $d)
                                 <td>{{ $d['measurements'] > 0 ? $d['measurements'] : '' }}</td>
+                            @endforeach
+                        </tr>
+                        <tr>
+                            @foreach($dates as $date => $d)
+                                <td>{{ $d['measurements_imported'] > 0 ? $d['measurements_imported'] : '' }}</td>
+                            @endforeach
+                        </tr>
+                        <tr>
+                            @foreach($dates as $date => $d)
+                                <td>{{ $d['measurements_total'] > 0 ? $d['measurements_total'] : '' }}</td>
+                            @endforeach
+                        </tr>
+                        <tr>
+                            @foreach($dates as $date => $d)
+                                <td>{{ $d['data_completeness'] > 0 ? $d['data_completeness'] : '' }}</td>
                             @endforeach
                         </tr>
                         <tr>

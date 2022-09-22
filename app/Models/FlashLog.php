@@ -441,7 +441,7 @@ class FlashLog extends Model
         $start_mom   = new Moment($start_time);
         $end_time    = $start_mom->addHours(round($duration_hrs))->format($this->timeFormat);
 
-        $count_query = 'SELECT COUNT(*) FROM "sensors" WHERE '.$device->influxWhereKeys().' AND time >= \''.$start_time.'\' AND time <= \''.$end_time.'\' GROUP BY time(24h) ORDER BY time ASC LIMIT 500';
+        $count_query = 'SELECT COUNT(*) FROM "sensors" WHERE '.$device->influxWhereKeys().' AND from_flashlog != \'1\' AND time >= \''.$start_time.'\' AND time <= \''.$end_time.'\' GROUP BY time(24h) ORDER BY time ASC LIMIT 500';
         $data_count  = Device::getInfluxQuery($count_query, 'flashlog');
         $day_sum_max = 0;
         $days_valid  = 0;
@@ -465,7 +465,7 @@ class FlashLog extends Model
         //die(print_r([$start_time, $end_time, $duration_hrs, count($data_count), $db_data_cnt]));
 
         // get data from the day with max amount of measurements
-        $query       = 'SELECT * FROM "sensors" WHERE '.$device->influxWhereKeys().' AND time >= \''.$start_time.'\' ORDER BY time ASC LIMIT '.min(1000, max($matches_min, $db_records));
+        $query       = 'SELECT * FROM "sensors" WHERE '.$device->influxWhereKeys().' AND from_flashlog != \'1\' AND time >= \''.$start_time.'\' ORDER BY time ASC LIMIT '.min(1000, max($matches_min, $db_records));
         $db_data     = Device::getInfluxQuery($query, 'flashlog');
 
         //die(print_r([$start_time, $db_data]));

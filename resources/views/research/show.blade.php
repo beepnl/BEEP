@@ -31,7 +31,7 @@
                         <div class="form-group {{ $errors->has('device_ids') ? 'has-error' : ''}}">
                             <label for="device_ids" control-label>{{ 'Devices filter (default: all)' }}</label>
                             <div>
-                                {!! Form::select('device_ids[]', $user_devices_select, $device_ids, array('id'=>'device_ids','class' => 'form-control select2', 'multiple')) !!}
+                                {!! Form::select('device_ids[]', $devices_select, $device_ids, array('id'=>'device_ids','class' => 'form-control select2', 'multiple')) !!}
                                 {!! $errors->first('device_ids', '<p class="help-block">:message</p>') !!}
                             </div>
                         </div>

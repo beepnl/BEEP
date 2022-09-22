@@ -152,6 +152,7 @@ class ResearchController extends Controller
             'date_start'    => 'nullable|date',
             'date_until'    => 'nullable|date|after:date_start',
             'user_ids.*'    => 'nullable|exists:users,id',
+            'device_ids.*'  => 'nullable|exists:sensors,id',
         ]);
 
         //die(print_r($request->all()));
@@ -165,6 +166,7 @@ class ResearchController extends Controller
         $sensor_urls  = [];
         $download     = $request->has('download-meta') || $request->has('download-all') ? true : false;
         $dl_sensordata= $request->has('download-all');
+        $device_ids   = $request->input('device_ids');
 
         // Make dates table
         $dates  = [];
@@ -466,7 +468,8 @@ class ResearchController extends Controller
             // add user data
             $user_apiaries     = $user->locations()->withTrashed()->where('created_at', '<', $date_until)->orderBy('created_at')->get();
             $user_hives        = $user->hives()->withTrashed()->where('created_at', '<', $date_until)->orderBy('created_at')->get();
-            $user_devices      = $user->devices()->withTrashed()->where('created_at', '<', $date_until)->orderBy('created_at')->get();
+            $user_devices_all  = $user->devices()->withTrashed()->where('created_at', '<', $date_until)->orderBy('created_at')->get();
+            $user_devices      = isset($device_ids) ? $user_devices_all->whereIn('id', $device_ids) : $user_devices_all;
             $user_flashlogs    = FlashLog::where('user_id', $user_id)->where('created_at', '>=', $date_start)->where('created_at', '<', $date_until)->orderBy('created_at')->get();
             $user_samplecodes  = $user->samplecodes()->where('sample_date', '>=', $date_start)->where('sample_date', '<', $date_until)->orderBy('sample_date')->get();
             $user_measurements = [];
@@ -511,26 +514,29 @@ class ResearchController extends Controller
                         $user_sensor_defs[] = $sdef;
 
                 }
-                
-                $user_device_keys = '('.implode(' OR ', $user_device_keys).')';
 
-                try{
-                    $this->cacheRequestRate('influx-get');
-                    $this->cacheRequestRate('influx-research');
-                    $query  = 'SELECT COUNT("bv") as "count" FROM "sensors" WHERE '.$user_device_keys.' AND time >= \''.$date_curr_consent.'\' AND time <= \''.$moment_end->format('Y-m-d H:i:s').'\' GROUP BY time(1d),from_flashlog';
-                    //die($query); 
-                    $points = $this->client::query($query)->getPoints();
-                } catch (InfluxDB\Exception $e) {
-                    // return Response::json('influx-group-by-query-error', 500);
-                }
-                if (count($points) > 0)
+                if (count($user_device_keys) > 0)
                 {
-                    foreach ($points as $point)
+                    $user_device_keys = '('.implode(' OR ', $user_device_keys).')';
+
+                    try{
+                        $this->cacheRequestRate('influx-get');
+                        $this->cacheRequestRate('influx-research');
+                        $query  = 'SELECT COUNT("bv") as "count" FROM "sensors" WHERE '.$user_device_keys.' AND time >= \''.$date_curr_consent.'\' AND time <= \''.$moment_end->format('Y-m-d H:i:s').'\' GROUP BY time(1d),from_flashlog';
+                        //die($query); 
+                        $points = $this->client::query($query)->getPoints();
+                    } catch (InfluxDB\Exception $e) {
+                        // return Response::json('influx-group-by-query-error', 500);
+                    }
+                    if (count($points) > 0)
                     {
-                        if ($point['from_flashlog'] === '1')
-                            $user_meas_import[substr($point['time'],0,10)] = $point['count'];
-                        else
-                            $user_measurements[substr($point['time'],0,10)] = $point['count'];
+                        foreach ($points as $point)
+                        {
+                            if ($point['from_flashlog'] === '1')
+                                $user_meas_import[substr($point['time'],0,10)] = $point['count'];
+                            else
+                                $user_measurements[substr($point['time'],0,10)] = $point['count'];
+                        }
                     }
                 }
 
@@ -743,7 +749,14 @@ class ResearchController extends Controller
             $download_url = $this->export($spreadsheet_array, $fileName, $date_start, $date_until);
         }
 
-        return view('research.show', compact('research', 'dates', 'consent_users_select', 'consent_users_selected', 'download_url', 'sensor_urls', 'totals', 'date_start', 'date_until'));
+        // Make readable devices select list 
+        $user_devices_select = [];
+        $user_devices_sorted = $user_devices_all->sortBy('user_id')->sortBy('name');
+        foreach ($user_devices_sorted as $d)
+            $user_devices_select[$d->id] = $d->name.' - ('.$d->user->name.')'; 
+        
+
+        return view('research.show', compact('research', 'dates', 'consent_users_select', 'consent_users_selected', 'download_url', 'sensor_urls', 'totals', 'date_start', 'date_until', 'user_devices_select', 'device_ids'));
     }
 
     /**

@@ -27,20 +27,27 @@
                             </div>
                         </div>
                     </div>
-                    <div class="col-md-1"></div>
-                    <div class="col-xs-12 col-md-3">
+                    <div class="col-xs-12 col-md-4">
+                        <div class="form-group {{ $errors->has('device_ids') ? 'has-error' : ''}}">
+                            <label for="device_ids" control-label>{{ 'Devices filter (default: all)' }}</label>
+                            <div>
+                                {!! Form::select('device_ids[]', $user_devices_select, $device_ids, array('id'=>'device_ids','class' => 'form-control select2', 'multiple')) !!}
+                                {!! $errors->first('device_ids', '<p class="help-block">:message</p>') !!}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xs-12 col-md-2">
                         <div class="form-group {{ $errors->has('date_start') ? 'has-error' : ''}}">
-                            <label for="date_start" control-label>{{ 'From date (filters insp./meas./weather data)' }}</label>
+                            <label for="date_start" control-label>{{ 'From date (filters time based data)' }}</label>
                             <div>
                                 <input class="form-control" name="date_start" type="date" id="date_start" min="{{substr($research->start_date, 0, 10)}}" max="{{substr($research->end_date, 0, 10)}}" value="{{ isset($date_start) ? substr($date_start, 0, 10) : '' }}" >
                                 {!! $errors->first('date_start', '<p class="help-block">:message</p>') !!}
                             </div>
                         </div>
                     </div>
-                    <div class="col-md-1"></div>
-                    <div class="col-xs-12 col-md-3">
+                    <div class="col-xs-12 col-md-2">
                         <div class="form-group {{ $errors->has('date_until') ? 'has-error' : ''}}">
-                            <label for="date_until" control-label>{{ 'Until date (filters insp./meas./weather data)' }}</label>
+                            <label for="date_until" control-label>{{ 'Until date (filters time based data)' }}</label>
                             <div>
                                 <input class="form-control" name="date_until" type="date" id="date_until" min="{{substr($research->start_date, 0, 10)}}" max="{{substr($research->end_date, 0, 10)}}" value="{{ isset($date_until) ? substr($date_until, 0, 10) : '' }}" >
                                 {!! $errors->first('date_until', '<p class="help-block">:message</p>') !!}
@@ -65,6 +72,7 @@
                         </tr>
                     </thead>
                     <tbody>
+                        @if(!isset($device_ids))
                         <tr>
                             <th class="row-header"><span><i class="fa fa-2x fa-user"></i> Users ({{ $totals['users'] }})</span></th> 
                         </tr>
@@ -80,6 +88,7 @@
                         <tr>
                             <th class="row-header"><span><i class="fa fa-2x fa-qrcode"></i> Sample codes ({{ $totals['samplecodes'] }})</span></th> 
                         </tr>
+                        @endif
                         <tr>
                             <th class="row-header"><span><i class="fa fa-2x fa-feed"></i> Devices ({{ $totals['devices'] }})</span></th> 
                         </tr>
@@ -114,6 +123,7 @@
                         </tr>
                     </thead>
                     <tbody>
+                        @if(!isset($device_ids))
                         <tr>
                             @foreach($dates as $date => $d)
                                 <td>{{ $d['users'] > 0 ? $d['users'] : '' }}</td>
@@ -139,6 +149,7 @@
                                 <td>{{ $d['samplecodes'] > 0 ? $d['samplecodes'] : '' }}</td>
                             @endforeach
                         </tr>
+                        @endif
                         <tr>
                             @foreach($dates as $date => $d)
                                 <td>{{ $d['devices'] > 0 ? $d['devices'] : '' }}</td>

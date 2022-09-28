@@ -152,6 +152,7 @@ class ResearchController extends Controller
             'date_start'    => 'nullable|date',
             'date_until'    => 'nullable|date|after:date_start',
             'user_ids.*'    => 'nullable|exists:users,id',
+            'device_ids.*'  => 'nullable|exists:sensors,id',
         ]);
 
         //die(print_r($request->all()));
@@ -165,6 +166,8 @@ class ResearchController extends Controller
         $sensor_urls  = [];
         $download     = $request->has('download-meta') || $request->has('download-all') ? true : false;
         $dl_sensordata= $request->has('download-all');
+        $device_ids   = $request->input('device_ids');
+        $devices_all  = collect();
 
         // Make dates table
         $dates  = [];
@@ -221,7 +224,7 @@ class ResearchController extends Controller
 
         //die(print_r([$request->input('user_ids'), $consent_users_selected, $users]));
         // Fill dates array
-        $assets = ["users"=>0, "apiaries"=>0, "hives"=>0, "inspections"=>0, "devices"=>0, "measurements"=>0, "weather"=>0, "flashlogs"=>0, "samplecodes"=>0, "sensor_definitions"=>0];
+        $assets = ["users"=>0, "apiaries"=>0, "hives"=>0, "inspections"=>0, "devices"=>0, "measurements"=>0, "measurements_imported"=>0, "measurements_total"=>0, "data_completeness"=>0, "weather"=>0, "flashlogs"=>0, "samplecodes"=>0, "sensor_definitions"=>0];
 
         $moment = $moment_start;
         while($moment < $moment_end)
@@ -466,10 +469,13 @@ class ResearchController extends Controller
             // add user data
             $user_apiaries     = $user->locations()->withTrashed()->where('created_at', '<', $date_until)->orderBy('created_at')->get();
             $user_hives        = $user->hives()->withTrashed()->where('created_at', '<', $date_until)->orderBy('created_at')->get();
-            $user_devices      = $user->devices()->withTrashed()->where('created_at', '<', $date_until)->orderBy('created_at')->get();
+            $user_devices_all  = $user->devices()->withTrashed()->where('created_at', '<', $date_until)->orderBy('created_at')->get();
+            $devices_all       = $devices_all->merge($user_devices_all);
+            $user_devices      = isset($device_ids) ? $user_devices_all->whereIn('id', $device_ids) : $user_devices_all;
             $user_flashlogs    = FlashLog::where('user_id', $user_id)->where('created_at', '>=', $date_start)->where('created_at', '<', $date_until)->orderBy('created_at')->get();
             $user_samplecodes  = $user->samplecodes()->where('sample_date', '>=', $date_start)->where('sample_date', '<', $date_until)->orderBy('sample_date')->get();
             $user_measurements = [];
+            $user_meas_import  = [];
             $user_weather_data = [];
             $user_sensor_defs  = [];
             
@@ -510,22 +516,30 @@ class ResearchController extends Controller
                         $user_sensor_defs[] = $sdef;
 
                 }
-                
-                $user_device_keys = '('.implode(' OR ', $user_device_keys).')';
 
-                try{
-                    $this->cacheRequestRate('influx-get');
-                    $this->cacheRequestRate('influx-research');
-                    $query  = 'SELECT COUNT("bv") as "count" FROM "sensors" WHERE '.$user_device_keys.' AND time >= \''.$date_curr_consent.'\' AND time <= \''.$moment_end->format('Y-m-d H:i:s').'\' GROUP BY time(1d)';
-                    //die($query); 
-                    $points = $this->client::query($query)->getPoints();
-                } catch (InfluxDB\Exception $e) {
-                    // return Response::json('influx-group-by-query-error', 500);
-                }
-                if (count($points) > 0)
+                if (count($user_device_keys) > 0)
                 {
-                    foreach ($points as $point) 
-                        $user_measurements[substr($point['time'],0,10)] = $point['count'];
+                    $user_device_keys = '('.implode(' OR ', $user_device_keys).')';
+
+                    try{
+                        $this->cacheRequestRate('influx-get');
+                        $this->cacheRequestRate('influx-research');
+                        $query  = 'SELECT COUNT("bv") as "count" FROM "sensors" WHERE '.$user_device_keys.' AND time >= \''.$date_curr_consent.'\' AND time <= \''.$moment_end->format('Y-m-d H:i:s').'\' GROUP BY time(1d),from_flashlog';
+                        //die($query); 
+                        $points = $this->client::query($query)->getPoints();
+                    } catch (InfluxDB\Exception $e) {
+                        // return Response::json('influx-group-by-query-error', 500);
+                    }
+                    if (count($points) > 0)
+                    {
+                        foreach ($points as $point)
+                        {
+                            if ($point['from_flashlog'] === '1')
+                                $user_meas_import[substr($point['time'],0,10)] = $point['count'];
+                            else
+                                $user_measurements[substr($point['time'],0,10)] = $point['count'];
+                        }
+                    }
                 }
 
                 // Add weather data
@@ -691,7 +705,13 @@ class ResearchController extends Controller
                     $dates[$d]['samplecodes'] = $v['samplecodes'] + $samplecodes_today;
                     
                     if (in_array($d, array_keys($user_measurements)))
-                        $dates[$d]['measurements']= $v['measurements'] + $user_measurements[$d];
+                        $dates[$d]['measurements'] = $v['measurements'] + $user_measurements[$d];
+
+                    if (in_array($d, array_keys($user_meas_import)))
+                        $dates[$d]['measurements_imported'] = $v['measurements_imported'] + $user_meas_import[$d];
+
+                    $dates[$d]['measurements_total']    = $dates[$d]['measurements'] + $dates[$d]['measurements_imported'];
+                    $dates[$d]['data_completeness']     = $dates[$d]['devices'] > 0 ? round(100 * $dates[$d]['measurements_total'] / ($dates[$d]['devices'] * (60*24/15))) : 0;
 
                     if (in_array($d, array_keys($user_weather_data)))
                         $dates[$d]['weather']= $v['weather'] + $user_weather_data[$d];
@@ -712,12 +732,16 @@ class ResearchController extends Controller
         {
             foreach ($day_arr as $asset => $count) 
             {
-                if ($asset == 'inspections' || $asset == 'measurements' || $asset == 'weather' || $asset == 'samplecodes')
+                if ($asset == 'inspections' || $asset == 'measurements' || $asset == 'measurements_imported' || $asset == 'measurements_total' || $asset == 'data_completeness' || $asset == 'weather' || $asset == 'samplecodes' || $asset == 'flashlogs')
                     $totals[$asset] += $count;
                 else
                     $totals[$asset] = max($totals[$asset], $count);
             }
         }
+
+        // Average data completenes
+        if (count($dates) > 0)
+            $totals['data_completeness'] = round($totals['data_completeness'] / count($dates));
 
         // Export data, show download link
         if ($download)
@@ -727,7 +751,13 @@ class ResearchController extends Controller
             $download_url = $this->export($spreadsheet_array, $fileName, $date_start, $date_until);
         }
 
-        return view('research.show', compact('research', 'dates', 'consent_users_select', 'consent_users_selected', 'download_url', 'sensor_urls', 'totals', 'date_start', 'date_until'));
+        // Make readable devices select list 
+        $devices_select = [];
+        $devices_sorted = $devices_all->sortBy('user_id')->sortBy('name');
+        foreach ($devices_sorted as $d)
+            $devices_select[$d->id] = $d->name.' - ('.$d->user->name.')'; 
+
+        return view('research.show', compact('research', 'dates', 'consent_users_select', 'consent_users_selected', 'download_url', 'sensor_urls', 'totals', 'date_start', 'date_until', 'devices_select', 'device_ids'));
     }
 
     /**

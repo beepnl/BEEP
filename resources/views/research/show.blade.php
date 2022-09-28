@@ -27,20 +27,27 @@
                             </div>
                         </div>
                     </div>
-                    <div class="col-md-1"></div>
-                    <div class="col-xs-12 col-md-3">
+                    <div class="col-xs-12 col-md-4">
+                        <div class="form-group {{ $errors->has('device_ids') ? 'has-error' : ''}}">
+                            <label for="device_ids" control-label>{{ 'Devices filter (default: all)' }}</label>
+                            <div>
+                                {!! Form::select('device_ids[]', $devices_select, $device_ids, array('id'=>'device_ids','class' => 'form-control select2', 'multiple')) !!}
+                                {!! $errors->first('device_ids', '<p class="help-block">:message</p>') !!}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xs-12 col-md-2">
                         <div class="form-group {{ $errors->has('date_start') ? 'has-error' : ''}}">
-                            <label for="date_start" control-label>{{ 'From date (filters insp./meas./weather data)' }}</label>
+                            <label for="date_start" control-label>{{ 'From date (filters time based data)' }}</label>
                             <div>
                                 <input class="form-control" name="date_start" type="date" id="date_start" min="{{substr($research->start_date, 0, 10)}}" max="{{substr($research->end_date, 0, 10)}}" value="{{ isset($date_start) ? substr($date_start, 0, 10) : '' }}" >
                                 {!! $errors->first('date_start', '<p class="help-block">:message</p>') !!}
                             </div>
                         </div>
                     </div>
-                    <div class="col-md-1"></div>
-                    <div class="col-xs-12 col-md-3">
+                    <div class="col-xs-12 col-md-2">
                         <div class="form-group {{ $errors->has('date_until') ? 'has-error' : ''}}">
-                            <label for="date_until" control-label>{{ 'Until date (filters insp./meas./weather data)' }}</label>
+                            <label for="date_until" control-label>{{ 'Until date (filters time based data)' }}</label>
                             <div>
                                 <input class="form-control" name="date_until" type="date" id="date_until" min="{{substr($research->start_date, 0, 10)}}" max="{{substr($research->end_date, 0, 10)}}" value="{{ isset($date_until) ? substr($date_until, 0, 10) : '' }}" >
                                 {!! $errors->first('date_until', '<p class="help-block">:message</p>') !!}
@@ -57,45 +64,69 @@
             </div>
 
             <!-- Data table -->
-            <div style="display: inline-block;">
-                <table class="table table-responsive table-striped table-header-rotated">
+            <div style="display: inline-block; width: 300px;">
+                <table class="table table-responsive table-striped table-header-rotated" style="overflow: scroll;">
                     <thead>
                         <tr>
-                            <th class="rotate"></th>
+                            <th class="rotate" style="min-width: 200px;">Database item</th>
+                            <th class="rotate">Total</th>
                         </tr>
                     </thead>
                     <tbody>
+                        @if(!isset($device_ids))
                         <tr>
-                            <th class="row-header"><span><i class="fa fa-2x fa-user"></i> Users ({{ $totals['users'] }})</span></th> 
+                            <th class="row-header" style="max-height: 45px; overflow: scroll; white-space: nowrap;"><span><i class="fa fa-2x fa-user"></i> Users</span></th> 
+                            <th class="row-header">{{ $totals['users'] }}</th> 
                         </tr>
                         <tr>
-                            <th class="row-header"><span><i class="fa fa-2x fa-map-marker"></i> Apiaries ({{ $totals['apiaries'] }})</span></th> 
+                            <th class="row-header" style="max-height: 45px; overflow: scroll; white-space: nowrap;"><span><i class="fa fa-2x fa-map-marker"></i> Apiaries</span></th>
+                            <th class="row-header">{{ $totals['apiaries'] }}</th> 
                         </tr>
                         <tr>
-                            <th class="row-header"><span><i class="fa fa-2x fa-archive"></i> Hives ({{ $totals['hives'] }})</span></th> 
+                            <th class="row-header" style="max-height: 45px; overflow: scroll; white-space: nowrap;"><span><i class="fa fa-2x fa-archive"></i> Hives</span></th> 
+                            <th class="row-header">{{ $totals['hives'] }}</th> 
                         </tr>
                         <tr>
-                            <th class="row-header"><span><i class="fa fa-2x fa-edit"></i> Inspections ({{ $totals['inspections'] }})</span></th> 
+                            <th class="row-header" style="max-height: 45px; overflow: scroll; white-space: nowrap;"><span><i class="fa fa-2x fa-edit"></i> Inspections</span></th> 
+                            <th class="row-header">{{ $totals['inspections'] }}</th> 
                         </tr>
                         <tr>
-                            <th class="row-header"><span><i class="fa fa-2x fa-qrcode"></i> Sample codes ({{ $totals['samplecodes'] }})</span></th> 
+                            <th class="row-header" style="max-height: 45px; overflow: scroll; white-space: nowrap;"><span><i class="fa fa-2x fa-qrcode"></i> Sample codes</span></th>
+                            <th class="row-header">{{ $totals['samplecodes'] }}</th>  
+                        </tr>
+                        @endif
+                        <tr>
+                            <th class="row-header" style="max-height: 45px; overflow: scroll; white-space: nowrap;"><span><i class="fa fa-2x fa-feed"></i> Devices</span></th> 
+                            <th class="row-header">{{ $totals['devices'] }}</th> 
                         </tr>
                         <tr>
-                            <th class="row-header"><span><i class="fa fa-2x fa-feed"></i> Devices ({{ $totals['devices'] }})</span></th> 
+                            <th class="row-header" style="max-height: 45px; overflow: scroll; white-space: nowrap;"><span><i class="fa fa-2x fa-list"></i> Flash logs</span></th> 
+                            <th class="row-header">{{ $totals['flashlogs'] }}</th> 
                         </tr>
                         <tr>
-                            <th class="row-header"><span><i class="fa fa-2x fa-list"></i> Flash logs ({{ $totals['flashlogs'] }})</span></th> 
+                            <th class="row-header" style="max-height: 45px; overflow: scroll; white-space: nowrap;" title="Total amount of time stamps that have been wirelessly transferred via LoRa"><span><i class="fa fa-2x fa-line-chart"></i> Measurements</span></th> 
+                            <th class="row-header">{{ $totals['measurements'] }}</th> 
                         </tr>
                         <tr>
-                            <th class="row-header"><span><i class="fa fa-2x fa-line-chart"></i> Measurements ({{ $totals['measurements'] }})</span></th> 
+                            <th class="row-header" style="max-height: 45px; overflow: scroll; white-space: nowrap;" title="Total amount of time stamps that have been imported by matching FlashLog data from the BEEP base memory to the database"><span><i class="fa fa-2x fa-line-chart"></i> Measurements imported</span></th> 
+                            <th class="row-header">{{ $totals['measurements_imported'] }}</th> 
                         </tr>
                         <tr>
-                            <th class="row-header"><span><i class="fa fa-2x fa-thermometer"></i> Weather data ({{ $totals['weather'] }})</span></th> 
+                            <th class="row-header" style="max-height: 45px; overflow: scroll; white-space: nowrap;" title="Sum of all time stamps in the database. Each time stamp contains multiple measurement values (e.g. weight, temperature, etc.). Only the timestamps are counted here. "><span><i class="fa fa-2x fa-line-chart"></i> Measurements total</span></th> 
+                            <th class="row-header">{{ $totals['measurements_total'] }}</th> 
+                        </tr>
+                        <tr>
+                            <th class="row-header" style="max-height: 45px; overflow: scroll; white-space: nowrap;" title="Total amount of 15 min time stamps divided by the amount of devices. The data completeness of {{ $totals['data_completeness'] }}% represents the average of all daily data completeness calculations of the displayed dates."><span><i class="fa fa-2x fa-line-chart"></i> Data completeness (%)</span></th> 
+                            <th class="row-header">{{ $totals['data_completeness'] }}%</th> 
+                        </tr>
+                        <tr>
+                            <th class="row-header" style="max-height: 45px; overflow: scroll; white-space: nowrap;"><span><i class="fa fa-2x fa-thermometer"></i> Weather data points</span></th> 
+                            <th class="row-header">{{ $totals['weather'] }}</th> 
                         </tr>
                     </tbody>
                 </table>
             </div>
-            <div style="display: inline-block; width: calc( 100% - 242px); overflow-y: hidden; overflow-x: auto;">
+            <div style="display: inline-block; width: calc( 100% - 310px); overflow-y: hidden; overflow-x: auto;">
                 <table class="table table-responsive table-striped table-header-rotated">
                     <thead>
                         <tr>
@@ -105,6 +136,7 @@
                         </tr>
                     </thead>
                     <tbody>
+                        @if(!isset($device_ids))
                         <tr>
                             @foreach($dates as $date => $d)
                                 <td>{{ $d['users'] > 0 ? $d['users'] : '' }}</td>
@@ -130,6 +162,7 @@
                                 <td>{{ $d['samplecodes'] > 0 ? $d['samplecodes'] : '' }}</td>
                             @endforeach
                         </tr>
+                        @endif
                         <tr>
                             @foreach($dates as $date => $d)
                                 <td>{{ $d['devices'] > 0 ? $d['devices'] : '' }}</td>
@@ -143,6 +176,21 @@
                         <tr>
                             @foreach($dates as $date => $d)
                                 <td>{{ $d['measurements'] > 0 ? $d['measurements'] : '' }}</td>
+                            @endforeach
+                        </tr>
+                        <tr>
+                            @foreach($dates as $date => $d)
+                                <td>{{ $d['measurements_imported'] > 0 ? $d['measurements_imported'] : '' }}</td>
+                            @endforeach
+                        </tr>
+                        <tr>
+                            @foreach($dates as $date => $d)
+                                <td>{{ $d['measurements_total'] > 0 ? $d['measurements_total'] : '' }}</td>
+                            @endforeach
+                        </tr>
+                        <tr>
+                            @foreach($dates as $date => $d)
+                                <td>{{ $d['data_completeness'] > 0 ? $d['data_completeness'] : '' }}</td>
                             @endforeach
                         </tr>
                         <tr>

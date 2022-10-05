@@ -48,18 +48,26 @@
                     <table id="table-sample-code-import" class="table table-striped" border="1">
                     <thead>
                         <tr style="border-bottom: 2px solid black;">
-                            <th>Ok?</th>
                             @foreach($col_names as $cat_id => $name)
-                            <th>{{ $name }} ({{ $cat_id }})</th>
+                            <th>{{ $name }} @if ($cat_id != 0)({{ $cat_id }}) @endif</th>
                             @endforeach
                         </tr>
                     </thead>
                     <tbody>
                     @foreach($data as $id => $item)
-                        <tr>
-                            <th><input type="checkbox" name="checked[]" value="{{$id}}" checked></th> 
+                        <tr @if($item[0] == 0) style="color: red;" @endif>
                             @foreach($item as $cat_id => $value)
+                            @if ($cat_id == 0)
+                                <th>
+                                @if ($value == 0)
+                                <input type="checkbox" title="Sample code not found, unable to store this entry" disabled>
+                                @else
+                                <input type="checkbox" title="Check the box to store the data of this sample code" name="checked[]" value="{{$id}}" checked>
+                                @endif
+                                </th> 
+                            @else
                             <td>{{ $value }}</td>
+                            @endif
                             @endforeach
                         </tr>
                     @endforeach

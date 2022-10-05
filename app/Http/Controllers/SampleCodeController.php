@@ -42,18 +42,69 @@ class SampleCodeController extends Controller
     // Upload filled excel template to input
     public function upload_store(Request $request)
     {
-        $msg        = 'No file found';
-        $res        = 'error';
-        $data       = [];
-        $col_names  = [];
+        $msg            = 'No file found';
+        $res            = 'error';
+        $items_replaced = 0; 
+        $items_added    = 0; 
+        $inspection_cnt = 0; 
+        $data           = [];
+        $col_names      = [];
+        $sample_code_id = Category::findCategoryIdByParentAndName('laboratory_test', 'sample_code');
 
         if ($request->has('checked') && $request->has('data'))
         {
             $data = json_decode($request->input('data'), true);
-            dd($request->input('checked'), $data);
-            
+            $checked_ids = $request->input('checked');
+
             // Add this data as inspection items to the inspection where the corresponding sample code has been generated
-            
+            foreach ($data as $checked_id => $inspection_items) // $inspection_items is array of ['cat_id'=>value]
+            {
+
+                if (in_array($checked_id, $checked_ids) && isset($inspection_items[$sample_code_id])) // only store inspections of checked entries
+                {
+                    $sample_code = $inspection_items[$sample_code_id];
+                    unset($inspection_items[0]); // remove initial checked item
+                    
+                    // look up inspection
+                    $inspection_id = InspectionItem::where('category_id', $sample_code_id)->where('value', $sample_code)->value('inspection_id');
+                    $inspection    = Inspection::find($inspection_id);
+
+                    if ($inspection)
+                    {
+                        $inspection_cnt++;
+                        
+                        foreach ($inspection_items as $category_id => $value)
+                        {
+                            $inspection_item_exists = $inspection->items()->where('category_id', $category_id);
+                                
+                            if ($inspection_item_exists->count() > 0)
+                            {
+                                $inspection_item_exists->delete();
+                                $items_replaced++;
+                            }
+                            else
+                            {
+                                $items_added++;
+                            }
+
+                            $itemData = 
+                            [
+                                'category_id'   => $category_id,
+                                'inspection_id' => $inspection_id,
+                                'value'         => $value,
+                            ];
+                            InspectionItem::create($itemData);
+                        }
+                    }
+                }
+            }
+            // show result
+            $msg = "Added data for $inspection_cnt inspections. Added $items_added, replaced $items_replaced inspection items in total.";
+            if ($inspection_cnt > 0 && $items_added + $items_replaced > 0)
+            {
+                $res  = 'success';
+                $data = [];
+            }
 
         }
         else if ($request->has('sample-code-excel') && $request->hasFile('sample-code-excel'))
@@ -85,13 +136,15 @@ class SampleCodeController extends Controller
                 // Create data array to show and persist
                 $cat_ids_valid   = [];
                 $col_names_valid = [];
+                $col_names[0]    = 'Ok?';
+
                 foreach ($wsheet->getRowIterator() as $row_num => $row) 
                 {
                     $cellIterator = $row->getCellIterator();
                     $cellIterator->setIterateOnlyExistingCells(true);
 
                     // map header row to template category_id
-                    if ($row_num == 1)
+                    if ($row_num == 1) // map header row in Excel
                     {
                         $col_index = 0;
                         foreach ($cellIterator as $col_name => $cell)
@@ -108,7 +161,6 @@ class SampleCodeController extends Controller
                     }
                     else if ($row_num > $t_headers) // entered values
                     {
-
                         foreach ($cellIterator as $col_name => $cell)
                         {
                             if (in_array($col_name, $col_names_valid)) // valid cat_id col
@@ -119,6 +171,9 @@ class SampleCodeController extends Controller
                                 {
                                     if (!isset($data[$row_num]))
                                         $data[$row_num] = [];
+
+                                    if ($cat_id == $sample_code_id) // check if sample code exists in DB
+                                        $data[$row_num][0] = SampleCode::where('sample_code',$value)->count();
 
                                     $data[$row_num][$cat_id] = $value;
                                 }

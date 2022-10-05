@@ -3,9 +3,9 @@
     "version": "1.5.12",
     "release_date": "2022-09-16T11:00:00Z",
     "release_notes": "BEEP base 1.5.12 adds a fix for the timing between lora network connection attempts, fixing excessive battery drain when the lora network is unavailable. It also contains a fix for updating the BEEP base firmware by older Android phones.",
-    "stability": "test",
-    "size": 183290,
-    "download_url": "https://assets.beep.nl/firmware/basev3/1.5.12/Beepbase_app.zip"
+    "stability": "stable",
+    "size": 378785,
+    "download_url": "https://assets.beep.nl/firmware/basev3/1.5.12/Beepbase_sd_boot_app.zip"
    },
    {
     "version": "1.5.11",

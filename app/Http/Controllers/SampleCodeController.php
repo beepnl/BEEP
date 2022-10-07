@@ -172,13 +172,13 @@ class SampleCodeController extends Controller
                         {
                             if (in_array($col_name, $col_names_valid)) // valid cat_id col:  $col_names_valid = [0=>"B", 1=>"C", etc]
                             {
-                                $value = $cell->getValue(); 
-                                $cat_id= $cat_ids_valid[$col_name];
+                                $value           = $cell->getValue(); 
+                                $cat_id          = $cat_ids_valid[$col_name];
+                                $corrected_value = $value;
 
                                 if (isset($value))
                                 {
                                     // Convert known fields to the type of data
-                                    $corrected_value = $value;
 
                                     // Check if there is a formula, if so, try to parse it
                                     if (substr($value,0,1) == '=') 
@@ -258,6 +258,7 @@ class SampleCodeController extends Controller
                                         $data[$row_num][0] = SampleCode::where('sample_code',$corrected_value)->count();
 
                                 }
+                                // Always fill the value in the array
                                 $data[$row_num][$cat_id] = $corrected_value;
                             }
                         }

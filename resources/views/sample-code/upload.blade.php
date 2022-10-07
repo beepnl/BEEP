@@ -56,7 +56,11 @@
                     <tbody>
                     @foreach($data as $id => $item)
                         <tr @if($item[0] == 0) style="color: red;" @endif>
-                            @foreach($item as $cat_id => $value)
+                            @foreach($col_names as $cat_id => $name)
+                            @php
+                                $value = isset($item[$cat_id]) : '';
+                            @endphp
+                            
                             @if ($cat_id == 0)
                                 <th>
                                 @if ($value == 0)

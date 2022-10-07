@@ -199,8 +199,15 @@ class SampleCodeController extends Controller
                                             $corrected_value = strtoupper(substr($value, 0, 8));
                                             break;
                                         case 'date':
-                                            $unix_timestamp = ($value - 25569) * 86400;
-                                            $corrected_value= gmdate("Y-m-d H:i:s", $unix_timestamp);
+                                            if (gettype($value) == 'number')
+                                            {
+                                                $unix_timestamp = ($value - 25569) * 86400;
+                                                $corrected_value= gmdate("Y-m-d H:i:s", $unix_timestamp);
+                                            }
+                                            else
+                                            {
+                                                $corrected_value= null;
+                                            }
                                             break;
                                         case 'text':
                                             $corrected_value = (string)$value;

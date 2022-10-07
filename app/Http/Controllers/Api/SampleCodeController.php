@@ -35,7 +35,7 @@ class SampleCodeController extends Controller
     **/
     public function store(Request $request)
     {
-        if($request->filled('hive_id') && $request->user()->hives()->find($request->input('hive_id')))
+        if($request->filled('hive_id') && $request->user()->allHives()->find($request->input('hive_id')))
         {
             try{
                 $code                = $request->only('hive_id', 'queen_id');

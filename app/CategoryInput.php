@@ -102,8 +102,8 @@ class CategoryInput extends Model
             case 'date':
                 if (isset($val) && $val != null)
                 {
-                    $moment = new Moment($val);
-                    $val = $moment->format('Y-m-d H:i:s');
+                    $time = strtotime($val);
+                    $val = date('Y-m-d H:i:s', $time);
                 }
                 break;
 

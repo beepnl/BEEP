@@ -58,7 +58,7 @@
                         <tr @if($item[0] == 0) style="color: red;" @endif>
                             @foreach($col_names as $cat_id => $name)
                             @php
-                                $value = isset($item[$cat_id]) : '';
+                                $value = isset($item[$cat_id]) ? $item[$cat_id] : '';
                             @endphp
                             
                             @if ($cat_id == 0)

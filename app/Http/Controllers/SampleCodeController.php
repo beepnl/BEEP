@@ -257,8 +257,8 @@ class SampleCodeController extends Controller
                                     if ($cat_id == $sample_code_id) // check if sample code exists in DB
                                         $data[$row_num][0] = SampleCode::where('sample_code',$corrected_value)->count();
 
-                                    $data[$row_num][$cat_id] = $corrected_value;
                                 }
+                                $data[$row_num][$cat_id] = $corrected_value;
                             }
                         }
                     }

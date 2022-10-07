@@ -11,6 +11,7 @@ use Session;
 use App\SampleCode;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Log;
 
 use LaravelLocalization;
 use Moment\Moment;
@@ -49,6 +50,7 @@ class SampleCodeController extends Controller
         $inspection_cnt = 0; 
         $data           = [];
         $col_names      = [];
+        $col_input_types= [];
         $sample_code_id = Category::findCategoryIdByParentAndName('laboratory_test', 'sample_code');
 
         if ($request->has('checked') && $request->has('data'))
@@ -126,25 +128,28 @@ class SampleCodeController extends Controller
                 $wsheet = $sheet->getSheet(0); // get first sheet
 
                 $template = $this->createExcelTemplate(true); // array[row[0 -> 6]=>[col_0, ..., col_n]] (col0 being the explanation column)
-                $t_sheet  = reset($template);
+                $t_sheet  = reset($template); // [0=>CATEGORY ID, 1=>HIERACHY, 2=>NAME, 3=>PHYSICAL QUANTITY, 4=>UNIT, 5=>INPUT TYPE, 6=>INPUT RANGE, 7=>First empty row for entry]
+                //dd($t_sheet);
                 $t_headers= count($t_sheet)-1; // one blank row is the first entry row
+                $t_types  = $t_sheet[5]; 
                 $cat_ids  = $t_sheet[0];
 
                 if ($cat_ids[0] == 'CATEGORY ID')
                     unset($cat_ids[0]);
 
                 // Create data array to show and persist
-                $cat_ids_valid   = [];
-                $col_names_valid = [];
-                $col_names[0]    = 'Ok?';
+                $cat_ids_valid     = [];
+                $col_names_valid   = [];
+                $input_types_valid = [];
+                $col_names[0]      = 'Ok?';
 
                 foreach ($wsheet->getRowIterator() as $row_num => $row) 
                 {
                     $cellIterator = $row->getCellIterator();
                     $cellIterator->setIterateOnlyExistingCells(true);
 
-                    // map header row to template category_id
-                    if ($row_num == 1) // map header row in Excel
+                    // map header rows to (possibly different) template category_id column order in Excel
+                    if ($row_num == 1) // map category_id header row in Excel
                     {
                         $col_index = 0;
                         foreach ($cellIterator as $col_name => $cell)
@@ -152,30 +157,100 @@ class SampleCodeController extends Controller
                             $cat_id = $cell->getValue();
                             if (isset($cat_id) && in_array($cat_id, $cat_ids))
                             {
-                                $cat_ids_valid[$col_name] = $cat_id;
-                                $col_names[$cat_id] = $t_sheet[1][$col_index].$t_sheet[2][$col_index];
+                                $cat_ids_valid[$col_name] = $cat_id; // Cat id per col name: ["B"=>1371, "C"=>1425, "Col_name"=>cat_id, etc]
+                                $col_names[$cat_id]       = $t_sheet[1][$col_index].$t_sheet[2][$col_index]; // [cat_id => "Hierachy + Name"]
+                                $col_input_types[$cat_id] = $t_sheet[5][$col_index]; // [cat_id => "Input type"]
                             }
                             $col_index++;
                         }
-                        $col_names_valid = array_keys($cat_ids_valid);
+                        $col_names_valid = array_keys($cat_ids_valid);  // [0=>"B", 1=>"C", etc]
+                        //dd($col_names_valid, $cat_ids_valid, $col_names, $col_input_types);
                     }
                     else if ($row_num > $t_headers) // entered values
                     {
                         foreach ($cellIterator as $col_name => $cell)
                         {
-                            if (in_array($col_name, $col_names_valid)) // valid cat_id col
+                            if (in_array($col_name, $col_names_valid)) // valid cat_id col:  $col_names_valid = [0=>"B", 1=>"C", etc]
                             {
                                 $value = $cell->getValue(); 
-                                $cat_id= $cat_ids_valid[$col_name]; 
+                                $cat_id= $cat_ids_valid[$col_name];
+
                                 if (isset($value))
                                 {
+                                    // Convert known fields to the type of data
+                                    $corrected_value = $value;
+
+                                    // Check if there is a formula, if so, try to parse it
+                                    if (substr($value,0,1) == '=') 
+                                    {
+                                        try {
+                                            $corrected_value = $cell->getCalculatedValue();
+                                        } catch (Exception $e) {
+                                            Log::error("SampleCodeController.upload_store formula ($value) parse error: ".$e->getMessage());
+                                            $corrected_value = $value;
+                                        }
+                                    }
+
+                                    // Try to force values in the requested format
+                                    $input_type = $col_input_types[$cat_id];
+                                    switch($input_type)
+                                    {
+                                        case 'sample_code':
+                                            $corrected_value = strtoupper(substr($value, 0, 8));
+                                            break;
+                                        case 'date':
+                                            $unix_timestamp = ($value - 25569) * 86400;
+                                            $corrected_value= gmdate("Y-m-d H:i:s", $unix_timestamp);
+                                            break;
+                                        case 'text':
+                                            $corrected_value = (string)$value;
+                                            break;
+                                        case 'boolean':
+                                        case 'boolean_yes_red':
+                                            $corrected_value = intval(boolval($value));
+                                            break;
+                                        case 'score_amount':
+                                            $intval = intval($value);
+                                            $corrected_value = $intval > 4 || $intval < 0 ? 0 : $intval;
+                                            break;
+                                        case 'number':
+                                        case 'number_0_decimals':
+                                        case 'number_1_decimals':
+                                        case 'number_2_decimals':
+                                        case 'number_3_decimals':
+                                        case 'number_positive':
+                                        case 'number_negative':
+                                        case 'number_percentage':
+                                            if (strpos($value, ',') !== false) // replace , with .
+                                                $value = str_replace(',', '.', $value);
+
+                                            $corrected_value = (float)$value;
+
+                                            if ($input_type == 'number_0_decimals')
+                                                $corrected_value = round($corrected_value, 0);
+                                            else if ($input_type == 'number_1_decimals')
+                                                $corrected_value = round($corrected_value, 1);
+                                            else if ($input_type == 'number_2_decimals')
+                                                $corrected_value = round($corrected_value, 2);
+                                            else if ($input_type == 'number_3_decimals')
+                                                $corrected_value = round($corrected_value, 3);
+                                            else if ($input_type == 'number_positive')
+                                                $corrected_value = abs($corrected_value);
+                                            else if ($input_type == 'number_negative')
+                                                $corrected_value = -1 * abs($corrected_value);
+                                            else if ($input_type == 'number_percentage')
+                                                $corrected_value = min(100, max(0, $corrected_value));
+                                            
+                                            break;
+                                    }
+
                                     if (!isset($data[$row_num]))
                                         $data[$row_num] = [];
 
                                     if ($cat_id == $sample_code_id) // check if sample code exists in DB
-                                        $data[$row_num][0] = SampleCode::where('sample_code',$value)->count();
+                                        $data[$row_num][0] = SampleCode::where('sample_code',$corrected_value)->count();
 
-                                    $data[$row_num][$cat_id] = $value;
+                                    $data[$row_num][$cat_id] = $corrected_value;
                                 }
                             }
                         }
@@ -196,7 +271,7 @@ class SampleCodeController extends Controller
 
         //dd($col_names, $data);
 
-        return redirect('code-upload')->with(["$res"=>$msg, 'data'=>$data, 'col_names'=>$col_names]);
+        return redirect('code-upload')->with(["$res"=>$msg, 'data'=>$data, 'col_names'=>$col_names, 'col_input_types'=>$col_input_types]);
     }
 
     

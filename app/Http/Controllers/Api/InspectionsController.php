@@ -34,7 +34,7 @@ class InspectionsController extends Controller
         if (!isset($inspections))
             return response()->json(null, 404);
 
-        return new InspectionCollection($inspections->orderBy('created_at', 'desc')->paginate(env('INSPECTIONS_PER_PAGE', 10)));
+        return new InspectionCollection($inspections->paginate(env('INSPECTIONS_PER_PAGE', 10)));
     }
 
 

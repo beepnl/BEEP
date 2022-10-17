@@ -6,6 +6,7 @@ use Iatstuti\Database\Support\CascadeSoftDeletes;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Log;
+use App\Http\Resources\InspectionCollection;
 
 use Auth;
 
@@ -213,15 +214,26 @@ class Hive extends Model
         return $this->hasMany(Device::class);
     }
 
-    public function inspections_by_date()
+    public function inspections_by_date($search=null)
     {
-        return $this->inspections()->orderBy('created_at', 'desc')->get();
+        $inspections = $this->inspections();
+
+        if (isset($search))
+            $inspections = $inspections->where('notes', 'LIKE', "%$search%")
+                                        ->orWhere('reminder', 'LIKE', "%$search%")
+                                        ->orWhere('created_at', 'LIKE', "%$search%")
+                                        ->orWhere('id', "$search");
+
+        die(print_r($inspections->get()->toArray()));
+
+        return $inspections->orderBy('created_at', 'desc');
     }
 
-    public function inspection_items_by_date()
+    public function inspection_items_by_date($request, $locale)
     {
         // Get the available dates
-        $inspections   = $this->inspections_by_date();
+        $search        = $request->filled('search') ? $request->input('search') : null;
+        $inspections   = new InspectionCollection($this->inspections_by_date($search)->paginate(env('INSPECTIONS_PER_PAGE', 5)));
         $items_by_date = Inspection::item_names($inspections, true);
 
         // Add category header
@@ -237,7 +249,7 @@ class Hive extends Model
             }
         }
 
-        return $items_by_date;
+        return ['inspections'=>$inspections, 'items_by_date'=>$items_by_date];
     }
 
     public static function selectList($onlyMine=false)

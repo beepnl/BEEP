@@ -29,12 +29,21 @@ class InspectionsController extends Controller
     **/
     public function index(Request $request)
     {
-        $inspections = $request->user()->allInspections()->orderBy('created_at', 'desc');
+        $inspections = $request->user()->allInspections()->orderBy('created_at', 'desc')->limit(1000);
+        if ($request->filled('search'))
+        {
+            $search = $request->input('search');
+            $inspections = $inspections->where('note', 'LIKE', '%'.$search.'%')
+                                        ->orWhere('created_at', 'LIKE', '%'.$search.'%')
+                                        ->orWhere('reminder', 'LIKE', '%'.$search.'%')
+                                        ->orWhere('id', $search);
+            
+        }
         
-        if (!isset($inspections))
+        if ($inspections->count() == 0)
             return response()->json(null, 404);
 
-        return new InspectionCollection($inspections->paginate(env('INSPECTIONS_PER_PAGE', 10)));
+        return response()->json($inspections->get());
     }
 
 
@@ -195,11 +204,7 @@ class InspectionsController extends Controller
     {
         $hive   = $request->user()->allHives()->findOrFail($hive_id);
         $locale = $request->filled('locale') ? $request->input('locale') : LaravelLocalization::getCurrentLocale();
-
-        $inspections   = $hive->inspections_by_date();
-        $items_by_date = $hive->inspection_items_by_date($locale);
-
-        return response()->json(['inspections'=>$inspections, 'items_by_date'=>$items_by_date]);
+        return response()->json($hive->inspection_items_by_date($request, $locale));
     }
 
     /**

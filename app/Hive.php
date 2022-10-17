@@ -224,7 +224,7 @@ class Hive extends Model
                                         ->orWhere('created_at', 'LIKE', "%$search%")
                                         ->orWhere('id', "$search");
 
-        die(print_r($inspections->get()->toArray()));
+        //die(print_r($inspections->get()->toArray()));
 
         return $inspections->orderBy('created_at', 'desc');
     }

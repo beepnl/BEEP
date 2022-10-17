@@ -10,6 +10,7 @@ use App\InspectionItem;
 use App\Image;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use App\Http\Resources\InspectionCollection;
 use Moment\Moment;
 use Auth;
 use LaravelLocalization;
@@ -33,7 +34,7 @@ class InspectionsController extends Controller
         if (!isset($inspections))
             return response()->json(null, 404);
 
-        return response()->json($inspections);
+        return new InspectionCollection($inspections->orderBy('created_at', 'desc')->paginate(env('INSPECTIONS_PER_PAGE', 10)));
     }
 
 

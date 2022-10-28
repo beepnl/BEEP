@@ -55,7 +55,18 @@ class SensorDefinitionController extends Controller
     private function makeRequestDataArray(Request $request)
     {
         $measurement_in   = $this->getMeasurementFromRequestKey($request, false); 
-        $measurement_out  = $this->getMeasurementFromRequestKey($request, true);    
+        $measurement_out  = $this->getMeasurementFromRequestKey($request, true);
+
+        // Change output weight measurement for React native app
+        if ($request->hasHeader('X-ClientId') && ($request->header('X-ClientId') == 'android' || $request->header('X-ClientId') == 'ios')) 
+        {
+            if (isset($measurement_in) && $measurement_in->abbreviation == 'w_v')
+            {
+                if (isset($measurement_out) == false || $measurement_out->abbreviation == 'w_v')
+                    $measurement_out = Measurement::where('abbreviation', 'weight_kg')->first();
+            }
+        }
+
 
         $request_data = $request->only('name', 'inside', 'offset', 'multiplier', 'input_measurement_id', 'output_measurement_id', 'device_id');
 

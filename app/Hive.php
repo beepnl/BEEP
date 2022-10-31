@@ -216,9 +216,7 @@ class Hive extends Model
 
     public function inspections_by_date($search=null)
     {
-        $inspections = $this->inspections;
-
-        //die(print_r($inspections->toArray()));
+        $inspections = $this->inspections();
 
         if (isset($search))
         {
@@ -227,8 +225,6 @@ class Hive extends Model
                                         ->orWhere('created_at', 'LIKE', "%$search%")
                                         ->orWhere('id', "$search");
         }
-
-        //die(print_r($inspections->toArray()));
 
         return $inspections->orderBy('created_at', 'desc');
     }

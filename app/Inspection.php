@@ -144,8 +144,7 @@ class Inspection extends Model
         $locale          = LaravelLocalization::getCurrentLocale();
         $inspection_ids  = $inspections->pluck('id')->toArray();
         $inspection_items= InspectionItem::whereIn('inspection_id',$inspection_ids)->groupBy('category_id')->get(); // let the newest id be selected, if multiple on one day
-        
-        //die(print_r($inspection_cats->toArray()));
+        $inspection_objs = Inspection::whereIn('id', $inspection_ids);
 
         $item_names = [];
         foreach ($inspection_items as $item)
@@ -161,9 +160,9 @@ class Inspection extends Model
                 $arr = [];
                 $set = false;
                 //die(print_r($cat->toArray()));
-                foreach ($inspections as $d => $inspection) 
-                {
-                    $inspection_items = $inspection->items()->get();//->with('name')->orderBy('name', 'asc')->get();
+                foreach ($inspection_objs as $d => $inspection) 
+                {   
+                    $inspection_items = $inspection->items();//->with('name')->orderBy('name', 'asc')->get();
                     $arr[$d] = '';
                     //die(print_r($inspection_items->toArray()));
                     foreach ($inspection_items as $inspection_item) 

@@ -233,7 +233,8 @@ class Hive extends Model
     {
         // Get the available dates
         $search        = $request->filled('search') ? $request->input('search') : null;
-        $inspections   = new InspectionCollection($this->inspections_by_date($search)->paginate(env('INSPECTIONS_PER_PAGE', 5)));
+        $page_index    = $request->filled('index') ? $request->input('index') : 1;
+        $inspections   = new InspectionCollection($this->inspections_by_date($search)->paginate(env('INSPECTIONS_PER_PAGE', 5), $page_index));
         $items_by_date = Inspection::item_names($inspections, true);
 
         // Add category header

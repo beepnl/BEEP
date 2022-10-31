@@ -33,8 +33,8 @@ class AppServiceProvider extends ServiceProvider
             $items = $this->forPage($page, $perPage);
             //die(print_r($items->toArray()));
 
-            return new LengthAwarePaginator(
-                $items ?: $items->toArray(),
+            $paginator = new LengthAwarePaginator(
+                $items,
                 $total ?: $this->count(),
                 $perPage,
                 $page,
@@ -43,6 +43,11 @@ class AppServiceProvider extends ServiceProvider
                     'pageName' => $pageName,
                 ]
             );
+
+            if (isset($paginator->items))
+                $paginator->items = (array)$paginator->items;
+
+            return $paginator;
         });
     }
 

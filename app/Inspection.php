@@ -150,16 +150,16 @@ class Inspection extends Model
         foreach ($inspection_items as $item)
         { 
             $cat_id = $item->category_id;
-            $cat = Category::find($cat_id);
+            $cat    = $item->category();
             // Commented out to enable showing 'system' category inspection items
             // if ($cat->isSystem())
             //     continue;
+            //die(print_r($item->toArray()));
             
             if ($include_inspection_items)
             {
                 $arr = [];
                 $set = false;
-                //die(print_r($cat->toArray()));
                 foreach ($inspection_objs as $d => $inspection) 
                 {   
                     $inspection_items = $inspection->items();//->with('name')->orderBy('name', 'asc')->get();
@@ -175,12 +175,12 @@ class Inspection extends Model
                         }
                     }
                 }
-                if ($set && isset($cat))
-                    $item_names[] = ['anc' => $cat->ancName($locale), 'name' => $cat->transName($locale), 'type'=>$cat->input, 'range'=>$cat->inputRange(), 'items' => $arr];
+                if ($set)
+                    $item_names[] = ['anc' => $item->ancName($locale), 'name' => $item->transName($locale), 'type'=>$item->input, 'range'=>$cat->inputRange(), 'items' => $arr];
             } 
-            else if (isset($cat))
+            else if (isset($item))
             {
-                $item_names[] = ['anc' => $cat->ancName($locale), 'name' => $cat->transName($locale), 'type'=>$cat->input, 'range'=>$cat->inputRange()];
+                $item_names[] = ['anc' => $item->ancName($locale), 'name' => $item->transName($locale), 'type'=>$item->input, 'range'=>$cat->inputRange()];
             }
 
         }

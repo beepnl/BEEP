@@ -234,8 +234,11 @@ class Hive extends Model
         $search        = $request->filled('search') ? $request->input('search') : null;
         $page_index    = $request->filled('page') ? $request->input('page') : 1;
         $inspect_coll  = $this->inspections_by_date($search);
-        $inspections   = $inspect_coll->paginate(env('INSPECTIONS_PER_PAGE', 5), $page_index);
-        $items_by_date = Inspection::item_names($inspections, true);
+        $inspections   = $inspect_coll->paginate(env('INSPECTIONS_PER_PAGE', 5), $page_index, true);
+        
+        $items_by_date = [];
+        if (isset($inspections->items))
+            $items_by_date = Inspection::item_names($inspections->items, true);
 
         // Add category header
         for ($i=count($items_by_date)-1; $i >= 0; $i--)

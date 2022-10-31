@@ -27,10 +27,13 @@ class AppServiceProvider extends ServiceProvider
          * @param string $pageName
          * @return array
          */
-        Collection::macro('paginate', function($perPage, $page = null, $total = null, $pageName = 'page') {
+        Collection::macro('paginate', function($perPage, $page = null, $output_array=false, $total = null, $pageName = 'page') {
             $page = $page ?: LengthAwarePaginator::resolveCurrentPage($pageName);
 
-            $items = $this->forPage($page, $perPage);
+            $items = $this->forPage($page, $perPage); 
+            
+            if ($output_array) // make sure no start indexes > 0 are provided, so output is not rendered as object, but as array of objects
+                $items = Collection::make(array_values($items->toArray())); 
 
             $paginator = new LengthAwarePaginator(
                 $items,
@@ -42,10 +45,6 @@ class AppServiceProvider extends ServiceProvider
                     'pageName' => $pageName,
                 ]
             );
-
-            //die(print_r($paginator['data']));
-            if (isset($paginator['data']))
-                $paginator['data'] = (array)$paginator['data'];
 
             return $paginator;
         });

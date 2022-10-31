@@ -31,7 +31,6 @@ class AppServiceProvider extends ServiceProvider
             $page = $page ?: LengthAwarePaginator::resolveCurrentPage($pageName);
 
             $items = $this->forPage($page, $perPage);
-            //die(print_r($items->toArray()));
 
             $paginator = new LengthAwarePaginator(
                 $items,
@@ -44,8 +43,9 @@ class AppServiceProvider extends ServiceProvider
                 ]
             );
 
-            if (isset($paginator->items))
-                $paginator->items = (array)$paginator->items;
+            //die(print_r($paginator['data']));
+            if (isset($paginator['data']))
+                $paginator['data'] = (array)$paginator['data'];
 
             return $paginator;
         });

@@ -7,7 +7,6 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Log;
 use App\Http\Resources\InspectionCollection;
-
 use Auth;
 
 class Hive extends Model
@@ -226,15 +225,16 @@ class Hive extends Model
                                         ->orWhere('id', "$search");
         }
 
-        return $inspections->orderBy('created_at', 'desc');
+        return $inspections->orderBy('created_at', 'desc')->get();
     }
 
     public function inspection_items_by_date($request, $locale)
     {
         // Get the available dates
         $search        = $request->filled('search') ? $request->input('search') : null;
-        $page_index    = $request->filled('index') ? $request->input('index') : 1;
-        $inspections   = new InspectionCollection($this->inspections_by_date($search)->paginate(env('INSPECTIONS_PER_PAGE', 5), $page_index));
+        $page_index    = $request->filled('page') ? $request->input('page') : 1;
+        $inspect_coll  = $this->inspections_by_date($search);
+        $inspections   = $inspect_coll->paginate(env('INSPECTIONS_PER_PAGE', 5), $page_index);
         $items_by_date = Inspection::item_names($inspections, true);
 
         // Add category header

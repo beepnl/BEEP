@@ -216,15 +216,19 @@ class Hive extends Model
 
     public function inspections_by_date($search=null)
     {
-        $inspections = $this->inspections();
+        $inspections = $this->inspections;
+
+        //die(print_r($inspections->toArray()));
 
         if (isset($search))
+        {
             $inspections = $inspections->where('notes', 'LIKE', "%$search%")
                                         ->orWhere('reminder', 'LIKE', "%$search%")
                                         ->orWhere('created_at', 'LIKE', "%$search%")
                                         ->orWhere('id', "$search");
+        }
 
-        //die(print_r($inspections->get()->toArray()));
+        //die(print_r($inspections->toArray()));
 
         return $inspections->orderBy('created_at', 'desc');
     }

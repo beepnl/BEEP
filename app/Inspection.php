@@ -144,13 +144,15 @@ class Inspection extends Model
         $locale          = LaravelLocalization::getCurrentLocale();
         $inspection_ids  = $inspections->pluck('id')->toArray();
         $inspection_items= InspectionItem::whereIn('inspection_id',$inspection_ids)->groupBy('category_id')->get(); // let the newest id be selected, if multiple on one day
-        $inspection_objs = Inspection::whereIn('id', $inspection_ids);
+        $inspection_objs = Inspection::whereIn('id', $inspection_ids)->get();
+
+        //die(print_r([$include_inspection_items, $inspections->toArray(), $inspection_items->toArray()]));
 
         $item_names = [];
         foreach ($inspection_items as $item)
         { 
             $cat_id = $item->category_id;
-            $cat    = $item->category();
+            $cat    = $item->category;
             // Commented out to enable showing 'system' category inspection items
             // if ($cat->isSystem())
             //     continue;
@@ -162,10 +164,10 @@ class Inspection extends Model
                 $set = false;
                 foreach ($inspection_objs as $d => $inspection) 
                 {   
-                    $inspection_items = $inspection->items();//->with('name')->orderBy('name', 'asc')->get();
+                    $inspection_all_items = $inspection->items;//->with('name')->orderBy('name', 'asc')->get();
                     $arr[$d] = '';
-                    //die(print_r($inspection_items->toArray()));
-                    foreach ($inspection_items as $inspection_item) 
+                    //die(print_r($inspection_all_items));
+                    foreach ($inspection_all_items as $inspection_item) 
                     {
                         if ($inspection_item->category_id == $cat_id)
                         {
@@ -176,11 +178,11 @@ class Inspection extends Model
                     }
                 }
                 if ($set)
-                    $item_names[] = ['anc' => $item->ancName($locale), 'name' => $item->transName($locale), 'type'=>$item->input, 'range'=>$cat->inputRange(), 'items' => $arr];
+                    $item_names[] = ['anc' => $cat->ancName($locale), 'name' => $cat->transName($locale), 'type'=>$cat->input, 'range'=>$cat->inputRange(), 'items' => $arr];
             } 
-            else if (isset($item))
+            else if (isset($cat))
             {
-                $item_names[] = ['anc' => $item->ancName($locale), 'name' => $item->transName($locale), 'type'=>$item->input, 'range'=>$cat->inputRange()];
+                $item_names[] = ['anc' => $cat->ancName($locale), 'name' => $cat->transName($locale), 'type'=>$cat->input, 'range'=>$cat->inputRange()];
             }
 
         }

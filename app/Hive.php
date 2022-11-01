@@ -213,28 +213,51 @@ class Hive extends Model
         return $this->hasMany(Device::class);
     }
 
-    public function inspections_by_date($search=null)
+    public function inspections_by_date($request)
     {
+        $search      = $request->filled('search') ? $request->input('search') : null;
+        $attention   = $request->filled('attention') ? boolval($request->input('attention')) : null;
+        $reminder    = $request->filled('reminder') ? boolval($request->input('reminder')) : null;
+        $impression  = $request->filled('impression') ? explode(',', $request->input('impression')) : null;
+        $id          = $request->filled('id') ? $request->input('id') : null;
+
         $inspections = $this->inspections();
 
-        if (isset($search))
+        if (isset($id))
         {
-            $inspections = $inspections->where('notes', 'LIKE', "%$search%")
-                                        ->orWhere('reminder', 'LIKE', "%$search%")
-                                        ->orWhere('created_at', 'LIKE', "%$search%")
-                                        ->orWhere('id', "$search");
+            $inspections->where('id', $id);
+        }
+        else
+        {
+            if (isset($search))
+            {
+                $inspections = $inspections->where('notes', 'LIKE', "%$search%")
+                                            ->orWhere('reminder', 'LIKE', "%$search%")
+                                            ->orWhere('created_at', 'LIKE', "%$search%")
+                                            ->orWhere('id', "$search");
+            }
+            
+            if (isset($attention))
+                $inspections = $inspections->where('attention', $attention);
+
+            if (isset($reminder))
+                $inspections = $inspections->whereNotNull('reminder');
+
+            if (isset($impression))
+                $inspections = $inspections->whereIn('impression', $impression);
+            
         }
 
         return $inspections->orderBy('created_at', 'desc')->get();
     }
 
-    public function inspection_items_by_date($request, $locale)
+    public function inspection_items_by_date($request, $locale, $paginated_result=false)
     {
         // Get the available dates
-        $search        = $request->filled('search') ? $request->input('search') : null;
         $page_index    = $request->filled('page') ? $request->input('page') : 1;
-        $inspect_coll  = $this->inspections_by_date($search);
-        $inspections   = $inspect_coll->paginate(env('INSPECTIONS_PER_PAGE', 5), $page_index, true);
+        $inspect_coll  = $this->inspections_by_date($request);
+        $items_per_page= intval($request->input('items_per_page', 5));
+        $inspections   = $inspect_coll->paginate(env('INSPECTIONS_PER_PAGE', $items_per_page), $page_index, true);
         $items_by_date = Inspection::item_names($inspections, true);
 
         // Add category header
@@ -249,6 +272,9 @@ class Hive extends Model
                 array_splice($items_by_date, $spliceIndex, 0, [['anc' => null, 'name' => $rootName, 'items' => null]]);
             }
         }
+
+        if ($paginated_result === false && count($inspections->items()) > 0)
+            $inspections = $inspections->toArray()['data'];
 
         return ['inspections'=>$inspections, 'items_by_date'=>$items_by_date];
     }

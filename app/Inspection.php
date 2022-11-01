@@ -177,7 +177,7 @@ class Inspection extends Model
                         }
                     }
                 }
-                if ($set)
+                if ($set && isset($cat))
                     $item_names[] = ['anc' => $cat->ancName($locale), 'name' => $cat->transName($locale), 'type'=>$cat->input, 'range'=>$cat->inputRange(), 'items' => $arr];
             } 
             else if (isset($cat))

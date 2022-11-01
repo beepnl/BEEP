@@ -1,13 +1,14 @@
 <?php
 namespace App\Http\Controllers\Api;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Log;
 use Auth;
 use App\User;
 use App\Device;
 use App\Category;
 use Validator;
-use Illuminate\Validation\Rule;
 use Response;
 use GuzzleHttp\Client;
 use GuzzleHttp\Psr7;
@@ -16,7 +17,6 @@ use Moment\Moment;
 use App\Translation;
 use App\Inspection;
 use App\InspectionItem;
-
 /**
  * @group Api\DeviceController
  * Store and retreive Devices that produce measurements
@@ -117,7 +117,7 @@ class DeviceController extends Controller
 
         if ($devices->count() == 0)
         {
-            if ($this->canUserClaimDeviceFromRequest($request, false) === false)
+            if ($this->canUserClaimDeviceFromRequest($request, false, 'GET /devices') === false)
             {
                 if ($reactNativeApp)
                     return Response::json(['info'=>'device_not_yours'], 200);
@@ -146,8 +146,10 @@ class DeviceController extends Controller
     */
     public function getTTNDevice(Request $request, $dev_id)
     {
-        if ($this->canUserClaimDeviceFromRequest($request, false) === false)
+        if ($this->canUserClaimDeviceFromRequest($request, false, '/devices/ttn/'.$dev_id) === false)
+        {
             return Response::json("device_not_yours", 403);
+        }
 
         $response = $this->doTTNRequest($dev_id);
         return Response::json(json_decode($response->getBody()), $response->getStatusCode());
@@ -403,7 +405,7 @@ class DeviceController extends Controller
         }
     }
 
-    private function canUserClaimDevice($id=null, $key=null, $hwi=null, $undeleteTrashed=true)
+    private function canUserClaimDevice($id=null, $key=null, $hwi=null, $undeleteTrashed=true, $from='')
     {
         $can_claim     = 0;
         $device_exists = 0;
@@ -461,17 +463,19 @@ class DeviceController extends Controller
 
         if ($can_claim > 0 || $device_exists == 0)
             return true;
+
+        Log::error("UserID=$user_id cannot claim DeviceID=$id: HWI=$hwi, KEY=$key (from: $from)");
         
         return false;
     }
 
-    private function canUserClaimDeviceFromRequest(Request $request, $undeleteTrashed=true)
+    private function canUserClaimDeviceFromRequest(Request $request, $undeleteTrashed=true, $from='canUserClaimDeviceFromRequest')
     {
         $id  = $request->filled('id') ? $request->input('id') : null;
         $key = $request->filled('key') ? strtolower($request->input('key')) : null;
         $hwi = $request->filled('hardware_id') ? strtolower($request->input('hardware_id')) : null;
         
-        return $this->canUserClaimDevice($id, $key, $hwi, $undeleteTrashed);
+        return $this->canUserClaimDevice($id, $key, $hwi, $undeleteTrashed, $from);
     }
 
 
@@ -525,7 +529,7 @@ class DeviceController extends Controller
 
             if ($request->user()->hasRole(['superadmin', 'admin']) == false)
             {
-                if ($this->canUserClaimDeviceFromRequest($request) === false)
+                if ($this->canUserClaimDeviceFromRequest($request, true, 'POST /devices') === false)
                     return Response::json("device_not_yours", 403);
 
                 $device_count = Device::where('user_id', $request->user()->id)->count();

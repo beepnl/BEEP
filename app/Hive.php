@@ -254,11 +254,13 @@ class Hive extends Model
     public function inspection_items_by_date($request, $locale, $paginated_result=false)
     {
         // Get the available dates
-        $page_index    = $request->filled('page') ? $request->input('page') : 1;
-        $inspect_coll  = $this->inspections_by_date($request);
-        $items_per_page= intval($request->input('items_per_page', 5));
-        $inspections   = $inspect_coll->paginate(env('INSPECTIONS_PER_PAGE', $items_per_page), $page_index, true);
-        $items_by_date = Inspection::item_names($inspections, true);
+        $page_index       = $request->filled('page') ? $request->input('page') : 1;
+        $paginated_result = boolval($request->input('paginated_result', $paginated_result));
+        $items_per_page   = intval($request->input('items_per_page', 5));
+        
+        $inspect_coll     = $this->inspections_by_date($request);
+        $inspections      = $inspect_coll->paginate(env('INSPECTIONS_PER_PAGE', $items_per_page), $page_index, true);
+        $items_by_date    = Inspection::item_names($inspections, true);
 
         // Add category header
         for ($i=count($items_by_date)-1; $i >= 0; $i--)

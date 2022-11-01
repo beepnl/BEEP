@@ -251,7 +251,7 @@ class Hive extends Model
         return $inspections->orderBy('created_at', 'desc')->get();
     }
 
-    public function inspection_items_by_date($request, $locale, $paginated_result=false)
+    public function inspection_items_by_date($request, $locale, $paginated_result=true)
     {
         // Get the available dates
         $page_index       = $request->filled('page') ? $request->input('page') : 1;

@@ -234,7 +234,7 @@ class Hive extends Model
                 $inspections = $inspections->where('notes', 'LIKE', "%$search%")
                                             ->orWhere('reminder', 'LIKE', "%$search%")
                                             ->orWhere('created_at', 'LIKE', "%$search%")
-                                            ->orWhere('id', "$search");
+                                            ->orWhere('reminder_date', 'LIKE', "%$search%");
             }
             
             if (isset($attention))
@@ -254,8 +254,8 @@ class Hive extends Model
     public function inspection_items_by_date($request, $locale, $paginated_result=true)
     {
         // Get the available dates
-        $page_index       = $request->filled('page') ? $request->input('page') : 1;
         $paginated_result = boolval($request->input('paginated_result', $paginated_result));
+        $page_index       = $request->filled('page') ? $request->input('page') : 1;
         $items_per_page   = intval($request->input('items_per_page', 5));
         
         $inspect_coll     = $this->inspections_by_date($request);

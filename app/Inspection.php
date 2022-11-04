@@ -144,7 +144,7 @@ class Inspection extends Model
         $locale          = LaravelLocalization::getCurrentLocale();
         $inspection_ids  = $inspections->pluck('id')->toArray();
         $inspection_items= InspectionItem::whereIn('inspection_id',$inspection_ids)->groupBy('category_id')->get(); // let the newest id be selected, if multiple on one day
-        $inspection_objs = Inspection::whereIn('id', $inspection_ids)->get();
+        $inspection_objs = Inspection::whereIn('id', $inspection_ids)->orderByDesc()->get();
 
         //die(print_r([$include_inspection_items, $inspections->toArray(), $inspection_items->toArray()]));
 
@@ -187,7 +187,7 @@ class Inspection extends Model
 
         }
 
-        //usort($item_names, function($a,$b){ return strcasecmp($a['anc'].$a['name'], $b['anc'].$b['name']); } );
+        usort($item_names, function($a,$b){ return strcasecmp($a['anc'].$a['name'], $b['anc'].$b['name']); } ); // place items in alphabetical order
 
         //die(print_r($item_names));
         return $item_names;

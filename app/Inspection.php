@@ -187,7 +187,7 @@ class Inspection extends Model
 
         }
 
-        usort($item_names, function($a,$b){ return strcasecmp($a['anc'].$a['name'], $b['anc'].$b['name']); } );
+        //usort($item_names, function($a,$b){ return strcasecmp($a['anc'].$a['name'], $b['anc'].$b['name']); } );
 
         //die(print_r($item_names));
         return $item_names;

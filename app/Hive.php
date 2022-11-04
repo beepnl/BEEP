@@ -263,9 +263,9 @@ class Hive extends Model
         $items_by_date    = Inspection::item_names($inspections, true);
 
         // Add category header
-        $i = 0;
-        foreach($items_by_date as $item)
+        for ($i=count($items_by_date)-1; $i >= 0; $i--) // must be processed backwards, because items are added
         {
+            $item       = $items_by_date[$i];
             $rootName   = explode(' > ', $item['anc'])[0];
             $piRootName = $i == 0 ? null : explode(' > ', $items_by_date[$i-1]['anc'])[0];
             if ($piRootName == null || $piRootName != $rootName)
@@ -273,7 +273,6 @@ class Hive extends Model
                 $spliceIndex  = $i == 0 ? 0 : $i;
                 array_splice($items_by_date, $spliceIndex, 0, [['anc' => null, 'name' => $rootName, 'items' => null]]);
             }
-            $i++;
         }
 
         if ($paginated_result === false && count($inspections->items()) > 0)

@@ -263,7 +263,7 @@ class Hive extends Model
         $items_by_date    = Inspection::item_names($inspections, true);
 
         // Add category header
-        for ($i=count($items_by_date)-1; $i >= 0; $i--)
+        for ($i=0; $i < count($items_by_date); $i++)
         {
             $item       = $items_by_date[$i];
             $rootName   = explode(' > ', $item['anc'])[0];

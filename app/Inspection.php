@@ -144,29 +144,30 @@ class Inspection extends Model
         $locale          = LaravelLocalization::getCurrentLocale();
         $inspection_ids  = $inspections->pluck('id')->toArray();
         $inspection_items= InspectionItem::whereIn('inspection_id',$inspection_ids)->groupBy('category_id')->get(); // let the newest id be selected, if multiple on one day
-        
-        //die(print_r($inspection_cats->toArray()));
+        $inspection_objs = Inspection::whereIn('id', $inspection_ids)->orderBy('created_at', 'desc')->get();
+
+        //die(print_r([$include_inspection_items, $inspections->toArray(), $inspection_items->toArray()]));
 
         $item_names = [];
         foreach ($inspection_items as $item)
         { 
             $cat_id = $item->category_id;
-            $cat = Category::find($cat_id);
+            $cat    = $item->category;
             // Commented out to enable showing 'system' category inspection items
             // if ($cat->isSystem())
             //     continue;
+            //die(print_r($item->toArray()));
             
             if ($include_inspection_items)
             {
                 $arr = [];
                 $set = false;
-                //die(print_r($cat->toArray()));
-                foreach ($inspections as $d => $inspection) 
-                {
-                    $inspection_items = $inspection->items()->get();//->with('name')->orderBy('name', 'asc')->get();
+                foreach ($inspection_objs as $d => $inspection) 
+                {   
+                    $inspection_all_items = $inspection->items;//->with('name')->orderBy('name', 'asc')->get();
                     $arr[$d] = '';
-                    //die(print_r($inspection_items->toArray()));
-                    foreach ($inspection_items as $inspection_item) 
+                    //die(print_r($inspection_all_items));
+                    foreach ($inspection_all_items as $inspection_item) 
                     {
                         if ($inspection_item->category_id == $cat_id)
                         {
@@ -186,7 +187,7 @@ class Inspection extends Model
 
         }
 
-        usort($item_names, function($a,$b){ return strcasecmp($a['anc'].$a['name'], $b['anc'].$b['name']); } );
+        usort($item_names, function($a,$b){ return strcasecmp($a['anc'].$a['name'], $b['anc'].$b['name']); } ); // place items in alphabetical order
 
         //die(print_r($item_names));
         return $item_names;

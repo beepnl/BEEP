@@ -34,7 +34,7 @@ class InspectionItem extends Model
 
     protected $appends  = ['val','unit','type'];
     
-    protected $hidden   = ['category','deleted_at'];
+    protected $hidden   = ['category','deleted_at','inspection_id'];
 
     public $timestamps = false;
 

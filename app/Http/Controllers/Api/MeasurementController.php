@@ -468,7 +468,6 @@ class MeasurementController extends Controller
             if (Device::where('key', $request_data['DevEUI_location']['DevEUI'])->count() > 0)
                 $data_array['key'] = $request_data['DevEUI_location']['DevEUI'];
 
-
         if (isset($request_data['DevEUI_uplink']['LrrRSSI']))
             $data_array['rssi'] = $request_data['DevEUI_uplink']['LrrRSSI'];
         if (isset($request_data['DevEUI_uplink']['LrrSNR']))
@@ -480,6 +479,45 @@ class MeasurementController extends Controller
 
         if (isset($request_data['DevEUI_uplink']['payload_hex']))
             $data_array = array_merge($data_array, $this->decode_simpoint_payload($request_data['DevEUI_uplink']));
+
+        return $data_array;
+    }
+
+    /*  KPN Things in SenML format:
+         https://datatracker.ietf.org/doc/html/draft-ietf-core-senml-13#section-5
+        
+        example POST:
+        [{
+            "bn": "urn:dev:DEVEUI:0059AC00001B1930:",
+            "bt": 1.668814455E9
+        },
+        {
+            "n": "payload",
+            "vs": "1b0bde0bd0640a0100068104000c0c06fe000b0004000300030002000200020002000200020002000107000000000000"
+        },
+        {
+            "n": "port",
+            "v": 3.0
+        },
+        {
+            "n": "TIME_ORIGIN",
+            "vs": "THINGSENGINE"
+        }]
+    */
+    private function parse_kpnthings_payload($request_data)
+    {
+        $data_array = [];
+        //die(print_r($request_data));
+
+       
+        // DevEUI from "urn:dev:DEVEUI:DevEUIstring:"
+        $data_array['key'] = substr(($request_data[0]['bn']), 15, 16);
+        if ($arr[1]['n'] == 'payload')
+            $data_array['payload'] = $request_data[1]['vs'];
+        if ($arr[2]['n'] == 'port')
+            $data_array['port'] = $request_data[2]['v'];
+
+        $data_array = array_merge($data_array, $this->decode_kpnthings_payload($data_array));
 
         return $data_array;
     }
@@ -617,6 +655,7 @@ class MeasurementController extends Controller
     {
         $data_array   = [];
         $request_data = $request->input();
+        $decoded_request = json_decode($request, true);
         $payload_type = '';
 
         // distinguish type of data
@@ -639,6 +678,11 @@ class MeasurementController extends Controller
         {
             $data_array = $this->parse_ttn_payload($request_data);
             $payload_type = 'ttn-v3';
+        }
+        else if ($arr[1]['n'] == 'payload')
+        {          
+            $data_array = $this->parse_kpnthings_payload($request_data);
+            $payload_type = 'kpnthings';
         }
         $this->cacheRequestRate('store-lora-sensors-'.$payload_type);
         
@@ -663,6 +707,7 @@ class MeasurementController extends Controller
     public function storeMeasurementData(Request $request)
     {
         $request_data = $request->input();
+        $decoded_request = json_decode($request, true);
         // Check for valid data 
         if (($request->filled('payload_fields') || $request->filled('payload_raw')) && $request->filled('hardware_serial')) // TTN HTTP POST
         {
@@ -684,6 +729,13 @@ class MeasurementController extends Controller
             $data_array = $this->parse_kpn_payload($request_data);
             $this->cacheRequestRate('store-lora-sensors-kpn');
         }
+         
+        else if ($decoded_request[1]['n'] == 'payload')
+        {          
+            $data_array = $this->parse_kpnthings_payload($request_data);
+            $this->cacheRequestRate('store-lora-sensors-kpn');
+        }
+        
         else if ($request->filled('data')) // Check for sensor string (colon and pipe devided) fw v1-3
         {
             if (gettype($request_data['data']) == 'array')

@@ -559,7 +559,7 @@ class MeasurementController extends Controller
         $data_array = [];
 
         if (isset($request_data['dev_eui']))
-            if (Device::where('key', $request_data['dev_eui'])->count() > 0)
+            if (Device::where('key', $request_data['dev_eui'])->count() > 0)e
                 $data_array['key'] = $request_data['dev_eui'];
 
         if (isset($request_data['port']))
@@ -796,6 +796,11 @@ class MeasurementController extends Controller
         {          
             $data_array = $this->parse_kpnthings_payload($request_data);
             $this->cacheRequestRate('store-lora-sensors-kpn-things');
+        }
+        else if (is_array($request_data) && count($request_data) > 1 && $request_data->filled('reported_at') // KPN things check is now JSON order based, which is bad practice 
+        {          
+            $data_array = $this->parse_helium_payload($request_data);
+            $this->cacheRequestRate('store-lora-sensors-helium');
         }
         else // Assume post data input
         {

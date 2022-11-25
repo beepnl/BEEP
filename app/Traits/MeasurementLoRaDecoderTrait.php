@@ -120,7 +120,7 @@ trait MeasurementLoRaDecoderTrait
     {
         $data_array = [];
         
-        if (isset($data['payload']) == false)
+        if (!isset($data['payload_hex']) || !isset($data['FPort']))
             return $data_array;
 
         $payload = $data['payload_hex'];
@@ -133,7 +133,7 @@ trait MeasurementLoRaDecoderTrait
     {
         $data_array = [];
 
-        if (isset($data['payload']) == false)
+        if (!isset($data['payload']) || !isset($data['port']))
             return $data_array;
         
         $payload = $data['payload'];    
@@ -146,13 +146,13 @@ trait MeasurementLoRaDecoderTrait
     {
         $data_array = [];
 
-        if (isset($data['payload']) == false)
+        if (!isset($data['payload']) || !isset($data['port']))
         return $data_array;
 
-        $payload = bin2hex(base64_decode($data['payload']));
+        $payload = base64_decode($data['payload']);
         $port    = $data['port'];
 
-        return $this->decode_beep_payload($payload, $port)
+        return $this->decode_beep_payload($payload, $port);
     }
 
 

@@ -468,7 +468,6 @@ class MeasurementController extends Controller
             if (Device::where('key', $request_data['DevEUI_location']['DevEUI'])->count() > 0)
                 $data_array['key'] = $request_data['DevEUI_location']['DevEUI'];
 
-
         if (isset($request_data['DevEUI_uplink']['LrrRSSI']))
             $data_array['rssi'] = $request_data['DevEUI_uplink']['LrrRSSI'];
         if (isset($request_data['DevEUI_uplink']['LrrSNR']))
@@ -480,6 +479,59 @@ class MeasurementController extends Controller
 
         if (isset($request_data['DevEUI_uplink']['payload_hex']))
             $data_array = array_merge($data_array, $this->decode_simpoint_payload($request_data['DevEUI_uplink']));
+
+        return $data_array;
+    }
+
+    /*  KPN Things in SenML format:
+         https://datatracker.ietf.org/doc/html/draft-ietf-core-senml-13#section-5
+        
+        example POST:
+        [{
+            "bn": "urn:dev:DEVEUI:0059AC00001B1930:",
+            "bt": 1.668814455E9
+        },
+        {
+            "n": "payload",
+            "vs": "1b0bde0bd0640a0100068104000c0c06fe000b0004000300030002000200020002000200020002000107000000000000"
+        },
+        {
+            "n": "port",
+            "v": 3.0
+        },
+        {
+            "n": "TIME_ORIGIN",
+            "vs": "THINGSENGINE"
+        }]
+    */
+    private function parse_kpnthings_payload($request_data)
+    {
+        $data_array = [];
+       
+        foreach ($request_data as $item) // KPN things JSON payload is array of 4? items
+        {
+            if (count((array)$item) == 2) // each object has 2 items
+            {
+                if (isset($item['bn'])) // get key (DevEUI) from "urn:dev:DEVEUI:DevEUIstring:"
+                {
+                    $dev_eui_arr = explode(':', $item['bn']);
+                    $dev_eui_ind = array_search('DEVEUI', $dev_eui_arr);
+                    if (count($dev_eui_arr) > $dev_eui_ind+1)
+                        $data_array['key'] = $dev_eui_arr[$dev_eui_ind+1];
+                }
+                else if (isset($item['n']) && $item['n'] == 'payload' && isset($item['vs']))
+                {
+                    $data_array['payload'] = $item['vs'];
+                }
+                else if (isset($item['n']) && $item['n'] == 'port' && isset($item['v']))
+                {
+                    $data_array['port'] = intval($item['v']);
+                }
+            }
+        }
+
+        if (isset($data_array['key']) && isset($data_array['payload']) && isset($data_array['port']))
+            $data_array = array_merge($data_array, $this->decode_kpnthings_payload($data_array));
 
         return $data_array;
     }
@@ -640,6 +692,11 @@ class MeasurementController extends Controller
             $data_array = $this->parse_ttn_payload($request_data);
             $payload_type = 'ttn-v3';
         }
+        else if (is_array($request_data)) // KPN things payload, assumption will be checked in parse_kpnthings_payload
+        {          
+            $data_array = $this->parse_kpnthings_payload($request_data);
+            $payload_type = 'kpn-things';
+        }
         $this->cacheRequestRate('store-lora-sensors-'.$payload_type);
         
         //die(print_r([$payload_type, $data_array, 'r'=>$request_data]));
@@ -692,6 +749,11 @@ class MeasurementController extends Controller
                 $data_array = $this->convertSensorStringToArray($request_data['data']);
             
             $this->cacheRequestRate('store-sensors');
+        }
+        else if (is_array($request_data) && count($request_data) > 1 && $request_data[1]['n'] == 'payload') // KPN things check is now JSON order based, which is bad practice 
+        {          
+            $data_array = $this->parse_kpnthings_payload($request_data);
+            $this->cacheRequestRate('store-lora-sensors-kpn-things');
         }
         else // Assume post data input
         {

@@ -452,6 +452,23 @@ class MeasurementController extends Controller
         return $data_array;
     }
 
+    /* KPN Simpoint JSON uplink payload:
+    {
+        "DevEUI_uplink":
+        {
+            "Time": "2019-08-02T10:56:29.744+02:00",
+            "DevEUI": "xxxxxxxxxxxxxxxx",
+            "FPort": "1",
+            "FCntUp": "12",
+            "ADRbit": "1",
+            "MType": "2",
+            "FCntDn": "4",
+            "payload_hex": "54657374",
+            "LrrRSSI": "- 112.000000",
+            "LrrSNR": "1.000000"
+        }
+    }
+    */
     private function parse_kpn_payload($request_data)
     {
         $data_array = [];

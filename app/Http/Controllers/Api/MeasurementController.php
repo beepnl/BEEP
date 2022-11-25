@@ -452,6 +452,23 @@ class MeasurementController extends Controller
         return $data_array;
     }
 
+    /* KPN Simpoint JSON uplink payload:
+    {
+        "DevEUI_uplink":
+        {
+            "Time": "2019-08-02T10:56:29.744+02:00",
+            "DevEUI": "xxxxxxxxxxxxxxxx",
+            "FPort": "1",
+            "FCntUp": "12",
+            "ADRbit": "1",
+            "MType": "2",
+            "FCntDn": "4",
+            "payload_hex": "54657374",
+            "LrrRSSI": "- 112.000000",
+            "LrrSNR": "1.000000"
+        }
+    }
+    */
     private function parse_kpn_payload($request_data)
     {
         $data_array = [];
@@ -532,6 +549,24 @@ class MeasurementController extends Controller
 
         if (isset($data_array['key']) && isset($data_array['payload']) && isset($data_array['port']))
             $data_array = array_merge($data_array, $this->decode_kpnthings_payload($data_array));
+
+        return $data_array;
+    }
+    
+   
+    private function parse_helium_payload($request_data)
+    {
+        $data_array = [];
+
+        if (isset($request_data['dev_eui']))
+            if (Device::where('key', $request_data['dev_eui'])->count() > 0)
+                $data_array['key'] = $request_data['dev_eui'];
+
+        if (isset($request_data['port']))
+            $data_array['port'] = $request_data['port'];          
+
+        if (isset($data_array['key']) && isset($data_array['payload']) && isset($data_array['port']))
+            $data_array = array_merge(data_array, $this->decode_helium_payload($data_array));
 
         return $data_array;
     }
@@ -692,11 +727,18 @@ class MeasurementController extends Controller
             $data_array = $this->parse_ttn_payload($request_data);
             $payload_type = 'ttn-v3';
         }
+        else if (($request->filled('reported_at')) // Helium HTTPS POST
+        {
+            $data_array = $this->parse_helium_payload($request_data);
+            $payload_type = 'helium';
+        }
+
         else if (is_array($request_data)) // KPN things payload, assumption will be checked in parse_kpnthings_payload
         {          
             $data_array = $this->parse_kpnthings_payload($request_data);
             $payload_type = 'kpn-things';
         }
+        
         $this->cacheRequestRate('store-lora-sensors-'.$payload_type);
         
         //die(print_r([$payload_type, $data_array, 'r'=>$request_data]));

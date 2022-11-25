@@ -507,17 +507,31 @@ class MeasurementController extends Controller
     private function parse_kpnthings_payload($request_data)
     {
         $data_array = [];
-        //die(print_r($request_data));
-
        
-        // DevEUI from "urn:dev:DEVEUI:DevEUIstring:"
-        $data_array['key'] = substr(($request_data[0]['bn']), 15, 16);
-        if ($arr[1]['n'] == 'payload')
-            $data_array['payload'] = $request_data[1]['vs'];
-        if ($arr[2]['n'] == 'port')
-            $data_array['port'] = $request_data[2]['v'];
+        foreach ($request_data as $item) // KPN things JSON payload is array of 4? items
+        {
+            if (count((array)$item) == 2) // each object has 2 items
+            {
+                if (isset($item['bn'])) // get key (DevEUI) from "urn:dev:DEVEUI:DevEUIstring:"
+                {
+                    $dev_eui_arr = explode(':', $item['bn']);
+                    $dev_eui_ind = array_search('DEVEUI', $dev_eui_arr);
+                    if (count($dev_eui_arr) > $dev_eui_ind+1)
+                        $data_array['key'] = $dev_eui_arr[$dev_eui_ind+1];
+                }
+                else if (isset($item['n']) && $item['n'] == 'payload' && isset($item['vs']))
+                {
+                    $data_array['payload'] = $item['vs'];
+                }
+                else if (isset($item['n']) && $item['n'] == 'port' && isset($item['v']))
+                {
+                    $data_array['port'] = intval($item['v']);
+                }
+            }
+        }
 
-        $data_array = array_merge($data_array, $this->decode_kpnthings_payload($data_array));
+        if (isset($data_array['key']) && isset($data_array['payload']) && isset($data_array['port']))
+            $data_array = array_merge($data_array, $this->decode_kpnthings_payload($data_array));
 
         return $data_array;
     }
@@ -655,7 +669,6 @@ class MeasurementController extends Controller
     {
         $data_array   = [];
         $request_data = $request->input();
-        $decoded_request = json_decode($request, true);
         $payload_type = '';
 
         // distinguish type of data
@@ -679,10 +692,10 @@ class MeasurementController extends Controller
             $data_array = $this->parse_ttn_payload($request_data);
             $payload_type = 'ttn-v3';
         }
-        else if ($arr[1]['n'] == 'payload')
+        else if (is_array($request_data)) // KPN things payload, assumption will be checked in parse_kpnthings_payload
         {          
             $data_array = $this->parse_kpnthings_payload($request_data);
-            $payload_type = 'kpnthings';
+            $payload_type = 'kpn-things';
         }
         $this->cacheRequestRate('store-lora-sensors-'.$payload_type);
         
@@ -707,7 +720,6 @@ class MeasurementController extends Controller
     public function storeMeasurementData(Request $request)
     {
         $request_data = $request->input();
-        $decoded_request = json_decode($request, true);
         // Check for valid data 
         if (($request->filled('payload_fields') || $request->filled('payload_raw')) && $request->filled('hardware_serial')) // TTN HTTP POST
         {
@@ -729,13 +741,6 @@ class MeasurementController extends Controller
             $data_array = $this->parse_kpn_payload($request_data);
             $this->cacheRequestRate('store-lora-sensors-kpn');
         }
-         
-        else if ($decoded_request[1]['n'] == 'payload')
-        {          
-            $data_array = $this->parse_kpnthings_payload($request_data);
-            $this->cacheRequestRate('store-lora-sensors-kpn');
-        }
-        
         else if ($request->filled('data')) // Check for sensor string (colon and pipe devided) fw v1-3
         {
             if (gettype($request_data['data']) == 'array')
@@ -744,6 +749,11 @@ class MeasurementController extends Controller
                 $data_array = $this->convertSensorStringToArray($request_data['data']);
             
             $this->cacheRequestRate('store-sensors');
+        }
+        else if (is_array($request_data) && count($request_data) > 1 && $request_data[1]['n'] == 'payload') // KPN things check is now JSON order based, which is bad practice 
+        {          
+            $data_array = $this->parse_kpnthings_payload($request_data);
+            $this->cacheRequestRate('store-lora-sensors-kpn-things');
         }
         else // Assume post data input
         {

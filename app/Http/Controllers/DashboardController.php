@@ -108,6 +108,7 @@ class DashboardController extends Controller
         $data['store-lora-sensors-']          = $this->cacheRequestGetRate('store-lora-sensors-');
         $data['store-lora-sensors-kpn']       = $this->cacheRequestGetRate('store-lora-sensors-kpn');
         $data['store-lora-sensors-kpn-things']= $this->cacheRequestGetRate('store-lora-sensors-kpn-things');
+        $data['store-lora-sensors-helium']    = $this->cacheRequestGetRate('store-lora-sensors-helium');
         $data['store-lora-sensors-ttn-v2']    = $this->cacheRequestGetRate('store-lora-sensors-ttn-v2');
         $data['store-lora-sensors-ttn-v3-pb'] = $this->cacheRequestGetRate('store-lora-sensors-ttn-v3-pb');
         $data['store-lora-sensors-ttn-v3']    = $this->cacheRequestGetRate('store-lora-sensors-ttn-v3');

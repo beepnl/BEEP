@@ -559,7 +559,7 @@ class MeasurementController extends Controller
         $data_array = [];
 
         if (isset($request_data['dev_eui']))
-            if (Device::where('key', $request_data['dev_eui'])->count() > 0)e
+            if (Device::where('key', $request_data['dev_eui'])->count() > 0)
                 $data_array['key'] = $request_data['dev_eui'];
 
         if (isset($request_data['port']))

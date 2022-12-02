@@ -452,6 +452,23 @@ class MeasurementController extends Controller
         return $data_array;
     }
 
+    /* KPN Simpoint JSON uplink payload:
+    {
+        "DevEUI_uplink":
+        {
+            "Time": "2019-08-02T10:56:29.744+02:00",
+            "DevEUI": "xxxxxxxxxxxxxxxx",
+            "FPort": "1",
+            "FCntUp": "12",
+            "ADRbit": "1",
+            "MType": "2",
+            "FCntDn": "4",
+            "payload_hex": "54657374",
+            "LrrRSSI": "- 112.000000",
+            "LrrSNR": "1.000000"
+        }
+    }
+    */
     private function parse_kpn_payload($request_data)
     {
         $data_array = [];
@@ -532,6 +549,194 @@ class MeasurementController extends Controller
 
         if (isset($data_array['key']) && isset($data_array['payload']) && isset($data_array['port']))
             $data_array = array_merge($data_array, $this->decode_kpnthings_payload($data_array));
+
+        return $data_array;
+    }
+    
+    /*  Helium format:
+
+    // datacredits: 24 bytes  = 0.00001 USD
+    0.00001 USD * 96 * 365  = 0.35 USD/year for 15 min BEEP payloads
+    0.35 * 3 (72 bytes p/packet)
+
+    // port 3 
+    {
+        "app_eui": "6081F9FEDC3017BD",
+        "dc": {
+            "balance": 235,
+            "nonce": 1
+        },
+        "dev_eui": "6081F9930F8E27A3",
+        "devaddr": "DE000048",
+        "downlink_url": "https://console.helium.com/api/v1/down/0d63a575-bad0-4cb0-a622-f66c729f3c9a/ONCB6I9xWxzanViZu4hjvn3X0xYBDe75/1e0f4dbb-2f80-4cd9-9ab9-3a828f37073d",
+        "fcnt": 3,
+        "hotspots": [
+            {
+                "channel": 5,
+                "frequency": 868.0999755859375,
+                "hold_time": 0,
+                "id": "112L77THmjaWxAWTVXGpfdTdSxCfkSBMWHECnBKecHqwAruvexiN",
+                "lat": 52.36352502561771,
+                "long": 4.9292835895307565,
+                "name": "happy-zinc-troll",
+                "reported_at": 1669376394746,
+                "rssi": -118.0,
+                "snr": -5.800000190734863,
+                "spreading": "SF12BW125",
+                "status": "success"
+            }
+        ],
+        "id": "1e0f4dbb-2f80-4cd9-9ab9-3a828f37073d",
+        "metadata": {
+            "adr_allowed": true,
+            "cf_list_enabled": false,
+            "labels": [
+                {
+                    "id": "e5de727f-c38b-43ed-bbf2-2547a16a0260",
+                    "name": "base1",
+                    "organization_id": "fbe0998c-eb26-4672-9446-0e1813e9d18e"
+                }
+            ],
+            "multi_buy": 1,
+            "organization_id": "fbe0998c-eb26-4672-9446-0e1813e9d18e",
+            "preferred_hotspots": [],
+            "rx_delay": 5,
+            "rx_delay_actual": 5,
+            "rx_delay_state": "rx_delay_established"
+        },
+        "name": "beepbase-6ac",
+        "payload": "GwuxC6pkCgH/4y0EAAwMBv4ASAA/ACgAMQA+ADQALAAnACQAJwAZABQHAAAAAAAA",
+        "payload_size": 48,
+        "port": 3,
+        "raw_packet": "QN4AAEiAAwAD4E8JhePsCggb04HoeMyiYbY5buh6v+tHJeJGkcqdv0AVECYxammXs6SjOxVG4ifCd9kkbQ==",
+        "replay": false,
+        "reported_at": 1669376394746,
+        "type": "uplink",
+        "uuid": "c60af58f-ec5a-4a39-826d-88c2e10aeb1c"
+    }
+    // port 2
+    {
+        "app_eui": "6081F9FEDC3017BD",
+        "dc": {
+            "balance": 239,
+            "nonce": 1
+        },
+        "dev_eui": "6081F9930F8E27A3",
+        "devaddr": "DE000048",
+        "downlink_url": "https://console.helium.com/api/v1/down/0d63a575-bad0-4cb0-a622-f66c729f3c9a/ONCB6I9xWxzanViZu4hjvn3X0xYBDe75/1e0f4dbb-2f80-4cd9-9ab9-3a828f37073d",
+        "fcnt": 1,
+        "hotspots": [
+            {
+                "channel": 7,
+                "frequency": 868.5,
+                "hold_time": 0,
+                "id": "11KnNH4SW6ZxjwXbiBJywgeVFJMgU4jPy73DYn7C9Xb9cDBBT7R",
+                "lat": 52.36440566367208,
+                "long": 4.934660094619453,
+                "name": "cold-fiery-giraffe",
+                "reported_at": 1669375123223,
+                "rssi": -129.0,
+                "snr": -15.199999809265137,
+                "spreading": "SF12BW125",
+                "status": "success"
+            }
+        ],
+        "id": "1e0f4dbb-2f80-4cd9-9ab9-3a828f37073d",
+        "metadata": {
+            "adr_allowed": true,
+            "cf_list_enabled": false,
+            "labels": [
+                {
+                    "id": "e5de727f-c38b-43ed-bbf2-2547a16a0260",
+                    "name": "base1",
+                    "organization_id": "fbe0998c-eb26-4672-9446-0e1813e9d18e"
+                }
+            ],
+            "multi_buy": 1,
+            "organization_id": "fbe0998c-eb26-4672-9446-0e1813e9d18e",
+            "preferred_hotspots": [],
+            "rx_delay": 5,
+            "rx_delay_actual": 5,
+            "rx_delay_state": "rx_delay_established"
+        },
+        "name": "beepbase-6ac",
+        "payload": "AQABAAUAAgLDUYpq//9gCQ4BI2wQ7LE/S+4dAQWg",
+        "payload_size": 30,
+        "port": 2,
+        "raw_packet": "QN4AAEiAAQACqaFTS0zJmI7knVw8czanv1yIDf2whuCCqEgZ9wMmyb7HvA==",
+        "replay": false,
+        "reported_at": 1669375123223,
+        "type": "uplink",
+        "uuid": "ad79727f-d7f0-47f5-a268-f48682072b3a"
+    }
+
+    // join accept
+    {
+        "app_eui": "6081F9FEDC3017BD",
+        "dev_eui": "6081F9930F8E27A3",
+        "devaddr": "D6000048",
+        "downlink_url": "https://console.helium.com/api/v1/down/0d63a575-bad0-4cb0-a622-f66c729f3c9a/ONCB6I9xWxzanViZu4hjvn3X0xYBDe75/1e0f4dbb-2f80-4cd9-9ab9-3a828f37073d",
+        "fcnt": 0,
+        "hold_time": 0,
+        "hotspots": [
+            {
+                "channel": 5,
+                "frequency": 868.0999755859375,
+                "hold_time": 0,
+                "id": "112Reh8yxmNZYHaLf4pjP4L83ca3TCDuB18TxskQt8eMsCSDMiax",
+                "lat": 52.36321245120544,
+                "long": 4.938753950876312,
+                "name": "helpful-chartreuse-dragonfly",
+                "reported_at": 1669374519478,
+                "rssi": -134.0,
+                "snr": -19.200000762939453,
+                "spreading": "SF12BW125",
+                "status": "success"
+            }
+        ],
+        "id": "1e0f4dbb-2f80-4cd9-9ab9-3a828f37073d",
+        "metadata": {
+            "adr_allowed": true,
+            "cf_list_enabled": false,
+            "labels": [
+                {
+                    "id": "e5de727f-c38b-43ed-bbf2-2547a16a0260",
+                    "name": "base1",
+                    "organization_id": "fbe0998c-eb26-4672-9446-0e1813e9d18e"
+                }
+            ],
+            "multi_buy": 1,
+            "organization_id": "fbe0998c-eb26-4672-9446-0e1813e9d18e",
+            "preferred_hotspots": [],
+            "rx_delay": 5,
+            "rx_delay_actual": 5,
+            "rx_delay_state": "rx_delay_established"
+        },
+        "name": "beepbase-6ac",
+        "port": 0,
+        "raw_packet": "AL0XMNz++YFgoyeOD5P5gWCQT3AYe3w=",
+        "reported_at": 1669374519478,
+        "type": "join",
+        "uuid": "a146289d-135c-4df5-ac14-25fac20870e7"
+    }
+
+    */
+    private function parse_helium_payload($request_data)
+    {
+        $data_array = [];
+
+        if (isset($request_data['dev_eui']))
+            if (Device::where('key', $request_data['dev_eui'])->count() > 0)
+                $data_array['key'] = $request_data['dev_eui'];
+
+        if (isset($request_data['port']))
+            $data_array['port'] = $request_data['port'];  
+
+        if (isset($request_data['payload']))
+            $data_array['payload'] = $request_data['payload'];         
+
+        if (isset($data_array['key']) && isset($data_array['payload']) && isset($data_array['port']))
+            $data_array = array_merge($data_array, $this->decode_helium_payload($data_array));
 
         return $data_array;
     }
@@ -692,11 +897,17 @@ class MeasurementController extends Controller
             $data_array = $this->parse_ttn_payload($request_data);
             $payload_type = 'ttn-v3';
         }
+        else if ($request->filled('reported_at') && $request->filled('payload')) // Helium HTTPS POST
+        {
+            $data_array = $this->parse_helium_payload($request_data);
+            $payload_type = 'helium';
+        }
         else if (is_array($request_data)) // KPN things payload, assumption will be checked in parse_kpnthings_payload
         {          
             $data_array = $this->parse_kpnthings_payload($request_data);
             $payload_type = 'kpn-things';
         }
+        
         $this->cacheRequestRate('store-lora-sensors-'.$payload_type);
         
         //die(print_r([$payload_type, $data_array, 'r'=>$request_data]));
@@ -754,6 +965,11 @@ class MeasurementController extends Controller
         {          
             $data_array = $this->parse_kpnthings_payload($request_data);
             $this->cacheRequestRate('store-lora-sensors-kpn-things');
+        }
+        else if (is_array($request_data) && count($request_data) > 1 && $request_data->filled('reported_at')) // KPN things check is now JSON order based, which is bad practice 
+        {          
+            $data_array = $this->parse_helium_payload($request_data);
+            $this->cacheRequestRate('store-lora-sensors-helium');
         }
         else // Assume post data input
         {

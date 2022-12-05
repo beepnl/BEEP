@@ -619,14 +619,14 @@ class MeasurementController extends Controller
             if (Device::where('key', $request_data['dev_eui'])->count() > 0)
                 $data_array['key'] = $request_data['dev_eui'];
         
-        if (isset($request_data['hotspots']['rssi']))
-            $data_array['rssi'] = $request_data['hotspots']['rssi'];
-        if (isset($request_data['hotspots']['snr']))
-            $data_array['snr']  = $request_data['hotspots']['snr'];
-        if (isset($request_data['hotspots']['lat']))
-            $data_array['lat']  = $request_data['hotspots']['lat'];
-        if (isset($request_data['hotspots']['long']))
-            $data_array['lon']  = $request_data['hotspots']['long']; 
+        if (isset($request_data['hotspots'][0]['rssi']))
+            $data_array['rssi'] = $request_data['hotspots'][0]['rssi'];
+        if (isset($request_data['hotspots'][0]['snr']))
+            $data_array['snr']  = $request_data['hotspots'][0]['snr'];
+        if (isset($request_data['hotspots'][0]['lat']))
+            $data_array['lat']  = $request_data['hotspots'][0]['lat'];
+        if (isset($request_data['hotspots'][0]['long']))
+            $data_array['lon']  = $request_data['hotspots'][0]['long']; 
 
         if (isset($request_data['port']))
             $data_array['port'] = $request_data['port'];  
@@ -752,7 +752,7 @@ class MeasurementController extends Controller
                 $device->last_downlink_result = json_encode($data_array);
                 $device->save();
             }
-        }
+        }   
 
         return $data_array;
     }

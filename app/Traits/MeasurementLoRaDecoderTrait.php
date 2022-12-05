@@ -120,7 +120,7 @@ trait MeasurementLoRaDecoderTrait
     {
         $data_array = [];
         
-        if (isset($data['payload_hex']) == false)
+        if (!isset($data['payload_hex']) || !isset($data['FPort']))
             return $data_array;
 
         $payload = $data['payload_hex'];
@@ -128,7 +128,35 @@ trait MeasurementLoRaDecoderTrait
 
         return $this->decode_beep_payload($payload, $port);
     }
-    
+
+    private function decode_kpnthings_payload($data)
+    {
+        $data_array = [];
+
+        if (!isset($data['payload']) || !isset($data['port']))
+            return $data_array;
+        
+        $payload = $data['payload'];    
+        $port    = $data['port'];
+
+        return $this->decode_beep_payload($payload, $port);
+    }
+
+    private function decode_helium_payload($data)
+    {
+        $data_array = [];
+
+        if (!isset($data['payload']) || !isset($data['port']))
+            return $data_array;
+
+        $payload = bin2hex(base64_decode($data['payload']));
+        $port    = $data['port'];
+
+        return $this->decode_beep_payload($payload, $port);
+    }
+
+
+
     //  03   31                1b0bf10bea64 0a01019889 0400 0c0a00ff008e001d0010000f000e000c000b000900090008 070849160703f8 25 5f5b73d2 0a
     //  type length (49 bytes) payload(78)
     //                         bat          weight     temo fft                                              bme280         time unixts \n

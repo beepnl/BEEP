@@ -452,6 +452,23 @@ class MeasurementController extends Controller
         return $data_array;
     }
 
+    /* KPN Simpoint JSON uplink payload:
+    {
+        "DevEUI_uplink":
+        {
+            "Time": "2019-08-02T10:56:29.744+02:00",
+            "DevEUI": "xxxxxxxxxxxxxxxx",
+            "FPort": "1",
+            "FCntUp": "12",
+            "ADRbit": "1",
+            "MType": "2",
+            "FCntDn": "4",
+            "payload_hex": "54657374",
+            "LrrRSSI": "- 112.000000",
+            "LrrSNR": "1.000000"
+        }
+    }
+    */
     private function parse_kpn_payload($request_data)
     {
         $data_array = [];
@@ -468,7 +485,6 @@ class MeasurementController extends Controller
             if (Device::where('key', $request_data['DevEUI_location']['DevEUI'])->count() > 0)
                 $data_array['key'] = $request_data['DevEUI_location']['DevEUI'];
 
-
         if (isset($request_data['DevEUI_uplink']['LrrRSSI']))
             $data_array['rssi'] = $request_data['DevEUI_uplink']['LrrRSSI'];
         if (isset($request_data['DevEUI_uplink']['LrrSNR']))
@@ -480,6 +496,146 @@ class MeasurementController extends Controller
 
         if (isset($request_data['DevEUI_uplink']['payload_hex']))
             $data_array = array_merge($data_array, $this->decode_simpoint_payload($request_data['DevEUI_uplink']));
+
+        return $data_array;
+    }
+
+    /*  KPN Things JSON uplink payload:
+        [{
+            "bn": "urn:dev:DEVEUI:0059AC00001B1930:",
+            "bt": 1.668814455E9
+        },
+        {
+            "n": "payload",
+            "vs": "1b0bde0bd0640a0100068104000c0c06fe000b0004000300030002000200020002000200020002000107000000000000"
+        },
+        {
+            "n": "port",
+            "v": 3.0
+        },
+        {
+            "n": "TIME_ORIGIN",
+            "vs": "THINGSENGINE"
+        }]
+    */
+    private function parse_kpnthings_payload($request_data)
+    {
+        $data_array = [];
+       
+        foreach ($request_data as $item) // KPN things JSON payload is array of 4? items
+        {
+            if (count((array)$item) == 2) // each object has 2 items
+            {
+                if (isset($item['bn'])) // get key (DevEUI) from "urn:dev:DEVEUI:DevEUIstring:"
+                {
+                    $dev_eui_arr = explode(':', $item['bn']);
+                    $dev_eui_ind = array_search('DEVEUI', $dev_eui_arr);
+                    if (count($dev_eui_arr) > $dev_eui_ind+1)
+                        $data_array['key'] = $dev_eui_arr[$dev_eui_ind+1];
+                }
+                else if (isset($item['n']) && $item['n'] == 'payload' && isset($item['vs']))
+                {
+                    $data_array['payload'] = $item['vs'];
+                }
+                else if (isset($item['n']) && $item['n'] == 'port' && isset($item['v']))
+                {
+                    $data_array['port'] = intval($item['v']);
+                }
+            }
+        }
+
+        if (isset($data_array['key']) && isset($data_array['payload']) && isset($data_array['port']))
+            $data_array = array_merge($data_array, $this->decode_kpnthings_payload($data_array));
+
+        return $data_array;
+    }
+    
+    /*  Helium format:
+
+    // datacredits: 24 bytes  = 0.00001 USD
+    0.00001 USD * 96 * 365  = 0.35 USD/year for 15 min BEEP payloads
+    0.35 * 3 (72 bytes p/packet)
+
+    // port 3 
+    {
+        "app_eui": "xxxxxxxxxxxxxxxx",
+        "dc": {
+            "balance": 235,
+            "nonce": 1
+        },
+        "dev_eui": "xxxxxxxxxxxxxxxx",
+        "devaddr": "DE000048",
+        "downlink_url": "https://console.helium.com/api/v1/down/0d63a575-bad0-4cb0-a622-f66c729f3c9a/ONCB6I9xWxzanViZu4hjvn3X0xYBDe75/1e0f4dbb-2f80-4cd9-9ab9-3a828f37073d",
+        "fcnt": 3,
+        "hotspots": [
+            {
+                "channel": 5,
+                "frequency": 868.0999755859375,
+                "hold_time": 0,
+                "id": "112L77THmjaWxAWTVXGpfdTdSxCfkSBMWHECnBKecHqwAruvexiN",
+                "lat": 52.36352502561771,
+                "long": 4.9292835895307565,
+                "name": "happy-zinc-troll",
+                "reported_at": 1669376394746,
+                "rssi": -118.0,
+                "snr": -5.800000190734863,
+                "spreading": "SF12BW125",
+                "status": "success"
+            }
+        ],
+        "id": "1e0f4dbb-2f80-4cd9-9ab9-3a828f37073d",
+        "metadata": {
+            "adr_allowed": true,
+            "cf_list_enabled": false,
+            "labels": [
+                {
+                    "id": "e5de727f-c38b-43ed-bbf2-2547a16a0260",
+                    "name": "base1",
+                    "organization_id": "fbe0998c-eb26-4672-9446-0e1813e9d18e"
+                }
+            ],
+            "multi_buy": 1,
+            "organization_id": "fbe0998c-eb26-4672-9446-0e1813e9d18e",
+            "preferred_hotspots": [],
+            "rx_delay": 5,
+            "rx_delay_actual": 5,
+            "rx_delay_state": "rx_delay_established"
+        },
+        "name": "beepbase-6ac",
+        "payload": "GwuxC6pkCgH/4y0EAAwMBv4ASAA/ACgAMQA+ADQALAAnACQAJwAZABQHAAAAAAAA",
+        "payload_size": 48,
+        "port": 3,
+        "raw_packet": "QN4AAEiAAwAD4E8JhePsCggb04HoeMyiYbY5buh6v+tHJeJGkcqdv0AVECYxammXs6SjOxVG4ifCd9kkbQ==",
+        "replay": false,
+        "reported_at": 1669376394746,
+        "type": "uplink",
+        "uuid": "c60af58f-ec5a-4a39-826d-88c2e10aeb1c"
+    }*/
+    private function parse_helium_payload($request_data)
+    {
+        $data_array = [];
+
+        if (isset($request_data['dev_eui']))
+            if (Device::where('key', $request_data['dev_eui'])->count() > 0)
+                $data_array['key'] = $request_data['dev_eui'];
+        
+        if (isset($request_data['hotspots']['rssi']))
+            $data_array['rssi'] = $request_data['hotspots']['rssi'];
+        if (isset($request_data['hotspots']['snr']))
+            $data_array['snr']  = $request_data['hotspots']['snr'];
+        if (isset($request_data['hotspots']['lat']))
+            $data_array['lat']  = $request_data['hotspots']['lat'];
+        if (isset($request_data['hotspots']['long']))
+            $data_array['lon']  = $request_data['hotspots']['long']; 
+
+        if (isset($request_data['port']))
+            $data_array['port'] = $request_data['port'];  
+
+        if (isset($request_data['payload']))
+            $data_array['payload'] = $request_data['payload'];         
+
+        if (isset($data_array['key']) && isset($data_array['payload']) && isset($data_array['port']))
+            $data_array = array_merge($data_array, $this->decode_helium_payload($data_array));
 
         return $data_array;
     }
@@ -640,6 +796,17 @@ class MeasurementController extends Controller
             $data_array = $this->parse_ttn_payload($request_data);
             $payload_type = 'ttn-v3';
         }
+        else if ($request->filled('reported_at') && $request->filled('payload')) // Helium HTTPS POST
+        {
+            $data_array = $this->parse_helium_payload($request_data);
+            $payload_type = 'helium';
+        }
+        else if (is_array($request_data)) // KPN things payload, assumption will be checked in parse_kpnthings_payload
+        {          
+            $data_array = $this->parse_kpnthings_payload($request_data);
+            $payload_type = 'kpn-things';
+        }
+        
         $this->cacheRequestRate('store-lora-sensors-'.$payload_type);
         
         //die(print_r([$payload_type, $data_array, 'r'=>$request_data]));
@@ -692,6 +859,16 @@ class MeasurementController extends Controller
                 $data_array = $this->convertSensorStringToArray($request_data['data']);
             
             $this->cacheRequestRate('store-sensors');
+        }
+        else if (is_array($request_data) && count($request_data) > 1 && $request_data[1]['n'] == 'payload') // KPN things check is now JSON order based, which is bad practice 
+        {          
+            $data_array = $this->parse_kpnthings_payload($request_data);
+            $this->cacheRequestRate('store-lora-sensors-kpn-things');
+        }
+        else if (is_array($request_data) && count($request_data) > 1 && $request_data->filled('reported_at')) // KPN things check is now JSON order based, which is bad practice 
+        {          
+            $data_array = $this->parse_helium_payload($request_data);
+            $this->cacheRequestRate('store-lora-sensors-helium');
         }
         else // Assume post data input
         {

@@ -107,10 +107,12 @@ class DashboardController extends Controller
         $data['store-sensors']                = $this->cacheRequestGetRate('store-sensors');
         $data['store-lora-sensors-']          = $this->cacheRequestGetRate('store-lora-sensors-');
         $data['store-lora-sensors-kpn']       = $this->cacheRequestGetRate('store-lora-sensors-kpn');
+        $data['store-lora-sensors-kpn-things']= $this->cacheRequestGetRate('store-lora-sensors-kpn-things');
+        $data['store-lora-sensors-helium']    = $this->cacheRequestGetRate('store-lora-sensors-helium');
         $data['store-lora-sensors-ttn-v2']    = $this->cacheRequestGetRate('store-lora-sensors-ttn-v2');
         $data['store-lora-sensors-ttn-v3-pb'] = $this->cacheRequestGetRate('store-lora-sensors-ttn-v3-pb');
         $data['store-lora-sensors-ttn-v3']    = $this->cacheRequestGetRate('store-lora-sensors-ttn-v3');
-        $data['store-measurements-total']     = $data['store-sensors'] + $data['store-lora-sensors-'] + $data['store-lora-sensors-kpn'] + $data['store-lora-sensors-ttn-v2'] + $data['store-lora-sensors-ttn-v3-pb'] + $data['store-lora-sensors-ttn-v3'];
+        $data['store-measurements-total']     = $data['store-sensors'] + $data['store-lora-sensors-'] + $data['store-lora-sensors-kpn'] + $data['store-lora-sensors-kpn-things'] + $data['store-lora-sensors-helium'] + $data['store-lora-sensors-ttn-v2'] + $data['store-lora-sensors-ttn-v3-pb'] + $data['store-lora-sensors-ttn-v3'];
         $data['get-measurements']             = $this->cacheRequestGetRate('get-measurements', 3600);
         $data['get-measurements-last']        = $this->cacheRequestGetRate('get-measurements-last', 3600);
         $data['get-measurements-research']    = $this->cacheRequestGetRate('get-measurements-research', 3600);

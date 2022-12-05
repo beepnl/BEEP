@@ -18,7 +18,7 @@
 			<div class="small-box bg-green">
 				<div class="inner">
 					<h3>{{ $data['store-measurements-total'] }} / {{ $data['store-measurements-201'] }}</h3>
-					<p>Data storage req Total / OK (201) req/min<br>TTNv2: {{ $data['store-lora-sensors-ttn-v2'] }} | v3: {{ $data['store-lora-sensors-ttn-v3'] }} | v3pb: {{ $data['store-lora-sensors-ttn-v3-pb'] }} | KPN: {{ $data['store-lora-sensors-kpn'] }} | KPN-T: {{ $data['store-lora-sensors-kpn-things'] }} | helium: {{ $data['store-lora-sensors-helium'] }} | ?: {{ $data['store-lora-sensors-'] }} | API: {{ $data['store-sensors'] }}</p>
+					<p>Data storage req Total / OK (201) req/min<br>TTNv3:{{ $data['store-lora-sensors-ttn-v3'] }} KPN:{{ $data['store-lora-sensors-kpn'] }} KPN-T:{{ $data['store-lora-sensors-kpn-things'] }} Helium:{{ $data['store-lora-sensors-helium'] }} ?:{{ $data['store-lora-sensors-'] }} API:{{ $data['store-sensors'] }}</p>
 				</div>
 				<div class="icon">
 					<i class="fa fa-database"></i>
@@ -47,8 +47,8 @@
 				<div class="inner">
 					<h3>{{ $data['influx-get'] }} / {{ $data['influx-write'] }}</h3>
 
-					<p>Influx read/write /hr: last:{{$data['influx-last']}} | 
-						names/nc:{{$data['influx-names']}}/{{$data['influx-names-nocache']}} | device:{{$data['influx-device']}} | alert:{{$data['influx-alert']}} | wea:{{$data['influx-weather']}} | data:{{$data['influx-data']}} | log:{{$data['influx-flashlog']}} | res:{{$data['influx-research']+$data['influx-research-api']}} | csv:{{$data['influx-csv']}}
+					<p>Influx read/write /hr: last:{{$data['influx-last']}} 
+						name/no_c:{{$data['influx-names']}}/{{$data['influx-names-nocache']}} alert:{{$data['influx-alert']}} wea:{{$data['influx-weather']}} data:{{$data['influx-data']}} fl:{{$data['influx-flashlog']}} res:{{$data['influx-research']+$data['influx-research-api']}} csv:{{$data['influx-csv']}}
 					</p>
 				</div>
 				<div class="icon">

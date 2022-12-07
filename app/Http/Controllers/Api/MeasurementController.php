@@ -801,7 +801,10 @@ class MeasurementController extends Controller
             $data_array = $this->parse_helium_payload($request_data);
             $payload_type = 'helium';
         }
-        else if (is_array($request_data) && isset($request_data[0]['bn']) && isset($request_data[1]['n'])) // KPN things payload, assumption will be checked in parse_kpnthings_payload
+        else if (is_array($request_data) && isset($request_data[0]['bn']) && (isset($request_data[1]['n']) || isset($request_data[0]['n'])))
+        // KPN Things SenML format is changed from 13-12-2022 onwards, see:
+        // https://docs.kpnthings.com/dm/concepts/senml/upcoming-changes-in-kpn-senml
+        // so check $request_data for 'n' in first field as well 
         {          
             $data_array = $this->parse_kpnthings_payload($request_data);
             $payload_type = 'kpn-things';

@@ -801,7 +801,7 @@ class MeasurementController extends Controller
             $data_array = $this->parse_helium_payload($request_data);
             $payload_type = 'helium';
         }
-        else if (is_array($request_data)) // KPN things payload, assumption will be checked in parse_kpnthings_payload
+        else if (is_array($request_data) && isset($request_data[0]['bn']) && isset($request_data[1]['n'])) // KPN things payload, assumption will be checked in parse_kpnthings_payload
         {          
             $data_array = $this->parse_kpnthings_payload($request_data);
             $payload_type = 'kpn-things';
@@ -860,12 +860,12 @@ class MeasurementController extends Controller
             
             $this->cacheRequestRate('store-sensors');
         }
-        else if (is_array($request_data) && count($request_data) > 1 && $request_data[1]['n'] == 'payload') // KPN things check is now JSON order based, which is bad practice 
+        else if (is_array($request_data) && count($request_data) > 1 && isset($request_data[0]['bn']) && isset($request_data[1]['n']) && $request_data[1]['n'] == 'payload') // KPN things check is now JSON order based, which is bad practice 
         {          
             $data_array = $this->parse_kpnthings_payload($request_data);
             $this->cacheRequestRate('store-lora-sensors-kpn-things');
         }
-        else if (is_array($request_data) && count($request_data) > 1 && $request_data->filled('reported_at')) // KPN things check is now JSON order based, which is bad practice 
+        else if (is_array($request_data) && count($request_data) > 1 && isset($request_data['reported_at']) && isset($request_data['payload'])) // KPN things check is now JSON order based, which is bad practice 
         {          
             $data_array = $this->parse_helium_payload($request_data);
             $this->cacheRequestRate('store-lora-sensors-helium');

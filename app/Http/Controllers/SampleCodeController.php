@@ -5,10 +5,12 @@ namespace App\Http\Controllers;
 use App\Http\Requests;
 use App\Http\Controllers\Controller;
 
+use Mail;
 use Auth;
 use Storage;
 use Session;
 use App\SampleCode;
+use App\Mail\SampleCodeMail;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Log;
@@ -70,11 +72,12 @@ class SampleCodeController extends Controller
                     // look up inspection
                     $inspection_id = InspectionItem::where('category_id', $sample_code_id)->where('value', $sample_code)->value('inspection_id');
                     $inspection    = Inspection::find($inspection_id);
-
+                    
                     if ($inspection)
                     {
                         $inspection_cnt++;
-                        
+                        $items_changed = 0;
+
                         foreach ($inspection_items as $category_id => $value)
                         {
                             $inspection_item_exists = $inspection->items()->where('category_id', $category_id);
@@ -96,7 +99,33 @@ class SampleCodeController extends Controller
                                 'value'         => $value,
                             ];
                             InspectionItem::create($itemData);
+                            $items_changed++;
                         }
+
+                        // send e-mail to user
+                        if ($items_changed > 0 && $inspection->users()->count() > 0)
+                        {
+                            $hive_id   = null;
+                            $hive_name = null;
+
+                            if (isset($inspection->hives) && $inspection->hives->count() > 0)
+                            {
+                                $hive      = $inspection->hives->first();
+                                $hive_id   = $hive->id;
+                                $hive_name = $hive->name;
+                            }
+
+                            $link = null;
+                            if (isset($hive_id))
+                                $link = "hives/$hive_id/inspections?search=id%3D$inspection_id";
+
+                            foreach ($inspection->users as $u) 
+                            {
+                                Log::debug("Sample result upload for code $sample_code sending email to user $u->email");
+                                Mail::to($u->email)->send(new SampleCodeMail($u->name, $sample_code, $hive_name, $link));
+                            }
+                        }
+
                     }
                 }
             }

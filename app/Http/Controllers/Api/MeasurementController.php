@@ -553,7 +553,7 @@ class MeasurementController extends Controller
     /*  Helium format:
 
     // datacredits: 24 bytes  = 0.00001 USD
-    0.00001 USD * 96 * 365  = 0.35 USD/year for 15 min BEEP payloads
+    0.00001 USD * 96 * 365  = 0.35 USD/year for 1x/15 min BEEP payloads
     0.35 * 3 (72 bytes p/packet)
 
     // port 3 
@@ -619,14 +619,14 @@ class MeasurementController extends Controller
             if (Device::where('key', $request_data['dev_eui'])->count() > 0)
                 $data_array['key'] = $request_data['dev_eui'];
         
-        if (isset($request_data['hotspots']['rssi']))
-            $data_array['rssi'] = $request_data['hotspots']['rssi'];
-        if (isset($request_data['hotspots']['snr']))
-            $data_array['snr']  = $request_data['hotspots']['snr'];
-        if (isset($request_data['hotspots']['lat']))
-            $data_array['lat']  = $request_data['hotspots']['lat'];
-        if (isset($request_data['hotspots']['long']))
-            $data_array['lon']  = $request_data['hotspots']['long']; 
+        if (isset($request_data['hotspots'][0]['rssi']))
+            $data_array['rssi'] = $request_data['hotspots'][0]['rssi'];
+        if (isset($request_data['hotspots'][0]['snr']))
+            $data_array['snr']  = $request_data['hotspots'][0]['snr'];
+        if (isset($request_data['hotspots'][0]['lat']))
+            $data_array['lat']  = $request_data['hotspots'][0]['lat'];
+        if (isset($request_data['hotspots'][0]['long']))
+            $data_array['lon']  = $request_data['hotspots'][0]['long']; 
 
         if (isset($request_data['port']))
             $data_array['port'] = $request_data['port'];  
@@ -801,7 +801,13 @@ class MeasurementController extends Controller
             $data_array = $this->parse_helium_payload($request_data);
             $payload_type = 'helium';
         }
-        else if (is_array($request_data)) // KPN things payload, assumption will be checked in parse_kpnthings_payload
+         /*
+        // KPN-T format will change from 13-12-2022 onwards
+        // so also check the first field for 'n' 
+        // 
+        // https://docs.kpnthings.com/dm/concepts/senml/upcoming-changes-in-kpn-senml
+        */
+        else if (is_array($request_data) && isset($request_data[0]['bn']) && (isset($request_data[1]['n']) || isset($request_data[0]['n']))) 
         {          
             $data_array = $this->parse_kpnthings_payload($request_data);
             $payload_type = 'kpn-things';
@@ -860,12 +866,12 @@ class MeasurementController extends Controller
             
             $this->cacheRequestRate('store-sensors');
         }
-        else if (is_array($request_data) && count($request_data) > 1 && $request_data[1]['n'] == 'payload') // KPN things check is now JSON order based, which is bad practice 
+        else if (is_array($request_data) && count($request_data) > 1 && isset($request_data[0]['bn']) && isset($request_data[1]['n']) && $request_data[1]['n'] == 'payload') // KPN things check is now JSON order based, which is bad practice 
         {          
             $data_array = $this->parse_kpnthings_payload($request_data);
             $this->cacheRequestRate('store-lora-sensors-kpn-things');
         }
-        else if (is_array($request_data) && count($request_data) > 1 && $request_data->filled('reported_at')) // KPN things check is now JSON order based, which is bad practice 
+        else if (is_array($request_data) && count($request_data) > 1 && isset($request_data['reported_at']) && isset($request_data['payload'])) // KPN things check is now JSON order based, which is bad practice 
         {          
             $data_array = $this->parse_helium_payload($request_data);
             $this->cacheRequestRate('store-lora-sensors-helium');

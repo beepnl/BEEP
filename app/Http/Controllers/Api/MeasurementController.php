@@ -500,6 +500,30 @@ class MeasurementController extends Controller
         return $data_array;
     }
 
+    // KPN Things SenML format is changed from 13-12-2022 onwards, see:
+    // https://docs.kpnthings.com/dm/concepts/senml/upcoming-changes-in-kpn-senml
+    // so check $request_data for 'n' in first field as well 
+    private function is_kpn_things_payload($data)
+    {
+        $dev_eui = false;
+        $payload = false;
+        $port    = false;
+
+        foreach ($data as $item) // KPN things JSON payload is array of 4? items
+        {
+            if (count((array)$item) > 1) // each object has 2 items
+            {
+                if (isset($item['bn'])) // get key (DevEUI) from "urn:dev:DEVEUI:DevEUIstring:"
+                    $dev_eui = array_search('DEVEUI', explode(':', $item['bn'])) !== false ? true : false;
+                else if (isset($item['n']) && $item['n'] == 'payload' && isset($item['vs']))
+                    $payload = true;
+                else if (isset($item['n']) && $item['n'] == 'port' && isset($item['v']))
+                    $port = true;
+            }
+        }
+        return $dev_eui && $payload && $port; // only true if all three items are available
+    }
+
     /*  KPN Things JSON uplink payload:
         [{
             "bn": "urn:dev:DEVEUI:0059AC00001B1930:",
@@ -524,7 +548,7 @@ class MeasurementController extends Controller
        
         foreach ($request_data as $item) // KPN things JSON payload is array of 4? items
         {
-            if (count((array)$item) == 2) // each object has 2 items
+            if (count((array)$item) > 1) // each object has 2 items
             {
                 if (isset($item['bn'])) // get key (DevEUI) from "urn:dev:DEVEUI:DevEUIstring:"
                 {
@@ -801,10 +825,7 @@ class MeasurementController extends Controller
             $data_array = $this->parse_helium_payload($request_data);
             $payload_type = 'helium';
         }
-        else if (is_array($request_data) && isset($request_data[0]['bn']) && ((isset($request_data[1]['n']) || isset($request_data[0]['n']))))
-        // KPN Things SenML format is changed from 13-12-2022 onwards, see:
-        // https://docs.kpnthings.com/dm/concepts/senml/upcoming-changes-in-kpn-senml
-        // so check $request_data for 'n' in first field as well 
+        else if (is_array($request_data) && $this->is_kpn_things_payload($request_data))
         {          
             $data_array = $this->parse_kpnthings_payload($request_data);
             $payload_type = 'kpn-things';
@@ -854,16 +875,7 @@ class MeasurementController extends Controller
             $data_array = $this->parse_kpn_payload($request_data);
             $this->cacheRequestRate('store-lora-sensors-kpn');
         }
-        else if ($request->filled('data')) // Check for sensor string (colon and pipe devided) fw v1-3
-        {
-            if (gettype($request_data['data']) == 'array')
-                $data_array = $request_data['data'];
-            else
-                $data_array = $this->convertSensorStringToArray($request_data['data']);
-            
-            $this->cacheRequestRate('store-sensors');
-        }
-        else if (is_array($request_data) && count($request_data) > 1 && isset($request_data[0]['bn']) && isset($request_data[1]['n']) && $request_data[1]['n'] == 'payload') // KPN things check is now JSON order based, which is bad practice 
+        else if (is_array($request_data) && count($request_data) > 1 && $this->is_kpn_things_payload($request_data)) // KPN things check is now JSON order based, which is bad practice 
         {          
             $data_array = $this->parse_kpnthings_payload($request_data);
             $this->cacheRequestRate('store-lora-sensors-kpn-things');
@@ -872,6 +884,15 @@ class MeasurementController extends Controller
         {          
             $data_array = $this->parse_helium_payload($request_data);
             $this->cacheRequestRate('store-lora-sensors-helium');
+        }
+        else if ($request->filled('data')) // Check for sensor string (colon and pipe devided) fw v1-3
+        {
+            if (is_array($request_data['data']))
+                $data_array = $request_data['data'];
+            else
+                $data_array = $this->convertSensorStringToArray($request_data['data']);
+            
+            $this->cacheRequestRate('store-sensors');
         }
         else // Assume post data input
         {

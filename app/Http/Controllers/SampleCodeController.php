@@ -59,6 +59,7 @@ class SampleCodeController extends Controller
         {
             $data = json_decode($request->input('data'), true);
             $checked_ids = $request->input('checked');
+            $emails_sent = 0; 
 
             // Add this data as inspection items to the inspection where the corresponding sample code has been generated
             foreach ($data as $checked_id => $inspection_items) // $inspection_items is array of ['cat_id'=>value]
@@ -123,6 +124,7 @@ class SampleCodeController extends Controller
                             {
                                 Log::debug("Sample result upload for code $sample_code sending email to user $u->email");
                                 Mail::to($u->email)->send(new SampleCodeMail($u->name, $sample_code, $hive_name, $link));
+                                $emails_sent++;
                             }
                         }
 
@@ -130,7 +132,7 @@ class SampleCodeController extends Controller
                 }
             }
             // show result
-            $msg = "Added data for $inspection_cnt inspections. Added $items_added, replaced $items_replaced inspection items in total.";
+            $msg = "Added data for $inspection_cnt inspections. Added $items_added, replaced $items_replaced inspection items in total. Sent $emails_sent data upload notification emails to the creators of the sample codes.";
             if ($inspection_cnt > 0 && $items_added + $items_replaced > 0)
             {
                 $res  = 'success';

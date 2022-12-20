@@ -13,7 +13,7 @@ return [
     |
     */
 
-    'default' => env('QUEUE_CONNECTION', 'sync'),
+    'default' => env('QUEUE_CONNECTION', 'redis'),
 
     /*
     |--------------------------------------------------------------------------
@@ -56,6 +56,16 @@ return [
             'queue' => env('SQS_QUEUE', 'your-queue-name'),
             'region' => env('AWS_DEFAULT_REGION', 'us-east-1'),
         ],
+
+        /*
+        from test.beep.nl .env:
+
+        REDIS_CLIENT=predis
+        REDIS_CLUSTER=predis
+        REDIS_HOST=127.0.0.1
+        REDIS_PASSWORD=null
+        REDIS_PORT=6379          
+        */
 
         'redis' => [
             'driver' => 'redis',

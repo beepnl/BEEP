@@ -10,247 +10,11 @@
     ],
     "info": {
         "name": "BEEP",
-        "_postman_id": "9ef140a6-faad-413c-be7e-50d6e5725044",
+        "_postman_id": "56bc2d4f-ac25-409d-907f-95771afc9de8",
         "description": "",
         "schema": "https:\/\/schema.getpostman.com\/json\/collection\/v2.1.0\/collection.json"
     },
     "item": [
-        {
-            "name": "Endpoints",
-            "description": "",
-            "item": [
-                {
-                    "name": "Display a listing of the resource.",
-                    "request": {
-                        "url": {
-                            "host": "{{baseUrl}}",
-                            "path": "api\/hive-tags",
-                            "query": [],
-                            "raw": "{{baseUrl}}\/api\/hive-tags"
-                        },
-                        "method": "GET",
-                        "header": [
-                            {
-                                "key": "Content-Type",
-                                "value": "application\/json"
-                            },
-                            {
-                                "key": "Accept",
-                                "value": "application\/json"
-                            },
-                            {
-                                "key": "Accept-language",
-                                "value": "en"
-                            }
-                        ],
-                        "body": null,
-                        "description": "",
-                        "auth": {
-                            "type": "noauth"
-                        }
-                    },
-                    "response": [
-                        {
-                            "header": [
-                                {
-                                    "key": "cache-control",
-                                    "value": "no-cache, private"
-                                },
-                                {
-                                    "key": "content-type",
-                                    "value": "application\/json"
-                                },
-                                {
-                                    "key": "access-control-allow-origin",
-                                    "value": "*"
-                                }
-                            ],
-                            "code": 401,
-                            "body": "{\"message\":\"Unauthenticated.\"}",
-                            "name": ""
-                        }
-                    ]
-                },
-                {
-                    "name": "Store a newly created resource in storage.",
-                    "request": {
-                        "url": {
-                            "host": "{{baseUrl}}",
-                            "path": "api\/hive-tags",
-                            "query": [],
-                            "raw": "{{baseUrl}}\/api\/hive-tags"
-                        },
-                        "method": "POST",
-                        "header": [
-                            {
-                                "key": "Content-Type",
-                                "value": "application\/json"
-                            },
-                            {
-                                "key": "Accept",
-                                "value": "application\/json"
-                            },
-                            {
-                                "key": "Accept-language",
-                                "value": "en"
-                            }
-                        ],
-                        "body": {
-                            "mode": "raw",
-                            "raw": "{\"tag\":\"possimus\",\"router_link\":\"corrupti\",\"hive_id\":12,\"action_id\":2}"
-                        },
-                        "description": "",
-                        "auth": {
-                            "type": "noauth"
-                        }
-                    },
-                    "response": []
-                },
-                {
-                    "name": "Display the specified resource.",
-                    "request": {
-                        "url": {
-                            "host": "{{baseUrl}}",
-                            "path": "api\/hive-tags\/:id",
-                            "query": [],
-                            "raw": "{{baseUrl}}\/api\/hive-tags\/:id",
-                            "variable": [
-                                {
-                                    "id": "id",
-                                    "key": "id",
-                                    "value": "eos",
-                                    "description": "The ID of the hive tag."
-                                }
-                            ]
-                        },
-                        "method": "GET",
-                        "header": [
-                            {
-                                "key": "Content-Type",
-                                "value": "application\/json"
-                            },
-                            {
-                                "key": "Accept",
-                                "value": "application\/json"
-                            },
-                            {
-                                "key": "Accept-language",
-                                "value": "en"
-                            }
-                        ],
-                        "body": null,
-                        "description": "",
-                        "auth": {
-                            "type": "noauth"
-                        }
-                    },
-                    "response": [
-                        {
-                            "header": [
-                                {
-                                    "key": "cache-control",
-                                    "value": "no-cache, private"
-                                },
-                                {
-                                    "key": "content-type",
-                                    "value": "application\/json"
-                                },
-                                {
-                                    "key": "access-control-allow-origin",
-                                    "value": "*"
-                                }
-                            ],
-                            "code": 401,
-                            "body": "{\"message\":\"Unauthenticated.\"}",
-                            "name": ""
-                        }
-                    ]
-                },
-                {
-                    "name": "Update the specified resource in storage.",
-                    "request": {
-                        "url": {
-                            "host": "{{baseUrl}}",
-                            "path": "api\/hive-tags\/:id",
-                            "query": [],
-                            "raw": "{{baseUrl}}\/api\/hive-tags\/:id",
-                            "variable": [
-                                {
-                                    "id": "id",
-                                    "key": "id",
-                                    "value": "ratione",
-                                    "description": "The ID of the hive tag."
-                                }
-                            ]
-                        },
-                        "method": "PUT",
-                        "header": [
-                            {
-                                "key": "Content-Type",
-                                "value": "application\/json"
-                            },
-                            {
-                                "key": "Accept",
-                                "value": "application\/json"
-                            },
-                            {
-                                "key": "Accept-language",
-                                "value": "en"
-                            }
-                        ],
-                        "body": {
-                            "mode": "raw",
-                            "raw": "{\"tag\":\"veniam\",\"router_link\":\"hic\",\"hive_id\":7,\"action_id\":16}"
-                        },
-                        "description": "",
-                        "auth": {
-                            "type": "noauth"
-                        }
-                    },
-                    "response": []
-                },
-                {
-                    "name": "Remove the specified resource from storage.",
-                    "request": {
-                        "url": {
-                            "host": "{{baseUrl}}",
-                            "path": "api\/hive-tags\/:id",
-                            "query": [],
-                            "raw": "{{baseUrl}}\/api\/hive-tags\/:id",
-                            "variable": [
-                                {
-                                    "id": "id",
-                                    "key": "id",
-                                    "value": "saepe",
-                                    "description": "The ID of the hive tag."
-                                }
-                            ]
-                        },
-                        "method": "DELETE",
-                        "header": [
-                            {
-                                "key": "Content-Type",
-                                "value": "application\/json"
-                            },
-                            {
-                                "key": "Accept",
-                                "value": "application\/json"
-                            },
-                            {
-                                "key": "Accept-language",
-                                "value": "en"
-                            }
-                        ],
-                        "body": null,
-                        "description": "",
-                        "auth": {
-                            "type": "noauth"
-                        }
-                    },
-                    "response": []
-                }
-            ]
-        },
         {
             "name": "Api\\AlertController",
             "description": "Manage your alerts",
@@ -330,7 +94,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"alert_rule_id\":16,\"measurement_id\":11,\"alert_value\":\"sunt\",\"show\":true}"
+                            "raw": "{\"alert_rule_id\":8,\"measurement_id\":14,\"alert_value\":\"sit\",\"show\":true}"
                         },
                         "description": ""
                     },
@@ -348,7 +112,7 @@
                                 {
                                     "id": "id",
                                     "key": "id",
-                                    "value": "13",
+                                    "value": "10",
                                     "description": "The ID of the alert."
                                 }
                             ]
@@ -405,7 +169,7 @@
                                 {
                                     "id": "id",
                                     "key": "id",
-                                    "value": "19",
+                                    "value": "1",
                                     "description": "The ID of the alert."
                                 }
                             ]
@@ -427,7 +191,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"show\":true}"
+                            "raw": "{\"show\":false}"
                         },
                         "description": ""
                     },
@@ -445,7 +209,7 @@
                                 {
                                     "id": "id",
                                     "key": "id",
-                                    "value": "18",
+                                    "value": "15",
                                     "description": "The ID of the alert."
                                 }
                             ]
@@ -551,7 +315,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"name\":\"reprehenderit\",\"description\":\"numquam\",\"measurement_id\":9,\"calculation\":\"qui\",\"comparator\":\"minus\",\"comparison\":\"perferendis\",\"threshold_value\":838333.551539176,\"calculation_minutes\":17,\"alert_on_occurrences\":4,\"alert_via_email\":true,\"webhook_url\":\"qui\",\"active\":false,\"exclude_months\":[1,2,3,11,12],\"exclude_hours\":[0,1,2,3,22,23],\"exclude_hive_ids\":[\"ad\"]}"
+                            "raw": "{\"name\":\"repudiandae\",\"description\":\"impedit\",\"measurement_id\":9,\"calculation\":\"quos\",\"comparator\":\"sit\",\"comparison\":\"ut\",\"threshold_value\":45182.8264,\"calculation_minutes\":19,\"alert_on_occurrences\":11,\"alert_via_email\":true,\"webhook_url\":\"maxime\",\"active\":true,\"exclude_months\":[1,2,3,11,12],\"exclude_hours\":[0,1,2,3,22,23],\"exclude_hive_ids\":[\"corrupti\"]}"
                         },
                         "description": ""
                     },
@@ -569,7 +333,7 @@
                                 {
                                     "id": "id",
                                     "key": "id",
-                                    "value": "quo",
+                                    "value": "animi",
                                     "description": "The ID of the alert rule."
                                 }
                             ]
@@ -626,7 +390,7 @@
                                 {
                                     "id": "id",
                                     "key": "id",
-                                    "value": "commodi",
+                                    "value": "id",
                                     "description": "The ID of the alert rule."
                                 }
                             ]
@@ -648,7 +412,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"name\":\"neque\",\"description\":\"quod\",\"measurement_id\":7,\"calculation\":\"velit\",\"comparator\":\"expedita\",\"comparison\":\"dolorem\",\"threshold_value\":250256.9286042,\"calculation_minutes\":4,\"alert_on_occurrences\":17,\"alert_via_email\":false,\"webhook_url\":\"provident\",\"active\":false,\"exclude_months\":[1,2,3,11,12],\"exclude_hours\":[0,1,2,3,22,23],\"exclude_hive_ids\":[\"sed\"]}"
+                            "raw": "{\"name\":\"aut\",\"description\":\"ut\",\"measurement_id\":7,\"calculation\":\"est\",\"comparator\":\"impedit\",\"comparison\":\"id\",\"threshold_value\":145364.6,\"calculation_minutes\":7,\"alert_on_occurrences\":3,\"alert_via_email\":true,\"webhook_url\":\"unde\",\"active\":true,\"exclude_months\":[1,2,3,11,12],\"exclude_hours\":[0,1,2,3,22,23],\"exclude_hive_ids\":[\"sapiente\"]}"
                         },
                         "description": ""
                     },
@@ -666,7 +430,7 @@
                                 {
                                     "id": "id",
                                     "key": "id",
-                                    "value": "non",
+                                    "value": "eaque",
                                     "description": "The ID of the alert rule."
                                 }
                             ]
@@ -971,7 +735,7 @@
                                 {
                                     "id": "id",
                                     "key": "id",
-                                    "value": "8",
+                                    "value": "2",
                                     "description": "The ID of the checklist."
                                 }
                             ]
@@ -1028,7 +792,7 @@
                                 {
                                     "id": "id",
                                     "key": "id",
-                                    "value": "11",
+                                    "value": "10",
                                     "description": "The ID of the checklist."
                                 }
                             ]
@@ -1065,7 +829,7 @@
                                 {
                                     "id": "id",
                                     "key": "id",
-                                    "value": "15",
+                                    "value": "9",
                                     "description": "The ID of the checklist."
                                 }
                             ]
@@ -1122,7 +886,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"id\":14,\"key\":\"esse\",\"hardware_id\":\"unde\",\"name\":\"reiciendis\",\"hive_id\":18,\"type\":\"voluptatem\",\"last_message_received\":\"ad\",\"firmware_version\":\"molestias\",\"hardware_version\":\"delectus\",\"boot_count\":11,\"measurement_interval_min\":23830.6,\"measurement_transmission_ratio\":73194.692,\"ble_pin\":\"et\",\"battery_voltage\":2637.06,\"next_downlink_message\":\"rem\",\"last_downlink_result\":\"consequatur\"}"
+                            "raw": "{\"id\":16,\"key\":\"ab\",\"hardware_id\":\"odit\",\"name\":\"eos\",\"hive_id\":19,\"type\":\"velit\",\"last_message_received\":\"dolorem\",\"firmware_version\":\"quo\",\"hardware_version\":\"incidunt\",\"boot_count\":14,\"measurement_interval_min\":223431518.7931,\"measurement_transmission_ratio\":39736,\"ble_pin\":\"enim\",\"battery_voltage\":37627.51,\"next_downlink_message\":\"ratione\",\"last_downlink_result\":\"et\"}"
                         },
                         "description": ""
                     },
@@ -1140,7 +904,7 @@
                                 {
                                     "id": "dev_id",
                                     "key": "dev_id",
-                                    "value": "omnis",
+                                    "value": "non",
                                     "description": "The ID of the dev."
                                 }
                             ]
@@ -1219,7 +983,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"lorawan_device\":{\"dev_eui\":\"rliggumjjsfihrcu\",\"app_key\":\"egswxyxjkowqkqpdbssecszammlzvgip\"}}"
+                            "raw": "{\"lorawan_device\":{\"dev_eui\":\"jmvdubzwvorvprgn\",\"app_key\":\"ffujioetqmmtswlioaxprralhvhhpyfx\"}}"
                         },
                         "description": ""
                     },
@@ -1251,7 +1015,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"hardware_id\":\"tempora\"}"
+                            "raw": "{\"hardware_id\":\"porro\"}"
                         },
                         "description": ""
                     },
@@ -1290,7 +1054,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"id\":1,\"key\":\"quidem\",\"hardware_id\":\"voluptates\",\"name\":\"voluptatibus\",\"hive_id\":13,\"type\":\"quae\",\"last_message_received\":\"ea\",\"firmware_version\":\"commodi\",\"hardware_version\":\"qui\",\"boot_count\":7,\"measurement_interval_min\":444.989179,\"measurement_transmission_ratio\":895271,\"ble_pin\":\"inventore\",\"battery_voltage\":77455810.7115121,\"next_downlink_message\":\"omnis\",\"last_downlink_result\":\"in\",\"create_ttn_device\":false,\"app_key\":\"facere\"}"
+                            "raw": "{\"id\":5,\"key\":\"omnis\",\"hardware_id\":\"et\",\"name\":\"ut\",\"hive_id\":1,\"type\":\"dolorum\",\"last_message_received\":\"autem\",\"firmware_version\":\"aut\",\"hardware_version\":\"vel\",\"boot_count\":3,\"measurement_interval_min\":17.73,\"measurement_transmission_ratio\":29226.2076,\"ble_pin\":\"blanditiis\",\"battery_voltage\":19655,\"next_downlink_message\":\"quo\",\"last_downlink_result\":\"delectus\",\"create_ttn_device\":false,\"app_key\":\"error\"}"
                         },
                         "description": ""
                     },
@@ -1308,7 +1072,7 @@
                                 {
                                     "id": "id",
                                     "key": "id",
-                                    "value": "19",
+                                    "value": "8",
                                     "description": "The ID of the device."
                                 }
                             ]
@@ -1365,7 +1129,7 @@
                                 {
                                     "id": "id",
                                     "key": "id",
-                                    "value": "12",
+                                    "value": "17",
                                     "description": "The ID of the device."
                                 }
                             ]
@@ -1387,7 +1151,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"id\":4,\"key\":\"consequatur\",\"hardware_id\":\"adipisci\",\"name\":\"nihil\",\"hive_id\":3,\"type\":\"quae\",\"delete\":false,\"last_message_received\":\"voluptate\",\"firmware_version\":\"illo\",\"hardware_version\":\"perspiciatis\",\"boot_count\":3,\"measurement_interval_min\":15.96,\"measurement_transmission_ratio\":5521.70175,\"ble_pin\":\"dolorum\",\"battery_voltage\":147400.568,\"next_downlink_message\":\"fugiat\",\"last_downlink_result\":\"et\"}"
+                            "raw": "{\"id\":14,\"key\":\"id\",\"hardware_id\":\"repudiandae\",\"name\":\"ullam\",\"hive_id\":4,\"type\":\"similique\",\"delete\":false,\"last_message_received\":\"itaque\",\"firmware_version\":\"in\",\"hardware_version\":\"qui\",\"boot_count\":3,\"measurement_interval_min\":72854542.2,\"measurement_transmission_ratio\":54990,\"ble_pin\":\"quo\",\"battery_voltage\":9016778.6588648,\"next_downlink_message\":\"qui\",\"last_downlink_result\":\"recusandae\"}"
                         },
                         "description": ""
                     },
@@ -1425,7 +1189,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"device_id\":\"inventore\",\"start\":\"2020-05-27 16:16\",\"end\":\"2020-05-30 00:00\",\"separator\":\";\",\"measurements\":\"'am2315_t,am2315_h,mhz_co2'\",\"link\":false}"
+                            "raw": "{\"device_id\":\"eum\",\"start\":\"2020-05-27 16:16\",\"end\":\"2020-05-30 00:00\",\"separator\":\";\",\"measurements\":\"'am2315_t,am2315_h,mhz_co2'\",\"link\":true}"
                         },
                         "description": ""
                     },
@@ -1474,8 +1238,8 @@
                                     "value": "*"
                                 }
                             ],
-                            "code": 401,
-                            "body": "{\"message\":\"Unauthenticated.\"}",
+                            "code": 500,
+                            "body": "{\n    \"message\": \"Server Error\"\n}",
                             "name": ""
                         }
                     ]
@@ -1529,8 +1293,8 @@
                                     "value": "*"
                                 }
                             ],
-                            "code": 401,
-                            "body": "{\"message\":\"Unauthenticated.\"}",
+                            "code": 500,
+                            "body": "{\n    \"message\": \"Server Error\"\n}",
                             "name": ""
                         }
                     ]
@@ -1544,17 +1308,17 @@
                             "query": [
                                 {
                                     "key": "id",
-                                    "value": "7",
+                                    "value": "5",
                                     "description": "Flashlog ID to parse",
                                     "disabled": false
                                 }
                             ],
-                            "raw": "{{baseUrl}}\/api\/flashlogs\/:id?id=7",
+                            "raw": "{{baseUrl}}\/api\/flashlogs\/:id?id=5",
                             "variable": [
                                 {
                                     "id": "id",
                                     "key": "id",
-                                    "value": "18",
+                                    "value": "8",
                                     "description": "The ID of the flashlog."
                                 }
                             ]
@@ -1576,7 +1340,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"matches_min\":2,\"match_props\":7,\"db_records\":15,\"block_id\":1,\"block_data_index\":0,\"data_minutes\":17,\"from_cache\":false,\"save_result\":false,\"csv\":0,\"json\":0}"
+                            "raw": "{\"matches_min\":2,\"match_props\":7,\"db_records\":15,\"block_id\":1,\"block_data_index\":0,\"data_minutes\":19,\"from_cache\":false,\"save_result\":false,\"csv\":0,\"json\":0}"
                         },
                         "description": ""
                     },
@@ -1596,8 +1360,8 @@
                                     "value": "*"
                                 }
                             ],
-                            "code": 401,
-                            "body": "{\"message\":\"Unauthenticated.\"}",
+                            "code": 500,
+                            "body": "{\n    \"message\": \"Server Error\"\n}",
                             "name": ""
                         }
                     ]
@@ -1611,17 +1375,17 @@
                             "query": [
                                 {
                                     "key": "id",
-                                    "value": "7",
+                                    "value": "18",
                                     "description": "Flashlog ID to parse",
                                     "disabled": false
                                 }
                             ],
-                            "raw": "{{baseUrl}}\/api\/flashlogs\/:id?id=7",
+                            "raw": "{{baseUrl}}\/api\/flashlogs\/:id?id=18",
                             "variable": [
                                 {
                                     "id": "id",
                                     "key": "id",
-                                    "value": "6",
+                                    "value": "4",
                                     "description": "The ID of the flashlog."
                                 }
                             ]
@@ -1658,17 +1422,17 @@
                             "query": [
                                 {
                                     "key": "id",
-                                    "value": "13",
+                                    "value": "12",
                                     "description": "Flashlog ID to delete the complete Flashlog file",
                                     "disabled": false
                                 }
                             ],
-                            "raw": "{{baseUrl}}\/api\/flashlogs\/:id?id=13",
+                            "raw": "{{baseUrl}}\/api\/flashlogs\/:id?id=12",
                             "variable": [
                                 {
                                     "id": "id",
                                     "key": "id",
-                                    "value": "9",
+                                    "value": "12",
                                     "description": "The ID of the flashlog."
                                 }
                             ]
@@ -1690,7 +1454,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"block_id\":6}"
+                            "raw": "{\"block_id\":8}"
                         },
                         "description": ""
                     },
@@ -1728,7 +1492,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"token\":\"distinctio\",\"group_id\":\"cum\",\"decline\":false}"
+                            "raw": "{\"token\":\"incidunt\",\"group_id\":\"eos\",\"decline\":false}"
                         },
                         "description": ""
                     },
@@ -1824,7 +1588,7 @@
                                 {
                                     "id": "id",
                                     "key": "id",
-                                    "value": "20",
+                                    "value": "8",
                                     "description": "The ID of the group."
                                 }
                             ]
@@ -1881,7 +1645,7 @@
                                 {
                                     "id": "id",
                                     "key": "id",
-                                    "value": "6",
+                                    "value": "18",
                                     "description": "The ID of the group."
                                 }
                             ]
@@ -1918,7 +1682,7 @@
                                 {
                                     "id": "id",
                                     "key": "id",
-                                    "value": "9",
+                                    "value": "18",
                                     "description": "The ID of the group."
                                 }
                             ]
@@ -1955,7 +1719,7 @@
                                 {
                                     "id": "id",
                                     "key": "id",
-                                    "value": "impedit",
+                                    "value": "at",
                                     "description": "The ID of the detach."
                                 }
                             ]
@@ -2048,7 +1812,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"name\":\"accusantium\",\"location_id\":14,\"brood_layers\":0,\"honey_layers\":0,\"frames\":0,\"order\":11,\"layers\":[\"ut\"],\"color\":\"ctnhdh\",\"hive_type_id\":16,\"bb_width_cm\":0,\"bb_depth_cm\":0,\"bb_height_cm\":0,\"fr_width_cm\":0,\"fr_height_cm\":0,\"queen\":{\"race_id\":16,\"birth_date\":\"2022-06-24T08:14:26\",\"name\":\"accusantium\",\"description\":\"sunt\",\"line\":\"et\",\"tree\":\"possimus\",\"color\":\"h\",\"clipped\":9,\"fertilized\":3},\"timezone\":\"Africa\\\/Johannesburg\"}"
+                            "raw": "{\"name\":\"qui\",\"location_id\":10,\"brood_layers\":0,\"honey_layers\":0,\"frames\":0,\"order\":2,\"layers\":[\"veritatis\"],\"color\":\"mr\",\"hive_type_id\":18,\"bb_width_cm\":0,\"bb_depth_cm\":0,\"bb_height_cm\":0,\"fr_width_cm\":0,\"fr_height_cm\":0,\"queen\":{\"race_id\":13,\"birth_date\":\"2022-12-20T14:52:36\",\"name\":\"qui\",\"description\":\"et\",\"line\":\"dolorem\",\"tree\":\"sapiente\",\"color\":\"smbmidkl\",\"clipped\":8,\"fertilized\":7},\"timezone\":\"Asia\\\/Aqtobe\"}"
                         },
                         "description": ""
                     },
@@ -2145,7 +1909,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"name\":\"ipsam\",\"location_id\":4,\"brood_layers\":0,\"honey_layers\":0,\"frames\":0,\"order\":10,\"layers\":[\"quisquam\"],\"color\":\"fex\",\"hive_type_id\":1,\"bb_width_cm\":0,\"bb_depth_cm\":0,\"bb_height_cm\":0,\"fr_width_cm\":0,\"fr_height_cm\":0,\"queen\":{\"race_id\":18,\"birth_date\":\"2022-06-24T08:14:26\",\"name\":\"beatae\",\"description\":\"voluptas\",\"line\":\"quibusdam\",\"tree\":\"tempore\",\"color\":\"tsi\",\"clipped\":6,\"fertilized\":2},\"timezone\":\"Pacific\\\/Marquesas\"}"
+                            "raw": "{\"name\":\"in\",\"location_id\":4,\"brood_layers\":0,\"honey_layers\":0,\"frames\":0,\"order\":4,\"layers\":[\"sunt\"],\"color\":\"dz\",\"hive_type_id\":16,\"bb_width_cm\":0,\"bb_depth_cm\":0,\"bb_height_cm\":0,\"fr_width_cm\":0,\"fr_height_cm\":0,\"queen\":{\"race_id\":3,\"birth_date\":\"2022-12-20T14:52:36\",\"name\":\"facilis\",\"description\":\"iure\",\"line\":\"quis\",\"tree\":\"ab\",\"color\":\"rmhslcvkg\",\"clipped\":2,\"fertilized\":16},\"timezone\":\"Australia\\\/Brisbane\"}"
                         },
                         "description": ""
                     },
@@ -2284,7 +2048,7 @@
                                 {
                                     "id": "id",
                                     "key": "id",
-                                    "value": "5",
+                                    "value": "15",
                                     "description": "The ID of the image."
                                 }
                             ]
@@ -2341,7 +2105,7 @@
                                 {
                                     "id": "id",
                                     "key": "id",
-                                    "value": "3",
+                                    "value": "7",
                                     "description": "The ID of the image."
                                 }
                             ]
@@ -2476,7 +2240,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"id\":16}"
+                            "raw": "{\"id\":10}"
                         },
                         "description": ""
                     },
@@ -2501,7 +2265,7 @@
                                 {
                                     "id": "id",
                                     "key": "id",
-                                    "value": "dolor",
+                                    "value": "autem",
                                     "description": "The id of the inspection."
                                 }
                             ]
@@ -2558,7 +2322,7 @@
                                 {
                                     "id": "hive_id",
                                     "key": "hive_id",
-                                    "value": "et",
+                                    "value": "modi",
                                     "description": "The hive to request inspections from."
                                 }
                             ]
@@ -2634,7 +2398,7 @@
                                 {
                                     "id": "id",
                                     "key": "id",
-                                    "value": "10",
+                                    "value": "8",
                                     "description": "The ID of the inspection."
                                 }
                             ]
@@ -2740,7 +2504,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"name\":\"odit\",\"hive_type_id\":19}"
+                            "raw": "{\"name\":\"qui\",\"hive_type_id\":11}"
                         },
                         "description": ""
                     },
@@ -2815,7 +2579,7 @@
                                 {
                                     "id": "id",
                                     "key": "id",
-                                    "value": "1",
+                                    "value": "6",
                                     "description": "The ID of the location."
                                 }
                             ]
@@ -2837,7 +2601,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"name\":\"nemo\",\"hive_type_id\":5}"
+                            "raw": "{\"name\":\"corporis\",\"hive_type_id\":3}"
                         },
                         "description": ""
                     },
@@ -2895,12 +2659,12 @@
                             "query": [
                                 {
                                     "key": "key%2Fdata",
-                                    "value": "ut",
+                                    "value": "alias",
                                     "description": "Measurement formatted as URL query: key=your_beep_device_key&t=18.4&t_i=34.5&weight_kg=57.348&h=58&bv=3.54",
                                     "disabled": false
                                 }
                             ],
-                            "raw": "{{baseUrl}}\/api\/sensors?key%2Fdata=ut"
+                            "raw": "{{baseUrl}}\/api\/sensors?key%2Fdata=alias"
                         },
                         "method": "POST",
                         "header": [
@@ -2919,7 +2683,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"key\\\/data\":\"exercitationem\"}"
+                            "raw": "{\"key\\\/data\":\"eligendi\"}"
                         },
                         "description": "",
                         "auth": {
@@ -2954,7 +2718,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"key\":\"et\",\"payload_raw\":\"et\",\"payload_fields\":\"repellat\",\"DevEUI_uplink\":\"et\"}"
+                            "raw": "{\"key\":\"at\",\"payload_raw\":\"voluptatem\",\"payload_fields\":\"minima\",\"DevEUI_uplink\":\"quo\"}"
                         },
                         "description": "",
                         "auth": {
@@ -3012,20 +2776,12 @@
                                     "value": "application\/json"
                                 },
                                 {
-                                    "key": "x-ratelimit-limit",
-                                    "value": "3"
-                                },
-                                {
-                                    "key": "x-ratelimit-remaining",
-                                    "value": "2"
-                                },
-                                {
                                     "key": "access-control-allow-origin",
                                     "value": "*"
                                 }
                             ],
-                            "code": 200,
-                            "body": "{\"t\":\"Temperature\",\"h\":\"Humidity\",\"p\":\"Pressure\",\"w\":\"Weight sum\",\"l\":\"Light\",\"bv\":\"Battery voltage\",\"w_v\":\"Weight sum\",\"w_fl\":\"Weight front-left\",\"w_fr\":\"Weight front-right\",\"w_bl\":\"Weight back-left\",\"w_br\":\"Weight back-right\",\"s_fan_4\":\"Sound fanning 4 days old\",\"s_fan_6\":\"Sound fanning 6 days old\",\"s_fan_9\":\"Sound fanning 9 days old\",\"s_fly_a\":\"Sound flying\",\"s_tot\":\"Sound total\",\"t_i\":\"Temperature inside\",\"bc_i\":\"Bee count in\",\"bc_o\":\"Bee count out\",\"weight_kg\":\"Weight\",\"weight_kg_corrected\":\"Weight corrected\",\"rssi\":\"Received signal strength\",\"snr\":\"Signal to noise ratio\",\"lat\":\"Lattitude\",\"lon\":\"lon\",\"s_bin098_146Hz\":\"S bin098 146Hz\",\"s_bin146_195Hz\":\"S bin146 195Hz\",\"s_bin195_244Hz\":\"S bin195 244Hz\",\"s_bin244_293Hz\":\"S bin244 293Hz\",\"s_bin293_342Hz\":\"S bin293 342Hz\",\"s_bin342_391Hz\":\"S bin342 391Hz\",\"s_bin391_439Hz\":\"S bin391 439Hz\",\"s_bin439_488Hz\":\"S bin439 488Hz\",\"s_bin488_537Hz\":\"S bin488 537Hz\",\"s_bin537_586Hz\":\"S bin537 586Hz\",\"calibrating_weight\":\"Calibrating weight\",\"w_fl_kg_per_val\":\"W fl kg per val\",\"w_fr_kg_per_val\":\"W fr kg per val\",\"w_bl_kg_per_val\":\"W bl kg per val\",\"w_br_kg_per_val\":\"W br kg per val\",\"w_fl_offset\":\"W fl offset\",\"w_fr_offset\":\"W fr offset\",\"w_bl_offset\":\"W bl offset\",\"w_br_offset\":\"W br offset\",\"bc_tot\":\"Bc tot\",\"s_spl\":\"S spl\",\"h_i\":\"H i\",\"w_v_offset\":\"W v offset\",\"w_v_kg_per_val\":\"W v kg per val\",\"s_bin_0_201\":\"S bin 0 201\",\"s_bin_201_402\":\"S bin 201 402\",\"s_bin_402_602\":\"S bin 402 602\",\"s_bin_602_803\":\"S bin 602 803\",\"s_bin_803_1004\":\"S bin 803 1004\",\"s_bin_1004_1205\":\"S bin 1004 1205\",\"s_bin_1205_1406\":\"S bin 1205 1406\",\"s_bin_1406_1607\":\"S bin 1406 1607\",\"s_bin_1607_1807\":\"S bin 1607 1807\",\"s_bin_1807_2008\":\"S bin 1807 2008\",\"t_0\":\"T 0\",\"t_1\":\"T 1\",\"t_2\":\"T 2\",\"t_3\":\"T 3\",\"t_4\":\"T 4\",\"t_5\":\"T 5\",\"t_6\":\"T 6\",\"t_7\":\"T 7\",\"t_8\":\"T 8\",\"t_9\":\"T 9\",\"s_bin_122_173\":\"S bin 122 173\",\"s_bin_71_122\":\"S bin 71 122\",\"s_bin_173_224\":\"S bin 173 224\",\"s_bin_224_276\":\"S bin 224 276\",\"s_bin_276_327\":\"S bin 276 327\",\"s_bin_327_378\":\"S bin 327 378\",\"s_bin_378_429\":\"S bin 378 429\",\"s_bin_429_480\":\"S bin 429 480\",\"s_bin_480_532\":\"S bin 480 532\",\"s_bin_532_583\":\"S bin 532 583\"}",
+                            "code": 500,
+                            "body": "{\n    \"message\": \"Server Error\"\n}",
                             "name": ""
                         }
                     ]
@@ -3039,12 +2795,12 @@
                             "query": [
                                 {
                                     "key": "key%2Fdata",
-                                    "value": "quisquam",
+                                    "value": "aut",
                                     "description": "Measurement formatted as URL query: key=your_beep_device_key&t=18.4&t_i=34.5&weight_kg=57.348&h=58&bv=3.54",
                                     "disabled": false
                                 }
                             ],
-                            "raw": "{{baseUrl}}\/api\/sensors_auth?key%2Fdata=quisquam"
+                            "raw": "{{baseUrl}}\/api\/sensors_auth?key%2Fdata=aut"
                         },
                         "method": "POST",
                         "header": [
@@ -3063,7 +2819,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"key\\\/data\":\"sed\"}"
+                            "raw": "{\"key\\\/data\":\"est\"}"
                         },
                         "description": "",
                         "auth": {
@@ -3098,7 +2854,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"key\":\"soluta\",\"payload_raw\":\"perspiciatis\",\"payload_fields\":\"sit\",\"DevEUI_uplink\":\"nobis\"}"
+                            "raw": "{\"key\":\"rerum\",\"payload_raw\":\"molestiae\",\"payload_fields\":\"sed\",\"DevEUI_uplink\":\"inventore\"}"
                         },
                         "description": "",
                         "auth": {
@@ -3133,7 +2889,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"id\":19,\"key\":\"dolorum\",\"hive_id\":8,\"start\":\"2020-05-27 16:16\",\"end\":\"2020-05-30 00:00\",\"index\":17,\"interval\":\"qui\",\"timeGroup\":\"omnis\",\"names\":\"voluptatibus\",\"weather\":1,\"timezone\":\"Europe\\\/Amsterdam\",\"relative_interval\":15}"
+                            "raw": "{\"id\":17,\"key\":\"nulla\",\"hive_id\":4,\"start\":\"2020-05-27 16:16\",\"end\":\"2020-05-30 00:00\",\"index\":9,\"interval\":\"sit\",\"timeGroup\":\"sunt\",\"names\":\"perspiciatis\",\"weather\":1,\"timezone\":\"Europe\\\/Amsterdam\",\"relative_interval\":20}"
                         },
                         "description": ""
                     },
@@ -3153,8 +2909,8 @@
                                     "value": "*"
                                 }
                             ],
-                            "code": 401,
-                            "body": "{\"message\":\"Unauthenticated.\"}",
+                            "code": 500,
+                            "body": "{\n    \"message\": \"Server Error\"\n}",
                             "name": ""
                         }
                     ]
@@ -3185,7 +2941,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"key\":\"est\",\"id\":10,\"hive_id\":19}"
+                            "raw": "{\"key\":\"ratione\",\"id\":20,\"hive_id\":7}"
                         },
                         "description": ""
                     },
@@ -3205,8 +2961,8 @@
                                     "value": "*"
                                 }
                             ],
-                            "code": 401,
-                            "body": "{\"message\":\"Unauthenticated.\"}",
+                            "code": 500,
+                            "body": "{\n    \"message\": \"Server Error\"\n}",
                             "name": ""
                         }
                     ]
@@ -3237,7 +2993,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"key\":\"qui\",\"id\":3,\"hive_id\":2}"
+                            "raw": "{\"key\":\"iste\",\"id\":12,\"hive_id\":10}"
                         },
                         "description": ""
                     },
@@ -3257,8 +3013,8 @@
                                     "value": "*"
                                 }
                             ],
-                            "code": 401,
-                            "body": "{\"message\":\"Unauthenticated.\"}",
+                            "code": 500,
+                            "body": "{\n    \"message\": \"Server Error\"\n}",
                             "name": ""
                         }
                     ]
@@ -3289,7 +3045,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"next_measurement\":true,\"weight_kg\":6.8499141}"
+                            "raw": "{\"next_measurement\":false,\"weight_kg\":6354508.965736123}"
                         },
                         "description": "At the next measurement coming in, calibrate each weight sensor with it's part of a given weight.\nBecause the measurements can come in only each hour\/ 3hrs, set a value to trigger the calculation on next measurement\n\n1. If $next_measurement == true: save 'calibrating' = true in Influx with the sensor key\n2. If $next_measurement == false: save 'calibrating' = false in Influx with the sensor key and...\n3.   Get the last measured weight values for this sensor key,\n     Divide the given weight (in kg) with the amount of sensor values > 1.0 (assuming the weight is evenly distributed)\n     Calculate the multiplier per sensor by dividing the multiplier = weight_part \/ (value - offset)\n     Save the multiplier as $device_name.'_kg_per_val' in Influx",
                         "auth": {
@@ -3376,8 +3132,8 @@
                                     "value": "*"
                                 }
                             ],
-                            "code": 401,
-                            "body": "{\"message\":\"Unauthenticated.\"}",
+                            "code": 500,
+                            "body": "{\n    \"message\": \"Server Error\"\n}",
                             "name": ""
                         }
                     ]
@@ -3391,30 +3147,30 @@
                             "query": [
                                 {
                                     "key": "show",
-                                    "value": "16",
+                                    "value": "19",
                                     "description": "1 for displaying info in result JSON, 0 for not displaying (default).",
                                     "disabled": false
                                 },
                                 {
                                     "key": "save",
-                                    "value": "19",
+                                    "value": "11",
                                     "description": "1 for saving the data to a file (default), 0 for not save log file.",
                                     "disabled": false
                                 },
                                 {
                                     "key": "fill",
-                                    "value": "16",
+                                    "value": "4",
                                     "description": "1 for filling data gaps in the database, 0 for not filling gaps (default).",
                                     "disabled": false
                                 },
                                 {
                                     "key": "log_size_bytes",
-                                    "value": "17",
+                                    "value": "18",
                                     "description": "0x22 decimal result of log size requested from BEEP base.",
                                     "disabled": false
                                 }
                             ],
-                            "raw": "{{baseUrl}}\/api\/sensors\/flashlog?show=16&save=19&fill=16&log_size_bytes=17"
+                            "raw": "{{baseUrl}}\/api\/sensors\/flashlog?show=19&save=11&fill=4&log_size_bytes=18"
                         },
                         "method": "POST",
                         "header": [
@@ -3433,7 +3189,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"id\":11,\"key\":\"dolore\",\"hardware_id\":\"aut\",\"data\":\"eum\",\"file\":\"beatae\"}"
+                            "raw": "{\"id\":9,\"key\":\"a\",\"hardware_id\":\"officiis\",\"data\":\"officia\",\"file\":\"ab\"}"
                         },
                         "description": ""
                     },
@@ -3458,13 +3214,13 @@
                                 {
                                     "id": "port",
                                     "key": "port",
-                                    "value": "eius",
+                                    "value": "recusandae",
                                     "description": ""
                                 },
                                 {
                                     "id": "payload",
                                     "key": "payload",
-                                    "value": "eum",
+                                    "value": "expedita",
                                     "description": ""
                                 }
                             ]
@@ -3506,8 +3262,8 @@
                                     "value": "*"
                                 }
                             ],
-                            "code": 401,
-                            "body": "{\"message\":\"Unauthenticated.\"}",
+                            "code": 500,
+                            "body": "{\n    \"message\": \"Server Error\"\n}",
                             "name": ""
                         }
                     ]
@@ -3568,7 +3324,7 @@
                     ]
                 },
                 {
-                    "name": "Update the specified resource in storage.",
+                    "name": "research\/{id}\/add_consent POST",
                     "request": {
                         "url": {
                             "host": "{{baseUrl}}",
@@ -3579,8 +3335,8 @@
                                 {
                                     "id": "id",
                                     "key": "id",
-                                    "value": "7",
-                                    "description": "The ID of the research."
+                                    "value": "9",
+                                    "description": "Research ID"
                                 }
                             ]
                         },
@@ -3599,7 +3355,10 @@
                                 "value": "en"
                             }
                         ],
-                        "body": null,
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\"location_ids\":[\"laborum\"],\"hive_ids\":[\"porro\"],\"device_ids\":[\"laborum\"]}"
+                        },
                         "description": ""
                     },
                     "response": []
@@ -3616,7 +3375,7 @@
                                 {
                                     "id": "id",
                                     "key": "id",
-                                    "value": "11",
+                                    "value": "5",
                                     "description": "The ID of the research."
                                 }
                             ]
@@ -3653,13 +3412,13 @@
                                 {
                                     "id": "id",
                                     "key": "id",
-                                    "value": "12",
+                                    "value": "7",
                                     "description": "The ID of the research."
                                 },
                                 {
                                     "id": "consent_id",
                                     "key": "consent_id",
-                                    "value": "magni",
+                                    "value": "quia",
                                     "description": "The ID of the consent."
                                 }
                             ]
@@ -3696,13 +3455,13 @@
                                 {
                                     "id": "id",
                                     "key": "id",
-                                    "value": "6",
+                                    "value": "19",
                                     "description": "The ID of the research."
                                 },
                                 {
                                     "id": "consent_id",
                                     "key": "consent_id",
-                                    "value": "exercitationem",
+                                    "value": "facilis",
                                     "description": "The ID of the consent."
                                 }
                             ]
@@ -3781,7 +3540,7 @@
                                 {
                                     "id": "id",
                                     "key": "id",
-                                    "value": "sit",
+                                    "value": "labore",
                                     "description": "The research ID to request data from."
                                 }
                             ]
@@ -3928,7 +3687,7 @@
                     ]
                 },
                 {
-                    "name": "Store a newly created resource in storage.",
+                    "name": "api\/samplecode POST\nCreate a sample code for lab results",
                     "request": {
                         "url": {
                             "host": "{{baseUrl}}",
@@ -4111,7 +3870,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"device_id\":11,\"hardware_id\":\"eius\",\"device_hardware_id\":\"illo\",\"input_measurement_abbreviation\":\"possimus\",\"limit\":8}"
+                            "raw": "{\"device_id\":9,\"hardware_id\":\"impedit\",\"device_hardware_id\":\"aliquam\",\"input_measurement_abbreviation\":\"enim\",\"limit\":5}"
                         },
                         "description": ""
                     },
@@ -4163,7 +3922,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"name\":\"quia\",\"inside\":false,\"offset\":20520384,\"multiplier\":21,\"input_measurement_id\":5,\"input_measurement_abbreviation\":\"w_v\",\"output_measurement_id\":6,\"output_measurement_abbreviation\":\"t_i\",\"device_id\":8,\"hardware_id\":\"velit\",\"device_hardware_id\":\"et\"}"
+                            "raw": "{\"name\":\"ut\",\"inside\":true,\"offset\":252673041.27,\"multiplier\":41755.808381,\"input_measurement_id\":5,\"input_measurement_abbreviation\":\"w_v\",\"output_measurement_id\":6,\"output_measurement_abbreviation\":\"t_i\",\"device_id\":5,\"hardware_id\":\"sit\",\"device_hardware_id\":\"eveniet\"}"
                         },
                         "description": ""
                     },
@@ -4181,7 +3940,7 @@
                                 {
                                     "id": "id",
                                     "key": "id",
-                                    "value": "aut",
+                                    "value": "doloremque",
                                     "description": "Sensordefinition ID"
                                 }
                             ]
@@ -4203,7 +3962,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"device_id\":16,\"hardware_id\":\"sit\",\"device_hardware_id\":\"sed\"}"
+                            "raw": "{\"device_id\":6,\"hardware_id\":\"nulla\",\"device_hardware_id\":\"tenetur\"}"
                         },
                         "description": ""
                     },
@@ -4263,7 +4022,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"device_id\":19,\"hardware_id\":\"rem\",\"device_hardware_id\":\"ut\"}"
+                            "raw": "{\"device_id\":7,\"hardware_id\":\"facere\",\"device_hardware_id\":\"enim\"}"
                         },
                         "description": ""
                     },
@@ -4281,7 +4040,7 @@
                                 {
                                     "id": "id",
                                     "key": "id",
-                                    "value": "recusandae",
+                                    "value": "suscipit",
                                     "description": "Sensordefinition ID"
                                 }
                             ]
@@ -4303,7 +4062,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"device_id\":11,\"hardware_id\":\"dolorum\",\"device_hardware_id\":\"est\"}"
+                            "raw": "{\"device_id\":18,\"hardware_id\":\"temporibus\",\"device_hardware_id\":\"porro\"}"
                         },
                         "description": ""
                     },
@@ -4373,15 +4132,15 @@
                             "query": [
                                 {
                                     "key": "locale",
-                                    "value": "nostrum",
+                                    "value": "veritatis",
                                     "description": "Two character language code to translate taxonomy",
                                     "disabled": false
                                 },
                                 {
                                     "key": "flat",
-                                    "value": "",
+                                    "value": "1",
                                     "description": "In hierachy (default: true)",
-                                    "disabled": true
+                                    "disabled": false
                                 },
                                 {
                                     "key": "order",
@@ -4390,7 +4149,7 @@
                                     "disabled": false
                                 }
                             ],
-                            "raw": "{{baseUrl}}\/api\/taxonomy\/taxonomy?locale=nostrum&flat=&order=1"
+                            "raw": "{{baseUrl}}\/api\/taxonomy\/taxonomy?locale=veritatis&flat=1&order=1"
                         },
                         "method": "GET",
                         "header": [
@@ -4542,9 +4301,245 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"locale\":\"quam\"}"
+                            "raw": "{\"locale\":\"voluptatem\"}"
                         },
                         "description": ""
+                    },
+                    "response": []
+                }
+            ]
+        },
+        {
+            "name": "Endpoints",
+            "description": "",
+            "item": [
+                {
+                    "name": "Display a listing of the resource.",
+                    "request": {
+                        "url": {
+                            "host": "{{baseUrl}}",
+                            "path": "api\/hive-tags",
+                            "query": [],
+                            "raw": "{{baseUrl}}\/api\/hive-tags"
+                        },
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept",
+                                "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept-language",
+                                "value": "en"
+                            }
+                        ],
+                        "body": null,
+                        "description": "",
+                        "auth": {
+                            "type": "noauth"
+                        }
+                    },
+                    "response": [
+                        {
+                            "header": [
+                                {
+                                    "key": "cache-control",
+                                    "value": "no-cache, private"
+                                },
+                                {
+                                    "key": "content-type",
+                                    "value": "application\/json"
+                                },
+                                {
+                                    "key": "access-control-allow-origin",
+                                    "value": "*"
+                                }
+                            ],
+                            "code": 401,
+                            "body": "{\"message\":\"Unauthenticated.\"}",
+                            "name": ""
+                        }
+                    ]
+                },
+                {
+                    "name": "Store a newly created resource in storage.",
+                    "request": {
+                        "url": {
+                            "host": "{{baseUrl}}",
+                            "path": "api\/hive-tags",
+                            "query": [],
+                            "raw": "{{baseUrl}}\/api\/hive-tags"
+                        },
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept",
+                                "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept-language",
+                                "value": "en"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\"tag\":\"et\",\"router_link\":\"fugiat\",\"hive_id\":12,\"action_id\":20}"
+                        },
+                        "description": "",
+                        "auth": {
+                            "type": "noauth"
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Display the specified resource.",
+                    "request": {
+                        "url": {
+                            "host": "{{baseUrl}}",
+                            "path": "api\/hive-tags\/:id",
+                            "query": [],
+                            "raw": "{{baseUrl}}\/api\/hive-tags\/:id",
+                            "variable": [
+                                {
+                                    "id": "id",
+                                    "key": "id",
+                                    "value": "quidem",
+                                    "description": "The ID of the hive tag."
+                                }
+                            ]
+                        },
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept",
+                                "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept-language",
+                                "value": "en"
+                            }
+                        ],
+                        "body": null,
+                        "description": "",
+                        "auth": {
+                            "type": "noauth"
+                        }
+                    },
+                    "response": [
+                        {
+                            "header": [
+                                {
+                                    "key": "cache-control",
+                                    "value": "no-cache, private"
+                                },
+                                {
+                                    "key": "content-type",
+                                    "value": "application\/json"
+                                },
+                                {
+                                    "key": "access-control-allow-origin",
+                                    "value": "*"
+                                }
+                            ],
+                            "code": 401,
+                            "body": "{\"message\":\"Unauthenticated.\"}",
+                            "name": ""
+                        }
+                    ]
+                },
+                {
+                    "name": "Update the specified resource in storage.",
+                    "request": {
+                        "url": {
+                            "host": "{{baseUrl}}",
+                            "path": "api\/hive-tags\/:id",
+                            "query": [],
+                            "raw": "{{baseUrl}}\/api\/hive-tags\/:id",
+                            "variable": [
+                                {
+                                    "id": "id",
+                                    "key": "id",
+                                    "value": "omnis",
+                                    "description": "The ID of the hive tag."
+                                }
+                            ]
+                        },
+                        "method": "PUT",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept",
+                                "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept-language",
+                                "value": "en"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\"tag\":\"a\",\"router_link\":\"temporibus\",\"hive_id\":3,\"action_id\":14}"
+                        },
+                        "description": "",
+                        "auth": {
+                            "type": "noauth"
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Remove the specified resource from storage.",
+                    "request": {
+                        "url": {
+                            "host": "{{baseUrl}}",
+                            "path": "api\/hive-tags\/:id",
+                            "query": [],
+                            "raw": "{{baseUrl}}\/api\/hive-tags\/:id",
+                            "variable": [
+                                {
+                                    "id": "id",
+                                    "key": "id",
+                                    "value": "facilis",
+                                    "description": "The ID of the hive tag."
+                                }
+                            ]
+                        },
+                        "method": "DELETE",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept",
+                                "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept-language",
+                                "value": "en"
+                            }
+                        ],
+                        "body": null,
+                        "description": "",
+                        "auth": {
+                            "type": "noauth"
+                        }
                     },
                     "response": []
                 }

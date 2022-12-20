@@ -706,6 +706,7 @@ class ResearchDataController extends Controller
 
         // Make dates
         $research   = Research::findOrFail($id);
+        $user       = User::findOrFail($user_id);
         $date_start = $request->input('date_start', $research->start_date);
         $date_until = $request->input('date_until', $research->end_date);
         $precision  = $request->input('precision', 'rfc3339');
@@ -733,8 +734,10 @@ class ResearchDataController extends Controller
 
         // User specific data
         $user_consents     = DB::table('research_user')->where('research_id', $id)->where('user_id', $user_id)->whereDate('updated_at', '<', $date_until)->orderBy('updated_at','asc')->get()->toArray();
-        $user_consent      = $user_consents[0]->consent;
-        $date_curr_consent = $user_consents[0]->updated_at;
+
+        $user_consent_obj  = $user_consents[0];
+        $user_consent      = $user_consent_obj->consent;
+        $date_curr_consent = $user_consent_obj->updated_at;
         $date_next_consent = $date_until;
 
         if (count($user_consents) == 0 || (count($user_consents) == 1 && $user_consent === 0)) // if only 1 and consent is false, stop
@@ -745,9 +748,37 @@ class ResearchDataController extends Controller
             $this->cacheRequestRate('get-measurements-research');
         
         // Get all user data
-        $user_apiaries     = Location::withTrashed()->where('user_id', $user_id)->where('created_at', '<', $date_until)->orderBy('created_at')->get();
-        $user_hives        = Hive::withTrashed()->where('user_id', $user_id)->where('created_at', '<', $date_until)->orderBy('created_at')->get();
-        $user_devices      = Device::withTrashed()->with('sensorDefinitions')->where('user_id', $user_id)->where('created_at', '<', $date_until)->orderBy('created_at')->get();
+        if (isset($user_consent_obj->consent_location_ids)) // Set consent based on specific items
+        {
+            $loc_array     = explode(',', $user_consent_obj->consent_location_ids);
+            $user_apiaries = $user->locations()->withTrashed()->whereIn('id', $loc_array)->where('created_at', '<', $date_until)->orderBy('created_at')->get();
+        }
+        else
+        {
+            $user_apiaries = $user->locations()->withTrashed()->where('created_at', '<', $date_until)->orderBy('created_at')->get();
+        }
+
+        if (isset($user_consent_obj->consent_hive_ids)) // Set consent based on specific items
+        {
+            $hive_array    = explode(',', $user_consent_obj->consent_hive_ids);
+            $user_hives    = $user->hives()->withTrashed()->whereIn('id', $hive_array)->where('created_at', '<', $date_until)->orderBy('created_at')->get();
+        }
+        else
+        {
+            $user_hives    = $user->hives()->withTrashed()->where('created_at', '<', $date_until)->orderBy('created_at')->get();
+        }
+
+        if (isset($user_consent_obj->consent_sensor_ids)) // Set consent based on specific items
+        {
+            $device_array  = explode(',', $user_consent_obj->consent_sensor_ids);
+            $user_devices  = $user->devices()->withTrashed()->whereIn('id', $device_array)->where('created_at', '<', $date_until)->orderBy('created_at')->get();
+        }
+        else
+        {
+            $user_devices  = $user->devices()->withTrashed()->where('created_at', '<', $date_until)->orderBy('created_at')->get();
+        }
+
+
         $user_flashlogs    = FlashLog::where('user_id', $user_id)->where('created_at', '<', $date_until)->orderBy('created_at')->get();
         $user_measurements = [];
 

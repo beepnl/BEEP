@@ -27,11 +27,12 @@ class ResearchController extends Controller
     }
 
     /**
-     * Update the specified resource in storage.
-     *
-     * @param \Illuminate\Http\Request $request
-     * @param  int  $id
-     *
+     * research/{id}/add_consent POST
+     * 
+     * @urlParam id integer required Research ID
+     * @bodyParam location_ids array Only share data from these location IDs
+     * @bodyParam hive_ids array Only share data from these hive IDs
+     * @bodyParam device_ids array Only share data from these device IDs
      * @return \Illuminate\Http\Response
      */
     public function add_consent(Request $request, $id)
@@ -80,23 +81,29 @@ class ResearchController extends Controller
         $history   = $research->getConsentHistoryAttribute();
         $updated   = false;
 
+        // Provide consent on specific parts
+        $loc_ids   = $request->filled('location_ids') && is_array($request->input('location_ids')) ? implode(',', $request->input('location_ids')) : null;
+        $hive_ids  = $request->filled('hive_ids') && is_array($request->input('hive_ids')) ? implode(',', $request->input('hive_ids')) : null;
+        $device_ids= $request->filled('device_ids') && is_array($request->input('device_ids')) ? implode(',', $request->input('device_ids')) : null;
+
         if ($history->count() > 0)
         {
             $last       = $history->first()->updated_at;
             $lastMoment = new Moment($last);
             $fromMoment = $lastMoment->from($timestamp);
 
+
             //die(print_r([$timestamp, $last, $fromMoment]));
 
             if ($fromMoment->getSeconds() < 3600)
             {
-                DB::table('research_user')->where('research_id', $id)->where('user_id', $request->user()->id)->where('updated_at', $last)->update(['consent'=>$consent, 'updated_at'=>$timestamp]);
+                DB::table('research_user')->where('research_id', $id)->where('user_id', $request->user()->id)->where('updated_at', $last)->update(['consent'=>$consent, 'updated_at'=>$timestamp, 'consent_location_ids'=>$loc_ids, 'consent_hive_ids'=>$hive_ids, 'consent_sensor_ids'=>$device_ids]);
                 $updated = true;
             }
         }
 
         if ($updated === false)
-            $request->user()->researches()->attach($id, ['consent'=>$consent, 'created_at'=>$timestamp, 'updated_at'=>$timestamp]);
+            $request->user()->researches()->attach($id, ['consent'=>$consent, 'created_at'=>$timestamp, 'updated_at'=>$timestamp, 'consent_location_ids'=>$loc_ids, 'consent_hive_ids'=>$hive_ids, 'consent_sensor_ids'=>$device_ids]);
 
         return $research;
     }

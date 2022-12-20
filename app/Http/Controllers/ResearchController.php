@@ -448,8 +448,9 @@ class ResearchController extends Controller
             if (!isset($user) || !isset($user_consents) || count($user_consents) == 0)
                 continue;
 
-            $user_consent      = $user_consents[0]->consent;
-            $date_curr_consent = $date_start > $user_consents[0]->updated_at ? $date_start : $user_consents[0]->updated_at;
+            $user_consent_obj  = $user_consents[0];
+            $user_consent      = $user_consent_obj->consent;
+            $date_curr_consent = $date_start > $user_consent_obj->updated_at ? $date_start : $user_consent_obj->updated_at;
             $date_next_consent = $moment_end->format('Y-m-d H:i:s');
             $index             = 0;
 
@@ -467,9 +468,36 @@ class ResearchController extends Controller
             //die(print_r([$user_consents, $date_curr_consent, $date_next_consent, $index]));
 
             // add user data
-            $user_apiaries     = $user->locations()->withTrashed()->where('created_at', '<', $date_until)->orderBy('created_at')->get();
-            $user_hives        = $user->hives()->withTrashed()->where('created_at', '<', $date_until)->orderBy('created_at')->get();
-            $user_devices_all  = $user->devices()->withTrashed()->where('created_at', '<', $date_until)->orderBy('created_at')->get();
+            if (isset($user_consent_obj->consent_location_ids)) // Set consent based on specific items
+            {
+                $loc_array     = explode(',', $user_consent_obj->consent_location_ids);
+                $user_apiaries = $user->locations()->withTrashed()->whereIn('id', $loc_array)->where('created_at', '<', $date_until)->orderBy('created_at')->get();
+            }
+            else
+            {
+                $user_apiaries = $user->locations()->withTrashed()->where('created_at', '<', $date_until)->orderBy('created_at')->get();
+            }
+
+            if (isset($user_consent_obj->consent_hive_ids)) // Set consent based on specific items
+            {
+                $hive_array    = explode(',', $user_consent_obj->consent_hive_ids);
+                $user_hives    = $user->hives()->withTrashed()->whereIn('id', $hive_array)->where('created_at', '<', $date_until)->orderBy('created_at')->get();
+            }
+            else
+            {
+                $user_hives    = $user->hives()->withTrashed()->where('created_at', '<', $date_until)->orderBy('created_at')->get();
+            }
+
+            if (isset($user_consent_obj->consent_sensor_ids)) // Set consent based on specific items
+            {
+                $device_array     = explode(',', $user_consent_obj->consent_sensor_ids);
+                $user_devices_all = $user->devices()->withTrashed()->whereIn('id', $device_array)->where('created_at', '<', $date_until)->orderBy('created_at')->get();
+            }
+            else
+            {
+                $user_devices_all = $user->devices()->withTrashed()->where('created_at', '<', $date_until)->orderBy('created_at')->get();
+            }
+
             $devices_all       = $devices_all->merge($user_devices_all);
             $user_devices      = isset($device_ids) ? $user_devices_all->whereIn('id', $device_ids) : $user_devices_all;
             $user_flashlogs    = FlashLog::where('user_id', $user_id)->where('created_at', '>=', $date_start)->where('created_at', '<', $date_until)->orderBy('created_at')->get();

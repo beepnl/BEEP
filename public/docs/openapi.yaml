@@ -7,238 +7,6 @@ servers:
   -
     url: 'https://api.beep.nl'
 paths:
-  /api/hive-tags:
-    get:
-      summary: 'Display a listing of the resource.'
-      description: ''
-      parameters:
-        -
-          in: header
-          name: Content-Type
-          description: ''
-          example: application/json
-          schema:
-            type: string
-        -
-          in: header
-          name: Accept
-          description: ''
-          example: application/json
-          schema:
-            type: string
-        -
-          in: header
-          name: Accept-language
-          description: ''
-          example: en
-          schema:
-            type: string
-      responses:
-        401:
-          description: ''
-          content:
-            application/json:
-              schema:
-                type: object
-                example:
-                  message: Unauthenticated.
-                properties:
-                  message:
-                    type: string
-                    example: Unauthenticated.
-      tags:
-        - Endpoints
-      security: []
-    post:
-      summary: 'Store a newly created resource in storage.'
-      description: ''
-      parameters:
-        -
-          in: header
-          name: Content-Type
-          description: ''
-          example: application/json
-          schema:
-            type: string
-        -
-          in: header
-          name: Accept
-          description: ''
-          example: application/json
-          schema:
-            type: string
-        -
-          in: header
-          name: Accept-language
-          description: ''
-          example: en
-          schema:
-            type: string
-      responses: {  }
-      tags:
-        - Endpoints
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                tag:
-                  type: string
-                  description: ''
-                  example: possimus
-                router_link:
-                  type: string
-                  description: ''
-                  example: corrupti
-                hive_id:
-                  type: integer
-                  description: ''
-                  example: 12
-                action_id:
-                  type: integer
-                  description: ''
-                  example: 2
-              required:
-                - tag
-                - router_link
-      security: []
-  '/api/hive-tags/{id}':
-    get:
-      summary: 'Display the specified resource.'
-      description: ''
-      parameters:
-        -
-          in: header
-          name: Content-Type
-          description: ''
-          example: application/json
-          schema:
-            type: string
-        -
-          in: header
-          name: Accept
-          description: ''
-          example: application/json
-          schema:
-            type: string
-        -
-          in: header
-          name: Accept-language
-          description: ''
-          example: en
-          schema:
-            type: string
-      responses:
-        401:
-          description: ''
-          content:
-            application/json:
-              schema:
-                type: object
-                example:
-                  message: Unauthenticated.
-                properties:
-                  message:
-                    type: string
-                    example: Unauthenticated.
-      tags:
-        - Endpoints
-      security: []
-    put:
-      summary: 'Update the specified resource in storage.'
-      description: ''
-      parameters:
-        -
-          in: header
-          name: Content-Type
-          description: ''
-          example: application/json
-          schema:
-            type: string
-        -
-          in: header
-          name: Accept
-          description: ''
-          example: application/json
-          schema:
-            type: string
-        -
-          in: header
-          name: Accept-language
-          description: ''
-          example: en
-          schema:
-            type: string
-      responses: {  }
-      tags:
-        - Endpoints
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                tag:
-                  type: string
-                  description: ''
-                  example: veniam
-                router_link:
-                  type: string
-                  description: ''
-                  example: hic
-                hive_id:
-                  type: integer
-                  description: ''
-                  example: 7
-                action_id:
-                  type: integer
-                  description: ''
-                  example: 16
-              required:
-                - tag
-                - router_link
-      security: []
-    delete:
-      summary: 'Remove the specified resource from storage.'
-      description: ''
-      parameters:
-        -
-          in: header
-          name: Content-Type
-          description: ''
-          example: application/json
-          schema:
-            type: string
-        -
-          in: header
-          name: Accept
-          description: ''
-          example: application/json
-          schema:
-            type: string
-        -
-          in: header
-          name: Accept-language
-          description: ''
-          example: en
-          schema:
-            type: string
-      responses: {  }
-      tags:
-        - Endpoints
-      security: []
-    parameters:
-      -
-        in: path
-        name: id
-        description: 'The ID of the hive tag.'
-        example: eos
-        required: true
-        schema:
-          type: string
   /api/alerts:
     get:
       summary: "api/alerts GET\nList all user alerts that are not deleted."
@@ -248,7 +16,7 @@ paths:
           in: header
           name: Authorization
           description: ''
-          example: 'Bearer e38v6Pb64ak5dhZEgVfDc1a'
+          example: 'Bearer gZ8fbkdEeaVa3v154DhP6c6'
           schema:
             type: string
         -
@@ -295,7 +63,7 @@ paths:
           in: header
           name: Authorization
           description: ''
-          example: 'Bearer E1vekbaPcdg5Z3V4h6a86fD'
+          example: 'Bearer 61vZaV4gchaE5dkPbe386fD'
           schema:
             type: string
         -
@@ -332,15 +100,15 @@ paths:
                 alert_rule_id:
                   type: integer
                   description: 'The alert rule that has been alerted for.'
-                  example: 16
+                  example: 8
                 measurement_id:
                   type: integer
                   description: 'The physical quantity / unit to alert for.'
-                  example: 11
+                  example: 14
                 alert_value:
                   type: string
                   description: 'The alert value.'
-                  example: sunt
+                  example: sit
                 show:
                   type: boolean
                   description: 'Set to false (0) if the alert should NOT be shown anymore.'
@@ -358,7 +126,7 @@ paths:
           in: header
           name: Authorization
           description: ''
-          example: 'Bearer agecfk16PE86VvdaZb4hD35'
+          example: 'Bearer a81v6eDEdkbZ354fha6PVcg'
           schema:
             type: string
         -
@@ -405,7 +173,7 @@ paths:
           in: header
           name: Authorization
           description: ''
-          example: 'Bearer 36aahdVeD6Z4gc8kPb51Evf'
+          example: 'Bearer Z6Eb4cakva8g1Dh3fPVd65e'
           schema:
             type: string
         -
@@ -442,7 +210,7 @@ paths:
                 show:
                   type: boolean
                   description: 'Set to false (0) if the alert should NOT be shown anymore.'
-                  example: true
+                  example: false
     delete:
       summary: "api/alerts/{id} DELETE\nDelete the specified user alert, or all if id === 'all', or specific id's when provided &alert_ids=1,4,7"
       description: ''
@@ -451,7 +219,7 @@ paths:
           in: header
           name: Authorization
           description: ''
-          example: 'Bearer h1D3cd6avg54ZEkfbeP8V6a'
+          example: 'Bearer 6edbvaD6P3hEV1Zfa4c5kg8'
           schema:
             type: string
         -
@@ -483,7 +251,7 @@ paths:
         in: path
         name: id
         description: 'The ID of the alert.'
-        example: 13
+        example: 10
         required: true
         schema:
           type: integer
@@ -496,7 +264,7 @@ paths:
           in: header
           name: Authorization
           description: ''
-          example: 'Bearer 58ZvVeE66fa3D14cPhbadgk'
+          example: 'Bearer 538f1hagV4aZcPdE6b6Dekv'
           schema:
             type: string
         -
@@ -543,7 +311,7 @@ paths:
           in: header
           name: Authorization
           description: ''
-          example: 'Bearer aV4h8ZdED36gbcP5k1af6ev'
+          example: 'Bearer aPkZ61cv3EVhdafeb64D8g5'
           schema:
             type: string
         -
@@ -580,11 +348,11 @@ paths:
                 name:
                   type: string
                   description: 'The name of the alert rule.'
-                  example: reprehenderit
+                  example: repudiandae
                 description:
                   type: string
                   description: 'The description of the alert rule.'
-                  example: numquam
+                  example: impedit
                 measurement_id:
                   type: integer
                   description: 'The physical quantity / unit to alert for.'
@@ -592,27 +360,27 @@ paths:
                 calculation:
                   type: string
                   description: 'Calculation to be done with measurement value(s): (min, max, ave, der, cnt) -> Minimum, Maximum, Average (mean), Derivative, Count.'
-                  example: qui
+                  example: quos
                 comparator:
                   type: string
                   description: 'Logical comparator to perform with comparison calculation result and threshold_value (=, <, >, <=, >=).'
-                  example: minus
+                  example: sit
                 comparison:
                   type: string
                   description: 'Comparison function to perform with measurement value(s): (val, dif, abs, abs_dif) -> Value, Difference, Absolute value, Absolute value of the difference.'
-                  example: perferendis
+                  example: ut
                 threshold_value:
                   type: number
                   description: 'The threshold value beyond which the alert will be sent.'
-                  example: 838333.55153918
+                  example: 45182.8264
                 calculation_minutes:
                   type: integer
                   description: 'The amount of minutes used for calculating the (min, max, ave, der, cnt) of the measurement value(s). If not provided, the last recorded value is used as a reference.'
-                  example: 17
+                  example: 19
                 alert_on_occurrences:
                   type: integer
                   description: 'Amount of occurences that a calculated value goed beyond the threshold_value. If not filled the standard is 1 (immediate alert).'
-                  example: 4
+                  example: 11
                 alert_via_email:
                   type: boolean
                   description: 'Set to false (0) if an e-mail should NOT be sent on alert. Default: true (1).'
@@ -620,11 +388,11 @@ paths:
                 webhook_url:
                   type: string
                   description: 'URL of optional endpoint to call on alert for web hook integration.'
-                  example: qui
+                  example: maxime
                 active:
                   type: boolean
                   description: 'Set to false (0) if the alert should NOT be active. Default: true (1).'
-                  example: false
+                  example: true
                 exclude_months:
                   type: array
                   description: 'Array of month indexes (1-12). If not filled the standard alert is ''always on''.'
@@ -652,7 +420,7 @@ paths:
                   type: array
                   description: 'Array of Hive ids. If not filled the standard alert is evaluated on ''all hives''.'
                   example:
-                    - ad
+                    - corrupti
                   items:
                     type: string
               required:
@@ -670,7 +438,7 @@ paths:
           in: header
           name: Authorization
           description: ''
-          example: 'Bearer 64hZac6PfbDaEV8d5e1g3kv'
+          example: 'Bearer vE6Dk6b81ac3Vhed5ga4ZPf'
           schema:
             type: string
         -
@@ -717,7 +485,7 @@ paths:
           in: header
           name: Authorization
           description: ''
-          example: 'Bearer Zkha461cP5ef8VEbgv36Dad'
+          example: 'Bearer a6Zvf53gcaEbPV64khD81ed'
           schema:
             type: string
         -
@@ -754,11 +522,11 @@ paths:
                 name:
                   type: string
                   description: 'The name of the alert rule.'
-                  example: neque
+                  example: aut
                 description:
                   type: string
                   description: 'The description of the alert rule.'
-                  example: quod
+                  example: ut
                 measurement_id:
                   type: integer
                   description: 'The physical quantity / unit to alert for.'
@@ -766,39 +534,39 @@ paths:
                 calculation:
                   type: string
                   description: 'Calculation to be done with measurement value(s): (min, max, ave, der, cnt) -> Minimum, Maximum, Average (mean), Derivative, Count.'
-                  example: velit
+                  example: est
                 comparator:
                   type: string
                   description: 'Logical comparator to perform with comparison calculation result and threshold_value (=, <, >, <=, >=).'
-                  example: expedita
+                  example: impedit
                 comparison:
                   type: string
                   description: 'Comparison function to perform with measurement value(s): (val, dif, abs, abs_dif) -> Value, Difference, Absolute value, Absolute value of the difference.'
-                  example: dolorem
+                  example: id
                 threshold_value:
                   type: number
                   description: 'The threshold value beyond which the alert will be sent.'
-                  example: 250256.9286042
+                  example: 145364.6
                 calculation_minutes:
                   type: integer
                   description: 'The amount of minutes used for calculating the (min, max, ave, der, cnt) of the measurement value(s). If not provided, the last recorded value is used as a reference.'
-                  example: 4
+                  example: 7
                 alert_on_occurrences:
                   type: integer
                   description: 'Amount of occurences that a calculated value goed beyond the threshold_value. If not filled the standard is 1 (immediate alert).'
-                  example: 17
+                  example: 3
                 alert_via_email:
                   type: boolean
                   description: 'Set to false (0) if an e-mail should NOT be sent on alert. Default: true (1).'
-                  example: false
+                  example: true
                 webhook_url:
                   type: string
                   description: 'URL of optional endpoint to call on alert for web hook integration.'
-                  example: provident
+                  example: unde
                 active:
                   type: boolean
                   description: 'Set to false (0) if the alert should NOT be active. Default: true (1).'
-                  example: false
+                  example: true
                 exclude_months:
                   type: array
                   description: 'Array of month indexes (1-12). If not filled the standard alert is ''always on''.'
@@ -826,7 +594,7 @@ paths:
                   type: array
                   description: 'Array of Hive ids. If not filled the standard alert is evaluated on ''all hives''.'
                   example:
-                    - sed
+                    - sapiente
                   items:
                     type: string
               required:
@@ -843,7 +611,7 @@ paths:
           in: header
           name: Authorization
           description: ''
-          example: 'Bearer ha6fgaVDZve86P1E4dbc53k'
+          example: 'Bearer efh6cg4a6P1Ek5Dd83vZVba'
           schema:
             type: string
         -
@@ -875,7 +643,7 @@ paths:
         in: path
         name: id
         description: 'The ID of the alert rule.'
-        example: quo
+        example: animi
         required: true
         schema:
           type: string
@@ -888,7 +656,7 @@ paths:
           in: header
           name: Authorization
           description: ''
-          example: 'Bearer 4kvPEh8bZ5aVaf6Degd361c'
+          example: 'Bearer 6g8hZae4Pc56VfkD1E3bavd'
           schema:
             type: string
         -
@@ -936,7 +704,7 @@ paths:
           in: header
           name: Authorization
           description: ''
-          example: 'Bearer v1eagEaV6fk4hb835dZPD6c'
+          example: 'Bearer a5kac4P6eZbhDV86g1fdvE3'
           schema:
             type: string
         -
@@ -2257,7 +2025,7 @@ paths:
           in: header
           name: Authorization
           description: ''
-          example: 'Bearer 45v1h3g6Vk6aZEbd8PaefcD'
+          example: 'Bearer 368561cfZPg4DheakVdEavb'
           schema:
             type: string
         -
@@ -2314,7 +2082,7 @@ paths:
           in: header
           name: Authorization
           description: ''
-          example: 'Bearer VZv5b3a8E6ePk1gcf4D6adh'
+          example: 'Bearer 6hD1VE4e3v8kadgcfZba6P5'
           schema:
             type: string
         -
@@ -2380,7 +2148,7 @@ paths:
           in: header
           name: Authorization
           description: ''
-          example: 'Bearer 8P6ad3DhbEgc5fkZVe4va61'
+          example: 'Bearer ev8khfdaDVP6c4g613Zba5E'
           schema:
             type: string
         -
@@ -2427,7 +2195,7 @@ paths:
           in: header
           name: Authorization
           description: ''
-          example: 'Bearer 3ZgD5Ef6Vchdk618a4aPebv'
+          example: 'Bearer hE1eDf84Pc5vakZdabV66g3'
           schema:
             type: string
         -
@@ -2463,7 +2231,7 @@ paths:
           in: header
           name: Authorization
           description: ''
-          example: 'Bearer eVE8Pbg4Zf6cv6aDa3d5h1k'
+          example: 'Bearer gE4ZP3v66h8dfa5Dcb1eaVk'
           schema:
             type: string
         -
@@ -2510,7 +2278,7 @@ paths:
           in: header
           name: Authorization
           description: ''
-          example: 'Bearer PDa1cZf8kvVg4356dh6baeE'
+          example: 'Bearer f6hd8k6c5VavaebZ1Eg3P4D'
           schema:
             type: string
         -
@@ -2545,7 +2313,7 @@ paths:
           in: header
           name: Authorization
           description: ''
-          example: 'Bearer fbPgV5hkv8a36d6ZE14eDca'
+          example: 'Bearer 64gb5h68Pd13fkVvZaeEcaD'
           schema:
             type: string
         -
@@ -2577,7 +2345,7 @@ paths:
         in: path
         name: id
         description: 'The ID of the checklist.'
-        example: 8
+        example: 2
         required: true
         schema:
           type: integer
@@ -2590,7 +2358,7 @@ paths:
           in: header
           name: Authorization
           description: ''
-          example: 'Bearer 43ahcgPv6a6fE5dDkb1Ze8V'
+          example: 'Bearer 5Pg3d1vVDc6eEfb6k8Z4aha'
           schema:
             type: string
         -
@@ -2627,67 +2395,67 @@ paths:
                 id:
                   type: integer
                   description: 'Device id to update. (Required without key and hardware_id)'
-                  example: 14
+                  example: 16
                 key:
                   type: string
                   description: 'DEV EUI of the sensor to enable storing sensor data incoming on the api/sensors or api/lora_sensors endpoint. (Required without id and hardware_id)'
-                  example: esse
+                  example: ab
                 hardware_id:
                   type: string
                   description: 'Hardware id of the device as device name in TTN. (Required without id and key)'
-                  example: unde
+                  example: odit
                 name:
                   type: string
                   description: 'Device name'
-                  example: reiciendis
+                  example: eos
                 hive_id:
                   type: integer
                   description: 'Hive that the sensor is measuring. Default: null'
-                  example: 18
+                  example: 19
                 type:
                   type: string
                   description: 'Category name of the hive type from the Categories table. Default: beep'
-                  example: voluptatem
+                  example: velit
                 last_message_received:
                   type: timestamp
                   description: 'Will be converted with date(''Y-m-d H:i:s'', $last_message_received); before storing'
-                  example: ad
+                  example: dolorem
                 firmware_version:
                   type: string
                   description: 'Firmware version of the Device'
-                  example: molestias
+                  example: quo
                 hardware_version:
                   type: string
                   description: 'Hardware version of the Device'
-                  example: delectus
+                  example: incidunt
                 boot_count:
                   type: integer
                   description: 'Amount of boots of the Device'
-                  example: 11
+                  example: 14
                 measurement_interval_min:
                   type: number
                   description: 'Measurement interval in minutes'
-                  example: 23830.6
+                  example: 223431518.7931
                 measurement_transmission_ratio:
                   type: number
                   description: 'Measurements ratio of non-transmitted vs transmitted messages. If 0 or 1, every measurement gets transmitted.'
-                  example: 73194.692
+                  example: !!float 39736
                 ble_pin:
                   type: string
                   description: 'Bleutooth PIN of Device: 6 numbers between 0-9'
-                  example: et
+                  example: enim
                 battery_voltage:
                   type: number
                   description: 'Last measured battery voltage'
-                  example: 2637.06
+                  example: 37627.51
                 next_downlink_message:
                   type: string
                   description: 'Hex string to send via downlink at next connection (LoRaWAN port 6)'
-                  example: rem
+                  example: ratione
                 last_downlink_result:
                   type: string
                   description: 'Result received from BEEP base after downlink message (LoRaWAN port 5)'
-                  example: consequatur
+                  example: et
   '/api/devices/ttn/{dev_id}':
     get:
       summary: "api/devices/ttn/{dev_id} GET\nGet a BEEP TTS Cloud Device by Device ID (BEEP hardware_id)"
@@ -2697,7 +2465,7 @@ paths:
           in: header
           name: Authorization
           description: ''
-          example: 'Bearer 16v8PfEac5D4Va6behkdZ3g'
+          example: 'Bearer ZeEacdbkf3g16D6v8PVh54a'
           schema:
             type: string
         -
@@ -2744,7 +2512,7 @@ paths:
           in: header
           name: Authorization
           description: ''
-          example: 'Bearer 31hPeV6bvD85ca6afg4EdZk'
+          example: 'Bearer 18gf53VD6E4kdZba6ePcahv'
           schema:
             type: string
         -
@@ -2785,18 +2553,18 @@ paths:
                   properties:
                     dev_eui:
                       type: string
-                      description: 'Must be 16 characters.'
-                      example: rliggumjjsfihrcu
+                      description: 'value moet 16 karakters lang zijn.'
+                      example: jmvdubzwvorvprgn
                     app_key:
                       type: string
-                      description: 'Must be 32 characters.'
-                      example: egswxyxjkowqkqpdbssecszammlzvgip
+                      description: 'value moet 32 karakters lang zijn.'
+                      example: ffujioetqmmtswlioaxprralhvhhpyfx
     parameters:
       -
         in: path
         name: dev_id
         description: 'The ID of the dev.'
-        example: omnis
+        example: non
         required: true
         schema:
           type: string
@@ -2809,7 +2577,7 @@ paths:
           in: header
           name: Authorization
           description: ''
-          example: 'Bearer khE6dacg48aeZV1P5Dv3b6f'
+          example: 'Bearer fkPch66Zv4Ea8bgeV1D5d3a'
           schema:
             type: string
         -
@@ -2888,7 +2656,7 @@ paths:
                 hardware_id:
                   type: string
                   description: 'Provide to filter on hardware_id'
-                  example: tempora
+                  example: porro
     post:
       summary: "api/devices POST\nCreate or Update a Device"
       description: ''
@@ -2897,7 +2665,7 @@ paths:
           in: header
           name: Authorization
           description: ''
-          example: 'Bearer gZPb46568Vcevk1dEfha3Da'
+          example: 'Bearer gPkchE8Z3Vbv654fa1adeD6'
           schema:
             type: string
         -
@@ -2934,67 +2702,67 @@ paths:
                 id:
                   type: integer
                   description: 'Device id to update. (Required without key and hardware_id)'
-                  example: 1
+                  example: 5
                 key:
                   type: string
                   description: 'DEV EUI of the sensor to enable storing sensor data incoming on the api/sensors or api/lora_sensors endpoint. (Required without id and hardware_id)'
-                  example: quidem
+                  example: omnis
                 hardware_id:
                   type: string
                   description: 'Hardware id of the device as device name in TTN. (Required without id and key)'
-                  example: voluptates
+                  example: et
                 name:
                   type: string
                   description: 'Device name'
-                  example: voluptatibus
+                  example: ut
                 hive_id:
                   type: integer
                   description: 'Hive that the sensor is measuring. Default: null'
-                  example: 13
+                  example: 1
                 type:
                   type: string
                   description: 'Category name of the hive type from the Categories table. Default: beep'
-                  example: quae
+                  example: dolorum
                 last_message_received:
                   type: timestamp
                   description: 'Will be converted with date(''Y-m-d H:i:s'', $last_message_received); before storing'
-                  example: ea
+                  example: autem
                 firmware_version:
                   type: string
                   description: 'Firmware version of the Device'
-                  example: commodi
+                  example: aut
                 hardware_version:
                   type: string
                   description: 'Hardware version of the Device'
-                  example: qui
+                  example: vel
                 boot_count:
                   type: integer
                   description: 'Amount of boots of the Device'
-                  example: 7
+                  example: 3
                 measurement_interval_min:
                   type: number
                   description: 'Measurement interval in minutes'
-                  example: 444.989179
+                  example: 17.73
                 measurement_transmission_ratio:
                   type: number
                   description: 'Measurements ratio of non-transmitted vs transmitted messages. If 0 or 1, every measurement gets transmitted.'
-                  example: !!float 895271
+                  example: 29226.2076
                 ble_pin:
                   type: string
                   description: 'Bleutooth PIN of Device: 6 numbers between 0-9'
-                  example: inventore
+                  example: blanditiis
                 battery_voltage:
                   type: number
                   description: 'Last measured battery voltage'
-                  example: 77455810.711512
+                  example: !!float 19655
                 next_downlink_message:
                   type: string
                   description: 'Hex string to send via downlink at next connection (LoRaWAN port 6)'
-                  example: omnis
+                  example: quo
                 last_downlink_result:
                   type: string
                   description: 'Result received from BEEP base after downlink message (LoRaWAN port 5)'
-                  example: in
+                  example: delectus
                 create_ttn_device:
                   type: boolean
                   description: 'If true, create a new LoRaWAN device in the BEEP TTN console. If succesfull, create the device.'
@@ -3002,7 +2770,7 @@ paths:
                 app_key:
                   type: string
                   description: 'BEEP base LoRaWAN application key that you would like to store in TTN'
-                  example: facere
+                  example: error
   '/api/devices/{id}':
     get:
       summary: "api/devices/{id} GET\nList one Device by id"
@@ -3012,7 +2780,7 @@ paths:
           in: header
           name: Authorization
           description: ''
-          example: 'Bearer 64aZd13f8Ev5bhDkVcPa6eg'
+          example: 'Bearer aav83ZVhPbcdk1eDEgf4656'
           schema:
             type: string
         -
@@ -3059,7 +2827,7 @@ paths:
           in: header
           name: Authorization
           description: ''
-          example: 'Bearer ZP6cgfvaDV35a46dhk1Eeb8'
+          example: 'Bearer 5EPka418e63hVbavZgD6cdf'
           schema:
             type: string
         -
@@ -3096,27 +2864,27 @@ paths:
                 id:
                   type: integer
                   description: 'Device id to update. (Required without key and hardware_id)'
-                  example: 4
+                  example: 14
                 key:
                   type: string
                   description: 'DEV EUI of the sensor to enable storing sensor data incoming on the api/sensors or api/lora_sensors endpoint. (Required without id and hardware_id)'
-                  example: consequatur
+                  example: id
                 hardware_id:
                   type: string
                   description: 'Hardware id of the device as device name in TTN. (Required without id and key)'
-                  example: adipisci
+                  example: repudiandae
                 name:
                   type: string
                   description: 'Name of the sensor'
-                  example: nihil
+                  example: ullam
                 hive_id:
                   type: integer
                   description: 'Hive that the sensor is measuring. Default: null'
-                  example: 3
+                  example: 4
                 type:
                   type: string
                   description: 'Category name of the hive type from the Categories table. Default: beep'
-                  example: quae
+                  example: similique
                 delete:
                   type: boolean
                   description: 'If true delete the sensor and all it''s data in the Influx database'
@@ -3124,15 +2892,15 @@ paths:
                 last_message_received:
                   type: timestamp
                   description: 'Will be converted with date(''Y-m-d H:i:s'', $last_message_received); before storing'
-                  example: voluptate
+                  example: itaque
                 firmware_version:
                   type: string
                   description: 'Firmware version of the Device'
-                  example: illo
+                  example: in
                 hardware_version:
                   type: string
                   description: 'Hardware version of the Device'
-                  example: perspiciatis
+                  example: qui
                 boot_count:
                   type: integer
                   description: 'Amount of boots of the Device'
@@ -3140,33 +2908,33 @@ paths:
                 measurement_interval_min:
                   type: number
                   description: 'Measurement interval in minutes'
-                  example: 15.96
+                  example: 72854542.2
                 measurement_transmission_ratio:
                   type: number
                   description: 'Measurements ratio of non-transmitted vs transmitted messages. If 0 or 1, every measurement gets transmitted.'
-                  example: 5521.70175
+                  example: !!float 54990
                 ble_pin:
                   type: string
                   description: 'Bleutooth PIN of Device: 6 numbers between 0-9'
-                  example: dolorum
+                  example: quo
                 battery_voltage:
                   type: number
                   description: 'Last measured battery voltage'
-                  example: 147400.568
+                  example: 9016778.6588648
                 next_downlink_message:
                   type: string
                   description: 'Hex string to send via downlink at next connection (LoRaWAN port 6)'
-                  example: fugiat
+                  example: qui
                 last_downlink_result:
                   type: string
                   description: 'Result received from BEEP base after downlink message (LoRaWAN port 5)'
-                  example: et
+                  example: recusandae
     parameters:
       -
         in: path
         name: id
         description: 'The ID of the device.'
-        example: 19
+        example: 8
         required: true
         schema:
           type: integer
@@ -3179,7 +2947,7 @@ paths:
           in: header
           name: Authorization
           description: ''
-          example: 'Bearer 1bkc6Z64vhad5Egaf8V3ePD'
+          example: 'Bearer 6E8hkZ3gDVc1e56abdfPav4'
           schema:
             type: string
         -
@@ -3216,7 +2984,7 @@ paths:
                 device_id:
                   type: required
                   description: 'Device id to download data from'
-                  example: inventore
+                  example: eum
                 start:
                   type: date
                   description: 'Date for start of data export.'
@@ -3236,7 +3004,7 @@ paths:
                 link:
                   type: boolean
                   description: 'filled means: save the export to a file and provide the link, not filled means: output a text/html header with text containing the .csv content. Example:'
-                  example: false
+                  example: true
               required:
                 - start
                 - end
@@ -3249,7 +3017,7 @@ paths:
           in: header
           name: Authorization
           description: ''
-          example: 'Bearer 6Pf6v5eED4cb1h8V3aZgadk'
+          example: 'Bearer Zc635d64bavkE1afghPD8eV'
           schema:
             type: string
         -
@@ -3274,18 +3042,18 @@ paths:
           schema:
             type: string
       responses:
-        401:
+        500:
           description: ''
           content:
             application/json:
               schema:
                 type: object
                 example:
-                  message: Unauthenticated.
+                  message: 'Server Error'
                 properties:
                   message:
                     type: string
-                    example: Unauthenticated.
+                    example: 'Server Error'
       tags:
         - Api\ExportController
   /api/flashlogs:
@@ -3297,7 +3065,7 @@ paths:
           in: header
           name: Authorization
           description: ''
-          example: 'Bearer ab366Zv18efh4aEcg5PVDkd'
+          example: 'Bearer 1PavEekVd8g3f6hcb64a5ZD'
           schema:
             type: string
         -
@@ -3322,18 +3090,18 @@ paths:
           schema:
             type: string
       responses:
-        401:
+        500:
           description: ''
           content:
             application/json:
               schema:
                 type: object
                 example:
-                  message: Unauthenticated.
+                  message: 'Server Error'
                 properties:
                   message:
                     type: string
-                    example: Unauthenticated.
+                    example: 'Server Error'
       tags:
         - Api\FlashLogController
   '/api/flashlogs/{id}':
@@ -3345,17 +3113,17 @@ paths:
           in: query
           name: id
           description: 'Flashlog ID to parse'
-          example: 7
+          example: 5
           required: true
           schema:
             type: integer
             description: 'Flashlog ID to parse'
-            example: 7
+            example: 5
         -
           in: header
           name: Authorization
           description: ''
-          example: 'Bearer 6cPEf3hbaga1548keDV6vZd'
+          example: 'Bearer b5k6gf1aheVcZv3aEdD86P4'
           schema:
             type: string
         -
@@ -3380,18 +3148,18 @@ paths:
           schema:
             type: string
       responses:
-        401:
+        500:
           description: ''
           content:
             application/json:
               schema:
                 type: object
                 example:
-                  message: Unauthenticated.
+                  message: 'Server Error'
                 properties:
                   message:
                     type: string
-                    example: Unauthenticated.
+                    example: 'Server Error'
       tags:
         - Api\FlashLogController
       requestBody:
@@ -3424,7 +3192,7 @@ paths:
                 data_minutes:
                   type: integer
                   description: 'Flashlog data amount of minutes to show data from. Default: 10080 (1 week).'
-                  example: 17
+                  example: 19
                 from_cache:
                   type: boolean
                   description: 'get Flashlog parse result from cache (24 hours). Default: true.'
@@ -3449,17 +3217,17 @@ paths:
           in: query
           name: id
           description: 'Flashlog ID to parse'
-          example: 7
+          example: 18
           required: true
           schema:
             type: integer
             description: 'Flashlog ID to parse'
-            example: 7
+            example: 18
         -
           in: header
           name: Authorization
           description: ''
-          example: 'Bearer 51EdV4g8h3eck6bfvaaZD6P'
+          example: 'Bearer ba5VcgdD6e6f48kvP13aEZh'
           schema:
             type: string
         -
@@ -3525,17 +3293,17 @@ paths:
           in: query
           name: id
           description: 'Flashlog ID to delete the complete Flashlog file'
-          example: 13
+          example: 12
           required: true
           schema:
             type: integer
             description: 'Flashlog ID to delete the complete Flashlog file'
-            example: 13
+            example: 12
         -
           in: header
           name: Authorization
           description: ''
-          example: 'Bearer kZD6683gbaEP4Vfhe1vdc5a'
+          example: 'Bearer 56vD1aZd86ekfP4bcgVEh3a'
           schema:
             type: string
         -
@@ -3572,13 +3340,13 @@ paths:
                 block_id:
                   type: integer
                   description: 'Flashlog block index to delete (only the) previously persisted data from the database'
-                  example: 6
+                  example: 8
     parameters:
       -
         in: path
         name: id
         description: 'The ID of the flashlog.'
-        example: 18
+        example: 8
         required: true
         schema:
           type: integer
@@ -3591,7 +3359,7 @@ paths:
           in: header
           name: Authorization
           description: ''
-          example: 'Bearer Dkc4VZg6a6eEavd1hP83bf5'
+          example: 'Bearer 5k3Zb4VcefPa8dE6ahDv1g6'
           schema:
             type: string
         -
@@ -3628,11 +3396,11 @@ paths:
                 token:
                   type: string
                   description: ''
-                  example: distinctio
+                  example: incidunt
                 group_id:
                   type: string
                   description: ''
-                  example: cum
+                  example: eos
                 decline:
                   type: boolean
                   description: ''
@@ -3649,7 +3417,7 @@ paths:
           in: header
           name: Authorization
           description: ''
-          example: 'Bearer ZgEbdc6v3k4VPe1aD8a56hf'
+          example: 'Bearer DE81d5f3Pc6hZ4V6gvabkae'
           schema:
             type: string
         -
@@ -3696,7 +3464,7 @@ paths:
           in: header
           name: Authorization
           description: ''
-          example: 'Bearer acZDfa1v4kEbh686gPdV5e3'
+          example: 'Bearer E8cb6dfgPvDa534kVh6aZ1e'
           schema:
             type: string
         -
@@ -3732,7 +3500,7 @@ paths:
           in: header
           name: Authorization
           description: ''
-          example: 'Bearer 5kfZhVag1cP4v663adeED8b'
+          example: 'Bearer 5gca8fEd4Vv1ah3kDZbP6e6'
           schema:
             type: string
         -
@@ -3779,7 +3547,7 @@ paths:
           in: header
           name: Authorization
           description: ''
-          example: 'Bearer 6V6DaPZecv4gfbka8d15Eh3'
+          example: 'Bearer a68keED3Phc4bgfaVZdv516'
           schema:
             type: string
         -
@@ -3814,7 +3582,7 @@ paths:
           in: header
           name: Authorization
           description: ''
-          example: 'Bearer 8ka6Pbd46aZ13Eh5cvDeVfg'
+          example: 'Bearer Vb5aDkP3Z6vfg46ah1e8dcE'
           schema:
             type: string
         -
@@ -3846,7 +3614,7 @@ paths:
         in: path
         name: id
         description: 'The ID of the group.'
-        example: 20
+        example: 8
         required: true
         schema:
           type: integer
@@ -3859,7 +3627,7 @@ paths:
           in: header
           name: Authorization
           description: ''
-          example: 'Bearer g41Daf8EaZh5ckedb6P3V6v'
+          example: 'Bearer dk8v1a5e4D6Z3EbVf6acgPh'
           schema:
             type: string
         -
@@ -3891,7 +3659,7 @@ paths:
         in: path
         name: id
         description: 'The ID of the detach.'
-        example: impedit
+        example: at
         required: true
         schema:
           type: string
@@ -3904,7 +3672,7 @@ paths:
           in: header
           name: Authorization
           description: ''
-          example: 'Bearer 5vbDPZ6hEfeV46k3aga1c8d'
+          example: 'Bearer VaaEd36k5ecPbgD84hZ6fv1'
           schema:
             type: string
         -
@@ -4029,7 +3797,7 @@ paths:
           in: header
           name: Authorization
           description: ''
-          example: 'Bearer a6V45PcbeD6k1Zha3fg8dvE'
+          example: 'Bearer egV58Z3fa4ak6bcvE6Dhd1P'
           schema:
             type: string
         -
@@ -4066,61 +3834,61 @@ paths:
                 name:
                   type: string
                   description: ''
-                  example: accusantium
+                  example: qui
                 location_id:
                   type: integer
                   description: ''
-                  example: 14
+                  example: 10
                 brood_layers:
                   type: integer
-                  description: 'This field is required when <code>layers</code> is not present. Must be at least 0.'
+                  description: 'Het value veld is verplicht wanneer <code>layers</code> niet aanwezig is. value dient minimaal 0 te zijn.'
                   example: 0
                 honey_layers:
                   type: integer
-                  description: 'This field is required when <code>layers</code> is not present. Must be at least 0.'
+                  description: 'Het value veld is verplicht wanneer <code>layers</code> niet aanwezig is. value dient minimaal 0 te zijn.'
                   example: 0
                 frames:
                   type: integer
-                  description: 'Must be at least 0.'
+                  description: 'value dient minimaal 0 te zijn.'
                   example: 0
                 order:
                   type: integer
                   description: ''
-                  example: 11
+                  example: 2
                 layers:
                   type: array
-                  description: 'This field is required when none of <code>brood_layers</code> and <code>honey_layers</code> are present.'
+                  description: 'Het value veld is verplicht wanneer geen van <code>brood_layers</code> and <code>honey_layers</code> aanwezig is.'
                   example:
-                    - ut
+                    - veritatis
                   items:
                     type: string
                 color:
                   type: string
-                  description: 'Must not be greater than 7 characters.'
-                  example: ctnhdh
+                  description: 'value mag niet groter zijn dan 9 karakters.'
+                  example: mr
                 hive_type_id:
                   type: integer
                   description: ''
-                  example: 16
+                  example: 18
                 bb_width_cm:
                   type: number
-                  description: 'Must be at least 0.'
+                  description: 'value dient minimaal 0 te zijn.'
                   example: 0
                 bb_depth_cm:
                   type: number
-                  description: 'Must be at least 0.'
+                  description: 'value dient minimaal 0 te zijn.'
                   example: 0
                 bb_height_cm:
                   type: number
-                  description: 'Must be at least 0.'
+                  description: 'value dient minimaal 0 te zijn.'
                   example: 0
                 fr_width_cm:
                   type: number
-                  description: 'Must be at least 0.'
+                  description: 'value dient minimaal 0 te zijn.'
                   example: 0
                 fr_height_cm:
                   type: number
-                  description: 'Must be at least 0.'
+                  description: 'value dient minimaal 0 te zijn.'
                   example: 0
                 queen:
                   type: object
@@ -4130,43 +3898,43 @@ paths:
                     race_id:
                       type: integer
                       description: ''
-                      example: 16
+                      example: 13
                     birth_date:
                       type: string
-                      description: 'Must be a valid date.'
-                      example: '2022-06-24T08:14:26'
+                      description: 'value is geen geldige datum.'
+                      example: '2022-12-20T14:52:36'
                     name:
                       type: string
                       description: ''
-                      example: accusantium
+                      example: qui
                     description:
                       type: string
                       description: ''
-                      example: sunt
+                      example: et
                     line:
                       type: string
                       description: ''
-                      example: et
+                      example: dolorem
                     tree:
                       type: string
                       description: ''
-                      example: possimus
+                      example: sapiente
                     color:
                       type: string
-                      description: 'Must not be greater than 7 characters.'
-                      example: h
+                      description: 'value mag niet groter zijn dan 9 karakters.'
+                      example: smbmidkl
                     clipped:
                       type: integer
                       description: ''
-                      example: 9
+                      example: 8
                     fertilized:
                       type: integer
                       description: ''
-                      example: 3
+                      example: 7
                 timezone:
                   type: string
                   description: 'Must be a valid time zone, such as <code>Africa/Accra</code>.'
-                  example: Africa/Johannesburg
+                  example: Asia/Aqtobe
               required:
                 - name
                 - location_id
@@ -4179,7 +3947,7 @@ paths:
           in: header
           name: Authorization
           description: ''
-          example: 'Bearer D8Za41hEkdV65f3ga6cbPve'
+          example: 'Bearer vebV658EDkP6f3Za4h1gadc'
           schema:
             type: string
         -
@@ -4226,7 +3994,7 @@ paths:
           in: header
           name: Authorization
           description: ''
-          example: 'Bearer 4gabVvcZ8fdEaD663eP5k1h'
+          example: 'Bearer bgZDkP516v86eVE3ahf4cad'
           schema:
             type: string
         -
@@ -4263,61 +4031,61 @@ paths:
                 name:
                   type: string
                   description: ''
-                  example: ipsam
+                  example: in
                 location_id:
                   type: integer
                   description: ''
                   example: 4
                 brood_layers:
                   type: integer
-                  description: 'This field is required when <code>layers</code> is not present. Must be at least 0.'
+                  description: 'Het value veld is verplicht wanneer <code>layers</code> niet aanwezig is. value dient minimaal 0 te zijn.'
                   example: 0
                 honey_layers:
                   type: integer
-                  description: 'This field is required when <code>layers</code> is not present. Must be at least 0.'
+                  description: 'Het value veld is verplicht wanneer <code>layers</code> niet aanwezig is. value dient minimaal 0 te zijn.'
                   example: 0
                 frames:
                   type: integer
-                  description: 'Must be at least 0.'
+                  description: 'value dient minimaal 0 te zijn.'
                   example: 0
                 order:
                   type: integer
                   description: ''
-                  example: 10
+                  example: 4
                 layers:
                   type: array
-                  description: 'This field is required when none of <code>brood_layers</code> and <code>honey_layers</code> are present.'
+                  description: 'Het value veld is verplicht wanneer geen van <code>brood_layers</code> and <code>honey_layers</code> aanwezig is.'
                   example:
-                    - quisquam
+                    - sunt
                   items:
                     type: string
                 color:
                   type: string
-                  description: 'Must not be greater than 7 characters.'
-                  example: fex
+                  description: 'value mag niet groter zijn dan 9 karakters.'
+                  example: dz
                 hive_type_id:
                   type: integer
                   description: ''
-                  example: 1
+                  example: 16
                 bb_width_cm:
                   type: number
-                  description: 'Must be at least 0.'
+                  description: 'value dient minimaal 0 te zijn.'
                   example: 0
                 bb_depth_cm:
                   type: number
-                  description: 'Must be at least 0.'
+                  description: 'value dient minimaal 0 te zijn.'
                   example: 0
                 bb_height_cm:
                   type: number
-                  description: 'Must be at least 0.'
+                  description: 'value dient minimaal 0 te zijn.'
                   example: 0
                 fr_width_cm:
                   type: number
-                  description: 'Must be at least 0.'
+                  description: 'value dient minimaal 0 te zijn.'
                   example: 0
                 fr_height_cm:
                   type: number
-                  description: 'Must be at least 0.'
+                  description: 'value dient minimaal 0 te zijn.'
                   example: 0
                 queen:
                   type: object
@@ -4327,43 +4095,43 @@ paths:
                     race_id:
                       type: integer
                       description: ''
-                      example: 18
+                      example: 3
                     birth_date:
                       type: string
-                      description: 'Must be a valid date.'
-                      example: '2022-06-24T08:14:26'
+                      description: 'value is geen geldige datum.'
+                      example: '2022-12-20T14:52:36'
                     name:
                       type: string
                       description: ''
-                      example: beatae
+                      example: facilis
                     description:
                       type: string
                       description: ''
-                      example: voluptas
+                      example: iure
                     line:
                       type: string
                       description: ''
-                      example: quibusdam
+                      example: quis
                     tree:
                       type: string
                       description: ''
-                      example: tempore
+                      example: ab
                     color:
                       type: string
-                      description: 'Must not be greater than 7 characters.'
-                      example: tsi
+                      description: 'value mag niet groter zijn dan 9 karakters.'
+                      example: rmhslcvkg
                     clipped:
                       type: integer
                       description: ''
-                      example: 6
+                      example: 2
                     fertilized:
                       type: integer
                       description: ''
-                      example: 2
+                      example: 16
                 timezone:
                   type: string
                   description: 'Must be a valid time zone, such as <code>Africa/Accra</code>.'
-                  example: Pacific/Marquesas
+                  example: Australia/Brisbane
               required:
                 - name
                 - location_id
@@ -4375,7 +4143,7 @@ paths:
           in: header
           name: Authorization
           description: ''
-          example: 'Bearer fVdh4avDk6g8b31Z5ceEaP6'
+          example: 'Bearer 3cg6Ea5dVDvf1hakZb8e64P'
           schema:
             type: string
         -
@@ -4420,7 +4188,7 @@ paths:
           in: header
           name: Authorization
           description: ''
-          example: 'Bearer 3dc1h5aa8gfb6ZkVe6vEP4D'
+          example: 'Bearer dhE61PV8kcefaDb634v5Zag'
           schema:
             type: string
         -
@@ -4467,7 +4235,7 @@ paths:
           in: header
           name: Authorization
           description: ''
-          example: 'Bearer Z15e4PV3dghkEvaaDb6c6f8'
+          example: 'Bearer e3vhEg8fPd66a4DkVa15bZc'
           schema:
             type: string
         -
@@ -4502,7 +4270,7 @@ paths:
           in: header
           name: Authorization
           description: ''
-          example: 'Bearer Pca5E648fg3ha1dkD6vZVeb'
+          example: 'Bearer habd6Pf354aeV8c1ZEDg6kv'
           schema:
             type: string
         -
@@ -4538,7 +4306,7 @@ paths:
           in: header
           name: Authorization
           description: ''
-          example: 'Bearer 36ZE6b1V8hk4agfdevPc5aD'
+          example: 'Bearer 6Eg534ch1dakV8evZDf6bPa'
           schema:
             type: string
         -
@@ -4585,7 +4353,7 @@ paths:
           in: header
           name: Authorization
           description: ''
-          example: 'Bearer f5k1gdZaEb6hvD6e38VPc4a'
+          example: 'Bearer 6vPcagbEVDh4Zd35ef8a61k'
           schema:
             type: string
         -
@@ -4617,7 +4385,7 @@ paths:
         in: path
         name: id
         description: 'The ID of the image.'
-        example: 5
+        example: 15
         required: true
         schema:
           type: integer
@@ -4630,7 +4398,7 @@ paths:
           in: header
           name: Authorization
           description: ''
-          example: 'Bearer 1agEdkf83bD6PVva6ecZ5h4'
+          example: 'Bearer ab6V45vke36ZhDdE8g1cafP'
           schema:
             type: string
         -
@@ -4678,7 +4446,7 @@ paths:
           in: header
           name: Authorization
           description: ''
-          example: 'Bearer dPhecb5a6Vg3D8v1fZEa4k6'
+          example: 'Bearer 6hca468P13EVdebgDvafZk5'
           schema:
             type: string
         -
@@ -4771,7 +4539,7 @@ paths:
                 id:
                   type: integer
                   description: 'The hive to request inspections from.'
-                  example: 16
+                  example: 10
               required:
                 - id
   '/api/inspections/{id}':
@@ -4783,7 +4551,7 @@ paths:
           in: header
           name: Authorization
           description: ''
-          example: 'Bearer k5P66e81bgdahcEVaZD43fv'
+          example: 'Bearer bc1ZDa663P4VkgvEeafhd85'
           schema:
             type: string
         -
@@ -4830,7 +4598,7 @@ paths:
           in: header
           name: Authorization
           description: ''
-          example: 'Bearer v5EP1ZV8ha4aegd6b6c3Dfk'
+          example: 'Bearer Va5gPb6k4d8D1hae6fZ3Evc'
           schema:
             type: string
         -
@@ -4862,7 +4630,7 @@ paths:
         in: path
         name: id
         description: 'The id of the inspection.'
-        example: dolor
+        example: autem
         required: true
         schema:
           type: string
@@ -4875,7 +4643,7 @@ paths:
           in: header
           name: Authorization
           description: ''
-          example: 'Bearer P8k61ca6bfeaV5g4DZE3dvh'
+          example: 'Bearer cv661a34kbEDgPedhVafZ58'
           schema:
             type: string
         -
@@ -5077,7 +4845,7 @@ paths:
         in: path
         name: hive_id
         description: 'The hive to request inspections from.'
-        example: et
+        example: modi
         required: true
         schema:
           type: string
@@ -5090,7 +4858,7 @@ paths:
           in: header
           name: Authorization
           description: ''
-          example: 'Bearer 1faEg4abeZ5cvkhD8dP3V66'
+          example: 'Bearer D6fVdv63e84hgaZ51PcabkE'
           schema:
             type: string
         -
@@ -5187,7 +4955,7 @@ paths:
           in: header
           name: Authorization
           description: ''
-          example: 'Bearer ga56hEb4cDZPef6V13k8dva'
+          example: 'Bearer dv5kZ4e1gP8bEV63ah6facD'
           schema:
             type: string
         -
@@ -5234,7 +5002,7 @@ paths:
           in: header
           name: Authorization
           description: ''
-          example: 'Bearer 4Pgcae3DZ8Eb61f5vV6dkha'
+          example: 'Bearer kh3agvZ6c81bVEefa6d54PD'
           schema:
             type: string
         -
@@ -5271,11 +5039,11 @@ paths:
                 name:
                   type: string
                   description: ''
-                  example: odit
+                  example: qui
                 hive_type_id:
                   type: integer
                   description: ''
-                  example: 19
+                  example: 11
               required:
                 - name
   '/api/locations/{id}':
@@ -5287,7 +5055,7 @@ paths:
           in: header
           name: Authorization
           description: ''
-          example: 'Bearer gVfhE1eaZD34v5dba6kPc86'
+          example: 'Bearer a68hbcaEdZ3kgf564e1DVvP'
           schema:
             type: string
         -
@@ -5334,7 +5102,7 @@ paths:
           in: header
           name: Authorization
           description: ''
-          example: 'Bearer vZP54khEbcf66D3g1edaa8V'
+          example: 'Bearer kaZPevc6b6E3gDd45hVf1a8'
           schema:
             type: string
         -
@@ -5371,11 +5139,11 @@ paths:
                 name:
                   type: string
                   description: ''
-                  example: nemo
+                  example: corporis
                 hive_type_id:
                   type: integer
                   description: ''
-                  example: 5
+                  example: 3
               required:
                 - name
     delete:
@@ -5386,7 +5154,7 @@ paths:
           in: header
           name: Authorization
           description: ''
-          example: 'Bearer g4Zh385DP1vbafcV6dEeak6'
+          example: 'Bearer ePD4va8ckd156bVhafZE3g6'
           schema:
             type: string
         -
@@ -5431,12 +5199,12 @@ paths:
           in: query
           name: key/data
           description: 'Measurement formatted as URL query: key=your_beep_device_key&t=18.4&t_i=34.5&weight_kg=57.348&h=58&bv=3.54'
-          example: ut
+          example: alias
           required: true
           schema:
             type: string
             description: 'Measurement formatted as URL query: key=your_beep_device_key&t=18.4&t_i=34.5&weight_kg=57.348&h=58&bv=3.54'
-            example: ut
+            example: alias
         -
           in: header
           name: Content-Type
@@ -5471,7 +5239,7 @@ paths:
                 key/data:
                   type: json
                   description: 'Measurement data as JSON: {"key":"your_beep_device_key", "t":18.4, t_i":34.5, "weight_kg":57.348, "h":58, "bv":3.54}'
-                  example: exercitationem
+                  example: eligendi
               required:
                 - key/data
       security: []
@@ -5514,19 +5282,19 @@ paths:
                 key:
                   type: string
                   description: 'DEV EUI of the Device to enable storing sensor data'
-                  example: et
+                  example: at
                 payload_raw:
                   type: string
                   description: 'TTN BEEP Measurement data in Base 64 encoded string'
-                  example: et
+                  example: voluptatem
                 payload_fields:
                   type: json
                   description: 'TTN Measurement data array'
-                  example: repellat
+                  example: minima
                 DevEUI_uplink:
                   type: json
                   description: 'KPN Measurement data array'
-                  example: et
+                  example: quo
               required:
                 - key
       security: []
@@ -5567,330 +5335,18 @@ paths:
           schema:
             type: string
       responses:
-        200:
+        500:
           description: ''
           content:
             application/json:
               schema:
                 type: object
                 example:
-                  t: Temperature
-                  h: Humidity
-                  p: Pressure
-                  w: 'Weight sum'
-                  l: Light
-                  bv: 'Battery voltage'
-                  w_v: 'Weight sum'
-                  w_fl: 'Weight front-left'
-                  w_fr: 'Weight front-right'
-                  w_bl: 'Weight back-left'
-                  w_br: 'Weight back-right'
-                  s_fan_4: 'Sound fanning 4 days old'
-                  s_fan_6: 'Sound fanning 6 days old'
-                  s_fan_9: 'Sound fanning 9 days old'
-                  s_fly_a: 'Sound flying'
-                  s_tot: 'Sound total'
-                  t_i: 'Temperature inside'
-                  bc_i: 'Bee count in'
-                  bc_o: 'Bee count out'
-                  weight_kg: Weight
-                  weight_kg_corrected: 'Weight corrected'
-                  rssi: 'Received signal strength'
-                  snr: 'Signal to noise ratio'
-                  lat: Lattitude
-                  lon: lon
-                  s_bin098_146Hz: 'S bin098 146Hz'
-                  s_bin146_195Hz: 'S bin146 195Hz'
-                  s_bin195_244Hz: 'S bin195 244Hz'
-                  s_bin244_293Hz: 'S bin244 293Hz'
-                  s_bin293_342Hz: 'S bin293 342Hz'
-                  s_bin342_391Hz: 'S bin342 391Hz'
-                  s_bin391_439Hz: 'S bin391 439Hz'
-                  s_bin439_488Hz: 'S bin439 488Hz'
-                  s_bin488_537Hz: 'S bin488 537Hz'
-                  s_bin537_586Hz: 'S bin537 586Hz'
-                  calibrating_weight: 'Calibrating weight'
-                  w_fl_kg_per_val: 'W fl kg per val'
-                  w_fr_kg_per_val: 'W fr kg per val'
-                  w_bl_kg_per_val: 'W bl kg per val'
-                  w_br_kg_per_val: 'W br kg per val'
-                  w_fl_offset: 'W fl offset'
-                  w_fr_offset: 'W fr offset'
-                  w_bl_offset: 'W bl offset'
-                  w_br_offset: 'W br offset'
-                  bc_tot: 'Bc tot'
-                  s_spl: 'S spl'
-                  h_i: 'H i'
-                  w_v_offset: 'W v offset'
-                  w_v_kg_per_val: 'W v kg per val'
-                  s_bin_0_201: 'S bin 0 201'
-                  s_bin_201_402: 'S bin 201 402'
-                  s_bin_402_602: 'S bin 402 602'
-                  s_bin_602_803: 'S bin 602 803'
-                  s_bin_803_1004: 'S bin 803 1004'
-                  s_bin_1004_1205: 'S bin 1004 1205'
-                  s_bin_1205_1406: 'S bin 1205 1406'
-                  s_bin_1406_1607: 'S bin 1406 1607'
-                  s_bin_1607_1807: 'S bin 1607 1807'
-                  s_bin_1807_2008: 'S bin 1807 2008'
-                  t_0: 'T 0'
-                  t_1: 'T 1'
-                  t_2: 'T 2'
-                  t_3: 'T 3'
-                  t_4: 'T 4'
-                  t_5: 'T 5'
-                  t_6: 'T 6'
-                  t_7: 'T 7'
-                  t_8: 'T 8'
-                  t_9: 'T 9'
-                  s_bin_122_173: 'S bin 122 173'
-                  s_bin_71_122: 'S bin 71 122'
-                  s_bin_173_224: 'S bin 173 224'
-                  s_bin_224_276: 'S bin 224 276'
-                  s_bin_276_327: 'S bin 276 327'
-                  s_bin_327_378: 'S bin 327 378'
-                  s_bin_378_429: 'S bin 378 429'
-                  s_bin_429_480: 'S bin 429 480'
-                  s_bin_480_532: 'S bin 480 532'
-                  s_bin_532_583: 'S bin 532 583'
+                  message: 'Server Error'
                 properties:
-                  t:
+                  message:
                     type: string
-                    example: Temperature
-                  h:
-                    type: string
-                    example: Humidity
-                  p:
-                    type: string
-                    example: Pressure
-                  w:
-                    type: string
-                    example: 'Weight sum'
-                  l:
-                    type: string
-                    example: Light
-                  bv:
-                    type: string
-                    example: 'Battery voltage'
-                  w_v:
-                    type: string
-                    example: 'Weight sum'
-                  w_fl:
-                    type: string
-                    example: 'Weight front-left'
-                  w_fr:
-                    type: string
-                    example: 'Weight front-right'
-                  w_bl:
-                    type: string
-                    example: 'Weight back-left'
-                  w_br:
-                    type: string
-                    example: 'Weight back-right'
-                  s_fan_4:
-                    type: string
-                    example: 'Sound fanning 4 days old'
-                  s_fan_6:
-                    type: string
-                    example: 'Sound fanning 6 days old'
-                  s_fan_9:
-                    type: string
-                    example: 'Sound fanning 9 days old'
-                  s_fly_a:
-                    type: string
-                    example: 'Sound flying'
-                  s_tot:
-                    type: string
-                    example: 'Sound total'
-                  t_i:
-                    type: string
-                    example: 'Temperature inside'
-                  bc_i:
-                    type: string
-                    example: 'Bee count in'
-                  bc_o:
-                    type: string
-                    example: 'Bee count out'
-                  weight_kg:
-                    type: string
-                    example: Weight
-                  weight_kg_corrected:
-                    type: string
-                    example: 'Weight corrected'
-                  rssi:
-                    type: string
-                    example: 'Received signal strength'
-                  snr:
-                    type: string
-                    example: 'Signal to noise ratio'
-                  lat:
-                    type: string
-                    example: Lattitude
-                  lon:
-                    type: string
-                    example: lon
-                  s_bin098_146Hz:
-                    type: string
-                    example: 'S bin098 146Hz'
-                  s_bin146_195Hz:
-                    type: string
-                    example: 'S bin146 195Hz'
-                  s_bin195_244Hz:
-                    type: string
-                    example: 'S bin195 244Hz'
-                  s_bin244_293Hz:
-                    type: string
-                    example: 'S bin244 293Hz'
-                  s_bin293_342Hz:
-                    type: string
-                    example: 'S bin293 342Hz'
-                  s_bin342_391Hz:
-                    type: string
-                    example: 'S bin342 391Hz'
-                  s_bin391_439Hz:
-                    type: string
-                    example: 'S bin391 439Hz'
-                  s_bin439_488Hz:
-                    type: string
-                    example: 'S bin439 488Hz'
-                  s_bin488_537Hz:
-                    type: string
-                    example: 'S bin488 537Hz'
-                  s_bin537_586Hz:
-                    type: string
-                    example: 'S bin537 586Hz'
-                  calibrating_weight:
-                    type: string
-                    example: 'Calibrating weight'
-                  w_fl_kg_per_val:
-                    type: string
-                    example: 'W fl kg per val'
-                  w_fr_kg_per_val:
-                    type: string
-                    example: 'W fr kg per val'
-                  w_bl_kg_per_val:
-                    type: string
-                    example: 'W bl kg per val'
-                  w_br_kg_per_val:
-                    type: string
-                    example: 'W br kg per val'
-                  w_fl_offset:
-                    type: string
-                    example: 'W fl offset'
-                  w_fr_offset:
-                    type: string
-                    example: 'W fr offset'
-                  w_bl_offset:
-                    type: string
-                    example: 'W bl offset'
-                  w_br_offset:
-                    type: string
-                    example: 'W br offset'
-                  bc_tot:
-                    type: string
-                    example: 'Bc tot'
-                  s_spl:
-                    type: string
-                    example: 'S spl'
-                  h_i:
-                    type: string
-                    example: 'H i'
-                  w_v_offset:
-                    type: string
-                    example: 'W v offset'
-                  w_v_kg_per_val:
-                    type: string
-                    example: 'W v kg per val'
-                  s_bin_0_201:
-                    type: string
-                    example: 'S bin 0 201'
-                  s_bin_201_402:
-                    type: string
-                    example: 'S bin 201 402'
-                  s_bin_402_602:
-                    type: string
-                    example: 'S bin 402 602'
-                  s_bin_602_803:
-                    type: string
-                    example: 'S bin 602 803'
-                  s_bin_803_1004:
-                    type: string
-                    example: 'S bin 803 1004'
-                  s_bin_1004_1205:
-                    type: string
-                    example: 'S bin 1004 1205'
-                  s_bin_1205_1406:
-                    type: string
-                    example: 'S bin 1205 1406'
-                  s_bin_1406_1607:
-                    type: string
-                    example: 'S bin 1406 1607'
-                  s_bin_1607_1807:
-                    type: string
-                    example: 'S bin 1607 1807'
-                  s_bin_1807_2008:
-                    type: string
-                    example: 'S bin 1807 2008'
-                  t_0:
-                    type: string
-                    example: 'T 0'
-                  t_1:
-                    type: string
-                    example: 'T 1'
-                  t_2:
-                    type: string
-                    example: 'T 2'
-                  t_3:
-                    type: string
-                    example: 'T 3'
-                  t_4:
-                    type: string
-                    example: 'T 4'
-                  t_5:
-                    type: string
-                    example: 'T 5'
-                  t_6:
-                    type: string
-                    example: 'T 6'
-                  t_7:
-                    type: string
-                    example: 'T 7'
-                  t_8:
-                    type: string
-                    example: 'T 8'
-                  t_9:
-                    type: string
-                    example: 'T 9'
-                  s_bin_122_173:
-                    type: string
-                    example: 'S bin 122 173'
-                  s_bin_71_122:
-                    type: string
-                    example: 'S bin 71 122'
-                  s_bin_173_224:
-                    type: string
-                    example: 'S bin 173 224'
-                  s_bin_224_276:
-                    type: string
-                    example: 'S bin 224 276'
-                  s_bin_276_327:
-                    type: string
-                    example: 'S bin 276 327'
-                  s_bin_327_378:
-                    type: string
-                    example: 'S bin 327 378'
-                  s_bin_378_429:
-                    type: string
-                    example: 'S bin 378 429'
-                  s_bin_429_480:
-                    type: string
-                    example: 'S bin 429 480'
-                  s_bin_480_532:
-                    type: string
-                    example: 'S bin 480 532'
-                  s_bin_532_583:
-                    type: string
-                    example: 'S bin 532 583'
+                    example: 'Server Error'
       tags:
         - Api\MeasurementController
       security: []
@@ -5903,12 +5359,12 @@ paths:
           in: query
           name: key/data
           description: 'Measurement formatted as URL query: key=your_beep_device_key&t=18.4&t_i=34.5&weight_kg=57.348&h=58&bv=3.54'
-          example: quisquam
+          example: aut
           required: true
           schema:
             type: string
             description: 'Measurement formatted as URL query: key=your_beep_device_key&t=18.4&t_i=34.5&weight_kg=57.348&h=58&bv=3.54'
-            example: quisquam
+            example: aut
         -
           in: header
           name: Content-Type
@@ -5943,7 +5399,7 @@ paths:
                 key/data:
                   type: json
                   description: 'Measurement data as JSON: {"key":"your_beep_device_key", "t":18.4, t_i":34.5, "weight_kg":57.348, "h":58, "bv":3.54}'
-                  example: sed
+                  example: est
               required:
                 - key/data
       security: []
@@ -5986,19 +5442,19 @@ paths:
                 key:
                   type: string
                   description: 'DEV EUI of the Device to enable storing sensor data'
-                  example: soluta
+                  example: rerum
                 payload_raw:
                   type: string
                   description: 'TTN BEEP Measurement data in Base 64 encoded string'
-                  example: perspiciatis
+                  example: molestiae
                 payload_fields:
                   type: json
                   description: 'TTN Measurement data array'
-                  example: sit
+                  example: sed
                 DevEUI_uplink:
                   type: json
                   description: 'KPN Measurement data array'
-                  example: nobis
+                  example: inventore
               required:
                 - key
       security: []
@@ -6011,7 +5467,7 @@ paths:
           in: header
           name: Authorization
           description: ''
-          example: 'Bearer Evhkaa4ZeP6d35V61bgcDf8'
+          example: 'Bearer da56DcfaZ4bvPge8Vk631hE'
           schema:
             type: string
         -
@@ -6036,18 +5492,18 @@ paths:
           schema:
             type: string
       responses:
-        401:
+        500:
           description: ''
           content:
             application/json:
               schema:
                 type: object
                 example:
-                  message: Unauthenticated.
+                  message: 'Server Error'
                 properties:
                   message:
                     type: string
-                    example: Unauthenticated.
+                    example: 'Server Error'
       tags:
         - Api\MeasurementController
       requestBody:
@@ -6060,15 +5516,15 @@ paths:
                 id:
                   type: integer
                   description: 'ID to look up the sensor (Device)'
-                  example: 19
+                  example: 17
                 key:
                   type: string
                   description: 'DEV EUI to look up the sensor (Device).'
-                  example: dolorum
+                  example: nulla
                 hive_id:
                   type: integer
                   description: 'Hive ID to look up the sensor (Device)'
-                  example: 8
+                  example: 4
                 start:
                   type: date
                   description: 'Date for start of measurements. Required without interval & index.'
@@ -6080,19 +5536,19 @@ paths:
                 index:
                   type: integer
                   description: 'Interval index (>=0; 0=until now, 1=previous interval, etc.). Default: 0.'
-                  example: 17
+                  example: 9
                 interval:
                   type: string
                   description: 'Data interval for interpolation of measurement values: hour (2min), day (10min), week (1 hour), month (3 hours), year (1 day). Default: day.'
-                  example: qui
+                  example: sit
                 timeGroup:
                   type: string
                   description: ''
-                  example: omnis
+                  example: sunt
                 names:
                   type: string
                   description: 'comma separated list of Measurement abbreviations to filter request data (weight_kg, t, h, etc.)'
-                  example: voluptatibus
+                  example: perspiciatis
                 weather:
                   type: integer
                   description: 'Load corresponding weather data from the weather database (1) or not (0).'
@@ -6104,7 +5560,7 @@ paths:
                 relative_interval:
                   type: integer
                   description: 'Load data from the selected interval relative to current time (1), or load data in absolute intervals (from start-end of hour/day/week/etc) (0). Default: 0.'
-                  example: 15
+                  example: 20
   /api/sensors/lastvalues:
     get:
       summary: "api/sensors/lastvalues GET\nRequest last measurement values of all sensor measurements from a Device"
@@ -6114,7 +5570,7 @@ paths:
           in: header
           name: Authorization
           description: ''
-          example: 'Bearer 3hcgd1fe6k6VE45DvPb8Zaa'
+          example: 'Bearer ek5hadbv3PEafcD84Z1V66g'
           schema:
             type: string
         -
@@ -6139,18 +5595,18 @@ paths:
           schema:
             type: string
       responses:
-        401:
+        500:
           description: ''
           content:
             application/json:
               schema:
                 type: object
                 example:
-                  message: Unauthenticated.
+                  message: 'Server Error'
                 properties:
                   message:
                     type: string
-                    example: Unauthenticated.
+                    example: 'Server Error'
       tags:
         - Api\MeasurementController
       requestBody:
@@ -6163,15 +5619,15 @@ paths:
                 key:
                   type: string
                   description: 'DEV EUI to look up the Device.'
-                  example: est
+                  example: ratione
                 id:
                   type: integer
                   description: 'ID to look up the Device'
-                  example: 10
+                  example: 20
                 hive_id:
                   type: integer
                   description: 'Hive ID to look up the Device'
-                  example: 19
+                  example: 7
   /api/sensors/lastweight:
     get:
       summary: "api/sensors/lastweight GET\nRequest last weight related measurement values from a sensor (Device), used by legacy webapp to show calibration data: ['w_fl', 'w_fr', 'w_bl', 'w_br', 'w_v', 'weight_kg', 'weight_kg_corrected', 'calibrating_weight', 'w_v_offset', 'w_v_kg_per_val', 'w_fl_offset', 'w_fr_offset', 'w_bl_offset', 'w_br_offset']"
@@ -6181,7 +5637,7 @@ paths:
           in: header
           name: Authorization
           description: ''
-          example: 'Bearer aEde3c6fPZah6D48Vkgb1v5'
+          example: 'Bearer aPdEbk1348fc6av56DZehgV'
           schema:
             type: string
         -
@@ -6206,18 +5662,18 @@ paths:
           schema:
             type: string
       responses:
-        401:
+        500:
           description: ''
           content:
             application/json:
               schema:
                 type: object
                 example:
-                  message: Unauthenticated.
+                  message: 'Server Error'
                 properties:
                   message:
                     type: string
-                    example: Unauthenticated.
+                    example: 'Server Error'
       tags:
         - Api\MeasurementController
       requestBody:
@@ -6230,15 +5686,15 @@ paths:
                 key:
                   type: string
                   description: 'DEV EUI to look up the sensor (Device)'
-                  example: qui
+                  example: iste
                 id:
                   type: integer
                   description: 'ID to look up the sensor (Device)'
-                  example: 3
+                  example: 12
                 hive_id:
                   type: integer
                   description: 'Hive ID to look up the sensor (Device)'
-                  example: 2
+                  example: 10
   /api/sensors/calibrateweight:
     post:
       summary: "api/sensors/calibrateweight\nLegacy method, used by legacy webapp to store weight calibration value e.g.[w_v_kg_per_val] in Influx database, to lookup and calculate [weight_kg] at incoming measurement value storage"
@@ -6278,11 +5734,11 @@ paths:
                 next_measurement:
                   type: boolean
                   description: ''
-                  example: true
+                  example: false
                 weight_kg:
                   type: number
-                  description: 'This field is required when <code>next_measurement</code> is <code>true</code>.'
-                  example: 6.8499141
+                  description: 'Het value veld is verplicht wanneer <code>next_measurement</code> is <code>true</code>.'
+                  example: 6354508.9657361
       security: []
   /api/sensors/offsetweight:
     post:
@@ -6341,18 +5797,18 @@ paths:
           schema:
             type: string
       responses:
-        401:
+        500:
           description: ''
           content:
             application/json:
               schema:
                 type: object
                 example:
-                  message: Unauthenticated.
+                  message: 'Server Error'
                 properties:
                   message:
                     type: string
-                    example: Unauthenticated.
+                    example: 'Server Error'
       tags:
         - Api\MeasurementController
       security: []
@@ -6365,47 +5821,47 @@ paths:
           in: query
           name: show
           description: '1 for displaying info in result JSON, 0 for not displaying (default).'
-          example: 16
-          required: false
-          schema:
-            type: integer
-            description: '1 for displaying info in result JSON, 0 for not displaying (default).'
-            example: 16
-        -
-          in: query
-          name: save
-          description: '1 for saving the data to a file (default), 0 for not save log file.'
           example: 19
           required: false
           schema:
             type: integer
-            description: '1 for saving the data to a file (default), 0 for not save log file.'
+            description: '1 for displaying info in result JSON, 0 for not displaying (default).'
             example: 19
+        -
+          in: query
+          name: save
+          description: '1 for saving the data to a file (default), 0 for not save log file.'
+          example: 11
+          required: false
+          schema:
+            type: integer
+            description: '1 for saving the data to a file (default), 0 for not save log file.'
+            example: 11
         -
           in: query
           name: fill
           description: '1 for filling data gaps in the database, 0 for not filling gaps (default).'
-          example: 16
+          example: 4
           required: false
           schema:
             type: integer
             description: '1 for filling data gaps in the database, 0 for not filling gaps (default).'
-            example: 16
+            example: 4
         -
           in: query
           name: log_size_bytes
           description: '0x22 decimal result of log size requested from BEEP base.'
-          example: 17
+          example: 18
           required: false
           schema:
             type: integer
             description: '0x22 decimal result of log size requested from BEEP base.'
-            example: 17
+            example: 18
         -
           in: header
           name: Authorization
           description: ''
-          example: 'Bearer 6Vc1dv8bZ3a6E4gkfPDhae5'
+          example: 'Bearer hc4fga58vVDP6EaZ61kbde3'
           schema:
             type: string
         -
@@ -6449,23 +5905,23 @@ paths:
                 id:
                   type: integer
                   description: 'Device id to update. (Required without key and hardware_id)'
-                  example: 11
+                  example: 9
                 key:
                   type: string
                   description: 'DEV EUI of the sensor to enable storing sensor data incoming on the api/sensors or api/lora_sensors endpoint. (Required without id and hardware_id)'
-                  example: dolore
+                  example: a
                 hardware_id:
                   type: string
                   description: 'Hardware id of the device as device name in TTN. (Required without id and key)'
-                  example: aut
+                  example: officiis
                 data:
                   type: string
                   description: 'MX_FLASH_LOG Hexadecimal string lines (new line) separated, with many rows of log data, or text file binary with all data inside.'
-                  example: eum
+                  example: officia
                 file:
                   type: binary
                   description: 'File with MX_FLASH_LOG Hexadecimal string lines (new line) separated, with many rows of log data, or text file binary with all data inside.'
-                  example: beatae
+                  example: ab
   '/api/sensors/decode/p/{port}/pl/{payload}':
     get:
       summary: ''
@@ -6493,18 +5949,18 @@ paths:
           schema:
             type: string
       responses:
-        401:
+        500:
           description: ''
           content:
             application/json:
               schema:
                 type: object
                 example:
-                  message: Unauthenticated.
+                  message: 'Server Error'
                 properties:
                   message:
                     type: string
-                    example: Unauthenticated.
+                    example: 'Server Error'
       tags:
         - Api\MeasurementController
       security: []
@@ -6513,7 +5969,7 @@ paths:
         in: path
         name: port
         description: ''
-        example: eius
+        example: recusandae
         required: true
         schema:
           type: string
@@ -6521,7 +5977,7 @@ paths:
         in: path
         name: payload
         description: ''
-        example: eum
+        example: expedita
         required: true
         schema:
           type: string
@@ -6534,7 +5990,7 @@ paths:
           in: header
           name: Authorization
           description: ''
-          example: 'Bearer dZh8ev4V6bf1EDPac35ga6k'
+          example: 'Bearer ae85cDZ6Pbkv1hfV643gEad'
           schema:
             type: string
         -
@@ -6575,14 +6031,132 @@ paths:
         - Api\ResearchController
   '/api/research/{id}/add_consent':
     post:
-      summary: 'Update the specified resource in storage.'
+      summary: 'research/{id}/add_consent POST'
       description: ''
       parameters:
         -
           in: header
           name: Authorization
           description: ''
-          example: 'Bearer 616c8Z4vfa3PhgDV5aEedkb'
+          example: 'Bearer hdc651aPZvbag4E6k83VDef'
+          schema:
+            type: string
+        -
+          in: header
+          name: Content-Type
+          description: ''
+          example: application/json
+          schema:
+            type: string
+        -
+          in: header
+          name: Accept
+          description: ''
+          example: application/json
+          schema:
+            type: string
+        -
+          in: header
+          name: Accept-language
+          description: ''
+          example: en
+          schema:
+            type: string
+      responses: {  }
+      tags:
+        - Api\ResearchController
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                location_ids:
+                  type: array
+                  description: 'Only share data from these location IDs'
+                  example:
+                    - laborum
+                  items:
+                    type: string
+                hive_ids:
+                  type: array
+                  description: 'Only share data from these hive IDs'
+                  example:
+                    - porro
+                  items:
+                    type: string
+                device_ids:
+                  type: array
+                  description: 'Only share data from these device IDs'
+                  example:
+                    - laborum
+                  items:
+                    type: string
+    parameters:
+      -
+        in: path
+        name: id
+        description: 'Research ID'
+        example: 9
+        required: true
+        schema:
+          type: integer
+  '/api/research/{id}/remove_consent':
+    post:
+      summary: ''
+      description: ''
+      parameters:
+        -
+          in: header
+          name: Authorization
+          description: ''
+          example: 'Bearer Df56v13P48aZkebaEcVdh6g'
+          schema:
+            type: string
+        -
+          in: header
+          name: Content-Type
+          description: ''
+          example: application/json
+          schema:
+            type: string
+        -
+          in: header
+          name: Accept
+          description: ''
+          example: application/json
+          schema:
+            type: string
+        -
+          in: header
+          name: Accept-language
+          description: ''
+          example: en
+          schema:
+            type: string
+      responses: {  }
+      tags:
+        - Api\ResearchController
+    parameters:
+      -
+        in: path
+        name: id
+        description: 'The ID of the research.'
+        example: 5
+        required: true
+        schema:
+          type: integer
+  '/api/research/{id}/edit/{consent_id}':
+    patch:
+      summary: ''
+      description: ''
+      parameters:
+        -
+          in: header
+          name: Authorization
+          description: ''
+          example: 'Bearer dDcfV4E5gkeba86Pa316Zvh'
           schema:
             type: string
         -
@@ -6618,101 +6192,11 @@ paths:
         required: true
         schema:
           type: integer
-  '/api/research/{id}/remove_consent':
-    post:
-      summary: ''
-      description: ''
-      parameters:
-        -
-          in: header
-          name: Authorization
-          description: ''
-          example: 'Bearer ed4vZk8g5c6af6Eah13bDPV'
-          schema:
-            type: string
-        -
-          in: header
-          name: Content-Type
-          description: ''
-          example: application/json
-          schema:
-            type: string
-        -
-          in: header
-          name: Accept
-          description: ''
-          example: application/json
-          schema:
-            type: string
-        -
-          in: header
-          name: Accept-language
-          description: ''
-          example: en
-          schema:
-            type: string
-      responses: {  }
-      tags:
-        - Api\ResearchController
-    parameters:
-      -
-        in: path
-        name: id
-        description: 'The ID of the research.'
-        example: 11
-        required: true
-        schema:
-          type: integer
-  '/api/research/{id}/edit/{consent_id}':
-    patch:
-      summary: ''
-      description: ''
-      parameters:
-        -
-          in: header
-          name: Authorization
-          description: ''
-          example: 'Bearer gceh81Db3k6EPa6VZ4vfd5a'
-          schema:
-            type: string
-        -
-          in: header
-          name: Content-Type
-          description: ''
-          example: application/json
-          schema:
-            type: string
-        -
-          in: header
-          name: Accept
-          description: ''
-          example: application/json
-          schema:
-            type: string
-        -
-          in: header
-          name: Accept-language
-          description: ''
-          example: en
-          schema:
-            type: string
-      responses: {  }
-      tags:
-        - Api\ResearchController
-    parameters:
-      -
-        in: path
-        name: id
-        description: 'The ID of the research.'
-        example: 12
-        required: true
-        schema:
-          type: integer
       -
         in: path
         name: consent_id
         description: 'The ID of the consent.'
-        example: magni
+        example: quia
         required: true
         schema:
           type: string
@@ -6725,7 +6209,7 @@ paths:
           in: header
           name: Authorization
           description: ''
-          example: 'Bearer 36DfZgd5Vbck418vPhEae6a'
+          example: 'Bearer chaE81PDeVb3a6fvgdZ56k4'
           schema:
             type: string
         -
@@ -6757,7 +6241,7 @@ paths:
         in: path
         name: id
         description: 'The ID of the research.'
-        example: 6
+        example: 19
         required: true
         schema:
           type: integer
@@ -6765,7 +6249,7 @@ paths:
         in: path
         name: consent_id
         description: 'The ID of the consent.'
-        example: exercitationem
+        example: facilis
         required: true
         schema:
           type: string
@@ -6778,7 +6262,7 @@ paths:
           in: header
           name: Authorization
           description: ''
-          example: 'Bearer kc6hZ416f538edbagaDVEPv'
+          example: 'Bearer PV6fE6advk18geDab5c3h4Z'
           schema:
             type: string
         -
@@ -6891,7 +6375,7 @@ paths:
           in: header
           name: Authorization
           description: ''
-          example: 'Bearer D83aP1hdkVf646E5vgceaZb'
+          example: 'Bearer gabZ46dDEa3hefkP5c6V1v8'
           schema:
             type: string
         -
@@ -7129,7 +6613,7 @@ paths:
         in: path
         name: id
         description: 'The research ID to request data from.'
-        example: sit
+        example: labore
         required: true
         schema:
           type: string
@@ -7142,7 +6626,7 @@ paths:
           in: header
           name: Authorization
           description: ''
-          example: 'Bearer Z6P1865ak4vDfEheV3cagdb'
+          example: 'Bearer b1vefd3DgV6PE4ha85k6aZc'
           schema:
             type: string
         -
@@ -7577,7 +7061,7 @@ paths:
           in: header
           name: Authorization
           description: ''
-          example: 'Bearer 6k8cdfD1eavVh56bZE4ag3P'
+          example: 'Bearer 5bf6daZ3gcEke1v6VaPh8D4'
           schema:
             type: string
         -
@@ -7617,14 +7101,14 @@ paths:
       tags:
         - Api\SampleCodeController
     post:
-      summary: 'Store a newly created resource in storage.'
+      summary: "api/samplecode POST\nCreate a sample code for lab results"
       description: ''
       parameters:
         -
           in: header
           name: Authorization
           description: ''
-          example: 'Bearer avaPV4ZE8kfhb66deDgc531'
+          example: 'Bearer dbkgh85fe4c66vaDZEVP13a'
           schema:
             type: string
         -
@@ -7659,7 +7143,7 @@ paths:
           in: header
           name: Authorization
           description: ''
-          example: 'Bearer ZgahVvd63baDPce8k46fE15'
+          example: 'Bearer 3k6ZDegaV856hc1fdEa4vbP'
           schema:
             type: string
         -
@@ -7695,7 +7179,7 @@ paths:
           in: header
           name: Authorization
           description: ''
-          example: 'Bearer 1Z86bV4hd5cefavDEPa3gk6'
+          example: 'Bearer kVveafPg4Z35daD6E1hb68c'
           schema:
             type: string
         -
@@ -7742,7 +7226,7 @@ paths:
           in: header
           name: Authorization
           description: ''
-          example: 'Bearer E8fdb4VhD6k63Zagcva5P1e'
+          example: 'Bearer V51a8e6cvE46DPdha3kgfZb'
           schema:
             type: string
         -
@@ -7787,7 +7271,7 @@ paths:
           in: header
           name: Authorization
           description: ''
-          example: 'Bearer d3v4eZcf8h516aPVkED6bga'
+          example: 'Bearer ea5Eg6afcbPk43Ddhv8ZV61'
           schema:
             type: string
         -
@@ -7836,23 +7320,23 @@ paths:
                 device_id:
                   type: integer
                   description: 'Device ID that the Sensordefinition belongs to. Required if hardware_id, and device_hardware_id are not set.'
-                  example: 11
+                  example: 9
                 hardware_id:
                   type: string
                   description: 'Device hardware ID that the Sensordefinition belongs to. Required if device_id, and device_hardware_id are not set.'
-                  example: eius
+                  example: impedit
                 device_hardware_id:
                   type: string
                   description: 'Device hardware ID that the Sensordefinition belongs to. Required if hardware_id, and device_id are not set.'
-                  example: illo
+                  example: aliquam
                 input_measurement_abbreviation:
                   type: string
                   description: 'Filter sensordefinitions by provided input abbreviation.'
-                  example: possimus
+                  example: enim
                 limit:
                   type: integer
                   description: 'If input_abbr is set, limit the amount of results provided by more than 1 to get all historic sensordefinitions of this type.'
-                  example: 8
+                  example: 5
     post:
       summary: "api/sensordefinition POST\nStore a newly created sensordefinition"
       description: ''
@@ -7861,7 +7345,7 @@ paths:
           in: header
           name: Authorization
           description: ''
-          example: 'Bearer cZVakPEd513eb84f6gD6hav'
+          example: 'Bearer V6D84ga6PZEvd5bace3h1fk'
           schema:
             type: string
         -
@@ -7898,19 +7382,19 @@ paths:
                 name:
                   type: string
                   description: 'Name of the sensorinstance (e.g. temperature frame 1)'
-                  example: quia
+                  example: ut
                 inside:
                   type: boolean
                   description: 'True is measured inside, false if measured outside'
-                  example: false
+                  example: true
                 offset:
                   type: number
                   description: 'Measurement value that defines 0'
-                  example: !!float 20520384
+                  example: 252673041.27
                 multiplier:
                   type: number
                   description: 'Amount of units (calibration figure) per delta Measurement value to multiply withy (value - offset)'
-                  example: !!float 21
+                  example: 41755.808381
                 input_measurement_id:
                   type: integer
                   description: 'Measurement that represents the input Measurement value (e.g. 5, 3).'
@@ -7930,15 +7414,15 @@ paths:
                 device_id:
                   type: integer
                   description: 'Device ID that the Sensordefinition belongs to. Required if hardware_id, and device_hardware_id are not set.'
-                  example: 8
+                  example: 5
                 hardware_id:
                   type: string
                   description: 'Device hardware ID that the Sensordefinition belongs to. Required if device_id, and device_hardware_id are not set.'
-                  example: velit
+                  example: sit
                 device_hardware_id:
                   type: string
                   description: 'Device hardware ID that the Sensordefinition belongs to. Required if hardware_id, and device_id are not set.'
-                  example: et
+                  example: eveniet
   '/api/sensordefinition/{id}':
     get:
       summary: "api/sensordefinition/{id} GET\nDisplay the specified sensordefinition"
@@ -7948,7 +7432,7 @@ paths:
           in: header
           name: Authorization
           description: ''
-          example: 'Bearer 3Vhbcv6DeaPd4Zf6Ekag158'
+          example: 'Bearer 6aEk65vaZf8egbdhD13c4PV'
           schema:
             type: string
         -
@@ -7997,15 +7481,15 @@ paths:
                 device_id:
                   type: integer
                   description: 'Device ID that the Sensordefinition belongs to. Required if hardware_id, and device_hardware_id are not set.'
-                  example: 16
+                  example: 6
                 hardware_id:
                   type: string
                   description: 'Device hardware ID that the Sensordefinition belongs to. Required if device_id, and device_hardware_id are not set.'
-                  example: sit
+                  example: nulla
                 device_hardware_id:
                   type: string
                   description: 'Device hardware ID that the Sensordefinition belongs to. Required if hardware_id, and device_id are not set.'
-                  example: sed
+                  example: tenetur
     put:
       summary: "api/sensordefinition/{id} PATCH\nUpdate the specified sensordefinition"
       description: ''
@@ -8014,7 +7498,7 @@ paths:
           in: header
           name: Authorization
           description: ''
-          example: 'Bearer DPkdcaVab6gv8fe3641hE5Z'
+          example: 'Bearer 36hkdaZ8aVgcEvfe56PDb41'
           schema:
             type: string
         -
@@ -8051,15 +7535,15 @@ paths:
                 device_id:
                   type: integer
                   description: 'Device ID that the Sensordefinition belongs to. Required if hardware_id, and device_hardware_id are not set.'
-                  example: 19
+                  example: 7
                 hardware_id:
                   type: string
                   description: 'Device hardware ID that the Sensordefinition belongs to. Required if device_id, and device_hardware_id are not set.'
-                  example: rem
+                  example: facere
                 device_hardware_id:
                   type: string
                   description: 'Device hardware ID that the Sensordefinition belongs to. Required if hardware_id, and device_id are not set.'
-                  example: ut
+                  example: enim
     delete:
       summary: "api/sensordefinition/{id} DELETE\nRemove the specified sensordefinition"
       description: ''
@@ -8068,7 +7552,7 @@ paths:
           in: header
           name: Authorization
           description: ''
-          example: 'Bearer ac31a8EedkfhDvb664VgP5Z'
+          example: 'Bearer dVcZ4E168aDg6fb3avhePk5'
           schema:
             type: string
         -
@@ -8105,21 +7589,21 @@ paths:
                 device_id:
                   type: integer
                   description: 'Device ID that the Sensordefinition belongs to. Required if hardware_id, and device_hardware_id are not set.'
-                  example: 11
+                  example: 18
                 hardware_id:
                   type: string
                   description: 'Device hardware ID that the Sensordefinition belongs to. Required if device_id, and device_hardware_id are not set.'
-                  example: dolorum
+                  example: temporibus
                 device_hardware_id:
                   type: string
                   description: 'Device hardware ID that the Sensordefinition belongs to. Required if hardware_id, and device_id are not set.'
-                  example: est
+                  example: porro
     parameters:
       -
         in: path
         name: id
         description: 'Sensordefinition ID'
-        example: aut
+        example: doloremque
         required: true
         schema:
           type: string
@@ -8132,7 +7616,7 @@ paths:
           in: header
           name: Authorization
           description: ''
-          example: 'Bearer 83D1bVPda654Ehfvgeac6kZ'
+          example: 'Bearer c8aDk5fgP4eb6613dEvVhaZ'
           schema:
             type: string
         -
@@ -8180,22 +7664,22 @@ paths:
           in: query
           name: locale
           description: 'Two character language code to translate taxonomy'
-          example: nostrum
+          example: veritatis
           required: false
           schema:
             type: string
             description: 'Two character language code to translate taxonomy'
-            example: nostrum
+            example: veritatis
         -
           in: query
           name: flat
           description: 'In hierachy (default: true)'
-          example: false
+          example: true
           required: false
           schema:
             type: boolean
             description: 'In hierachy (default: true)'
-            example: false
+            example: true
         -
           in: query
           name: order
@@ -8210,7 +7694,7 @@ paths:
           in: header
           name: Authorization
           description: ''
-          example: 'Bearer 6d4bfa5ZaEhD6PV3ce1gkv8'
+          example: 'Bearer 86bke53hE4fdVZaPv6a1cDg'
           schema:
             type: string
         -
@@ -8354,7 +7838,7 @@ paths:
           in: header
           name: Authorization
           description: ''
-          example: 'Bearer PEk56agvD1cfaZ4d36bh8Ve'
+          example: 'Bearer 4Pa186gEZdbf3c5kVav6Deh'
           schema:
             type: string
         -
@@ -8438,7 +7922,7 @@ paths:
           in: header
           name: Authorization
           description: ''
-          example: 'Bearer 3gb646ahk5DaEVfPv1eZcd8'
+          example: 'Bearer ha4EgadcVeZf6vD38b165kP'
           schema:
             type: string
         -
@@ -8475,11 +7959,240 @@ paths:
                 locale:
                   type: string
                   description: 'Two digit country string to define locale'
-                  example: quam
+                  example: voluptatem
+  /api/hive-tags:
+    get:
+      summary: 'Display a listing of the resource.'
+      description: ''
+      parameters:
+        -
+          in: header
+          name: Content-Type
+          description: ''
+          example: application/json
+          schema:
+            type: string
+        -
+          in: header
+          name: Accept
+          description: ''
+          example: application/json
+          schema:
+            type: string
+        -
+          in: header
+          name: Accept-language
+          description: ''
+          example: en
+          schema:
+            type: string
+      responses:
+        401:
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  message: Unauthenticated.
+                properties:
+                  message:
+                    type: string
+                    example: Unauthenticated.
+      tags:
+        - Endpoints
+      security: []
+    post:
+      summary: 'Store a newly created resource in storage.'
+      description: ''
+      parameters:
+        -
+          in: header
+          name: Content-Type
+          description: ''
+          example: application/json
+          schema:
+            type: string
+        -
+          in: header
+          name: Accept
+          description: ''
+          example: application/json
+          schema:
+            type: string
+        -
+          in: header
+          name: Accept-language
+          description: ''
+          example: en
+          schema:
+            type: string
+      responses: {  }
+      tags:
+        - Endpoints
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                tag:
+                  type: string
+                  description: ''
+                  example: et
+                router_link:
+                  type: string
+                  description: ''
+                  example: fugiat
+                hive_id:
+                  type: integer
+                  description: ''
+                  example: 12
+                action_id:
+                  type: integer
+                  description: ''
+                  example: 20
+              required:
+                - tag
+                - router_link
+      security: []
+  '/api/hive-tags/{id}':
+    get:
+      summary: 'Display the specified resource.'
+      description: ''
+      parameters:
+        -
+          in: header
+          name: Content-Type
+          description: ''
+          example: application/json
+          schema:
+            type: string
+        -
+          in: header
+          name: Accept
+          description: ''
+          example: application/json
+          schema:
+            type: string
+        -
+          in: header
+          name: Accept-language
+          description: ''
+          example: en
+          schema:
+            type: string
+      responses:
+        401:
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  message: Unauthenticated.
+                properties:
+                  message:
+                    type: string
+                    example: Unauthenticated.
+      tags:
+        - Endpoints
+      security: []
+    put:
+      summary: 'Update the specified resource in storage.'
+      description: ''
+      parameters:
+        -
+          in: header
+          name: Content-Type
+          description: ''
+          example: application/json
+          schema:
+            type: string
+        -
+          in: header
+          name: Accept
+          description: ''
+          example: application/json
+          schema:
+            type: string
+        -
+          in: header
+          name: Accept-language
+          description: ''
+          example: en
+          schema:
+            type: string
+      responses: {  }
+      tags:
+        - Endpoints
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                tag:
+                  type: string
+                  description: ''
+                  example: a
+                router_link:
+                  type: string
+                  description: ''
+                  example: temporibus
+                hive_id:
+                  type: integer
+                  description: ''
+                  example: 3
+                action_id:
+                  type: integer
+                  description: ''
+                  example: 14
+              required:
+                - tag
+                - router_link
+      security: []
+    delete:
+      summary: 'Remove the specified resource from storage.'
+      description: ''
+      parameters:
+        -
+          in: header
+          name: Content-Type
+          description: ''
+          example: application/json
+          schema:
+            type: string
+        -
+          in: header
+          name: Accept
+          description: ''
+          example: application/json
+          schema:
+            type: string
+        -
+          in: header
+          name: Accept-language
+          description: ''
+          example: en
+          schema:
+            type: string
+      responses: {  }
+      tags:
+        - Endpoints
+      security: []
+    parameters:
+      -
+        in: path
+        name: id
+        description: 'The ID of the hive tag.'
+        example: quidem
+        required: true
+        schema:
+          type: string
 tags:
-  -
-    name: Endpoints
-    description: ''
   -
     name: Api\AlertController
     description: 'Manage your alerts'
@@ -8537,6 +8250,9 @@ tags:
   -
     name: Api\UserController
     description: "\nAPIs for managing users"
+  -
+    name: Endpoints
+    description: ''
 components:
   securitySchemes:
     default:

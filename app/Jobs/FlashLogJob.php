@@ -36,7 +36,6 @@ class FlashLogJob implements ShouldQueue
      */
     public function handle(FlashLogController $flashLogController)
     {
-
        FlashLogController::parse(FlashLogController::$flashlog);
     }
 
@@ -49,7 +48,7 @@ class FlashLogJob implements ShouldQueue
     {
         $queuedFlashLog = store(Request $request);
 
-        FlashLogJob::dispatch($queuedFlashLog);    
+        FlashLogJob::queueFlashLog($queuedFlashLog);    
     }
 
 }

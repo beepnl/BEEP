@@ -203,7 +203,7 @@ class SampleCodeController extends Controller
                         {
                             if (in_array($col_name, $col_names_valid)) // valid cat_id col:  $col_names_valid = [0=>"B", 1=>"C", etc]
                             {
-                                $value = $cell->getValue(); 
+                                $value = trim($cell->getValue()); // remove whitespace from beginning and end of the string
                                 $cat_id= $cat_ids_valid[$col_name];
 
                                 if (isset($value))
@@ -227,7 +227,7 @@ class SampleCodeController extends Controller
                                     switch($input_type)
                                     {
                                         case 'sample_code':
-                                            $corrected_value = strtoupper(substr($value, 0, 8));
+                                            $corrected_value = strtoupper(substr(str_replace(' ', '', $value), 0, 8));
                                             break;
                                         case 'date':
                                             if (is_numeric($value))

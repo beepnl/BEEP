@@ -752,11 +752,13 @@ class FlashLog extends Model
                 $match_last_time    = $match_last['db_sec'];
                 $match_total_count  = count($matches_arr);
                 $sec_diff_per_match = ($match_last_time - $match_first_time) / $match_total_count;
+                $max_sec_deviation  = 4 * $interval_sec; // 1 hour at 15 min interval
 
-                if (abs($sec_diff_per_match - $interval_sec) > 120) // deviation is too far off
-                    $sec_diff_per_index = $interval_sec;
-                else
+                // Set the difference per time index based on the deviation in the matches found (if smaller than 1 hour, or on the set interval)
+                if (abs($sec_diff_per_match - $interval_sec) < $max_sec_deviation) // deviation is within $max_sec_deviation (1 hour for 15 min interval), so take $sec_diff_per_match
                     $sec_diff_per_index = $sec_diff_per_match;
+                else
+                    $sec_diff_per_index = $interval_sec;
 
                 $matches_display    = array_slice($matches_arr, 0, $matches_min);
                 $matches['matches'] = $matches_display;

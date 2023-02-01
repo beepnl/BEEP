@@ -521,16 +521,19 @@ class FlashLogController extends Controller
                                     // Delete for each key separately since OR statements do not work in DELETE statements
                                     foreach ($device->allKeys() as $device_key) 
                                     {
+                                        $delete_query = 'DELETE FROM "sensors" WHERE "from_flashlog" = \'1\' AND "key" = \''.$device_key.'\' AND time >= \''.$block_start_t.'\' AND time <= \''.$block_end_t.'\'';
                                         try
                                         {
-                                            $delete_query = 'DELETE FROM "sensors" WHERE "from_flashlog"=\'1\' AND "key" = \''.$device_key.'\' AND time >= \''.$block_start_t.'\' AND time <= \''.$block_end_t.'\'';
                                             $data_deleted = $this->client::query($delete_query);
                                             $data_influx_deleted = true;
-                                            Log::debug("delete all from_flashlog='1' values for key=$device_key between $block_start_t and $block_end_t");
+                                            Log::debug($delete_query);
                                         }
                                         catch(\Exception $e)
                                         {
                                             Log::error($e->getMessage());
+                                            Log::error($delete_query);
+                                            $delete_count_sum = 0;
+                                            $deleted_days = 0;
                                         }
                                     }
                                     
@@ -777,7 +780,7 @@ class FlashLogController extends Controller
                                     }
                                     else
                                     {
-                                        $out['block_data_match_percentage']  = '?';
+                                        $out['block_data_match_percentage']  = 0;
                                         $out['block_data_flashlog_sec_diff'] = '?';
                                         $out['block_data_match_errors']      = 'Cannot calculate matches for periods >30 days';
                                         $out['block_data_diff_percentage']   = 0;

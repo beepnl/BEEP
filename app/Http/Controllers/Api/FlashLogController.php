@@ -521,7 +521,7 @@ class FlashLogController extends Controller
                                     // Delete for each key separately since OR statements do not work in DELETE statements
                                     foreach ($device->allKeys() as $device_key) 
                                     {
-                                        $delete_query = 'DELETE FROM "sensors" WHERE "from_flashlog" = \'1\' AND "key" = \''.$device_key.'\' AND time >= \''.$block_start_t.'\' AND time <= \''.$block_end_t.'\'';
+                                        $delete_query = 'DELETE FROM "sensors" WHERE "key" = \''.$device_key.'\' AND "from_flashlog" = \'1\' AND time >= \''.$block_start_t.'\' AND time <= \''.$block_end_t.'\'';
                                         try
                                         {
                                             $data_deleted = $this->client::query($delete_query);

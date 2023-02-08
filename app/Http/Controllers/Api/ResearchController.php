@@ -23,7 +23,7 @@ class ResearchController extends Controller
      */
     public function index(Request $request)
     {
-        return Research::where('visible')->get();
+        return Research::where('visible', true)->get();
     }
 
     /**

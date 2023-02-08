@@ -1,4 +1,4 @@
-<div class="col-xs-12">
+<div class="col-xs-12 col-md-4">
 	<div class="form-group {{ $errors->has('user_id') ? 'has-error' : ''}}">
 	    <label for="user_id" control-label>{{ 'Owner' }}</label>
 	    <div>
@@ -9,7 +9,7 @@
 	</div>
 </div>
 
-<div class="col-xs-12">
+<div class="col-xs-12 col-md-4">
 	<div class="form-group {{ $errors->has('name') ? 'has-error' : ''}}">
 	    <label for="name" control-label>{{ 'Name' }}</label>
 	    <div>
@@ -19,7 +19,7 @@
 	    </div>
 	</div>
 </div>
-<div class="col-xs-12">
+<div class="col-xs-12 col-md-4">
 	<div class="form-group {{ $errors->has('url') ? 'has-error' : ''}}">
 	    <label for="url" control-label>{{ 'URL' }}</label>
 	    <div>
@@ -29,6 +29,12 @@
 	    </div>
 	</div>
 </div>
+
+<br>
+<hr>
+<br>
+
+
 <div class="col-xs-12">
 	<div class="form-group {{ $errors->has('image') ? 'has-error' : ''}}">
 	    <div class="row">
@@ -54,7 +60,12 @@
 	    </div>
 	</div>
 </div>
-<div class="col-xs-12">
+
+<br>
+<hr>
+<br>
+
+<div class="col-xs-12 col-md-4">
 	<div class="form-group {{ $errors->has('type') ? 'has-error' : ''}}">
 	    <label for="type" control-label>{{ 'Type' }}</label>
 	    <div>
@@ -63,7 +74,7 @@
 	        {!! $errors->first('type', '<p class="help-block">:message</p>') !!}
 	    </div>
 	</div>
-</div><div class="col-xs-12">
+</div><div class="col-xs-12 col-md-4">
 	<div class="form-group {{ $errors->has('institution') ? 'has-error' : ''}}">
 	    <label for="institution" control-label>{{ 'Institution' }}</label>
 	    <div>
@@ -73,7 +84,7 @@
 	    </div>
 	</div>
 </div>
-<div class="col-xs-12">
+<div class="col-xs-12 col-md-4">
 	<div class="form-group {{ $errors->has('type_of_data_used') ? 'has-error' : ''}}">
 	    <label for="type_of_data_used" control-label>{{ 'Type Of Data Used' }}</label>
 	    <div>
@@ -83,7 +94,7 @@
 	    </div>
 	</div>
 </div>
-<div class="col-xs-12">
+<div class="col-xs-12 col-md-4">
 	<div class="form-group {{ $errors->has('start_date') ? 'has-error' : ''}}">
 	    <label for="start_date" control-label>{{ 'Start Date' }}</label>
 	    <div>
@@ -92,7 +103,7 @@
 	    </div>
 	</div>
 </div>
-<div class="col-xs-12">
+<div class="col-xs-12 col-md-4">
 	<div class="form-group {{ $errors->has('end_date') ? 'has-error' : ''}}">
 	    <label for="end_date" control-label>{{ 'End Date' }}</label>
 	    <div>
@@ -100,6 +111,20 @@
 	        {!! $errors->first('end_date', '<p class="help-block">:message</p>') !!}
 	    </div>
 	</div>
+</div>
+<div class="col-xs-12 col-md-4">
+	<div class="form-group {{ $errors->has('visible') ? 'has-error' : ''}}">
+	    <label for="visible" control-label>{{ 'Visible in the app' }}</label>
+	    <div>
+	        <div class="radio">
+    			<label><input name="visible" type="radio" value="1" @if (isset($measurement)) {{ (1 == $measurement->visible) ? 'checked' : '' }} @else {{ 'checked' }} @endif> Yes</label>
+			</div>
+			<div class="radio">
+			    <label><input name="visible" type="radio" value="0" {{ (isset($measurement) && 0 == $measurement->visible) ? 'checked' : '' }}> No</label>
+			</div>
+        </div>
+        {!! $errors->first('visible', '<p class="help-block">:message</p>') !!}
+    </div>
 </div>
 <div class="col-xs-12">
 	<div class="form-group {{ $errors->has('checklist_ids') ? 'has-error' : ''}}">

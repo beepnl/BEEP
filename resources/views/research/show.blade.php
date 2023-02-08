@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('page-title') {{ __('beep.Research').': '.(isset($research->name) ? $research->name : __('general.Item')).' (ID: '.$research->id.')' }}
+@section('page-title') {{ __('beep.Research').': '.(isset($research->name) ? $research->name : __('general.Item')).' (ID: '.$research->id.')' }} Research dates: {{ substr($research->start_date, 0, 10) }} - {{ substr($research->end_date, 0, 10) }}
     @permission('role-edit')
         <a href="{{ route('research.edit', $research->id) }}" title="{{ __('crud.edit') }}"><button class="btn btn-primary pull-right"><i class="fa fa-pencil" aria-hidden="true"></i></button></a>
     @endpermission

@@ -168,27 +168,65 @@ class ResearchController extends Controller
         $dl_sensordata= $request->has('download-all');
         $device_ids   = $request->input('device_ids');
         $devices_all  = collect();
+        $initial_days = 14;
 
         // Make dates table
         $dates  = [];
 
-        $moment_now   = new Moment();
-        $moment_2wk   = $moment_now->startof('day')->addDays(-13)->format('Y-m-d');
-        $moment_now   = new Moment();
-        $moment_ytd   = $moment_now->endof('day')->addDays(0)->format('Y-m-d');
+        $date_today   = date('Y-m-d');
+        $date_last    = isset($research->end_date) ? $research->end_date : $date_today;
+        $date_start   = max($research->start_date, $request->input('date_start', $research->start_date));
+        $date_until   = min($research->end_date, $request->input('date_until', $date_last));
 
-        $date_start   = $request->input('date_start', $moment_2wk);
-        $date_until   = $request->input('date_until', $moment_ytd);
+        $moment_now   = new Moment();
+        $moment_start = new Moment($date_start);
+        $moment_end   = new Moment($date_until);
+        $moment_now   = $moment_now->startof('day');
+        $moment_end   = $moment_end->endof('day');
+
+        $research_days= $moment_start->from($moment_end)->getDays();
+        $days_from_now= $moment_start->from($moment_now)->getDays();
+        $days_from_end= $moment_now->from($moment_end)->getDays();
+
+        $initial_days = min($research_days+1, $initial_days);
+        $day_diff     = 0;
+
+        if ($days_from_now <= 0) // research has not started yet
+        {
+            $moment_select = new Moment($date_start);
+            $date_start = $moment_select->startof('day')->format('Y-m-d');
+            $moment_select = new Moment($date_start);
+            $date_until = min($date_until, $moment_select->endof('day')->addDays($initial_days-1)->format('Y-m-d'));
+        }
+        else if ($days_from_end <= 0) // research has already finished
+        {
+            $moment_select = new Moment($date_until);
+            $date_start = $moment_select->startof('day')->addDays(-$initial_days-1)->format('Y-m-d');
+            $moment_select = new Moment($date_until);
+            $date_until = min($date_until, $moment_select->endof('day')->format('Y-m-d'));
+
+        }
+        else // now is within research start end end date
+        {
+            $days_from_sta = max(0, $initial_days - $days_from_now);
+            $moment_select = new Moment();
+            $date_start    = $moment_select->startof('day')->addDays(-$initial_days-1-$days_from_sta)->format('Y-m-d');
+            $moment_select = new Moment();
+            $date_until    = min($date_until, $moment_select->endof('day')->addDays(-$days_from_sta)->format('Y-m-d'));
+        }
+
+        // Cap to research
+        if ($date_start < $research->start_date)
+            $date_start = $research->start_date;
+
+        if ($date_until > $research->end_date)
+            $date_until = $research->end_date;
 
         $moment_start = new Moment($date_start);
         $moment_end   = new Moment($date_until);
 
-        if ($moment_now < $moment_end)
-            $moment_end = $moment_now;
-            
-        $moment_start = $moment_start->startof('day');
-        $moment_end   = $moment_end->endof('day');
-
+        //dd($date_start, $date_until, $research_days, $days_from_now, $days_from_end, $day_diff, $moment_now, $moment_start, $moment_end);
+        
         // count user consents within dates
         $consent_users_select = DB::table('research_user')
                                     ->join('users', 'users.id', '=', 'research_user.user_id')

@@ -62,7 +62,11 @@ class InspectionsController extends Controller
      */
     public function show($id)
     {
-        $inspection = $this->getUserInspections()->find($id);
+        if (Auth::user()->hasRole(['admin','superadmin']))
+            $inspection = Inspection::find($id);
+        else
+            $inspection = $this->getUserInspections()->find($id);
+        
         $items = $inspection->items()->get();
         //die(print_r($items->toArray()));
 

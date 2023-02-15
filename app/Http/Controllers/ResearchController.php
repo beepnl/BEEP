@@ -180,8 +180,10 @@ class ResearchController extends Controller
 
         $moment_now   = new Moment();
         $moment_start = new Moment($date_start);
-        $moment_end   = new Moment($date_until);
+        $moment_until = new Moment($date_until);
+        $moment_end   = new Moment($research->end_date);
         $moment_now   = $moment_now->startof('day');
+        $moment_until = $moment_until->endof('day');
         $moment_end   = $moment_end->endof('day');
 
         $research_days= $moment_start->from($moment_end)->getDays();
@@ -208,19 +210,20 @@ class ResearchController extends Controller
         }
         else // now is within research start end end date
         {
-            if ($request->filled('date_start') === false)
+            if ($request->filled('date_start') == false)
             {
                 $days_from_sta = max(0, $initial_days - $days_from_now);
                 $moment_select = new Moment();
                 $date_start    = $moment_select->startof('day')->addDays(-$initial_days-1-$days_from_sta)->format('Y-m-d');
             }
 
-            if ($request->filled('date_until') === false)
+            if ($request->filled('date_until') == false)
             {
                 $moment_select = new Moment();
                 $date_until    = min($date_until, $moment_select->endof('day')->addDays(-$days_from_sta)->format('Y-m-d'));
             }
         }
+        //dd($date_start, $research->start_date, $date_until, $date_last, $research->end_date, $days_from_now, $days_from_end);
 
         // Cap to research
         if ($date_start < $research->start_date)

@@ -78,12 +78,12 @@ class FlashLogController extends Controller
 
                 return Flashlog::whereIn('user_id', $user_ids)->orderByDesc('id')->get();
             }
-            else // normal users, show your own flashlogs
+            else // normal users, show your own, and editable group hive flashlogs
             {
                 if (isset($id))
-                    return Auth::user()->flashlogs()->find($id);
+                    return Auth::user()->allFlashlogs()->find($id);
 
-                return Auth::user()->flashlogs()->orderByDesc('id')->get();
+                return Auth::user()->allFlashlogs()->orderByDesc('id')->get();
             }
         }
     }

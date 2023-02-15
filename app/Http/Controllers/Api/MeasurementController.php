@@ -939,7 +939,7 @@ class MeasurementController extends Controller
         if (isset($inp['key']) && !isset($inp['hardware_id']) && !isset($inp['id']) )
         {
             $key = strtolower($inp['key']);
-            $dev = $user->devices()->whereRaw('lower(`key`) = \''.$key.'\'')->first(); // check for case insensitive device key before validation
+            $dev = $user->allDevices()->whereRaw('lower(`key`) = \''.$key.'\'')->first(); // check for case insensitive device key before validation
             if ($dev)
             {
                 $inp['id'] = $dev->id;
@@ -985,14 +985,14 @@ class MeasurementController extends Controller
                 if (Auth::user()->hasRole('superadmin'))
                     $device = Device::find($sid);
                 else
-                    $device = $user->devices()->where('id', $sid)->first();
+                    $device = $user->allDevices()->where('id', $sid)->first();
             }
             else if (isset($key) && !isset($sid) && isset($hwi))
-                $device = $user->devices()->where('hardware_id', $hwi)->where('key', $key)->first();
+                $device = $user->allDevices()->where('hardware_id', $hwi)->where('key', $key)->first();
             else if (isset($hwi))
-                $device = $user->devices()->where('hardware_id', $hwi)->first();
+                $device = $user->allDevices()->where('hardware_id', $hwi)->first();
             else if (isset($key) && !isset($sid) && !isset($hwi))
-                $device = $user->devices()->where('key', $key)->first();
+                $device = $user->allDevices()->where('key', $key)->first();
             
             if ($device == null)
                 return Response::json(['errors'=>'device_not_found'], 400);

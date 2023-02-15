@@ -206,7 +206,7 @@ class SampleCodeController extends Controller
                                 $value = trim($cell->getValue()); // remove whitespace from beginning and end of the string
                                 $cat_id= $cat_ids_valid[$col_name];
 
-                                if (isset($value))
+                                if (isset($value) && $value !== '')
                                 {
                                     // Convert known fields to the type of data
                                     $corrected_value = $value;

@@ -49,13 +49,14 @@ class SampleCodeController extends Controller
         $res            = 'error';
         $items_replaced = 0; 
         $items_added    = 0; 
+        $items_removed  = 0; 
         $inspection_cnt = 0; 
         $data           = [];
         $col_names      = [];
         $col_input_types= [];
         $sample_code_id = Category::findCategoryIdByParentAndName('laboratory_test', 'sample_code');
 
-        if ($request->has('checked') && $request->has('data'))
+        if ($request->has('checked') && $request->has('data')) // Persist checked data
         {
             $data = json_decode($request->input('data'), true);
             $checked_ids = $request->input('checked');
@@ -86,20 +87,29 @@ class SampleCodeController extends Controller
                             if ($inspection_item_exists->count() > 0)
                             {
                                 $inspection_item_exists->delete();
-                                $items_replaced++;
+                                
+                                if (isset($value) && $value === '')
+                                    $items_removed++;
+                                else
+                                    $items_replaced++;
                             }
                             else
                             {
-                                $items_added++;
+                                if (isset($value) && $value !== '')
+                                    $items_added++;
                             }
 
-                            $itemData = 
-                            [
-                                'category_id'   => $category_id,
-                                'inspection_id' => $inspection_id,
-                                'value'         => $value,
-                            ];
-                            InspectionItem::create($itemData);
+                            if (isset($value) && $value !== '')
+                            {
+                                $itemData = 
+                                [
+                                    'category_id'   => $category_id,
+                                    'inspection_id' => $inspection_id,
+                                    'value'         => $value,
+                                ];
+                                InspectionItem::create($itemData);
+                            }
+                            
                             $items_changed++;
                         }
 
@@ -132,7 +142,7 @@ class SampleCodeController extends Controller
                 }
             }
             // show result
-            $msg = "Added data for $inspection_cnt inspections. Added $items_added, replaced $items_replaced inspection items in total. Sent $emails_sent data upload notification emails to the creators of the sample codes.";
+            $msg = "Added data for $inspection_cnt inspections. Added $items_added, removed $items_removed, replaced $items_replaced inspection items in total. Sent $emails_sent data upload notification emails to the creators of the sample codes.";
             if ($inspection_cnt > 0 && $items_added + $items_replaced > 0)
             {
                 $res  = 'success';
@@ -140,7 +150,7 @@ class SampleCodeController extends Controller
             }
 
         }
-        else if ($request->has('sample-code-excel') && $request->hasFile('sample-code-excel'))
+        else if ($request->has('sample-code-excel') && $request->hasFile('sample-code-excel')) // Check and visualize Excel input  
         {
             $file = $request->file('sample-code-excel');
             if ($file->isValid())
@@ -206,89 +216,97 @@ class SampleCodeController extends Controller
                                 $value = trim($cell->getValue()); // remove whitespace from beginning and end of the string
                                 $cat_id= $cat_ids_valid[$col_name];
 
-                                if (isset($value) && $value !== '')
+                                if (isset($value))
                                 {
-                                    // Convert known fields to the type of data
-                                    $corrected_value = $value;
-
-                                    // Check if there is a formula, if so, try to parse it
-                                    if (substr($value,0,1) == '=') 
+                                    if ($value === '')
                                     {
-                                        try {
-                                            $corrected_value = $cell->getCalculatedValue();
-                                        } catch (Exception $e) {
-                                            Log::error("SampleCodeController.upload_store formula ($value) parse error: ".$e->getMessage());
-                                            $corrected_value = $value;
+                                        $data[$row_num][$cat_id] = ''; // do not store, but remove this value at persist stage
+                                    }
+                                    else
+                                    {
+
+                                        // Convert known fields to the type of data
+                                        $corrected_value = $value;
+
+                                        // Check if there is a formula, if so, try to parse it
+                                        if (substr($value,0,1) == '=') 
+                                        {
+                                            try {
+                                                $corrected_value = $cell->getCalculatedValue();
+                                            } catch (Exception $e) {
+                                                Log::error("SampleCodeController.upload_store formula ($value) parse error: ".$e->getMessage());
+                                                $corrected_value = $value;
+                                            }
                                         }
+
+                                        // Try to force values in the requested format
+                                        $input_type = $col_input_types[$cat_id];
+                                        switch($input_type)
+                                        {
+                                            case 'sample_code':
+                                                $corrected_value = strtoupper(substr(str_replace(' ', '', $value), 0, 8));
+                                                break;
+                                            case 'date':
+                                                if (is_numeric($value))
+                                                {
+                                                    $unix_timestamp = ($value - 25569) * 86400;
+                                                    $corrected_value= date("Y-m-d H:i:s", $unix_timestamp);
+                                                }
+                                                else
+                                                {
+                                                    $corrected_value= date("Y-m-d H:i:s", strtotime($value));
+                                                }
+                                                break;
+                                            case 'text':
+                                                $corrected_value = (string)$value;
+                                                break;
+                                            case 'boolean':
+                                            case 'boolean_yes_red':
+                                                $corrected_value = intval(boolval($value));
+                                                break;
+                                            case 'score_amount':
+                                                $intval = intval($value);
+                                                $corrected_value = $intval > 4 || $intval < 0 ? 0 : $intval;
+                                                break;
+                                            case 'number':
+                                            case 'number_0_decimals':
+                                            case 'number_1_decimals':
+                                            case 'number_2_decimals':
+                                            case 'number_3_decimals':
+                                            case 'number_positive':
+                                            case 'number_negative':
+                                            case 'number_percentage':
+                                                if (strpos($value, ',') !== false) // replace , with .
+                                                    $value = str_replace(',', '.', $value);
+
+                                                $corrected_value = (float)$value;
+
+                                                if ($input_type == 'number_0_decimals')
+                                                    $corrected_value = round($corrected_value, 0);
+                                                else if ($input_type == 'number_1_decimals')
+                                                    $corrected_value = round($corrected_value, 1);
+                                                else if ($input_type == 'number_2_decimals')
+                                                    $corrected_value = round($corrected_value, 2);
+                                                else if ($input_type == 'number_3_decimals')
+                                                    $corrected_value = round($corrected_value, 3);
+                                                else if ($input_type == 'number_positive')
+                                                    $corrected_value = abs($corrected_value);
+                                                else if ($input_type == 'number_negative')
+                                                    $corrected_value = -1 * abs($corrected_value);
+                                                else if ($input_type == 'number_percentage')
+                                                    $corrected_value = min(100, max(0, $corrected_value));
+                                                
+                                                break;
+                                        }
+
+                                        if (!isset($data[$row_num]))
+                                            $data[$row_num] = [];
+
+                                        if ($cat_id == $sample_code_id) // check if sample code exists in DB
+                                            $data[$row_num][0] = SampleCode::where('sample_code',$corrected_value)->count();
+
+                                        $data[$row_num][$cat_id] = $corrected_value;
                                     }
-
-                                    // Try to force values in the requested format
-                                    $input_type = $col_input_types[$cat_id];
-                                    switch($input_type)
-                                    {
-                                        case 'sample_code':
-                                            $corrected_value = strtoupper(substr(str_replace(' ', '', $value), 0, 8));
-                                            break;
-                                        case 'date':
-                                            if (is_numeric($value))
-                                            {
-                                                $unix_timestamp = ($value - 25569) * 86400;
-                                                $corrected_value= date("Y-m-d H:i:s", $unix_timestamp);
-                                            }
-                                            else
-                                            {
-                                                $corrected_value= date("Y-m-d H:i:s", strtotime($value));
-                                            }
-                                            break;
-                                        case 'text':
-                                            $corrected_value = (string)$value;
-                                            break;
-                                        case 'boolean':
-                                        case 'boolean_yes_red':
-                                            $corrected_value = intval(boolval($value));
-                                            break;
-                                        case 'score_amount':
-                                            $intval = intval($value);
-                                            $corrected_value = $intval > 4 || $intval < 0 ? 0 : $intval;
-                                            break;
-                                        case 'number':
-                                        case 'number_0_decimals':
-                                        case 'number_1_decimals':
-                                        case 'number_2_decimals':
-                                        case 'number_3_decimals':
-                                        case 'number_positive':
-                                        case 'number_negative':
-                                        case 'number_percentage':
-                                            if (strpos($value, ',') !== false) // replace , with .
-                                                $value = str_replace(',', '.', $value);
-
-                                            $corrected_value = (float)$value;
-
-                                            if ($input_type == 'number_0_decimals')
-                                                $corrected_value = round($corrected_value, 0);
-                                            else if ($input_type == 'number_1_decimals')
-                                                $corrected_value = round($corrected_value, 1);
-                                            else if ($input_type == 'number_2_decimals')
-                                                $corrected_value = round($corrected_value, 2);
-                                            else if ($input_type == 'number_3_decimals')
-                                                $corrected_value = round($corrected_value, 3);
-                                            else if ($input_type == 'number_positive')
-                                                $corrected_value = abs($corrected_value);
-                                            else if ($input_type == 'number_negative')
-                                                $corrected_value = -1 * abs($corrected_value);
-                                            else if ($input_type == 'number_percentage')
-                                                $corrected_value = min(100, max(0, $corrected_value));
-                                            
-                                            break;
-                                    }
-
-                                    if (!isset($data[$row_num]))
-                                        $data[$row_num] = [];
-
-                                    if ($cat_id == $sample_code_id) // check if sample code exists in DB
-                                        $data[$row_num][0] = SampleCode::where('sample_code',$corrected_value)->count();
-
-                                    $data[$row_num][$cat_id] = $corrected_value;
                                 }
                             }
                         }

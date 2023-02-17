@@ -98,8 +98,7 @@ class ExportController extends Controller
             
             // Define header rows of tabs
             $spreadsheet_array[__('export.users')] = [
-                           ['User_id',
-                            __('export.name'),
+                           [__('export.name'),
                             __('export.email'),
                             __('export.avatar'),
                             __('export.created_at'),
@@ -113,8 +112,7 @@ class ExportController extends Controller
 
 
             $spreadsheet_array[__('export.locations')] = [
-                           ['User_id',
-                            'Location_id',
+                           ['Location_id',
                             __('export.owner'),
                             __('export.name'),
                             __('export.type'),
@@ -131,8 +129,7 @@ class ExportController extends Controller
                         ];
 
             $spreadsheet_array[__('export.hives')] = [
-                           ['User_id',
-                            'Hive_id',
+                           ['Hive_id',
                             __('export.owner'),
                             __('export.name'),
                             __('export.type'),
@@ -151,8 +148,7 @@ class ExportController extends Controller
                         ];
 
             $spreadsheet_array[__('export.inspections')] = [
-                           ['User_id',
-                            'Inspection_id',
+                           ['Inspection_id',
                             __('export.owner'),
                             __('export.created_at'),
                             'Hive_id',
@@ -166,8 +162,7 @@ class ExportController extends Controller
                         ];
 
             $spreadsheet_array[__('export.devices')] = [
-                           ['User_id',
-                            'Device_id',
+                           ['Device_id',
                             __('export.owner'),
                             __('export.name'),
                             'Hive_id',
@@ -190,8 +185,7 @@ class ExportController extends Controller
 
             if ($sensordata)
                 $spreadsheet_array['Sensor data'] = [
-                            ['User_id',
-                            'Device_id',
+                            ['Device_id',
                             'Date from',
                             'Date to',
                             'Data file']
@@ -199,8 +193,7 @@ class ExportController extends Controller
 
             if ($sensordata)
                 $spreadsheet_array['Device Flashlogs'] = [
-                            ['User_id',
-                            'Device_id',
+                            ['Device_id',
                             'Hive_id',
                             'Number of messages in file',
                             'Log saved to disk',
@@ -216,8 +209,7 @@ class ExportController extends Controller
 
             if ($sensordata)
                 $spreadsheet_array['Weather data'] = [
-                            ['User_id',
-                            'Device_id',
+                            ['Device_id',
                             'Date from',
                             'Date to',
                             'Data file']
@@ -365,7 +357,7 @@ class ExportController extends Controller
                         $filePath = $this->exportCsvFromInflux($where, $dataName, '*', 'sensors');
                         if ($filePath)
                         {
-                            $spreadsheet_array['Sensor data'][] = [$user_id, $device->id, $date_user_created, $date_until_today, $filePath];
+                            $spreadsheet_array['Sensor data'][] = [$device->id, $date_user_created, $date_until_today, $filePath];
                             $sensor_urls[$dataName] = $filePath;
                         }
 
@@ -378,7 +370,7 @@ class ExportController extends Controller
                             $filePath = $this->exportCsvFromInflux($where, $dataName, '*', 'weather');
                             if ($filePath)
                             {
-                                $spreadsheet_array['Weather data'][] = [$user_id, $device->id, $date_user_created, $date_until_today, $filePath];
+                                $spreadsheet_array['Weather data'][] = [$device->id, $date_user_created, $date_until_today, $filePath];
                                 $sensor_urls[$dataName] = $filePath;
                             }
                         }
@@ -423,15 +415,15 @@ class ExportController extends Controller
         $group = $group_data ? __('export.incl_group') : '';
 
         // Set meta data
-        $sheet->setTitle($title.$group);
-        $sheet->setCellValue('A1', 'Meta data');
+        $sheet->setTitle('Meta data');
+        $sheet->setCellValue('A1', $title.$group);
         $sheet->setCellValue('A3', env('APP_NAME').' data export');
         $sheet->setCellValue('C3', date('Y-m-d H:i:s'));
         $sheet->setCellValue('A4', 'Start date');
         $sheet->setCellValue('C4', $date_start);
         $sheet->setCellValue('A5', 'End date');
         $sheet->setCellValue('C5', $date_until);
-        $sheet->setCellValue('A6', 'Sheets');
+        $sheet->setCellValue('A6', 'Tabs');
         $sheet->setCellValue('C6', count($spreadsheetArray));
 
         $row = 8;
@@ -473,7 +465,6 @@ class ExportController extends Controller
     private function getUser(User $user)
     {
         return [
-            $user->id,
             $user->name,
             $user->email,
             $user->avatar,
@@ -488,7 +479,6 @@ class ExportController extends Controller
         return $locations->where('created_at', '<=', $date_until)->sortBy('name')->map(function($item) use ($user_id)
         {
             return [
-                $user_id,
                 $item->id,
                 $item->owner,
                 $item->name,
@@ -514,7 +504,6 @@ class ExportController extends Controller
             $queen = $item->queen;
 
             return [
-                $user_id,
                 $item->id, 
                 $item->owner,
                 $item->name,
@@ -538,7 +527,6 @@ class ExportController extends Controller
     private function getDevice($user_id, $item)
     {
         return [
-            $user_id,
             $item->id, 
             $item->owner,
             $item->name, 
@@ -566,7 +554,6 @@ class ExportController extends Controller
         return $flashlogs->where('created_at', '<=', $date_until)->sortBy('name')->map(function($item) use ($user_id)
         {
             return [
-                $user_id,
                 $item->device_id, 
                 $item->hive_id,
                 $item->log_messages,
@@ -615,7 +602,6 @@ class ExportController extends Controller
             
             // add general inspection data columns
             $pre = [
-                'user_id' => $user_id,
                 'inspection_id' => $inspection->id,
                 __('export.owner') => $inspection->owner,
                 __('export.created_at') => $inspection->created_at,

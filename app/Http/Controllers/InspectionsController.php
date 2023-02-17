@@ -70,7 +70,7 @@ class InspectionsController extends Controller
         if ($inspection)
             $items = $inspection->items()->get();
         else
-            $items = [];
+            return redirect('inspections')->with('error_message', "Inspection $id not found!");
         //die(print_r($items->toArray()));
 
         return view('inspections.show', compact('inspection','items'));

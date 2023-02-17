@@ -83,23 +83,24 @@ class SampleCodeController extends Controller
                         foreach ($inspection_items as $category_id => $value)
                         {
                             $inspection_item_exists = $inspection->items()->where('category_id', $category_id);
-                                
+                            $value_filled = filled($value);
+
                             if ($inspection_item_exists->count() > 0)
                             {
                                 $inspection_item_exists->delete();
                                 
-                                if (isset($value) && $value === '')
-                                    $items_removed++;
-                                else
+                                if ($value_filled)
                                     $items_replaced++;
+                                else
+                                    $items_removed++;
                             }
                             else
                             {
-                                if (isset($value) && $value !== '')
+                                if ($value_filled)
                                     $items_added++;
                             }
 
-                            if (isset($value) && $value !== '')
+                            if ($value_filled)
                             {
                                 $itemData = 
                                 [

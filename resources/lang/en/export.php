@@ -48,5 +48,6 @@ return [
     'reminder'      => 'Reminder',
     'reminder_date' => 'Reminder date',
     'sensordefs'    => 'Sensor definitions',
-
+    'owner'         => 'Owner',
+    'incl_group'    => ' (including data from collaboration groups)',
 ];

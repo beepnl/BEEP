@@ -61,15 +61,26 @@ class ExportController extends Controller
 
     }
 
+
+    /**
+    api/export GET
+    Generate an Excel file with all user data and send by e-mail or as download link
+    @authenticated
+    @bodyParam groupdata boolean 1: also include group data in export. 0, of not filled: only export my own data. Default: 0. Example: 0
+    @bodyParam sensordata boolean 1: also include measurement data in export. 0, of not filled: do not add measurement data. Default: set in environment settings. Example: 0
+    @bodyParam link boolean 1: Save the export to a file and provide the link, 0, or not filled means: send the Excel as an attachment to an email to the user's email address. Default: 0. Example: 1
+    **/
     public function all(Request $request)
     {
-        $fileName = strtolower(env('APP_NAME')).'-export-user-'.$request->user()->id;
-        $user     = $request->user();
+        $fileName     = strtolower(env('APP_NAME')).'-export-user-'.$request->user()->id;
+        $user         = $request->user();
 
         $sensor_urls  = [];
         $download_url = null;
         $download     = true;
-        $sensordata   = env('EXPORT_INFLUX_SENSORDATA', true); //$request->has('sensordata');
+        $sensordata   = boolval($request->input('sensordata', env('EXPORT_INFLUX_SENSORDATA', false)));
+        $group_data   = boolval($request->input('groupdata', false)); // include group data
+        $return_link  = boolval($request->input('link', false));
 
         $date_start        = $user->created_at;
         $date_until        = date('Y-m-d H:i:s');
@@ -104,6 +115,7 @@ class ExportController extends Controller
             $spreadsheet_array[__('export.locations')] = [
                            ['User_id',
                             'Location_id',
+                            __('export.owner'),
                             __('export.name'),
                             __('export.type'),
                             __('export.hives'),
@@ -121,6 +133,7 @@ class ExportController extends Controller
             $spreadsheet_array[__('export.hives')] = [
                            ['User_id',
                             'Hive_id',
+                            __('export.owner'),
                             __('export.name'),
                             __('export.type'),
                             'Location_id',
@@ -140,6 +153,7 @@ class ExportController extends Controller
             $spreadsheet_array[__('export.inspections')] = [
                            ['User_id',
                             'Inspection_id',
+                            __('export.owner'),
                             __('export.created_at'),
                             'Hive_id',
                             __('export.hive_name'),
@@ -154,6 +168,7 @@ class ExportController extends Controller
             $spreadsheet_array[__('export.devices')] = [
                            ['User_id',
                             'Device_id',
+                            __('export.owner'),
                             __('export.name'),
                             'Hive_id',
                             'Location_id',
@@ -212,19 +227,18 @@ class ExportController extends Controller
             // first combine all user's itemnames
             $item_ancs  = [];
             $item_names = [];
-            // foreach ($users as $user) 
-            // {
-                $ins = Inspection::item_names($user->allInspections()->get());
-                foreach ($ins as $in) 
+
+            $u_inspections = $group_data ? $user->allInspections()->get() : $user->inspections()->get();
+            $ins = Inspection::item_names($u_inspections);
+            foreach ($ins as $in) 
+            {
+                $name = $in['anc'].$in['name'];
+                if (!in_array($name, $item_ancs))
                 {
-                    $name = $in['anc'].$in['name'];
-                    if (!in_array($name, $item_ancs))
-                    {
-                        $item_ancs[]  = $name;
-                        $item_names[] = $in; 
-                    }
+                    $item_ancs[]  = $name;
+                    $item_names[] = $in; 
                 }
-            // }
+            }
 
             foreach ($item_ancs as $name) 
                 $spreadsheet_array[__('export.inspections')][0][] = $name;
@@ -237,10 +251,18 @@ class ExportController extends Controller
             $user_id = $u->id;
             
             // add user data
-            $user_apiaries     = $user->locations()->where('created_at', '<', $date_until)->orderBy('created_at')->get();
-            $user_hives        = $user->hives()->where('created_at', '<', $date_until)->orderBy('created_at')->get();
+            $u_apiaries        = $group_data ? $user->allLocations() : $user->locations();
+            $user_apiaries     = $u_apiaries->where('created_at', '<', $date_until)->orderBy('created_at')->get();
+
+            $u_hives           = $group_data ? $user->allHives() : $user->hives();
+            $user_hives        = $u_hives->where('created_at', '<', $date_until)->orderBy('created_at')->get();
+
+            $u_devices         = $group_data ? $user->allDevices() : $user->devices();
             $user_devices      = $user->devices()->where('created_at', '<', $date_until)->orderBy('created_at')->get();
-            $user_flashlogs    = FlashLog::where('user_id', $user_id)->where('created_at', '>=', $date_start)->where('created_at', '<', $date_until)->orderBy('created_at')->get();
+
+            $u_flashlogs       = $group_data ? $user->allFlashlogs() : $user->flashlogs();
+            $user_flashlogs    = $u_flashlogs->where('created_at', '>=', $date_start)->where('created_at', '<', $date_until)->orderBy('created_at')->get();
+
             $user_measurements = [];
             $user_weather_data = [];
             
@@ -364,7 +386,7 @@ class ExportController extends Controller
                 }
             }
 
-            $export_result = $this->export($spreadsheet_array, $fileName, $date_start, $date_until);
+            $export_result = $this->export($spreadsheet_array, $fileName, $date_start, $date_until, $group_data);
 
         }
 
@@ -373,10 +395,19 @@ class ExportController extends Controller
         {
             //$path = $file->storagePath.'/'.$fileName.'.'.$fileType;
             $path = $export_result['path'];
+            $link = $export_result['url'];
             $disk = env('EXPORT_STORAGE', 'public');
-            Mail::to($user->email)->send(new DataExport($user, $disk, $path));
-            $del  = Storage::disk($disk)->delete($path);
-            return response()->json(['file'=>$export_result['url'], 'del'=>$del, 'delf'=>$path],200);
+            
+            if ($return_link === false)
+            {
+                Mail::to($user->email)->send(new DataExport($user, $disk, $path));
+                $del = Storage::disk($disk)->delete($path);
+                return response()->json(['link'=>null, 'del'=>$del, 'delf'=>$path, 'email'=>1],200);
+            }
+            else
+            {
+                return response()->json(['link'=>$link, 'email'=>0],200);
+            }
         }
         else
         {
@@ -384,13 +415,15 @@ class ExportController extends Controller
         }
     }
 
-    private function export($spreadsheetArray, $fileName='export', $date_start='Account created', $date_until='Today')
+    private function export($spreadsheetArray, $fileName='export', $date_start='Account created', $date_until='Today', $group_data=false)
     {
         $spreadsheet = new Spreadsheet();
         $sheet = $spreadsheet->getActiveSheet();
+        $title = 'BEEP account data export';
+        $group = $group_data ? __('export.incl_group') : '';
 
         // Set meta data
-        $sheet->setTitle('Meta data');
+        $sheet->setTitle($title.$group);
         $sheet->setCellValue('A1', 'Meta data');
         $sheet->setCellValue('A3', env('APP_NAME').' data export');
         $sheet->setCellValue('C3', date('Y-m-d H:i:s'));
@@ -404,7 +437,8 @@ class ExportController extends Controller
         $row = 8;
         foreach ($spreadsheetArray as $title => $data)
         {
-            $sheet->setCellValue('A'.$row, $title);
+            $row_title = $row > 8 ? $title.$group : $title;
+            $sheet->setCellValue('A'.$row, $row_title);
             $sheet->setCellValue('C'.$row, count($data)-1);
             $row++;
         }
@@ -456,6 +490,7 @@ class ExportController extends Controller
             return [
                 $user_id,
                 $item->id,
+                $item->owner,
                 $item->name,
                 $item->type,
                 $item->hives()->count(),
@@ -481,6 +516,7 @@ class ExportController extends Controller
             return [
                 $user_id,
                 $item->id, 
+                $item->owner,
                 $item->name,
                 $item->type,
                 $item->location_id,
@@ -504,6 +540,7 @@ class ExportController extends Controller
         return [
             $user_id,
             $item->id, 
+            $item->owner,
             $item->name, 
             $item->hive_id,
             $item->location_id,
@@ -580,6 +617,7 @@ class ExportController extends Controller
             $pre = [
                 'user_id' => $user_id,
                 'inspection_id' => $inspection->id,
+                __('export.owner') => $inspection->owner,
                 __('export.created_at') => $inspection->created_at,
                 __('export.hive') => $inspection->hives()->count() > 0 ? $inspection->hives()->first()->id : '', 
                 __('export.hive_name') => $inspection->hives()->count() > 0 ? $inspection->hives()->first()->name : '', 
@@ -710,7 +748,7 @@ class ExportController extends Controller
         $separator    = $request->input('separator', ';');
 
         $measurements = $request->input('measurements', '*');
-        $return_link  = $request->filled('link') ? true : false;
+        $return_link  = boolval($request->input('link', false));
         $device       = $request->user()->allDevices()->find($device_id);
 
         if ($device == null)

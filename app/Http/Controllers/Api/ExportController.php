@@ -250,7 +250,7 @@ class ExportController extends Controller
             $user_hives        = $u_hives->where('created_at', '<', $date_until)->orderBy('created_at')->get();
 
             $u_devices         = $group_data ? $user->allDevices() : $user->devices();
-            $user_devices      = $user->devices()->where('created_at', '<', $date_until)->orderBy('created_at')->get();
+            $user_devices      = $u_devices->where('created_at', '<', $date_until)->orderBy('created_at')->get();
 
             $u_flashlogs       = $group_data ? $user->allFlashlogs() : $user->flashlogs();
             $user_flashlogs    = $u_flashlogs->where('created_at', '>=', $date_start)->where('created_at', '<', $date_until)->orderBy('created_at')->get();

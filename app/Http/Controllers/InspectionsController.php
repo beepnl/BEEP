@@ -67,7 +67,10 @@ class InspectionsController extends Controller
         else
             $inspection = $this->getUserInspections()->find($id);
         
-        $items = $inspection->items()->get();
+        if ($inspection)
+            $items = $inspection->items()->get();
+        else
+            $items = [];
         //die(print_r($items->toArray()));
 
         return view('inspections.show', compact('inspection','items'));

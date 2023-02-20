@@ -143,7 +143,7 @@ class User extends Authenticatable
         $hiv_ids = $this->groupHives($editable)->pluck('id');
         $fla_ids = DB::table('flash_logs')->whereIn('hive_id',$hiv_ids)->pluck('id');
         $all_ids = $own_ids->merge($fla_ids);
-        return Inspection::whereIn('id',$all_ids);
+        return FlashLog::whereIn('id',$all_ids);
     }
 
     public function researchesVisible()

@@ -2,6 +2,9 @@
 BEEP is open source combination of a bee monitoring app + automatic bee hive measurement device. It's key feature is to integrate a user friendly responsive web app for manual inspections with automatically measured sensor data.
 Check the website https://beep.nl/index.php/home-english for more information.
 
+## Diren's testing version
+I use this fork to learn more about the structure of the app and to play around a bit.
+
 ## BEEP System overview
 ![BEEP System overview](https://github.com/beepnl/BEEP/raw/master/BEEP-system-overview.png)
 

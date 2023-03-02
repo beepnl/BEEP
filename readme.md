@@ -2,9 +2,6 @@
 BEEP is open source combination of a bee monitoring app + automatic bee hive measurement device. It's key feature is to integrate a user friendly responsive web app for manual inspections with automatically measured sensor data.
 Check the website https://beep.nl/index.php/home-english for more information.
 
-## Diren's testing version
-I use this fork to learn more about the structure of the app and to play around a bit.
-
 ## BEEP System overview
 ![BEEP System overview](https://github.com/beepnl/BEEP/raw/master/BEEP-system-overview.png)
 
@@ -85,6 +82,12 @@ Install SSL certificates to your endpoints with [Let's Encrypt](https://letsencr
 ### Installation
 Install [InfluxDB](https://www.influxdata.com/) or set up an account at [InfluxCloud](https://cloud2.influxdata.com/signup)
 
+:question: Does it need to be a 1.x version of influx?
+
+I started with just configuring the Cloud version and CLI. But then you are not allowed to create users. I understand that it is still necessary for the app to have an Influx user, password and database, but maybe I did not fully understand how to connect to the cloud. I am not sure why you cant run the user create command, maybe it is a bug related to that, the error I got was the same: [https://community.influxdata.com/t/create-user-fail-with-error-write-users-is-unauthorized/20509](https://community.influxdata.com/t/create-user-fail-with-error-write-users-is-unauthorized/20509)
+
+If you install a 2.x version of Influx, you do not have databases but buckets (Actually I'm not sure when databases started to be buckets, but I think it was with 2.)
+
 #### Optional: migrate from local Influx v1.7.3 db to managed InfluxDB Cloud
 
 - https://docs.influxdata.com/influxdb/cloud/upgrade/v1-to-cloud/
@@ -109,6 +112,8 @@ influx
 > CREATE DATABASE bee_data
 > exit
 ```
+:question: This only works for a 1.x version of influx. After that the syntax changed.
+
 **NB: Make sure to pass the user and credentials to the .env file that has been created in step 3.**
 **NB: If your Influx version was < 1.1.x (no TSI support), when using backups to transfer data: first install the old version that you are currently using on a new server, import the backups, then update to the newest Influx version!**
 
@@ -126,6 +131,8 @@ c. To enable schedules (e.g. for loading weather data), install a crontab with `
 ## 2. Register new user
 
 a. Go to ```api.[your_domain]/webapp#!/login/create```
+
+:question: Should this be changed to a  new link or is it okay to keep it with the old app?
 
 b. Create a new user
 
@@ -169,6 +176,7 @@ As the setup is based on docker containers, code changes inside the repository w
 4. The native app adds a BEEP base measurement device to your BEEP account
 5. You can see the measurement data at the Measurements menu item of the webapp 
 
+:question: sensors have to be configured in the API first
 
 # Contributing
 

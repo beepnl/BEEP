@@ -112,18 +112,32 @@
 	    </div>
 	</div>
 </div>
-<div class="col-xs-12 col-md-4">
+<div class="col-xs-12 col-md-2">
 	<div class="form-group {{ $errors->has('visible') ? 'has-error' : ''}}">
 	    <label for="visible" control-label>{{ 'Visible in the app' }}</label>
 	    <div>
 	        <div class="radio">
-    			<label><input name="visible" type="radio" value="1" @if (isset($measurement)) {{ (1 == $measurement->visible) ? 'checked' : '' }} @else {{ 'checked' }} @endif> Yes</label>
+    			<label><input name="visible" type="radio" value="1" @if (isset($research)) {{ (1 == $research->visible) ? 'checked' : '' }} @else {{ 'checked' }} @endif> Yes</label>
 			</div>
 			<div class="radio">
-			    <label><input name="visible" type="radio" value="0" {{ (isset($measurement) && 0 == $measurement->visible) ? 'checked' : '' }}> No</label>
+			    <label><input name="visible" type="radio" value="0" {{ (isset($research) && 0 == $research->visible) ? 'checked' : '' }}> No</label>
 			</div>
         </div>
         {!! $errors->first('visible', '<p class="help-block">:message</p>') !!}
+    </div>
+</div>
+<div class="col-xs-12 col-md-2">
+	<div class="form-group {{ $errors->has('on_invite_only') ? 'has-error' : ''}}">
+	    <label for="on_invite_only" title="(only for Most important users)" control-label>{{ 'On invite only' }}</label>
+	    <div>
+	        <div class="radio">
+    			<label><input name="on_invite_only" type="radio" value="1" @if (isset($research)) {{ (1 == $research->on_invite_only) ? 'checked' : '' }} @else {{ 'checked' }} @endif> Yes</label>
+			</div>
+			<div class="radio">
+			    <label><input name="on_invite_only" type="radio" value="0" {{ (isset($research) && 0 == $research->on_invite_only) ? 'checked' : '' }}> No</label>
+			</div>
+        </div>
+        {!! $errors->first('on_invite_only', '<p class="help-block">:message</p>') !!}
     </div>
 </div>
 <div class="col-xs-12">

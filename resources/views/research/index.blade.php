@@ -34,7 +34,7 @@
                     ,
                     "order": 
                     [
-                        [ 1, "asc" ]
+                        [ 2, "asc" ]
                     ],
                 });
             });
@@ -45,6 +45,7 @@
             <thead>
                 <tr>
                     <th col-xs-1>Image</th>
+                    <th col-xs-1>Visible / Invite only</th>
                     <th col-xs-2>Name</th>
                     <th col-xs-2>Description</th>
                     <th col-xs-1>Type</th>
@@ -61,6 +62,7 @@
                 <tr>
                     {{-- <td>{{ $loop->iteration or $item->id }}</td> --}}
                     <td><a href="{{ route('research.show', $item->id) }}">@if(isset($item->thumb_url))<img src="{{$item->thumb_url}}" style="width:40px; height: 40px; border-radius: 20%; border: 1px solid #333; display: inline-block; overflow: hidden;">@endif</a></td>
+                    <td>{{ $item->visible  ? __('general.Yes') : __('general.No') }} / {{ $item->on_invite_only ? __('general.Yes') : __('general.No') }}</td>
                     <td><a href="{{ route('research.show', $item->id) }}">{{ $item->name }}<br>(ID: {{ $item->id }})</a></td>
                     <td>{{ $item->description }}</td>
                     <td>{{ $item->type }}</td>

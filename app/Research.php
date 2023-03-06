@@ -81,11 +81,6 @@ class Research extends Model
         return $this->belongsToMany(User::class, 'research_user')->distinct('user_id');
     }
 
-    public function default_users()
-    {
-        return $this->belongsToMany(User::class, 'default_user_ids');
-    }
-
     public function viewers()
     {
         return $this->belongsToMany(User::class, 'research_viewer');

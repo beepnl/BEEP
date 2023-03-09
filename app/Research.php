@@ -28,8 +28,8 @@ class Research extends Model
      *
      * @var array
      */
-    protected $fillable = ['description', 'name', 'url', 'image_id', 'type', 'institution', 'type_of_data_used', 'start_date', 'end_date', 'user_id', 'default_user_ids', 'visible'];
-    protected $hidden   = ['users', 'deleted_at', 'user_id', 'owner', 'viewers'];
+    protected $fillable = ['description', 'name', 'url', 'image_id', 'type', 'institution', 'type_of_data_used', 'start_date', 'end_date', 'user_id', 'default_user_ids', 'visible', 'on_invite_only'];
+    protected $hidden   = ['users', 'deleted_at', 'user_id', 'owner', 'viewers', 'visible'];
     protected $appends  = ['consent', 'consent_history', 'checklist_names', 'thumb_url'];
 
     protected $casts    = [

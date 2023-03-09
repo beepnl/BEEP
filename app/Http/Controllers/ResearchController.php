@@ -108,10 +108,12 @@ class ResearchController extends Controller
             'image'         => 'nullable|image|max:2000',
             'start_date'    => 'nullable|date',
             'end_date'      => 'nullable|date|after:start',
-            'checklist_ids' => 'nullable|exists:checklists,id',
             'default_user_ids.*' => 'nullable|exists:users,id',
-            'viewer_ids'    => 'nullable|exists:users,id',
+            'viewer_ids.*'    => 'nullable|exists:users,id',
+            'checklist_ids.*' => 'nullable|exists:checklists,id',
             'user_id'       => 'nullable|exists:users,id',
+            'visible'       => 'boolean',
+            'on_invite_only'=> 'boolean',
         ]);
 
         $requestData = $request->all();
@@ -126,13 +128,20 @@ class ResearchController extends Controller
             }
         }
 
+        if (!isset($requestData['default_user_ids']))
+            $requestData['default_user_ids'] = null;
+        
         $research = Research::create($requestData);
 
         if (isset($requestData['checklist_ids']))
             $research->checklists()->sync($requestData['checklist_ids']);
+        else
+            $research->checklists()->sync([]);
 
         if (isset($requestData['viewer_ids']))
             $research->viewers()->sync($requestData['viewer_ids']);
+        else
+            $research->viewers()->sync([]);
 
         return redirect('research')->with('flash_message', 'Research added!');
     }
@@ -873,8 +882,10 @@ class ResearchController extends Controller
             'end_date'      => 'nullable|date|after:start',
             'user_id'       => 'nullable|exists:users,id',
             'default_user_ids.*' => 'nullable|exists:users,id',
-            'viewer_ids'    => 'nullable|exists:users,id',
-            'checklist_ids' => 'nullable|exists:checklists,id',
+            'viewer_ids.*'    => 'nullable|exists:users,id',
+            'checklist_ids.*' => 'nullable|exists:checklists,id',
+            'visible'       => 'boolean',
+            'on_invite_only'=> 'boolean',
         ]);
 
         if (Auth::user()->hasRole('superadmin'))
@@ -894,14 +905,21 @@ class ResearchController extends Controller
             }
         }
 
+        if (!isset($requestData['default_user_ids']))
+            $requestData['default_user_ids'] = null;
 
         $research->update($requestData);
 
         if (isset($requestData['checklist_ids']))
             $research->checklists()->sync($requestData['checklist_ids']);
+        else
+            $research->checklists()->sync([]);
 
         if (isset($requestData['viewer_ids']))
             $research->viewers()->sync($requestData['viewer_ids']);
+        else
+            $research->viewers()->sync([]);
+
 
         return redirect('research')->with('flash_message', 'Research updated!');
     }

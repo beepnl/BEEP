@@ -23,7 +23,15 @@ class ResearchController extends Controller
      */
     public function index(Request $request)
     {
-        return Research::where('visible', true)->get();
+        $researches = Research::where('visible', true)->get();
+        $out        = [];
+        $user_id    = $request->user()->id;
+
+        foreach ($researches as $r)
+            if ($r->on_invite_only == false || (isset($r->default_user_ids) && in_array($user_id, $r->default_user_ids)) )
+                $out[] = $r;
+
+        return $out;
     }
 
     /**

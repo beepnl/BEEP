@@ -112,18 +112,32 @@
 	    </div>
 	</div>
 </div>
-<div class="col-xs-12 col-md-4">
+<div class="col-xs-12 col-md-2">
 	<div class="form-group {{ $errors->has('visible') ? 'has-error' : ''}}">
 	    <label for="visible" control-label>{{ 'Visible in the app' }}</label>
 	    <div>
 	        <div class="radio">
-    			<label><input name="visible" type="radio" value="1" @if (isset($measurement)) {{ (1 == $measurement->visible) ? 'checked' : '' }} @else {{ 'checked' }} @endif> Yes</label>
+    			<label><input name="visible" type="radio" value="1" @if (isset($research)) {{ (1 == $research->visible) ? 'checked' : '' }} @else {{ 'checked' }} @endif> Yes</label>
 			</div>
 			<div class="radio">
-			    <label><input name="visible" type="radio" value="0" {{ (isset($measurement) && 0 == $measurement->visible) ? 'checked' : '' }}> No</label>
+			    <label><input name="visible" type="radio" value="0" {{ (isset($research) && 0 == $research->visible) ? 'checked' : '' }}> No</label>
 			</div>
         </div>
         {!! $errors->first('visible', '<p class="help-block">:message</p>') !!}
+    </div>
+</div>
+<div class="col-xs-12 col-md-2">
+	<div class="form-group {{ $errors->has('on_invite_only') ? 'has-error' : ''}}">
+	    <label for="on_invite_only" title="(only for Most important users)" control-label>{{ 'On invite only' }}</label>
+	    <div>
+	        <div class="radio">
+    			<label><input name="on_invite_only" type="radio" value="1" @if (isset($research)) {{ (1 == $research->on_invite_only) ? 'checked' : '' }} @else {{ 'checked' }} @endif> Yes</label>
+			</div>
+			<div class="radio">
+			    <label><input name="on_invite_only" type="radio" value="0" {{ (isset($research) && 0 == $research->on_invite_only) ? 'checked' : '' }}> No</label>
+			</div>
+        </div>
+        {!! $errors->first('on_invite_only', '<p class="help-block">:message</p>') !!}
     </div>
 </div>
 <div class="col-xs-12">
@@ -150,7 +164,7 @@
 
 <div class="col-xs-12">
 	<div class="form-group {{ $errors->has('default_user_ids') ? 'has-error' : ''}}">
-	    <label for="default_user_ids" control-label>{{ 'Most important consented (end) users' }}</label>
+	    <label for="default_user_ids" control-label>{{ 'Most important users (first selection in research backend) & Invited users (in case of On invite only)' }}</label>
 	    <div>
 	        {{-- <input class="form-control" name="checklist_id" type="number" id="checklist_id" value="{{ isset($research->checklist_id) ? $research->checklist_id : '' }}" > --}}
 	        {!! Form::select('default_user_ids[]', App\User::selectList(), isset($research->default_user_ids) ? $research->default_user_ids : null, array('id'=>'default_user_ids','class' => 'form-control select2', 'multiple')) !!}

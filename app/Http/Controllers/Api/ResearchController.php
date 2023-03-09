@@ -28,7 +28,7 @@ class ResearchController extends Controller
         $user_id    = $request->user()->id;
 
         foreach ($researches as $r)
-            if ($r->on_invite_only == false || (isset($r->default_user_ids) && in_array($user_id, $r->default_user_ids)) )
+            if ($user_id == $r->user_id || $r->on_invite_only == false || (isset($r->default_user_ids) && in_array($user_id, $r->default_user_ids))) // owners, open researches and researches where user has been invited to
                 $out[] = $r;
 
         return $out;

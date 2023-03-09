@@ -164,7 +164,7 @@
 
 <div class="col-xs-12">
 	<div class="form-group {{ $errors->has('default_user_ids') ? 'has-error' : ''}}">
-	    <label for="default_user_ids" control-label>{{ 'Most important consented (end) users' }}</label>
+	    <label for="default_user_ids" control-label>{{ 'Most important users (first selection in research backend) & Invited users (in case of On invite only)' }}</label>
 	    <div>
 	        {{-- <input class="form-control" name="checklist_id" type="number" id="checklist_id" value="{{ isset($research->checklist_id) ? $research->checklist_id : '' }}" > --}}
 	        {!! Form::select('default_user_ids[]', App\User::selectList(), isset($research->default_user_ids) ? $research->default_user_ids : null, array('id'=>'default_user_ids','class' => 'form-control select2', 'multiple')) !!}

@@ -19,7 +19,7 @@
             {{ csrf_field() }}
 
 
-            @if ($errors->has('email') || $errors->has('password'))
+            @if (isset($errors) && ($errors->has('email') || $errors->has('password')))
                 <div class="alert alert-error">
                     <p>{{ $errors->first('email') }}{{ $errors->first('password') }}</p>
                 </div>

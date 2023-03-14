@@ -221,7 +221,7 @@ class Hive extends Model
         $impression  = $request->filled('impression') ? explode(',', $request->input('impression')) : null;
         $id          = $request->filled('id') ? $request->input('id') : null;
 
-        $inspections = $this->inspections();
+        $inspections = $this->inspections()->where('hive_id',$this->id);
 
         if (isset($id))
         {
@@ -232,9 +232,9 @@ class Hive extends Model
             if (isset($search))
             {
                 $inspections = $inspections->where('notes', 'LIKE', "%$search%")
-                                            ->orWhere('reminder', 'LIKE', "%$search%")
-                                            ->orWhere('created_at', 'LIKE', "%$search%")
-                                            ->orWhere('reminder_date', 'LIKE', "%$search%");
+                                           ->orWhere('reminder', 'LIKE', "%$search%")
+                                           ->orWhere('created_at', 'LIKE', "%$search%")
+                                           ->orWhere('reminder_date', 'LIKE', "%$search%");
             }
             
             if (isset($attention))

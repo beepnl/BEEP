@@ -114,6 +114,10 @@ influx
 ```
 :question: This only works for a 1.x version of influx. After that the syntax changed.
 
+```
+influx user create -n user_influx -p pass_influx -o BEEP
+```
+
 **NB: Make sure to pass the user and credentials to the .env file that has been created in step 3.**
 **NB: If your Influx version was < 1.1.x (no TSI support), when using backups to transfer data: first install the old version that you are currently using on a new server, import the backups, then update to the newest Influx version!**
 

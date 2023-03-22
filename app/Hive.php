@@ -221,7 +221,7 @@ class Hive extends Model
         $impression  = $request->filled('impression') ? explode(',', $request->input('impression')) : null;
         $id          = $request->filled('id') ? $request->input('id') : null;
 
-        $inspections = $this->inspections();
+        $inspections = $this->inspections;
 
         if (isset($id))
         {
@@ -229,14 +229,24 @@ class Hive extends Model
         }
         else
         {
-            if (isset($search))
-            {
-                $inspections = $inspections->where('notes', 'LIKE', "%$search%")
-                                            ->orWhere('reminder', 'LIKE', "%$search%")
-                                            ->orWhere('created_at', 'LIKE', "%$search%")
-                                            ->orWhere('reminder_date', 'LIKE', "%$search%");
+            if (!empty($search)) {
+                $inspections = $inspections->filter(function($item) use ($search){
+                    $match = 0;
+                    $match += stristr($item->notes, $search) !== false ? 1 : 0;
+                    $match += stristr($item->reminder, $search) !== false ? 1 : 0;
+                    $match += stristr($item->created_at, $search) !== false ? 1 : 0;
+                    $match += stristr($item->reminder_date, $search) !== false ? 1 : 0;
+                    // Include searching in (translated) inspection item values
+                    $inspection_item_values = $item->items->pluck('val')->toArray();
+                    $match += stristr(implode(',', $inspection_item_values), $search) !== false ? 1 : 0;
+                    // Include searching in (translated) inspection item names
+                    $inspection_item_names = $item->items->pluck('name')->toArray();
+                    $match += stristr(implode(',', $inspection_item_names), $search) !== false ? 1 : 0;
+
+                    return $match > 0 ? true : false;
+                });
             }
-            
+
             if (isset($attention))
                 $inspections = $inspections->where('attention', $attention);
 
@@ -248,7 +258,7 @@ class Hive extends Model
             
         }
 
-        return $inspections->orderBy('created_at', 'desc')->get();
+        return $inspections->sortByDesc('created_at');
     }
 
     public function inspection_items_by_date($request, $locale, $paginated_result=true)

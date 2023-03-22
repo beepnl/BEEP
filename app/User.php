@@ -10,6 +10,7 @@ use Trebol\Entrust\Traits\EntrustUserTrait;
 use App\Notifications\VerifyEmail;
 use App\Notifications\ResetPassword;
 
+use App\Models\DashboardGroup;
 use App\Models\HiveTag;
 use App\Models\FlashLog;
 use App\Models\Alert;
@@ -191,6 +192,11 @@ class User extends Authenticatable
     public function groups()
     {
         return $this->belongsToMany(Group::class, 'group_user')->whereNotNull('accepted');
+    }
+
+    public function dashboard_groups()
+    {
+        return $this->hasMany(DashboardGroup::class);
     }
 
     public function settings()

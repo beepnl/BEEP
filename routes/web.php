@@ -166,3 +166,7 @@ Route::group(
 		Route::delete('research/{id}',		['as'=>'research.destroy','uses'=>'ResearchController@destroy']);
 	}
 );
+
+Route::resource('dashboard-group', 'DashboardGroupController');
+Route::resource('dashboard-group', 'DashboardGroupController');
+Route::resource('dashboard-group', 'DashboardGroupController');

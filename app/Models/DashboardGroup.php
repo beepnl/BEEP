@@ -27,7 +27,7 @@ class DashboardGroup extends Model
      *
      * @var array
      */
-    protected $fillable = ['user_id', 'code', 'name', 'hive_ids', 'speed', 'interval', 'show_inspections', 'show_all', 'hide_measurements', 'logo_url'];
+    protected $fillable = ['user_id', 'code', 'name', 'hive_ids', 'speed', 'interval', 'show_inspections', 'show_all', 'hide_measurements', 'logo_url', 'description'];
 
     protected $casts = ['hive_ids'=>'array'];
 
@@ -35,7 +35,7 @@ class DashboardGroup extends Model
 
     public function hives()
     {
-        return $this->user->allHives()->whereIn('id', $this->hive_ids);
+        return $this->user->hives()->whereIn('id', $this->hive_ids);
     }
     public function user()
     {

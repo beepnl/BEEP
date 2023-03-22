@@ -21,12 +21,13 @@ class DashboardGroupController extends Controller
     public function index(Request $request)
     {
         $keyword = $request->get('search');
-        $perPage = 25;
+        $perPage = 100;
 
         if (!empty($keyword)) {
             $dashboardgroup = DashboardGroup::where('user_id', 'LIKE', "%$keyword%")
                 ->orWhere('code', 'LIKE', "%$keyword%")
                 ->orWhere('name', 'LIKE', "%$keyword%")
+                ->orWhere('description', 'LIKE', "%$keyword%")
                 ->orWhere('hive_ids', 'LIKE', "%$keyword%")
                 ->orWhere('speed', 'LIKE', "%$keyword%")
                 ->orWhere('interval', 'LIKE', "%$keyword%")
@@ -52,7 +53,7 @@ class DashboardGroupController extends Controller
         $dashboardgroup = new DashboardGroup();
         $dashboardgroup->user_id = Auth::user()->id;
         $dashboardgroup->code = strtoupper(Str::random(6));
-        $hive_ids = Auth::user()->allHives()->pluck('name','id')->toArray();
+        $hive_ids = Auth::user()->hives()->pluck('name','id')->toArray();
         return view('dashboard-group.create', compact('hive_ids','dashboardgroup'));
     }
 
@@ -66,11 +67,16 @@ class DashboardGroupController extends Controller
     public function store(Request $request)
     {
         $this->validate($request, [
-			'code' => 'required',
-			'hive_id.*' => 'required|exists:hives:id',
-			'user_id' => 'required',
-			'interval' => ['required', Rule::in(DashboardGroup::$intervals)],
-			'speed' => 'required|integer'
+			'code' => 'required|string|min:6',
+            'hive_ids.*' => 'required|exists:hives,id',
+            'interval' => ['required', Rule::in(DashboardGroup::$intervals)],
+            'speed' => 'required|integer|min:1|max:84600',
+            'name' => 'nullable|string',
+            'description' => 'nullable|string',
+            'logo_url' => 'nullable|url',
+            'show_inspections' => 'boolean',
+            'show_all' => 'boolean',
+            'hide_measurements' => 'boolean',
 		]);
         $requestData = $request->all();
         
@@ -103,7 +109,7 @@ class DashboardGroupController extends Controller
     public function edit($id)
     {
         $dashboardgroup = DashboardGroup::findOrFail($id);
-        $hive_ids = Auth::user()->allHives()->pluck('name','id')->toArray();
+        $hive_ids = Auth::user()->hives()->pluck('name','id')->toArray();
         return view('dashboard-group.edit', compact('hive_ids','dashboardgroup'));
     }
 
@@ -118,11 +124,16 @@ class DashboardGroupController extends Controller
     public function update(Request $request, $id)
     {
         $this->validate($request, [
-			'code' => 'required',
-			'hive_ids' => 'required',
-			'user_id' => 'required',
-			'interval' => 'required',
-			'speed' => 'required'
+			'code' => 'required|string|min:6',
+            'hive_ids.*' => 'required|exists:hives,id',
+            'interval' => ['required', Rule::in(DashboardGroup::$intervals)],
+            'speed' => 'required|integer|min:1|max:84600',
+            'name' => 'nullable|string',
+            'description' => 'nullable|string',
+            'logo_url' => 'nullable|url',
+            'show_inspections' => 'boolean',
+            'show_all' => 'boolean',
+            'hide_measurements' => 'boolean',
 		]);
         $requestData = $request->all();
         

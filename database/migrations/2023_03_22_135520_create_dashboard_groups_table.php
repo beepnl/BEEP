@@ -18,6 +18,7 @@ class CreateDashboardGroupsTable extends Migration
             $table->integer('user_id')->unsigned();
             $table->string('code')->unique();
             $table->string('name')->nullable();
+            $table->string('description')->nullable();
             $table->json('hive_ids')->nullable();
             $table->integer('speed')->unsigned();
             $table->string('interval');

@@ -194,7 +194,7 @@ class User extends Authenticatable
         return $this->belongsToMany(Group::class, 'group_user')->whereNotNull('accepted');
     }
 
-    public function dashboard_groups()
+    public function dashboardGroups()
     {
         return $this->hasMany(DashboardGroup::class);
     }

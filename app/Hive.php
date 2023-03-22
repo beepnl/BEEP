@@ -117,6 +117,11 @@ class Hive extends Model
         return $this->devices()->pluck('id')->toArray();
     }
 
+    public function hasDevices()
+    {
+        return $this->devices()->count() > 0 ? true : false;
+    }
+
     public function getNameAndLocationAttribute()
     {
         $out  = $this->name;

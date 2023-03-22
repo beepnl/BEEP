@@ -5,79 +5,135 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Http\Requests;
 
+use App\Hive;
 use App\Models\DashboardGroup;
 use Illuminate\Http\Request;
 
+use Illuminate\Validation\Rule;
+use Validator;
+
+/**
+ * @group Api\DashboardGroupController
+ * Store and retreive DashboardGroups to create public dashboard with a fixed set of measurements
+ * @authenticated
+ */
 class DashboardGroupController extends Controller
 {
     /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
+    api/dashboardgroups GET
+    List all user Dashboard groups
+    @authenticated
+    **/
     public function index(Request $request)
     {
-        $dgroup = Models\DashboardGroup::paginate(25);
-
-        return $dgroup;
+        $dgroup = $request->user->dashboardGroups();
+        return response()->json($dgroup);
     }
 
     /**
-     * Store a newly created resource in storage.
-     *
-     * @param \Illuminate\Http\Request $request
-     *
-     * @return \Illuminate\Http\Response
-     */
+    api/dashboardgroups/{sode} GET
+    Get public user Dashboard groups
+    @urlParam hive_id integer Hive ID of which the data should be loaded
+    @authenticated
+    **/
+    public function public(Request $request, string $code)
+    {
+        $inputs         = $request->inputs();
+        $inputs['code'] = strip_tags($code);
+
+        $validator = Validator::make($inputs, [
+            'code'    => 'required|string|min:6|exists:dashboardgroups,code',
+            'hive_id' => 'required|integer|exists:dashboardgroups,hive_ids',
+        ]);
+        if ($validator->fails())
+            return Response::json(['errors'=>$validator->errors()], 422);
+
+        $dgroup = $request->user->dashboardGroups();
+
+        if ($request->filled('hive_id'))
+        {
+            $hive = $dgroup::hives()->find($request->input('hive_id'));
+            if ($hive)
+            {
+                $has_devices = $hive->hasDevices();
+
+                $hive_array = [];
+                $hive_array['name'] = $hive->name;
+                $hive_array['location_name'] = $hive->location; 
+                $hive_array['lon'] = isset($hive->location) ? $hive->location->coordinate_lon : ''; 
+                $hive_array['lat'] = isset($hive->location) ? $hive->location->coordinate_lat : ''; 
+                $hive_array['last_inspection_date'] = $dgroup->show_inspections ? $hive->last_inspection_date : ''; 
+                $hive_array['impression'] = $dgroup->show_inspections ? $hive->impression : ''; 
+                $hive_array['notes'] = $dgroup->show_inspections ? $hive->notes : ''; 
+                $hive_array['device_online'] = $has_devices ? $hive->devices->first()->online : ''; 
+                $hive_array['measurements'] = []; 
+                $hive_array['inspections'] = []; 
+
+                return response()->json($hive_array);
+            }
+        }
+
+        return response()->json($dgroup);
+    }
+
+
     public function store(Request $request)
     {
-        
-        $dgroup = Models\DashboardGroup::create($request->all());
+        $validator = Validator::make($request->input(), [
+            'code' => 'required|string|min:6',
+            'hive_ids.*' => 'required|exists:hives,id',
+            'interval' => ['required', Rule::in(DashboardGroup::$intervals)],
+            'speed' => 'required|integer|min:1|max:84600',
+            'name' => 'nullable|string',
+            'description' => 'nullable|string',
+            'logo_url' => 'nullable|url',
+            'show_inspections' => 'boolean',
+            'show_all' => 'boolean',
+            'hide_measurements' => 'boolean',
+        ]);
+        if ($validator->fails())
+            return Response::json(['errors'=>$validator->errors()], 422);
+
+        $dgroup = $request->user->dashboardGroups()->create($request->all());
 
         return response()->json($dgroup, 201);
     }
 
-    /**
-     * Display the specified resource.
-     *
-     * @param  int  $id
-     *
-     * @return \Illuminate\Http\Response
-     */
+
     public function show($id)
     {
-        $dgroup = Models\DashboardGroup::findOrFail($id);
-
+        $dgroup = $request->user->dashboardGroups()->findOrFail($id);
         return $dgroup;
     }
 
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param \Illuminate\Http\Request $request
-     * @param  int  $id
-     *
-     * @return \Illuminate\Http\Response
-     */
+
     public function update(Request $request, $id)
     {
-        
-        $dgroup = Models\DashboardGroup::findOrFail($id);
+        $validator = Validator::make($request->input(), [
+            'code' => 'required|string|min:6',
+            'hive_ids.*' => 'required|exists:hives,id',
+            'interval' => ['required', Rule::in(DashboardGroup::$intervals)],
+            'speed' => 'required|integer|min:1|max:84600',
+            'name' => 'nullable|string',
+            'description' => 'nullable|string',
+            'logo_url' => 'nullable|url',
+            'show_inspections' => 'boolean',
+            'show_all' => 'boolean',
+            'hide_measurements' => 'boolean',
+        ]);
+        if ($validator->fails())
+            return Response::json(['errors'=>$validator->errors()], 422);
+
+        $dgroup = $request->user->dashboardGroups()->findOrFail($id);
         $dgroup->update($request->all());
 
         return response()->json($dgroup, 200);
     }
 
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  int  $id
-     *
-     * @return \Illuminate\Http\Response
-     */
+
     public function destroy($id)
     {
-        Models\DashboardGroup::destroy($id);
+        $request->user->dashboardGroups()->destroy($id);
 
         return response()->json(null, 204);
     }

@@ -64,7 +64,7 @@
                     <td>{{ $item->name }}</td>
                     <td>{{ implode(', ', $item->hives()->pluck('name')->toArray()) }}</td>
                     <td>{{ $item->speed }}</td>
-                    <td>{{ $item->interval }}</td>
+                    <td>{{ \App\Models\DashboardGroup::$intervals[$item->interval] }}</td>
                     <td>{{ $item->show_inspections }}</td>
                     <td>{{ $item->show_all }}</td>
                     <td col-sm-1>

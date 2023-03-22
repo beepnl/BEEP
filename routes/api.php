@@ -39,7 +39,9 @@ Route::group([], function()
 	Route::post('email/resend', 'Api\Auth\VerificationController@resend')->name('apiverification.resend')->middleware('throttle:3,1,resend');
 
 	Route::post('groups/checktoken', 'Api\GroupController@checktoken')->middleware('throttle:6,1,checktoken');
-	
+		
+	// Public Dashboard
+	Route::get('dashboardgroup/{code}', 'Api\DashboardGroupController@public')->middleware('throttle:60,1,publicdashboard');
 	
 	// high traffic routes
 	Route::group(['middleware'=>['auth:api', 'verifiedApi', 'throttle:global_rate_limit_per_min_sensors,1,sensor_traffic']], function()
@@ -112,6 +114,7 @@ Route::group([], function()
 		Route::resource('samplecode', 		'Api\SampleCodeController', 			['except'=>['create','edit','destroy']]);
 		Route::resource('alerts', 			'Api\AlertController', 					['except' => ['create', 'edit']]);
 		Route::resource('alert-rules', 		'Api\AlertRuleController', 				['except' => ['create', 'edit']]);
+		Route::resource('dashboardgroups', 		'Api\DashboardGroupController', 				['except' => ['create', 'edit']]);
 		Route::get('alert-rules-default', 	'Api\AlertRuleController@default');
 		
 		Route::delete('samplecode', 		'Api\SampleCodeController@destroy');

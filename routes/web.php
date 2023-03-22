@@ -121,6 +121,8 @@ Route::group(
 				Route::get('categories/{id}/fix',	['as'=>'categories.fix','uses'=>'CategoriesController@fix']);
 				Route::get('categories/{id}/duplicate',	['as'=>'categories.duplicate','uses'=>'CategoriesController@duplicate']);
 				Route::get('taxonomy/display',	['as'=>'taxonomy.display','uses'=>'TaxonomyController@display']);
+				
+				Route::resource('dashboard-group', 'DashboardGroupController');
 			});
 
 		Route::group(
@@ -158,6 +160,7 @@ Route::group(
 		Route::resource('inspections', 	'InspectionsController');
 		Route::resource('users', 		'UserController');		
 		Route::resource('hive-tags', 	'HiveTagsController');
+		
 
 		Route::get('research', 				['as'=>'research.index','uses'=>'ResearchController@index']);
 		Route::get('research/{id}', 		['as'=>'research.show','uses'=>'ResearchController@show']);
@@ -167,6 +170,3 @@ Route::group(
 	}
 );
 
-Route::resource('dashboard-group', 'DashboardGroupController');
-Route::resource('dashboard-group', 'DashboardGroupController');
-Route::resource('dashboard-group', 'DashboardGroupController');

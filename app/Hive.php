@@ -236,6 +236,13 @@ class Hive extends Model
                     $match += stristr($item->reminder, $search) !== false ? 1 : 0;
                     $match += stristr($item->created_at, $search) !== false ? 1 : 0;
                     $match += stristr($item->reminder_date, $search) !== false ? 1 : 0;
+                    // Include searching in (translated) inspection item values
+                    $inspection_item_values = $item->items->pluck('val')->toArray();
+                    $match += stristr(implode(',', $inspection_item_values), $search) !== false ? 1 : 0;
+                    // Include searching in (translated) inspection item names
+                    $inspection_item_names = $item->items->pluck('name')->toArray();
+                    $match += stristr(implode(',', $inspection_item_names), $search) !== false ? 1 : 0;
+
                     return $match > 0 ? true : false;
                 });
             }

@@ -69,7 +69,7 @@ class DashboardGroupController extends Controller
         $this->validate($request, [
 			'code' => 'required|string|min:6',
             'hive_ids.*' => 'required|exists:hives,id',
-            'interval' => ['required', Rule::in(DashboardGroup::$intervals)],
+            'interval'          => ['required', Rule::in(array_keys(DashboardGroup::$intervals))],
             'speed' => 'required|integer|min:1|max:84600',
             'name' => 'nullable|string',
             'description' => 'nullable|string',
@@ -126,7 +126,7 @@ class DashboardGroupController extends Controller
         $this->validate($request, [
 			'code' => 'required|string|min:6',
             'hive_ids.*' => 'required|exists:hives,id',
-            'interval' => ['required', Rule::in(DashboardGroup::$intervals)],
+            'interval'          => ['required', Rule::in(array_keys(DashboardGroup::$intervals))],
             'speed' => 'required|integer|min:1|max:84600',
             'name' => 'nullable|string',
             'description' => 'nullable|string',

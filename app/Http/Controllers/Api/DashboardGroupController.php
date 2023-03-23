@@ -27,7 +27,7 @@ class DashboardGroupController extends Controller
     **/
     public function index(Request $request)
     {
-        $dgroup = $request->user()->dashboardGroups();
+        $dgroup = $request->user()->dashboardGroups;
         return response()->json($dgroup);
     }
 
@@ -39,42 +39,66 @@ class DashboardGroupController extends Controller
     **/
     public function public(Request $request, string $code)
     {
-        $inputs         = $request->inputs();
+        $inputs         = $request->all();
         $inputs['code'] = strip_tags($code);
 
         $validator = Validator::make($inputs, [
-            'code'    => 'required|string|min:6|exists:dashboardgroups,code',
-            'hive_id' => 'required|integer|exists:dashboardgroups,hive_ids',
+            'code'    => 'required|string|min:6|exists:dashboard_groups,code',
+            'hive_id' => 'nullable|integer|exists:hives,id',
         ]);
         if ($validator->fails())
             return response()->json(['errors'=>$validator->errors()], 422);
 
-        $dgroup = $request->user()->dashboardGroups();
+        // Create output
+        $out    = [];
+        $dgroup = DashboardGroup::where('code', $code)->first();
 
-        if ($request->filled('hive_id'))
+        if ($dgroup)
         {
-            $hive = $dgroup::hives()->find($request->input('hive_id'));
-            if ($hive)
+            $out = $dgroup->toArray();
+            
+            if (is_array($dgroup->hive_ids) && count($dgroup->hive_ids) > 0)
             {
-                $has_devices = $hive->hasDevices();
+                
+                $out['hives'] = [];
 
-                $hive_array = [];
-                $hive_array['name'] = $hive->name;
-                $hive_array['location_name'] = $hive->location; 
-                $hive_array['lon'] = isset($hive->location) ? $hive->location->coordinate_lon : ''; 
-                $hive_array['lat'] = isset($hive->location) ? $hive->location->coordinate_lat : ''; 
-                $hive_array['last_inspection_date'] = $dgroup->show_inspections ? $hive->last_inspection_date : ''; 
-                $hive_array['impression'] = $dgroup->show_inspections ? $hive->impression : ''; 
-                $hive_array['notes'] = $dgroup->show_inspections ? $hive->notes : ''; 
-                $hive_array['device_online'] = $has_devices ? $hive->devices->first()->online : ''; 
-                $hive_array['measurements'] = []; 
-                $hive_array['inspections'] = []; 
+                $hives   = $dgroup->hives;
+                $hive_id = $request->filled('hive_id') ? $request->input('hive_id') : null;
+                
+                foreach($hives as $hive)
+                {
+                    if ($hive && (!isset($hive_id) || $hive->id == $hive_id))
+                    {   
+                        $target_hive = $hive->id == $hive_id ? true : false;
+                        $has_devices = $hive->hasDevices();
+                        $apiary      = isset($hive->location_id) ? $hive->location()->first() : null;
 
-                return response()->json($hive_array);
+                        $hive_array = [];
+                        $hive_array['name'] = $hive->name;
+                        $hive_array['location_name'] = $hive->location; 
+                        $hive_array['device_online'] = $has_devices ? $hive->devices->first()->online : ''; 
+                        $hive_array['lat'] = isset($apiary) ? $apiary->coordinate_lat : ''; 
+                        $hive_array['lon'] = isset($apiary) ? $apiary->coordinate_lon : ''; 
+
+                        if ($target_hive)
+                        {
+                            $hive_array['last_inspection_date'] = $dgroup->show_inspections ? $hive->last_inspection_date : ''; 
+                            $hive_array['impression'] = $dgroup->show_inspections ? $hive->impression : ''; 
+                            $hive_array['notes'] = $dgroup->show_inspections ? $hive->notes : ''; 
+                            $hive_array['measurements'] = []; 
+                            $hive_array['inspections'] = []; 
+                        }
+
+                        $out['hives'][] = $hive_array;
+                    }
+                }
             }
         }
-
-        return response()->json($dgroup);
+        else
+        {
+            return response()->json(null, 404);
+        }
+        return response()->json($out);
     }
 
 
@@ -82,7 +106,7 @@ class DashboardGroupController extends Controller
     {
         $validator = Validator::make($request->input(), [
             'hive_ids.*'        => 'required|exists:hives,id',
-            'interval'          => ['required', Rule::in(DashboardGroup::$intervals)],
+            'interval'          => ['required', Rule::in(array_keys(DashboardGroup::$intervals))],
             'speed'             => 'required|integer|min:1|max:84600',
             'name'              => 'nullable|string',
             'description'       => 'nullable|string',
@@ -114,7 +138,7 @@ class DashboardGroupController extends Controller
     {
         $validator = Validator::make($request->input(), [
             'hive_ids.*'        => 'required|exists:hives,id',
-            'interval'          => ['required', Rule::in(DashboardGroup::$intervals)],
+            'interval'          => ['required', Rule::in(array_keys(DashboardGroup::$intervals))],
             'speed'             => 'required|integer|min:1|max:84600',
             'name'              => 'nullable|string',
             'description'       => 'nullable|string',
@@ -135,8 +159,12 @@ class DashboardGroupController extends Controller
 
     public function destroy($id)
     {
-        $request->user()->dashboardGroups()->destroy($id);
+        $g = $request->user()->dashboardGroups()->findOrFail($id);
 
-        return response()->json(null, 204);
+        if ($g){
+            $g->destroy($id);
+            return response()->json(null, 204);
+        }
+        return response()->json(null, 404);
     }
 }

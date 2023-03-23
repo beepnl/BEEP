@@ -31,11 +31,14 @@ class DashboardGroup extends Model
 
     protected $casts = ['hive_ids'=>'array'];
 
-    public static $intervals = ['hour', 'day', 'week', 'month', 'year', 'selection'];
+    public static $intervals = ['hour'=>'Hour', 'day'=>'Day', 'week'=>'Week', 'month'=>'Month', 'year'=>'Year', 'selection'=>'Selection'];
 
     public function hives()
     {
-        return $this->user->hives()->whereIn('id', $this->hive_ids);
+        if (is_array($this->hive_ids) && count($this->hive_ids) > 0)
+            return $this->user->hives()->whereIn('id', $this->hive_ids);
+
+        return collect();
     }
     public function user()
     {

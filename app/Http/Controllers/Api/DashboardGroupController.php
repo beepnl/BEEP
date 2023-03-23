@@ -77,7 +77,7 @@ class DashboardGroupController extends Controller
 
                         $hive_array = [];
                         $hive_array['name'] = $hive->name;
-                        $hive_array['hive_id'] = $hive->id;
+                        $hive_array['id'] = $hive->id;
                         $hive_array['layers']  = $hive->layers;
                         $hive_array['sensors'] = $hive->sensors;
                         $hive_array['location_name'] = $hive->location; 

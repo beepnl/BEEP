@@ -75,12 +75,13 @@ class DashboardGroupController extends Controller
 
                         $hive_array = [];
                         $hive_array['name'] = $hive->name;
+                        $hive_array['hive_id'] = $hive->id;
                         $hive_array['location_name'] = $hive->location; 
                         $hive_array['device_online'] = $has_devices ? $hive->devices->first()->online : ''; 
                         $hive_array['lat'] = isset($apiary) ? $apiary->coordinate_lat : ''; 
                         $hive_array['lon'] = isset($apiary) ? $apiary->coordinate_lon : ''; 
 
-                        if ($target_hive)
+                        if ($hive_id)
                         {
                             $hive_array['last_inspection_date'] = $dgroup->show_inspections ? $hive->last_inspection_date : ''; 
                             $hive_array['impression'] = $dgroup->show_inspections ? $hive->impression : ''; 

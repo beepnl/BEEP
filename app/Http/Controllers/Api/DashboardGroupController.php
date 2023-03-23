@@ -11,6 +11,7 @@ use Illuminate\Http\Request;
 
 use Illuminate\Validation\Rule;
 use Validator;
+use Str;
 
 /**
  * @group Api\DashboardGroupController

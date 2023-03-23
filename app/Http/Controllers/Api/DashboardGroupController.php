@@ -76,6 +76,7 @@ class DashboardGroupController extends Controller
                         $hive_array = [];
                         $hive_array['name'] = $hive->name;
                         $hive_array['hive_id'] = $hive->id;
+                        $hive_array['layers'] = $hive->layers;
                         $hive_array['location_name'] = $hive->location; 
                         $hive_array['device_online'] = $has_devices ? $hive->devices->first()->online : ''; 
                         $hive_array['lat'] = isset($apiary) ? $apiary->coordinate_lat : ''; 

@@ -27,7 +27,7 @@ class DashboardGroupController extends Controller
     **/
     public function index(Request $request)
     {
-        $dgroup = $request->user->dashboardGroups();
+        $dgroup = $request->user()->dashboardGroups();
         return response()->json($dgroup);
     }
 
@@ -49,7 +49,7 @@ class DashboardGroupController extends Controller
         if ($validator->fails())
             return response()->json(['errors'=>$validator->errors()], 422);
 
-        $dgroup = $request->user->dashboardGroups();
+        $dgroup = $request->user()->dashboardGroups();
 
         if ($request->filled('hive_id'))
         {
@@ -97,7 +97,7 @@ class DashboardGroupController extends Controller
         $dgArray         = $request->all();
         $dgArray['code'] = strtoupper(Str::random(6));
 
-        $dgroup = $request->user->dashboardGroups()->create($dgArray);
+        $dgroup = $request->user()->dashboardGroups()->create($dgArray);
 
         return response()->json($dgroup, 201);
     }
@@ -105,7 +105,7 @@ class DashboardGroupController extends Controller
 
     public function show($id)
     {
-        $dgroup = $request->user->dashboardGroups()->findOrFail($id);
+        $dgroup = $request->user()->dashboardGroups()->findOrFail($id);
         return $dgroup;
     }
 
@@ -126,7 +126,7 @@ class DashboardGroupController extends Controller
         if ($validator->fails())
             return response()->json(['errors'=>$validator->errors()], 422);
 
-        $dgroup = $request->user->dashboardGroups()->findOrFail($id);
+        $dgroup = $request->user()->dashboardGroups()->findOrFail($id);
         $dgroup->update($request->all());
 
         return response()->json($dgroup, 200);
@@ -135,7 +135,7 @@ class DashboardGroupController extends Controller
 
     public function destroy($id)
     {
-        $request->user->dashboardGroups()->destroy($id);
+        $request->user()->dashboardGroups()->destroy($id);
 
         return response()->json(null, 204);
     }

@@ -10,11 +10,306 @@
     ],
     "info": {
         "name": "BEEP",
-        "_postman_id": "7e689542-fdc9-4b01-b26d-956883790b01",
+        "_postman_id": "81ae8768-ca6e-43e4-9b4e-6e82a63da505",
         "description": "BEEP API specification",
         "schema": "https:\/\/schema.getpostman.com\/json\/collection\/v2.1.0\/collection.json"
     },
     "item": [
+        {
+            "name": "Api\\DashboardGroupController",
+            "description": "Store and retreive DashboardGroups to create public dashboard with a fixed set of measurements",
+            "item": [
+                {
+                    "name": "api\/dashboard\/{sode} GET\nGet public user Dashboard groups",
+                    "request": {
+                        "url": {
+                            "host": "{{baseUrl}}",
+                            "path": "api\/dashboard\/:code",
+                            "query": [],
+                            "raw": "{{baseUrl}}\/api\/dashboard\/:code",
+                            "variable": [
+                                {
+                                    "id": "code",
+                                    "key": "code",
+                                    "value": "sint",
+                                    "description": ""
+                                },
+                                {
+                                    "id": "hive_id",
+                                    "key": "hive_id",
+                                    "value": "14",
+                                    "description": "Hive ID of which the data should be loaded"
+                                }
+                            ]
+                        },
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept",
+                                "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept-language",
+                                "value": "en"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\"code\":\"\",\"hive_id\":2}"
+                        },
+                        "description": ""
+                    },
+                    "response": [
+                        {
+                            "header": [
+                                {
+                                    "key": "cache-control",
+                                    "value": "no-cache, private"
+                                },
+                                {
+                                    "key": "content-type",
+                                    "value": "application\/json"
+                                },
+                                {
+                                    "key": "x-ratelimit-limit",
+                                    "value": "60"
+                                },
+                                {
+                                    "key": "x-ratelimit-remaining",
+                                    "value": "59"
+                                },
+                                {
+                                    "key": "access-control-allow-origin",
+                                    "value": "*"
+                                }
+                            ],
+                            "code": 500,
+                            "body": "{\n    \"message\": \"Server Error\"\n}",
+                            "name": ""
+                        }
+                    ]
+                },
+                {
+                    "name": "api\/dashboardgroups GET\nList all user Dashboard groups",
+                    "request": {
+                        "url": {
+                            "host": "{{baseUrl}}",
+                            "path": "api\/dashboardgroups",
+                            "query": [],
+                            "raw": "{{baseUrl}}\/api\/dashboardgroups"
+                        },
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept",
+                                "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept-language",
+                                "value": "en"
+                            }
+                        ],
+                        "body": null,
+                        "description": ""
+                    },
+                    "response": [
+                        {
+                            "header": [
+                                {
+                                    "key": "cache-control",
+                                    "value": "no-cache, private"
+                                },
+                                {
+                                    "key": "content-type",
+                                    "value": "application\/json"
+                                },
+                                {
+                                    "key": "access-control-allow-origin",
+                                    "value": "*"
+                                }
+                            ],
+                            "code": 401,
+                            "body": "{\"message\":\"Unauthenticated.\"}",
+                            "name": ""
+                        }
+                    ]
+                },
+                {
+                    "name": "api\/dashboardgroups",
+                    "request": {
+                        "url": {
+                            "host": "{{baseUrl}}",
+                            "path": "api\/dashboardgroups",
+                            "query": [],
+                            "raw": "{{baseUrl}}\/api\/dashboardgroups"
+                        },
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept",
+                                "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept-language",
+                                "value": "en"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\"interval\":\"et\",\"speed\":55344,\"name\":\"accusantium\",\"description\":\"explicabo\",\"logo_url\":\"http:\\\/\\\/www.olson.com\\\/alias-ipsa-atque-esse-doloremque-neque\",\"show_inspections\":true,\"show_all\":true,\"hide_measurements\":true,\"hive_ids\":[\"est\"]}"
+                        },
+                        "description": ""
+                    },
+                    "response": []
+                },
+                {
+                    "name": "api\/dashboardgroups\/{id}",
+                    "request": {
+                        "url": {
+                            "host": "{{baseUrl}}",
+                            "path": "api\/dashboardgroups\/:id",
+                            "query": [],
+                            "raw": "{{baseUrl}}\/api\/dashboardgroups\/:id",
+                            "variable": [
+                                {
+                                    "id": "id",
+                                    "key": "id",
+                                    "value": "18",
+                                    "description": "The ID of the dashboardgroup."
+                                }
+                            ]
+                        },
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept",
+                                "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept-language",
+                                "value": "en"
+                            }
+                        ],
+                        "body": null,
+                        "description": ""
+                    },
+                    "response": [
+                        {
+                            "header": [
+                                {
+                                    "key": "cache-control",
+                                    "value": "no-cache, private"
+                                },
+                                {
+                                    "key": "content-type",
+                                    "value": "application\/json"
+                                },
+                                {
+                                    "key": "access-control-allow-origin",
+                                    "value": "*"
+                                }
+                            ],
+                            "code": 401,
+                            "body": "{\"message\":\"Unauthenticated.\"}",
+                            "name": ""
+                        }
+                    ]
+                },
+                {
+                    "name": "api\/dashboardgroups\/{id}",
+                    "request": {
+                        "url": {
+                            "host": "{{baseUrl}}",
+                            "path": "api\/dashboardgroups\/:id",
+                            "query": [],
+                            "raw": "{{baseUrl}}\/api\/dashboardgroups\/:id",
+                            "variable": [
+                                {
+                                    "id": "id",
+                                    "key": "id",
+                                    "value": "19",
+                                    "description": "The ID of the dashboardgroup."
+                                }
+                            ]
+                        },
+                        "method": "PUT",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept",
+                                "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept-language",
+                                "value": "en"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\"interval\":\"omnis\",\"speed\":25209,\"name\":\"ea\",\"description\":\"rerum\",\"logo_url\":\"http:\\\/\\\/www.krajcik.com\\\/fugiat-necessitatibus-eos-blanditiis-maiores-expedita-quibusdam-non.html\",\"show_inspections\":true,\"show_all\":true,\"hide_measurements\":false,\"hive_ids\":[\"dolor\"]}"
+                        },
+                        "description": ""
+                    },
+                    "response": []
+                },
+                {
+                    "name": "api\/dashboardgroups\/{id}",
+                    "request": {
+                        "url": {
+                            "host": "{{baseUrl}}",
+                            "path": "api\/dashboardgroups\/:id",
+                            "query": [],
+                            "raw": "{{baseUrl}}\/api\/dashboardgroups\/:id",
+                            "variable": [
+                                {
+                                    "id": "id",
+                                    "key": "id",
+                                    "value": "11",
+                                    "description": "The ID of the dashboardgroup."
+                                }
+                            ]
+                        },
+                        "method": "DELETE",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept",
+                                "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept-language",
+                                "value": "en"
+                            }
+                        ],
+                        "body": null,
+                        "description": ""
+                    },
+                    "response": []
+                }
+            ]
+        },
         {
             "name": "Api\\AlertController",
             "description": "Manage your alerts",
@@ -94,7 +389,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"alert_rule_id\":7,\"measurement_id\":5,\"alert_value\":\"voluptate\",\"show\":false}"
+                            "raw": "{\"alert_rule_id\":14,\"measurement_id\":17,\"alert_value\":\"nobis\",\"show\":true}"
                         },
                         "description": ""
                     },
@@ -112,7 +407,7 @@
                                 {
                                     "id": "id",
                                     "key": "id",
-                                    "value": "16",
+                                    "value": "15",
                                     "description": "The ID of the alert."
                                 }
                             ]
@@ -169,7 +464,7 @@
                                 {
                                     "id": "id",
                                     "key": "id",
-                                    "value": "15",
+                                    "value": "12",
                                     "description": "The ID of the alert."
                                 }
                             ]
@@ -191,7 +486,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"show\":false}"
+                            "raw": "{\"show\":true}"
                         },
                         "description": ""
                     },
@@ -209,7 +504,7 @@
                                 {
                                     "id": "id",
                                     "key": "id",
-                                    "value": "9",
+                                    "value": "1",
                                     "description": "The ID of the alert."
                                 }
                             ]
@@ -315,7 +610,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"name\":\"animi\",\"description\":\"veritatis\",\"measurement_id\":11,\"calculation\":\"quia\",\"comparator\":\"suscipit\",\"comparison\":\"id\",\"threshold_value\":4993321.5227,\"calculation_minutes\":4,\"alert_on_occurrences\":18,\"alert_via_email\":false,\"webhook_url\":\"est\",\"active\":true,\"exclude_months\":[1,2,3,11,12],\"exclude_hours\":[0,1,2,3,22,23],\"exclude_hive_ids\":[\"et\"]}"
+                            "raw": "{\"name\":\"eos\",\"description\":\"odio\",\"measurement_id\":8,\"calculation\":\"impedit\",\"comparator\":\"reiciendis\",\"comparison\":\"eligendi\",\"threshold_value\":16.305,\"calculation_minutes\":3,\"alert_on_occurrences\":18,\"alert_via_email\":false,\"webhook_url\":\"ea\",\"active\":true,\"exclude_months\":[1,2,3,11,12],\"exclude_hours\":[0,1,2,3,22,23],\"exclude_hive_ids\":[\"occaecati\"]}"
                         },
                         "description": ""
                     },
@@ -390,7 +685,7 @@
                                 {
                                     "id": "id",
                                     "key": "id",
-                                    "value": "quia",
+                                    "value": "quasi",
                                     "description": "The ID of the alert rule."
                                 }
                             ]
@@ -412,7 +707,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"name\":\"perspiciatis\",\"description\":\"dolorem\",\"measurement_id\":9,\"calculation\":\"ipsam\",\"comparator\":\"illo\",\"comparison\":\"molestias\",\"threshold_value\":145406652.5948,\"calculation_minutes\":14,\"alert_on_occurrences\":7,\"alert_via_email\":false,\"webhook_url\":\"eius\",\"active\":false,\"exclude_months\":[1,2,3,11,12],\"exclude_hours\":[0,1,2,3,22,23],\"exclude_hive_ids\":[\"libero\"]}"
+                            "raw": "{\"name\":\"quia\",\"description\":\"aspernatur\",\"measurement_id\":12,\"calculation\":\"omnis\",\"comparator\":\"molestias\",\"comparison\":\"sint\",\"threshold_value\":29187710.77,\"calculation_minutes\":8,\"alert_on_occurrences\":6,\"alert_via_email\":false,\"webhook_url\":\"omnis\",\"active\":false,\"exclude_months\":[1,2,3,11,12],\"exclude_hours\":[0,1,2,3,22,23],\"exclude_hive_ids\":[\"pariatur\"]}"
                         },
                         "description": ""
                     },
@@ -430,7 +725,7 @@
                                 {
                                     "id": "id",
                                     "key": "id",
-                                    "value": "non",
+                                    "value": "occaecati",
                                     "description": "The ID of the alert rule."
                                 }
                             ]
@@ -735,7 +1030,7 @@
                                 {
                                     "id": "id",
                                     "key": "id",
-                                    "value": "14",
+                                    "value": "4",
                                     "description": "The ID of the checklist."
                                 }
                             ]
@@ -792,7 +1087,7 @@
                                 {
                                     "id": "id",
                                     "key": "id",
-                                    "value": "14",
+                                    "value": "19",
                                     "description": "The ID of the checklist."
                                 }
                             ]
@@ -829,7 +1124,7 @@
                                 {
                                     "id": "id",
                                     "key": "id",
-                                    "value": "9",
+                                    "value": "12",
                                     "description": "The ID of the checklist."
                                 }
                             ]
@@ -886,7 +1181,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"id\":15,\"key\":\"ex\",\"hardware_id\":\"tenetur\",\"name\":\"non\",\"hive_id\":8,\"type\":\"quae\",\"last_message_received\":\"quod\",\"firmware_version\":\"eos\",\"hardware_version\":\"velit\",\"boot_count\":11,\"measurement_interval_min\":202591.009667,\"measurement_transmission_ratio\":352.1029282,\"ble_pin\":\"at\",\"battery_voltage\":532.9,\"next_downlink_message\":\"ut\",\"last_downlink_result\":\"voluptatem\"}"
+                            "raw": "{\"id\":11,\"key\":\"quis\",\"hardware_id\":\"minima\",\"name\":\"est\",\"hive_id\":6,\"type\":\"atque\",\"last_message_received\":\"sit\",\"firmware_version\":\"quod\",\"hardware_version\":\"voluptatum\",\"boot_count\":13,\"measurement_interval_min\":2279.6186,\"measurement_transmission_ratio\":20312947.5,\"ble_pin\":\"incidunt\",\"battery_voltage\":4.19046,\"next_downlink_message\":\"ad\",\"last_downlink_result\":\"consequuntur\"}"
                         },
                         "description": ""
                     },
@@ -904,7 +1199,7 @@
                                 {
                                     "id": "dev_id",
                                     "key": "dev_id",
-                                    "value": "aliquam",
+                                    "value": "sit",
                                     "description": "The ID of the dev."
                                 }
                             ]
@@ -961,7 +1256,7 @@
                                 {
                                     "id": "dev_id",
                                     "key": "dev_id",
-                                    "value": "qui",
+                                    "value": "dicta",
                                     "description": "The ID of the dev."
                                 }
                             ]
@@ -983,7 +1278,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"lorawan_device\":{\"dev_eui\":\"fvhrbirsjfdsbppb\",\"app_key\":\"fqswxcezwocwsbpjxwspehfkctfeuvyx\"}}"
+                            "raw": "{\"lorawan_device\":{\"dev_eui\":\"jpamlqrlcssdcthf\",\"app_key\":\"aufeafaxabydxtsowranfsledwyqeczl\"}}"
                         },
                         "description": ""
                     },
@@ -1015,7 +1310,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"hardware_id\":\"voluptatem\"}"
+                            "raw": "{\"hardware_id\":\"sed\"}"
                         },
                         "description": ""
                     },
@@ -1054,7 +1349,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"id\":16,\"key\":\"ratione\",\"hardware_id\":\"fuga\",\"name\":\"quo\",\"hive_id\":13,\"type\":\"nesciunt\",\"last_message_received\":\"alias\",\"firmware_version\":\"ut\",\"hardware_version\":\"qui\",\"boot_count\":8,\"measurement_interval_min\":6.17885099,\"measurement_transmission_ratio\":25.90066,\"ble_pin\":\"nihil\",\"battery_voltage\":6.4677,\"next_downlink_message\":\"dicta\",\"last_downlink_result\":\"id\",\"create_ttn_device\":true,\"app_key\":\"ex\"}"
+                            "raw": "{\"id\":13,\"key\":\"ipsum\",\"hardware_id\":\"et\",\"name\":\"doloremque\",\"hive_id\":18,\"type\":\"quis\",\"last_message_received\":\"unde\",\"firmware_version\":\"nihil\",\"hardware_version\":\"in\",\"boot_count\":11,\"measurement_interval_min\":170.2,\"measurement_transmission_ratio\":1704.25,\"ble_pin\":\"aut\",\"battery_voltage\":142571.2,\"next_downlink_message\":\"laboriosam\",\"last_downlink_result\":\"aspernatur\",\"create_ttn_device\":true,\"app_key\":\"dolore\"}"
                         },
                         "description": ""
                     },
@@ -1072,7 +1367,7 @@
                                 {
                                     "id": "id",
                                     "key": "id",
-                                    "value": "10",
+                                    "value": "12",
                                     "description": "The ID of the device."
                                 }
                             ]
@@ -1129,7 +1424,7 @@
                                 {
                                     "id": "id",
                                     "key": "id",
-                                    "value": "13",
+                                    "value": "18",
                                     "description": "The ID of the device."
                                 }
                             ]
@@ -1151,7 +1446,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"id\":9,\"key\":\"rem\",\"hardware_id\":\"enim\",\"name\":\"dicta\",\"hive_id\":5,\"type\":\"cumque\",\"delete\":false,\"last_message_received\":\"fugit\",\"firmware_version\":\"perferendis\",\"hardware_version\":\"et\",\"boot_count\":6,\"measurement_interval_min\":5414774.809212,\"measurement_transmission_ratio\":3311.9341132,\"ble_pin\":\"amet\",\"battery_voltage\":697.9858256,\"next_downlink_message\":\"ducimus\",\"last_downlink_result\":\"iure\"}"
+                            "raw": "{\"id\":14,\"key\":\"aliquam\",\"hardware_id\":\"occaecati\",\"name\":\"dolorem\",\"hive_id\":8,\"type\":\"aut\",\"delete\":false,\"last_message_received\":\"aut\",\"firmware_version\":\"reiciendis\",\"hardware_version\":\"corrupti\",\"boot_count\":5,\"measurement_interval_min\":8.9535,\"measurement_transmission_ratio\":354607168.04,\"ble_pin\":\"nesciunt\",\"battery_voltage\":75946380,\"next_downlink_message\":\"modi\",\"last_downlink_result\":\"dolorum\"}"
                         },
                         "description": ""
                     },
@@ -1189,14 +1484,14 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"device_id\":\"quae\",\"start\":\"2020-05-27 16:16\",\"end\":\"2020-05-30 00:00\",\"separator\":\";\",\"measurements\":\"'am2315_t,am2315_h,mhz_co2'\",\"link\":false}"
+                            "raw": "{\"device_id\":\"at\",\"start\":\"2020-05-27 16:16\",\"end\":\"2020-05-30 00:00\",\"separator\":\";\",\"measurements\":\"'am2315_t,am2315_h,mhz_co2'\",\"link\":true}"
                         },
                         "description": ""
                     },
                     "response": []
                 },
                 {
-                    "name": "api\/export",
+                    "name": "api\/export GET\nGenerate an Excel file with all user data and send by e-mail or as download link",
                     "request": {
                         "url": {
                             "host": "{{baseUrl}}",
@@ -1219,7 +1514,10 @@
                                 "value": "en"
                             }
                         ],
-                        "body": null,
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\"groupdata\":false,\"sensordata\":false,\"link\":true}"
+                        },
                         "description": ""
                     },
                     "response": [
@@ -1308,17 +1606,17 @@
                             "query": [
                                 {
                                     "key": "id",
-                                    "value": "5",
+                                    "value": "1",
                                     "description": "Flashlog ID to parse",
                                     "disabled": false
                                 }
                             ],
-                            "raw": "{{baseUrl}}\/api\/flashlogs\/:id?id=5",
+                            "raw": "{{baseUrl}}\/api\/flashlogs\/:id?id=1",
                             "variable": [
                                 {
                                     "id": "id",
                                     "key": "id",
-                                    "value": "14",
+                                    "value": "20",
                                     "description": "The ID of the flashlog."
                                 }
                             ]
@@ -1340,7 +1638,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"matches_min\":2,\"match_props\":7,\"db_records\":15,\"block_id\":1,\"block_data_index\":0,\"data_minutes\":14,\"from_cache\":false,\"save_result\":false,\"csv\":0,\"json\":0}"
+                            "raw": "{\"matches_min\":2,\"match_props\":7,\"db_records\":15,\"block_id\":1,\"block_data_index\":0,\"data_minutes\":8,\"from_cache\":false,\"save_result\":false,\"csv\":0,\"json\":0}"
                         },
                         "description": ""
                     },
@@ -1375,17 +1673,17 @@
                             "query": [
                                 {
                                     "key": "id",
-                                    "value": "4",
+                                    "value": "6",
                                     "description": "Flashlog ID to parse",
                                     "disabled": false
                                 }
                             ],
-                            "raw": "{{baseUrl}}\/api\/flashlogs\/:id?id=4",
+                            "raw": "{{baseUrl}}\/api\/flashlogs\/:id?id=6",
                             "variable": [
                                 {
                                     "id": "id",
                                     "key": "id",
-                                    "value": "1",
+                                    "value": "6",
                                     "description": "The ID of the flashlog."
                                 }
                             ]
@@ -1422,17 +1720,17 @@
                             "query": [
                                 {
                                     "key": "id",
-                                    "value": "7",
+                                    "value": "9",
                                     "description": "Flashlog ID to delete the complete Flashlog file",
                                     "disabled": false
                                 }
                             ],
-                            "raw": "{{baseUrl}}\/api\/flashlogs\/:id?id=7",
+                            "raw": "{{baseUrl}}\/api\/flashlogs\/:id?id=9",
                             "variable": [
                                 {
                                     "id": "id",
                                     "key": "id",
-                                    "value": "10",
+                                    "value": "11",
                                     "description": "The ID of the flashlog."
                                 }
                             ]
@@ -1454,7 +1752,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"block_id\":14}"
+                            "raw": "{\"block_id\":12}"
                         },
                         "description": ""
                     },
@@ -1492,7 +1790,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"token\":\"qui\",\"group_id\":\"quidem\",\"decline\":false}"
+                            "raw": "{\"token\":\"quia\",\"group_id\":\"est\",\"decline\":false}"
                         },
                         "description": ""
                     },
@@ -1588,7 +1886,7 @@
                                 {
                                     "id": "id",
                                     "key": "id",
-                                    "value": "2",
+                                    "value": "8",
                                     "description": "The ID of the group."
                                 }
                             ]
@@ -1645,7 +1943,7 @@
                                 {
                                     "id": "id",
                                     "key": "id",
-                                    "value": "8",
+                                    "value": "6",
                                     "description": "The ID of the group."
                                 }
                             ]
@@ -1682,7 +1980,7 @@
                                 {
                                     "id": "id",
                                     "key": "id",
-                                    "value": "18",
+                                    "value": "4",
                                     "description": "The ID of the group."
                                 }
                             ]
@@ -1719,7 +2017,7 @@
                                 {
                                     "id": "id",
                                     "key": "id",
-                                    "value": "tempore",
+                                    "value": "est",
                                     "description": "The ID of the detach."
                                 }
                             ]
@@ -1812,7 +2110,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"name\":\"porro\",\"location_id\":9,\"brood_layers\":0,\"honey_layers\":0,\"frames\":0,\"order\":19,\"layers\":[\"iste\"],\"color\":\"ojcdw\",\"hive_type_id\":15,\"bb_width_cm\":0,\"bb_depth_cm\":0,\"bb_height_cm\":0,\"fr_width_cm\":0,\"fr_height_cm\":0,\"queen\":{\"race_id\":19,\"birth_date\":\"2023-01-11T14:43:47\",\"name\":\"praesentium\",\"description\":\"rerum\",\"line\":\"doloremque\",\"tree\":\"quos\",\"color\":\"k\",\"clipped\":20,\"fertilized\":20},\"timezone\":\"Indian\\\/Chagos\"}"
+                            "raw": "{\"name\":\"nemo\",\"location_id\":6,\"brood_layers\":0,\"honey_layers\":0,\"frames\":0,\"order\":1,\"layers\":[\"quo\"],\"color\":\"fovht\",\"hive_type_id\":20,\"bb_width_cm\":0,\"bb_depth_cm\":0,\"bb_height_cm\":0,\"fr_width_cm\":0,\"fr_height_cm\":0,\"queen\":{\"race_id\":3,\"birth_date\":\"2023-03-23T10:45:54\",\"name\":\"neque\",\"description\":\"dignissimos\",\"line\":\"veniam\",\"tree\":\"cum\",\"color\":\"fl\",\"clipped\":4,\"fertilized\":9},\"timezone\":\"Australia\\\/Brisbane\"}"
                         },
                         "description": ""
                     },
@@ -1909,7 +2207,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"name\":\"exercitationem\",\"location_id\":3,\"brood_layers\":0,\"honey_layers\":0,\"frames\":0,\"order\":12,\"layers\":[\"a\"],\"color\":\"dxzjyrng\",\"hive_type_id\":19,\"bb_width_cm\":0,\"bb_depth_cm\":0,\"bb_height_cm\":0,\"fr_width_cm\":0,\"fr_height_cm\":0,\"queen\":{\"race_id\":7,\"birth_date\":\"2023-01-11T14:43:47\",\"name\":\"sequi\",\"description\":\"doloremque\",\"line\":\"quia\",\"tree\":\"incidunt\",\"color\":\"kywepaqzs\",\"clipped\":12,\"fertilized\":8},\"timezone\":\"Atlantic\\\/Faroe\"}"
+                            "raw": "{\"name\":\"quos\",\"location_id\":13,\"brood_layers\":0,\"honey_layers\":0,\"frames\":0,\"order\":4,\"layers\":[\"nihil\"],\"color\":\"fjmgwpwyt\",\"hive_type_id\":18,\"bb_width_cm\":0,\"bb_depth_cm\":0,\"bb_height_cm\":0,\"fr_width_cm\":0,\"fr_height_cm\":0,\"queen\":{\"race_id\":9,\"birth_date\":\"2023-03-23T10:45:54\",\"name\":\"et\",\"description\":\"et\",\"line\":\"aliquam\",\"tree\":\"aperiam\",\"color\":\"jt\",\"clipped\":3,\"fertilized\":2},\"timezone\":\"America\\\/Bogota\"}"
                         },
                         "description": ""
                     },
@@ -2048,7 +2346,7 @@
                                 {
                                     "id": "id",
                                     "key": "id",
-                                    "value": "18",
+                                    "value": "1",
                                     "description": "The ID of the image."
                                 }
                             ]
@@ -2105,7 +2403,7 @@
                                 {
                                     "id": "id",
                                     "key": "id",
-                                    "value": "18",
+                                    "value": "20",
                                     "description": "The ID of the image."
                                 }
                             ]
@@ -2240,7 +2538,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"id\":8}"
+                            "raw": "{\"id\":2}"
                         },
                         "description": ""
                     },
@@ -2265,7 +2563,7 @@
                                 {
                                     "id": "id",
                                     "key": "id",
-                                    "value": "quo",
+                                    "value": "quibusdam",
                                     "description": "The id of the inspection."
                                 }
                             ]
@@ -2322,7 +2620,7 @@
                                 {
                                     "id": "hive_id",
                                     "key": "hive_id",
-                                    "value": "nulla",
+                                    "value": "aut",
                                     "description": "The hive to request inspections from."
                                 }
                             ]
@@ -2398,7 +2696,7 @@
                                 {
                                     "id": "id",
                                     "key": "id",
-                                    "value": "15",
+                                    "value": "3",
                                     "description": "The ID of the inspection."
                                 }
                             ]
@@ -2504,7 +2802,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"name\":\"deserunt\",\"hive_type_id\":9}"
+                            "raw": "{\"name\":\"sed\",\"hive_type_id\":13}"
                         },
                         "description": ""
                     },
@@ -2579,7 +2877,7 @@
                                 {
                                     "id": "id",
                                     "key": "id",
-                                    "value": "16",
+                                    "value": "6",
                                     "description": "The ID of the location."
                                 }
                             ]
@@ -2601,7 +2899,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"name\":\"iure\",\"hive_type_id\":20}"
+                            "raw": "{\"name\":\"commodi\",\"hive_type_id\":7}"
                         },
                         "description": ""
                     },
@@ -2659,12 +2957,12 @@
                             "query": [
                                 {
                                     "key": "key%2Fdata",
-                                    "value": "minus",
+                                    "value": "pariatur",
                                     "description": "Measurement formatted as URL query: key=your_beep_device_key&t=18.4&t_i=34.5&weight_kg=57.348&h=58&bv=3.54",
                                     "disabled": false
                                 }
                             ],
-                            "raw": "{{baseUrl}}\/api\/sensors?key%2Fdata=minus"
+                            "raw": "{{baseUrl}}\/api\/sensors?key%2Fdata=pariatur"
                         },
                         "method": "POST",
                         "header": [
@@ -2683,7 +2981,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"key\\\/data\":\"natus\"}"
+                            "raw": "{\"key\\\/data\":\"omnis\"}"
                         },
                         "description": "",
                         "auth": {
@@ -2718,7 +3016,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"key\":\"reiciendis\",\"payload_raw\":\"atque\",\"payload_fields\":\"nesciunt\",\"DevEUI_uplink\":\"fugit\"}"
+                            "raw": "{\"key\":\"ut\",\"payload_raw\":\"id\",\"payload_fields\":\"voluptas\",\"DevEUI_uplink\":\"qui\"}"
                         },
                         "description": "",
                         "auth": {
@@ -2803,12 +3101,12 @@
                             "query": [
                                 {
                                     "key": "key%2Fdata",
-                                    "value": "odit",
+                                    "value": "animi",
                                     "description": "Measurement formatted as URL query: key=your_beep_device_key&t=18.4&t_i=34.5&weight_kg=57.348&h=58&bv=3.54",
                                     "disabled": false
                                 }
                             ],
-                            "raw": "{{baseUrl}}\/api\/sensors_auth?key%2Fdata=odit"
+                            "raw": "{{baseUrl}}\/api\/sensors_auth?key%2Fdata=animi"
                         },
                         "method": "POST",
                         "header": [
@@ -2827,7 +3125,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"key\\\/data\":\"quia\"}"
+                            "raw": "{\"key\\\/data\":\"quos\"}"
                         },
                         "description": "",
                         "auth": {
@@ -2862,7 +3160,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"key\":\"laudantium\",\"payload_raw\":\"ipsam\",\"payload_fields\":\"placeat\",\"DevEUI_uplink\":\"voluptas\"}"
+                            "raw": "{\"key\":\"quo\",\"payload_raw\":\"dolores\",\"payload_fields\":\"vitae\",\"DevEUI_uplink\":\"doloremque\"}"
                         },
                         "description": "",
                         "auth": {
@@ -2897,7 +3195,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"id\":18,\"key\":\"ad\",\"hive_id\":17,\"start\":\"2020-05-27 16:16\",\"end\":\"2020-05-30 00:00\",\"index\":10,\"interval\":\"cum\",\"timeGroup\":\"itaque\",\"names\":\"voluptatem\",\"weather\":1,\"timezone\":\"Europe\\\/Amsterdam\",\"relative_interval\":19}"
+                            "raw": "{\"id\":8,\"key\":\"sint\",\"hive_id\":9,\"start\":\"2020-05-27 16:16\",\"end\":\"2020-05-30 00:00\",\"index\":18,\"interval\":\"velit\",\"timeGroup\":\"est\",\"names\":\"sit\",\"weather\":1,\"timezone\":\"Europe\\\/Amsterdam\",\"relative_interval\":6}"
                         },
                         "description": ""
                     },
@@ -2949,7 +3247,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"key\":\"doloribus\",\"id\":7,\"hive_id\":15}"
+                            "raw": "{\"key\":\"deleniti\",\"id\":15,\"hive_id\":9}"
                         },
                         "description": ""
                     },
@@ -3001,7 +3299,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"key\":\"sed\",\"id\":2,\"hive_id\":4}"
+                            "raw": "{\"key\":\"delectus\",\"id\":3,\"hive_id\":3}"
                         },
                         "description": ""
                     },
@@ -3053,7 +3351,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"next_measurement\":true,\"weight_kg\":4746.284222}"
+                            "raw": "{\"next_measurement\":false,\"weight_kg\":152365.77834655}"
                         },
                         "description": "At the next measurement coming in, calibrate each weight sensor with it's part of a given weight.\nBecause the measurements can come in only each hour\/ 3hrs, set a value to trigger the calculation on next measurement\n\n1. If $next_measurement == true: save 'calibrating' = true in Influx with the sensor key\n2. If $next_measurement == false: save 'calibrating' = false in Influx with the sensor key and...\n3.   Get the last measured weight values for this sensor key,\n     Divide the given weight (in kg) with the amount of sensor values > 1.0 (assuming the weight is evenly distributed)\n     Calculate the multiplier per sensor by dividing the multiplier = weight_part \/ (value - offset)\n     Save the multiplier as $device_name.'_kg_per_val' in Influx",
                         "auth": {
@@ -3155,30 +3453,30 @@
                             "query": [
                                 {
                                     "key": "show",
-                                    "value": "16",
+                                    "value": "13",
                                     "description": "1 for displaying info in result JSON, 0 for not displaying (default).",
                                     "disabled": false
                                 },
                                 {
                                     "key": "save",
-                                    "value": "4",
+                                    "value": "8",
                                     "description": "1 for saving the data to a file (default), 0 for not save log file.",
                                     "disabled": false
                                 },
                                 {
                                     "key": "fill",
-                                    "value": "13",
+                                    "value": "9",
                                     "description": "1 for filling data gaps in the database, 0 for not filling gaps (default).",
                                     "disabled": false
                                 },
                                 {
                                     "key": "log_size_bytes",
-                                    "value": "17",
+                                    "value": "11",
                                     "description": "0x22 decimal result of log size requested from BEEP base.",
                                     "disabled": false
                                 }
                             ],
-                            "raw": "{{baseUrl}}\/api\/sensors\/flashlog?show=16&save=4&fill=13&log_size_bytes=17"
+                            "raw": "{{baseUrl}}\/api\/sensors\/flashlog?show=13&save=8&fill=9&log_size_bytes=11"
                         },
                         "method": "POST",
                         "header": [
@@ -3197,7 +3495,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"id\":12,\"key\":\"iusto\",\"hardware_id\":\"consequatur\",\"data\":\"vitae\",\"file\":\"iure\"}"
+                            "raw": "{\"id\":20,\"key\":\"eaque\",\"hardware_id\":\"et\",\"data\":\"sed\",\"file\":\"neque\"}"
                         },
                         "description": ""
                     },
@@ -3222,13 +3520,13 @@
                                 {
                                     "id": "port",
                                     "key": "port",
-                                    "value": "ullam",
+                                    "value": "error",
                                     "description": ""
                                 },
                                 {
                                     "id": "payload",
                                     "key": "payload",
-                                    "value": "dolores",
+                                    "value": "nulla",
                                     "description": ""
                                 }
                             ]
@@ -3343,7 +3641,7 @@
                                 {
                                     "id": "id",
                                     "key": "id",
-                                    "value": "10",
+                                    "value": "17",
                                     "description": "Research ID"
                                 }
                             ]
@@ -3365,7 +3663,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"location_ids\":[\"illo\"],\"hive_ids\":[\"praesentium\"],\"device_ids\":[\"alias\"]}"
+                            "raw": "{\"location_ids\":[\"necessitatibus\"],\"hive_ids\":[\"alias\"],\"device_ids\":[\"qui\"]}"
                         },
                         "description": ""
                     },
@@ -3420,13 +3718,13 @@
                                 {
                                     "id": "id",
                                     "key": "id",
-                                    "value": "11",
+                                    "value": "17",
                                     "description": "The ID of the research."
                                 },
                                 {
                                     "id": "consent_id",
                                     "key": "consent_id",
-                                    "value": "quasi",
+                                    "value": "vitae",
                                     "description": "The ID of the consent."
                                 }
                             ]
@@ -3463,13 +3761,13 @@
                                 {
                                     "id": "id",
                                     "key": "id",
-                                    "value": "11",
+                                    "value": "12",
                                     "description": "The ID of the research."
                                 },
                                 {
                                     "id": "consent_id",
                                     "key": "consent_id",
-                                    "value": "ratione",
+                                    "value": "occaecati",
                                     "description": "The ID of the consent."
                                 }
                             ]
@@ -3548,7 +3846,7 @@
                                 {
                                     "id": "id",
                                     "key": "id",
-                                    "value": "tempora",
+                                    "value": "soluta",
                                     "description": "The research ID to request data from."
                                 }
                             ]
@@ -3878,7 +4176,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"device_id\":14,\"hardware_id\":\"dolor\",\"device_hardware_id\":\"ut\",\"input_measurement_abbreviation\":\"et\",\"limit\":3}"
+                            "raw": "{\"device_id\":15,\"hardware_id\":\"numquam\",\"device_hardware_id\":\"omnis\",\"input_measurement_abbreviation\":\"illo\",\"limit\":14}"
                         },
                         "description": ""
                     },
@@ -3930,7 +4228,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"name\":\"eaque\",\"inside\":false,\"offset\":206706.844419,\"multiplier\":759.0159461,\"input_measurement_id\":5,\"input_measurement_abbreviation\":\"w_v\",\"output_measurement_id\":6,\"output_measurement_abbreviation\":\"t_i\",\"device_id\":8,\"hardware_id\":\"amet\",\"device_hardware_id\":\"amet\"}"
+                            "raw": "{\"name\":\"repudiandae\",\"inside\":true,\"offset\":626378210.8420379,\"multiplier\":264280362,\"input_measurement_id\":5,\"input_measurement_abbreviation\":\"w_v\",\"output_measurement_id\":6,\"output_measurement_abbreviation\":\"t_i\",\"device_id\":3,\"hardware_id\":\"eius\",\"device_hardware_id\":\"modi\"}"
                         },
                         "description": ""
                     },
@@ -3948,7 +4246,7 @@
                                 {
                                     "id": "id",
                                     "key": "id",
-                                    "value": "accusantium",
+                                    "value": "ea",
                                     "description": "Sensordefinition ID"
                                 }
                             ]
@@ -3970,7 +4268,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"device_id\":14,\"hardware_id\":\"vero\",\"device_hardware_id\":\"reprehenderit\"}"
+                            "raw": "{\"device_id\":1,\"hardware_id\":\"possimus\",\"device_hardware_id\":\"nulla\"}"
                         },
                         "description": ""
                     },
@@ -4008,7 +4306,7 @@
                                 {
                                     "id": "id",
                                     "key": "id",
-                                    "value": "quae",
+                                    "value": "facilis",
                                     "description": "Sensordefinition ID"
                                 }
                             ]
@@ -4030,7 +4328,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"device_id\":12,\"hardware_id\":\"possimus\",\"device_hardware_id\":\"ut\"}"
+                            "raw": "{\"device_id\":4,\"hardware_id\":\"qui\",\"device_hardware_id\":\"ducimus\"}"
                         },
                         "description": ""
                     },
@@ -4048,7 +4346,7 @@
                                 {
                                     "id": "id",
                                     "key": "id",
-                                    "value": "reprehenderit",
+                                    "value": "et",
                                     "description": "Sensordefinition ID"
                                 }
                             ]
@@ -4070,7 +4368,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"device_id\":4,\"hardware_id\":\"fuga\",\"device_hardware_id\":\"et\"}"
+                            "raw": "{\"device_id\":10,\"hardware_id\":\"praesentium\",\"device_hardware_id\":\"ut\"}"
                         },
                         "description": ""
                     },
@@ -4140,15 +4438,15 @@
                             "query": [
                                 {
                                     "key": "locale",
-                                    "value": "est",
+                                    "value": "saepe",
                                     "description": "Two character language code to translate taxonomy",
                                     "disabled": false
                                 },
                                 {
                                     "key": "flat",
-                                    "value": "",
+                                    "value": "1",
                                     "description": "In hierachy (default: true)",
-                                    "disabled": true
+                                    "disabled": false
                                 },
                                 {
                                     "key": "order",
@@ -4157,7 +4455,7 @@
                                     "disabled": false
                                 }
                             ],
-                            "raw": "{{baseUrl}}\/api\/taxonomy\/taxonomy?locale=est&flat=&order=1"
+                            "raw": "{{baseUrl}}\/api\/taxonomy\/taxonomy?locale=saepe&flat=1&order=1"
                         },
                         "method": "GET",
                         "header": [
@@ -4309,7 +4607,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"locale\":\"harum\"}"
+                            "raw": "{\"locale\":\"voluptatem\"}"
                         },
                         "description": ""
                     },
@@ -4399,7 +4697,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"tag\":\"dolores\",\"router_link\":\"recusandae\",\"hive_id\":16,\"action_id\":13}"
+                            "raw": "{\"tag\":\"consequatur\",\"router_link\":\"est\",\"hive_id\":2,\"action_id\":2}"
                         },
                         "description": "",
                         "auth": {
@@ -4420,7 +4718,7 @@
                                 {
                                     "id": "id",
                                     "key": "id",
-                                    "value": "omnis",
+                                    "value": "illum",
                                     "description": "The ID of the hive tag."
                                 }
                             ]
@@ -4480,7 +4778,7 @@
                                 {
                                     "id": "id",
                                     "key": "id",
-                                    "value": "inventore",
+                                    "value": "at",
                                     "description": "The ID of the hive tag."
                                 }
                             ]
@@ -4502,7 +4800,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"tag\":\"et\",\"router_link\":\"atque\",\"hive_id\":5,\"action_id\":8}"
+                            "raw": "{\"tag\":\"distinctio\",\"router_link\":\"dolores\",\"hive_id\":14,\"action_id\":3}"
                         },
                         "description": "",
                         "auth": {
@@ -4523,7 +4821,7 @@
                                 {
                                     "id": "id",
                                     "key": "id",
-                                    "value": "qui",
+                                    "value": "quisquam",
                                     "description": "The ID of the hive tag."
                                 }
                             ]

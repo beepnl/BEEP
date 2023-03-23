@@ -31,7 +31,7 @@ class DashboardGroupController extends Controller
     }
 
     /**
-    api/dashboardgroups/{sode} GET
+    api/dashboard/{sode} GET
     Get public user Dashboard groups
     @urlParam hive_id integer Hive ID of which the data should be loaded
     @authenticated
@@ -80,21 +80,23 @@ class DashboardGroupController extends Controller
     public function store(Request $request)
     {
         $validator = Validator::make($request->input(), [
-            'code' => 'required|string|min:6',
-            'hive_ids.*' => 'required|exists:hives,id',
-            'interval' => ['required', Rule::in(DashboardGroup::$intervals)],
-            'speed' => 'required|integer|min:1|max:84600',
-            'name' => 'nullable|string',
-            'description' => 'nullable|string',
-            'logo_url' => 'nullable|url',
-            'show_inspections' => 'boolean',
-            'show_all' => 'boolean',
+            'hive_ids.*'        => 'required|exists:hives,id',
+            'interval'          => ['required', Rule::in(DashboardGroup::$intervals)],
+            'speed'             => 'required|integer|min:1|max:84600',
+            'name'              => 'nullable|string',
+            'description'       => 'nullable|string',
+            'logo_url'          => 'nullable|url',
+            'show_inspections'  => 'boolean',
+            'show_all'          => 'boolean',
             'hide_measurements' => 'boolean',
         ]);
         if ($validator->fails())
             return response()->json(['errors'=>$validator->errors()], 422);
 
-        $dgroup = $request->user->dashboardGroups()->create($request->all());
+        $dgArray         = $request->all();
+        $dgArray['code'] = strtoupper(Str::random(6));
+
+        $dgroup = $request->user->dashboardGroups()->create($dgArray);
 
         return response()->json($dgroup, 201);
     }
@@ -110,15 +112,14 @@ class DashboardGroupController extends Controller
     public function update(Request $request, $id)
     {
         $validator = Validator::make($request->input(), [
-            'code' => 'required|string|min:6',
-            'hive_ids.*' => 'required|exists:hives,id',
-            'interval' => ['required', Rule::in(DashboardGroup::$intervals)],
-            'speed' => 'required|integer|min:1|max:84600',
-            'name' => 'nullable|string',
-            'description' => 'nullable|string',
-            'logo_url' => 'nullable|url',
-            'show_inspections' => 'boolean',
-            'show_all' => 'boolean',
+            'hive_ids.*'        => 'required|exists:hives,id',
+            'interval'          => ['required', Rule::in(DashboardGroup::$intervals)],
+            'speed'             => 'required|integer|min:1|max:84600',
+            'name'              => 'nullable|string',
+            'description'       => 'nullable|string',
+            'logo_url'          => 'nullable|url',
+            'show_inspections'  => 'boolean',
+            'show_all'          => 'boolean',
             'hide_measurements' => 'boolean',
         ]);
         if ($validator->fails())

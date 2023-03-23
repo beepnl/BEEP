@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests;
 
 use App\Hive;
+use App\Measurement;
 use App\Models\DashboardGroup;
 use Illuminate\Http\Request;
 
@@ -56,6 +57,7 @@ class DashboardGroupController extends Controller
         if ($dgroup)
         {
             $out = $dgroup->toArray();
+            $out['sensormeasurements'] = Measurement::all();
             
             if (is_array($dgroup->hive_ids) && count($dgroup->hive_ids) > 0)
             {
@@ -76,7 +78,8 @@ class DashboardGroupController extends Controller
                         $hive_array = [];
                         $hive_array['name'] = $hive->name;
                         $hive_array['hive_id'] = $hive->id;
-                        $hive_array['layers'] = $hive->layers;
+                        $hive_array['layers']  = $hive->layers;
+                        $hive_array['sensors'] = $hive->sensors;
                         $hive_array['location_name'] = $hive->location; 
                         $hive_array['device_online'] = $has_devices ? $hive->devices->first()->online : ''; 
                         $hive_array['lat'] = isset($apiary) ? $apiary->coordinate_lat : ''; 

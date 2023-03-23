@@ -41,7 +41,7 @@ Route::group([], function()
 	Route::post('groups/checktoken', 'Api\GroupController@checktoken')->middleware('throttle:6,1,checktoken');
 		
 	// Public Dashboard
-	Route::get('dashboardgroup/{code}', 'Api\DashboardGroupController@public')->middleware('throttle:60,1,publicdashboard');
+	Route::get('dashboard/{code}', 'Api\DashboardGroupController@public')->middleware('throttle:60,1,publicdashboard');
 	
 	// high traffic routes
 	Route::group(['middleware'=>['auth:api', 'verifiedApi', 'throttle:global_rate_limit_per_min_sensors,1,sensor_traffic']], function()

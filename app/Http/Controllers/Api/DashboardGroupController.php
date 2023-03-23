@@ -46,7 +46,7 @@ class DashboardGroupController extends Controller
             'hive_id' => 'required|integer|exists:dashboardgroups,hive_ids',
         ]);
         if ($validator->fails())
-            return Response::json(['errors'=>$validator->errors()], 422);
+            return response()->json(['errors'=>$validator->errors()], 422);
 
         $dgroup = $request->user->dashboardGroups();
 
@@ -92,7 +92,7 @@ class DashboardGroupController extends Controller
             'hide_measurements' => 'boolean',
         ]);
         if ($validator->fails())
-            return Response::json(['errors'=>$validator->errors()], 422);
+            return response()->json(['errors'=>$validator->errors()], 422);
 
         $dgroup = $request->user->dashboardGroups()->create($request->all());
 
@@ -122,7 +122,7 @@ class DashboardGroupController extends Controller
             'hide_measurements' => 'boolean',
         ]);
         if ($validator->fails())
-            return Response::json(['errors'=>$validator->errors()], 422);
+            return response()->json(['errors'=>$validator->errors()], 422);
 
         $dgroup = $request->user->dashboardGroups()->findOrFail($id);
         $dgroup->update($request->all());

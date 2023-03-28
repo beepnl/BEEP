@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Http\Controllers\MeasurementController;
+use App\Http\Controllers\Api\MeasurementController;
 use App\Http\Requests;
 
 use App\Hive;

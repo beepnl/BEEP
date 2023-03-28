@@ -100,9 +100,10 @@ class DashboardGroupController extends Controller
                                     'index' => 0,
                                     'interval' => $dgroup->interval,
                                     'relative_interval' => 1,
-                                    'user' => $dgroup->user()
                                 ];
-                                $hive_array['measurements'] = (new MeasurementController)->data(new Request($data_request)); 
+                                $request = new Request($data_request);
+                                $request->setUserResolver($dgroup->user());
+                                $hive_array['measurements'] = (new MeasurementController)->data($request); 
                             }
                         }
 

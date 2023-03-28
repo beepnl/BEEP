@@ -59,7 +59,6 @@ class DashboardGroupController extends Controller
         {
             $user = $dgroup->user;
             $out  = $dgroup->toArray();
-            $out['sensormeasurements'] = Measurement::all();
             
             if (is_array($dgroup->hive_ids) && count($dgroup->hive_ids) > 0)
             {
@@ -69,25 +68,18 @@ class DashboardGroupController extends Controller
                 $hives   = $dgroup->hives;
                 $hive_id = $request->filled('hive_id') ? $request->input('hive_id') : null;
                 
+                if ($hive_id === null)
+                    $out['sensormeasurements'] = Measurement::all(); // only on first meta call
+                
                 foreach($hives as $hive)
                 {
                     if ($hive && (!isset($hive_id) || $hive->id == $hive_id))
                     {   
-                        $target_hive = $hive->id == $hive_id ? true : false;
+                        $hive_array  = [];
                         $device      = $hive->hasDevices() ? $hive->devices->first() : null;
-                        $apiary      = isset($hive->location_id) ? $hive->location()->first() : null;
-
-                        $hive_array = [];
-                        $hive_array['name'] = $hive->name;
-                        $hive_array['id'] = $hive->id;
-                        $hive_array['layers']  = $hive->layers;
-                        $hive_array['sensors'] = $hive->sensors;
-                        $hive_array['location_name'] = $hive->location; 
                         $hive_array['device_online'] = isset($device) ? $device->online : ''; 
-                        $hive_array['lat'] = isset($apiary) ? $apiary->coordinate_lat : ''; 
-                        $hive_array['lon'] = isset($apiary) ? $apiary->coordinate_lon : ''; 
-
-                        if ($hive_id)
+                        
+                        if (isset($hive_id))
                         {
                             $hive_array['last_inspection_date'] = $dgroup->show_inspections ? $hive->last_inspection_date : ''; 
                             $hive_array['impression'] = $dgroup->show_inspections ? $hive->impression : ''; 
@@ -106,8 +98,36 @@ class DashboardGroupController extends Controller
                                 $request->setUserResolver(function () use ($user) {
                                     return $user;
                                 });
-                                $hive_array['measurements'] = (new MeasurementController)->data($request); 
+                                $result = (new MeasurementController)->data($request);
+                                if ($result->getStatusCode() == 200)
+                                {
+                                    $m   = $result->original;
+                                    $cnt = count($m['measurements']);
+                                    if ($cnt > 0)
+                                    {
+                                        $hive_array['index']            = $m['index']; 
+                                        $hive_array['interval']         = $m['interval']; 
+                                        $hive_array['relative_interval']= $m['relative_interval']; 
+                                        $hive_array['resolution']       = $m['resolution']; 
+                                        $hive_array['sensorDefinitions']= $m['sensorDefinitions']; 
+                                        $hive_array['measurements']     = $m['measurements']; 
+                                        $hive_array['start']            = $m['measurements'][0]['time']; 
+                                        $hive_array['end']              = $m['measurements'][$cnt-1]['time'];
+                                    }
+                                }
                             }
+                        }
+                        else
+                        {
+                            $hive_array['name'] = $hive->name;
+                            $hive_array['id'] = $hive->id;
+                            $hive_array['layers']  = $hive->layers;
+                            $hive_array['sensors'] = $hive->sensors;
+                            $hive_array['location_name'] = $hive->location; 
+                            
+                            $apiary            = isset($hive->location_id) ? $hive->location()->first() : null;
+                            $hive_array['lat'] = isset($apiary) ? $apiary->coordinate_lat : ''; 
+                            $hive_array['lon'] = isset($apiary) ? $apiary->coordinate_lon : ''; 
                         }
 
                         $out['hives'][] = $hive_array;

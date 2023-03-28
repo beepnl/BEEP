@@ -735,14 +735,18 @@ class ResearchDataController extends Controller
         // User specific data
         $user_consents     = DB::table('research_user')->where('research_id', $id)->where('user_id', $user_id)->whereDate('updated_at', '<', $date_until)->orderBy('updated_at','asc')->get()->toArray();
 
+        if (count($user_consents) == 0) // if only 1 and consent is false, stop
+            return Response::json('user-gave-no-consent', 400);
+
         $user_consent_obj  = $user_consents[0];
         $user_consent      = $user_consent_obj->consent;
         $date_curr_consent = $user_consent_obj->updated_at;
-        $date_next_consent = $date_until;
 
-        if (count($user_consents) == 0 || (count($user_consents) == 1 && $user_consent === 0)) // if only 1 and consent is false, stop
+        if(count($user_consents) == 1 && $user_consent === 0) // if only 1 and consent is false, stop
             return Response::json('user-gave-no-consent', 400);
+        
         //die(print_r([$user_consents, $date_curr_consent, $date_next_consent, $index]));
+        $date_next_consent = $date_until;
 
         if ($item == 'measurements' || $item == 'weather')
             $this->cacheRequestRate('get-measurements-research');

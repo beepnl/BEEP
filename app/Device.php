@@ -202,7 +202,7 @@ class Device extends Model
 
     public function location()
     {
-        if (isset($this->hive))
+        if (Auth::check() && isset($this->hive))
             return Auth::user()->allLocations()->find($this->hive->location_id);
 
         return null;

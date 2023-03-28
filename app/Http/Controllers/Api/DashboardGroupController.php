@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\MeasurementController;
 use App\Http\Requests;
 
 use App\Hive;
@@ -72,7 +73,7 @@ class DashboardGroupController extends Controller
                     if ($hive && (!isset($hive_id) || $hive->id == $hive_id))
                     {   
                         $target_hive = $hive->id == $hive_id ? true : false;
-                        $has_devices = $hive->hasDevices();
+                        $device      = $hive->hasDevices() ? $hive->devices->first() : null;
                         $apiary      = isset($hive->location_id) ? $hive->location()->first() : null;
 
                         $hive_array = [];
@@ -81,7 +82,7 @@ class DashboardGroupController extends Controller
                         $hive_array['layers']  = $hive->layers;
                         $hive_array['sensors'] = $hive->sensors;
                         $hive_array['location_name'] = $hive->location; 
-                        $hive_array['device_online'] = $has_devices ? $hive->devices->first()->online : ''; 
+                        $hive_array['device_online'] = isset($device) ? $device->online : ''; 
                         $hive_array['lat'] = isset($apiary) ? $apiary->coordinate_lat : ''; 
                         $hive_array['lon'] = isset($apiary) ? $apiary->coordinate_lon : ''; 
 
@@ -89,9 +90,19 @@ class DashboardGroupController extends Controller
                         {
                             $hive_array['last_inspection_date'] = $dgroup->show_inspections ? $hive->last_inspection_date : ''; 
                             $hive_array['impression'] = $dgroup->show_inspections ? $hive->impression : ''; 
-                            $hive_array['notes'] = $dgroup->show_inspections ? $hive->notes : ''; 
-                            $hive_array['measurements'] = []; 
-                            $hive_array['inspections'] = []; 
+                            $hive_array['notes'] = $dgroup->show_inspections ? $hive->notes : '';
+
+                            if (isset($device))
+                            {
+                                $data_request = [
+                                    'id' => $device->id,
+                                    'hive_id' => $hive->id,
+                                    'index' => 0,
+                                    'interval' => $dgroup->interval,
+                                    'relative_interval' => 1
+                                ];
+                                $hive_array['measurements'] = (new MeasurementController)->data(new Request($data_request)); 
+                            }
                         }
 
                         $out['hives'][] = $hive_array;

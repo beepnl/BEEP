@@ -29,8 +29,8 @@ class DashboardGroup extends Model
      */
     protected $fillable = ['user_id', 'code', 'name', 'hive_ids', 'speed', 'interval', 'show_inspections', 'show_all', 'hide_measurements', 'logo_url', 'description'];
 
-    protected $hidden   = ['id','user_id','user','code','created_at','updated_at'];
-
+    protected $hidden   = ['id','user_id','user','code','hive_ids','created_at','updated_at'];
+    
     protected $casts    = ['hive_ids'=>'array'];
 
     public static $intervals = ['hour'=>'Hour', 'day'=>'Day', 'week'=>'Week', 'month'=>'Month', 'year'=>'Year', 'selection'=>'Selection'];

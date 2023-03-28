@@ -57,7 +57,8 @@ class DashboardGroupController extends Controller
 
         if ($dgroup)
         {
-            $out = $dgroup->toArray();
+            $user = $dgroup->user;
+            $out  = $dgroup->toArray();
             $out['sensormeasurements'] = Measurement::all();
             
             if (is_array($dgroup->hive_ids) && count($dgroup->hive_ids) > 0)
@@ -102,7 +103,9 @@ class DashboardGroupController extends Controller
                                     'relative_interval' => 1,
                                 ];
                                 $request = new Request($data_request);
-                                $request->setUserResolver($dgroup->user);
+                                $request->setUserResolver(function () use ($user) {
+                                    return $user;
+                                });
                                 $hive_array['measurements'] = (new MeasurementController)->data($request); 
                             }
                         }

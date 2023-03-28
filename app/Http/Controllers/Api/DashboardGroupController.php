@@ -61,21 +61,21 @@ class DashboardGroupController extends Controller
             $dgroup = DashboardGroup::where('code', $code)->first();
             if ($dgroup)
             {
-                
-                $user = $dgroup->user;
-                $out  = $dgroup->toArray();
+                $out  = [];
                 
                 if (is_array($dgroup->hive_ids) && count($dgroup->hive_ids) > 0)
                 {
-                    
-                    $out['hives'] = [];
-
-                    $hives   = $dgroup->hives;
-                    
-                    
+                    // only on first meta call
                     if ($hive_id === null)
-                        $out['sensormeasurements'] = Measurement::all(); // only on first meta call
+                    {
+                        $out = $dgroup->toArray();
+                        $out['sensormeasurements'] = Measurement::all(); 
+                    }
                     
+                    $user = $dgroup->user;
+                    $hives= $dgroup->hives;
+                
+                    $out['hives'] = [];
                     foreach($hives as $hive)
                     {
                         if ($hive && (!isset($hive_id) || $hive->id == $hive_id))

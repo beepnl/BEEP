@@ -85,15 +85,17 @@ class DashboardGroupController extends Controller
                             $device                      = $hive->hasDevices() ? $hive->devices->first() : null;
                             $hive_array['device_online'] = isset($device) ? $device->online : '';
 
-                            $apiary                      = isset($hive->location_id) ? $hive->location()->first() : null;
-                            $hive_array['lat']           = isset($apiary) ? $apiary->coordinate_lat : ''; 
-                            $hive_array['lon']           = isset($apiary) ? $apiary->coordinate_lon : ''; 
 
                             if (isset($hive_id))
                             {
                                 $hive_array['last_inspection_date'] = $dgroup->show_inspections ? $hive->last_inspection_date : ''; 
                                 $hive_array['impression'] = $dgroup->show_inspections ? $hive->impression : ''; 
                                 $hive_array['notes'] = $dgroup->show_inspections ? $hive->notes : '';
+
+                                $apiary                      = isset($hive->location_id) ? $hive->location()->first() : null;
+                                $hive_array['lat']           = isset($apiary) ? $apiary->coordinate_lat : ''; 
+                                $hive_array['lon']           = isset($apiary) ? $apiary->coordinate_lon : '';
+                                $hive_array['location_name'] = $hive->location; 
 
                                 if (isset($device))
                                 {
@@ -133,7 +135,6 @@ class DashboardGroupController extends Controller
                                 $hive_array['id'] = $hive->id;
                                 $hive_array['layers']  = $hive->layers;
                                 $hive_array['sensors'] = $hive->sensors;
-                                $hive_array['location_name'] = $hive->location; 
                             }
 
                             $out['hives'][] = $hive_array;

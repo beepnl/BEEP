@@ -99,7 +99,8 @@ class DashboardGroupController extends Controller
                                     'hive_id' => $hive->id,
                                     'index' => 0,
                                     'interval' => $dgroup->interval,
-                                    'relative_interval' => 1
+                                    'relative_interval' => 1,
+                                    'user' => $dgroup->user()
                                 ];
                                 $hive_array['measurements'] = (new MeasurementController)->data(new Request($data_request)); 
                             }

@@ -14,6 +14,7 @@ use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 use Validator;
 use Str;
+use Cache;
 
 /**
  * @group Api\DashboardGroupController
@@ -52,93 +53,99 @@ class DashboardGroupController extends Controller
             return response()->json(['errors'=>$validator->errors()], 422);
 
         // Create output
-        $out    = [];
-        $dgroup = DashboardGroup::where('code', $code)->first();
-
-        if ($dgroup)
-        {
-            $user = $dgroup->user;
-            $out  = $dgroup->toArray();
-            
-            if (is_array($dgroup->hive_ids) && count($dgroup->hive_ids) > 0)
+        $hive_id= $request->filled('hive_id') ? $request->input('hive_id') : null;
+        
+        $out = Cache::remember('dashboard-code'.$code.'-hive-'.$hive_id.'-data', env('CACHE_TIMEOUT_LONG'), function () use ($code, $hive_id)
+        { 
+            $out    = [];
+            $dgroup = DashboardGroup::where('code', $code)->first();
+            if ($dgroup)
             {
                 
-                $out['hives'] = [];
-
-                $hives   = $dgroup->hives;
-                $hive_id = $request->filled('hive_id') ? $request->input('hive_id') : null;
+                $user = $dgroup->user;
+                $out  = $dgroup->toArray();
                 
-                if ($hive_id === null)
-                    $out['sensormeasurements'] = Measurement::all(); // only on first meta call
-                
-                foreach($hives as $hive)
+                if (is_array($dgroup->hive_ids) && count($dgroup->hive_ids) > 0)
                 {
-                    if ($hive && (!isset($hive_id) || $hive->id == $hive_id))
-                    {   
-                        $hive_array  = [];
-                        $device      = $hive->hasDevices() ? $hive->devices->first() : null;
-                        $hive_array['device_online'] = isset($device) ? $device->online : ''; 
-                        
-                        if (isset($hive_id))
-                        {
-                            $hive_array['last_inspection_date'] = $dgroup->show_inspections ? $hive->last_inspection_date : ''; 
-                            $hive_array['impression'] = $dgroup->show_inspections ? $hive->impression : ''; 
-                            $hive_array['notes'] = $dgroup->show_inspections ? $hive->notes : '';
+                    
+                    $out['hives'] = [];
 
-                            if (isset($device))
+                    $hives   = $dgroup->hives;
+                    
+                    
+                    if ($hive_id === null)
+                        $out['sensormeasurements'] = Measurement::all(); // only on first meta call
+                    
+                    foreach($hives as $hive)
+                    {
+                        if ($hive && (!isset($hive_id) || $hive->id == $hive_id))
+                        {   
+                            $hive_array  = [];
+                            $device      = $hive->hasDevices() ? $hive->devices->first() : null;
+                            $hive_array['device_online'] = isset($device) ? $device->online : ''; 
+
+                            if (isset($hive_id))
                             {
-                                $data_request = [
-                                    'id' => $device->id,
-                                    'hive_id' => $hive->id,
-                                    'index' => 0,
-                                    'interval' => $dgroup->interval,
-                                    'relative_interval' => 1,
-                                ];
-                                $request = new Request($data_request);
-                                $request->setUserResolver(function () use ($user) {
-                                    return $user;
-                                });
-                                $result = (new MeasurementController)->data($request);
-                                if ($result->getStatusCode() == 200)
+                                $hive_array['last_inspection_date'] = $dgroup->show_inspections ? $hive->last_inspection_date : ''; 
+                                $hive_array['impression'] = $dgroup->show_inspections ? $hive->impression : ''; 
+                                $hive_array['notes'] = $dgroup->show_inspections ? $hive->notes : '';
+
+                                if (isset($device))
                                 {
-                                    $m   = $result->original;
-                                    $cnt = count($m['measurements']);
-                                    if ($cnt > 0)
+                                    $data_request = [
+                                        'id' => $device->id,
+                                        'hive_id' => $hive->id,
+                                        'index' => 0,
+                                        'interval' => $dgroup->interval,
+                                        'relative_interval' => 1,
+                                    ];
+                                    $request = new Request($data_request);
+                                    $request->setUserResolver(function () use ($user) {
+                                        return $user;
+                                    });
+                                    $result = (new MeasurementController)->data($request);
+                                    if ($result->getStatusCode() == 200)
                                     {
-                                        $hive_array['index']            = $m['index']; 
-                                        $hive_array['interval']         = $m['interval']; 
-                                        $hive_array['relative_interval']= $m['relative_interval']; 
-                                        $hive_array['resolution']       = $m['resolution']; 
-                                        $hive_array['sensorDefinitions']= $m['sensorDefinitions']; 
-                                        $hive_array['measurements']     = $m['measurements']; 
-                                        $hive_array['start']            = $m['measurements'][0]['time']; 
-                                        $hive_array['end']              = $m['measurements'][$cnt-1]['time'];
+                                        $m   = $result->original;
+                                        $cnt = count($m['measurements']);
+                                        if ($cnt > 0)
+                                        {
+                                            $hive_array['index']            = $m['index']; 
+                                            $hive_array['interval']         = $m['interval']; 
+                                            $hive_array['relative_interval']= $m['relative_interval']; 
+                                            $hive_array['resolution']       = $m['resolution']; 
+                                            $hive_array['sensorDefinitions']= $m['sensorDefinitions']; 
+                                            $hive_array['measurements']     = $m['measurements']; 
+                                            $hive_array['start']            = $m['measurements'][0]['time']; 
+                                            $hive_array['end']              = $m['measurements'][$cnt-1]['time'];
+                                        }
                                     }
                                 }
                             }
-                        }
-                        else
-                        {
-                            $hive_array['name'] = $hive->name;
-                            $hive_array['id'] = $hive->id;
-                            $hive_array['layers']  = $hive->layers;
-                            $hive_array['sensors'] = $hive->sensors;
-                            $hive_array['location_name'] = $hive->location; 
-                            
-                            $apiary            = isset($hive->location_id) ? $hive->location()->first() : null;
-                            $hive_array['lat'] = isset($apiary) ? $apiary->coordinate_lat : ''; 
-                            $hive_array['lon'] = isset($apiary) ? $apiary->coordinate_lon : ''; 
-                        }
+                            else
+                            {
+                                $hive_array['name'] = $hive->name;
+                                $hive_array['id'] = $hive->id;
+                                $hive_array['layers']  = $hive->layers;
+                                $hive_array['sensors'] = $hive->sensors;
+                                $hive_array['location_name'] = $hive->location; 
+                                
+                                $apiary            = isset($hive->location_id) ? $hive->location()->first() : null;
+                                $hive_array['lat'] = isset($apiary) ? $apiary->coordinate_lat : ''; 
+                                $hive_array['lon'] = isset($apiary) ? $apiary->coordinate_lon : ''; 
+                            }
 
-                        $out['hives'][] = $hive_array;
+                            $out['hives'][] = $hive_array;
+                        }
                     }
                 }
             }
-        }
-        else
-        {
+            return $out;
+        });
+
+        if (count($out) == 0)
             return response()->json(null, 404);
-        }
+        
         return response()->json($out);
     }
 

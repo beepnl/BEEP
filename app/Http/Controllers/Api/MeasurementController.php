@@ -1495,6 +1495,8 @@ class MeasurementController extends Controller
                 'relative_interval' => 'nullable|integer',
             ]);
 
+            #return Response::json( ['status'=>"before validation"] );
+    
             if ($validator->fails())
                 return response()->json(['errors'=>$validator->errors()]);
 
@@ -1516,6 +1518,19 @@ class MeasurementController extends Controller
                 return Response::json('sensor-no-measurements-error', 500);
 
             
+            // add sensorDefinition names
+            $sensorDefinitions = [];
+            foreach ($names as $name)
+            {
+                $measurement_id   = Measurement::getIdByAbbreviation($name);
+                foreach($devices as $device){
+                    $sensordefinition = $device->sensorDefinitions->where('output_measurement_id', $measurement_id)->sortByDesc('updated_at')->first();
+                    if ($sensordefinition)
+                        $sensorDefinitions["$name"] = ['name'=>$sensordefinition->name, 'inside'=>$sensordefinition->inside];
+         
+                }
+            }
+
             //Get the data interval
             $relative_interval    = boolval($request->input('relative_interval', 0));  
             $intervalArr          = $this->compareinterval($request, $relative_interval, false);
@@ -1572,7 +1587,7 @@ class MeasurementController extends Controller
             if (count($sensors_out) == 0)
                 return Response::json('sensor-no-data-error', 500);
 
-            return Response::json( ['id'=>$device->id, 'interval'=>$interval, 'relative_interval'=>$relative_interval, 'index'=>$index, 'timeGroup'=>$timeGroup, 'resolution'=>$resolution, 'measurements'=>$sensors_out, 'cacheSensorNames'=>$cache_sensor_names] );
+            return Response::json( ['id'=>$device->id, 'interval'=>$interval, 'relative_interval'=>$relative_interval, 'index'=>$index, 'timeGroup'=>$timeGroup, 'resolution'=>$resolution, 'measurements'=>$sensors_out, 'sensorDefinitions'=>$sensorDefinitions, 'cacheSensorNames'=>$cache_sensor_names] );
         }
     }
 }

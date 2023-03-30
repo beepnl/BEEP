@@ -230,7 +230,7 @@ class Hive extends Model
 
         if (isset($id))
         {
-            $inspections->where('id', $id);
+            $inspections = $inspections->where('id', $id);
         }
         else
         {
@@ -263,6 +263,7 @@ class Hive extends Model
             
         }
 
+        //die(print_r(['search'=>$search, 'id'=>$id, 'ins'=>$inspections->toArray()]));
         return $inspections->sortByDesc('created_at');
     }
 
@@ -274,6 +275,7 @@ class Hive extends Model
         $items_per_page   = intval($request->input('items_per_page', 5));
         
         $inspect_coll     = $this->inspections_by_date($request);
+        //dd($inspect_coll);
         $inspections      = $inspect_coll->paginate(env('INSPECTIONS_PER_PAGE', $items_per_page), $page_index, true);
         $items_by_date    = Inspection::item_names($inspections, true);
 

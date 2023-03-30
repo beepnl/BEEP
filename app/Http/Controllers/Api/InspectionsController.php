@@ -30,14 +30,19 @@ class InspectionsController extends Controller
     public function index(Request $request)
     {
         $inspections = $request->user()->allInspections()->orderBy('created_at', 'desc')->limit(1000);
-        if ($request->filled('search'))
+        
+        if ($request->filled('id'))
+        {
+            $id = $request->input('id');
+            $inspections = $inspections->where('id', $search);
+        }
+        else if ($request->filled('search'))
         {
             $search = $request->input('search');
             $inspections = $inspections->where('note', 'LIKE', '%'.$search.'%')
                                         ->orWhere('created_at', 'LIKE', '%'.$search.'%')
                                         ->orWhere('reminder', 'LIKE', '%'.$search.'%')
-                                        ->orWhere('id', $search);
-            
+                                        ->orWhere('id', intval($search));
         }
         
         if ($inspections->count() == 0)

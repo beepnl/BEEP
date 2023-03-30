@@ -84,9 +84,6 @@ class DashboardGroupController extends Controller
                             
                             $device                      = $hive->hasDevices() ? $hive->devices->first() : null;
                             $hive_array['device_online'] = isset($device) ? $device->online : '';
-                            $hive_array['id']            = $hive->id;
-                            $hive_array['name']          = $hive->name;
-                            $hive_array['sensors']       = $hive->sensors;
 
                             if (isset($hive_id))
                             {
@@ -133,6 +130,9 @@ class DashboardGroupController extends Controller
                             }
                             else // meta data
                             {
+                                $hive_array['id']      = $hive->id;
+                                $hive_array['name']    = $hive->name;
+                                $hive_array['sensors'] = $hive->sensors;
                                 $hive_array['layers']  = $hive->layers;
                             }
 

@@ -34,7 +34,7 @@ class InspectionsController extends Controller
         if ($request->filled('id'))
         {
             $id = $request->input('id');
-            $inspections = $inspections->where('id', $search);
+            $inspections = $inspections->where('id', $id);
         }
         else if ($request->filled('search'))
         {

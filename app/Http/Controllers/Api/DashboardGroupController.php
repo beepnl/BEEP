@@ -78,7 +78,7 @@ class DashboardGroupController extends Controller
                     $out['hives'] = [];
                     foreach($hives as $hive)
                     {
-                        if ($hive && (!isset($hive_id) || $hive->id == $hive_id))
+                        if ($hive && (!isset($hive_id) || $hive->id == $hive_id)) // all or only selected hive
                         {   
                             $hive_array                  = [];
                             

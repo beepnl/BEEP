@@ -60,19 +60,22 @@
                 {!! Form::password('confirm-password', array('placeholder' => __('crud.pass_confirm'),'class' => 'form-control')) !!}
             </div>
         </div>
+        @role('superadmin')
         <div class="col-xs-12 col-sm-12 col-md-12">
             <div class="form-group">
                 <label>{{ __('general.Sensors') }}:</label>
-                {!! Form::select('sensors[]', $sensors, [], array('class' => 'form-control','multiple')) !!}
-                <p class="help-block">{{ __('crud.select_multi', ['item'=>__('general.sensor')]) }}</p>
+                {!! Form::select('sensors[]', $sensors, null, array('class' => 'form-control select2','multiple')) !!}
+                <p class="help-block">{{ __('crud.select_multi', ['item'=>__('general.sensors')]) }}</p>
             </div>
         </div>
         <div class="col-xs-12 col-sm-12 col-md-12">
             <div class="form-group">
                 <label>{{ __('general.Role') }}:</label>
-                {!! Form::select('roles[]', $roles, [], array('placeholder' => __('crud.select',['item'=>__('crud.role')]), 'class' => 'form-control')) !!}
+                {!! Form::select('roles[]', $roles, null, array('class' => 'form-control select2','multiple')) !!}
+                <p class="help-block">{{ __('crud.select_multi', ['item'=>__('general.roles')]) }}</p>
             </div>
         </div>
+        @endrole
         <div class="col-xs-12 col-sm-12 col-md-12 text-center">
 				<button type="submit" class="btn btn-primary btn-block">{{ __('crud.save') }}</button>
         </div>

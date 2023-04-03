@@ -2,11 +2,13 @@
 
 namespace App;
 
-use Trebol\Entrust\EntrustRole;
+use Laratrust\Models\LaratrustRole;
 
-class Role extends EntrustRole
+class Role extends LaratrustRole
 {
 	public $fillable = ['name','display_name','description'];
+
+  public $guarded = [];
 
 	public static function updateRoles()
     {

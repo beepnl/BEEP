@@ -209,10 +209,17 @@ class UserController extends Controller
         // Edit role
         if ($request->filled('roles'))
         {
-            DB::table('role_user')->where('user_id',$id)->delete();
-            foreach ($request->input('roles') as $key => $value) {
-                $user->attachRole($value);
+            if ($request->filled('roles'))
+            {
+                DB::table('role_user')->where('user_id',$id)->delete();
+                foreach ($request->input('roles') as $key => $value) {
+                    $user->attachRole($value);
+                }
             }
+        }
+        else
+        {
+            $user->roles()->detach();
         }
 
         // Edit sensors
@@ -224,6 +231,10 @@ class UserController extends Controller
                     ['user_id' => $id, 'sensor_id' => $value]
                 );
             }
+        }
+        else
+        {
+            DB::table('sensor_user')->where('user_id', $user->id)->delete();
         }
 
         return redirect()->route('users.index',['search='.$id])

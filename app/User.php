@@ -5,7 +5,7 @@ namespace App;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Auth\MustVerifyEmail;
 use Illuminate\Foundation\Auth\User as Authenticatable;
-use Trebol\Entrust\Traits\EntrustUserTrait;
+use Laratrust\Traits\LaratrustUserTrait;
 
 use App\Notifications\VerifyEmail;
 use App\Notifications\ResetPassword;
@@ -22,7 +22,7 @@ use Auth;
 class User extends Authenticatable
 {
     use Notifiable;
-    use EntrustUserTrait;
+    use LaratrustUserTrait;
 
     protected $fillable = ['name', 'email', 'password', 'api_token', 'last_login', 'policy_accepted', 'locale', 'avatar', 'rate_limit_per_min'];
 
@@ -32,7 +32,7 @@ class User extends Authenticatable
 
     //protected $cascadeDeletes = ['hives','checklists','inspections','locations','sensors']; // for soft deletes
 
-    protected $appends  = ['app_debug', 'admin'];
+    protected $appends  = ['app_debug', 'admin', 'permissions'];
 
 
     // Fix for Trebol\Entrust permissions that do not check 
@@ -65,6 +65,20 @@ class User extends Authenticatable
     {
         return $this->hasRole('superadmin');
     }
+
+    public function getPermissionsAttribute()
+    {
+        $permissions = null;
+        $specialRoles= $this->roles()->whereNotIn('name', ['superadmin','admin']);
+        if ($specialRoles->count() > 0)
+        {
+            $permissions = [];
+            foreach ($specialRoles->get() as $r) 
+                $permissions = array_merge($permissions, $r->permissions()->pluck('name')->toArray());
+        }
+        return $permissions;
+    }
+
 
     // links
     public function images()

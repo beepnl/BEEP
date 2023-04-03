@@ -61,10 +61,10 @@ class Kernel extends HttpKernel
         'throttle' => \Illuminate\Routing\Middleware\ThrottleRequests::class,
         'verified' => \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
         'verifiedApi' => \App\Http\Middleware\EnsureWebappEmailIsVerified::class,
-        // Entrust
-        'role' => \Trebol\Entrust\Middleware\EntrustRole::class,
-        'permission' => \Trebol\Entrust\Middleware\EntrustPermission::class,
-        'ability' => \Trebol\Entrust\Middleware\EntrustAbility::class,
+        // Laratrust
+        'role' => \Laratrust\Middleware\LaratrustRole::class,
+        'permission' => \Laratrust\Middleware\LaratrustPermission::class,
+        'ability' => \Laratrust\Middleware\LaratrustAbility::class,
         // Laravellocalization
         'localize' => \Mcamara\LaravelLocalization\Middleware\LaravelLocalizationRoutes::class,
         'localizationRedirect' => \Mcamara\LaravelLocalization\Middleware\LaravelLocalizationRedirectFilter::class,

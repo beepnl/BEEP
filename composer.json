@@ -27,7 +27,7 @@
         "phpoffice/phpspreadsheet": "^1.2",
         "predis/predis": "^1.1",
         "tray-labs/laravel-influxdb": "*",
-        "trebol/entrust": "^0.6"
+        "santigarcor/laratrust": "^6.3"
     },
     "require-dev": {
         "appzcoder/crud-generator": "^3.0",

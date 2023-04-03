@@ -2,11 +2,15 @@
 
 namespace App;
 
-use Trebol\Entrust\EntrustPermission;
+use Laratrust\Models\LaratrustPermission;
 
-class Permission extends EntrustPermission
+class Permission extends LaratrustPermission
 {
 	public $fillable = ['name','display_name','description'];
+
+    protected $hidden = ['id', 'pivot', 'updated_at', 'created_at', 'description'];
+    
+    public $guarded = [];
 
 	public static function updatePermissions()
     {
@@ -164,10 +168,10 @@ class Permission extends EntrustPermission
 
             //die(print_r($p->toArray()));
 
-	        if (Role::where('name', 'superadmin')->count() == 1)
-	        {
-	        	Role::where('name', 'superadmin')->first()->attachPermissions([$p]);
-	        }
+	        // if (Role::where('name', 'superadmin')->count() == 1)
+	        // {
+	        // 	Role::where('name', 'superadmin')->first()->attachPermissions([$p]);
+	        // }
 	        print("Added permission ".$value['display_name']."\r\n");
         }
 

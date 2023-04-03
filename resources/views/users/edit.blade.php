@@ -67,14 +67,15 @@
         <div class="col-xs-12 col-sm-12 col-md-12">
             <div class="form-group">
                 <label>{{ __('general.Sensors') }}:</label>
-                {!! Form::select('sensors[]', $sensors, $userSensor, array('class' => 'form-control','multiple')) !!}
-                <p class="help-block">{{ __('crud.select_multi', ['item'=>__('general.sensor')]) }}</p>
+                {!! Form::select('sensors[]', $sensors, $userSensor, array('class' => 'form-control select2','multiple')) !!}
+                <p class="help-block">{{ __('crud.select_multi', ['item'=>__('general.sensors')]) }}</p>
             </div>
         </div>
         <div class="col-xs-12 col-sm-12 col-md-12">
             <div class="form-group">
                 <label>{{ __('general.Role') }}:</label>
-                {!! Form::select('roles[]', $roles, $userRole, array('placeholder' => __('crud.select', ['item'=>__('general.user').' '.__('general.role')]),'class' => 'form-control')) !!}
+                {!! Form::select('roles[]', $roles, $userRole, array('class' => 'form-control select2','multiple')) !!}
+                <p class="help-block">{{ __('crud.select_multi', ['item'=>__('general.roles')]) }}</p>
             </div>
         </div>
         @endrole

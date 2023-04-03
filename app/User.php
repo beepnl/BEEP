@@ -36,10 +36,10 @@ class User extends Authenticatable
 
 
     // Fix for Trebol\Entrust permissions that do not check 
-    public function can($permission, $arguments=[])
-    {
-        return $this->cans(explode('|', $permission), true);
-    }
+    // public function can($permission, $arguments=[])
+    // {
+    //     return $this->cans(explode('|', $permission), true);
+    // }
 
 
     public function getAvatarAttribute()

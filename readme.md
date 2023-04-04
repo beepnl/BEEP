@@ -295,6 +295,7 @@ Tips:
 
 * If you want to test your new api functions, we recommend to use Postman: https://www.postman.com/downloads/
 
+* In some cases, e.g. in case you made changes to the measurements database, you need to run `php artisan cache:clear` to make the changes effective in your api calls.
 
 # Security Vulnerabilities
 

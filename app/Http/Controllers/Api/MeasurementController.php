@@ -1404,6 +1404,8 @@ class MeasurementController extends Controller
                     $queryList[$i] = 'MEAN("'.$name.'") AS "'.$name.'"';
                 
                 $groupBySelect = implode(', ', $queryList);
+
+                //$groupBySelect .= ', SUM("weight_delta_noOutlier") AS "mean_weight_intake"';
             }
 
             // Add weather
@@ -1569,8 +1571,11 @@ class MeasurementController extends Controller
 
                     foreach ($queryList as $i => $name) 
                         $queryList[$i] = 'MEAN("'.$name.'") AS "mean_'.$name.'"';
+                        
                     
                     $groupBySelect = implode(', ', $queryList);
+
+                    $groupBySelect .= ', SUM("weight_delta_noOutlier") AS "weight_intake"'; 
                 }
 
                 

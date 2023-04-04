@@ -1,7 +1,7 @@
 import "interpolate"
 import "join"
 
-lim = 1
+lim = 0.75
 
 data= from(bucket: "cleanTest2")
     |> range(start: 2022-12-01T00:01:00Z, stop: 2023-05-31T23:59:00Z)
@@ -23,7 +23,7 @@ data= from(bucket: "cleanTest2")
   |> derivative(unit: 15m, nonNegative: false)
   |> map(
         fn: (r) => ({r with
-            outlier: if r._value >= lim or r._value <= -1*lim then
+            outlier: if r._value >= lim or r._value <= -1.0*lim then
                 true
             else
                 false,
@@ -35,12 +35,8 @@ data_delta_noOutlier
   |> filter(fn: (r) =>
     r.outlier == false 
   )
-  //|> duplicate(column: "_value", as: "weight_delta")
   |> drop(columns: ["outlier", "weight_kg"])
   |> interpolate.linear(every: 15m)
-  //|> filter(fn: (r) => exists r._value)
-  //|> drop(columns: ["outlier"])
-  //|> fill(usePrevious: true)
   |> cumulativeSum()
   |> timeShift(duration: -15m)
 
@@ -67,7 +63,7 @@ compare= join.full(
     },
 )
 
-compare
+data_delta_noOutlier 
 
 //   |> filter(fn: (r) =>
 //         r._field == "weight_delta_noOutlier" 

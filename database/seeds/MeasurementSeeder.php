@@ -32,6 +32,7 @@ class MeasurementSeeder extends Seeder
             't_i'       => 'temp_inside',
             'bc_i'      => 'bee_count_in',
             'bc_o'      => 'bee_count_out',
+            'weight_kg_noOutlier' => 'weight_kg_noOutlier',
             'weight_kg' => 'weight_kg',
             'weight_kg_corrected' => 'weight_kg_corrected',
             'rssi'      => 'rssi',
@@ -72,6 +73,7 @@ class MeasurementSeeder extends Seeder
             't_i',
             'bc_i',
             'bc_o',
+            'weight_kg_noOutlier',
             'weight_kg',
             'weight_kg_corrected',
             'rssi',
@@ -119,6 +121,7 @@ class MeasurementSeeder extends Seeder
         				break;
         			case 'weight_kg':
         			case 'weight_kg_corrected':
+                    case 'weight_kg_noOutlier':
         				$pq_id = PhysicalQuantity::where('unit','kg')->first()->id;
         				break;
         			case 't_i':

@@ -139,12 +139,12 @@ class DashboardGroupController extends Controller
         $requestData = $request->all();
         
         $dashboardgroup = DashboardGroup::findOrFail($id);
-        $code           = $dashboardgroup->code;
-
+        
+        // Empty cache
+        $code = $dashboardgroup->code;
+        Cache::forget('dashboard-code'.$code.'-hive-null-data');
         foreach ($dashboardgroup->hive_ids as $hive_id)
-        {
             Cache::forget('dashboard-code'.$code.'-hive-'.$hive_id.'-data');
-        }
 
         $dashboardgroup->update($requestData);
 

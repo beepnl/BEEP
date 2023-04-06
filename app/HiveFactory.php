@@ -110,24 +110,31 @@ class HiveFactory
 			$feedingBoxDiff   	= -1 * $hive->getFeedingBoxAttribute();
 			$queenExcluderDiff	= -1 * $hive->getQueenExcluderAttribute();
 			$foundLayerIds    	= [];
+			
 			foreach ($hive_layers as $layer)
 			{
-				if ($layer['type'] == 'brood')
+				$layer_type 	   = $layer['type'];
+				$layer_type_cat_id = Category::findCategoryIdByRootParentAndName('hive', 'hive_layer', $layer_type);
+
+				if ($layer_type_cat_id === null)
+					$layer_type_cat_id = Category::findCategoryIdByRootParentAndName('hive', 'hive_layer', 'brood'); // set by deafult to brood
+
+				if ($layer_type == 'brood')
 				{
 					$broodLayerDiff++;
 					$broodLayerAmount++;
 				}
-				else if ($layer['type'] == 'honey')
+				else if ($layer_type == 'honey')
 				{
 					$honeyLayerDiff++;
 					$honeyLayerAmount++;
 				}
-				else if ($layer['type'] == 'feeding_box')
+				else if ($layer_type == 'feeding_box')
 				{
 					$feedingBoxDiff++;
 					$feedingBoxAmount++;
 				}
-				else if ($layer['type'] == 'queen_excluder')
+				else if ($layer_type == 'queen_excluder')
 				{
 					$queenExcluderDiff++;
 					$queenExcluderAmount++;
@@ -135,7 +142,7 @@ class HiveFactory
 
 				if (!isset($layer['id'])) // create new layer
 				{
-					$new_layer = $hive->layers()->save($this->createLayer($layer['type'], $layer['order'], $layer['color']));
+					$new_layer = $hive->layers()->save($this->createLayer($layer_type, $layer['order'], $layer['color']));
 					$foundLayerIds[] = $new_layer->id;
 				}
 				else // edit existing layer
@@ -144,7 +151,7 @@ class HiveFactory
 					if ($l)
 					{
 						$foundLayerIds[] = $layer['id'];
-						$l->category_id  = Category::findCategoryIdByRootParentAndName('hive', 'hive_layer', $layer['type']);
+						$l->category_id  = $layer_type_cat_id;
 						$l->order 		 = $layer['order'];
 						$l->color 		 = $layer['color'];
 						$l->save();

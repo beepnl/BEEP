@@ -10,6 +10,7 @@ use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 use Auth;
 use Str;
+use Cache;
 
 class DashboardGroupController extends Controller
 {
@@ -138,6 +139,13 @@ class DashboardGroupController extends Controller
         $requestData = $request->all();
         
         $dashboardgroup = DashboardGroup::findOrFail($id);
+        $code           = $dashboardgroup->code;
+
+        foreach ($dashboardgroup->hive_ids as $hive_id)
+        {
+            Cache::forget('dashboard-code'.$code.'-hive-'.$hive_id.'-data');
+        }
+
         $dashboardgroup->update($requestData);
 
         return redirect('dashboard-group')->with('flash_message', 'DashboardGroup updated!');

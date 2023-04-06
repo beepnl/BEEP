@@ -100,7 +100,7 @@ class MeasurementController extends Controller
             {
                 $hive_ids = $request->input('hive_id');
                 foreach($hive_ids as $hive_id){
-                    array_push(check_device, $devices->where('hive_id', $hive_id)->first());
+                    array_push($check_device, $devices->where('hive_id', $hive_id)->first());
                 }
             }
             else
@@ -1593,6 +1593,192 @@ class MeasurementController extends Controller
                 return Response::json('sensor-no-data-error', 500);
 
             return Response::json( ['id'=>$device->id, 'interval'=>$interval, 'relative_interval'=>$relative_interval, 'index'=>$index, 'timeGroup'=>$timeGroup, 'resolution'=>$resolution, 'measurements'=>$sensors_out, 'sensorDefinitions'=>$sensorDefinitions, 'cacheSensorNames'=>$cache_sensor_names] );
+        }
+    }
+
+
+
+
+ /**
+        api/sensors/comparemeasurements GET
+        Request mean measurements from a certain interval (hour, day, week, month, year) and index (0=until now, 1=previous interval, etc.)
+        @authenticated
+        @bodyParam key string DEV EUI to look up the sensor (Device).
+        @bodyParam id integer ID to look up the sensor (Device)
+        @bodyParam hive_id integer Hive ID to look up the sensor (Device)
+        @bodyParam names string comma separated list of Measurement abbreviations to filter request data (weight_kg, t, h, etc.)
+        @bodyParam interval string Data interval for interpolation of measurement values: hour (2min), day (10min), week (1 hour), month (3 hours), year (1 day). Default: day.
+        @bodyParam relative_interval integer Load data from the selected interval relative to current time (1), or load data in absolute intervals (from start-end of hour/day/week/etc) (0). Default: 0.
+        @bodyParam index integer Interval index (>=0; 0=until now, 1=previous interval, etc.). Default: 0.
+        @bodyParam start date Date for start of measurements. Required without interval & index. Example: 2020-05-27 16:16
+        @bodyParam end date Date for end of measurements. Required without interval & index. Example: 2020-05-30 00:00
+        @bodyParam weather integer Load corresponding weather data from the weather database (1) or not (0). Example: 1
+        @bodyParam timezone string Provide the front-end timezone to correct the time from UTC to front-end time. Example: Europe/Amsterdam
+        */
+        public function cleanedWeight(Request $request)
+        {
+            $this->cacheRequestRate('get-measurements');
+
+            $validator = Validator::make($request->all(), [
+                'id'          => 'nullable|array|exists:sensors,id',
+                'key'         => 'nullable|array|exists:sensors,key',
+                'hive_id'     => 'nullable|array|exists:hives,id',
+                'start'       => 'required_without:index|date',
+                'end'         => 'required_without:index|date',
+                'index'       => 'required_without:start|required_with:interval|integer',
+                'interval'    => 'nullable|string',
+                'timeGroup'   => 'nullable|string',
+                'names'       => 'nullable|string',
+                'weather'     => 'nullable|integer',
+                'timezone'    => 'nullable|timezone',
+                'relative_interval' => 'nullable|integer',
+                'threshold' => 'nullable|integer',
+            ]);
+
+           
+            #return Response::json( ['status'=>"before validation"] );
+    
+            if ($validator->fails())
+                return response()->json(['errors'=>$validator->errors()]);
+
+            if ($request->filled('threshold') && $request->input('threshold') != 'null'){
+                $threshold = $request->input('threshold');
+            }
+            else{
+                $threshold = 0.75;
+            }
+
+
+            #return Response::json( ['status'=>"validated"] );
+    
+            //Get the sensors
+            $devices  = $this->get_user_device($request);
+            #return Response::json( ['status'=>"got devices"] );
+            #return Response::json( ['devicesLength'=>sizeof($devices)] );
+            #return Response::json( ['devices'=>$devices] );
+    
+
+            if (!isset($devices))
+                return Response::json('sensor-none-error', 500);
+
+            $inspections = [];
+
+            foreach($devices as $device){
+                array_push($inspections, ...$device -> hive -> getAllInspectionDates());
+            }
+
+            $roundedInspections = array_map(function($inspection){return round(strtotime($inspection)/15) *15;}, $inspections);
+
+            $expandedInspections = [];
+            $periods = ["-60 minutes", "-45 minutes", "-30 minutes", "-15 minutes", "+60 minutes", "+45 minutes", "+30 minutes", "+15 minutes", ];
+
+            foreach($roundedInspections as $inspection){
+                $toAdd = [];
+                foreach($periods as $i => $per){
+                    $toAdd[$i] = strtotime(strtotime($per),$inspection);
+
+                }
+                array_push($expandedInspections, ...to_add);
+            }
+
+            return Response::json(['inspections'=>$roundedInspections]);
+
+            $names         = $request->input('names', $this->output_sensors);
+
+            if (count($names) == 0)
+                return Response::json('sensor-no-measurements-error', 500);
+
+            
+            // add sensorDefinition names
+            $sensorDefinitions = [];
+            foreach ($names as $name)
+            {
+                $measurement_id   = Measurement::getIdByAbbreviation($name);
+                #return Response::json(['names'=>$names, 'devices'=>$devices]);
+                foreach($devices as $device){
+                    $sensordefinition = $device->sensorDefinitions->where('output_measurement_id', $measurement_id)->sortByDesc('updated_at')->first();
+                    if ($sensordefinition)
+                        $sensorDefinitions["$name"] = ['name'=>$sensordefinition->name, 'inside'=>$sensordefinition->inside];
+         
+                }
+            }
+
+            //Get the data interval
+            $relative_interval    = boolval($request->input('relative_interval', 0));  
+            $intervalArr          = $this->compareinterval($request, $relative_interval, false);
+
+            $groupBySelect        = null;
+            $groupBySelectWeather = null;
+            $groupByResolution    = '';
+            $limit                = 'LIMIT '.$this->maxDataPoints;
+            $relative_interval    = $intervalArr['relative_interval'];
+            $resolution           = $intervalArr['resolution'];
+            $cache_sensor_names   = $intervalArr['cacheSensorNames'];
+            $start_date           = $intervalArr['start'];
+            $end_date             = $intervalArr['end'];
+            $interval             = $intervalArr['interval'];
+            $index                = $intervalArr['index'];
+            $timeGroup            = $intervalArr['timeGroup'];
+            $timeZone             = $intervalArr['timeZone'];
+            $wherekeys            = '';
+            foreach($devices as $device){
+                if($wherekeys !== '') $wherekeys .= ' OR ';
+
+                $wherekeys.=$device->influxWhereKeys();
+            }
+
+            $whereTreshold = 'weight_delta < '.$threshold.' AND weight_delta >'.-1*$threshold;
+
+            $inspectionQueryList = [];
+            
+            foreach($inspections as $i => $inspection)
+                $inspectionQueryList[$i] = "(time < '".$inspection."' - 1h OR time > '".$inspection."' + 1h)";
+            
+            if(!$inspectionQueryList){
+                $wehereInspections = '';
+            }
+            else{
+                $whereInspections = ' AND ';
+                $whereInspections .= implode(' AND ', $inspectionQueryList);
+            }
+                
+            $whereFull      = $wherekeys.' AND '.$whereTreshold.$whereInspections.' AND time >= \''.$start_date.'\' AND time <= \''.$end_date.'\'';
+
+            
+            if($resolution != null)
+            {
+                if ($devices)
+                {
+                    $fill              = env('INFLUX_FILL') !== null ? env('INFLUX_FILL') : 'null';
+                    $groupByResolution = 'GROUP BY time('.$resolution.') fill('.$fill.')';
+                    #$queryList         = Device::getAvailableSensorNamesFromData($device->id, $names, $whereKeyAndTime, 'sensors', true, $cache_sensor_names);
+                    // $queryList = $names;
+
+
+                    // foreach ($queryList as $i => $name) 
+                    //     $queryList[$i] = 'MEAN("'.$name.'") AS "mean_'.$name.'"';
+                        
+                    
+                    // $groupBySelect = implode(', ', $queryList);
+
+                    $groupBySelect = 'cumulative_sum(sum(weight_delta))'; 
+                }
+
+                
+            $sensors_out = [];
+
+            
+            if ($groupBySelect != null && $groupBySelect != '') 
+            {
+                $sensorQuery = 'SELECT '.$groupBySelect.' FROM "sensors" WHERE '.$whereFull.' '.$groupByResolution.' '.$limit;
+                $sensors_out = Device::getInfluxQuery($sensorQuery, 'data');
+            }
+            return Response::json(['query'=>$sensorQuery]);
+            
+            if (count($sensors_out) == 0)
+                return Response::json('sensor-no-data-error', 500);
+
+            return Response::json( ['query'=> $sensorQuery, 'id'=>$device->id, 'interval'=>$interval, 'relative_interval'=>$relative_interval, 'index'=>$index, 'timeGroup'=>$timeGroup, 'resolution'=>$resolution, 'measurements'=>$sensors_out, 'sensorDefinitions'=>$sensorDefinitions, 'cacheSensorNames'=>$cache_sensor_names] );
         }
     }
 }

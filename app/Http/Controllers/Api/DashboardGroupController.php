@@ -200,7 +200,15 @@ class DashboardGroupController extends Controller
             return response()->json(['errors'=>$validator->errors()], 422);
 
         $dgroup = $request->user()->dashboardGroups()->findOrFail($id);
+        $code   = $dgroup->code;
+
+        foreach ($dgroup->hive_ids as $hive_id)
+        {
+            Cache::forget('dashboard-code'.$code.'-hive-'.$hive_id.'-data');
+        }
+
         $dgroup->update($request->all());
+
 
         return response()->json($dgroup, 200);
     }

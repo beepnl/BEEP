@@ -1661,27 +1661,27 @@ class MeasurementController extends Controller
             if (!isset($devices))
                 return Response::json('sensor-none-error', 500);
 
-            $inspections = [];
+            
 
-            foreach($devices as $device){
-                array_push($inspections, ...$device -> hive -> getAllInspectionDates());
-            }
+           
 
-            $roundedInspections = array_map(function($inspection){return round(strtotime($inspection)/15) *15;}, $inspections);
 
-            $expandedInspections = [];
-            $periods = ["-60 minutes", "-45 minutes", "-30 minutes", "-15 minutes", "+60 minutes", "+45 minutes", "+30 minutes", "+15 minutes", ];
 
-            foreach($roundedInspections as $inspection){
-                $toAdd = [];
-                foreach($periods as $i => $per){
-                    $toAdd[$i] = strtotime(strtotime($per),$inspection);
+            //$roundedInspections = array_map(function($inspection){return round(strtotime($inspection)/15) *15;}, $inspections);
 
-                }
-                array_push($expandedInspections, ...to_add);
-            }
+            // $expandedInspections = [];
+            // $periods = ["-60 minutes", "-45 minutes", "-30 minutes", "-15 minutes", "+60 minutes", "+45 minutes", "+30 minutes", "+15 minutes", ];
 
-            return Response::json(['inspections'=>$roundedInspections]);
+            // foreach($roundedInspections as $inspection){
+            //     $toAdd = [];
+            //     foreach($periods as $i => $per){
+            //         $toAdd[$i] = strtotime(strtotime($per),$inspection);
+
+            //     }
+            //     array_push($expandedInspections, ...to_add);
+            // }
+
+            #return Response::json(['inspections'=>$roundedInspections]);
 
             $names         = $request->input('names', $this->output_sensors);
 
@@ -1729,21 +1729,59 @@ class MeasurementController extends Controller
 
             $whereTreshold = 'weight_delta < '.$threshold.' AND weight_delta >'.-1*$threshold;
 
-            $inspectionQueryList = [];
+            // $inspectionQueryList = [];
             
-            foreach($inspections as $i => $inspection)
-                $inspectionQueryList[$i] = "(time < '".$inspection."' - 1h OR time > '".$inspection."' + 1h)";
+            // foreach($inspections as $i => $inspection)
+            //     $inspectionQueryList[$i] = "(time < '".$inspection."' - 1h OR time > '".$inspection."' + 1h)";
             
-            if(!$inspectionQueryList){
-                $wehereInspections = '';
-            }
-            else{
-                $whereInspections = ' AND ';
-                $whereInspections .= implode(' AND ', $inspectionQueryList);
-            }
-                
-            $whereFull      = $wherekeys.' AND '.$whereTreshold.$whereInspections.' AND time >= \''.$start_date.'\' AND time <= \''.$end_date.'\'';
+            // if(!$inspectionQueryList){
+            //     $wehereInspections = '';
+            // }
+            // else{
+            //     $whereInspections = ' AND ';
+            //     $whereInspections .= implode(' AND ', $inspectionQueryList);
+            // }
 
+            $inspections = [];
+
+            foreach($devices as $device){
+                array_push($inspections, ...$device -> hive -> getAllInspectionDates());
+            }
+
+            // list time frames shortly before and after inspections
+            $inspectionTuples = [];
+            // list other time frames
+            $periodTuples = [];
+
+            $inspectionFrame = 1;
+
+            // create first tuple / or the only tuple needed
+            if(count($inspections) != 0){
+                $periodTuples[0] = ['\''.$start_date.'\'', '\''.$inspections[0].'\''.' - '.$inspectionFrame.'h'];
+            }else{
+                $periodTuples[0] = ['\''.$start_date.'\'', '\''.$end_date,'\''];
+            }
+
+
+            // create other tuples
+            $length = count($inspections);
+            for($i = 0; $i < $length; ++$i){
+                $cur = current($inspections);
+                $inspectionTuples[$i] = ['\''.$cur.'\' - '.$inspectionFrame.'h', '\''.$cur.'\' + '.$inspectionFrame.'h'];
+                if($i != $length-1){
+                    $nex = next($inspections);
+                    $periodTuples[$i+1] = ['\''.$cur.'\' + '.$inspectionFrame.'h', '\''.$nex.'\' - '.$inspectionFrame.'h'];
+                }else{
+                    $periodTuples[$i+1] = ['\''.$cur.'\' + '.$inspectionFrame.'h', '\''.$end_date.'\''];
+                }
+            }
+
+          
+            $whereKeyAndTime      = $wherekeys.' AND time >= \''.$start_date.'\' AND time <= \''.$end_date.'\'';
+            $whereTime            = 'time >= \''.$start_date.'\' AND time <= \''.$end_date.'\'';
+                
+            //$whereFull      = $wherekeys.' AND '.$whereTreshold.$whereInspections.' AND time >= \''.$start_date.'\' AND time <= \''.$end_date.'\'';
+            
             
             if($resolution != null)
             {
@@ -1751,6 +1789,7 @@ class MeasurementController extends Controller
                 {
                     $fill              = env('INFLUX_FILL') !== null ? env('INFLUX_FILL') : 'null';
                     $groupByResolution = 'GROUP BY time('.$resolution.') fill('.$fill.')';
+                    $groupInspection = 'GROUP BY time(15m)';
                     #$queryList         = Device::getAvailableSensorNamesFromData($device->id, $names, $whereKeyAndTime, 'sensors', true, $cache_sensor_names);
                     // $queryList = $names;
 
@@ -1759,21 +1798,47 @@ class MeasurementController extends Controller
                     //     $queryList[$i] = 'MEAN("'.$name.'") AS "mean_'.$name.'"';
                         
                     
-                    // $groupBySelect = implode(', ', $queryList);
+                    // $groupBySelect = implode(', ', $queryList);'.$resolution.'
 
-                    $groupBySelect = 'cumulative_sum(sum(weight_delta))'; 
+                    $groupBySelectOuter = 'cumulative_sum(sum(weight_delta))'; 
+                    $groupBySelectInnerInspection = 'derivative(mean(weight_kg), 15m) as weight_delta';
+                    $groupBySelectInnerPeriod = 'derivative(mean(weight_kg), '.$resolution.') as weight_delta';
                 }
 
                 
             $sensors_out = [];
 
             
-            if ($groupBySelect != null && $groupBySelect != '') 
-            {
-                $sensorQuery = 'SELECT '.$groupBySelect.' FROM "sensors" WHERE '.$whereFull.' '.$groupByResolution.' '.$limit;
+            if ($groupBySelectOuter != null && $groupBySelectOuter != '') 
+            {   
+                $inspectionQueries = [];
+                foreach($inspectionTuples as $i => $tuple){
+                    $inspectionQueries[$i] = '(SELECT '.$groupBySelectInnerInspection.' FROM "sensors" WHERE '.$wherekeys.
+                    ' AND time >= '.$tuple[0].' AND time <= '.$tuple[1].' AND '.$whereTreshold.' '.$groupInspection.' fill(linear) '.$limit.')';
+                }
+                $periodQueries = [];
+                foreach($periodTuples as $i => $tuple){
+                     $periodQueries[$i] = '(SELECT '.$groupBySelectInnerPeriod.' FROM "sensors" WHERE '.$wherekeys.
+                    ' AND time >= '.$tuple[0].' AND time <= '.$tuple[1].' '.$limit.')';
+                }
+                // function array_zip($a1, $a2) {
+                //     for($i = 0; $i < min(count($a1), count($a2)); $i++) {
+                //         $out[$i] = [$a1[$i], $a2[$i]];
+                //     }
+                //     return $out;
+                // }
+                // $allQueries = array_zip($periodQueries, $inspectionQueries);
+                $allQueries = array_merge($periodQueries, $inspectionQueries);
+                #return Response::json(['query'=>$allQueries]);
+                $innerQuery = implode(', ', $allQueries);
+
+                $sensorQuery = 'SELECT '.$groupBySelectOuter.' FROM '.$innerQuery.' WHERE '.$whereTime.' '.$groupByResolution.' '.$limit;
+                #$sensorQuery = 'SELECT * FROM ('.$innerQuery.') WHERE '.$whereKeyAndTime.' '.$limit;
+                #$sensorQuery = $innerQuery;
+                #return Response::json(['query'=>$sensorQuery]);
                 $sensors_out = Device::getInfluxQuery($sensorQuery, 'data');
             }
-            return Response::json(['query'=>$sensorQuery]);
+            
             
             if (count($sensors_out) == 0)
                 return Response::json('sensor-no-data-error', 500);

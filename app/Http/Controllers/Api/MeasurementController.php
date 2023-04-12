@@ -1241,30 +1241,30 @@ class MeasurementController extends Controller
         switch($interval)
         {
             case 'year':
-                $resolution = '4w'; // ~12 values
+                $resolution = '1d'; // 365 values
                 $staTimestamp->subtractYears($staIndex);
                 $endTimestamp->subtractYears($endIndex);
                 $cache_sensor_names = false;
                 break;
             case 'month':
-                $resolution = '1d'; // 28-31 values
+                $resolution = $min_interval_min > 180 ? $min_interval_min.'m' : '3h'; // 240 values
                 $staTimestamp->subtractMonths($staIndex);
                 $endTimestamp->subtractMonths($endIndex);
                 $cache_sensor_names = false;
                 break;
             case 'week':
-                $resolution = '1d'; // 7 values
+                $resolution = $min_interval_min > 60 ? $min_interval_min.'m' : '1h'; // 168 values
                 $staTimestamp->subtractWeeks($staIndex);
                 $endTimestamp->subtractWeeks($endIndex);
                 $cache_sensor_names = false;
                 break;
             case 'day':
-                $resolution = '1h'; // 12 values
+                $resolution = $min_interval_min > 10 ? $min_interval_min.'m' : '10m'; // 144 values
                 $staTimestamp->subtractDays($staIndex);
                 $endTimestamp->subtractDays($endIndex);
                 break;
             case 'hour':
-                $resolution = '15m'; // 4 values
+                $resolution = $min_interval_min > 1 ? $min_interval_min.'m' : '1m'; // 60 values
                 $staTimestamp->subtractHours($staIndex);
                 $endTimestamp->subtractHours($endIndex);
                 break;
@@ -1276,20 +1276,23 @@ class MeasurementController extends Controller
                 $durationDays = abs($staTimestamp->from($endTimestamp)->getDays());
                 switch(true)
                 {
+                    case $durationDays > 90:
+                        $resolution = $download ? ($min_interval_min > 60 ? $min_interval_min.'m' : '1h') : '1d'; // 90+ values
+                        break;
                     case $durationDays > 30:
-                        $resolution = '4w';
+                        $resolution = $download ? ($min_interval_min > 30 ? $min_interval_min.'m' : '30m') : '6h'; // 90-270 values
                         break;
                     case $durationDays > 7:
-                        $resolution = '1d';
+                        $resolution = $download ? ($min_interval_min > 10 ? $min_interval_min.'m' : '10m') : '3h'; // 84-360 values
                         break;
                     case $durationDays > 2:
-                        $resolution = '1d';
+                        $resolution = $download ? null : ($min_interval_min > 30 ? $min_interval_min.'m' : '30m'); // 96-336 values
                         break;
                     case $durationDays > 6/24: // 6 hours
-                        $resolution = '1h';
+                        $resolution = $download ? null : ($min_interval_min > 10 ? $min_interval_min.'m' : '10m'); // 60-240 values
                         break;
                     default:
-                        $resolution = '15m';
+                        $resolution = $download ? null : ($min_interval_min > 1 ? $min_interval_min.'m' : '1m'); // 0-360 values
                         break;
                 }
         }
@@ -1753,7 +1756,7 @@ class MeasurementController extends Controller
             // list other time frames
             $periodTuples = [];
 
-            $inspectionFrame = 1;
+            $inspectionFrame = 5;
 
             // create first tuple / or the only tuple needed
             if(count($inspections) != 0){
@@ -1770,9 +1773,9 @@ class MeasurementController extends Controller
                 $inspectionTuples[$i] = ['\''.$cur.'\' - '.$inspectionFrame.'h', '\''.$cur.'\' + '.$inspectionFrame.'h'];
                 if($i != $length-1){
                     $nex = next($inspections);
-                    $periodTuples[$i+1] = ['\''.$cur.'\' + '.$inspectionFrame.'h', '\''.$nex.'\' - '.$inspectionFrame.'h'];
+                    $periodTuples[$i+1] = ['\''.$cur.'\' + '.$inspectionFrame.'h + '.$resolution, '\''.$nex.'\' - '.$inspectionFrame.'h'];
                 }else{
-                    $periodTuples[$i+1] = ['\''.$cur.'\' + '.$inspectionFrame.'h', '\''.$end_date.'\''];
+                    $periodTuples[$i+1] = ['\''.$cur.'\' + '.$inspectionFrame.'h + '.$resolution, '\''.$end_date.'\''];
                 }
             }
 
@@ -1800,7 +1803,7 @@ class MeasurementController extends Controller
                     
                     // $groupBySelect = implode(', ', $queryList);'.$resolution.'
 
-                    $groupBySelectOuter = 'cumulative_sum(sum(weight_delta))'; 
+                    $groupBySelectOuter = 'cumulative_sum(sum(weight_delta)) as weight_kg_noOutlier'; 
                     $groupBySelectInnerInspection = 'derivative(mean(weight_kg), 15m) as weight_delta';
                     $groupBySelectInnerPeriod = 'derivative(mean(weight_kg), '.$resolution.') as weight_delta';
                 }
@@ -1813,8 +1816,8 @@ class MeasurementController extends Controller
             {   
                 $inspectionQueries = [];
                 foreach($inspectionTuples as $i => $tuple){
-                    $inspectionQueries[$i] = '(SELECT '.$groupBySelectInnerInspection.' FROM "sensors" WHERE '.$wherekeys.
-                    ' AND time >= '.$tuple[0].' AND time <= '.$tuple[1].' AND '.$whereTreshold.' '.$groupInspection.' fill(linear) '.$limit.')';
+                    $inspectionQueries[$i] = '(SELECT * FROM ( SELECT '.$groupBySelectInnerInspection.' FROM "sensors" WHERE '.$wherekeys.
+                    ' AND time >= '.$tuple[0].' AND time <= '.$tuple[1].' '.$groupInspection.' fill(linear) '.$limit.') WHERE '.$whereTreshold.')';
                 }
                 $periodQueries = [];
                 foreach($periodTuples as $i => $tuple){

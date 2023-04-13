@@ -508,30 +508,44 @@ class MeasurementController extends Controller
         $dev_eui = false;
         $payload = false;
         $port    = false;
-
+        /*
+        KPN Thing payload (2023-04-13):
+        [   
+            {"bn":"urn:dev:DEVEUI:0059AC0000000000:","bt":1.76675482e9,"n":"payload","vs":"1b0c6e0c6a640a01ffcd7304000c0a0946000300020002000200010001000100010001000007000000000000"},
+            {"n":"port","v":3.0},
+            {"n":"timeOrigin","vs":"NETWORK"}
+        ]
+        */
         foreach ($data as $item) // KPN things JSON payload is array of 4? items
         {
             if (count((array)$item) > 1) // each object has 2 items
             {
                 if (isset($item['bn'])) // get key (DevEUI) from "urn:dev:DEVEUI:DevEUIstring:"
                     $dev_eui = array_search('DEVEUI', explode(':', $item['bn'])) !== false ? true : false;
-                else if (isset($item['n']) && $item['n'] == 'payload' && isset($item['vs']))
-                    $payload = true;
-                else if (isset($item['n']) && $item['n'] == 'port' && isset($item['v']))
-                    $port = true;
+                
+                if (isset($item['n']))
+                {
+                    if ($item['n'] == 'payload' && isset($item['vs']))
+                        $payload = true;
+                
+                    if ($item['n'] == 'port' && isset($item['v']))
+                        $port = true;
+                }
             }
         }
         return $dev_eui && $payload && $port; // only true if all three items are available
     }
 
-    /*  KPN Things JSON uplink payload:
+    /*  KPN Things JSON uplink payload (payload optionally added to bn object after 2023-04-13):
         [{
-            "bn": "urn:dev:DEVEUI:0059AC00001B1930:",
-            "bt": 1.668814455E9
+            "bn": "urn:dev:DEVEUI:0059AC000000000:",
+            "bt": 1.668814455E9,
+            "n":"payload",
+            "vs":"1b0c6e0c6a640a01ffcd7304000c0a0946000300020002000200010001000100010001000007000000000000"
         },
         {
             "n": "payload",
-            "vs": "1b0bde0bd0640a0100068104000c0c06fe000b0004000300030002000200020002000200020002000107000000000000"
+            "vs": "1b0c6e0c6a640a01ffcd7304000c0a0946000300020002000200010001000100010001000007000000000000"
         },
         {
             "n": "port",
@@ -557,13 +571,14 @@ class MeasurementController extends Controller
                     if (count($dev_eui_arr) > $dev_eui_ind+1)
                         $data_array['key'] = $dev_eui_arr[$dev_eui_ind+1];
                 }
-                else if (isset($item['n']) && $item['n'] == 'payload' && isset($item['vs']))
+                
+                if (isset($item['n']))
                 {
-                    $data_array['payload'] = $item['vs'];
-                }
-                else if (isset($item['n']) && $item['n'] == 'port' && isset($item['v']))
-                {
-                    $data_array['port'] = intval($item['v']);
+                    if ($item['n'] == 'payload' && isset($item['vs']))
+                        $data_array['payload'] = $item['vs'];
+
+                    if ($item['n'] == 'port' && isset($item['v']))
+                        $data_array['port'] = intval($item['v']);
                 }
             }
         }

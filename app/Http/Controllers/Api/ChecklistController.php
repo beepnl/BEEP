@@ -71,7 +71,7 @@ class ChecklistController extends Controller
                 return response()->json(['checklist_id'=>$checklist->id]);
             }
         }
-        return Response::json('Nothing updated', 500);
+        return response()->json('Nothing updated', 500);
     }
 
 

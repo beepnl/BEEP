@@ -1193,6 +1193,8 @@ class MeasurementController extends Controller
         return ['start'=>$start, 'end'=>$end, 'interval'=>$interval, 'relative_interval'=>$relative_interval, 'index'=>$index, 'resolution'=>$resolution, 'timeGroup'=>$timeGroup, 'timeZone'=>$timeZone, 'cacheSensorNames'=>$cache_sensor_names];
     }
 
+
+    // just a copy of interal but working for multiple devices
     private function compareinterval(Request $request, $relative_interval=false, $download=false)
     {
         $interval  = $request->input('interval','day');
@@ -1467,7 +1469,7 @@ class MeasurementController extends Controller
 
     /**
         api/sensors/comparemeasurements GET
-        Request mean measurements from a certain interval (hour, day, week, month, year) and index (0=until now, 1=previous interval, etc.)
+        Request mean measurements for multiple hives from a certain interval (hour, day, week, month, year) and index (0=until now, 1=previous interval, etc.)
         @authenticated
         @bodyParam key string DEV EUI to look up the sensor (Device).
         @bodyParam id integer ID to look up the sensor (Device)
@@ -1604,7 +1606,7 @@ class MeasurementController extends Controller
 
  /**
         api/sensors/comparemeasurements GET
-        Request mean measurements from a certain interval (hour, day, week, month, year) and index (0=until now, 1=previous interval, etc.)
+        Request cleaned weight measurements from a certain interval (hour, day, week, month, year) and index (0=until now, 1=previous interval, etc.)
         @authenticated
         @bodyParam key string DEV EUI to look up the sensor (Device).
         @bodyParam id integer ID to look up the sensor (Device)

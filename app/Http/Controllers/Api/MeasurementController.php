@@ -1753,6 +1753,21 @@ class MeasurementController extends Controller
                 array_push($inspections, ...$device -> hive -> getAllInspectionDates());
             }
 
+            sort($inspections);
+
+        
+            $filteredInspections = [];
+
+            foreach($inspections as $inspection){
+                if($inspection >= $start_date & $inspection <= $end_date){
+                    array_push($filteredInspections, $inspection);
+                }
+            }
+           
+
+            $inspections = $filteredInspections;
+
+            
             // list time frames shortly before and after inspections
             $inspectionTuples = [];
             // list other time frames
@@ -1770,14 +1785,31 @@ class MeasurementController extends Controller
 
             // create other tuples
             $length = count($inspections);
-            for($i = 0; $i < $length; ++$i){
+            $i = 0;
+            while($i < $length-1){
                 $cur = current($inspections);
-                $inspectionTuples[$i] = ['\''.$cur.'\' - '.$inspectionFrame.'h', '\''.$cur.'\' + '.$inspectionFrame.'h'];
-                if($i != $length-1){
-                    $nex = next($inspections);
-                    $periodTuples[$i+1] = ['\''.$cur.'\' + '.$inspectionFrame.'h + '.$resolution, '\''.$nex.'\' - '.$inspectionFrame.'h'];
+                $nex = next($inspections);
+                $i++;
+
+                // check if two or more inspection time frames should be merged into one. update $nex in that case
+                $inter = $cur;
+                $last = false;
+                while((!$last) & ((strtotime($nex) - strtotime($inter))/(60*60)<= 2*$inspectionFrame )){
+                    $inter = $nex;
+                    if(($i != $length-1)){
+                        $nex = next($inspections);
+                        $i++;
+                    } else{
+                        $last = true;
+                    }
+                }
+                // add inspection tuple
+                $inspectionTuples[$i] = ['\''.$cur.'\' - '.$inspectionFrame.'h', '\''.$inter.'\' + '.$inspectionFrame.'h'];
+                // add period tuple
+                if($i != $length-1){                 
+                    $periodTuples[$i+1] = ['\''.$inter.'\' + '.$inspectionFrame.'h + '.$resolution, '\''.$nex.'\' - '.$inspectionFrame.'h'];
                 }else{
-                    $periodTuples[$i+1] = ['\''.$cur.'\' + '.$inspectionFrame.'h + '.$resolution, '\''.$end_date.'\''];
+                    $periodTuples[$i+1] = ['\''.$inter.'\' + '.$inspectionFrame.'h + '.$resolution, '\''.$end_date.'\''];
                 }
             }
 

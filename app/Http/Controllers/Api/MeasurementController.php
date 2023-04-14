@@ -1195,7 +1195,7 @@ class MeasurementController extends Controller
 
 
     // just a copy of interal but working for multiple devices
-    private function compareinterval(Request $request, $relative_interval=false, $download=false)
+    private function compareinterval(Request $request, $relative_interval=false, $download=false, $min_interval_min=1)
     {
         $interval  = $request->input('interval','day');
         $index     = intval($request->input('index',0));
@@ -1755,6 +1755,13 @@ class MeasurementController extends Controller
 
             sort($inspections);
 
+            #$roundedInspections = array_map(function($inspection){return date('Y-m-d H:i:s', round(strtotime($inspection)/(15*60)) *15*60);}, $inspections);
+
+            #return Response::json(['insp'=>$roundedInspections]);
+
+            #$inspections = $roundedInspections;
+
+
         
             $filteredInspections = [];
 
@@ -1777,11 +1784,43 @@ class MeasurementController extends Controller
 
             // create first tuple / or the only tuple needed
             if(count($inspections) != 0){
-                $periodTuples[0] = ['\''.$start_date.'\'', '\''.$inspections[0].'\''.' - '.$inspectionFrame.'h'];
+                $periodTuples[0] = ['\''.$start_date.'\'', '\''.$inspections[0].'\''.' - '.$inspectionFrame.'h', $resolution];
             }else{
-                $periodTuples[0] = ['\''.$start_date.'\'', '\''.$end_date,'\''];
+                $periodTuples[0] = ['\''.$start_date.'\'', '\''.$end_date,'\'', $resolution];
             }
 
+            function translateResolutionToMinutes($resolution){
+                $index = strlen($resolution) -1;
+                $value = substr($resolution, 0, $index);
+                $unit = substr($resolution, $index);
+                $minutes = null;
+                if($unit=="m"){
+                    $minutes = $value;
+                } 
+                elseif($unit=="h"){
+                    $minutes = $value*60;
+                }
+                elseif($unit=="d"){
+                    $minutes = $value*60*24;
+                }
+
+                return $minutes;
+            }
+
+            function mapToSmallerResolution($resolution){
+                $index = strlen($resolution) -1;
+                $unit = substr($resolution, $index);
+                if($unit=="m"){
+                    $resolution = "1m";
+                } 
+                elseif($unit=="h"){
+                    $resolution = "15m";
+                }
+                elseif($unit=="d"){
+                    $resolution = "1h";
+                }
+                return $resolution;
+            }
 
             // create other tuples
             $length = count($inspections);
@@ -1800,16 +1839,26 @@ class MeasurementController extends Controller
                         $nex = next($inspections);
                         $i++;
                     } else{
+                        $nex = $end_date;
                         $last = true;
                     }
                 }
                 // add inspection tuple
                 $inspectionTuples[$i] = ['\''.$cur.'\' - '.$inspectionFrame.'h', '\''.$inter.'\' + '.$inspectionFrame.'h'];
+                // calculate resolution/ offset needed for period tuple
+                // therefore check if period time frame would be smaller than the resolution
+                // in that case, the resolution should be smaller than the one used for the outer query
+                $difference = round(abs(strtotime($nex) - strtotime($inter)) / 60);
+                $transRes = translateResolutionToMinutes($resolution);
+                $useRes = $resolution;
+                if(!is_null($transRes) & (($difference - 2*60*$inspectionFrame)< $transRes)){
+                    $useRes = mapToSmallerResolution($resolution);
+                }
                 // add period tuple
                 if($i != $length-1){                 
-                    $periodTuples[$i+1] = ['\''.$inter.'\' + '.$inspectionFrame.'h + '.$resolution, '\''.$nex.'\' - '.$inspectionFrame.'h'];
+                    $periodTuples[$i+1] = ['\''.$inter.'\' + '.$inspectionFrame.'h + '.$useRes, '\''.$nex.'\' - '.$inspectionFrame.'h', $useRes];
                 }else{
-                    $periodTuples[$i+1] = ['\''.$inter.'\' + '.$inspectionFrame.'h + '.$resolution, '\''.$end_date.'\''];
+                    $periodTuples[$i+1] = ['\''.$inter.'\' + '.$inspectionFrame.'h + '.$useRes, '\''.$end_date.'\'', $useRes];
                 }
             }
 
@@ -1855,8 +1904,8 @@ class MeasurementController extends Controller
                 }
                 $periodQueries = [];
                 foreach($periodTuples as $i => $tuple){
-                     $periodQueries[$i] = '(SELECT '.$groupBySelectInnerPeriod.' FROM "sensors" WHERE '.$wherekeys.
-                    ' AND time >= '.$tuple[0].' AND time <= '.$tuple[1].' '.$limit.')';
+                     $periodQueries[$i] = '(SELECT derivative(mean(weight_kg), '.$tuple[2].') as weight_delta FROM "sensors" WHERE '.$wherekeys.
+                    ' AND time >= '.$tuple[0].' AND time <= '.$tuple[1].' group by time('.$tuple[2].') '.$limit.')';
                 }
                 // function array_zip($a1, $a2) {
                 //     for($i = 0; $i < min(count($a1), count($a2)); $i++) {

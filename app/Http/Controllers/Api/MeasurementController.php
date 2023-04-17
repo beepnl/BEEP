@@ -1601,7 +1601,161 @@ class MeasurementController extends Controller
         }
     }
 
+    // get the resolution in minutes
+    private function translateResolutionToMinutes($resolution){
+        $index = strlen($resolution) -1;
+        $value = substr($resolution, 0, $index);
+        $unit = substr($resolution, $index);
+        $minutes = null;
+        if($unit=="m"){
+            $minutes = $value;
+        } 
+        elseif($unit=="h"){
+            $minutes = $value*60;
+        }
+        elseif($unit=="d"){
+            $minutes = $value*60*24;
+        }
 
+        return $minutes;
+    }
+
+    // if there is only a small time frame between inspections, this time frame should be queried in a smaller resolution
+    private function mapToSmallerResolution($resolution){
+        $index = strlen($resolution) -1;
+        $unit = substr($resolution, $index);
+        if($unit=="m"){
+            $resolution = "1m";
+        } 
+        elseif($unit=="h"){
+            $resolution = "15m";
+        }
+        elseif($unit=="d"){
+            $resolution = "1h";
+        }
+        return $resolution;
+    }
+
+
+    private function getInnerCleanQueryByDevice(Device $device, $resolution, $start_date, $end_date, $limit, $threshold){
+
+            
+            $wherekeys=$device->influxWhereKeys();
+            
+
+            $whereTreshold = 'weight_delta < '.$threshold.' AND weight_delta >'.-1*$threshold;
+
+         
+            $inspections = $device -> hive -> getAllInspectionDates();
+
+            sort($inspections);
+        
+            // choose inspections in time frame only
+            $filteredInspections = [];
+            foreach($inspections as $inspection){
+                if($inspection >= $start_date & $inspection <= $end_date){
+                    array_push($filteredInspections, $inspection);
+                }
+            }      
+            $inspections = $filteredInspections;
+
+            
+            // array for time frames shortly before and after inspections
+            $inspectionTuples = [];
+            // array for other time frames
+            $periodTuples = [];
+
+            $inspectionFrame = 5;
+
+            // create first tuple / or the only tuple needed
+            if(count($inspections) != 0){
+                $periodTuples[0] = ['\''.$start_date.'\'', '\''.$inspections[0].'\''.' - '.$inspectionFrame.'h', $resolution];
+            }else{
+                $periodTuples[0] = ['\''.$start_date.'\'', '\''.$end_date.'\'', $resolution];
+            }
+
+            // create all tuples
+            $length = count($inspections);
+            $i = 0;
+            while($i < $length-1){
+                $cur = current($inspections);
+                $nex = next($inspections);
+                $i++;
+
+                // check if two or more inspection time frames should be merged into one. update $nex in that case
+                $inter = $cur;
+                $last = false;
+                while((!$last) & ((strtotime($nex) - strtotime($inter))/(60*60)<= 2*$inspectionFrame )){
+                    $inter = $nex;
+                    if(($i != $length-1)){
+                        $nex = next($inspections);
+                        $i++;
+                    } else{
+                        $nex = $end_date;
+                        $last = true;
+                    }
+                }
+                // add inspection tuple
+                $inspectionTuples[$i] = ['\''.$cur.'\' - '.$inspectionFrame.'h', '\''.$inter.'\' + '.$inspectionFrame.'h'];
+                // calculate resolution/ offset needed for period tuple
+                // therefore check if period time frame would be smaller than the resolution
+                // in that case, the resolution should be smaller than the one used for the outer query
+                $difference = round(abs(strtotime($nex) - strtotime($inter)) / 60);
+                $transRes = $this->translateResolutionToMinutes($resolution);
+                $useRes = $resolution;
+                if(!is_null($transRes) & (($difference - 2*60*$inspectionFrame)< $transRes)){
+                    $useRes = $this -> mapToSmallerResolution($resolution);
+                }
+                // add period tuple
+                if($i != $length-1){                 
+                    $periodTuples[$i+1] = ['\''.$inter.'\' + '.$inspectionFrame.'h + '.$useRes, '\''.$nex.'\' - '.$inspectionFrame.'h', $useRes];
+                }else{
+                    $periodTuples[$i+1] = ['\''.$inter.'\' + '.$inspectionFrame.'h + '.$useRes, '\''.$end_date.'\'', $useRes];
+                }
+            }
+
+          
+            $whereKeyAndTime      = $wherekeys.' AND time >= \''.$start_date.'\' AND time <= \''.$end_date.'\'';
+            
+                
+            
+            
+            if($resolution != null)
+            {
+                if ($device)
+                {
+                    $fill              = env('INFLUX_FILL') !== null ? env('INFLUX_FILL') : 'null';
+                    $groupByResolution = 'GROUP BY time('.$resolution.') fill('.$fill.')';
+                    $groupInspection = 'GROUP BY time(15m)';
+                    
+                    $groupBySelectOuter = 'cumulative_sum(sum(weight_delta)) as weight_kg_noOutlier'; 
+                    $groupBySelectInnerInspection = 'derivative(mean(weight_kg), 15m) as weight_delta';
+                    #$groupBySelectInnerPeriod = 'derivative(mean(weight_kg), '.$resolution.') as weight_delta';
+                }
+
+                
+            $sensors_out = [];
+
+            
+            if ($groupBySelectOuter != null && $groupBySelectOuter != '') 
+            {   
+                $inspectionQueries = [];
+                foreach($inspectionTuples as $i => $tuple){
+                    $inspectionQueries[$i] = '(SELECT * FROM ( SELECT '.$groupBySelectInnerInspection.' FROM "sensors" WHERE '.$wherekeys.
+                    ' AND time >= '.$tuple[0].' AND time <= '.$tuple[1].' '.$groupInspection.' fill(linear) '.$limit.') WHERE '.$whereTreshold.')';
+                }
+                $periodQueries = [];
+                foreach($periodTuples as $i => $tuple){
+                     $periodQueries[$i] = '(SELECT derivative(mean(weight_kg), '.$tuple[2].') as weight_delta FROM "sensors" WHERE '.$wherekeys.
+                    ' AND time >= '.$tuple[0].' AND time <= '.$tuple[1].' group by time('.$tuple[2].') '.$limit.')';
+                }
+                   $allQueries = array_merge($periodQueries, $inspectionQueries);
+                $innerQuery = implode(', ', $allQueries);
+            }
+        }
+            return $innerQuery;
+
+    }
 
 
  /**
@@ -1667,27 +1821,6 @@ class MeasurementController extends Controller
                 return Response::json('sensor-none-error', 500);
 
             
-
-           
-
-
-
-            //$roundedInspections = array_map(function($inspection){return round(strtotime($inspection)/15) *15;}, $inspections);
-
-            // $expandedInspections = [];
-            // $periods = ["-60 minutes", "-45 minutes", "-30 minutes", "-15 minutes", "+60 minutes", "+45 minutes", "+30 minutes", "+15 minutes", ];
-
-            // foreach($roundedInspections as $inspection){
-            //     $toAdd = [];
-            //     foreach($periods as $i => $per){
-            //         $toAdd[$i] = strtotime(strtotime($per),$inspection);
-
-            //     }
-            //     array_push($expandedInspections, ...to_add);
-            // }
-
-            #return Response::json(['inspections'=>$roundedInspections]);
-
             $names         = $request->input('names', $this->output_sensors);
 
             if (count($names) == 0)
@@ -1699,7 +1832,6 @@ class MeasurementController extends Controller
             foreach ($names as $name)
             {
                 $measurement_id   = Measurement::getIdByAbbreviation($name);
-                #return Response::json(['names'=>$names, 'devices'=>$devices]);
                 foreach($devices as $device){
                     $sensordefinition = $device->sensorDefinitions->where('output_measurement_id', $measurement_id)->sortByDesc('updated_at')->first();
                     if ($sensordefinition)
@@ -1726,210 +1858,46 @@ class MeasurementController extends Controller
             $timeGroup            = $intervalArr['timeGroup'];
             $timeZone             = $intervalArr['timeZone'];
             $wherekeys            = '';
-            foreach($devices as $device){
-                if($wherekeys !== '') $wherekeys .= ' OR ';
-
-                $wherekeys.=$device->influxWhereKeys();
-            }
-
-            $whereTreshold = 'weight_delta < '.$threshold.' AND weight_delta >'.-1*$threshold;
-
-            // $inspectionQueryList = [];
-            
-            // foreach($inspections as $i => $inspection)
-            //     $inspectionQueryList[$i] = "(time < '".$inspection."' - 1h OR time > '".$inspection."' + 1h)";
-            
-            // if(!$inspectionQueryList){
-            //     $wehereInspections = '';
-            // }
-            // else{
-            //     $whereInspections = ' AND ';
-            //     $whereInspections .= implode(' AND ', $inspectionQueryList);
-            // }
-
-            $inspections = [];
-
-            foreach($devices as $device){
-                array_push($inspections, ...$device -> hive -> getAllInspectionDates());
-            }
-
-            sort($inspections);
-
-            #$roundedInspections = array_map(function($inspection){return date('Y-m-d H:i:s', round(strtotime($inspection)/(15*60)) *15*60);}, $inspections);
-
-            #return Response::json(['insp'=>$roundedInspections]);
-
-            #$inspections = $roundedInspections;
-
-
-        
-            $filteredInspections = [];
-
-            foreach($inspections as $inspection){
-                if($inspection >= $start_date & $inspection <= $end_date){
-                    array_push($filteredInspections, $inspection);
-                }
-            }
-           
-
-            $inspections = $filteredInspections;
-
-            
-            // list time frames shortly before and after inspections
-            $inspectionTuples = [];
-            // list other time frames
-            $periodTuples = [];
-
-            $inspectionFrame = 5;
-
-            // create first tuple / or the only tuple needed
-            if(count($inspections) != 0){
-                $periodTuples[0] = ['\''.$start_date.'\'', '\''.$inspections[0].'\''.' - '.$inspectionFrame.'h', $resolution];
-            }else{
-                $periodTuples[0] = ['\''.$start_date.'\'', '\''.$end_date.'\'', $resolution];
-            }
-
-            function translateResolutionToMinutes($resolution){
-                $index = strlen($resolution) -1;
-                $value = substr($resolution, 0, $index);
-                $unit = substr($resolution, $index);
-                $minutes = null;
-                if($unit=="m"){
-                    $minutes = $value;
-                } 
-                elseif($unit=="h"){
-                    $minutes = $value*60;
-                }
-                elseif($unit=="d"){
-                    $minutes = $value*60*24;
-                }
-
-                return $minutes;
-            }
-
-            function mapToSmallerResolution($resolution){
-                $index = strlen($resolution) -1;
-                $unit = substr($resolution, $index);
-                if($unit=="m"){
-                    $resolution = "1m";
-                } 
-                elseif($unit=="h"){
-                    $resolution = "15m";
-                }
-                elseif($unit=="d"){
-                    $resolution = "1h";
-                }
-                return $resolution;
-            }
-
-            // create other tuples
-            $length = count($inspections);
-            $i = 0;
-            while($i < $length-1){
-                $cur = current($inspections);
-                $nex = next($inspections);
-                $i++;
-
-                // check if two or more inspection time frames should be merged into one. update $nex in that case
-                $inter = $cur;
-                $last = false;
-                while((!$last) & ((strtotime($nex) - strtotime($inter))/(60*60)<= 2*$inspectionFrame )){
-                    $inter = $nex;
-                    if(($i != $length-1)){
-                        $nex = next($inspections);
-                        $i++;
-                    } else{
-                        $nex = $end_date;
-                        $last = true;
-                    }
-                }
-                // add inspection tuple
-                $inspectionTuples[$i] = ['\''.$cur.'\' - '.$inspectionFrame.'h', '\''.$inter.'\' + '.$inspectionFrame.'h'];
-                // calculate resolution/ offset needed for period tuple
-                // therefore check if period time frame would be smaller than the resolution
-                // in that case, the resolution should be smaller than the one used for the outer query
-                $difference = round(abs(strtotime($nex) - strtotime($inter)) / 60);
-                $transRes = translateResolutionToMinutes($resolution);
-                $useRes = $resolution;
-                if(!is_null($transRes) & (($difference - 2*60*$inspectionFrame)< $transRes)){
-                    $useRes = mapToSmallerResolution($resolution);
-                }
-                // add period tuple
-                if($i != $length-1){                 
-                    $periodTuples[$i+1] = ['\''.$inter.'\' + '.$inspectionFrame.'h + '.$useRes, '\''.$nex.'\' - '.$inspectionFrame.'h', $useRes];
-                }else{
-                    $periodTuples[$i+1] = ['\''.$inter.'\' + '.$inspectionFrame.'h + '.$useRes, '\''.$end_date.'\'', $useRes];
-                }
-            }
-
-          
-            $whereKeyAndTime      = $wherekeys.' AND time >= \''.$start_date.'\' AND time <= \''.$end_date.'\'';
             $whereTime            = 'time >= \''.$start_date.'\' AND time <= \''.$end_date.'\'';
-                
-            //$whereFull      = $wherekeys.' AND '.$whereTreshold.$whereInspections.' AND time >= \''.$start_date.'\' AND time <= \''.$end_date.'\'';
-            
-            
+
+            $innerQueries = [];
+             foreach($devices as $i => $device){
+                $innerQueries[$i] = $this->getInnerCleanQueryByDevice($device, $resolution, $start_date, $end_date, $limit, $threshold, $wherekeys);
+             }
+
+            $innerQuery = implode(', ', $innerQueries);
+
+
             if($resolution != null)
             {
-                if ($devices)
+                if ($device)
                 {
                     $fill              = env('INFLUX_FILL') !== null ? env('INFLUX_FILL') : 'null';
                     $groupByResolution = 'GROUP BY time('.$resolution.') fill('.$fill.')';
-                    $groupInspection = 'GROUP BY time(15m)';
-                    #$queryList         = Device::getAvailableSensorNamesFromData($device->id, $names, $whereKeyAndTime, 'sensors', true, $cache_sensor_names);
-                    // $queryList = $names;
-
-
-                    // foreach ($queryList as $i => $name) 
-                    //     $queryList[$i] = 'MEAN("'.$name.'") AS "mean_'.$name.'"';
-                        
-                    
-                    // $groupBySelect = implode(', ', $queryList);'.$resolution.'
-
+                    $groupByKeyResolution = 'GROUP BY "key",time('.$resolution.') fill('.$fill.')';
                     $groupBySelectOuter = 'cumulative_sum(sum(weight_delta)) as weight_kg_noOutlier'; 
-                    $groupBySelectInnerInspection = 'derivative(mean(weight_kg), 15m) as weight_delta';
-                    $groupBySelectInnerPeriod = 'derivative(mean(weight_kg), '.$resolution.') as weight_delta';
+                    #$groupBySelectInnerInspection = 'derivative(mean(weight_kg), 15m) as weight_delta';
+                    #$groupBySelectInnerPeriod = 'derivative(mean(weight_kg), '.$resolution.') as weight_delta';
                 }
 
-                
-            $sensors_out = [];
 
-            
-            if ($groupBySelectOuter != null && $groupBySelectOuter != '') 
-            {   
-                $inspectionQueries = [];
-                foreach($inspectionTuples as $i => $tuple){
-                    $inspectionQueries[$i] = '(SELECT * FROM ( SELECT '.$groupBySelectInnerInspection.' FROM "sensors" WHERE '.$wherekeys.
-                    ' AND time >= '.$tuple[0].' AND time <= '.$tuple[1].' '.$groupInspection.' fill(linear) '.$limit.') WHERE '.$whereTreshold.')';
-                }
-                $periodQueries = [];
-                foreach($periodTuples as $i => $tuple){
-                     $periodQueries[$i] = '(SELECT derivative(mean(weight_kg), '.$tuple[2].') as weight_delta FROM "sensors" WHERE '.$wherekeys.
-                    ' AND time >= '.$tuple[0].' AND time <= '.$tuple[1].' group by time('.$tuple[2].') '.$limit.')';
-                }
-                // function array_zip($a1, $a2) {
-                //     for($i = 0; $i < min(count($a1), count($a2)); $i++) {
-                //         $out[$i] = [$a1[$i], $a2[$i]];
-                //     }
-                //     return $out;
-                // }
-                // $allQueries = array_zip($periodQueries, $inspectionQueries);
-                $allQueries = array_merge($periodQueries, $inspectionQueries);
-                #return Response::json(['query'=>$allQueries]);
-                $innerQuery = implode(', ', $allQueries);
 
-                $sensorQuery = 'SELECT '.$groupBySelectOuter.' FROM '.$innerQuery.' WHERE '.$whereTime.' '.$groupByResolution.' '.$limit;
-                #$sensorQuery = 'SELECT * FROM ('.$innerQuery.') WHERE '.$whereKeyAndTime.' '.$limit;
-                #$sensorQuery = $innerQuery;
-                #return Response::json(['query'=>$sensorQuery, 'resolution'=>$resolution, 'periodtuples' => $periodTuples]);
-                $sensors_out = Device::getInfluxQuery($sensorQuery, 'data');
+
+            $sensorQuery = 'SELECT '.$groupBySelectOuter.' FROM '.$innerQuery.' WHERE '.$whereTime.' '.$groupByKeyResolution.' '.$limit;
+
+            if(count($innerQueries)>1){
+                $sensorQuery = 'SELECT mean(weight_kg_noOutlier), stddev(weight_kg_noOutlier), count(weight_kg_noOutlier) FROM ('.$sensorQuery.') '.$groupByResolution.' '.$limit;
             }
             
+            #return Response::json(['query'=>$sensorQuery, 'resolution'=>$resolution, 'periodtuples' => $periodTuples]);
+            $sensors_out = Device::getInfluxQuery($sensorQuery, 'data');
+            
+            }
             
             if (count($sensors_out) == 0)
                 return Response::json('sensor-no-data-error', 500);
 
             return Response::json( ['query'=> $sensorQuery, 'id'=>$device->id, 'interval'=>$interval, 'relative_interval'=>$relative_interval, 'index'=>$index, 'timeGroup'=>$timeGroup, 'resolution'=>$resolution, 'measurements'=>$sensors_out, 'sensorDefinitions'=>$sensorDefinitions, 'cacheSensorNames'=>$cache_sensor_names] );
         }
-    }
+    
 }

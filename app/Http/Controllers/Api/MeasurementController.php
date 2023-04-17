@@ -1786,7 +1786,7 @@ class MeasurementController extends Controller
             if(count($inspections) != 0){
                 $periodTuples[0] = ['\''.$start_date.'\'', '\''.$inspections[0].'\''.' - '.$inspectionFrame.'h', $resolution];
             }else{
-                $periodTuples[0] = ['\''.$start_date.'\'', '\''.$end_date,'\'', $resolution];
+                $periodTuples[0] = ['\''.$start_date.'\'', '\''.$end_date.'\'', $resolution];
             }
 
             function translateResolutionToMinutes($resolution){
@@ -1921,7 +1921,7 @@ class MeasurementController extends Controller
                 $sensorQuery = 'SELECT '.$groupBySelectOuter.' FROM '.$innerQuery.' WHERE '.$whereTime.' '.$groupByResolution.' '.$limit;
                 #$sensorQuery = 'SELECT * FROM ('.$innerQuery.') WHERE '.$whereKeyAndTime.' '.$limit;
                 #$sensorQuery = $innerQuery;
-                #return Response::json(['query'=>$sensorQuery]);
+                #return Response::json(['query'=>$sensorQuery, 'resolution'=>$resolution, 'periodtuples' => $periodTuples]);
                 $sensors_out = Device::getInfluxQuery($sensorQuery, 'data');
             }
             

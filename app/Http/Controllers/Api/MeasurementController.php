@@ -1346,6 +1346,7 @@ class MeasurementController extends Controller
             'timeGroup'   => 'nullable|string',
             'names'       => 'nullable|string',
             'weather'     => 'nullable|integer',
+            'clean_weight'=> 'nullable|integer',
             'timezone'    => 'nullable|timezone',
             'relative_interval' => 'nullable|integer',
         ]);
@@ -1380,6 +1381,7 @@ class MeasurementController extends Controller
         $min_interval_min     = isset($device->measurement_interval_min) ? $device->measurement_interval_min : 1; 
         $relative_interval    = boolval($request->input('relative_interval', 0)); 
         $loadWeather          = boolval($request->input('weather', 1)); 
+        $loadCleanWeight      = boolval($request->input('clean_weight', 0)); 
         $intervalArr          = $this->interval($request, $relative_interval, false, $min_interval_min);
 
         $groupBySelect        = null;
@@ -1457,6 +1459,27 @@ class MeasurementController extends Controller
                     }
                 }
             }
+        }
+
+        // Add cleaned weight
+
+        if($loadCleanWeight){
+            $alter_request = $request;
+            $alter_request["id"] = [$alter_request["id"]];
+            $cleanWeight_query = $this -> cleanedWeight($alter_request) ;
+            $cleanWeight_out = Device::getInfluxQuery($cleanWeight_query, 'data');
+            if (count($cleanWeight_out) == count($sensors_out))
+            {
+                foreach ($sensors_out as $key => $value) 
+                {
+                    foreach ($cleanWeight_out[$key] as $name => $value) 
+                    {
+                        if ($name != 'time')
+                            $sensors_out[$key][$name] =  $value;
+                    }
+                }
+            }
+            #return Response::json(['sensor_query' => $sensorQuery, 'cleanWeight_query' => $cleanWeight_query, 'cleanWeight_out'=> count($cleanWeight_out), 'sensors_out' => count($sensors_out)]);
         }
 
 
@@ -1580,7 +1603,7 @@ class MeasurementController extends Controller
                     
                     $groupBySelect = implode(', ', $queryList);
 
-                    $groupBySelect .= ', SUM("weight_delta_noOutlier") AS "weight_intake"'; 
+                    #$groupBySelect .= ', SUM("weight_delta_noOutlier") AS "weight_intake"'; 
                 }
 
                 
@@ -1592,6 +1615,25 @@ class MeasurementController extends Controller
                 $sensorQuery = 'SELECT '.$groupBySelect.' FROM "sensors" WHERE '.$whereKeyAndTime.' '.$groupByResolution.' '.$limit;
                 $sensors_out = Device::getInfluxQuery($sensorQuery, 'data');
             }
+
+            // Add cleaned weight
+
+            
+
+            $cleanWeight_query = $this -> cleanedWeight($request) ;
+            $cleanWeight_out = Device::getInfluxQuery($cleanWeight_query, 'data');
+            if (count($cleanWeight_out) == count($sensors_out))
+            {
+                foreach ($sensors_out as $key => $value) 
+                {
+                    foreach ($cleanWeight_out[$key] as $name => $value) 
+                    {
+                        if ($name != 'time')
+                            $sensors_out[$key][$name] =  $value;
+                    }
+                }
+            }
+                
 
             
             if (count($sensors_out) == 0)
@@ -1875,7 +1917,7 @@ class MeasurementController extends Controller
                     $fill              = env('INFLUX_FILL') !== null ? env('INFLUX_FILL') : 'null';
                     $groupByResolution = 'GROUP BY time('.$resolution.') fill('.$fill.')';
                     $groupByKeyResolution = 'GROUP BY "key",time('.$resolution.') fill('.$fill.')';
-                    $groupBySelectOuter = 'cumulative_sum(sum(weight_delta)) as weight_kg_noOutlier'; 
+                    $groupBySelectOuter = 'cumulative_sum(sum(weight_delta)) as net_weight_kg'; 
                     #$groupBySelectInnerInspection = 'derivative(mean(weight_kg), 15m) as weight_delta';
                     #$groupBySelectInnerPeriod = 'derivative(mean(weight_kg), '.$resolution.') as weight_delta';
                 }
@@ -1886,18 +1928,20 @@ class MeasurementController extends Controller
             $sensorQuery = 'SELECT '.$groupBySelectOuter.' FROM '.$innerQuery.' WHERE '.$whereTime.' '.$groupByKeyResolution.' '.$limit;
 
             if(count($innerQueries)>1){
-                $sensorQuery = 'SELECT mean(weight_kg_noOutlier), stddev(weight_kg_noOutlier), count(weight_kg_noOutlier) FROM ('.$sensorQuery.') '.$groupByResolution.' '.$limit;
+                $sensorQuery = 'SELECT mean(net_weight_kg) as mean_net_weight_kg, stddev(net_weight_kg) as sd_net_weight_kg FROM ('.$sensorQuery.') WHERE '.$whereTime.' '.$groupByResolution.' '.$limit;
+            }else{
+                $sensorQuery = 'SELECT mean(net_weight_kg) as net_weight_kg FROM ('.$sensorQuery.') WHERE '.$whereTime.' '.$groupByResolution.' '.$limit; // this is necessary to fill with null values when data is missing
             }
             
             #return Response::json(['query'=>$sensorQuery, 'resolution'=>$resolution, 'periodtuples' => $periodTuples]);
-            $sensors_out = Device::getInfluxQuery($sensorQuery, 'data');
+            #$sensors_out = Device::getInfluxQuery($sensorQuery, 'data');
             
             }
             
-            if (count($sensors_out) == 0)
-                return Response::json('sensor-no-data-error', 500);
+            #if (count($sensors_out) == 0)
+            #    return Response::json('sensor-no-data-error', 500);
 
-            return Response::json( ['query'=> $sensorQuery, 'id'=>$device->id, 'interval'=>$interval, 'relative_interval'=>$relative_interval, 'index'=>$index, 'timeGroup'=>$timeGroup, 'resolution'=>$resolution, 'measurements'=>$sensors_out, 'sensorDefinitions'=>$sensorDefinitions, 'cacheSensorNames'=>$cache_sensor_names] );
+            return $sensorQuery;
         }
     
 }

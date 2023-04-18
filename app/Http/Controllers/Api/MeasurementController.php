@@ -92,15 +92,19 @@ class MeasurementController extends Controller
             else if ($request->filled('key') && $request->input('key') != 'null')
             {
                 $keys = $request->input('key');
-                foreach($keys as $key){
-                    array_push($check_device, $devices->where('key', $key)->first());
+                if(!is_array($keys)){
+                    $check_device = $devices->where('key', $keys)->first();
+                }else{
+                    $check_device = $devices->whereIn('key', $keys)->get();
                 }
             }
             else if ($request->filled('hive_id') && $request->input('hive_id') != 'null')
             {
                 $hive_ids = $request->input('hive_id');
-                foreach($hive_ids as $hive_id){
-                    array_push($check_device, $devices->where('hive_id', $hive_id)->first());
+                if(!is_array($hive_ids)){
+                    $check_device = $devices->where('hive_id', $hive_ids)->first();
+                }else{
+                    $check_device = $devices->whereIn('hive_id', $hive_ids)->get();
                 }
             }
             else
@@ -1354,6 +1358,8 @@ class MeasurementController extends Controller
         if ($validator->fails())
             return response()->json(['errors'=>$validator->errors()]);
 
+
+        
         //Get the sensor
         $device  = $this->get_user_device($request);
 

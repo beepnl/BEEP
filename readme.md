@@ -82,12 +82,6 @@ Install SSL certificates to your endpoints with [Let's Encrypt](https://letsencr
 ### Installation
 Install [InfluxDB](https://www.influxdata.com/) or set up an account at [InfluxCloud](https://cloud2.influxdata.com/signup)
 
-:question: Does it need to be a 1.x version of influx?
-
-I started with just configuring the Cloud version and CLI. But then you are not allowed to create users. I understand that it is still necessary for the app to have an Influx user, password and database, but maybe I did not fully understand how to connect to the cloud. I am not sure why you cannot run the user create command, maybe it is a bug related to that, the error I got was the same: [https://community.influxdata.com/t/create-user-fail-with-error-write-users-is-unauthorized/20509](https://community.influxdata.com/t/create-user-fail-with-error-write-users-is-unauthorized/20509)
-
-If you install a 2.x version of Influx, you do not have databases but buckets (Actually I'm not sure when databases started to be buckets, but I think it was with 2.)
-
 #### Optional: migrate from local Influx v1.7.3 db to managed InfluxDB Cloud
 
 - https://docs.influxdata.com/influxdb/cloud/upgrade/v1-to-cloud/
@@ -112,11 +106,7 @@ influx
 > CREATE DATABASE bee_data
 > exit
 ```
-:question: This only works for a 1.x version of influx. After that the syntax changed to:
 
-```
-influx user create -n user_influx -p pass_influx -o BEEP
-```
 
 **NB: Make sure to pass the user and credentials to the .env file that has been created in step 3.**
 **NB: If your Influx version was < 1.1.x (no TSI support), when using backups to transfer data: first install the old version that you are currently using on a new server, import the backups, then update to the newest Influx version!**
@@ -136,7 +126,6 @@ c. To enable schedules (e.g. for loading weather data), install a crontab with `
 
 a. Go to ```api.[your_domain]/webapp#!/login/create```
 
-:question: Should this be changed to a  new link or is it okay to keep it with the old app?
 
 b. Create a new user
 
@@ -251,8 +240,6 @@ If you setup your own BEEP instance, you might still want to have a local versio
 
 * Clone the repository to your Laptop or Computer.
 * We recomend using php version 8.0
-:question why does it differ from the version installed on the server?
-
 * We recommend to install and use Laravel Valet.
 
   For Mac: https://laravel.com/docs/10.x/valet#installation (you might want to browse to the newest version)
@@ -289,9 +276,14 @@ If you setup your own BEEP instance, you might still want to have a local versio
 
   Troubleshooting: If you get an error like "Composer detected issues in your platform: Your Composer dependencies require a PHP version ">= 8.1.0"." you might need to run `composer global update`
 
+
 Tips:
 
-* you can also link your local vue app to this url in the .env file
+* You can also link your local vue app to this url in the .env file. If you do this and you get cors errors, this might be because of one of the following reasons: 
+
+The url you set is wrong. 
+You have to open beep.test first (or your url) and add a security exception for your browser.
+
 
 * If you want to test your new api functions, we recommend to use Postman: https://www.postman.com/downloads/
 

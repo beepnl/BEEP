@@ -272,18 +272,14 @@ If you setup your own BEEP instance, you might still want to have a local versio
 
 * You should be able to access the app, e.g. on https://beep.test
 
+Tips and Troubleshooting:
 
+* If you get an error like "Composer detected issues in your platform: Your Composer dependencies require a PHP version ">= 8.1.0"." you might need to run `composer global update`
 
-  Troubleshooting: If you get an error like "Composer detected issues in your platform: Your Composer dependencies require a PHP version ">= 8.1.0"." you might need to run `composer global update`
+* You can also link your local vue app to this url in the .env file. If you do this and you get cors errors, this might be because of one of the following reasons:
 
-
-Tips:
-
-* You can also link your local vue app to this url in the .env file. If you do this and you get cors errors, this might be because of one of the following reasons: 
-
-The url you set is wrong. 
+* The url you set is wrong.
 You have to open beep.test first (or your url) and add a security exception for your browser.
-
 
 * If you want to test your new api functions, we recommend to use Postman: https://www.postman.com/downloads/
 

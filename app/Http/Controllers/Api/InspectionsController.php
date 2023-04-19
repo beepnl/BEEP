@@ -14,6 +14,7 @@ use App\Http\Resources\InspectionCollection;
 use Moment\Moment;
 use Auth;
 use LaravelLocalization;
+use Validator;
 
 /**
  * @group Api\InspectionsController
@@ -247,6 +248,17 @@ class InspectionsController extends Controller
     **/
     public function store(Request $request)
     {
+        $validator = Validator::make($request->input(),
+        [
+            'date'          => 'required|date',
+            'items'         => 'nullable',
+            'hive_ids.*'    => 'required_without:hive_id|integer|exists:hives,id',
+            'hive_id'       => 'required_without:hive_ids|integer|exists:hives,id',
+        ]);
+
+        if ($validator->fails())
+            return response()->json(['errors'=>$validator->errors()], 422);
+
         if ($request->filled('date') && ( $request->filled('items') || ($request->filled('item_ids') && $request->filled('item_vals')) ) )
         {
             $moment               = new Moment($request->input('date'));

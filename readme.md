@@ -65,7 +65,7 @@ if [ ! -f '.env' ]; then cp .env.example .env && php artisan key:generate; fi
 composer install && sudo chmod -R 777 storage && sudo chmod -R 777 bootstrap/cache && php artisan storage:link && php artisan migrate --force
 ```
 
-NB: To stick to a certain PHP version (on the server e.g. 7.1.25), use ```composer install --ignore-platform-reqs``` or ```composer update --ignore-platform-reqs```
+NB: To stick to a certain PHP version (on the server e.g. 7.4.33), use ```composer install --ignore-platform-reqs``` or ```composer update --ignore-platform-reqs```
 
 ## 4. Set up your end-points
 
@@ -85,7 +85,7 @@ Install [InfluxDB](https://www.influxdata.com/) or set up an account at [InfluxC
 #### Optional: migrate from local Influx v1.7.3 db to managed InfluxDB Cloud
 
 - https://docs.influxdata.com/influxdb/cloud/upgrade/v1-to-cloud/
-- NB: If you have inlfux already installed, use ```./influx``` for the commands from inside the installation folder
+- NB: If you have influx already installed, use ```./influx``` for the commands from inside the installation folder
 
 ```bash
 wget https://dl.influxdata.com/influxdb/releases/influxdb2-client-2.0.6-linux-amd64.tar.gz
@@ -106,6 +106,8 @@ influx
 > CREATE DATABASE bee_data
 > exit
 ```
+
+
 **NB: Make sure to pass the user and credentials to the .env file that has been created in step 3.**
 **NB: If your Influx version was < 1.1.x (no TSI support), when using backups to transfer data: first install the old version that you are currently using on a new server, import the backups, then update to the newest Influx version!**
 
@@ -123,6 +125,7 @@ c. To enable schedules (e.g. for loading weather data), install a crontab with `
 ## 2. Register new user
 
 a. Go to ```api.[your_domain]/webapp#!/login/create```
+
 
 b. Create a new user
 
@@ -143,7 +146,7 @@ e. You should see the back-end dashboard, looking like this:
 
 # Installation using docker compose
 
-A simple setup for small installations can be achived with [docker-compose](https://docs.docker.com/compose/). The tool will spinn up a mysqldb, influd, a webserver and initialize the beep database.
+A simple setup for small installations can be achived with [docker-compose](https://docs.docker.com/compose/). The tool will spinn up a mysqldb, influx, a webserver and initialize the beep database.
 
 1. [Install docker-compose](https://docs.docker.com/compose/install/)
 2. Checkout BEEP and switch into the code repository
@@ -164,7 +167,9 @@ As the setup is based on docker containers, code changes inside the repository w
 2. Use the native [Android](https://play.google.com/store/apps/details?id=appinventor.ai_app_beep_nl.BEEP_commissioning_V06&gl=NL) / [iOS](https://apps.apple.com/us/app/beep-base/id1495605010) app to configure your BEEP base by Bluetooth. 
 3. With the app, connect the BEEP base to the BEEP TTN network (auto configuration), or connect the BEEP base (manually) to your own LoRa network
 4. The native app adds a BEEP base measurement device to your BEEP account
-5. You can see the measurement data at the Measurements menu item of the webapp 
+5. If you are still with a fresh installation, login to your api (```api.[your_domain]/login´´´) and got to Devices -> Sensor Measurements. Add sensor definitions here.
+6. You can see the measurement data at the Data menu item of the webapp.
+
 
 
 # Contributing
@@ -227,6 +232,58 @@ Documentation and manual of the app can be found at https://beep.nl/beep-app.
 
 API documentation of the BEEP API can be found at https://api.beep.nl/docs/.
 
+# For Developers - Getting started
+
+Here we describe the first steps to setup a programming environment, in case you want to contribute to the app but are not yet a professional laravel developer.
+
+If you setup your own BEEP instance, you might still want to have a local version running, so that you can test changes immedieatly. 
+
+* Clone the repository to your Laptop or Computer.
+* We recomend using php version 8.0
+* We recommend to install and use Laravel Valet.
+
+  For Mac: https://laravel.com/docs/10.x/valet#installation (you might want to browse to the newest version)
+
+  For Linux: https://cpriego.github.io/valet-linux/
+
+  For Linux, make sure that you meet the requirements: https://cpriego.github.io/valet-linux/requirements
+  
+* Install following additional php extensions: fpm, intl, gd, mysql
+
+* Make sure valet uses the correct php version
+
+  For Mac: valet use php@8.0 
+
+  For Linux: valet use 8.0
+
+* fill out the .env file
+
+  Set `APP_URL=beep.test` or choose an other url
+
+  Set the information for the mysql, influx and redis connections. If you connect to your remote server, make sure the ports are open on your server. You might also need to set a password for redis in this case.
+
+  Use `php artisan key:generate` to generate a key and add it to your env file.
+
+* navigate to /public and run `valet link`
+
+* run `valet secure` to add an ssl certificate
+
+* run `composer install` and `valet start`
+
+* You should be able to access the app, e.g. on https://beep.test
+
+Tips and Troubleshooting:
+
+* If you get an error like "Composer detected issues in your platform: Your Composer dependencies require a PHP version ">= 8.1.0"." you might need to run `composer global update`
+
+* You can also link your local vue app to this url in the .env file. If you do this and you get cors errors, this might be because of one of the following reasons:
+
+* The url you set is wrong.
+You have to open beep.test first (or your url) and add a security exception for your browser.
+
+* If you want to test your new api functions, we recommend to use Postman: https://www.postman.com/downloads/
+
+* In some cases, e.g. in case you made changes to the measurements database, you need to run `php artisan cache:clear` to make the changes effective in your api calls.
 
 # Security Vulnerabilities
 

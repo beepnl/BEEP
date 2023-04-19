@@ -28,7 +28,7 @@ var COLORS =
 }
 
 var WEATHER = ['icon','precipIntensity','precipProbability','precipType','temperature','apparentTemperature','dewPoint','humidity','pressure','windSpeed','windGust','windBearing','cloudCover','uvIndex','visibility','ozone']; // weather indicators
-var SENSORS = ['t','h','p','l','bc_i','bc_o','bc_tot','weight_kg_corrected','weight_kg','t_i','t_0','t_1','t_2','t_3','t_4','t_5','t_6','t_7','t_8','t_9']; // not actuators
+var SENSORS = ['t','h','p','l','bc_i','bc_o','bc_tot','weight_kg_noOutlier', 'weight_kg_corrected','weight_kg','t_i','t_0','t_1','t_2','t_3','t_4','t_5','t_6','t_7','t_8','t_9']; // not actuators
 var SOUND   = ['s_fan_4','s_fan_6','s_fan_9','s_fly_a','s_tot','s_bin','s_spl','s_bin098_146Hz','s_bin146_195Hz','s_bin195_244Hz','s_bin244_293Hz','s_bin293_342Hz','s_bin342_391Hz','s_bin391_439Hz','s_bin439_488Hz','s_bin488_537Hz','s_bin537_586Hz','s_bin_71_122' ,'s_bin_122_173','s_bin_173_224','s_bin_224_276','s_bin_276_327','s_bin_327_378','s_bin_378_429','s_bin_429_480','s_bin_480_532','s_bin_532_583','s_bin_0_201','s_bin_201_402','s_bin_402_602','s_bin_602_803','s_bin_803_1004','s_bin_1004_1205','s_bin_1205_1406','s_bin_1406_1607','s_bin_1607_1807','s_bin_1807_2008']; // all sound releated sensors
 var DEBUG   = ['bv','rssi','snr']; // all debugging info sensors
 
@@ -128,6 +128,7 @@ var SENSOR_NAMES =
 	bc_i	: 'bc_i',
 	bc_o	: 'bc_o',
 	bc_tot	: 'bc_tot',
+	weight_kg_noOutlier: 'weight_kg_noOutlier',
 	weight_kg			: 'weight_kg',
 	weight_kg_corrected	: 'weight_kg_corrected',
 	t_i		: 't_i',

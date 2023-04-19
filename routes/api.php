@@ -64,6 +64,8 @@ Route::group([], function()
 		Route::post('devices/ttn/{dev_id}', 'Api\DeviceController@postTTNDevice');
 
 		Route::get('sensors/measurements', 	'Api\MeasurementController@data');
+		Route::get('sensors/comparemeasurements', 	'Api\MeasurementController@comparedata');
+		Route::get('sensors/cleanedweight', 	'Api\MeasurementController@cleanedweight');
 		Route::get('sensors/lastvalues', 	'Api\MeasurementController@lastvalues');
 		Route::get('sensors/lastweight', 	'Api\MeasurementController@lastweight');
 		Route::post('sensors/calibrateweight','Api\MeasurementController@calibrateweight');

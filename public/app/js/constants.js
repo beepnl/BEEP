@@ -112,6 +112,7 @@ var SENSOR_COLOR = {
   bc_tot: COLORS.black,
   weight_kg: COLORS.orange,
   weight_kg_corrected: COLORS.darkgrey,
+  mean_weight_kg: COLORS.red,
   t_i: COLORS.red,
   t_0: COLORS.red,
   t_1: COLORS.red,

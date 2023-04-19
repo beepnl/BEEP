@@ -138,6 +138,13 @@ class Hive extends Model
         return null;
     }
 
+    public function getAllInspectionDates()
+    {
+        $item = $this->inspections()-> pluck('created_at')->toArray();
+        
+        return $item;
+    }
+
     public function getGroupIdsAttribute()
     {
         return $this->groups()->pluck('group_id')->toArray();

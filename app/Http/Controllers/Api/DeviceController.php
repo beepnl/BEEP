@@ -712,17 +712,21 @@ class DeviceController extends Controller
             $device_new = [];
             $device_obj = null;
             $device_id  = null;
+            $user       = Auth::user();
 
-            if (isset($sid))
-                $device_obj = Auth::user()->devices->find($sid);
-            else if (isset($device['hardware_id']))
-                $device_obj = Auth::user()->devices->where('hardware_id', $device['hardware_id'])->first();
-            else if (isset($hwi))
-                $device_obj = Auth::user()->devices->where('hardware_id', $hwi)->first();
-            else if (isset($device['key']))
-                $device_obj = Auth::user()->devices->where('key', $device['key'])->first();
-            else if (isset($key))
-                $device_obj = Auth::user()->devices->where('key', $key)->first();
+            if ($user)
+            {
+                if (isset($sid))
+                    $device_obj = $user->devices()->find($sid);
+                else if (isset($device['hardware_id']))
+                    $device_obj = $user->devices()->where('hardware_id', $device['hardware_id'])->first();
+                else if (isset($hwi))
+                    $device_obj = $user->devices()->where('hardware_id', $hwi)->first();
+                else if (isset($device['key']))
+                    $device_obj = $user->devices()->where('key', $device['key'])->first();
+                else if (isset($key))
+                    $device_obj = $user->devices()->where('key', $key)->first();
+            }
 
             if ($device_obj != null)
             {

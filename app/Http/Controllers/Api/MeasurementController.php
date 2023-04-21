@@ -1604,7 +1604,7 @@ class MeasurementController extends Controller
 
 
                     foreach ($queryList as $i => $name) 
-                        $queryList[$i] = 'MEAN("'.$name.'") AS "mean_'.$name.'"';
+                        $queryList[$i] = 'MEAN("'.$name.'") AS "mean_'.$name.'", stddev("'.$name.'") AS "sd_'.$name.'"';
                         
                     
                     $groupBySelect = implode(', ', $queryList);

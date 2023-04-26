@@ -1685,7 +1685,7 @@ class MeasurementController extends Controller
     }
 
 
-    private function getInnerCleanQueryByDevice(Device $device, $resolution, $start_date, $end_date, $limit, $threshold){
+    private function getInnerCleanQueryByDevice(Device $device, $resolution, $start_date, $end_date, $limit, $threshold, $frame, $timeZone){
 
             
             $wherekeys=$device->influxWhereKeys();
@@ -1698,22 +1698,24 @@ class MeasurementController extends Controller
 
             sort($inspections);
         
-            // choose inspections in time frame only
+            // choose inspections in time frame only and convert to utc
             $filteredInspections = [];
             foreach($inspections as $inspection){
-                if($inspection >= $start_date & $inspection <= $end_date){
-                    array_push($filteredInspections, $inspection);
+                $inspection_stamp = new Moment($inspection, $timeZone);
+                $inspection_utc = $inspection_stamp->setTimezone('UTC')->format($this->timeFormat);
+                if($inspection_utc >= $start_date & $inspection_utc <= $end_date){
+                    array_push($filteredInspections, $inspection_utc);
                 }
             }      
             $inspections = $filteredInspections;
-
+            #return Response::json( ['status'=>$inspections] );
             
             // array for time frames shortly before and after inspections
             $inspectionTuples = [];
             // array for other time frames
             $periodTuples = [];
 
-            $inspectionFrame = 5;
+            $inspectionFrame = $frame;
 
             // create first tuple / or the only tuple needed
             if(count($inspections) != 0){
@@ -1725,23 +1727,23 @@ class MeasurementController extends Controller
             // create all tuples
             $length = count($inspections);
             $i = 0;
-            while($i < $length-1){
+            while($i <= $length-1){
                 $cur = current($inspections);
-                $nex = next($inspections);
+                if(($i != $length-1)){
+                    $nex = next($inspections);
+                }
                 $i++;
 
                 // check if two or more inspection time frames should be merged into one. update $nex in that case
                 $inter = $cur;
-                $last = false;
-                while((!$last) & ((strtotime($nex) - strtotime($inter))/(60*60)<= 2*$inspectionFrame )){
+                while(($i <= $length-1) & ((strtotime($nex) - strtotime($inter))/(60*60)<= 2*$inspectionFrame )){
                     $inter = $nex;
                     if(($i != $length-1)){
                         $nex = next($inspections);
-                        $i++;
                     } else{
                         $nex = $end_date;
-                        $last = true;
                     }
+                    $i++;
                 }
                 // add inspection tuple
                 $inspectionTuples[$i] = ['\''.$cur.'\' - '.$inspectionFrame.'h', '\''.$inter.'\' + '.$inspectionFrame.'h'];
@@ -1755,7 +1757,7 @@ class MeasurementController extends Controller
                     $useRes = $this -> mapToSmallerResolution($resolution);
                 }
                 // add period tuple
-                if($i != $length-1){                 
+                if($i <= $length-1){                 
                     $periodTuples[$i+1] = ['\''.$inter.'\' + '.$inspectionFrame.'h + '.$useRes, '\''.$nex.'\' - '.$inspectionFrame.'h', $useRes];
                 }else{
                     $periodTuples[$i+1] = ['\''.$inter.'\' + '.$inspectionFrame.'h + '.$useRes, '\''.$end_date.'\'', $useRes];
@@ -1840,6 +1842,7 @@ class MeasurementController extends Controller
                 'timezone'    => 'nullable|timezone',
                 'relative_interval' => 'nullable|integer',
                 'threshold' => 'nullable|integer',
+                'frame'     => 'nullable|integer',
             ]);
 
            
@@ -1855,15 +1858,16 @@ class MeasurementController extends Controller
                 $threshold = 0.75;
             }
 
+            if ($request->filled('frame') && $request->input('frame') != 'null'){
+                $frame = $request->input('frame');
+            }
+            else{
+                $frame = 2;
+            }
 
-            #return Response::json( ['status'=>"validated"] );
-    
             //Get the sensors
             $devices  = $this->get_user_device($request);
-            #return Response::json( ['status'=>"got devices"] );
-            #return Response::json( ['devicesLength'=>sizeof($devices)] );
-            #return Response::json( ['devices'=>$devices] );
-    
+            
 
             if (!isset($devices))
                 return Response::json('sensor-none-error', 500);
@@ -1910,7 +1914,7 @@ class MeasurementController extends Controller
 
             $innerQueries = [];
              foreach($devices as $i => $device){
-                $innerQueries[$i] = $this->getInnerCleanQueryByDevice($device, $resolution, $start_date, $end_date, $limit, $threshold, $wherekeys);
+                $innerQueries[$i] = $this->getInnerCleanQueryByDevice($device, $resolution, $start_date, $end_date, $limit, $threshold, $frame, $timeZone);
              }
 
             $innerQuery = implode(', ', $innerQueries);
@@ -1924,11 +1928,7 @@ class MeasurementController extends Controller
                     $groupByResolution = 'GROUP BY time('.$resolution.') fill('.$fill.')';
                     $groupByKeyResolution = 'GROUP BY "key",time('.$resolution.') fill('.$fill.')';
                     $groupBySelectOuter = 'cumulative_sum(sum(weight_delta)) as net_weight_kg'; 
-                    #$groupBySelectInnerInspection = 'derivative(mean(weight_kg), 15m) as weight_delta';
-                    #$groupBySelectInnerPeriod = 'derivative(mean(weight_kg), '.$resolution.') as weight_delta';
                 }
-
-
 
 
             $sensorQuery = 'SELECT '.$groupBySelectOuter.' FROM '.$innerQuery.' WHERE '.$whereTime.' '.$groupByKeyResolution.' '.$limit;
@@ -1939,14 +1939,10 @@ class MeasurementController extends Controller
                 $sensorQuery = 'SELECT mean(net_weight_kg) as net_weight_kg FROM ('.$sensorQuery.') WHERE '.$whereTime.' '.$groupByResolution.' '.$limit; // this is necessary to fill with null values when data is missing
             }
             
-            #return Response::json(['query'=>$sensorQuery, 'resolution'=>$resolution, 'periodtuples' => $periodTuples]);
-            #$sensors_out = Device::getInfluxQuery($sensorQuery, 'data');
-            
+       
             }
             
-            #if (count($sensors_out) == 0)
-            #    return Response::json('sensor-no-data-error', 500);
-
+            
             return $sensorQuery;
         }
     

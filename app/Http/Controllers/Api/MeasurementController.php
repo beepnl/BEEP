@@ -1731,12 +1731,14 @@ class MeasurementController extends Controller
                 $cur = current($inspections);
                 if(($i != $length-1)){
                     $nex = next($inspections);
+                }else{
+                    $nex = $end_date;
                 }
                 $i++;
 
                 // check if two or more inspection time frames should be merged into one. update $nex in that case
                 $inter = $cur;
-                while(($i <= $length-1) & ((strtotime($nex) - strtotime($inter))/(60*60)<= 2*$inspectionFrame )){
+                while(($i <= $length-1) && ((strtotime($nex) - strtotime($inter))/(60*60)<= 2*$inspectionFrame )){
                     $inter = $nex;
                     if(($i != $length-1)){
                         $nex = next($inspections);

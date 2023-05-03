@@ -253,6 +253,15 @@ class DeviceController extends Controller
         else
             return redirect()->route('devices.index')->with('error','Device not created; because user has no hive to add it to');
 
+        // Make sure that re-registering key for deleted device is possible
+        $deleted_device_by_key = Device::onlyTrashed()->where('key', $data['key'])->first();
+        if ($deleted_device_by_key !== null)
+        {
+            $deleted_device_by_key->addFormerKey($data['key']);
+            $deleted_device_by_key->key = null;
+            $deleted_device_by_key->save();
+        }
+
         Device::create($data);
 
         return redirect()->route('devices.index')

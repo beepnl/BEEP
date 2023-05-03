@@ -17,6 +17,7 @@ use Moment\Moment;
 use App\Translation;
 use App\Inspection;
 use App\InspectionItem;
+use App\SensorDefinition;
 /**
  * @group Api\DeviceController
  * Store and retreive Devices that produce measurements
@@ -428,37 +429,47 @@ class DeviceController extends Controller
         {
             $device_exists += Device::withTrashed()->where('hardware_id', $hwi)->count();
             $can_claim += $user_devices->where('hardware_id', $hwi)->count();
+        }
 
-            if ($can_claim == 0)
+        // 
+        if ($can_claim == 0 && $device_exists > 0)
+        {
+            // $device is probably deleted 
+            $device = Device::onlyTrashed()->where('hardware_id', $hwi)->orWhere('id', $id)->orWhere('key', $key)->first();
+            if ($device)
             {
-                // $device is probably deleted 
-                if ($device_exists > 0)
+                if ($device->user_id == $user_id) // If deleted device is owned by user, undelete it
                 {
-                    $device = Device::onlyTrashed()->where('hardware_id', $hwi)->orWhere('id', $id)->first();
-                    if ($device)
+                    $deleted_date = $device->deleted_at;
+                    $device->restore();
+                    $can_claim = 1;
+                    Log::info("UserID=$user_id restored deleted Device with: ID=$device->id, HWI=$hwi, KEY=$key (from: $from)");
+                    
+                    // also restore trashed sensordefinitions if available
+                    $sensor_definitions_deleted = SensorDefinition::onlyTrashed()->where('device_id', $device->id)->where('deleted_at', $deleted_date)->get();
+                    $sensor_def_count           = $sensor_definitions_deleted->count();
+                    if ($sensor_def_count > 0)
                     {
-                        if ($device->user_id == $user_id) // If deleted device is owned by user, undelete it
-                        {
-                            $device->restore();
-                            $can_claim = 1;
-                        }
-                        else // reset device and assign to user
-                        {
-                            $device->key = null;
-                            $device->former_key_list = null;
-                            $device->hive_id = null;
-                            $device->user_id = $user_id;
-                            $device->deleted_at = null;
-                            $device->save();
-                            $can_claim = 1;
-                        }
+                        foreach ($sensor_definitions_deleted as $sd)
+                            $sd->restore();
+
+                        Log::info("UserID=$user_id restored $sensor_def_count sensor definitions from Device ID=$device->id (from: $from)");
                     }
+                    
                 }
-                else 
+                else // reset device and assign to user
                 {
-                    // device exists, but is bound to another user   
+                    $device->key = $key;
+                    $device->former_key_list = null;
+                    $device->hive_id = null;
+                    $device->user_id = $user_id;
+                    $device->deleted_at = null;
+                    $device->save();
+                    $can_claim = 1;
+                    Log::info("UserID=$user_id can claim deleted Device with: ID=$id, HWI=$hwi, KEY=$key (from: $from)");
                 }
             }
+            // else if $can_claim == 0 device exists, but is bound to another user   
         }
 
         if ($can_claim > 0 || $device_exists == 0)

@@ -15,6 +15,7 @@ use App\Models\HiveTag;
 use App\Models\FlashLog;
 use App\Models\Alert;
 use App\Models\AlertRule;
+use App\Models\InspectionSvg;
 
 use DB;
 use Auth;
@@ -211,6 +212,11 @@ class User extends Authenticatable
     public function dashboardGroups()
     {
         return $this->hasMany(DashboardGroup::class);
+    }
+
+    public function inspectionSvgs()
+    {
+        return $this->hasMany(InspectionSvg::class);
     }
 
     public function settings()

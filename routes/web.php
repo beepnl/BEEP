@@ -160,6 +160,7 @@ Route::group(
 		Route::resource('inspections', 	'InspectionsController');
 		Route::resource('users', 		'UserController');		
 		Route::resource('hive-tags', 	'HiveTagsController');
+		Route::resource('inspection-svg', 'InspectionSvgController');
 		
 
 		Route::get('research', 				['as'=>'research.index','uses'=>'ResearchController@index']);
@@ -169,4 +170,3 @@ Route::group(
 		Route::delete('research/{id}',		['as'=>'research.destroy','uses'=>'ResearchController@destroy']);
 	}
 );
-

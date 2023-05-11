@@ -71,3 +71,11 @@ php artisan crud:generate FlashLog --fields="user_id#integer#unsigned; device_id
 # HiveTags
 php artisan crud:generate HiveTags --fields="user_id#integer#unsigned; tag#string; hive_id#integer#unsigned#nullable; action_id#integer#unsigned#nullable; router_link#json#nullable" --relationships='hive#belongsTo#Hive::class; user#belongsTo#User::class;' --form-helper=html --validations="tag#required; user_id#required"
 php artisan crud:api-controller Api\\HiveTagsController --crud-name=hive_tags --model-name=Models\\HiveTag
+
+# DashboardGroup
+php artisan crud:generate DashboardGroup --fields="user_id#integer#unsigned; code#string; name#string#nullable; hive_ids#json#nullable; speed#integer#unsigned; interval#string; show_inspections#boolean; show_all#boolean; hide_measurements#boolean; logo_url#string#nullable" --relationships='hive_ids#belongsTo#Hive::class; user#belongsTo#User::class;' --form-helper=html --validations="code#required; hive_ids#required; user_id#required; interval#required; speed#required"
+php artisan crud:api-controller Api\\DashboardGroupController --crud-name=dgroup --model-name=Models\\DashboardGroup
+
+# ChecklistSvg
+php artisan crud:generate ChecklistSvg --fields="user_id#integer#unsigned; checklist_id#integer#unsigned; name#string#nullable; svg#mediumtext#nullable; pages#integer#unsigned#nullable; last_print#datetime#nullable" --relationships='checklist_id#belongsTo#Checklist::class; user#belongsTo#User::class;' --form-helper=html --validations="user_id#required; checklist_id#required"
+php artisan crud:api-controller Api\\ChecklistSvgController --crud-name=checklist_svg --model-name=Models\\ChecklistSvg

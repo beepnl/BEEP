@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('page-title') {{ __('crud.edit').' '.__('beep.InspectionSvg').': '.(isset($inspectionsvg->name) ? $inspectionsvg->name : '') }}
+@section('page-title') {{ __('crud.edit').' '.__('beep.ChecklistSvg').': '.(isset($checklistsvg->name) ? $checklistsvg->name : '') }}
 @endsection
 
 @section('content')
@@ -23,12 +23,12 @@
                 </ul>
             @endif
 
-            <form method="POST" action="{{ route('inspection-svg.update',$inspectionsvg->id) }}" accept-charset="UTF-8" class="form-horizontal" enctype="multipart/form-data">
+            <form method="POST" action="{{ route('checklist-svg.update',$checklistsvg->id) }}" accept-charset="UTF-8" class="form-horizontal" enctype="multipart/form-data">
                 
                 {{ method_field('PATCH') }}
                 {{ csrf_field() }}
 
-                @include ('inspection-svg.form', ['submitButtonText' => 'Update'])
+                @include ('checklist-svg.form', ['submitButtonText' => 'Update'])
 
             </form>
 

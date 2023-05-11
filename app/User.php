@@ -15,7 +15,7 @@ use App\Models\HiveTag;
 use App\Models\FlashLog;
 use App\Models\Alert;
 use App\Models\AlertRule;
-use App\Models\InspectionSvg;
+use App\Models\ChecklistSvg;
 
 use DB;
 use Auth;
@@ -214,9 +214,9 @@ class User extends Authenticatable
         return $this->hasMany(DashboardGroup::class);
     }
 
-    public function inspectionSvgs()
+    public function checklistSvgs()
     {
-        return $this->hasMany(InspectionSvg::class);
+        return $this->hasMany(ChecklistSvg::class);
     }
 
     public function settings()

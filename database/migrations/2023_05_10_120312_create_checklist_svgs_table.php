@@ -3,7 +3,7 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 
-class CreateInspectionSvgsTable extends Migration
+class CreateChecklistSvgsTable extends Migration
 {
     /**
      * Run the migrations.
@@ -12,7 +12,7 @@ class CreateInspectionSvgsTable extends Migration
      */
     public function up()
     {
-        Schema::create('inspection_svgs', function (Blueprint $table) {
+        Schema::create('checklist_svgs', function (Blueprint $table) {
             $table->increments('id');
             $table->timestamps();
             $table->integer('user_id')->unsigned();
@@ -31,6 +31,6 @@ class CreateInspectionSvgsTable extends Migration
      */
     public function down()
     {
-        Schema::drop('inspection_svgs');
+        Schema::drop('checklist_svgs');
     }
 }

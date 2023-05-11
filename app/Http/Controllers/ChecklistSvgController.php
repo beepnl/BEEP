@@ -5,10 +5,10 @@ namespace App\Http\Controllers;
 use App\Http\Controllers\Controller;
 use App\Http\Requests;
 
-use App\Models\InspectionSvg;
+use App\Models\ChecklistSvg;
 use Illuminate\Http\Request;
 
-class InspectionSvgController extends Controller
+class ChecklistSvgController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -21,7 +21,7 @@ class InspectionSvgController extends Controller
         $perPage = 25;
 
         if (!empty($keyword)) {
-            $inspectionsvg = InspectionSvg::where('user_id', 'LIKE', "%$keyword%")
+            $checklistsvg = ChecklistSvg::where('user_id', 'LIKE', "%$keyword%")
                 ->orWhere('checklist_id', 'LIKE', "%$keyword%")
                 ->orWhere('name', 'LIKE', "%$keyword%")
                 ->orWhere('svg', 'LIKE', "%$keyword%")
@@ -29,10 +29,10 @@ class InspectionSvgController extends Controller
                 ->orWhere('last_print', 'LIKE', "%$keyword%")
                 ->paginate($perPage);
         } else {
-            $inspectionsvg = InspectionSvg::paginate($perPage);
+            $checklistsvg = ChecklistSvg::paginate($perPage);
         }
 
-        return view('inspection-svg.index', compact('inspectionsvg'));
+        return view('checklist-svg.index', compact('checklistsvg'));
     }
 
     /**
@@ -42,8 +42,8 @@ class InspectionSvgController extends Controller
      */
     public function create()
     {
-        $inspectionsvg = new InspectionSvg();
-        return view('inspection-svg.create');
+        $checklistsvg = new ChecklistSvg();
+        return view('checklist-svg.create');
     }
 
     /**
@@ -61,9 +61,9 @@ class InspectionSvgController extends Controller
 		]);
         $requestData = $request->all();
         
-        InspectionSvg::create($requestData);
+        ChecklistSvg::create($requestData);
 
-        return redirect('inspection-svg')->with('flash_message', 'InspectionSvg added!');
+        return redirect('checklist-svg')->with('flash_message', 'ChecklistSvg added!');
     }
 
     /**
@@ -75,9 +75,9 @@ class InspectionSvgController extends Controller
      */
     public function show($id)
     {
-        $inspectionsvg = InspectionSvg::findOrFail($id);
+        $checklistsvg = ChecklistSvg::findOrFail($id);
 
-        return view('inspection-svg.show', compact('inspectionsvg'));
+        return view('checklist-svg.show', compact('checklistsvg'));
     }
 
     /**
@@ -89,9 +89,9 @@ class InspectionSvgController extends Controller
      */
     public function edit($id)
     {
-        $inspectionsvg = InspectionSvg::findOrFail($id);
+        $checklistsvg = ChecklistSvg::findOrFail($id);
 
-        return view('inspection-svg.edit', compact('inspectionsvg'));
+        return view('checklist-svg.edit', compact('checklistsvg'));
     }
 
     /**
@@ -110,10 +110,10 @@ class InspectionSvgController extends Controller
 		]);
         $requestData = $request->all();
         
-        $inspectionsvg = InspectionSvg::findOrFail($id);
-        $inspectionsvg->update($requestData);
+        $checklistsvg = ChecklistSvg::findOrFail($id);
+        $checklistsvg->update($requestData);
 
-        return redirect('inspection-svg')->with('flash_message', 'InspectionSvg updated!');
+        return redirect('checklist-svg')->with('flash_message', 'ChecklistSvg updated!');
     }
 
     /**
@@ -125,8 +125,8 @@ class InspectionSvgController extends Controller
      */
     public function destroy($id)
     {
-        InspectionSvg::destroy($id);
+        ChecklistSvg::destroy($id);
 
-        return redirect('inspection-svg')->with('flash_message', 'InspectionSvg deleted!');
+        return redirect('checklist-svg')->with('flash_message', 'ChecklistSvg deleted!');
     }
 }

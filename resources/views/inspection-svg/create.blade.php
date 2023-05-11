@@ -1,12 +1,12 @@
 @extends('layouts.app')
 
-@section('page-title') {{ __('crud.create', ['item'=>__('beep.InspectionSvg')]) }}
+@section('page-title') {{ __('crud.create', ['item'=>__('beep.ChecklistSvg')]) }}
 @endsection
 
 @section('content')
     @component('components/box')
         @slot('title')
-            {{ __('crud.create', ['item'=>__('beep.InspectionSvg')]) }}
+            {{ __('crud.create', ['item'=>__('beep.ChecklistSvg')]) }}
         @endslot
 
         @slot('bodyClass')
@@ -22,10 +22,10 @@
                 </ul>
             @endif
 
-            <form method="POST" action="{{ route('inspection-svg.store') }}" accept-charset="UTF-8" class="form-horizontal" enctype="multipart/form-data">
+            <form method="POST" action="{{ route('checklist-svg.store') }}" accept-charset="UTF-8" class="form-horizontal" enctype="multipart/form-data">
                 {{ csrf_field() }}
 
-                @include ('inspection-svg.form')
+                @include ('checklist-svg.form')
 
             </form>
 

@@ -6,14 +6,14 @@ use Illuminate\Database\Eloquent\Model;
 use App\Checklist;
 use App\User;
 
-class InspectionSvg extends Model
+class ChecklistSvg extends Model
 {
     /**
      * The database table used by the model.
      *
      * @var string
      */
-    protected $table = 'inspection_svgs';
+    protected $table = 'checklist_svgs';
 
     /**
     * The database primary key value.

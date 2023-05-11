@@ -85,7 +85,7 @@ class DashboardGroupController extends Controller
                             $device                      = $hive->hasDevices() ? $hive->devices->first() : null;
                             $hive_array['device_online'] = isset($device) ? $device->online : '';
 
-                            if (isset($hive_id))
+                            if (isset($hive_id)) // request specific hive data
                             {
                                 $hive_array['last_inspection_date'] = $dgroup->show_inspections ? $hive->last_inspection_date : ''; 
                                 $hive_array['impression'] = $dgroup->show_inspections ? $hive->impression : ''; 
@@ -95,6 +95,8 @@ class DashboardGroupController extends Controller
                                 $hive_array['lat']           = isset($apiary) ? $apiary->coordinate_lat : ''; 
                                 $hive_array['lon']           = isset($apiary) ? $apiary->coordinate_lon : '';
                                 $hive_array['location_name'] = $hive->location; 
+
+                                //$last_connection = $device->last_message_received;
 
                                 if (isset($device))
                                 {
@@ -128,7 +130,7 @@ class DashboardGroupController extends Controller
                                     }
                                 }
                             }
-                            else // meta data
+                            else // request meta data
                             {
                                 $hive_array['id']      = $hive->id;
                                 $hive_array['name']    = $hive->name;
@@ -214,7 +216,7 @@ class DashboardGroupController extends Controller
     }
 
 
-    public function destroy($id)
+    public function destroy(Request $request, $id)
     {
         $g = $request->user()->dashboardGroups()->findOrFail($id);
 

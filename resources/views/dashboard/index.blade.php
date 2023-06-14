@@ -327,7 +327,7 @@
 
 		@if ($checklist_details)
 		
-		<div class="col-lg-4 col-xs-12">
+		<div class="col-lg-6 col-xs-12">
 		<!-- small box -->
 			<div class="small-box bg-red">
 				<div class="inner">
@@ -351,7 +351,7 @@
 			</div>
 		</div>
 
-		<div class="col-lg-4 col-xs-12">
+		<div class="col-lg-6 col-xs-12">
 		<!-- small box -->
 			<div class="small-box bg-red">
 				<div class="inner">
@@ -375,7 +375,7 @@
 			</div>
 		</div>
 		
-		<div class="col-lg-4 col-xs-6">
+		{{-- <div class="col-lg-4 col-xs-6">
 		<!-- small box -->
 			<div class="small-box bg-orange">
 				<div class="inner">
@@ -393,7 +393,7 @@
 					<i class="fa fa-wifi"></i>
 				</div>
 			</div>
-		</div>
+		</div> --}}
 
 
 		@elseif (Auth::user()->hasRole(['superadmin','admin']))

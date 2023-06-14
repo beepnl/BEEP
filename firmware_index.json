@@ -1,5 +1,13 @@
 [
    {
+    "version": "1.5.13",
+    "release_date": "2023-06-07T11:10:00Z",
+    "release_notes": "BEEP base 1.5.13 adds the option for connecting an i2c real time clock (RTC DS3231) to store/retrieve accurate time, to also facilitate offline usage of the BEEP base.",
+    "stability": "test",
+    "size": 419324,
+    "download_url": "https://assets.beep.nl/firmware/basev3/1.5.13/Beepbase_sd_boot_app_v1.5.13c-260523.zip"
+   },
+   {
     "version": "1.5.12",
     "release_date": "2022-09-16T11:00:00Z",
     "release_notes": "BEEP base 1.5.12 adds a fix for the timing between lora network connection attempts, fixing excessive battery drain when the lora network is unavailable. It also contains a fix for updating the BEEP base firmware by older Android phones.",
@@ -18,7 +26,7 @@
    {
     "version": "1.5.10",
     "release_date": "2021-06-03T11:30:00Z",
-    "release_notes": "BEEP base 1.5.10 offers log rotation reading functionality (for both Android and iOS) and the ability to disable the tilt sensor and power the BEEP base with the magnet: on (3s) / off (10s). It also adds correct time based logging in its flash memory, and sends its time via LoRa at each restart. This is an update for firmware 1.4.2 or higher.",
+    "release_notes": "Please upgrade to the latest stable version. 1.5.10 adds: flash log data storage rotation.",
     "stability": "test",
     "size": 348200,
     "download_url": "https://assets.beep.nl/firmware/basev3/1.5.10/Beepbase_sd_boot_app.zip"
@@ -26,7 +34,7 @@
    {
     "version": "1.5.9",
     "release_date": "2021-04-09T15:30:00Z",
-    "release_notes": "BEEP base 1.5.9 offers stabilized full log reading functionality (for both Android and iOS) and the ability to disable the tilt sensor and power the BEEP base with the magnet: on (3s) / off (10s). It also adds correct time based logging in its flash memory, and sends its time via LoRa at each restart. This is an update for firmware 1.4.2 or higher.",
+    "release_notes": "1.5.9 has: stabilized full log reading, the ability to disable the tilt sensor, power with the magnet: on (3s)/off (10s), correct time based logging, time send via LoRaWAN at startup. Upgrade for 1.4.2 or higher.",
     "stability": "stable",
     "size": 348200,
     "download_url": "https://assets.beep.nl/firmware/basev3/1.5.9/Beepbase_sd_boot_app.zip"
@@ -34,7 +42,7 @@
    {
     "version": "1.5.8",
     "release_date": "2021-04-09T08:00:00Z",
-    "release_notes": "BEEP base 1.5.8 offers stabilized full log reading functionality (for both Android and iOS) and the ability to disable the tilt sensor and power the BEEP base with the magnet: on (3s) / off (10s). It also adds correct time based logging in its flash memory. It is an update for firmware 1.4.2 or higher.",
+    "release_notes": "Please upgrade to the latest stable version. 1.5.8 has: stabilized full log reading, the ability to disable the tilt sensor, power with the magnet: on (3s)/off (10s), correct time based logging. Upgrade for 1.4.2 or higher.",
     "stability": "test",
     "size": 348200,
     "download_url": "https://assets.beep.nl/firmware/basev3/1.5.8/Beepbase_sd_boot_app.zip"
@@ -42,7 +50,7 @@
   {
     "version": "1.5.7",
     "release_date": "2021-03-31T09:00:00Z",
-    "release_notes": "BEEP base 1.5.7 offers stabilized full log reading functionality (for both Android and iOS) and the ability to disable the tilt sensor and power the BEEP base with the magnet: on (3s) / off (10s). It also adds time based logging in its flash memory. It is an update for firmware 1.4.2 or higher.",
+    "release_notes": "Please upgrade to the latest stable version. 1.5.7 has: stabilized full log reading, the ability to disable the tilt sensor, power with the magnet: on (3s)/off (10s), correct time based logging. Upgrade for 1.4.2 or higher.",
     "stability": "test",
     "size": 348200,
     "download_url": "https://assets.beep.nl/firmware/basev3/1.5.7/Beepbase_sd_boot_app.zip"
@@ -50,7 +58,7 @@
   {
     "version": "1.5.6",
     "release_date": "2021-03-30T10:00:00Z",
-    "release_notes": "BEEP base 1.5.6 offers stabilized full log reading functionality (for both Android and iOS) and the ability to disable the tilt sensor and power the BEEP base with the magnet: on (3s) / off (10s). It also adds time based logging in its flash memory. It is an update for firmware 1.4.2 or higher.",
+    "release_notes": "Please upgrade to the latest stable version. 1.5.6 has: stabilized full log reading, the ability to disable the tilt sensor, power with the magnet: on (3s)/off (10s), correct time based logging. Upgrade for 1.4.2 or higher.",
     "stability": "test",
     "size": 348200,
     "download_url": "https://assets.beep.nl/firmware/basev3/1.5.6/Beepbase_sd_boot_app.zip"
@@ -98,7 +106,7 @@
   {
     "version": "1.4.1",
     "release_date": "2020-06-02T13:00:00Z",
-    "release_notes": "BEEP base 1.4.1 adds a fix for sending sensor data by KPN LoRaWAN.",
+    "release_notes": "Please upgrade to the latest stable version. BEEP base 1.4.1 adds a fix for sending sensor data by KPN LoRaWAN.",
     "stability": "test",
     "size": 174300,
     "download_url": "https://assets.beep.nl/firmware/basev3/1.4.1/Beepbase_app.zip"
@@ -106,7 +114,7 @@
   {
     "version": "1.5.5",
     "release_date": "2021-03-15T14:10:00Z",
-    "release_notes": "BEEP base 1.5.5 offers stabilized full log reading functionality (only on Android) and the ability to disable the tilt sensor and power the BEEP base with the magnet: on (3s) / off (10s). It also adds time based logging in its flash memory. It is an update for firmware 1.4.2 or higher.",
+    "release_notes": "Please upgrade to the latest stable version. 1.5.5 has: stabilized full log reading, option to disable the tilt sensor, power with the magnet: on (3s)/off (10s), correct time based logging. Upgrade for 1.4.2 or higher.",
     "stability": "test",
     "size": 348200,
     "download_url": "https://assets.beep.nl/firmware/basev3/1.5.5/Beepbase_sd_boot_app.zip"
@@ -114,7 +122,7 @@
   {
     "version": "1.5.4",
     "release_date": "2021-03-10T14:40:00Z",
-    "release_notes": "BEEP base 1.5.4 offers log reading functionality and the ability to disable the tilt sensor and power the BEEP base with the magnet: on (3s) / off (10s). It also adds time based logging in its flash memory. It is an update for firmware 1.4.2 or higher.",
+    "release_notes": "Please upgrade to the latest stable version. 1.5.4 offers log reading, option to disable the tilt sensor, power with the magnet: on (3s)/off (10s), correct time based logging. Upgrade for 1.4.2 or higher.",
     "stability": "test",
     "size": 348200,
     "download_url": "https://assets.beep.nl/firmware/basev3/1.5.4/Beepbase_sd_boot_app.zip"
@@ -122,7 +130,7 @@
   {
     "version": "1.5.3",
     "release_date": "2021-02-02T10:00:00Z",
-    "release_notes": "BEEP base 1.5.3 offers log reading functionality and the ability to disable the tilt sensor and power the BEEP base with the magnet: on (3s) / off (10s). It also adds time based logging in its flash memory. It is an update for firmware 1.4.2 or higher.",
+    "release_notes": "Please upgrade to the latest stable version. 1.5.3 offers log reading, option to disable the tilt sensor, power with the magnet: on (3s)/off (10s), correct time based logging. Upgrade for 1.4.2 or higher.",
     "stability": "test",
     "size": 348200,
     "download_url": "https://assets.beep.nl/firmware/basev3/1.5.3/Beepbase_sd_boot_app.zip"
@@ -130,7 +138,7 @@
   {
     "version": "1.5.2",
     "release_date": "2020-10-12T15:00:00Z",
-    "release_notes": "BEEP base 1.5.2 offers the ability to switch off the tilt sensor and switch on (3s) / off (10s) the BEEP base with magnet only. It also adds time logging in flash memory. It is an update for firmware 1.4.2 or higher.",
+    "release_notes": "Please upgrade to the latest stable version. 1.5.2 offers: to disable the tilt sensor, power with the magnet: on (3s)/off (10s), correct time based logging. Upgrade for 1.4.2 or higher.",
     "stability": "test",
     "size": 348200,
     "download_url": "https://assets.beep.nl/firmware/basev3/1.5.2/Beepbase_sd_boot_app.zip"
@@ -138,7 +146,7 @@
   {
     "version": "1.5.1",
     "release_date": "2020-10-08T14:00:00Z",
-    "release_notes": "BEEP base 1.5.1 offers the ability to switch on (3s) / off (10s) the BEEP base with magnet only. It also adds time logging in flash memory. It is an update for firmware 1.5.0.",
+    "release_notes": "Please upgrade to the latest stable version. 1.5.1 offers: power with the magnet: on (3s)/off (10s), correct time based logging. It is an update for firmware 1.5.0.",
     "stability": "test",
     "size": 348200,
     "download_url": "https://assets.beep.nl/firmware/basev3/1.5.1/Beepbase_sd_boot_app.zip"
@@ -146,7 +154,7 @@
   {
     "version": "1.5.0",
     "release_date": "2020-09-18T10:00:00Z",
-    "release_notes": "BEEP base 1.5.0 removes the tilt sensor functionality and makes it possible to switch on/off the base by holding the magnet in front of the side for 10 seconds. It also adds time logging in flash memory.",
+    "release_notes": "Please upgrade to the latest stable version. 1.5.0 offers: disable tilt sensor, power with the magnet: on (3s)/off (10s), correct time based logging.",
     "stability": "test",
     "size": 348200,
     "download_url": "https://assets.beep.nl/firmware/basev3/1.5.0/Beepbase_sd_boot_app.zip"

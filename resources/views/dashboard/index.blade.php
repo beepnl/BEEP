@@ -285,6 +285,18 @@
 			</div>
 		</div>
 
+		<div class="col-lg-3 col-xs-6">
+		<!-- small box -->
+			<div class="small-box bg-orange">
+				<div class="inner">
+					<h3>{{ $data['inspections'] }} / {{ $data['inspectionitems'] }}</h3>
+					<p>{{ __('beep.Inspections') }} / {{ __('beep.Inspection').' items' }}<br>Items per inspection: {{ $data['itemsperinspection'] }}</p>
+				</div>
+				<div class="icon">
+					<i class="fa fa-pencil"></i>
+				</div>
+			</div>
+		</div>
 
 		<div class="col-lg-3 col-xs-6">
 		<!-- small box -->

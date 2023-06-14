@@ -53,7 +53,7 @@ class HiveLayer extends Model
         foreach($layers as $layer)
         {
             $type = $layer->type;
-            if ($type != 'brood' && $type != 'honey')
+            if ($type != 'brood' && $type != 'honey' && $layer->framecount > 0)
             {
                 echo("Layer $layer->id type $type removing $layer->framecount frames\n");
                 $layer->frames()->delete();

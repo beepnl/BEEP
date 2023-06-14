@@ -331,8 +331,7 @@
 		<!-- small box -->
 			<div class="small-box bg-red">
 				<div class="inner">
-					<h3>Fixed inspection variable usage</h3>
-					<p>(taken into account {{ $data['inspection_valid_user_count']}} users with > 10 inspections)</p>
+					<h3>Inspection item usage</h3>
 					<div style="overflow: auto; height: 200px;">
 						@foreach($data['ins_vars'] as $name => $value)
 							<p style="line-height: 10px;">
@@ -356,8 +355,7 @@
 		<!-- small box -->
 			<div class="small-box bg-red">
 				<div class="inner">
-					<h3>Dynamic inspection item top {{count($data['terms'])}}</h3>
-					<p>(taken into account {{ $data['inspection_valid_user_count']}} users with > 10 inspections)</p>
+					<h3>Inspection item top {{count($data['terms'])}}</h3>
 					<div style="overflow: auto; height: 200px;">
 						@foreach($data['terms'] as $name => $value)
 							<p style="line-height: 10px;">

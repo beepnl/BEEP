@@ -551,19 +551,19 @@ class AlertRule extends Model
         if ($r->calculation != 'cnt')
             $min_msg_date = date('Y-m-d H:i:s', time()-(60*max($parse_min, $r->calculation_minutes))); // at least 
 
-        $all_user_devices = $user->allDevices()->where('hive_id', '!=', null)->whereNotIn('hive_id', $r->exclude_hive_ids);
+        $all_user_devices = $user->allDevices()->where('hive_id', '!=', null)->whereNotIn('hive_id', $r->exclude_hive_ids)->get();
 
         if ($device_id == null) // default all devices
         {
-            $user_devices = $all_user_devices->where('last_message_received', '>=', $min_msg_date)->get();
+            $user_devices = $all_user_devices->where('last_message_received', '>=', $min_msg_date);
         }
         else
         {
             //die(print_r(['d'=>$data_array,'r'=>$r->toArray()]));
             if ($direct_data) // new last_message_received not yet saved
-                $user_devices = Device::where('id', $device_id)->get();
+                $user_devices = $all_user_devices->where('id', $device_id);
             else
-                $user_devices = $all_user_devices->where('last_message_received', '>=', $min_msg_date)->where('id', $device_id)->get();
+                $user_devices = $all_user_devices->where('last_message_received', '>=', $min_msg_date)->where('id', $device_id);
         }
 
         $calculated = 0;

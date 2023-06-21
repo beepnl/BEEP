@@ -285,6 +285,18 @@
 			</div>
 		</div>
 
+		<div class="col-lg-3 col-xs-6">
+		<!-- small box -->
+			<div class="small-box bg-orange">
+				<div class="inner">
+					<h3>{{ $data['inspections'] }} / {{ $data['inspectionitems'] }}</h3>
+					<p>{{ __('beep.Inspections') }} / {{ __('beep.Inspection').' items' }}<br>Items per inspection: {{ $data['itemsperinspection'] }}</p>
+				</div>
+				<div class="icon">
+					<i class="fa fa-pencil"></i>
+				</div>
+			</div>
+		</div>
 
 		<div class="col-lg-3 col-xs-6">
 		<!-- small box -->
@@ -315,12 +327,11 @@
 
 		@if ($checklist_details)
 		
-		<div class="col-lg-4 col-xs-12">
+		<div class="col-lg-6 col-xs-12">
 		<!-- small box -->
 			<div class="small-box bg-red">
 				<div class="inner">
-					<h3>Fixed inspection variable usage</h3>
-					<p>(taken into account {{ $data['inspection_valid_user_count']}} users with > 10 inspections)</p>
+					<h3>Inspection item usage</h3>
 					<div style="overflow: auto; height: 200px;">
 						@foreach($data['ins_vars'] as $name => $value)
 							<p style="line-height: 10px;">
@@ -340,12 +351,11 @@
 			</div>
 		</div>
 
-		<div class="col-lg-4 col-xs-12">
+		<div class="col-lg-6 col-xs-12">
 		<!-- small box -->
 			<div class="small-box bg-red">
 				<div class="inner">
-					<h3>Dynamic inspection item top {{count($data['terms'])}}</h3>
-					<p>(taken into account {{ $data['inspection_valid_user_count']}} users with > 10 inspections)</p>
+					<h3>Inspection item top {{count($data['terms'])}}</h3>
 					<div style="overflow: auto; height: 200px;">
 						@foreach($data['terms'] as $name => $value)
 							<p style="line-height: 10px;">
@@ -365,7 +375,7 @@
 			</div>
 		</div>
 		
-		<div class="col-lg-4 col-xs-6">
+		{{-- <div class="col-lg-4 col-xs-6">
 		<!-- small box -->
 			<div class="small-box bg-orange">
 				<div class="inner">
@@ -383,7 +393,7 @@
 					<i class="fa fa-wifi"></i>
 				</div>
 			</div>
-		</div>
+		</div> --}}
 
 
 		@elseif (Auth::user()->hasRole(['superadmin','admin']))

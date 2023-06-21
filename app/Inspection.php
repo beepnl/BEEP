@@ -38,7 +38,7 @@ class Inspection extends Model
 
     protected $hidden   = ['pivot','deleted_at', 'hives'];
 
-    protected $appends  = ['owner', 'thumb_url', 'hive_id'];
+    protected $appends  = ['owner', 'thumb_url', 'hive_id', 'item_count'];
 
     public $timestamps = false;
 
@@ -62,10 +62,15 @@ class Inspection extends Model
 
     public function getHiveIdAttribute()
     {
-        if (isset($this->hives) && $this->hives->count() > 0)
-            return $this->hives->first()->id;
+        if ($this->hives()->count() > 0)
+            return $this->hives()->first()->id;
 
         return null;
+    }
+
+    public function getItemCountAttribute()
+    {
+        return $this->items()->count();
     }
 
     public function users()

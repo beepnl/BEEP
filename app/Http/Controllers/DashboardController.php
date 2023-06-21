@@ -182,16 +182,14 @@ class DashboardController extends Controller
 
             $data['inspection_valid_user_count'] = count($inspectionUserCount);
 
-            $validInspections = [];
+            $validInspections = collect();
             foreach ($inspectionUserCount as $key => $val) 
             {
                 $user_id = $val->user_id;
-                $inspections = User::find($user_id)->inspections()->pluck('id')->toArray();
-                $validInspections = array_merge($validInspections, $inspections);
+                $inspections = User::find($user_id)->inspections()->get();
+                $validInspections = $validInspections->merge($inspections);
             }
-            $userInspectionsIds = array_unique($validInspections);
-            $validInspections   = Inspection::whereIn('id', $userInspectionsIds)->get();
-
+            
             //die(print_r($validInspections->where('impression', '>', -1)->toArray()));
             $countImp = $validInspections->where('impression', '>', -1)->count();
             $countAtt = $validInspections->where('attention', '>', -1)->count();
@@ -206,10 +204,8 @@ class DashboardController extends Controller
             $data['ins_vars'][__('export.reminder_date')] = ['count'=>$countRmd, 'glyphicon'=>'calendar'];
             $data['ins_vars'][__('export.reminder')]      = ['count'=>$countRmn, 'glyphicon'=>'align-left'];
 
-
             $inspection_terms = DB::table('inspection_items')
                                     ->selectRaw('category_id, COUNT(*) as count')
-                                    ->whereIn('inspection_id', $userInspectionsIds)
                                     ->groupBy('category_id')
                                     ->having('count', '>', 10)
                                     ->orderBy('count', 'desc')
@@ -236,41 +232,41 @@ class DashboardController extends Controller
 
             //die(print_r($inspection_terms));
             $sensor_counts = [];
-
-            try
-            {
-                $client = new \Influx;
-                $sensor_counts = $client::query('SELECT COUNT(*) as "count" FROM "sensors"')->getPoints(); // get first sensor date
-            }
-            catch(\Exception $e)
-            {
-                $connection = $e;
-            }
-            $sensor_count = [];
             $sensor_total = 0;
-            $measurements = Measurement::all()->pluck('pq', 'abbreviation')->toArray();
+            $sensor_count = [];
 
-            //die(print_r($measurements));
+            // try
+            // {
+            //     $client = new \Influx;
+            //     $sensor_counts = $client::query('SELECT COUNT(*) as "count" FROM "sensors" GROUP BY "name" LIMIT 100')->getPoints();
+            // }
+            // catch(\Exception $e)
+            // {
+            //     $connection = $e;
+            // }
+            // $measurements = Measurement::all()->pluck('pq', 'abbreviation')->toArray();
 
-            if (count($sensor_counts) > 0 && count(reset($sensor_counts)) > 1)
-            {
-                $arr = reset($sensor_counts);
-                foreach ($arr as $key => $val) 
-                {
-                    $sensor_abbr = substr($key, 6);
-                    $sensor_name = in_array($sensor_abbr, array_keys($measurements)) ? $measurements[$sensor_abbr].' ('.$sensor_abbr.')' : null;
-                    //die(print_r($val));
+            // //die(print_r($measurements));
 
-                    if ($sensor_name != null)
-                    {
-                        $count = intval($val);
-                        $sensor_count[$sensor_name] = $count;
-                        $sensor_total += $count;
-                    }
-                }
+            // if (count($sensor_counts) > 0 && count(reset($sensor_counts)) > 1)
+            // {
+            //     $arr = reset($sensor_counts);
+            //     foreach ($arr as $key => $val) 
+            //     {
+            //         $sensor_abbr = substr($key, 6);
+            //         $sensor_name = in_array($sensor_abbr, array_keys($measurements)) ? $measurements[$sensor_abbr].' ('.$sensor_abbr.')' : null;
+            //         //die(print_r($val));
 
-                ksort($sensor_count);
-            }
+            //         if ($sensor_name != null)
+            //         {
+            //             $count = intval($val);
+            //             $sensor_count[$sensor_name] = $count;
+            //             $sensor_total += $count;
+            //         }
+            //     }
+
+            //     ksort($sensor_count);
+            // }
             $data['measurements']= $sensor_total;
             $data['measurement_details']= $sensor_count;
         }

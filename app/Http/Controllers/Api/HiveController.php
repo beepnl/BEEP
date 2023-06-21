@@ -46,6 +46,9 @@ class HiveController extends Controller
                     'fertilized'    =>boolval($request->input('queen.fertilized')),
                 ];
 
+            if ($request->filled('queen.id') && empty($queen['race_id'])) // update of queen without race defined, set to default
+                $queen['race_id'] = $race_id;
+
             $hive->queen()->updateOrCreate(['id'=>$request->input('queen.id', null)], $queen);
         }
         return $hive;

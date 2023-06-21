@@ -73,6 +73,16 @@ class SensorDefinitionController extends Controller
         $request_data['input_measurement_id']  = isset($measurement_in) ? $measurement_in->id : null;
         $request_data['output_measurement_id'] = isset($measurement_out) ? $measurement_out->id : (isset($measurement_in) ? $measurement_in->id : null);
 
+        if (isset($measurement_in) && $measurement_in->abbreviation == 'w_v' && isset($request_data['offset']) && isset($request_data['multiplier']) && $request_data['offset'] == 0 && $request_data['multiplier'] == 0)
+        {
+            $in_abbr  = $measurement_in->abbreviation;
+            $out_abbr = isset($measurement_out) ? $measurement_out->abbreviation : 'null';
+            Log::error("SensorDefinition request in: $in_abbr, out: $out_abbr, weight has empty multiplier and offset:");
+            Log::error(json_encode($request_data));
+            Log::error('Set multiplier to: 1');
+            $request_data['multiplier'] = 1;
+        }
+
         if ($request->filled('inside'))
         {
             if ($request_data['inside'] === -1)

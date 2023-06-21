@@ -994,7 +994,7 @@ class ResearchController extends Controller
         ob_end_clean();
 
         $disk = env('EXPORT_STORAGE', 'public');
-        if (Storage::disk($disk)->put($filePath, $file_content))
+        if (Storage::disk($disk)->put($filePath, $file_content, ['mimetype' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet']))
             return Storage::disk($disk)->url($filePath);
 
         return null;
@@ -1292,7 +1292,7 @@ class ResearchController extends Controller
         $filePath = 'exports/'.$fileName;
         $disk     = env('EXPORT_STORAGE', 'public');
 
-        if (Storage::disk($disk)->put($filePath, $csv_file))
+        if (Storage::disk($disk)->put($filePath, $csv_file, ['mimetype' => 'text/csv']))
             return Storage::disk($disk)->url($filePath);
 
         return null;

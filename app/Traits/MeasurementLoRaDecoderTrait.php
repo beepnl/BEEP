@@ -159,11 +159,11 @@ trait MeasurementLoRaDecoderTrait
     {
         $data_array = [];
         
-        if (!isset($data['payload']) || !isset($data['FPort']))
+        if (!isset($data['payload']) || !isset($data['port']))
             return $data_array;
 
         $payload = $data['payload'];
-        $port    = $data['FPort'];
+        $port    = $data['port'];
 
         return $this->decode_beep_payload($payload, $port);
     }

@@ -5,30 +5,30 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Http\Requests;
 
-use App\Models\InspectionSvg;
+use App\Models\ChecklistSvg;
 use Illuminate\Http\Request;
 
 /**
- * @group Api\InspectionSvgController
- * Manage stored SVG inspections (for off-line input)
+ * @group Api\ChecklistSvgController
+ * Manage stored SVG checklists (for off-line input)
  * @authenticated
  */
-class InspectionSvgController extends Controller
+class ChecklistSvgController extends Controller
 {
     /**
-    api/inspection-svg GET
+    api/checklist-svg GET
     Show your list of stored SVG inspections
     @authenticated
     **/
     public function index(Request $request)
     {
-        $inspection_svg = $request->user()->inspectionSvgs()->all();
+        $checklist_svg = $request->user()->checklistSvgs;
 
-        return $inspection_svg;
+        return $checklist_svg;
     }
 
     /**
-    api/inspection-svg POST
+    api/checklist-svg POST
     Store an SVG inspection
     @bodyParam checklist_id integer required The checklist ID that this SVG refers to (at the moment of storage)
     @bodyParam svg string required The SVG body to store (max 16,777,215 characters)
@@ -40,45 +40,45 @@ class InspectionSvgController extends Controller
     public function store(Request $request)
     {
         
-        $inspection_svg = $request->user()->inspectionSvgs()->create($request->all());
+        $checklist_svg = $request->user()->checklistSvgs()->create($request->all());
 
-        return response()->json($inspection_svg, 201);
+        return response()->json($checklist_svg, 201);
     }
 
     /**
-    api/inspection-svg/{id} GET
+    api/checklist-svg/{id} GET
     Show an SVG inspection
     @authenticated
     **/
     public function show($id)
     {
-        $inspection_svg = $request->user()->inspectionSvgs()->findOrFail($id);
+        $checklist_svg = $request->user()->checklistSvgs()->findOrFail($id);
 
-        return $inspection_svg;
+        return $checklist_svg;
     }
 
     /**
-    api/inspection-svg/{id} PATCH
+    api/checklist-svg/{id} PATCH
     Edit an SVG inspection
     @authenticated
     **/
     public function update(Request $request, $id)
     {
         
-        $inspection_svg = $request->user()->inspectionSvgs()->findOrFail($id);
-        $inspection_svg->update($request->all());
+        $checklist_svg = $request->user()->checklistSvgs()->findOrFail($id);
+        $checklist_svg->update($request->all());
 
-        return response()->json($inspection_svg, 200);
+        return response()->json($checklist_svg, 200);
     }
 
     /**
-    api/inspection-svg/{id} DELETE
+    api/checklist-svg/{id} DELETE
     Delete an SVG inspection
     @authenticated
     **/
     public function destroy($id)
     {
-        $request->user()->inspectionSvgs()->destroy($id);
+        $request->user()->checklistSvgs()->destroy($id);
 
         return response()->json(null, 204);
     }

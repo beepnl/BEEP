@@ -48,7 +48,8 @@ class HiveFactory
 
 		foreach ($layers as $layer) 
 		{
-			$layer->frames()->saveMany($this->createLayerFrames($frameAmount));
+			if ($layer->type == 'brood' || $layer->type == 'honey')
+				$layer->frames()->saveMany($this->createLayerFrames($frameAmount));
 		}
 
 		$location->hives()->save($hive);
@@ -211,20 +212,22 @@ class HiveFactory
 		// Adjust frames
 		foreach ($hive->layers()->get() as $layer) 
 		{
-			$frameDiff = $frameAmount - $layer->frames()->count();
-			// echo $frameAmount;
-			// echo $layer->frames()->count();
-			// echo $frameDiff;
-			// die();
+			if ($layer->type == 'brood' || $layer->type == 'honey'){
+				$frameDiff = $frameAmount - $layer->frames()->count();
+				// echo $frameAmount;
+				// echo $layer->frames()->count();
+				// echo $frameDiff;
+				// die();
 
-			if ($frameDiff > 0)
-			{
-				$layer->frames()->saveMany($this->createLayerFrames($frameDiff));
-			}
-			else if ($frameDiff < 0)
-			{
-				$category_id = Category::findCategoryIdByParentAndName('hive_frame', 'wax');
-				$layer->frames()->where('category_id',$category_id)->limit(-1*$frameDiff)->delete();
+				if ($frameDiff > 0)
+				{
+					$layer->frames()->saveMany($this->createLayerFrames($frameDiff));
+				}
+				else if ($frameDiff < 0)
+				{
+					$category_id = Category::findCategoryIdByParentAndName('hive_frame', 'wax');
+					$layer->frames()->where('category_id',$category_id)->limit(-1*$frameDiff)->delete();
+				}
 			}
 		}
 

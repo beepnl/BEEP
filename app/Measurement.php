@@ -117,9 +117,12 @@ class Measurement extends Model
 
     public static function getIdByAbbreviation($abbreviation)
     {
-        $m = Measurement::where('abbreviation', $abbreviation)->first();
-        if ($m)
-            return $m->id;
+        $measurement_abbr_ids = Cache::remember('measurement-abbr-ids', env('CACHE_TIMEOUT_LONG'), function ()
+        { 
+            return Measurement::pluck('id', 'abbreviation')->toArray();
+        });
+        if (isset($measurement_abbr_ids[$abbreviation]))
+            return $measurement_abbr_ids[$abbreviation];
 
         return null;
     }

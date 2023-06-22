@@ -41,4 +41,24 @@ class HiveLayer extends Model
     {
         return $this->hasMany(HiveLayerFrame::class, 'layer_id');
     }
+
+    public static function deleteNonBroodAndHoneyFrames()
+    {
+        $brood_and_honey_cats = [];
+        $brood_and_honey_cats[] = Category::findCategoryIdByParentAndName('hive_layer', 'brood');
+        $brood_and_honey_cats[] = Category::findCategoryIdByParentAndName('hive_layer', 'honey');
+
+        $layers = HiveLayer::whereNotIn('category_id', $brood_and_honey_cats)->get();
+        echo("Processing ".$layers->count()." non brood-and-honey layers, not in: ".implode(', ',$brood_and_honey_cats)."\n");
+        foreach($layers as $layer)
+        {
+            $type = $layer->type;
+            if ($type != 'brood' && $type != 'honey' && $layer->framecount > 0)
+            {
+                echo("Layer $layer->id type $type removing $layer->framecount frames\n");
+                $layer->frames()->delete();
+            }
+        }
+        echo("Finished processing ".$layers->count()." non brood-and-honey layers, not in: ".implode(', ',$brood_and_honey_cats)."\n");
+    }
 }

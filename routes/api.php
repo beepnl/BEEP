@@ -94,8 +94,9 @@ Route::group([], function()
 		Route::patch('research/{id}/edit/{consent_id}','Api\ResearchController@edit_consent');
 		Route::delete('research/{id}/delete/{consent_id}','Api\ResearchController@delete_no_consent');
 
-		Route::get('researchdata', 			'Api\ResearchDataController@index');
-		Route::get('researchdata/{id}', 	'Api\ResearchDataController@show');
+		Route::get('researchdata', 								'Api\ResearchDataController@index');
+		Route::get('researchdata/{id}', 						'Api\ResearchDataController@show');
+		Route::get('researchdata/{id}/data/{item}', 			'Api\ResearchDataController@research_data');
 		Route::get('researchdata/{id}/user/{user_id}/{item}', 	'Api\ResearchDataController@user_data');
 		
 		Route::delete('user', 				'Api\UserController@destroy');

@@ -20,6 +20,7 @@ use Moment\Moment;
 use Response;
 use DB;
 use Cache;
+use InfluxDB;
 
 /**
  * @group Api\ResearchDataController
@@ -311,14 +312,15 @@ class ResearchDataController extends Controller
     @urlParam item required The type of user data (locations/lrs/devices/inspections/measurements) to request within the research (which the user gave consent for to use). Example: inspections
     @bodyParam date_start datetime The date in 'YYYY-MM-DD HH:mm:ss' format (2020-01-01 00:00:00) to request data from (default is beginning of research, or earlier (except inspections and measurements). Example: 2020-01-01 00:00:00
     @bodyParam date_until datetime The date in 'YYYY-MM-DD HH:mm:ss' format (2020-09-29 23:59:59) to request data until (default is until the end of the user consent, or research end). Example: 2020-09-29 23:59:59
-    @bodyParam interval string Specifies the optional measurement (InfluxDB GROUPBY) time interval (*(all values)/1m/5m/30m/1h/1d/1w) m (minutes), h (hours), d (days), w (weeks). Default: 1h. Example: 5m 
+    @bodyParam interval string Specifies the optional measurement (InfluxDB GROUPBY) time interval (*(all values)/1m/5m/30m/1h/1d/1w/30d/365d) m (minutes), h (hours), d (days), w (weeks). Default: 1d. Example: 5m 
     @bodyParam limit integer Specifies the maximum number of measurements per location_research (InfluxDB LIMIT), Max: 5000. Default: 5000. Example: 10 
-    @bodyParam calculation string Specifies the optional (InfluxDB) calculation (NONE/MEAN/MIN/MAX/COUNT) for use with time interval. Default: MEAN. Example: MAX 
+    @bodyParam calculation string Specifies the optional (InfluxDB) calculation (NONE/FIRST/LAST/MEAN/MEDIAN/MIN/MAX/SUM/COUNT/SPREAD/STDDEV/DERIVATIVE/PERCENTILE/BOXPLOT/PEAKS/WEEKMAP/CLEANWEIGHT) for use with time interval. Default: MEAN. Example: MAX 
+    @bodyParam calculation_prop string Specifies the optional (InfluxDB) calculation property for i.e. PERCENTILE/DERIVATIVE/etc). Default: null. Example: 5 
     @bodyParam decimals integer Specifies the optional maximum amount of decimals that the (InfluxDB) calculation returns. Default: 2. Example: 1 
     @bodyParam device_id integer The device_id to filter the measurements on (next to date_start and date_until). Example: 1
     @bodyParam location_id integer The location_id to filter the lrs, and measurements on (next to date_start and date_until). Example: 2
     @bodyParam precision string Specifies the optional InfluxDB format/precision (rfc3339/h/m/s/ms/u) of the timestamp of the measurements and weather data: rfc3339 (YYYY-MM-DDTHH:MM:SS.nnnnnnnnnZ), h (hours), m (minutes), s (seconds), ms (milliseconds), u (microseconds). Precision defaults to rfc3339. Example: rfc3339
-    @bodyParam measurements string Comma separated string of measurements (e.g. am2315_t,mhz_co2,pmsp053_pm10) to query. Default: all measurments available.
+    @bodyParam measurements string Comma separated string of measurements (e.g. weight_kg,t_i,t_0,t_1) to query. Default: all measurments available.
     @response [
         {
             "id": 35211,
@@ -373,240 +375,6 @@ class ResearchDataController extends Controller
                     "inspection_id": 40162,
                     "category_id": 979,
                     "val": "2",
-                    "unit": "x 25cm2",
-                    "type": "square_25cm2"
-                },
-                {
-                    "id": 326541,
-                    "value": "4",
-                    "inspection_id": 40162,
-                    "category_id": 980,
-                    "val": "4",
-                    "unit": "x 25cm2",
-                    "type": "square_25cm2"
-                },
-                {
-                    "id": 326542,
-                    "value": "3",
-                    "inspection_id": 40162,
-                    "category_id": 981,
-                    "val": "3",
-                    "unit": "x 25cm2",
-                    "type": "square_25cm2"
-                },
-                {
-                    "id": 326543,
-                    "value": "581",
-                    "inspection_id": 40162,
-                    "category_id": 982,
-                    "val": "581",
-                    "unit": "bzz",
-                    "type": "number_positive"
-                },
-                {
-                    "id": 326544,
-                    "value": "5",
-                    "inspection_id": 40162,
-                    "category_id": 984,
-                    "val": "5",
-                    "unit": "x 25cm2",
-                    "type": "square_25cm2"
-                },
-                {
-                    "id": 326545,
-                    "value": "1",
-                    "inspection_id": 40162,
-                    "category_id": 985,
-                    "val": "1",
-                    "unit": "x 25cm2",
-                    "type": "square_25cm2"
-                },
-                {
-                    "id": 326546,
-                    "value": "4",
-                    "inspection_id": 40162,
-                    "category_id": 987,
-                    "val": "4",
-                    "unit": "x 25cm2",
-                    "type": "square_25cm2"
-                },
-                {
-                    "id": 326547,
-                    "value": "5",
-                    "inspection_id": 40162,
-                    "category_id": 988,
-                    "val": "5",
-                    "unit": "x 25cm2",
-                    "type": "square_25cm2"
-                },
-                {
-                    "id": 326548,
-                    "value": "4",
-                    "inspection_id": 40162,
-                    "category_id": 989,
-                    "val": "4",
-                    "unit": "x 25cm2",
-                    "type": "square_25cm2"
-                },
-                {
-                    "id": 326549,
-                    "value": "2",
-                    "inspection_id": 40162,
-                    "category_id": 990,
-                    "val": "2",
-                    "unit": "x 25cm2",
-                    "type": "square_25cm2"
-                },
-                {
-                    "id": 326550,
-                    "value": "2",
-                    "inspection_id": 40162,
-                    "category_id": 991,
-                    "val": "2",
-                    "unit": "x 25cm2",
-                    "type": "square_25cm2"
-                },
-                {
-                    "id": 326551,
-                    "value": "3",
-                    "inspection_id": 40162,
-                    "category_id": 992,
-                    "val": "3",
-                    "unit": "x 25cm2",
-                    "type": "square_25cm2"
-                },
-                {
-                    "id": 326552,
-                    "value": "3",
-                    "inspection_id": 40162,
-                    "category_id": 993,
-                    "val": "3",
-                    "unit": "x 25cm2",
-                    "type": "square_25cm2"
-                },
-                {
-                    "id": 326553,
-                    "value": "6",
-                    "inspection_id": 40162,
-                    "category_id": 995,
-                    "val": "6",
-                    "unit": "x 25cm2",
-                    "type": "square_25cm2"
-                },
-                {
-                    "id": 326554,
-                    "value": "2",
-                    "inspection_id": 40162,
-                    "category_id": 996,
-                    "val": "2",
-                    "unit": "x 25cm2",
-                    "type": "square_25cm2"
-                },
-                {
-                    "id": 326555,
-                    "value": "2",
-                    "inspection_id": 40162,
-                    "category_id": 997,
-                    "val": "2",
-                    "unit": "x 25cm2",
-                    "type": "square_25cm2"
-                },
-                {
-                    "id": 326556,
-                    "value": "2",
-                    "inspection_id": 40162,
-                    "category_id": 998,
-                    "val": "2",
-                    "unit": "x 25cm2",
-                    "type": "square_25cm2"
-                },
-                {
-                    "id": 326557,
-                    "value": "2",
-                    "inspection_id": 40162,
-                    "category_id": 999,
-                    "val": "2",
-                    "unit": "x 25cm2",
-                    "type": "square_25cm2"
-                },
-                {
-                    "id": 326558,
-                    "value": "2",
-                    "inspection_id": 40162,
-                    "category_id": 1000,
-                    "val": "2",
-                    "unit": "x 25cm2",
-                    "type": "square_25cm2"
-                },
-                {
-                    "id": 326559,
-                    "value": "2",
-                    "inspection_id": 40162,
-                    "category_id": 1001,
-                    "val": "2",
-                    "unit": "x 25cm2",
-                    "type": "square_25cm2"
-                },
-                {
-                    "id": 326560,
-                    "value": "8",
-                    "inspection_id": 40162,
-                    "category_id": 1163,
-                    "val": "8",
-                    "unit": "x 25cm2",
-                    "type": "square_25cm2"
-                },
-                {
-                    "id": 326561,
-                    "value": "4",
-                    "inspection_id": 40162,
-                    "category_id": 1164,
-                    "val": "4",
-                    "unit": "x 25cm2",
-                    "type": "square_25cm2"
-                },
-                {
-                    "id": 326562,
-                    "value": "2",
-                    "inspection_id": 40162,
-                    "category_id": 1165,
-                    "val": "2",
-                    "unit": "x 25cm2",
-                    "type": "square_25cm2"
-                },
-                {
-                    "id": 326563,
-                    "value": "6",
-                    "inspection_id": 40162,
-                    "category_id": 1166,
-                    "val": "6",
-                    "unit": "x 25cm2",
-                    "type": "square_25cm2"
-                },
-                {
-                    "id": 326564,
-                    "value": "2",
-                    "inspection_id": 40162,
-                    "category_id": 1167,
-                    "val": "2",
-                    "unit": "x 25cm2",
-                    "type": "square_25cm2"
-                },
-                {
-                    "id": 326565,
-                    "value": "2",
-                    "inspection_id": 40162,
-                    "category_id": 1168,
-                    "val": "2",
-                    "unit": "x 25cm2",
-                    "type": "square_25cm2"
-                },
-                {
-                    "id": 326566,
-                    "value": "3",
-                    "inspection_id": 40162,
-                    "category_id": 1169,
-                    "val": "3",
                     "unit": "x 25cm2",
                     "type": "square_25cm2"
                 }
@@ -713,16 +481,19 @@ class ResearchDataController extends Controller
             return Response::json('unauthorized-for-research', 405);
 
         $this->validate($request, [
-            'date_start'     => 'nullable|date',
-            'date_until'     => 'nullable|date',
-            'device_id'      => 'nullable|integer|exists:sensors,id',
-            'location_id'    => 'nullable|integer|exists:locations,id',
-            'measurements'   => 'nullable|string',
-            'decimals'       => 'nullable|integer',
-            'interval'       => ['nullable', Rule::in(['*','1m','5m','15m','30m','1h','3h','6h','12h','1d','1w'])],
-            'calculation'    => ['nullable', Rule::in(['NONE','MEAN','MIN','MAX','COUNT'])],
-            'limit'          => 'nullable|integer|min:1|max:'.$this->influx_limit,
-            'precision'      => ['nullable', Rule::in(['rfc3339','h','m','s','ms','u'])],
+            'date_start'            => 'nullable|date',
+            'date_until'            => 'nullable|date',
+            'device_id'             => 'nullable|integer|exists:sensors,id',
+            'location_id'           => 'nullable|integer|exists:locations,id',
+            'measurements'          => 'nullable|string',
+            'decimals'              => 'nullable|integer',
+            'interval'              => ['nullable', Rule::in(['*','1m','5m','15m','30m','1h','3h','6h','12h','1d','1w','30d','365d','hour','day','week','month','year','research','live'])],
+            'calculation'           => ['nullable', Rule::in(['NONE','FIRST','LAST','MEAN','MEDIAN','MIN','MAX','SUM','COUNT','SPREAD','STDDEV','DERIVATIVE','PERCENTILE','BOXPLOT','PEAKS','WEEKMAP','CLEANWEIGHT'])],
+            'calculation_prop'      => 'nullable|string',
+            'limit'                 => 'nullable|integer|min:1|max:'.$this->influx_limit,
+            'precision'             => ['nullable', Rule::in(['rfc3339','h','m','s','ms','u'])],
+            'index'                 => 'nullable|integer|min:0', // only in case of 1 device requested, to provide 'normal' data view
+            'timezone'              => 'nullable|timezone',
         ]);
 
         // Check if user is present on 
@@ -739,11 +510,15 @@ class ResearchDataController extends Controller
         $date_start = $request->input('date_start', $research->start_date);
         $date_until = $request->input('date_until', $research->end_date);
         $calculation= $request->input('calculation', 'MEAN');
+        $calc_prop  = $request->input('calculation_prop');
         $interval   = $request->input('interval', '1h');
         $decimals   = $request->input('decimals', 2);
         $limit      = $request->input('limit', $this->influx_limit);
         $precision  = $request->input('precision', 'rfc3339');
-        $measurements= $request->input('measurements', '*');
+        $measurements=$request->filled('measurements') ? explode(',', $request->input('measurements')) : '*';
+        $index      = $request->filled('index') ? intval($request->input('index',0)) : null;
+        $timeZone   = $request->input('timezone','UTC');
+        
         $date_format='Y-m-d H:i:s'; // RFC3339 == 'Y-m-d\TH:i:sP'
             
         if ($request->filled('date_start'))
@@ -900,7 +675,7 @@ class ResearchDataController extends Controller
                                     {
                                         $where= $device->influxWhereKeys().' AND time >= \''.$date_curr_consent.'\' AND time <= \''.$date_next_consent.'\'';
                                         $adds = ['device_id'=>$device->id];
-                                        $data = array_merge($data, $this->getArrayFromInflux($where, $measurements, 'sensors', $interval, $calculation, null, $decimals, $precision, $adds, $limit)); // $where, $measurements='*', $database='sensors', $interval='1h', $calculation='MEAN', $calc_prop=null, $decimals=2, $precision='rfc3339', $adds=[], $limit=5000
+                                        $data = array_merge($data, $this->getArrayFromInflux($where, $measurements, 'sensors', $interval, $calculation, $calc_prop, $decimals, $precision, $adds, $limit, $device, $timeZone, $date_curr_consent, $date_next_consent)); // $where, $measurements='*', $database='sensors', $interval='1h', $calculation='MEAN', $calc_prop=null, $decimals=2, $precision='rfc3339', $adds=[], $limit=5000
                                     }
                                 }
                             }
@@ -915,7 +690,7 @@ class ResearchDataController extends Controller
                                 {
                                     $where= '"lat" = \''.$apiary->coordinate_lat.'\' AND "lon" = \''.$apiary->coordinate_lon.'\' AND time >= \''.$date_curr_consent.'\' AND time <= \''.$date_next_consent.'\'';
                                     $adds = ['device_id'=>$device->id];
-                                    $data = array_merge($data, $this->getArrayFromInflux($where, $measurements, 'weather', $interval, $calculation, null, $decimals, $precision, $adds, $limit));
+                                    $data = array_merge($data, $this->getArrayFromInflux($where, $measurements, 'weather', $interval, $calculation, $calc_prop, $decimals, $precision, $adds, $limit));
                                 }
                             }
                         }
@@ -938,7 +713,7 @@ class ResearchDataController extends Controller
     @bodyParam year_months string Comma separated string of YYYY-MM strings to filter ONLY measurment data. Example: 2020-01,2021-02
     @bodyParam interval string Specifies the optional measurement (InfluxDB GROUPBY) time interval (*(all values)/1m/5m/30m/1h/1d/1w/30d/365d) m (minutes), h (hours), d (days), w (weeks). Default: 1d. Example: 5m 
     @bodyParam limit integer Specifies the maximum number of measurements per location_research (InfluxDB LIMIT), Max: 5000. Default: 5000. Example: 500 
-    @bodyParam calculation string Specifies the optional (InfluxDB) calculation (NONE/FIRST/LAST/MEAN/MEDIAN/MIN/MAX/SUM/COUNT/SPREAD/STDDEV/DERIVATIVE/PERCENTILE/BOXPLOT/PEAKS/WEEKMAP) for use with time interval. Default: MEAN. Example: MAX 
+    @bodyParam calculation string Specifies the optional (InfluxDB) calculation (NONE/FIRST/LAST/MEAN/MEDIAN/MIN/MAX/SUM/COUNT/SPREAD/STDDEV/DERIVATIVE/PERCENTILE/BOXPLOT/PEAKS/WEEKMAP/CLEANWEIGHT) for use with time interval. Default: MEAN. Example: MAX 
     @bodyParam calculation_prop string Specifies the optional (InfluxDB) calculation property for i.e. PERCENTILE/DERIVATIVE/etc). Default: null. Example: 5 
     @bodyParam decimals integer Specifies the optional maximum amount of decimals that the (InfluxDB) calculation returns. Default: 2. Example: 1 
     @bodyParam device_id integer The device_id to filter measurements on (next to date_start and date_until). Example: 1
@@ -946,7 +721,7 @@ class ResearchDataController extends Controller
     @bodyParam location_id integer The location_id to filter and measurements (next to date_start and date_until). Example: 2
     @bodyParam location_ids string Comma separated string of location_ids to filter measurements (next to date_start and date_until). Example: 1,3,6
     @bodyParam precision string Specifies the optional InfluxDB format/precision (rfc3339/h/m/s/ms/u) of the timestamp of the measurements and weather data: rfc3339 (YYYY-MM-DDTHH:MM:SS.nnnnnnnnnZ), h (hours), m (minutes), s (seconds), ms (milliseconds), u (microseconds). Precision defaults to rfc3339. Example: rfc3339
-    @bodyParam measurements string Comma separated string of measurements (e.g. am2315_t,mhz_co2,pmsp053_pm10) to query. Default: * (all measurments available).
+    @bodyParam measurements string Comma separated string of measurements (e.g. weight_kg,t_i,t_0,t_1) to query. Default: * (all measurments available).
     @bodyParam index integer Historic index of the interval from now. 0=period with current time included. 1=previous interval. Required without end. Example: 0
     @bodyParam timezone string Provide the front-end timezone to correct the time from UTC to front-end time. Example: Europe/Amsterdam
     */
@@ -967,7 +742,7 @@ class ResearchDataController extends Controller
             'measurements'          => 'nullable|string',
             'decimals'              => 'nullable|integer',
             'interval'              => ['nullable', Rule::in(['*','1m','5m','15m','30m','1h','3h','6h','12h','1d','1w','30d','365d','hour','day','week','month','year','research','live'])],
-            'calculation'           => ['nullable', Rule::in(['NONE','FIRST','LAST','MEAN','MEDIAN','MIN','MAX','SUM','COUNT','SPREAD','STDDEV','DERIVATIVE','PERCENTILE','BOXPLOT','PEAKS','WEEKMAP'])],
+            'calculation'           => ['nullable', Rule::in(['NONE','FIRST','LAST','MEAN','MEDIAN','MIN','MAX','SUM','COUNT','SPREAD','STDDEV','DERIVATIVE','PERCENTILE','BOXPLOT','PEAKS','WEEKMAP','CLEANWEIGHT'])],
             'calculation_prop'      => 'nullable|string',
             'limit'                 => 'nullable|integer|min:1|max:'.$this->influx_limit,
             'precision'             => ['nullable', Rule::in(['rfc3339','h','m','s','ms','u'])],
@@ -991,7 +766,7 @@ class ResearchDataController extends Controller
         $date_format='Y-m-d H:i:s'; // RFC3339 == 'Y-m-d\TH:i:sP'
         $date_start = $request->input('date_start', $research->start_date);
         $date_until = $request->input('date_until', $research->end_date);
-        
+
         $calculation= $request->input('calculation', 'MEAN');
         $calc_prop  = $request->input('calculation_prop');
         $interval   = $request->input('interval', '1d');
@@ -1002,7 +777,7 @@ class ResearchDataController extends Controller
         $measurements=$request->filled('measurements')          ? explode(',', $request->input('measurements')) : '*';
         $location_ids=$request->filled('location_ids')          ? explode(',', $request->input('location_ids')) : (isset($location_id) ? [$location_id] : null);
         $device_ids = $request->filled('device_ids')            ? explode(',', $request->input('device_ids')) : (isset($device_id) ? [$device_id] : null);
-        $year_months= null; // ['2021-03',2022-03'];
+        $year_months= $request->filled('year_months') ? explode(',', $request->input('year_months')) : null; // ['2021-03',2022-03'];
         $index      = $request->filled('index') ? intval($request->input('index',0)) : null;
         $timeZone   = $request->input('timezone','UTC');
         $data_call  = in_array($interval, ['hour','day','week','month','year','research','live']);
@@ -1016,7 +791,6 @@ class ResearchDataController extends Controller
             else if ($date_start < $research->start_date)
                 $date_start = $research->start_date; // return Response::json('date_start_before_research_start', 400);
         }
-
         if ($request->filled('date_until'))
         {
             if ($this->validateDate($date_until, $date_format) == false)
@@ -1249,6 +1023,11 @@ class ResearchDataController extends Controller
                             // Add measurement data
                             if ($user_devices->count() > 0)
                             {
+                                $m_start            = $date_curr_consent;
+                                $m_until            = $date_next_consent;
+                                $m_interval         = $interval;
+                                $filter_year_months = filled($year_months);
+
                                 foreach ($user_devices as $device)
                                 {
                                     if ($device)
@@ -1326,7 +1105,7 @@ class ResearchDataController extends Controller
 
                                             $adds = $calculation == 'WEEKMAP' ? [] : ['device_id'=>$device->id];
                                             $where= $device->influxWhereKeys().' AND time >= \''.$m_start.'\' AND time <= \''.$m_until.'\'';
-                                            $meas = $this->getArrayFromInflux($where, $measurements, 'sensors', $m_interval, $calculation, $calc_prop, $decimals, $precision, $adds, $limit); // $where, $measurements='*', $database='sensors', $interval='1h', $calculation='MEAN', $calc_prop=null, $decimals=2, $precision='rfc3339', $adds=[], $limit=5000)
+                                            $meas = $this->getArrayFromInflux($where, $measurements, 'sensors', $m_interval, $calculation, $calc_prop, $decimals, $precision, $adds, $limit, $device, $timeZone, $m_start, $m_until); // $where, $measurements='*', $database='sensors', $interval='1h', $calculation='MEAN', $calc_prop=null, $decimals=2, $precision='rfc3339', $adds=[], $limit=5000)
 
                                             // filter out all non month-year data
                                             if ($filter_year_months)
@@ -1601,13 +1380,13 @@ class ResearchDataController extends Controller
     }
 
     // NB: keys should be filled with keys array for database 'sensors', or with coords ['lat'=>$loc->lat, 'lon'=>$loc->lon] for database 'weather'
-    private function getArrayFromInflux($where, $measurements='*', $database='sensors', $interval='1h', $calculation='MEAN', $calc_prop=null, $decimals=2, $precision='rfc3339', $adds=[], $limit=5000)
+    private function getArrayFromInflux($where, $measurements='*', $database='sensors', $interval='1h', $calculation='MEAN', $calc_prop=null, $decimals=2, $precision='rfc3339', $adds=[], $limit=5000, $device=null, $timeZone='UTC', $start_date=null, $end_date=null)
     {
         $options = ['precision'=>$precision];
         
         // Create query
         $names = null;
-        $replace_names   = ['pmsp053_pm1.0'=>'pmsp053_pm1_0', 'pmsp053_pm2.5'=>'pmsp053_pm2_5'];
+        $replace_names   = [];
         $replace_results = [];
 
         if (isset($measurements) && $measurements !== '*')
@@ -1657,8 +1436,10 @@ class ResearchDataController extends Controller
         
         // Create query
         $queryList = [];
-        if ($database != 'weather')
+        if ($database != 'weather' && $calculation != 'CLEANWEIGHT')
+        {
             $queryList = Device::getAvailableSensorNamesNoCache($names, $where, $database); // ($names, $where, $table='sensors', $output_sensors_only=true, $cache_name='names-nocache')
+        }
         
         if (!isset($queryList) || gettype($queryList) != 'array' || count($queryList) == 0)
             $queryList = $names;
@@ -1684,8 +1465,12 @@ class ResearchDataController extends Controller
             $groupByResolution = 'ORDER BY time ASC';
         }
         
-        $query = 'SELECT '.$groupBySelect.' FROM "'.$database.'" WHERE '.$where.' '.$groupByResolution.' LIMIT '.$limit;
-        //Log::info($query);
+        if ($calculation == 'CLEANWEIGHT' && $device && $start_date && $end_date && $timeZone)
+            $query = $device->getCleanedWeightQuery($interval, $start_date, $end_date, $limit, 0.75, 2, $timeZone);
+        else
+            $query = 'SELECT '.$groupBySelect.' FROM "'.$database.'" WHERE '.$where.' '.$groupByResolution.' LIMIT '.$limit;
+        
+        //dd($query);
 
         // Load data
         $cache_timeout_sec = 84600; // 24 hours, was env('CACHE_TIMEOUT_LONG')
@@ -1702,6 +1487,7 @@ class ResearchDataController extends Controller
             } catch (InfluxDB\Exception $e) {
                 Log::error($query);
                 Log::error($e);
+                return [];
             }
             
 

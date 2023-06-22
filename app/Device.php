@@ -596,7 +596,7 @@ class Device extends Model
         return $resolution;
     }
 
-    public function getCleanedWeightQuery($resolution, $start_date, $end_date, $limit, $threshold, $frame, $timeZone)
+    public function getCleanedWeightQuery($resolution, $start_date, $end_date, $limit=5000, $threshold=0.75, $frame=2, $timeZone='UTC')
     {
         $fill                 = env('INFLUX_FILL') !== null ? env('INFLUX_FILL') : 'null';
         $whereTime            = 'time >= \''.$start_date.'\' AND time <= \''.$end_date.'\'';
@@ -609,7 +609,7 @@ class Device extends Model
         return $cleanedWeightQuery;
     }
 
-    public function getInnerCleanQuery($resolution, $start_date, $end_date, $limit, $threshold, $frame, $timeZone)
+    public function getInnerCleanQuery($resolution, $start_date, $end_date, $limit=5000, $threshold=0.75, $frame=2, $timeZone='UTC')
     {
             
         $wherekeys=$this->influxWhereKeys();
@@ -690,11 +690,7 @@ class Device extends Model
             }
         }
 
-      
-        $whereKeyAndTime      = $wherekeys.' AND time >= \''.$start_date.'\' AND time <= \''.$end_date.'\'';
-        
-            
-        
+        $whereKeyAndTime  = $wherekeys.' AND time >= \''.$start_date.'\' AND time <= \''.$end_date.'\'';
         
         if($resolution != null)
         {

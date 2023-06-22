@@ -304,12 +304,12 @@ class ResearchDataController extends Controller
 
     /**
     api/researchdata/{id}/user/{user_id}/{item} GET
-    List all user 'item' data within the consent=1 periods of a specific user within a Research. The 'item' field indicates the type of user data (apiaries/hives/devices/flashlogs/inspections/measurements/weather) to request within the research (which the user gave consent for to use). Example: inspectionsResponse: api/researchdata/1/user/1/inspections. 
+    List all user 'item' data within the consent=1 periods of a specific user within a Research. The 'item' field indicates the type of user data (apiaries/locations/hives/devices/flashlogs/inspections/measurements/weather) to request within the research (which the user gave consent for to use). Example: inspectionsResponse: api/researchdata/1/user/1/inspections. 
     @authenticated
     @authenticated
     @urlParam id required The research ID to request data from. Example: 1
     @urlParam user_id required The user id to request data from. Example: 1
-    @urlParam item required The type of user data (locations/lrs/devices/inspections/measurements) to request within the research (which the user gave consent for to use). Example: inspections
+    @urlParam item required The type of user data (locations/devices/inspections/measurements) to request within the research (which the user gave consent for to use). Example: inspections
     @bodyParam date_start datetime The date in 'YYYY-MM-DD HH:mm:ss' format (2020-01-01 00:00:00) to request data from (default is beginning of research, or earlier (except inspections and measurements). Example: 2020-01-01 00:00:00
     @bodyParam date_until datetime The date in 'YYYY-MM-DD HH:mm:ss' format (2020-09-29 23:59:59) to request data until (default is until the end of the user consent, or research end). Example: 2020-09-29 23:59:59
     @bodyParam interval string Specifies the optional measurement (InfluxDB GROUPBY) time interval (*(all values)/1m/5m/30m/1h/1d/1w/30d/365d) m (minutes), h (hours), d (days), w (weeks). Default: 1d. Example: 5m 
@@ -318,7 +318,7 @@ class ResearchDataController extends Controller
     @bodyParam calculation_prop string Specifies the optional (InfluxDB) calculation property for i.e. PERCENTILE/DERIVATIVE/etc). Default: null. Example: 5 
     @bodyParam decimals integer Specifies the optional maximum amount of decimals that the (InfluxDB) calculation returns. Default: 2. Example: 1 
     @bodyParam device_id integer The device_id to filter the measurements on (next to date_start and date_until). Example: 1
-    @bodyParam location_id integer The location_id to filter the lrs, and measurements on (next to date_start and date_until). Example: 2
+    @bodyParam location_id integer The location_id to filter the hives, and measurements on (next to date_start and date_until). Example: 2
     @bodyParam precision string Specifies the optional InfluxDB format/precision (rfc3339/h/m/s/ms/u) of the timestamp of the measurements and weather data: rfc3339 (YYYY-MM-DDTHH:MM:SS.nnnnnnnnnZ), h (hours), m (minutes), s (seconds), ms (milliseconds), u (microseconds). Precision defaults to rfc3339. Example: rfc3339
     @bodyParam measurements string Comma separated string of measurements (e.g. weight_kg,t_i,t_0,t_1) to query. Default: all measurments available.
     @response [
@@ -500,7 +500,7 @@ class ResearchDataController extends Controller
         if (DB::table('research_user')->where('research_id', $id)->where('user_id', $user_id)->where('consent', 1)->count() == 0)
             return Response::json('user-not-connected-to-research', 400);
 
-        if (!in_array($item, ['locations','lrs','devices','inspections','measurements','weather']))
+        if (!in_array($item, ['apiaries','locations','devices','inspections','measurements','weather']))
             return Response::json('invalid-item-requested', 400);
 
         // Make dates
@@ -649,6 +649,7 @@ class ResearchDataController extends Controller
                 // add 
                 switch($item)
                 {
+                    case 'locations':
                     case 'apiaries':
                         $data = array_merge($data, $user_apiaries->where('created_at', '<=', $date_next_consent)->toArray());
                         break;
@@ -704,7 +705,7 @@ class ResearchDataController extends Controller
     }
 /**
     api/researchdata/{id}/data/{item} GET
-    List all research 'item' data within the consent=1 periods within a Research. The 'item' field indicates the type of data (locations/devices/inspections/measurements/weather) to request within the research (which the user gave consent for to use). Example: inspectionsResponse: api/researchdata/1/inspections. 
+    List all research 'item' data within the consent=1 periods within a Research. The 'item' field indicates the type of data (apiaries/locations/devices/inspections/measurements/weather) to request within the research (which the user gave consent for to use). Example: inspectionsResponse: api/researchdata/1/inspections. 
     @authenticated
     @urlParam id required The research ID to request data from. Example: 1
     @urlParam item required The type of user data (locations/devices/inspections/measurements) to request within the research (which the user gave consent for to use). Example: inspections
@@ -754,7 +755,7 @@ class ResearchDataController extends Controller
         if (DB::table('research_user')->where('research_id', $id)->where('consent', 1)->count() == 0)
             return Response::json('no-user-consents-for-research', 400);
 
-        if (!in_array($item, ['locations','devices','inspections','measurements','weather']))
+        if (!in_array($item, ['apiaries','locations','devices','inspections','measurements','weather']))
             return Response::json('invalid-item-requested', 400);
 
         // Make dates
@@ -985,6 +986,7 @@ class ResearchDataController extends Controller
                     // add 
                     switch($item)
                     {
+                        case 'apiaries':
                         case 'locations':
                             $locs = $user_locations
                                             ->whereNotIn('id', $loc_ids)

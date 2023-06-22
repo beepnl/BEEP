@@ -314,8 +314,8 @@ class ResearchDataController extends Controller
     @bodyParam date_until datetime The date in 'YYYY-MM-DD HH:mm:ss' format (2020-09-29 23:59:59) to request data until (default is until the end of the user consent, or research end). Example: 2020-09-29 23:59:59
     @bodyParam interval string Specifies the optional measurement (InfluxDB GROUPBY) time interval (*(all values)/1m/5m/30m/1h/1d/1w/30d/365d) m (minutes), h (hours), d (days), w (weeks). Default: 1d. Example: 5m 
     @bodyParam limit integer Specifies the maximum number of measurements per location_research (InfluxDB LIMIT), Max: 5000. Default: 5000. Example: 10 
-    @bodyParam calculation string Specifies the optional (InfluxDB) calculation (NONE/FIRST/LAST/MEAN/MEDIAN/MIN/MAX/SUM/COUNT/SPREAD/STDDEV/DERIVATIVE/PERCENTILE/BOXPLOT/PEAKS/WEEKMAP/CLEANWEIGHT) for use with time interval. Default: MEAN. Example: MAX 
-    @bodyParam calculation_prop string Specifies the optional (InfluxDB) calculation property for i.e. PERCENTILE/DERIVATIVE/etc). Default: null. Example: 5 
+    @bodyParam calculation string Specifies the optional (InfluxDB) calculation (NONE/FIRST/LAST/MEAN/MEDIAN/MIN/MAX/SUM/COUNT/SPREAD/STDDEV/DERIVATIVE/PERCENTILE/BOXPLOT/PEAKS/WEEKMAP/CLEANWEIGHT) for use with time interval. Default: NONE. Example: MEAN 
+    @bodyParam calculation_prop string Specifies the optional (InfluxDB) calculation property for i.e. PERCENTILE/DERIVATIVE/etc). Default: null. Example: DERIVATIVE
     @bodyParam decimals integer Specifies the optional maximum amount of decimals that the (InfluxDB) calculation returns. Default: 2. Example: 1 
     @bodyParam device_id integer The device_id to filter the measurements on (next to date_start and date_until). Example: 1
     @bodyParam location_id integer The location_id to filter the hives, and measurements on (next to date_start and date_until). Example: 2
@@ -509,7 +509,7 @@ class ResearchDataController extends Controller
         $location_id= $request->input('location_id');
         $date_start = $request->input('date_start', $research->start_date);
         $date_until = $request->input('date_until', $research->end_date);
-        $calculation= $request->input('calculation', 'MEAN');
+        $calculation= $request->input('calculation', 'NONE');
         $calc_prop  = $request->input('calculation_prop');
         $interval   = $request->input('interval', '1h');
         $decimals   = $request->input('decimals', 2);
@@ -1461,7 +1461,7 @@ class ResearchDataController extends Controller
             $groupBySelect     = $this->influx_fields_to_query_string($queryList, $calculation, $calc_prop, $decimals);
             $groupByResolution = 'GROUP BY time('.$interval.') fill(none) ORDER BY time ASC';
         }
-        else
+        else // $interval == '*' or unset || $calculation == 'NONE'
         {
             $groupBySelect     = $this->influx_fields_to_query_string($queryList);
             $groupByResolution = 'ORDER BY time ASC';

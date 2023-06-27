@@ -18,7 +18,7 @@ class Device extends Model
     use SoftDeletes, CascadeSoftDeletes;
 
     protected $table    = 'sensors';
- 
+
     protected $cascadeDeletes = ['sensorDefinitions'];
     protected $fillable = ['user_id', 'hive_id', 'category_id', 'name', 'key', 'last_message_received', 'hardware_id', 'firmware_version', 'hardware_version', 'boot_count', 'measurement_interval_min', 'measurement_transmission_ratio', 'ble_pin', 'battery_voltage', 'next_downlink_message', 'last_downlink_result', 'datetime', 'datetime_offset_sec', 'former_key_list'];
 	protected $guarded 	= ['id'];
@@ -30,9 +30,9 @@ class Device extends Model
     public static function cacheRequestRate($name, $retention_sec=86400)
     {
         Cache::remember($name.'-time', $retention_sec, function () use ($name)
-        { 
-            Cache::forget($name.'-count'); 
-            return time(); 
+        {
+            Cache::forget($name.'-count');
+            return time();
         });
 
         if (Cache::has($name.'-count'))
@@ -68,17 +68,17 @@ class Device extends Model
     {
         if (Auth::check() && $this->user_id == Auth::user()->id)
             return true;
-        
+
         return false;
     }
 
     public function getOnlineAttribute()
     {
         $refresh_min  = max(15, $this->getRefreshMin() * 2);
-        $min_msg_date = date('Y-m-d H:i:s', time()-(60*$refresh_min)); // at least 
+        $min_msg_date = date('Y-m-d H:i:s', time()-(60*$refresh_min)); // at least
         if (isset($this->last_message_received) && $this->last_message_received > $min_msg_date)
             return true;
-        
+
         return false;
     }
 
@@ -138,7 +138,7 @@ class Device extends Model
         $keys = [];
         if (isset($this->former_key_list))
             $keys = explode(',', $this->former_key_list);
-        
+
         if (in_array($key, $keys) === false)
             $keys[] = $key;
 
@@ -239,7 +239,7 @@ class Device extends Model
     {
         $hive_id = $this->hive_id;
         return Cache::remember('device-'.$this->id.'-hive-'.$hive_id.'-user-ids', env('CACHE_TIMEOUT_LONG'), function () use ($hive_id)
-        { 
+        {
             $user_ids = [$this->user_id];
             if (isset($hive_id))
             {
@@ -261,7 +261,7 @@ class Device extends Model
     {
         $hive_id = $this->hive_id;
         return Cache::remember('device-'.$this->id.'-hive-'.$hive_id.'-rule-ids', env('CACHE_TIMEOUT_LONG'), function () use ($hive_id)
-        { 
+        {
             $rule_ids = $this->user->alert_rules()->pluck('id')->toArray();
             if (isset($hive_id))
             {
@@ -302,7 +302,7 @@ class Device extends Model
         $device_int_min= isset($this->measurement_interval_min) ? $this->measurement_interval_min : 15;
         $time_int_min  = isset($interval_min) && $interval_min > $device_int_min ? $interval_min : $device_int_min;
         $val_min_ago   = null;
-        
+
         // Get values from cache
         if ($table == 'sensors' && $limit == 1 && $interval_min <= $time_int_min)
         {
@@ -338,14 +338,14 @@ class Device extends Model
                 $val_min_ago = round($last_mom->fromNow()->getMinutes());
             }
         }
-        
+
         return ['values'=>$values,'query'=>$query, 'from'=>'influx', 'min_ago'=>$val_min_ago];
     }
 
     public static function selectList()
     {
         $list = [];
-        
+
         if (Auth::user()->hasRole(['superadmin','admin']))
             $list = Device::all();
         else
@@ -374,7 +374,7 @@ class Device extends Model
 
         return null;
     }
-    
+
 
     public static function getInfluxQuery($query, $from='device')
     {
@@ -405,7 +405,7 @@ class Device extends Model
         $out           = [];
         $valid_sensors = $output_sensors_only ? $output_sensors : array_keys($valid_sensors);
         $valid_sensors = array_intersect($valid_sensors, $names);
-        
+
         if (count($valid_sensors) == 0)
             return $out;
 
@@ -452,12 +452,12 @@ class Device extends Model
         //die(print_r(['forget'=>$forget, 'key'=>$cache_string, 'data'=>$cache_array]));
 
         return Cache::remember($cache_string, env('CACHE_TIMEOUT_LONG', 3600), function () use ($names, $where, $table, $output_sensors_only)
-        { 
+        {
             return Device::getAvailableSensorNamesNoCache($names, $where, $table, $output_sensors_only, 'names');
         });
     }
 
-    
+
     public function last_sensor_values_array($fields='*', $limit=1)
     {
         if (gettype($fields) == 'array')
@@ -517,7 +517,7 @@ class Device extends Model
 
     public function addSensorDefinitionMeasurements($data_array, $value, $input_measurement_id=null, $date=null, $sensor_defs=null)
     {
-        
+
         if ($input_measurement_id != null)
         {
             // Get the right sensordefinition
@@ -538,7 +538,7 @@ class Device extends Model
             }
             else // there are multiple, so get the one appropriate for the $date
             {
-                $before_date = isset($date) ? $date : date('Y-m-d H:i:s'); 
+                $before_date = isset($date) ? $date : date('Y-m-d H:i:s');
                 if ($sensor_defs->where('updated_at', '<=', $before_date)->count() == 0) // not found before $date, but there are after, so get the first (earliest)
                     $sensor_def = $sensor_defs->first();
                 else
@@ -569,7 +569,7 @@ class Device extends Model
         $minutes = null;
         if($unit=="m"){
             $minutes = $value;
-        } 
+        }
         elseif($unit=="h"){
             $minutes = $value*60;
         }
@@ -586,7 +586,7 @@ class Device extends Model
         $unit = substr($resolution, $index);
         if($unit=="m"){
             $resolution = "1m";
-        } 
+        }
         elseif($unit=="h"){
             $resolution = "15m";
         }
@@ -602,7 +602,7 @@ class Device extends Model
         $whereTime            = 'time >= \''.$start_date.'\' AND time <= \''.$end_date.'\'';
         $groupByResolution    = 'GROUP BY time('.$resolution.') fill('.$fill.')';
         $groupByKeyResolution = 'GROUP BY "key",time('.$resolution.') fill('.$fill.')';
-        $groupBySelectOuter   = 'cumulative_sum(sum(weight_delta)) as net_weight_kg'; 
+        $groupBySelectOuter   = 'cumulative_sum(sum(weight_delta)) as net_weight_kg';
         $innerQuery           = $this->getInnerCleanQuery($resolution, $start_date, $end_date, $limit, $threshold, $frame, $timeZone);
         $sensorQuery          = 'SELECT '.$groupBySelectOuter.' FROM '.$innerQuery.' WHERE '.$whereTime.' '.$groupByKeyResolution.' '.$limit;
         $cleanedWeightQuery   = 'SELECT mean(net_weight_kg) as net_weight_kg FROM ('.$sensorQuery.') WHERE '.$whereTime.' '.$groupByResolution.' '.$limit; // this is necessary to fill with null values when data is missing
@@ -611,17 +611,17 @@ class Device extends Model
 
     public function getInnerCleanQuery($resolution, $start_date, $end_date, $limit=5000, $threshold=0.75, $frame=2, $timeZone='UTC')
     {
-            
+
         $wherekeys=$this->influxWhereKeys();
-        
+
 
         $whereTreshold = 'weight_delta < '.$threshold.' AND weight_delta >'.-1*$threshold;
 
-     
+
         $inspections = $this -> hive -> getAllInspectionDates();
 
         sort($inspections);
-    
+
         // choose inspections in time frame only and convert to utc
         $filteredInspections = [];
         foreach($inspections as $inspection){
@@ -630,10 +630,10 @@ class Device extends Model
             if($inspection_utc >= $start_date & $inspection_utc <= $end_date){
                 array_push($filteredInspections, $inspection_utc);
             }
-        }      
+        }
         $inspections = $filteredInspections;
         #return Response::json( ['status'=>$inspections] );
-        
+
         // array for time frames shortly before and after inspections
         $inspectionTuples = [];
         // array for other time frames
@@ -679,11 +679,11 @@ class Device extends Model
             $difference = round(abs(strtotime($nex) - strtotime($inter)) / 60);
             $transRes = $this->translateResolutionToMinutes($resolution);
             $useRes = $resolution;
-            if(!is_null($transRes) & (($difference - 2*60*$inspectionFrame)< $transRes)){
-                $useRes = $this -> mapToSmallerResolution($resolution);
-            }
+            // if(!is_null($transRes) & (($difference - 2*60*$inspectionFrame)< $transRes)){
+            //     $useRes = $this -> mapToSmallerResolution($resolution);
+            // }
             // add period tuple
-            if($i <= $length-1){                 
+            if($i <= $length-1){
                 $periodTuples[$i+1] = ['\''.$inter.'\' + '.$inspectionFrame.'h + '.$useRes, '\''.$nex.'\' - '.$inspectionFrame.'h', $useRes];
             }else{
                 $periodTuples[$i+1] = ['\''.$inter.'\' + '.$inspectionFrame.'h + '.$useRes, '\''.$end_date.'\'', $useRes];
@@ -691,23 +691,23 @@ class Device extends Model
         }
 
         $whereKeyAndTime  = $wherekeys.' AND time >= \''.$start_date.'\' AND time <= \''.$end_date.'\'';
-        
+
         if($resolution != null)
         {
             $fill              = env('INFLUX_FILL') !== null ? env('INFLUX_FILL') : 'null';
             $groupByResolution = 'GROUP BY time('.$resolution.') fill('.$fill.')';
             $groupInspection = 'GROUP BY time(15m)';
-            
-            $groupBySelectOuter = 'cumulative_sum(sum(weight_delta)) as weight_kg_noOutlier'; 
+
+            $groupBySelectOuter = 'cumulative_sum(sum(weight_delta)) as weight_kg_noOutlier';
             $groupBySelectInnerInspection = 'derivative(mean(weight_kg), 15m) as weight_delta';
             #$groupBySelectInnerPeriod = 'derivative(mean(weight_kg), '.$resolution.') as weight_delta';
         }
 
-            
+
         $sensors_out = [];
-        
-        if ($groupBySelectOuter != null && $groupBySelectOuter != '') 
-        {   
+
+        if ($groupBySelectOuter != null && $groupBySelectOuter != '')
+        {
             $inspectionQueries = [];
             foreach($inspectionTuples as $i => $tuple){
                 $inspectionQueries[$i] = '(SELECT * FROM ( SELECT '.$groupBySelectInnerInspection.' FROM "sensors" WHERE '.$wherekeys.
@@ -745,11 +745,11 @@ class Device extends Model
         if (count($output) < $limit)
             return null;
 
-        for ($i=0; $i < $limit; $i++) 
-        { 
+        for ($i=0; $i < $limit; $i++)
+        {
             if (isset($output[$i]) && gettype($output[$i]) == 'array')
             {
-                foreach ($output[$i] as $key => $val) 
+                foreach ($output[$i] as $key => $val)
                 {
                     if ($val != null)
                     {
@@ -757,7 +757,7 @@ class Device extends Model
 
                         if ($i == 0) // desc array, so most recent value: $i == 0
                         {
-                            $out_arr[$key] = $value; 
+                            $out_arr[$key] = $value;
                         }
                         else if (isset($out_arr[$key]))
                         {
@@ -769,7 +769,7 @@ class Device extends Model
         }
         //die(print_r($out_arr));
 
-        return $out_arr; 
+        return $out_arr;
     }
 
 }

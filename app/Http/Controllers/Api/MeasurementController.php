@@ -41,7 +41,7 @@ class MeasurementController extends Controller
     protected $precision      = 's';
     protected $timeFormat     = 'Y-m-d H:i:s';
     protected $maxDataPoints  = 5000;
- 
+
     public function __construct()
     {
         // make sure to add to the measurements DB table w_v_kg_per_val, w_fl_kg_per_val, etc. and w_v_offset, w_fl_offset to let the calibration functions function correctly
@@ -52,7 +52,7 @@ class MeasurementController extends Controller
         $this->client         = new \Influx;
         //die(print_r($this->valid_sensors));
     }
-   
+
     private function doPostHttpRequest($url, $data)
     {
         $guzzle   = new Client();
@@ -72,8 +72,8 @@ class MeasurementController extends Controller
 
     protected function get_user_device(Request $request, $mine = false)
     {
-        
-        
+
+
         $devices = $request->user()->allDevices($mine); // inlude user Group hive sensors ($mine == false)
         $check_device = [];
 
@@ -111,15 +111,15 @@ class MeasurementController extends Controller
             {
                 $check_device = $devices->first();
             }
-            
+
             if(isset($check_device))
                 return $check_device;
         }
         return null;
     }
 
-    
-    
+
+
 
     // requires at least ['name'=>value] to be set
     private function storeInfluxData($data_array, $device, $unix_timestamp)
@@ -128,15 +128,15 @@ class MeasurementController extends Controller
         $client      = $this->client;
         $points      = [];
         $unix_time   = isset($unix_timestamp) ? $unix_timestamp : time();
-        $sensor_tags = ['key' => strtolower($device->key), 'device_name' => $device->name, 'hardware_id' => strtolower($device->hardware_id), 'user_id' => $device->user_id]; 
+        $sensor_tags = ['key' => strtolower($device->key), 'device_name' => $device->name, 'hardware_id' => strtolower($device->hardware_id), 'user_id' => $device->user_id];
 
         $valid_sensor_keys = array_keys($this->valid_sensors);
-        
-        foreach ($data_array as $key => $value) 
+
+        foreach ($data_array as $key => $value)
         {
             if (in_array($key, $valid_sensor_keys) )
             {
-                array_push($points, 
+                array_push($points,
                     new InfluxDB\Point(
                         'sensors',                  // name of the measurement
                         null,                       // the measurement value
@@ -167,9 +167,9 @@ class MeasurementController extends Controller
     private function cacheRequestRate($name, $amount=1)
     {
         Cache::remember($name.'-time', 86400, function () use ($name)
-        { 
-            Cache::forget($name.'-count'); 
-            return time(); 
+        {
+            Cache::forget($name.'-count');
+            return time();
         });
 
         if (Cache::has($name.'-count'))
@@ -202,7 +202,7 @@ class MeasurementController extends Controller
             {
                 $array[] = $val;
             }
-            Cache::put($name.'-array', $array, 3600);  
+            Cache::put($name.'-array', $array, 3600);
         }
     }
 
@@ -252,7 +252,7 @@ class MeasurementController extends Controller
             {
                 $device->last_message_received = date('Y-m-d H:i:s');
                 $device->save();
-            } 
+            }
             else
             {
                 Storage::disk('local')->put('sensors/sensor_invalid_key.log', json_encode($data_array));
@@ -261,7 +261,7 @@ class MeasurementController extends Controller
                 return Response::json('No valid key provided', 401);
             }
         }
-        
+
         if(!isset($device))
             return Response::json('no-device-defined');
 
@@ -280,10 +280,10 @@ class MeasurementController extends Controller
 
 
         // Add senaor data based on available device sensorDefinitions
-        $date            = date($this->timeFormat, $time); 
+        $date            = date($this->timeFormat, $time);
         $sensor_defs     = $device->activeSensorDefinitions();
         $sensor_defs_all = $device->sensorDefinitions;
-        foreach ($sensor_defs as $sd) 
+        foreach ($sensor_defs as $sd)
         {
             if (isset($sd->output_abbr) && isset($data_array[$sd->input_abbr]))
                 $data_array = $device->addSensorDefinitionMeasurements($data_array, $data_array[$sd->input_abbr], $sd->input_measurement_id, $date, $sensor_defs_all);
@@ -299,10 +299,10 @@ class MeasurementController extends Controller
             }
             $device = $this->addDeviceMeta($device, 'battery_voltage', $battery_voltage);
             $device->save();
-        } 
-        
+        }
+
         // Legacy weight calculation from 2-4 load cells
-        if (!isset($data_array['weight_kg']) && (isset($data_array['w_fl']) || isset($data_array['w_fr']) || isset($data_array['w_bl']) || isset($data_array['w_br'])) ) 
+        if (!isset($data_array['weight_kg']) && (isset($data_array['w_fl']) || isset($data_array['w_fr']) || isset($data_array['w_bl']) || isset($data_array['w_br'])) )
         {
             // check if calibration is required
             $calibrate = $device->last_sensor_measurement_time_value('calibrating_weight');
@@ -318,8 +318,8 @@ class MeasurementController extends Controller
             //$data_array = $this->add_weight_kg_corrected_with_temperature($device, $data_array);
         }
         $stored = $this->storeInfluxData($data_array, $device, $time);
-        
-        
+
+
         // Remember the last date/data that this device stored measurements from (and previous to calculate diff)
         $cached_time   = Cache::get('set-measurements-device-'.$device->id.'-time');
         $cached_data   = Cache::get('set-measurements-device-'.$device->id.'-data');
@@ -332,7 +332,7 @@ class MeasurementController extends Controller
         }
         Cache::put('set-measurements-device-'.$device->id.'-time', $time);
         Cache::put('set-measurements-device-'.$device->id.'-data', $data_array);
-        
+
         // Parse Alert rules if available
         $alert_count     = 0;
         $device_rule_ids = $device->hiveUserRuleIds();
@@ -346,12 +346,12 @@ class MeasurementController extends Controller
             $this->cacheRequestRate('alert-direct', $alert_count);
         }
 
-        if($stored) 
+        if($stored)
         {
             $this->cacheRequestRate('store-measurements-201');
             $alert_comment = $alert_count > 0 ? '-'.$alert_count.'-alerts' : '';
             return Response::json('saved'.$alert_comment, 201);
-        } 
+        }
         else
         {
             //die(print_r($data_array));
@@ -386,13 +386,13 @@ class MeasurementController extends Controller
         {
             $start       = $request->input('start');
             $end         = $request->input('end');
-            
+
             $tz          = $request->input('timezone', 'UTC');
             $startMoment = new Moment($start, 'UTC');
-            $startString = $startMoment->setTimezone($tz)->format($this->timeFormat); 
+            $startString = $startMoment->setTimezone($tz)->format($this->timeFormat);
             $endMoment   = new Moment($end, 'UTC');
             $endString   = $endMoment->setTimezone($tz)->format($this->timeFormat);
-            
+
             $sensors     = $request->input('sensors', $this->output_sensors);
             $where       = $device->influxWhereKeys().' AND time >= \''.$startString.'\' AND time <= \''.$endString.'\'';
 
@@ -507,7 +507,7 @@ class MeasurementController extends Controller
 
     // KPN Things SenML format is changed from 13-12-2022 onwards, see:
     // https://docs.kpnthings.com/dm/concepts/senml/upcoming-changes-in-kpn-senml
-    // so check $request_data for 'n' in first field as well 
+    // so check $request_data for 'n' in first field as well
     private function is_kpn_things_payload($data)
     {
         $dev_eui = false;
@@ -515,7 +515,7 @@ class MeasurementController extends Controller
         $port    = false;
         /*
         KPN Thing payload (2023-04-13):
-        [   
+        [
             {"bn":"urn:dev:DEVEUI:0059AC0000000000:","bt":1.76675482e9,"n":"payload","vs":"1b0c6e0c6a640a01ffcd7304000c0a0946000300020002000200010001000100010001000007000000000000"},
             {"n":"port","v":3.0},
             {"n":"timeOrigin","vs":"NETWORK"}
@@ -527,12 +527,12 @@ class MeasurementController extends Controller
             {
                 if (isset($item['bn'])) // get key (DevEUI) from "urn:dev:DEVEUI:DevEUIstring:"
                     $dev_eui = array_search('DEVEUI', explode(':', $item['bn'])) !== false ? true : false;
-                
+
                 if (isset($item['n']))
                 {
                     if ($item['n'] == 'payload' && isset($item['vs']))
                         $payload = true;
-                
+
                     if ($item['n'] == 'port' && isset($item['v']))
                         $port = true;
                 }
@@ -564,7 +564,7 @@ class MeasurementController extends Controller
     private function parse_kpnthings_payload($request_data)
     {
         $data_array = [];
-       
+
         foreach ($request_data as $item) // KPN things JSON payload is array of 4? items
         {
             if (count((array)$item) > 1) // each object has 2 items
@@ -576,7 +576,7 @@ class MeasurementController extends Controller
                     if (count($dev_eui_arr) > $dev_eui_ind+1)
                         $data_array['key'] = $dev_eui_arr[$dev_eui_ind+1];
                 }
-                
+
                 if (isset($item['n']))
                 {
                     if ($item['n'] == 'payload' && isset($item['vs']))
@@ -593,14 +593,14 @@ class MeasurementController extends Controller
 
         return $data_array;
     }
-    
+
     /*  Helium format:
 
     // datacredits: 24 bytes  = 0.00001 USD
     0.00001 USD * 96 * 365  = 0.35 USD/year for 1x/15 min BEEP payloads
     0.35 * 3 (72 bytes p/packet)
 
-    // port 3 
+    // port 3
     {
         "app_eui": "xxxxxxxxxxxxxxxx",
         "dc": {
@@ -662,7 +662,7 @@ class MeasurementController extends Controller
         if (isset($request_data['dev_eui']))
             if (Device::where('key', $request_data['dev_eui'])->count() > 0)
                 $data_array['key'] = $request_data['dev_eui'];
-        
+
         if (isset($request_data['hotspots'][0]['rssi']))
             $data_array['rssi'] = $request_data['hotspots'][0]['rssi'];
         if (isset($request_data['hotspots'][0]['snr']))
@@ -670,20 +670,20 @@ class MeasurementController extends Controller
         if (isset($request_data['hotspots'][0]['lat']))
             $data_array['lat']  = $request_data['hotspots'][0]['lat'];
         if (isset($request_data['hotspots'][0]['long']))
-            $data_array['lon']  = $request_data['hotspots'][0]['long']; 
+            $data_array['lon']  = $request_data['hotspots'][0]['long'];
 
         if (isset($request_data['port']))
-            $data_array['port'] = $request_data['port'];  
+            $data_array['port'] = $request_data['port'];
 
         if (isset($request_data['payload']))
-            $data_array['payload'] = $request_data['payload'];         
+            $data_array['payload'] = $request_data['payload'];
 
         if (isset($data_array['key']) && isset($data_array['payload']) && isset($data_array['port']))
             $data_array = array_merge($data_array, $this->decode_helium_payload($data_array));
 
         return $data_array;
     }
-    
+
     private function addDeviceMeta($device=null, $field=null, $value=null)
     {
         if ($device == null && $field == 'hardware_id' && $value !== null && env('ALLOW_DEVICE_CREATION') == 'true' && Auth::user() && Auth::user()->hasRole('sensor-data')) // no device with this key available, so create new device by hardware id
@@ -692,7 +692,7 @@ class MeasurementController extends Controller
 
             if (!isset($device) && strlen($value) == 18) // TODO: remove if TTN and app fix and DB change have been implemented
                 $device = Device::where('hardware_id', '0e'.$value)->first();
-            
+
             if ($device)
             {
                 $device->key = $key; // update device key of hardware id to prevent double hardware id's
@@ -712,7 +712,7 @@ class MeasurementController extends Controller
                 switch($field)
                 {
                     case 'hardware_id':
-                        if (isset($device->hardware_id)) 
+                        if (isset($device->hardware_id))
                             return $device;
                         else
                             $device->hardware_id = $value;
@@ -805,7 +805,7 @@ class MeasurementController extends Controller
     /**
     api/lora_sensors POST
     Store sensor measurement data (see BEEP sensor data API definition) from TTN or KPN (Simpoint)
-    When Simpoint payload is supplied, the LoRa HEX to key/value pairs decoding is done within function $this->parse_ttn_payload() 
+    When Simpoint payload is supplied, the LoRa HEX to key/value pairs decoding is done within function $this->parse_ttn_payload()
     When TTN payload is supplied, the TTN HTTP integration decoder/converter is assumed to have already converted the payload from LoRa HEX to key/value conversion
 
     @bodyParam key string required DEV EUI of the Device to enable storing sensor data
@@ -846,15 +846,15 @@ class MeasurementController extends Controller
             $payload_type = 'helium';
         }
         else if (is_array($request_data) && $this->is_kpn_things_payload($request_data))
-        {          
+        {
             $data_array = $this->parse_kpnthings_payload($request_data);
             $payload_type = 'kpn-things';
         }
-        
+
         $this->cacheRequestRate('store-lora-sensors-'.$payload_type);
-        
+
         //die(print_r([$payload_type, $data_array, 'r'=>$request_data]));
-        
+
         if (env('APP_ENV') == 'test')
         {
             $port        = isset($data_array['port']) ? '_port'.$data_array['port'] : '';
@@ -874,7 +874,7 @@ class MeasurementController extends Controller
     public function storeMeasurementData(Request $request)
     {
         $request_data = $request->input();
-        // Check for valid data 
+        // Check for valid data
         if (($request->filled('payload_fields') || $request->filled('payload_raw')) && $request->filled('hardware_serial')) // TTN HTTP POST
         {
             $data_array = $this->parse_ttn_payload($request_data);
@@ -895,13 +895,13 @@ class MeasurementController extends Controller
             $data_array = $this->parse_kpn_payload($request_data);
             $this->cacheRequestRate('store-lora-sensors-kpn');
         }
-        else if (is_array($request_data) && count($request_data) > 1 && $this->is_kpn_things_payload($request_data)) // KPN things check is now JSON order based, which is bad practice 
-        {          
+        else if (is_array($request_data) && count($request_data) > 1 && $this->is_kpn_things_payload($request_data)) // KPN things check is now JSON order based, which is bad practice
+        {
             $data_array = $this->parse_kpnthings_payload($request_data);
             $this->cacheRequestRate('store-lora-sensors-kpn-things');
         }
-        else if (is_array($request_data) && count($request_data) > 1 && isset($request_data['reported_at']) && isset($request_data['payload'])) // KPN things check is now JSON order based, which is bad practice 
-        {          
+        else if (is_array($request_data) && count($request_data) > 1 && isset($request_data['reported_at']) && isset($request_data['payload'])) // KPN things check is now JSON order based, which is bad practice
+        {
             $data_array = $this->parse_helium_payload($request_data);
             $this->cacheRequestRate('store-lora-sensors-helium');
         }
@@ -911,7 +911,7 @@ class MeasurementController extends Controller
                 $data_array = $request_data['data'];
             else
                 $data_array = $this->convertSensorStringToArray($request_data['data']);
-            
+
             $this->cacheRequestRate('store-sensors');
         }
         else // Assume post data input
@@ -919,7 +919,7 @@ class MeasurementController extends Controller
             $data_array = $request_data;
             $this->cacheRequestRate('store-sensors');
         }
-        
+
         //die(print_r($data_array));
         return $this->storeMeasurements($data_array);
     }
@@ -955,7 +955,7 @@ class MeasurementController extends Controller
         $inp = $request->all();
         $sid = isset($inp['id']) ? $inp['id'] : null;
         $key = null;
-        
+
         if (isset($inp['key']) && !isset($inp['hardware_id']) && !isset($inp['id']) )
         {
             $key = strtolower($inp['key']);
@@ -966,7 +966,7 @@ class MeasurementController extends Controller
                 $sid       = $inp['id'];
             }
         }
-        
+
         $hwi = null;
         if (isset($inp['hardware_id']))
         {
@@ -1013,7 +1013,7 @@ class MeasurementController extends Controller
                 $device = $user->allDevices()->where('hardware_id', $hwi)->first();
             else if (isset($key) && !isset($sid) && !isset($hwi))
                 $device = $user->allDevices()->where('key', $key)->first();
-            
+
             if ($device == null)
                 return Response::json(['errors'=>'device_not_found'], 400);
 
@@ -1024,26 +1024,26 @@ class MeasurementController extends Controller
 
             if ($device && ($request->filled('data') || $request->hasFile('file')))
             {
-                $sid   = $device->id; 
+                $sid   = $device->id;
                 $time  = date("YmdHis");
                 $disk  = env('FLASHLOG_STORAGE', 'public');
                 $f_dir = 'flashlog';
                 $data  = '';
-                $lines = 0; 
-                $bytes = 0; 
+                $lines = 0;
+                $bytes = 0;
                 $logtm = 0;
                 $erase = -1;
                 $mime  = ['mimetype' => 'text/plain'];
-                
+
                 if ($request->hasFile('file') && $request->file('file')->isValid())
                 {
                     $files= true;
                     $file = $request->file('file');
                     $name = "sensor_".$sid."_flash_$time.log";
-                    $f_log= Storage::disk($disk)->putFileAs($f_dir, $file, $name, $mime); 
-                    $saved= $f_log ? true : false; 
+                    $f_log= Storage::disk($disk)->putFileAs($f_dir, $file, $name, $mime);
+                    $saved= $f_log ? true : false;
                     $data = Storage::disk($disk)->get($f_dir.'/'.$name);
-                    $f_log= Storage::disk($disk)->url($f_dir.'/'.$name); 
+                    $f_log= Storage::disk($disk)->url($f_dir.'/'.$name);
                     if ($save == false) // check if file needs to be saved
                     {
                         $saved = Storage::disk($disk)->delete($f_dir.'/'.$name) ? false : true;
@@ -1057,7 +1057,7 @@ class MeasurementController extends Controller
                     {
                         $logFileName = $f_dir."/sensor_".$sid."_flash_$time.log";
                         $saved = Storage::disk($disk)->put($logFileName, $data, $mime);
-                        $f_log = Storage::disk($disk)->url($logFileName); 
+                        $f_log = Storage::disk($disk)->url($logFileName);
                     }
                 }
 
@@ -1070,8 +1070,8 @@ class MeasurementController extends Controller
                         'log_size_bytes'=> $log_bytes,
                         'log_saved'     => $saved
                     ];
-                    $flashlog = new FlashLog($f); 
-                    $result   = $flashlog->log($data, $log_bytes, $save, $fill, $show); // creates result for erasing flashlog in BEEP base apps 
+                    $flashlog = new FlashLog($f);
+                    $result   = $flashlog->log($data, $log_bytes, $save, $fill, $show); // creates result for erasing flashlog in BEEP base apps
                     $messages = $result['log_messages'];
                     $lines    = $result['lines_received'];
                     $bytes    = $result['bytes_received'];
@@ -1110,7 +1110,7 @@ class MeasurementController extends Controller
         $resolution   = null;
         $staTimestamp = new Moment(null, $timeZone);
         $endTimestamp = new Moment(null, $timeZone);
-        
+
         if ($request->filled('start') && $request->filled('end'))
         {
             $interval          = null;
@@ -1128,16 +1128,16 @@ class MeasurementController extends Controller
             else
                 $staDate = $endDate;
         }
-        
+
         // set start/end of interval
         $staIndex = $index;
         $endIndex = $index;
-        
+
         if ($relative_interval)
             $staIndex += 1;
 
         $cache_sensor_names = $index < 7 ? true : false;
-        
+
         switch($interval)
         {
             case 'year':
@@ -1196,17 +1196,17 @@ class MeasurementController extends Controller
                         break;
                 }
         }
-        
+
         // Relative
         if ($relative_interval)
         {
             $start = $staTimestamp->setTimezone('UTC')->format($this->timeFormat);
-            $end   = $endTimestamp->setTimezone('UTC')->format($this->timeFormat);   
+            $end   = $endTimestamp->setTimezone('UTC')->format($this->timeFormat);
         }
         else // absolute time intervals
         {
             $start = $staTimestamp->startOf($interval)->setTimezone('UTC')->format($this->timeFormat);
-            $end   = $endTimestamp->endOf($interval)->setTimezone('UTC')->format($this->timeFormat);    
+            $end   = $endTimestamp->endOf($interval)->setTimezone('UTC')->format($this->timeFormat);
         }
 
         return ['start'=>$start, 'end'=>$end, 'interval'=>$interval, 'relative_interval'=>$relative_interval, 'index'=>$index, 'resolution'=>$resolution, 'timeGroup'=>$timeGroup, 'timeZone'=>$timeZone, 'cacheSensorNames'=>$cache_sensor_names];
@@ -1214,17 +1214,25 @@ class MeasurementController extends Controller
 
 
     // just a copy of interal but working for multiple devices
-    private function compareinterval(Request $request, $relative_interval=false, $download=false, $min_interval_min=1)
+    private function compareinterval(Request $request, $relative_interval=false, $download=false)
     {
         $interval  = $request->input('interval','day');
         $index     = intval($request->input('index',0));
         $timeGroup = $request->input('timeGroup','day');
         $timeZone  = $request->input('timezone','UTC');
 
-        $resolution   = null;
         $staTimestamp = new Moment(null, $timeZone);
         $endTimestamp = new Moment(null, $timeZone);
-        
+
+        $resolution = null;
+        $resolutions = [];
+        $devices  = $this->get_user_device($request);
+        foreach($devices as $device){
+            array_push($resolutions, isset($device->measurement_interval_min) ? $device->measurement_interval_min : 1);
+        }
+        $maxResolution = max($resolutions);
+
+
         if ($request->filled('start') && $request->filled('end'))
         {
             $interval          = null;
@@ -1236,12 +1244,11 @@ class MeasurementController extends Controller
         else
         {
             $endDate = date('Y-m-d H:i:s');
-            $devices  = $this->get_user_device($request);
             $createds = [];
             foreach($devices as $device){
                 array_push($createds, $device->created_at);
             }
-            
+
             if ($devices) {
                 #$createds = array_column($devices, 'created_at');
                 $staDate = min($createds);
@@ -1249,16 +1256,16 @@ class MeasurementController extends Controller
             else
                 $staDate = $endDate;
         }
-        
+
         // set start/end of interval
         $staIndex = $index;
         $endIndex = $index;
-        
+
         if ($relative_interval)
             $staIndex += 1;
 
         $cache_sensor_names = $index < 7 ? true : false;
-        
+
         switch($interval)
         {
             case 'year':
@@ -1268,24 +1275,24 @@ class MeasurementController extends Controller
                 $cache_sensor_names = false;
                 break;
             case 'month':
-                $resolution = $min_interval_min > 180 ? $min_interval_min.'m' : '3h'; // 240 values
+                $resolution = $maxResolution > 180 ? $maxResolution.'m' : '3h'; // 240 values
                 $staTimestamp->subtractMonths($staIndex);
                 $endTimestamp->subtractMonths($endIndex);
                 $cache_sensor_names = false;
                 break;
             case 'week':
-                $resolution = $min_interval_min > 60 ? $min_interval_min.'m' : '1h'; // 168 values
+                $resolution = $maxResolution > 60 ? $maxResolution.'m' : '1h'; // 168 values
                 $staTimestamp->subtractWeeks($staIndex);
                 $endTimestamp->subtractWeeks($endIndex);
                 $cache_sensor_names = false;
                 break;
             case 'day':
-                $resolution = $min_interval_min > 10 ? $min_interval_min.'m' : '10m'; // 144 values
+                $resolution = $maxResolution > 10 ? $maxResolution.'m' : '10m'; // 144 values
                 $staTimestamp->subtractDays($staIndex);
                 $endTimestamp->subtractDays($endIndex);
                 break;
             case 'hour':
-                $resolution = $min_interval_min > 1 ? $min_interval_min.'m' : '1m'; // 60 values
+                $resolution = $maxResolution > 1 ? $maxResolution.'m' : '1m'; // 60 values
                 $staTimestamp->subtractHours($staIndex);
                 $endTimestamp->subtractHours($endIndex);
                 break;
@@ -1298,36 +1305,36 @@ class MeasurementController extends Controller
                 switch(true)
                 {
                     case $durationDays > 90:
-                        $resolution = $download ? ($min_interval_min > 60 ? $min_interval_min.'m' : '1h') : '1d'; // 90+ values
+                        $resolution = $download ? ($maxResolution > 60 ? $maxResolution.'m' : '1h') : '1d'; // 90+ values
                         break;
                     case $durationDays > 30:
-                        $resolution = $download ? ($min_interval_min > 30 ? $min_interval_min.'m' : '30m') : '6h'; // 90-270 values
+                        $resolution = $download ? ($maxResolution > 30 ? $maxResolution.'m' : '30m') : '6h'; // 90-270 values
                         break;
                     case $durationDays > 7:
-                        $resolution = $download ? ($min_interval_min > 10 ? $min_interval_min.'m' : '10m') : '3h'; // 84-360 values
+                        $resolution = $download ? ($maxResolution > 10 ? $maxResolution.'m' : '10m') : '3h'; // 84-360 values
                         break;
                     case $durationDays > 2:
-                        $resolution = $download ? null : ($min_interval_min > 30 ? $min_interval_min.'m' : '30m'); // 96-336 values
+                        $resolution = $download ? null : ($maxResolution > 30 ? $maxResolution.'m' : '30m'); // 96-336 values
                         break;
                     case $durationDays > 6/24: // 6 hours
-                        $resolution = $download ? null : ($min_interval_min > 10 ? $min_interval_min.'m' : '10m'); // 60-240 values
+                        $resolution = $download ? null : ($maxResolution > 10 ? $maxResolution.'m' : '10m'); // 60-240 values
                         break;
                     default:
-                        $resolution = $download ? null : ($min_interval_min > 1 ? $min_interval_min.'m' : '1m'); // 0-360 values
+                        $resolution = $download ? null : ($maxResolution > 1 ? $maxResolution.'m' : '1m'); // 0-360 values
                         break;
                 }
         }
-        
+
         // Relative
         if ($relative_interval)
         {
             $start = $staTimestamp->setTimezone('UTC')->format($this->timeFormat);
-            $end   = $endTimestamp->setTimezone('UTC')->format($this->timeFormat);   
+            $end   = $endTimestamp->setTimezone('UTC')->format($this->timeFormat);
         }
         else // absolute time intervals
         {
             $start = $staTimestamp->startOf($interval)->setTimezone('UTC')->format($this->timeFormat);
-            $end   = $endTimestamp->endOf($interval)->setTimezone('UTC')->format($this->timeFormat);    
+            $end   = $endTimestamp->endOf($interval)->setTimezone('UTC')->format($this->timeFormat);
         }
 
         return ['start'=>$start, 'end'=>$end, 'interval'=>$interval, 'relative_interval'=>$relative_interval, 'index'=>$index, 'resolution'=>$resolution, 'timeGroup'=>$timeGroup, 'timeZone'=>$timeZone, 'cacheSensorNames'=>$cache_sensor_names];
@@ -1374,7 +1381,7 @@ class MeasurementController extends Controller
             return response()->json(['errors'=>$validator->errors()]);
 
 
-        
+
         //Get the sensor
         $device  = $this->get_user_device($request);
 
@@ -1399,10 +1406,10 @@ class MeasurementController extends Controller
         }
 
         //Get the data interval
-        $min_interval_min     = isset($device->measurement_interval_min) ? $device->measurement_interval_min : 1; 
-        $relative_interval    = boolval($request->input('relative_interval', 0)); 
-        $loadWeather          = boolval($request->input('weather', 1)); 
-        $loadCleanWeight      = boolval($request->input('clean_weight', 0)); 
+        $min_interval_min     = isset($device->measurement_interval_min) ? $device->measurement_interval_min : 1;
+        $relative_interval    = boolval($request->input('relative_interval', 0));
+        $loadWeather          = boolval($request->input('weather', 1));
+        $loadCleanWeight      = boolval($request->input('clean_weight', 0));
         $intervalArr          = $this->interval($request, $relative_interval, false, $min_interval_min);
 
         $groupBySelect        = null;
@@ -1427,10 +1434,10 @@ class MeasurementController extends Controller
                 $fill              = env('INFLUX_FILL') !== null ? env('INFLUX_FILL') : 'null';
                 $groupByResolution = 'GROUP BY time('.$resolution.') fill('.$fill.')';
                 $queryList         = Device::getAvailableSensorNamesFromData($device->id, $names, $whereKeyAndTime, 'sensors', true, $cache_sensor_names);
-                
-                foreach ($queryList as $i => $name) 
+
+                foreach ($queryList as $i => $name)
                     $queryList[$i] = 'MEAN("'.$name.'") AS "'.$name.'"';
-                
+
                 $groupBySelect = implode(', ', $queryList);
 
                 //$groupBySelect .= ', SUM("weight_delta_noOutlier") AS "mean_weight_intake"';
@@ -1441,17 +1448,17 @@ class MeasurementController extends Controller
             {
                 $whereLoc = '"lat" = \''.$location->coordinate_lat.'\' AND "lon" = \''.$location->coordinate_lon.'\' AND time >= \''.$start_date.'\' AND time <= \''.$end_date.'\'';
                 $queryListWeather   = Device::getAvailableSensorNamesFromData('loc'.$location->id, $names_w, $whereLoc, 'weather', true, $cache_sensor_names);
-                
-                foreach ($queryListWeather as $i => $name) 
+
+                foreach ($queryListWeather as $i => $name)
                     $queryListWeather[$i] = 'MEAN("'.$name.'") AS "'.$name.'"';
 
                 $groupBySelectWeather = implode(', ', $queryListWeather);
             }
         }
-        
+
         $sensors_out = [];
-        
-        if ($groupBySelect != null && $groupBySelect != '') 
+
+        if ($groupBySelect != null && $groupBySelect != '')
         {
             $sensorQuery = 'SELECT '.$groupBySelect.' FROM "sensors" WHERE '.$whereKeyAndTime.' '.$groupByResolution.' '.$limit;
             $sensors_out = Device::getInfluxQuery($sensorQuery, 'data');
@@ -1462,7 +1469,7 @@ class MeasurementController extends Controller
         {
             $weatherQuery = 'SELECT '.$groupBySelectWeather.' FROM "weather" WHERE "lat" = \''.$location->coordinate_lat.'\' AND "lon" = \''.$location->coordinate_lon.'\' AND time >= \''.$start_date.'\' AND time <= \''.$end_date.'\' '.$groupByResolution.' '.$limit;
             $weather_out  = Device::getInfluxQuery($weatherQuery, 'weather');
-            
+
             if (count($sensors_out) == 0)
             {
                 $sensors_out = $weather_out;
@@ -1471,12 +1478,12 @@ class MeasurementController extends Controller
             {
                 // Add weather data to existing sensor data
                 $data_time_key_arr = [];
-                
-                foreach ($weather_out as $values) 
+
+                foreach ($weather_out as $values)
                 {
                     $time = $values['time'];
                     $data_time_key_arr[$time] = $values;
-                }                
+                }
                 // add clean_weight values to sensor time keys where the clean_weight values also exist
                 if (count($data_time_key_arr) > 0)
                 {
@@ -1502,7 +1509,7 @@ class MeasurementController extends Controller
             $alter_request["id"] = [$alter_request["id"]];
             $cleanWeight_query = $this -> cleanedWeightQuery($alter_request) ;
             $clean_weight_out = Device::getInfluxQuery($cleanWeight_query, 'data');
-            
+
             if (count($sensors_out) == 0)
             {
                 $sensors_out = $clean_weight_out;
@@ -1511,12 +1518,12 @@ class MeasurementController extends Controller
             {
                 // Add weight data to existing sensor data
                 $data_time_key_arr = [];
-                
-                foreach ($clean_weight_out as $values) 
+
+                foreach ($clean_weight_out as $values)
                 {
                     $time = $values['time'];
                     $data_time_key_arr[$time] = $values;
-                }                
+                }
                 // add clean_weight values to sensor time keys where the clean_weight values also exist
                 if (count($data_time_key_arr) > 0)
                 {
@@ -1581,18 +1588,18 @@ class MeasurementController extends Controller
             ]);
 
             #return Response::json( ['status'=>"before validation"] );
-    
+
             if ($validator->fails())
                 return response()->json(['errors'=>$validator->errors()]);
 
             #return Response::json( ['status'=>"validated"] );
-    
+
             //Get the sensors
             $devices  = $this->get_user_device($request);
             #return Response::json( ['status'=>"got devices"] );
             #return Response::json( ['devicesLength'=>sizeof($devices)] );
             #return Response::json( ['devices'=>$devices] );
-    
+
 
             if (!isset($devices))
                 return Response::json('sensor-none-error', 500);
@@ -1602,7 +1609,7 @@ class MeasurementController extends Controller
             if (count($names) == 0)
                 return Response::json('sensor-no-measurements-error', 500);
 
-            
+
             // add sensorDefinition names
             $sensorDefinitions = [];
             foreach ($names as $name)
@@ -1612,12 +1619,12 @@ class MeasurementController extends Controller
                     $sensordefinition = $device->sensorDefinitions->where('output_measurement_id', $measurement_id)->sortByDesc('updated_at')->first();
                     if ($sensordefinition)
                         $sensorDefinitions["$name"] = ['name'=>$sensordefinition->name, 'inside'=>$sensordefinition->inside];
-         
+
                 }
             }
 
             //Get the data interval
-            $relative_interval    = boolval($request->input('relative_interval', 0));  
+            $relative_interval    = boolval($request->input('relative_interval', 0));
             $intervalArr          = $this->compareinterval($request, $relative_interval, false);
 
             $groupBySelect        = null;
@@ -1651,21 +1658,22 @@ class MeasurementController extends Controller
                     #$queryList         = Device::getAvailableSensorNamesFromData($device->id, $names, $whereKeyAndTime, 'sensors', true, $cache_sensor_names);
                     $queryList = $names;
 
+                    // only calculate mean for all weight related measurements for now
+                    $queryList = array_filter($queryList, function($value) { return str_contains($value, 'weight'); });
 
-                    foreach ($queryList as $i => $name) 
+                    foreach ($queryList as $i => $name)
                         $queryList[$i] = 'MEAN("'.$name.'") AS "mean_'.$name.'", stddev("'.$name.'") AS "sd_'.$name.'"';
-                        
-                    
+
                     $groupBySelect = implode(', ', $queryList);
 
-                    #$groupBySelect .= ', SUM("weight_delta_noOutlier") AS "weight_intake"'; 
+                    #$groupBySelect .= ', SUM("weight_delta_noOutlier") AS "weight_intake"'s;
                 }
 
-                
+
             $sensors_out = [];
 
-            
-            if ($groupBySelect != null && $groupBySelect != '') 
+
+            if ($groupBySelect != null && $groupBySelect != '')
             {
                 $sensorQuery = 'SELECT '.$groupBySelect.' FROM "sensors" WHERE '.$whereKeyAndTime.' '.$groupByResolution.' '.$limit;
                 $sensors_out = Device::getInfluxQuery($sensorQuery, 'data');
@@ -1673,24 +1681,25 @@ class MeasurementController extends Controller
 
             // Add cleaned weight
 
-            
+
 
             $cleanWeight_query = $this -> cleanedWeightQuery($request) ;
+
             $cleanWeight_out = Device::getInfluxQuery($cleanWeight_query, 'data');
             if (count($cleanWeight_out) == count($sensors_out))
             {
-                foreach ($sensors_out as $key => $value) 
+                foreach ($sensors_out as $key => $value)
                 {
-                    foreach ($cleanWeight_out[$key] as $name => $value) 
+                    foreach ($cleanWeight_out[$key] as $name => $value)
                     {
                         if ($name != 'time')
                             $sensors_out[$key][$name] =  $value;
                     }
                 }
             }
-                
 
-            
+
+
             if (count($sensors_out) == 0)
                 return Response::json('sensor-no-data-error', 500);
 
@@ -1717,7 +1726,7 @@ class MeasurementController extends Controller
             'threshold' => 'nullable|integer',
             'frame'     => 'nullable|integer',
         ]);
-   
+
         #return Response::json( ['status'=>"before validation"] );
 
         if ($validator->fails())
@@ -1739,18 +1748,18 @@ class MeasurementController extends Controller
 
         //Get the sensors
         $devices  = $this->get_user_device($request);
-        
+
 
         if (!isset($devices))
             return Response::json('sensor-none-error', 500);
 
-        
+
         $names         = $request->input('names', $this->output_sensors);
 
         if (count($names) == 0)
             return Response::json('sensor-no-measurements-error', 500);
 
-        
+
         // add sensorDefinition names
         $sensorDefinitions = [];
         foreach ($names as $name)
@@ -1760,12 +1769,12 @@ class MeasurementController extends Controller
                 $sensordefinition = $device->sensorDefinitions->where('output_measurement_id', $measurement_id)->sortByDesc('updated_at')->first();
                 if ($sensordefinition)
                     $sensorDefinitions["$name"] = ['name'=>$sensordefinition->name, 'inside'=>$sensordefinition->inside];
-     
+
             }
         }
 
         //Get the data interval
-        $relative_interval    = boolval($request->input('relative_interval', 0));  
+        $relative_interval    = boolval($request->input('relative_interval', 0));
         $intervalArr          = $this->compareinterval($request, $relative_interval, false);
 
         $groupBySelect        = null;
@@ -1799,7 +1808,7 @@ class MeasurementController extends Controller
                 $fill              = env('INFLUX_FILL') !== null ? env('INFLUX_FILL') : 'null';
                 $groupByResolution = 'GROUP BY time('.$resolution.') fill('.$fill.')';
                 $groupByKeyResolution = 'GROUP BY "key",time('.$resolution.') fill('.$fill.')';
-                $groupBySelectOuter = 'cumulative_sum(sum(weight_delta)) as net_weight_kg'; 
+                $groupBySelectOuter = 'cumulative_sum(sum(weight_delta)) as net_weight_kg';
             }
 
 
@@ -1810,12 +1819,12 @@ class MeasurementController extends Controller
         }else{
             $sensorQuery = 'SELECT mean(net_weight_kg) as net_weight_kg FROM ('.$sensorQuery.') WHERE '.$whereTime.' '.$groupByResolution.' '.$limit; // this is necessary to fill with null values when data is missing
         }
-        
-   
+
+
         }
-        
-        
+
+
         return $sensorQuery;
     }
-    
+
 }

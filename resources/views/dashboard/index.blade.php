@@ -18,7 +18,7 @@
 			<div class="small-box bg-green">
 				<div class="inner">
 					<h3>{{ $data['store-measurements-total'] }} / {{ $data['store-measurements-201'] }}</h3>
-					<p>Data storage req Total / OK (201) req/min<br>TTNv3:{{ $data['store-lora-sensors-ttn-v3'] }} KPN:{{ $data['store-lora-sensors-kpn'] }} KPN-T:{{ $data['store-lora-sensors-kpn-things'] }} Helium:{{ $data['store-lora-sensors-helium'] }} ?:{{ $data['store-lora-sensors-'] }} API:{{ $data['store-sensors'] }}</p>
+					<p>Data storage req Total / OK (201) req/min<br>TTNv3:{{ $data['store-lora-sensors-ttn-v3'] }} KPN:{{ $data['store-lora-sensors-kpn'] }} KPN-T:{{ $data['store-lora-sensors-kpn-things'] }} Helium:{{ $data['store-lora-sensors-helium'] }} Swisscom: {{ $data['store-lora-sensors-swisscom'] }}   ?:{{ $data['store-lora-sensors-'] }} API:{{ $data['store-sensors'] }}</p>
 				</div>
 				<div class="icon">
 					<i class="fa fa-database"></i>

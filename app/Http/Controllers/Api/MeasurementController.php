@@ -683,6 +683,31 @@ class MeasurementController extends Controller
 
         return $data_array;
     }
+
+    private function parse_swisscom_payload($request_data)
+    {
+        $data_array = [];
+
+        if (isset($request_data['data']['DevEUI']))
+            if (Device::where('key', $request_data['data']['DevEUI'])->count() > 0)
+                $data_array['key'] = $request_data['data']['DevEUI'];
+
+        if (isset($request_data['uplinkMetrics']['rssi']))
+                $data_array['rssi'] = $request_data['uplinkMetrics']['rssi'];
+        if (isset($request_data['uplinkMetrics']['snr']))
+                $data_array['snr']  = $request_data['uplinkMetrics']['snr'];
+
+        if (isset($request_data['data']['FPort']))
+            $data_array['port'] = $request_data['data']['FPort'];  
+
+        if (isset($request_data['data']['payload_hex']))
+            $data_array['payload'] = $request_data['data']['payload_hex'];         
+
+        if (isset($data_array['key']) && isset($data_array['payload']) && isset($data_array['port']))
+            $data_array = array_merge($data_array, $this->decode_swisscom_payload($data_array));
+
+        return $data_array;
+    }
     
     private function addDeviceMeta($device=null, $field=null, $value=null)
     {
@@ -845,6 +870,11 @@ class MeasurementController extends Controller
             $data_array = $this->parse_helium_payload($request_data);
             $payload_type = 'helium';
         }
+        else if ($request->filled('rawData') && $request->filled('uplinkMetrics')) // Swisscom HTTPS POST
+        {
+            $data_array = $this->parse_swisscom_payload($request_data);
+            $payload_type = 'swisscom';
+        }
         else if (is_array($request_data) && $this->is_kpn_things_payload($request_data))
         {          
             $data_array = $this->parse_kpnthings_payload($request_data);
@@ -904,6 +934,11 @@ class MeasurementController extends Controller
         {          
             $data_array = $this->parse_helium_payload($request_data);
             $this->cacheRequestRate('store-lora-sensors-helium');
+        }
+        else if (is_array($request_data) && count($request_data) > 1 && isset($request_data['rawData']) && isset($request_data['uplinkMetrics'])) 
+        {          
+            $data_array = $this->parse_swisscom_payload($request_data);
+            $this->cacheRequestRate('store-lora-sensors-swisscom');
         }
         else if ($request->filled('data')) // Check for sensor string (colon and pipe devided) fw v1-3
         {

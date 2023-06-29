@@ -1649,25 +1649,42 @@ class MeasurementController extends Controller
 
             $whereKeyAndTime      = $wherekeys.' AND time >= \''.$start_date.'\' AND time <= \''.$end_date.'\'';
 
+
             if($resolution != null)
             {
                 if ($devices)
                 {
                     $fill              = env('INFLUX_FILL') !== null ? env('INFLUX_FILL') : 'null';
                     $groupByResolution = 'GROUP BY time('.$resolution.') fill('.$fill.')';
+                    $groupByResolutionLinear = 'GROUP BY time('.$resolution.') fill(linear)';
                     #$queryList         = Device::getAvailableSensorNamesFromData($device->id, $names, $whereKeyAndTime, 'sensors', true, $cache_sensor_names);
-                    $queryList = $names;
 
                     // only calculate mean for all weight related measurements for now
-                    $queryList = array_filter($queryList, function($value) { return str_contains($value, 'weight'); });
+                    $queryList = array_filter($names, function($value) { return str_contains($value, 'weight') && !str_contains($value, 'mean'); });
 
-                    foreach ($queryList as $i => $name)
-                        $queryList[$i] = 'MEAN("'.$name.'") AS "mean_'.$name.'", stddev("'.$name.'") AS "sd_'.$name.'"';
+                    foreach ($queryList as $i => $name) {
+                        $deviceQueryArray = [];
+                        foreach ($devices as $j => $device) {
+                        $deviceQueryArray[$j] = '(SELECT MEAN('.$name.') as linear_'.$name.' FROM "sensors" WHERE '.$device->influxWhereKeys().' AND time >= \''.$start_date.'\' AND time <= \''.$end_date.'\' '.$groupByResolutionLinear.' '.$limit.')';
+                    //  $test_q2 = Device::getInfluxQuery($deviceQueryArray[$j], 'data');
+                    //  print_r($deviceQueryArray[$j].'\n');
+                    //  print_r($test_q2);
+                    }
+                        $deviceQueryList = implode(', ', $deviceQueryArray);
+
+                        $queryList[$i] = '(SELECT MEAN(linear_'.$name.') AS mean_'.$name.', stddev(linear_'.$name.') AS sd_'.$name.' FROM ( SELECT * FROM '.$deviceQueryList.')' .$groupByResolution.')';
+
+                        // $test_q1 = Device::getInfluxQuery($queryList[$i], 'data');
+                        // print_r($queryList[$i].'\n');
+                        // print_r($test_q1);
+                    }
 
                     $groupBySelect = implode(', ', $queryList);
 
-                    #$groupBySelect .= ', SUM("weight_delta_noOutlier") AS "weight_intake"'s;
+                    #$groupBySelect .= ', SUM("weight_delta_noOutlier") AS "weight_intake"';
                 }
+
+                // die();
 
 
             $sensors_out = [];
@@ -1675,16 +1692,15 @@ class MeasurementController extends Controller
 
             if ($groupBySelect != null && $groupBySelect != '')
             {
-                $sensorQuery = 'SELECT '.$groupBySelect.' FROM "sensors" WHERE '.$whereKeyAndTime.' '.$groupByResolution.' '.$limit;
+                $sensorQuery = 'SELECT * FROM '.$groupBySelect;
+                //dd($sensorQuery);
                 $sensors_out = Device::getInfluxQuery($sensorQuery, 'data');
+                //dd($sensors_out);
             }
 
             // Add cleaned weight
-
-
-
             $cleanWeight_query = $this -> cleanedWeightQuery($request) ;
-
+            // dd($cleanWeight_query);
             $cleanWeight_out = Device::getInfluxQuery($cleanWeight_query, 'data');
             if (count($cleanWeight_out) == count($sensors_out))
             {

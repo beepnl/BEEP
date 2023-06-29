@@ -679,9 +679,9 @@ class Device extends Model
             $difference = round(abs(strtotime($nex) - strtotime($inter)) / 60);
             $transRes = $this->translateResolutionToMinutes($resolution);
             $useRes = $resolution;
-            // if(!is_null($transRes) & (($difference - 2*60*$inspectionFrame)< $transRes)){
-            //     $useRes = $this -> mapToSmallerResolution($resolution);
-            // }
+            if(!is_null($transRes) & (($difference - 2*60*$inspectionFrame)< $transRes)){
+                $useRes = $this -> mapToSmallerResolution($resolution);
+            }
             // add period tuple
             if($i <= $length-1){
                 $periodTuples[$i+1] = ['\''.$inter.'\' + '.$inspectionFrame.'h + '.$useRes, '\''.$nex.'\' - '.$inspectionFrame.'h', $useRes];
@@ -716,7 +716,7 @@ class Device extends Model
             $periodQueries = [];
             foreach($periodTuples as $i => $tuple){
                  $periodQueries[$i] = '(SELECT derivative(mean(weight_kg), '.$tuple[2].') as weight_delta FROM "sensors" WHERE '.$wherekeys.
-                ' AND time >= '.$tuple[0].' AND time <= '.$tuple[1].' group by time('.$tuple[2].') '.$limit.')';
+                ' AND time >= '.$tuple[0].' AND time <= '.$tuple[1].' group by time('.$tuple[2].') fill(linear) '.$limit.')';
             }
                $allQueries = array_merge($periodQueries, $inspectionQueries);
             $innerQuery = implode(', ', $allQueries);

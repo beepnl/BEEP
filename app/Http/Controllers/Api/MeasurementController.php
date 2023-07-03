@@ -1450,7 +1450,7 @@ class MeasurementController extends Controller
         $groupBySelect        = null;
         $groupBySelectWeather = null;
         $groupByResolution    = '';
-        $limit                = 'LIMIT '.$this->maxDataPoints;
+        $limit                = $this->maxDataPoints;
         $relative_interval    = $intervalArr['relative_interval'];
         $resolution           = $intervalArr['resolution'];
         $cache_sensor_names   = $intervalArr['cacheSensorNames'];
@@ -1495,14 +1495,14 @@ class MeasurementController extends Controller
 
         if ($groupBySelect != null && $groupBySelect != '')
         {
-            $sensorQuery = 'SELECT '.$groupBySelect.' FROM "sensors" WHERE '.$whereKeyAndTime.' '.$groupByResolution.' '.$limit;
+            $sensorQuery = 'SELECT '.$groupBySelect.' FROM "sensors" WHERE '.$whereKeyAndTime.' '.$groupByResolution.' LIMIT '.$limit;
             $sensors_out = Device::getInfluxQuery($sensorQuery, 'data');
         }
 
         // Add weather data
         if ($loadWeather && $groupBySelectWeather != null && $location && isset($location->coordinate_lat) && isset($location->coordinate_lon))
         {
-            $weatherQuery = 'SELECT '.$groupBySelectWeather.' FROM "weather" WHERE "lat" = \''.$location->coordinate_lat.'\' AND "lon" = \''.$location->coordinate_lon.'\' AND time >= \''.$start_date.'\' AND time <= \''.$end_date.'\' '.$groupByResolution.' '.$limit;
+            $weatherQuery = 'SELECT '.$groupBySelectWeather.' FROM "weather" WHERE "lat" = \''.$location->coordinate_lat.'\' AND "lon" = \''.$location->coordinate_lon.'\' AND time >= \''.$start_date.'\' AND time <= \''.$end_date.'\' '.$groupByResolution.' LIMIT '.$limit;
             $weather_out  = Device::getInfluxQuery($weatherQuery, 'weather');
 
             if (count($sensors_out) == 0)
@@ -1665,7 +1665,7 @@ class MeasurementController extends Controller
             $groupBySelect        = null;
             $groupBySelectWeather = null;
             $groupByResolution    = '';
-            $limit                = 'LIMIT '.$this->maxDataPoints;
+            $limit                = $this->maxDataPoints;
             $relative_interval    = $intervalArr['relative_interval'];
             $resolution           = $intervalArr['resolution'];
             $cache_sensor_names   = $intervalArr['cacheSensorNames'];
@@ -1700,7 +1700,7 @@ class MeasurementController extends Controller
                     foreach ($queryList as $i => $name) {
                         $deviceQueryArray = [];
                         foreach ($devices as $j => $device) {
-                        $deviceQueryArray[$j] = '(SELECT MEAN('.$name.') as linear_'.$name.' FROM "sensors" WHERE '.$device->influxWhereKeys().' AND time >= \''.$start_date.'\' AND time <= \''.$end_date.'\' '.$groupByResolutionLinear.' '.$limit.')';
+                        $deviceQueryArray[$j] = '(SELECT MEAN('.$name.') as linear_'.$name.' FROM "sensors" WHERE '.$device->influxWhereKeys().' AND time >= \''.$start_date.'\' AND time <= \''.$end_date.'\' '.$groupByResolutionLinear.' LIMIT '.$limit.')';
                     //  $test_q2 = Device::getInfluxQuery($deviceQueryArray[$j], 'data');
                     //  print_r($deviceQueryArray[$j].'\n');
                     //  print_r($test_q2);
@@ -1831,7 +1831,7 @@ class MeasurementController extends Controller
         $groupBySelect        = null;
         $groupBySelectWeather = null;
         $groupByResolution    = '';
-        $limit                = 'LIMIT '.$this->maxDataPoints;
+        $limit                = $this->maxDataPoints;
         $relative_interval    = $intervalArr['relative_interval'];
         $resolution           = $intervalArr['resolution'];
         $cache_sensor_names   = $intervalArr['cacheSensorNames'];
@@ -1863,12 +1863,12 @@ class MeasurementController extends Controller
             }
 
 
-        $sensorQuery = 'SELECT '.$groupBySelectOuter.' FROM '.$innerQuery.' WHERE '.$whereTime.' '.$groupByKeyResolution.' '.$limit;
+        $sensorQuery = 'SELECT '.$groupBySelectOuter.' FROM '.$innerQuery.' WHERE '.$whereTime.' '.$groupByKeyResolution.' LIMIT '.$limit;
 
         if(count($innerQueries)>1){
-            $sensorQuery = 'SELECT mean(net_weight_kg) as mean_net_weight_kg, stddev(net_weight_kg) as sd_net_weight_kg FROM ('.$sensorQuery.') WHERE '.$whereTime.' '.$groupByResolution.' '.$limit;
+            $sensorQuery = 'SELECT mean(net_weight_kg) as mean_net_weight_kg, stddev(net_weight_kg) as sd_net_weight_kg FROM ('.$sensorQuery.') WHERE '.$whereTime.' '.$groupByResolution.' LIMIT '.$limit;
         }else{
-            $sensorQuery = 'SELECT mean(net_weight_kg) as net_weight_kg FROM ('.$sensorQuery.') WHERE '.$whereTime.' '.$groupByResolution.' '.$limit; // this is necessary to fill with null values when data is missing
+            $sensorQuery = 'SELECT mean(net_weight_kg) as net_weight_kg FROM ('.$sensorQuery.') WHERE '.$whereTime.' '.$groupByResolution.' LIMIT '.$limit; // this is necessary to fill with null values when data is missing
         }
 
 

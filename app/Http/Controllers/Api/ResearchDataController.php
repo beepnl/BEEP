@@ -314,7 +314,7 @@ class ResearchDataController extends Controller
     @bodyParam date_until datetime The date in 'YYYY-MM-DD HH:mm:ss' format (2020-09-29 23:59:59) to request data until (default is until the end of the user consent, or research end). Example: 2020-09-29 23:59:59
     @bodyParam interval string Specifies the optional measurement (InfluxDB GROUPBY) time interval (*(all values)/1m/5m/30m/1h/1d/1w/30d/365d) m (minutes), h (hours), d (days), w (weeks). Default: 1d. Example: 5m 
     @bodyParam limit integer Specifies the maximum number of measurements per location_research (InfluxDB LIMIT), Max: 5000. Default: 5000. Example: 10 
-    @bodyParam calculation string Specifies the optional (InfluxDB) calculation (NONE/FIRST/LAST/MEAN/MEDIAN/MIN/MAX/SUM/COUNT/SPREAD/STDDEV/DERIVATIVE/PERCENTILE/BOXPLOT/PEAKS/WEEKMAP/CLEANWEIGHT) for use with time interval. Default: NONE. Example: MEAN 
+    @bodyParam calculation string Specifies the optional (InfluxDB) calculation (NONE/FIRST/LAST/MEAN/MEDIAN/MIN/MAX/SUM/COUNT/SPREAD/STDDEV/DERIVATIVE/PERCENTILE/BOXPLOT/PEAKS/WEEKMAP/NETWEIGHT) for use with time interval. Default: NONE. Example: MEAN 
     @bodyParam calculation_prop string Specifies the optional (InfluxDB) calculation property for i.e. PERCENTILE/DERIVATIVE/etc). Default: null. Example: DERIVATIVE
     @bodyParam decimals integer Specifies the optional maximum amount of decimals that the (InfluxDB) calculation returns. Default: 2. Example: 1 
     @bodyParam device_id integer The device_id to filter the measurements on (next to date_start and date_until). Example: 1
@@ -488,7 +488,7 @@ class ResearchDataController extends Controller
             'measurements'          => 'nullable|string',
             'decimals'              => 'nullable|integer',
             'interval'              => ['nullable', Rule::in(['*','1m','5m','15m','30m','1h','3h','6h','12h','1d','1w','30d','365d','hour','day','week','month','year','research','live'])],
-            'calculation'           => ['nullable', Rule::in(['NONE','FIRST','LAST','MEAN','MEDIAN','MIN','MAX','SUM','COUNT','SPREAD','STDDEV','DERIVATIVE','PERCENTILE','BOXPLOT','PEAKS','WEEKMAP','CLEANWEIGHT'])],
+            'calculation'           => ['nullable', Rule::in(['NONE','FIRST','LAST','MEAN','MEDIAN','MIN','MAX','SUM','COUNT','SPREAD','STDDEV','DERIVATIVE','PERCENTILE','BOXPLOT','PEAKS','WEEKMAP','NETWEIGHT'])],
             'calculation_prop'      => 'nullable|string',
             'limit'                 => 'nullable|integer|min:1|max:'.$this->influx_limit,
             'precision'             => ['nullable', Rule::in(['rfc3339','h','m','s','ms','u'])],
@@ -714,7 +714,7 @@ class ResearchDataController extends Controller
     @bodyParam year_months string Comma separated string of YYYY-MM strings to filter ONLY measurment data. Example: 2020-01,2021-02
     @bodyParam interval string Specifies the optional measurement (InfluxDB GROUPBY) time interval (*(all values)/1m/5m/30m/1h/1d/1w/30d/365d) m (minutes), h (hours), d (days), w (weeks). Default: 1d. Example: 5m 
     @bodyParam limit integer Specifies the maximum number of measurements per location_research (InfluxDB LIMIT), Max: 5000. Default: 5000. Example: 500 
-    @bodyParam calculation string Specifies the optional (InfluxDB) calculation (NONE/FIRST/LAST/MEAN/MEDIAN/MIN/MAX/SUM/COUNT/SPREAD/STDDEV/DERIVATIVE/PERCENTILE/BOXPLOT/PEAKS/WEEKMAP/CLEANWEIGHT) for use with time interval. Default: MEAN. Example: MAX 
+    @bodyParam calculation string Specifies the optional (InfluxDB) calculation (NONE/FIRST/LAST/MEAN/MEDIAN/MIN/MAX/SUM/COUNT/SPREAD/STDDEV/DERIVATIVE/PERCENTILE/BOXPLOT/PEAKS/WEEKMAP/NETWEIGHT) for use with time interval. Default: MEAN. Example: MAX 
     @bodyParam calculation_prop string Specifies the optional (InfluxDB) calculation property for i.e. PERCENTILE/DERIVATIVE/etc). Default: null. Example: 5 
     @bodyParam decimals integer Specifies the optional maximum amount of decimals that the (InfluxDB) calculation returns. Default: 2. Example: 1 
     @bodyParam device_id integer The device_id to filter measurements on (next to date_start and date_until). Example: 1
@@ -743,7 +743,7 @@ class ResearchDataController extends Controller
             'measurements'          => 'nullable|string',
             'decimals'              => 'nullable|integer',
             'interval'              => ['nullable', Rule::in(['*','1m','5m','15m','30m','1h','3h','6h','12h','1d','1w','30d','365d','hour','day','week','month','year','research','live'])],
-            'calculation'           => ['nullable', Rule::in(['NONE','FIRST','LAST','MEAN','MEDIAN','MIN','MAX','SUM','COUNT','SPREAD','STDDEV','DERIVATIVE','PERCENTILE','BOXPLOT','PEAKS','WEEKMAP','CLEANWEIGHT'])],
+            'calculation'           => ['nullable', Rule::in(['NONE','FIRST','LAST','MEAN','MEDIAN','MIN','MAX','SUM','COUNT','SPREAD','STDDEV','DERIVATIVE','PERCENTILE','BOXPLOT','PEAKS','WEEKMAP','NETWEIGHT'])],
             'calculation_prop'      => 'nullable|string',
             'limit'                 => 'nullable|integer|min:1|max:'.$this->influx_limit,
             'precision'             => ['nullable', Rule::in(['rfc3339','h','m','s','ms','u'])],
@@ -1438,7 +1438,7 @@ class ResearchDataController extends Controller
         
         // Create query
         $queryList = [];
-        if ($database != 'weather' && $calculation != 'CLEANWEIGHT')
+        if ($database != 'weather' && $calculation != 'NETWEIGHT')
         {
             $queryList = Device::getAvailableSensorNamesNoCache($names, $where, $database); // ($names, $where, $table='sensors', $output_sensors_only=true, $cache_name='names-nocache')
         }
@@ -1467,10 +1467,15 @@ class ResearchDataController extends Controller
             $groupByResolution = 'ORDER BY time ASC';
         }
         
-        if ($calculation == 'CLEANWEIGHT' && $device && $start_date && $end_date && $timeZone)
+        if ($calculation == 'NETWEIGHT' && $device && $start_date && $end_date && $timeZone)
+        {
             $query = $device->getCleanedWeightQuery($interval, $start_date, $end_date, $limit, 0.75, 2, $timeZone);
+            //dd($query);
+        }
         else
+        {
             $query = 'SELECT '.$groupBySelect.' FROM "'.$database.'" WHERE '.$where.' '.$groupByResolution.' LIMIT '.$limit;
+        }
         
         //dd($query);
 

@@ -600,12 +600,12 @@ class Device extends Model
     {
         $fill                 = env('INFLUX_FILL') !== null ? env('INFLUX_FILL') : 'null';
         $whereTime            = 'time >= \''.$start_date.'\' AND time <= \''.$end_date.'\'';
-        $groupByResolution    = 'GROUP BY time('.$resolution.') fill('.$fill.')';
-        $groupByKeyResolution = 'GROUP BY "key",time('.$resolution.') fill('.$fill.')';
-        $groupBySelectOuter   = 'cumulative_sum(sum(weight_delta)) as net_weight_kg';
+        $groupByResolution    = 'GROUP BY time('.$resolution.') FILL('.$fill.')';
+        $groupByKeyResolution = 'GROUP BY "key",time('.$resolution.') FILL('.$fill.')';
+        $groupBySelectOuter   = 'CUMULATIVE_SUM(SUM(weight_delta)) as net_weight_kg';
         $innerQuery           = $this->getInnerCleanQuery($resolution, $start_date, $end_date, $limit, $threshold, $frame, $timeZone);
-        $sensorQuery          = 'SELECT '.$groupBySelectOuter.' FROM '.$innerQuery.' WHERE '.$whereTime.' '.$groupByKeyResolution.' '.$limit;
-        $cleanedWeightQuery   = 'SELECT mean(net_weight_kg) as net_weight_kg FROM ('.$sensorQuery.') WHERE '.$whereTime.' '.$groupByResolution.' '.$limit; // this is necessary to fill with null values when data is missing
+        $sensorQuery          = 'SELECT '.$groupBySelectOuter.' FROM '.$innerQuery.' WHERE '.$whereTime.' '.$groupByKeyResolution.' LIMIT '.$limit;
+        $cleanedWeightQuery   = 'SELECT mean(net_weight_kg) as net_weight_kg FROM ('.$sensorQuery.') WHERE '.$whereTime.' '.$groupByResolution.' LIMIT '.$limit; // this is necessary to fill with null values when data is missing
         return $cleanedWeightQuery;
     }
 
@@ -698,8 +698,8 @@ class Device extends Model
             $groupByResolution = 'GROUP BY time('.$resolution.') fill('.$fill.')';
             $groupInspection = 'GROUP BY time(15m)';
 
-            $groupBySelectOuter = 'cumulative_sum(sum(weight_delta)) as weight_kg_noOutlier';
-            $groupBySelectInnerInspection = 'derivative(mean(weight_kg), 15m) as weight_delta';
+            $groupBySelectOuter = 'CUMULATIVE_SUM(SUM(weight_delta)) as weight_kg_noOutlier';
+            $groupBySelectInnerInspection = 'DERIVATIVE(MEAN(weight_kg), 15m) as weight_delta';
             #$groupBySelectInnerPeriod = 'derivative(mean(weight_kg), '.$resolution.') as weight_delta';
         }
 
@@ -711,12 +711,12 @@ class Device extends Model
             $inspectionQueries = [];
             foreach($inspectionTuples as $i => $tuple){
                 $inspectionQueries[$i] = '(SELECT * FROM ( SELECT '.$groupBySelectInnerInspection.' FROM "sensors" WHERE '.$wherekeys.
-                ' AND time >= '.$tuple[0].' AND time <= '.$tuple[1].' '.$groupInspection.' fill(linear) '.$limit.') WHERE '.$whereTreshold.')';
+                ' AND time >= '.$tuple[0].' AND time <= '.$tuple[1].' '.$groupInspection.' FILL(linear) LIMIT '.$limit.') WHERE '.$whereTreshold.')';
             }
             $periodQueries = [];
             foreach($periodTuples as $i => $tuple){
-                 $periodQueries[$i] = '(SELECT derivative(mean(weight_kg), '.$tuple[2].') as weight_delta FROM "sensors" WHERE '.$wherekeys.
-                ' AND time >= '.$tuple[0].' AND time <= '.$tuple[1].' group by time('.$tuple[2].') fill(linear) '.$limit.')';
+                 $periodQueries[$i] = '(SELECT DERIVATIVE(MEAN(weight_kg), '.$tuple[2].') as weight_delta FROM "sensors" WHERE '.$wherekeys.
+                ' AND time >= '.$tuple[0].' AND time <= '.$tuple[1].' GROUP BY time('.$tuple[2].') FILL(linear) LIMIT '.$limit.')';
             }
                $allQueries = array_merge($periodQueries, $inspectionQueries);
             $innerQuery = implode(', ', $allQueries);

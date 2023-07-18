@@ -1485,7 +1485,7 @@ class MeasurementController extends Controller
                     }
                 }
             }
-            #return Response::json(['sensor_query' => $sensorQuery, 'cleanWeight_query' => $cleanWeight_query, 'cleanWeight_out'=> count($cleanWeight_out), 'sensors_out' => count($sensors_out)]);
+            #return Response::json(['sensor_query' => $sensorQuery, 'cleanWeight_query' => $cleanWeight_query, 'cleanWeight_out'=> count($cleanWeight_out), 'sensors_out' => count($sensors_out), 'measurements'=>$cleanWeight_out, 'measurements2'=>$sensors_out]);
         }
 
 
@@ -1809,6 +1809,130 @@ class MeasurementController extends Controller
 
     }
 
+    private function getDeviations(Device $device, $resolution, $start_date, $end_date, $limit, $threshold, $frame, $timeZone){
+
+            
+            $wherekeys=$device->influxWhereKeys();
+            
+
+            $whereTreshold = 'weight_delta > '.$threshold.' OR weight_delta <'.-1*$threshold;
+
+         
+            $inspections = $device -> hive -> getAllInspectionDates();
+
+            sort($inspections);
+        
+            // choose inspections in time frame only and convert to utc
+            $filteredInspections = [];
+            foreach($inspections as $inspection){
+                $inspection_stamp = new Moment($inspection, $timeZone);
+                $inspection_utc = $inspection_stamp->setTimezone('UTC')->format($this->timeFormat);
+                if($inspection_utc >= $start_date & $inspection_utc <= $end_date){
+                    array_push($filteredInspections, $inspection_utc);
+                }
+            }      
+            $inspections = $filteredInspections;
+            #return Response::json( ['status'=>$inspections] );
+            
+            // array for time frames shortly before and after inspections
+            $inspectionTuples = [];
+            // array for other time frames
+            $periodTuples = [];
+
+            $inspectionFrame = $frame;
+
+            // create first tuple / or the only tuple needed
+            if(count($inspections) != 0){
+                $periodTuples[0] = ['\''.$start_date.'\'', '\''.$inspections[0].'\''.' - '.$inspectionFrame.'h', $resolution];
+            }else{
+                $periodTuples[0] = ['\''.$start_date.'\'', '\''.$end_date.'\'', $resolution];
+            }
+
+            // create all tuples
+            $length = count($inspections);
+            $i = 0;
+            while($i <= $length-1){
+                $cur = current($inspections);
+                if(($i != $length-1)){
+                    $nex = next($inspections);
+                }else{
+                    $nex = $end_date;
+                }
+                $i++;
+
+                // check if two or more inspection time frames should be merged into one. update $nex in that case
+                $inter = $cur;
+                while(($i <= $length-1) && ((strtotime($nex) - strtotime($inter))/(60*60)<= 2*$inspectionFrame )){
+                    $inter = $nex;
+                    if(($i != $length-1)){
+                        $nex = next($inspections);
+                    } else{
+                        $nex = $end_date;
+                    }
+                    $i++;
+                }
+                // add inspection tuple
+                $inspectionTuples[$i] = ['\''.$cur.'\' - '.$inspectionFrame.'h', '\''.$inter.'\' + '.$inspectionFrame.'h'];
+                // calculate resolution/ offset needed for period tuple
+                // therefore check if period time frame would be smaller than the resolution
+                // in that case, the resolution should be smaller than the one used for the outer query
+                // $difference = round(abs(strtotime($nex) - strtotime($inter)) / 60);
+                // $transRes = $this->translateResolutionToMinutes($resolution);
+                // $useRes = $resolution;
+                // if(!is_null($transRes) & (($difference - 2*60*$inspectionFrame)< $transRes)){
+                //     $useRes = $this -> mapToSmallerResolution($resolution);
+                // }
+                // // add period tuple
+                // if($i <= $length-1){                 
+                //     $periodTuples[$i+1] = ['\''.$inter.'\' + '.$inspectionFrame.'h + '.$useRes, '\''.$nex.'\' - '.$inspectionFrame.'h', $useRes];
+                // }else{
+                //     $periodTuples[$i+1] = ['\''.$inter.'\' + '.$inspectionFrame.'h + '.$useRes, '\''.$end_date.'\'', $useRes];
+                // }
+            }
+
+          
+            $whereKeyAndTime      = $wherekeys.' AND time >= \''.$start_date.'\' AND time <= \''.$end_date.'\'';
+            
+                
+            
+            
+            if($resolution != null)
+            {
+                if ($device)
+                {
+                    $fill              = env('INFLUX_FILL') !== null ? env('INFLUX_FILL') : 'null';
+                    $groupByResolution = 'GROUP BY time('.$resolution.') fill('.$fill.')';
+                    $groupInspection = 'GROUP BY time(15m)';
+                    
+                    $groupBySelectOuter = 'cumulative_sum(sum(weight_delta)) as weight_kg_noOutlier'; 
+                    $groupBySelectInnerInspection = 'derivative(mean(weight_kg), 15m) as weight_delta';
+                    #$groupBySelectInnerPeriod = 'derivative(mean(weight_kg), '.$resolution.') as weight_delta';
+                }
+
+                
+            $sensors_out = [];
+
+            
+            if ($groupBySelectOuter != null && $groupBySelectOuter != '') 
+            {   
+                $inspectionQueries = [];
+                foreach($inspectionTuples as $i => $tuple){
+                    $inspectionQueries[$i] = '(SELECT * FROM ( SELECT '.$groupBySelectInnerInspection.' FROM "sensors" WHERE '.$wherekeys.
+                    ' AND time >= '.$tuple[0].' AND time <= '.$tuple[1].' '.$groupInspection.' fill(linear) '.$limit.') WHERE '.$whereTreshold.')';
+                }
+                // $periodQueries = [];
+                // foreach($periodTuples as $i => $tuple){
+                //      $periodQueries[$i] = '(SELECT derivative(mean(weight_kg), '.$tuple[2].') as weight_delta FROM "sensors" WHERE '.$wherekeys.
+                //     ' AND time >= '.$tuple[0].' AND time <= '.$tuple[1].' group by time('.$tuple[2].') '.$limit.')';
+                // }
+                 //  $allQueries = array_merge($periodQueries, $inspectionQueries);
+                $innerQuery = implode(', ', $inspectionQueries);
+            }
+        }
+            return $innerQuery;
+
+    }
+
 
  /**
         api/sensors/comparemeasurements GET
@@ -1869,7 +1993,7 @@ class MeasurementController extends Controller
 
             //Get the sensors
             $devices  = $this->get_user_device($request);
-            
+                       
 
             if (!isset($devices))
                 return Response::json('sensor-none-error', 500);
@@ -1916,7 +2040,7 @@ class MeasurementController extends Controller
 
             $innerQueries = [];
              foreach($devices as $i => $device){
-                $innerQueries[$i] = $this->getInnerCleanQueryByDevice($device, $resolution, $start_date, $end_date, $limit, $threshold, $frame, $timeZone);
+                $innerQueries[$i] = $this->getDeviations($device, $resolution, $start_date, $end_date, $limit, $threshold, $frame, $timeZone);
              }
 
             $innerQuery = implode(', ', $innerQueries);
@@ -1928,18 +2052,23 @@ class MeasurementController extends Controller
                 {
                     $fill              = env('INFLUX_FILL') !== null ? env('INFLUX_FILL') : 'null';
                     $groupByResolution = 'GROUP BY time('.$resolution.') fill('.$fill.')';
-                    $groupByKeyResolution = 'GROUP BY "key",time('.$resolution.') fill('.$fill.')';
-                    $groupBySelectOuter = 'cumulative_sum(sum(weight_delta)) as net_weight_kg'; 
+                    $groupByKeyResolutionNull = 'GROUP BY "key",time('.$resolution.') fill(null)';
+                    $groupByKeyResolutionPrev = 'GROUP BY "key",time('.$resolution.') fill(previous)';
+                    $groupByKeyResolution0 = 'GROUP BY "key",time('.$resolution.') fill(0)';
+                    $groupBySelectOuter = 'cumulative_sum(sum(weight_delta)) as jump'; 
+                    $wherekeys=$device->influxWhereKeys();
                 }
 
+            $weightQuery = 'SELECT mean(weight_kg) AS "weight_kg" FROM "sensors" WHERE '.$wherekeys.' AND '.$whereTime.' '.$groupByKeyResolutionNull.' '.$limit;
 
-            $sensorQuery = 'SELECT '.$groupBySelectOuter.' FROM '.$innerQuery.' WHERE '.$whereTime.' '.$groupByKeyResolution.' '.$limit;
+            $sensorQuery = $innerQuery;
+            $sensorQuery = 'SELECT mean(weight_kg) - mean(jump) as net_weight_kg FROM ('.$weightQuery.'),(SELECT mean(jump) AS jump FROM (SELECT mean(jump) AS jump FROM ( SELECT '.$groupBySelectOuter.' FROM '.$innerQuery.' WHERE '.$whereTime.' '.$groupByKeyResolutionNull.')  WHERE '.$whereTime.' '.$groupByKeyResolutionPrev.')  WHERE '.$whereTime.' '.$groupByKeyResolution0.' ) WHERE '.$whereTime.' '.$groupByKeyResolutionNull.' '.$limit;
 
-            if(count($innerQueries)>1){
-                $sensorQuery = 'SELECT mean(net_weight_kg) as mean_net_weight_kg, stddev(net_weight_kg) as sd_net_weight_kg FROM ('.$sensorQuery.') WHERE '.$whereTime.' '.$groupByResolution.' '.$limit;
-            }else{
-                $sensorQuery = 'SELECT mean(net_weight_kg) as net_weight_kg FROM ('.$sensorQuery.') WHERE '.$whereTime.' '.$groupByResolution.' '.$limit; // this is necessary to fill with null values when data is missing
-            }
+            // if(count($innerQueries)>1){
+            //     $sensorQuery = 'SELECT mean(net_weight_kg) as mean_net_weight_kg, stddev(net_weight_kg) as sd_net_weight_kg FROM ('.$sensorQuery.') WHERE '.$whereTime.' '.$groupByResolution.' '.$limit;
+            // }else{
+            //     $sensorQuery = 'SELECT mean(net_weight_kg) as net_weight_kg FROM ('.$sensorQuery.') WHERE '.$whereTime.' '.$groupByResolution.' '.$limit; // this is necessary to fill with null values when data is missing
+            // }
             
        
             }

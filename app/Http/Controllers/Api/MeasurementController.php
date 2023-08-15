@@ -1474,6 +1474,7 @@ class MeasurementController extends Controller
             $alter_request["id"] = [$alter_request["id"]];
             $cleanWeight_query = $this -> cleanedWeight($alter_request) ;
             $cleanWeight_out = Device::getInfluxQuery($cleanWeight_query, 'data');
+            array_shift($cleanWeight_out);
             if (count($cleanWeight_out) == count($sensors_out))
             {
                 foreach ($sensors_out as $key => $value) 
@@ -1491,7 +1492,7 @@ class MeasurementController extends Controller
 
         if (count($sensors_out) == 0 && count($weather_out) == 0)
             return Response::json('sensor-no-data-error', 500);
-        return Response::json( ['cleanquery' => $cleanWeight_query, 'id'=>$device->id, 'interval'=>$interval, 'relative_interval'=>$relative_interval, 'index'=>$index, 'timeGroup'=>$timeGroup, 'resolution'=>$resolution, 'measurements'=>$sensors_out, 'sensorDefinitions'=>$sensorDefinitions, 'cacheSensorNames'=>$cache_sensor_names] );
+        #return Response::json( ['cleanquery' => $cleanWeight_query, 'clean_out' => $cleanWeight_out, 'id'=>$device->id, 'interval'=>$interval, 'relative_interval'=>$relative_interval, 'index'=>$index, 'timeGroup'=>$timeGroup, 'resolution'=>$resolution, 'measurements'=>$sensors_out, 'sensorDefinitions'=>$sensorDefinitions, 'cacheSensorNames'=>$cache_sensor_names] );
 
         return Response::json( ['id'=>$device->id, 'interval'=>$interval, 'relative_interval'=>$relative_interval, 'index'=>$index, 'timeGroup'=>$timeGroup, 'resolution'=>$resolution, 'measurements'=>$sensors_out, 'sensorDefinitions'=>$sensorDefinitions, 'cacheSensorNames'=>$cache_sensor_names] );
     }
@@ -1586,6 +1587,8 @@ class MeasurementController extends Controller
             $timeGroup            = $intervalArr['timeGroup'];
             $timeZone             = $intervalArr['timeZone'];
             $wherekeys            = '';
+            $whereTime            = 'time >= \''.$start_date.'\' AND time <= \''.$end_date.'\'';
+            
             foreach($devices as $device){
                 if($wherekeys !== '') $wherekeys .= ' OR ';
 
@@ -1628,9 +1631,16 @@ class MeasurementController extends Controller
             
 
             $cleanWeight_query = $this -> cleanedWeight($request) ;
+            #if(count($queries)>1){      
+                $cleanWeight_query = 'SELECT mean(net_weight_kg) as mean_net_weight_kg, stddev(net_weight_kg) as sd_net_weight_kg  FROM ('.$cleanWeight_query.') where '.$whereTime.' '.$groupByResolution.' '.$limit; 
+            #}
+            
             $cleanWeight_out = Device::getInfluxQuery($cleanWeight_query, 'data');
             #return Response::json( ['ccw' => count($cleanWeight_out), 'so' => count($sensors_out)] );
-      
+            if (count($cleanWeight_out) == (count($sensors_out)+1)){
+                array_shift($cleanWeight_out);
+            }
+                        
             if (count($cleanWeight_out) == count($sensors_out))
             {
                 foreach ($sensors_out as $key => $value) 
@@ -1643,12 +1653,12 @@ class MeasurementController extends Controller
                 }
             }
                 
-
+            #return Response::json(['sensor_query' => $sensorQuery, 'cleanWeight_query' => $cleanWeight_query, 'cleanWeight_out'=> count($cleanWeight_out), 'sensors_out' => count($sensors_out), 'measurements'=>$cleanWeight_out, 'measurements2'=>$sensors_out]);
             
             if (count($sensors_out) == 0)
                 return Response::json('sensor-no-data-error', 500);
 
-            return Response::json( ['cleanquery' => $cleanWeight_query, 'id'=>$device->id, 'interval'=>$interval, 'relative_interval'=>$relative_interval, 'index'=>$index, 'timeGroup'=>$timeGroup, 'resolution'=>$resolution, 'measurements'=>$sensors_out, 'sensorDefinitions'=>$sensorDefinitions, 'cacheSensorNames'=>$cache_sensor_names] );
+            #return Response::json( ['cleanquery' => $cleanWeight_query, 'id'=>$device->id, 'interval'=>$interval, 'relative_interval'=>$relative_interval, 'index'=>$index, 'timeGroup'=>$timeGroup, 'resolution'=>$resolution, 'measurements'=>$sensors_out, 'sensorDefinitions'=>$sensorDefinitions, 'cacheSensorNames'=>$cache_sensor_names] );
       
             return Response::json( ['id'=>$device->id, 'interval'=>$interval, 'relative_interval'=>$relative_interval, 'index'=>$index, 'timeGroup'=>$timeGroup, 'resolution'=>$resolution, 'measurements'=>$sensors_out, 'sensorDefinitions'=>$sensorDefinitions, 'cacheSensorNames'=>$cache_sensor_names] );
         }
@@ -1923,7 +1933,7 @@ class MeasurementController extends Controller
                 $inspectionQueries = [];
                 foreach($inspectionTuples as $i => $tuple){
                     $inspectionQueries[$i] = '(SELECT * FROM ( SELECT '.$groupBySelectInnerInspection.' FROM "sensors" WHERE '.$wherekeys.
-                    ' AND time >= '.$tuple[0].' AND time <= '.$tuple[1].' '.$groupInspection.' fill(linear) '.$limit.') WHERE '.$whereTreshold.')';
+                    ' AND time >= '.$tuple[0].' AND time <= '.$tuple[1].' '.$groupInspection.' fill(linear)) WHERE '.$whereTreshold.')';
                 }
                 // $periodQueries = [];
                 // foreach($periodTuples as $i => $tuple){
@@ -2071,8 +2081,8 @@ class MeasurementController extends Controller
                 if($resolution != null)
                 {
                     $wherekeys=$device->influxWhereKeys();
-                    $weightQuery = 'SELECT mean(weight_kg) AS "weight_kg" FROM "sensors" WHERE '.$wherekeys.' AND '.$whereTime.' '.$groupByKeyResolutionNullSmall.' '.$limit;
-
+                    $weightQuery = 'SELECT mean(weight_kg) AS "weight_kg" FROM "sensors" WHERE '.$wherekeys.' AND '.$whereTime.' '.$groupByKeyResolutionNullSmall;
+                    $firstQuery = 'SELECT mean(first_weight) as first_weight FROM ( SELECT first(weight_kg) as first_weight FROM "sensors" WHERE '.$wherekeys. ' AND '.$whereTime.' GROUP BY time(1000d)) WHERE '.$whereTime.' '.$groupByKeyResolutionPrev;
            
                     if(strlen($innerQuery)>1){
                         $sensorQuery = $innerQuery;
@@ -2081,13 +2091,12 @@ class MeasurementController extends Controller
                     }else{
                         $sensorQuery = 'SELECT mean(weight_kg) as net_weight_kg FROM "sensors" WHERE '.$wherekeys.' and '.$whereTime.' '.$groupByResolution.' '.$limit; // this is necessary to fill with null values when data is missing
                     }
+
+                    $sensorQuery = 'SELECT mean(net_weight_kg) - mean(first_weight) as net_weight_kg FROM ('.$firstQuery.'), ('.$sensorQuery.') WHERE  '.$whereTime.' '.$groupByResolution.' '.$limit;
             
                     $queries[$i] = $sensorQuery;
                 }
                 $query = implode('), (', array_filter($queries));
-                if(count($queries)>1){      
-                    $query = 'SELECT mean(net_weight_kg) as mean_net_weight_kg, stddev(net_weight_kg) as sd_net_weight_kg  FROM ('.$query.') where '.$whereTime.' '.$groupByResolution.' '.$limit; 
-                }
                             
              }
 

@@ -36,7 +36,7 @@ class Inspection extends Model
      */
     protected $fillable = ['notes', 'created_at', 'impression', 'attention', 'reminder', 'reminder_date', 'checklist_id', 'image_id'];
 
-    protected $hidden   = ['pivot','deleted_at', 'hives'];
+    protected $hidden   = ['pivot','deleted_at', 'hives', 'items'];
 
     protected $appends  = ['owner', 'thumb_url', 'hive_id', 'item_count', 'searchable'];
 
@@ -75,7 +75,7 @@ class Inspection extends Model
 
     public function getSearchableAttribute()
     {
-        return $this->items->pluck('value')->toArray();
+        return $this->items->whereIn('type', ['text', 'sample_code', 'date'])->pluck('value')->toArray();
     }
 
 

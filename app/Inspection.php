@@ -38,7 +38,7 @@ class Inspection extends Model
 
     protected $hidden   = ['pivot','deleted_at', 'hives'];
 
-    protected $appends  = ['owner', 'thumb_url', 'hive_id', 'item_count'];
+    protected $appends  = ['owner', 'thumb_url', 'hive_id', 'item_count', 'searchable'];
 
     public $timestamps = false;
 
@@ -73,6 +73,13 @@ class Inspection extends Model
         return $this->items()->count();
     }
 
+    public function getSearchableAttribute()
+    {
+        return $this->items->pluck('value')->toArray();
+    }
+
+
+    // Relations
     public function users()
     {
         return $this->belongsToMany(User::class, 'inspection_user');

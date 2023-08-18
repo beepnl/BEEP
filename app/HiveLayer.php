@@ -42,6 +42,7 @@ class HiveLayer extends Model
         return $this->hasMany(HiveLayerFrame::class, 'layer_id');
     }
 
+    // only brood and honey layers can have frames since 2023-06-14, so remove all other frames once
     public static function deleteNonBroodAndHoneyFrames()
     {
         $brood_and_honey_cats = [];

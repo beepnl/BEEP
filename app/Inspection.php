@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use LaravelLocalization;
 
 use Auth;
+use Cache;
 use Moment\Moment;
 
 class Inspection extends Model
@@ -75,9 +76,11 @@ class Inspection extends Model
 
     public function getSearchableAttribute()
     {
-        return $this->items->whereIn('type', ['text', 'sample_code', 'date'])->pluck('value')->toArray();
+        return Cache::remember('inspection-'.$this->id.'-searchable-array', env('CACHE_TIMEOUT_LONG'), function ()
+        {
+            return $this->items->whereIn('type', ['text', 'sample_code', 'date'])->pluck('value')->toArray();
+        });
     }
-
 
     // Relations
     public function users()

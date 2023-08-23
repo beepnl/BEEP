@@ -44,6 +44,28 @@ class Inspection extends Model
     public $timestamps = false;
 
 
+    public static function boot()
+    {
+        parent::boot();
+
+        static::updated(function($i)
+        {
+            $i->empty_cache();
+        });
+
+        static::deleted(function($i)
+        {
+            $i->empty_cache();
+        });
+    }
+
+    // Cache functions
+    public function empty_cache()
+    {
+        Cache::forget('inspection-'.$this->id.'-searchable-array');
+    }
+
+
 
     public function getOwnerAttribute()
     {
@@ -76,7 +98,7 @@ class Inspection extends Model
 
     public function getSearchableAttribute()
     {
-        return Cache::remember('inspection-'.$this->id.'-searchable-array', env('CACHE_TIMEOUT_LONG'), function ()
+        return Cache::rememberForever('inspection-'.$this->id.'-searchable-array', function ()
         {
             return $this->items->whereIn('type', ['text', 'sample_code', 'date'])->pluck('value')->toArray();
         });

@@ -1538,13 +1538,14 @@ class MeasurementController extends Controller
             }
         }
 
+
         // Add cleaned weight
         if($loadCleanWeight){
             $alter_request = $request;
             $alter_request["id"] = [$alter_request["id"]];
-            $cleanWeight_query = $this -> cleanedWeightQuery($alter_request) ;
-            $clean_weight_out = Device::getInfluxQuery($cleanWeight_query, 'data');
-
+            $clean_weight_query = $this -> cleanedWeightQuery($alter_request) ;
+            $clean_weight_out = Device::getInfluxQuery($clean_weight_query, 'data');
+            array_shift($clean_weight_out);
             if (count($sensors_out) == 0)
             {
                 $sensors_out = $clean_weight_out;
@@ -1577,7 +1578,7 @@ class MeasurementController extends Controller
                     $sensors_out = array_merge($sensors_out, array_values($data_time_key_arr));
 
             }
-            //return Response::json(['sensor_query' => $sensorQuery, 'cleanWeight_query' => $cleanWeight_query, 'cleanWeight_out'=> $cleanWeight_out, 'sensors_out' => $sensors_out]);
+            return Response::json(['sensor_query' => $sensorQuery, 'cleanWeight_query' => $clean_weight_query, 'cleanWeight_out'=> $clean_weight_out, 'sensors_out' => $sensors_out]);
         }
 
         if (count($sensors_out) == 0)
@@ -1623,18 +1624,18 @@ class MeasurementController extends Controller
             ]);
 
             #return Response::json( ['status'=>"before validation"] );
-
+    
             if ($validator->fails())
                 return response()->json(['errors'=>$validator->errors()]);
 
             #return Response::json( ['status'=>"validated"] );
-
+    
             //Get the sensors
             $devices  = $this->get_user_device($request);
             #return Response::json( ['status'=>"got devices"] );
             #return Response::json( ['devicesLength'=>sizeof($devices)] );
             #return Response::json( ['devices'=>$devices] );
-
+    
 
             if (!isset($devices))
                 return Response::json('sensor-none-error', 500);
@@ -1644,7 +1645,7 @@ class MeasurementController extends Controller
             if (count($names) == 0)
                 return Response::json('sensor-no-measurements-error', 500);
 
-
+            
             // add sensorDefinition names
             $sensorDefinitions = [];
             foreach ($names as $name)
@@ -1654,18 +1655,18 @@ class MeasurementController extends Controller
                     $sensordefinition = $device->sensorDefinitions->where('output_measurement_id', $measurement_id)->sortByDesc('updated_at')->first();
                     if ($sensordefinition)
                         $sensorDefinitions["$name"] = ['name'=>$sensordefinition->name, 'inside'=>$sensordefinition->inside];
-
+         
                 }
             }
 
             //Get the data interval
-            $relative_interval    = boolval($request->input('relative_interval', 0));
+            $relative_interval    = boolval($request->input('relative_interval', 0));  
             $intervalArr          = $this->compareinterval($request, $relative_interval, false);
 
             $groupBySelect        = null;
             $groupBySelectWeather = null;
             $groupByResolution    = '';
-            $limit                = $this->maxDataPoints;
+            $limit                = 'LIMIT '.$this->maxDataPoints;
             $relative_interval    = $intervalArr['relative_interval'];
             $resolution           = $intervalArr['resolution'];
             $cache_sensor_names   = $intervalArr['cacheSensorNames'];
@@ -1676,6 +1677,8 @@ class MeasurementController extends Controller
             $timeGroup            = $intervalArr['timeGroup'];
             $timeZone             = $intervalArr['timeZone'];
             $wherekeys            = '';
+            $whereTime            = 'time >= \''.$start_date.'\' AND time <= \''.$end_date.'\'';
+            
             foreach($devices as $device){
                 if($wherekeys !== '') $wherekeys .= ' OR ';
 
@@ -1684,78 +1687,211 @@ class MeasurementController extends Controller
 
             $whereKeyAndTime      = $wherekeys.' AND time >= \''.$start_date.'\' AND time <= \''.$end_date.'\'';
 
-
             if($resolution != null)
             {
                 if ($devices)
                 {
                     $fill              = env('INFLUX_FILL') !== null ? env('INFLUX_FILL') : 'null';
                     $groupByResolution = 'GROUP BY time('.$resolution.') fill('.$fill.')';
-                    $groupByResolutionLinear = 'GROUP BY time('.$resolution.') fill(linear)';
                     #$queryList         = Device::getAvailableSensorNamesFromData($device->id, $names, $whereKeyAndTime, 'sensors', true, $cache_sensor_names);
+                    $queryList = $names;
 
-                    // only calculate mean for all weight related measurements for now
-                    $queryList = array_filter($names, function($value) { return str_contains($value, 'weight') && !str_contains($value, 'mean'); });
 
-                    foreach ($queryList as $i => $name) {
-                        $deviceQueryArray = [];
-                        foreach ($devices as $j => $device) {
-                        $deviceQueryArray[$j] = '(SELECT MEAN('.$name.') as linear_'.$name.' FROM "sensors" WHERE '.$device->influxWhereKeys().' AND time >= \''.$start_date.'\' AND time <= \''.$end_date.'\' '.$groupByResolutionLinear.' LIMIT '.$limit.')';
-                    //  $test_q2 = Device::getInfluxQuery($deviceQueryArray[$j], 'data');
-                    //  print_r($deviceQueryArray[$j].'\n');
-                    //  print_r($test_q2);
-                    }
-                        $deviceQueryList = implode(', ', $deviceQueryArray);
-
-                        $queryList[$i] = '(SELECT MEAN(linear_'.$name.') AS mean_'.$name.', stddev(linear_'.$name.') AS sd_'.$name.' FROM ( SELECT * FROM '.$deviceQueryList.')' .$groupByResolution.')';
-
-                        // $test_q1 = Device::getInfluxQuery($queryList[$i], 'data');
-                        // print_r($queryList[$i].'\n');
-                        // print_r($test_q1);
-                    }
-
+                    foreach ($queryList as $i => $name) 
+                        $queryList[$i] = 'MEAN("'.$name.'") AS "mean_'.$name.'", stddev("'.$name.'") AS "sd_'.$name.'"';
+                        
+                    
                     $groupBySelect = implode(', ', $queryList);
 
-                    #$groupBySelect .= ', SUM("weight_delta_noOutlier") AS "weight_intake"';
+                    #$groupBySelect .= ', SUM("weight_delta_noOutlier") AS "weight_intake"'; 
                 }
 
-                // die();
-
-
+                
             $sensors_out = [];
 
-
-            if ($groupBySelect != null && $groupBySelect != '')
+            
+            if ($groupBySelect != null && $groupBySelect != '') 
             {
-                $sensorQuery = 'SELECT * FROM '.$groupBySelect;
-                //dd($sensorQuery);
+                $sensorQuery = 'SELECT '.$groupBySelect.' FROM "sensors" WHERE '.$whereKeyAndTime.' '.$groupByResolution.' '.$limit;
                 $sensors_out = Device::getInfluxQuery($sensorQuery, 'data');
-                //dd($sensors_out);
             }
 
             // Add cleaned weight
+
+            
+
             $cleanWeight_query = $this -> cleanedWeightQuery($request) ;
-            // dd($cleanWeight_query);
+            #if(count($queries)>1){      
+                $cleanWeight_query = 'SELECT mean(net_weight_kg) as mean_net_weight_kg, stddev(net_weight_kg) as sd_net_weight_kg  FROM ('.$cleanWeight_query.') where '.$whereTime.' '.$groupByResolution.' '.$limit; 
+            #}
+            
             $cleanWeight_out = Device::getInfluxQuery($cleanWeight_query, 'data');
+            #return Response::json( ['ccw' => count($cleanWeight_out), 'so' => count($sensors_out)] );
+            if (count($cleanWeight_out) == (count($sensors_out)+1)){
+                array_shift($cleanWeight_out);
+            }
+                        
             if (count($cleanWeight_out) == count($sensors_out))
             {
-                foreach ($sensors_out as $key => $value)
+                foreach ($sensors_out as $key => $value) 
                 {
-                    foreach ($cleanWeight_out[$key] as $name => $value)
+                    foreach ($cleanWeight_out[$key] as $name => $value) 
                     {
                         if ($name != 'time')
                             $sensors_out[$key][$name] =  $value;
                     }
                 }
             }
-
-
-
+                
+            #return Response::json(['sensor_query' => $sensorQuery, 'cleanWeight_query' => $cleanWeight_query, 'cleanWeight_out'=> count($cleanWeight_out), 'sensors_out' => count($sensors_out), 'measurements'=>$cleanWeight_out, 'measurements2'=>$sensors_out]);
+            
             if (count($sensors_out) == 0)
                 return Response::json('sensor-no-data-error', 500);
 
+            #return Response::json( ['cleanquery' => $cleanWeight_query, 'id'=>$device->id, 'interval'=>$interval, 'relative_interval'=>$relative_interval, 'index'=>$index, 'timeGroup'=>$timeGroup, 'resolution'=>$resolution, 'measurements'=>$sensors_out, 'sensorDefinitions'=>$sensorDefinitions, 'cacheSensorNames'=>$cache_sensor_names] );
+      
             return Response::json( ['id'=>$device->id, 'interval'=>$interval, 'relative_interval'=>$relative_interval, 'index'=>$index, 'timeGroup'=>$timeGroup, 'resolution'=>$resolution, 'measurements'=>$sensors_out, 'sensorDefinitions'=>$sensorDefinitions, 'cacheSensorNames'=>$cache_sensor_names] );
         }
+    }
+
+
+    private function mapToSmallerResolution($resolution){
+        $index = strlen($resolution) -1;
+        $unit = substr($resolution, $index);
+        if($unit=="m"){
+            $resolution = "1m";
+        } 
+        elseif($unit=="h"){
+            $resolution = "15m";
+        }
+        elseif($unit=="d"){
+            $resolution = "1h";
+        }
+        return $resolution;
+    }
+
+
+    private function getDeviations(Device $device, $resolution, $start_date, $end_date, $limit, $threshold, $frame, $timeZone){
+
+            
+            $wherekeys=$device->influxWhereKeys();
+            
+
+            $whereTreshold = 'weight_delta > '.$threshold.' OR weight_delta <'.-1*$threshold;
+
+         
+            $inspections = $device -> hive -> getAllInspectionDates();
+
+            sort($inspections);
+        
+            // choose inspections in time frame only and convert to utc
+            $filteredInspections = [];
+            foreach($inspections as $inspection){
+                $inspection_stamp = new Moment($inspection, $timeZone);
+                $inspection_utc = $inspection_stamp->setTimezone('UTC')->format($this->timeFormat);
+                if($inspection_utc >= $start_date & $inspection_utc <= $end_date){
+                    array_push($filteredInspections, $inspection_utc);
+                }
+            }      
+            $inspections = $filteredInspections;
+            #return Response::json( ['status'=>$inspections] );
+            
+            // array for time frames shortly before and after inspections
+            $inspectionTuples = [];
+            // array for other time frames
+            $periodTuples = [];
+
+            $inspectionFrame = $frame;
+
+            // create first tuple / or the only tuple needed
+            if(count($inspections) != 0){
+                $periodTuples[0] = ['\''.$start_date.'\'', '\''.$inspections[0].'\''.' - '.$inspectionFrame.'h', $resolution];
+            }else{
+                $periodTuples[0] = ['\''.$start_date.'\'', '\''.$end_date.'\'', $resolution];
+            }
+
+            // create all tuples
+            $length = count($inspections);
+            $i = 0;
+            while($i <= $length-1){
+                $cur = current($inspections);
+                if(($i != $length-1)){
+                    $nex = next($inspections);
+                }else{
+                    $nex = $end_date;
+                }
+                $i++;
+
+                // check if two or more inspection time frames should be merged into one. update $nex in that case
+                $inter = $cur;
+                while(($i <= $length-1) && ((strtotime($nex) - strtotime($inter))/(60*60)<= 2*$inspectionFrame )){
+                    $inter = $nex;
+                    if(($i != $length-1)){
+                        $nex = next($inspections);
+                    } else{
+                        $nex = $end_date;
+                    }
+                    $i++;
+                }
+                // add inspection tuple
+                $inspectionTuples[$i] = ['\''.$cur.'\' - '.$inspectionFrame.'h', '\''.$inter.'\' + '.$inspectionFrame.'h'];
+                // calculate resolution/ offset needed for period tuple
+                // therefore check if period time frame would be smaller than the resolution
+                // in that case, the resolution should be smaller than the one used for the outer query
+                // $difference = round(abs(strtotime($nex) - strtotime($inter)) / 60);
+                // $transRes = $this->translateResolutionToMinutes($resolution);
+                // $useRes = $resolution;
+                // if(!is_null($transRes) & (($difference - 2*60*$inspectionFrame)< $transRes)){
+                //     $useRes = $this -> mapToSmallerResolution($resolution);
+                // }
+                // // add period tuple
+                // if($i <= $length-1){                 
+                //     $periodTuples[$i+1] = ['\''.$inter.'\' + '.$inspectionFrame.'h + '.$useRes, '\''.$nex.'\' - '.$inspectionFrame.'h', $useRes];
+                // }else{
+                //     $periodTuples[$i+1] = ['\''.$inter.'\' + '.$inspectionFrame.'h + '.$useRes, '\''.$end_date.'\'', $useRes];
+                // }
+            }
+
+          
+            $whereKeyAndTime      = $wherekeys.' AND time >= \''.$start_date.'\' AND time <= \''.$end_date.'\'';
+            
+                
+            
+            
+            if($resolution != null)
+            {
+                if ($device)
+                {
+                    $fill              = env('INFLUX_FILL') !== null ? env('INFLUX_FILL') : 'null';
+                    $groupByResolution = 'GROUP BY time('.$resolution.') fill('.$fill.')';
+                    $groupInspection = 'GROUP BY time(15m)';
+                    
+                    #$groupBySelectOuter = 'cumulative_sum(sum(weight_delta)) as weight_kg_noOutlier'; 
+                    $groupBySelectInnerInspection = 'derivative(mean(weight_kg), 15m) as weight_delta';
+                    #$groupBySelectInnerPeriod = 'derivative(mean(weight_kg), '.$resolution.') as weight_delta';
+                }
+
+                
+            $sensors_out = [];
+
+            
+          
+                $inspectionQueries = [];
+                foreach($inspectionTuples as $i => $tuple){
+                    $inspectionQueries[$i] = '(SELECT * FROM ( SELECT '.$groupBySelectInnerInspection.' FROM "sensors" WHERE '.$wherekeys.
+                    ' AND time >= '.$tuple[0].' AND time <= '.$tuple[1].' '.$groupInspection.' fill(linear)) WHERE '.$whereTreshold.')';
+                }
+                // $periodQueries = [];
+                // foreach($periodTuples as $i => $tuple){
+                //      $periodQueries[$i] = '(SELECT derivative(mean(weight_kg), '.$tuple[2].') as weight_delta FROM "sensors" WHERE '.$wherekeys.
+                //     ' AND time >= '.$tuple[0].' AND time <= '.$tuple[1].' group by time('.$tuple[2].') '.$limit.')';
+                // }
+                 //  $allQueries = array_merge($periodQueries, $inspectionQueries);
+                $innerQuery = implode(', ', $inspectionQueries);
+            
+        }
+            return $innerQuery;
+
     }
 
     // Get cleaned weight query
@@ -1834,6 +1970,7 @@ class MeasurementController extends Controller
         $limit                = $this->maxDataPoints;
         $relative_interval    = $intervalArr['relative_interval'];
         $resolution           = $intervalArr['resolution'];
+        $smallerResolution    = $this -> mapToSmallerResolution($resolution);
         $cache_sensor_names   = $intervalArr['cacheSensorNames'];
         $start_date           = $intervalArr['start'];
         $end_date             = $intervalArr['end'];
@@ -1843,36 +1980,47 @@ class MeasurementController extends Controller
         $timeZone             = $intervalArr['timeZone'];
         $wherekeys            = '';
         $whereTime            = 'time >= \''.$start_date.'\' AND time <= \''.$end_date.'\'';
+        $fill              = env('INFLUX_FILL') !== null ? env('INFLUX_FILL') : 'null';
+        $groupByResolution = 'GROUP BY time('.$resolution.') fill('.$fill.')';
+        $groupByKeyResolutionPrev = 'GROUP BY "key",time('.$resolution.') fill(previous)';
+        $groupByKeyResolutionPrevSmall = 'GROUP BY "key",time('.$smallerResolution.') fill(previous)';
+        $groupByKeyResolutionNullSmall = 'GROUP BY "key",time('.$smallerResolution.') fill(null)';
+        $groupByKeyResolution0Small = 'GROUP BY "key",time('.$smallerResolution.') fill(0)';
+        $groupBySelectOuter = 'cumulative_sum(sum(weight_delta)) as jump'; 
+        
 
         $innerQueries = [];
          foreach($devices as $i => $device){
-            $innerQueries[$i] = $device->getInnerCleanQuery($resolution, $start_date, $end_date, $limit, $threshold, $frame, $timeZone);
-         }
+            $innerQuery = $this->getDeviations($device, $resolution, $start_date, $end_date, $limit, $threshold, $frame, $timeZone);
 
-        $innerQuery = implode(', ', $innerQueries);
-
-
-        if($resolution != null)
-        {
-            if ($device)
+            if($resolution != null)
             {
-                $fill              = env('INFLUX_FILL') !== null ? env('INFLUX_FILL') : 'null';
-                $groupByResolution = 'GROUP BY time('.$resolution.') fill('.$fill.')';
-                $groupByKeyResolution = 'GROUP BY "key",time('.$resolution.') fill('.$fill.')';
-                $groupBySelectOuter = 'cumulative_sum(sum(weight_delta)) as net_weight_kg';
+                $wherekeys=$device->influxWhereKeys();
+                # get raw weight
+                $weightQuery = 'SELECT mean(weight_kg) AS "weight_kg" FROM "sensors" WHERE '.$wherekeys.' AND '.$whereTime.' '.$groupByKeyResolutionNullSmall;
+                # get first value to transform ylim to 0 
+                $firstQuery = 'SELECT mean(first_weight) as first_weight FROM ( SELECT first(weight_kg) as first_weight FROM "sensors" WHERE '.$wherekeys. ' AND '.$whereTime.' GROUP BY time(1000d)) WHERE '.$whereTime.' '.$groupByKeyResolutionPrev;
+        
+                if(strlen($innerQuery)>1){
+                    $sensorQuery = $innerQuery;
+                    # collect all information
+                    $sensorQuery = 'SELECT mean(weight_kg) - mean(jump) as net_weight_kg FROM ('.$weightQuery.'),(SELECT mean(jump) AS jump FROM (SELECT mean(jump) AS jump FROM ( SELECT '.$groupBySelectOuter.' FROM '.$innerQuery.' WHERE '.$whereTime.' '.$groupByKeyResolutionNullSmall.')  WHERE '.$whereTime.' '.$groupByKeyResolutionPrevSmall.')  WHERE '.$whereTime.' '.$groupByKeyResolution0Small.' ) WHERE '.$whereTime.' '.$groupByKeyResolutionNullSmall.' ';    
+                    # this is with the correct resolution
+                    $sensorQuery = 'SELECT mean(net_weight_kg) as net_weight_kg FROM ('.$sensorQuery.') WHERE '.$whereTime.' '.$groupByResolution.' LIMIT '.$limit;
+                }else{
+                    # no cleaning necessary
+                    $sensorQuery = 'SELECT mean(weight_kg) as net_weight_kg FROM "sensors" WHERE '.$wherekeys.' and '.$whereTime.' '.$groupByResolution.' LIMIT '.$limit; // this is necessary to fill with null values when data is missing
+                }
+                # substract first value
+                $sensorQuery = 'SELECT mean(net_weight_kg) - mean(first_weight) as net_weight_kg FROM ('.$firstQuery.'), ('.$sensorQuery.') WHERE  '.$whereTime.' '.$groupByResolution.' LIMIT '.$limit;
+        
+                $queries[$i] = $sensorQuery;
             }
-
-
-        $sensorQuery = 'SELECT '.$groupBySelectOuter.' FROM '.$innerQuery.' WHERE '.$whereTime.' '.$groupByKeyResolution.' LIMIT '.$limit;
-
-        if(count($innerQueries)>1){
-            $sensorQuery = 'SELECT mean(net_weight_kg) as mean_net_weight_kg, stddev(net_weight_kg) as sd_net_weight_kg FROM ('.$sensorQuery.') WHERE '.$whereTime.' '.$groupByResolution.' LIMIT '.$limit;
-        }else{
-            $sensorQuery = 'SELECT mean(net_weight_kg) as net_weight_kg FROM ('.$sensorQuery.') WHERE '.$whereTime.' '.$groupByResolution.' LIMIT '.$limit; // this is necessary to fill with null values when data is missing
+            $query = implode('), (', array_filter($queries));
         }
 
 
-        }
+        
 
 
         return $sensorQuery;

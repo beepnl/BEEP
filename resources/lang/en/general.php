@@ -88,4 +88,5 @@ return [
     'Images'        => 'Images',
     'Alerts'        => 'Alerts',
     'AlertRules'    => 'Alert rules',
+    'AlertRuleFormulas' => 'Alert rule formulas',
 ];

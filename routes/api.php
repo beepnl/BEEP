@@ -117,6 +117,7 @@ Route::group([], function()
 		Route::resource('samplecode', 		'Api\SampleCodeController', 			['except'=>['create','edit','destroy']]);
 		Route::resource('alerts', 			'Api\AlertController', 					['except'=>['create','edit']]);
 		Route::resource('alert-rules', 		'Api\AlertRuleController', 				['except'=>['create','edit']]);
+		Route::resource('alert-rule-formulas','Api\AlertRuleFormulaController', 				['except'=>['create','edit']]);
 		Route::resource('dashboardgroups', 	'Api\DashboardGroupController', 		['except'=>['create','edit']]);
 		Route::resource('checklist-svg', 	'Api\ChecklistSvgController', 			['except'=>['create','edit']]);
 

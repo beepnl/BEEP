@@ -12,6 +12,7 @@ use Moment\Moment;
 use Mail;
 use Cache;
 use App\Mail\AlertMail;
+use App\Models\AlertRuleFormula;
 
 class AlertRule extends Model
 {
@@ -99,6 +100,11 @@ class AlertRule extends Model
     {
         return $this->belongsTo(User::class);
     }
+    public function formulas()
+    {
+        return $this->hasMany(AlertRuleFormula::class);
+    }
+
     
     public static function selectList()
     {

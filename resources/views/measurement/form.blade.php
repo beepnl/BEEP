@@ -82,7 +82,7 @@
 <div class="col-xs-12">
 	<br>
 </div>
-<div class="col-xs-12">
+<div class="col-xs-12 col-md-3">
 	<div class="form-group {{ $errors->has('chart_group') ? 'has-error' : ''}}">
 	    <label for="chart_group" control-label>{{ 'Chart Group' }}</label>
 	    <div>
@@ -92,7 +92,7 @@
 	</div>
 </div>
 
-<div class="col-xs-12">
+<div class="col-xs-12 col-md-3">
 	<div class="form-group {{ $errors->has('min_value') ? 'has-error' : ''}}">
 	    <label for="min_value" control-label>{{ 'Min value (sensor capability)' }}</label>
 	    <div>
@@ -102,7 +102,7 @@
 	</div>
 </div>
 
-<div class="col-xs-12">
+<div class="col-xs-12 col-md-3">
 	<div class="form-group {{ $errors->has('max_value') ? 'has-error' : ''}}">
 	    <label for="max_value" control-label>{{ 'Max value (sensor capability)' }}</label>
 	    <div>
@@ -112,12 +112,47 @@
 	</div>
 </div>
 
-<div class="col-xs-12">
+<div class="col-xs-12 col-md-3">
 	<div class="form-group {{ $errors->has('hex_color') ? 'has-error' : ''}}">
 	    <label for="hex_color" control-label>{{ 'Hexadecimal color code 6 digits (000000 == black)' }}</label>
 	    <div>
 	        <input class="form-control" name="hex_color" type="text" id="hex_color" maxlength="6" value="{{ isset($measurement->hex_color) ? $measurement->hex_color : '' }}" >
 	        {!! $errors->first('hex_color', '<p class="help-block">:message</p>') !!}
+	    </div>
+	</div>
+</div>
+
+
+<div class="col-xs-12 col-md-4">
+	<div class="form-group {{ $errors->has('data_source_type') ? 'has-error' : ''}}">
+	    <label for="data_source_type" control-label>{{ 'Data source type' }}</label>
+	    <div>
+	        <select name="data_source_type" class="form-control" id="data_source_type" required>
+			    @foreach (App\Measurement::$data_source_types as $optionKey => $optionValue)
+			        <option value="{{ $optionKey }}" {{ (isset($alertruleformula->data_source_type) && $alertruleformula->data_source_type == $optionKey) ? 'selected' : ''}}>{{ $optionValue }}</option>
+			    @endforeach
+			</select>
+	        {!! $errors->first('data_source_type', '<p class="help-block">:message</p>') !!}
+	    </div>
+	</div>
+</div>
+
+<div class="col-xs-12 col-md-4">
+	<div class="form-group {{ $errors->has('data_api_url') ? 'has-error' : ''}}">
+	    <label for="data_api_url" control-label>{{ 'Data API URL (to get data from)' }}</label>
+	    <div>
+	        <input class="form-control" name="data_api_url" type="text" id="data_api_url" maxlength="6" value="{{ isset($measurement->data_api_url) ? $measurement->data_api_url : '' }}" >
+	        {!! $errors->first('data_api_url', '<p class="help-block">:message</p>') !!}
+	    </div>
+	</div>
+</div>
+
+<div class="col-xs-12 col-md-4">
+	<div class="form-group {{ $errors->has('data_repository_url') ? 'has-error' : ''}}">
+	    <label for="data_repository_url" control-label>{{ 'Data repository url (Github repo)' }}</label>
+	    <div>
+	        <input class="form-control" name="data_repository_url" type="text" id="data_repository_url" maxlength="6" value="{{ isset($measurement->data_repository_url) ? $measurement->data_repository_url : '' }}" >
+	        {!! $errors->first('data_repository_url', '<p class="help-block">:message</p>') !!}
 	    </div>
 	</div>
 </div>

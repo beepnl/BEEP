@@ -197,7 +197,7 @@ class AlertRuleController extends Controller
 
 
         $alertrule   = Auth::user()->alert_rules()->findOrFail($id);
-        $requestData = $request->except('default_rule','formulas'); // never let users create a default rule via the API
+        $requestData = $request->except('default_rule'); // never let users create a default rule via the API
 
         $requestData['name']                 = substr($request->input('name'), 0, 50);
         $requestData['description']          = substr($request->input('description'), 0, 255);
@@ -220,22 +220,22 @@ class AlertRuleController extends Controller
 
         $alertrule->update($requestData);
 
-        $formulas = $request->input('formulas');
-        $formulas_sync_array = [];
-        foreach ($formulas as $f)
-        {
-            if (isset($f['id']))
-            {
-                $f_id = $f['id'];
-                unset($f['id']);
-                $formulas_sync_array[$f_id] = $f;
-            }
-            else
-            {
-                $formulas_sync_array[] = $f;
-            }
-        }
-        $alertrule->formulas()->sync($formulas_sync_array);
+        // $formulas = $request->input('formulas');
+        // $formulas_sync_array = [];
+        // foreach ($formulas as $f)
+        // {
+        //     if (isset($f['id']))
+        //     {
+        //         $f_id = $f['id'];
+        //         unset($f['id']);
+        //         $formulas_sync_array[$f_id] = $f;
+        //     }
+        //     else
+        //     {
+        //         $formulas_sync_array[] = $f;
+        //     }
+        // }
+        // $alertrule->formulas()->sync($formulas_sync_array);
 
         return response()->json($alertrule, 200);
     }

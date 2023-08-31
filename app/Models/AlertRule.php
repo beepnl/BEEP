@@ -35,8 +35,9 @@ class AlertRule extends Model
      *
      * @var array
      */
-    protected $fillable = ['name', 'description', 'measurement_id', 'calculation', 'calculation_minutes', 'comparator', 'comparison', 'threshold_value', 'exclude_months', 'exclude_hours', 'exclude_hive_ids', 'alert_via_email', 'webhook_url', 'active', 'user_id', 'default_rule', 'timezone', 'alert_on_occurences', 'last_calculated_at', 'last_evaluated_at'];
-    protected $hidden   = ['last_calculated_at'];
+    protected $fillable           = ['name', 'description', 'measurement_id', 'calculation', 'calculation_minutes', 'comparator', 'comparison', 'threshold_value', 'exclude_months', 'exclude_hours', 'exclude_hive_ids', 'alert_via_email', 'webhook_url', 'active', 'user_id', 'default_rule', 'timezone', 'alert_on_occurences', 'last_calculated_at', 'last_evaluated_at', 'formulas'];
+    protected $hidden             = ['last_calculated_at'];
+    protected $appends            = ['formulas'];
 
     public static $calculations   = ["min"=>"Minimum", "max"=>"Maximum", "ave"=>"Average", "cnt"=>"Count"]; // exclude "der"=>"Derivative" for the moment (because of user interpretation complexity)
     public static $influx_calc    = ["min"=>"MIN", "max"=>"MAX", "ave"=>"MEAN", "der"=>"DERIVATIVE", "cnt"=>"COUNT"];
@@ -85,6 +86,11 @@ class AlertRule extends Model
     public function getExcludeHiveIdsAttribute()
     {
         return !empty($this->attributes['exclude_hive_ids']) ? array_map(function($value){ return intval($value); }, explode(",", $this->attributes['exclude_hive_ids'])) : [];
+    }
+
+    public function getFormulasAttribute()
+    {
+        return $this->formulas()->get();
     }
 
     public function getUnit()

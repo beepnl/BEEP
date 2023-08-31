@@ -6,6 +6,7 @@ use App\Http\Requests;
 use App\Http\Controllers\Controller;
 
 use App\Models\AlertRule;
+use App\Models\AlertRuleFormula;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 
@@ -73,28 +74,37 @@ class AlertRuleController extends Controller
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'name'                  => 'nullable|string',
-            'description'           => 'nullable|string',
-            'measurement_id'        => 'required|integer|exists:measurements,id',
-            'calculation'           => ['required', Rule::in(array_keys(AlertRule::$calculations))],
-            'comparator'            => ['required', Rule::in(array_keys(AlertRule::$comparators))],
-            'comparison'            => ['required', Rule::in(array_keys(AlertRule::$comparisons))],
-            'threshold_value'       => 'required|numeric',
-            'calculation_minutes'   => ['required', Rule::in(AlertRule::$calc_minutes)],
-            'exclude_months.*'      => ['nullable', 'integer', Rule::in(array_keys(AlertRule::$exclude_months))],
-            'exclude_hours.*'       => ['nullable', 'integer', Rule::in(array_keys(AlertRule::$exclude_hours))],
-            // 'exclude_hive_ids.*'    => ['nullable', 'integer', Rule::in($request->user()->allHives()->pluck('id'))],
-            'alert_on_occurrences'  => 'nullable|integer',
-            'alert_via_email'       => 'nullable|boolean',
-            'webhook_url'           => 'nullable|url',
-            'active'                => 'nullable|boolean'
+            'name'                      => 'nullable|string',
+            'description'               => 'nullable|string',
+            'formulas.*.alert_rule_id'  => 'nullable|integer|exists:alert_rules,id',
+            'formulas.*.measurement_id' => 'required|integer|exists:measurements,id',
+            'formulas.*.calculation'    => ['required', Rule::in(array_keys(AlertRule::$calculations))],
+            'formulas.*.comparator'     => ['required', Rule::in(array_keys(AlertRule::$comparators))],
+            'formulas.*.comparison'     => ['required', Rule::in(array_keys(AlertRule::$comparisons))],
+            'formulas.*.period_minutes' => 'required|integer|min:0',
+            'formulas.*.threshold_value'=> 'required|numeric',
+            'formulas.*.future'         => 'required|boolean',
+            'formulas.*.logical'        => ['nullable', Rule::in(array_keys(AlertRuleFormula::$logicals))],
+            'calculation_minutes'       => ['required', Rule::in(AlertRule::$calc_minutes)],
+            'exclude_months.*'          => ['nullable', 'integer', Rule::in(array_keys(AlertRule::$exclude_months))],
+            'exclude_hours.*'           => ['nullable', 'integer', Rule::in(array_keys(AlertRule::$exclude_hours))],
+            'exclude_hive_ids.*'        => ['nullable', 'integer'/*, Rule::in($request->user()->allHives()->pluck('id'))*/],
+            'alert_on_occurrences'      => 'nullable|integer',
+            'alert_via_email'           => 'nullable|boolean',
+            'webhook_url'               => 'nullable|url',
+            'active'                    => 'nullable|boolean',
         ]);
 
         if ($validator->fails())
             return response()->json(['errors'=>$validator->errors()]);
 
+        $alert_rule_formula = Models\AlertRuleFormula::create($request->all());
 
-        $requestData = $request->except('default_rule'); // never let users create a default rule via the API
+        if ($validator->fails())
+            return response()->json(['errors'=>$validator->errors()]);
+
+
+        $requestData = $request->except('default_rule','formulas'); // never let users create a default rule via the API
         
         $requestData['name']                 = substr($request->input('name'), 0, 50);
         $requestData['description']          = substr($request->input('description'), 0, 255);
@@ -116,6 +126,10 @@ class AlertRuleController extends Controller
             $requestData['exclude_hours'] = null;
 
         $alertrule = Auth::user()->alert_rules()->create($requestData);
+
+        $formulas = $request->input('formulas');
+        foreach ($formulas as $f)
+            $alertrule->formulas()->attach($f);
 
         return response()->json($alertrule, 201);
     }
@@ -157,29 +171,33 @@ class AlertRuleController extends Controller
     public function update(Request $request, $id)
     {
         $validator = Validator::make($request->all(), [
-			'name'                  => 'nullable|string',
-            'description'           => 'nullable|string',
-            'measurement_id'        => 'required|integer|exists:measurements,id',
-			'calculation'           => ['required', Rule::in(array_keys(AlertRule::$calculations))],
-			'comparator'            => ['required', Rule::in(array_keys(AlertRule::$comparators))],
-			'comparison'            => ['required', Rule::in(array_keys(AlertRule::$comparisons))],
-            'threshold_value'       => 'required|numeric',
-            'calculation_minutes'   => ['required', Rule::in(AlertRule::$calc_minutes)],
-            'exclude_months.*'      => ['nullable', 'integer', Rule::in(array_keys(AlertRule::$exclude_months))],
-            'exclude_hours.*'       => ['nullable', 'integer', Rule::in(array_keys(AlertRule::$exclude_hours))],
-            'exclude_hive_ids.*'    => ['nullable', 'integer', Rule::in($request->user()->allHives()->pluck('id'))],
-			'alert_on_occurrences'  => 'nullable|integer',
-            'alert_via_email'       => 'nullable|boolean',
-            'webhook_url'           => 'nullable|url',
-            'active'                => 'nullable|boolean'
-		]);
+            'name'                      => 'nullable|string',
+            'description'               => 'nullable|string',
+            'formulas.*.alert_rule_id'  => 'nullable|integer|min:'.$id.'|max:'.$id,
+            'formulas.*.measurement_id' => 'required|integer|exists:measurements,id',
+            'formulas.*.calculation'    => ['required', Rule::in(array_keys(AlertRule::$calculations))],
+            'formulas.*.comparator'     => ['required', Rule::in(array_keys(AlertRule::$comparators))],
+            'formulas.*.comparison'     => ['required', Rule::in(array_keys(AlertRule::$comparisons))],
+            'formulas.*.period_minutes' => 'required|integer|min:0',
+            'formulas.*.threshold_value'=> 'required|numeric',
+            'formulas.*.future'         => 'required|boolean',
+            'formulas.*.logical'        => ['nullable', Rule::in(array_keys(AlertRuleFormula::$logicals))],
+            'calculation_minutes'       => ['required', Rule::in(AlertRule::$calc_minutes)],
+            'exclude_months.*'          => ['nullable', 'integer', Rule::in(array_keys(AlertRule::$exclude_months))],
+            'exclude_hours.*'           => ['nullable', 'integer', Rule::in(array_keys(AlertRule::$exclude_hours))],
+            'exclude_hive_ids.*'        => ['nullable', 'integer'/*, Rule::in($request->user()->allHives()->pluck('id'))*/],
+            'alert_on_occurrences'      => 'nullable|integer',
+            'alert_via_email'           => 'nullable|boolean',
+            'webhook_url'               => 'nullable|url',
+            'active'                    => 'nullable|boolean'
+        ]);
 
         if ($validator->fails())
             return response()->json(['errors'=>$validator->errors()]);
 
 
         $alertrule   = Auth::user()->alert_rules()->findOrFail($id);
-        $requestData = $request->except('default_rule'); // never let users create a default rule via the API
+        $requestData = $request->except('default_rule','formulas'); // never let users create a default rule via the API
 
         $requestData['name']                 = substr($request->input('name'), 0, 50);
         $requestData['description']          = substr($request->input('description'), 0, 255);
@@ -201,6 +219,16 @@ class AlertRuleController extends Controller
             $requestData['exclude_hours'] = null;
 
         $alertrule->update($requestData);
+
+        $formulas = $request->input('formulas');
+        $formulas_sync_array = [];
+        foreach ($formulas as $f)
+        {
+            $f_id = $f->id;
+            unset($f['id']);
+            $formulas_sync_array[$f_id] = $f;
+        }
+        $alertrule->formulas()->sync($formulas_sync_array);
 
         return response()->json($alertrule, 200);
     }

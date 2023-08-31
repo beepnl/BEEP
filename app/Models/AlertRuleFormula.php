@@ -27,9 +27,8 @@ class AlertRuleFormula extends Model
      *
      * @var array
      */
-    protected $fillable = ['alert_rule_id', 'measurement_id', 'calculation', 'comparator', 'comparison', 'logical', 'period_minutes', 'threshold_value'];
-    protected $hidden   = [];
-    protected $appends  = ['future'];
+    protected $fillable           = ['alert_rule_id', 'measurement_id', 'calculation', 'comparator', 'comparison', 'logical', 'period_minutes', 'threshold_value', 'future'];
+    protected $hidden             = [];
 
     public static $calculations   = ["min"=>"Minimum", "max"=>"Maximum", "ave"=>"Average", "cnt"=>"Count"]; // exclude "der"=>"Derivative" for the moment (because of user interpretation complexity)
     public static $comparators    = ["="=>"equal_to", "<"=>"less_than", ">"=>"greater_than", "<="=>"less_than_or_equal", ">="=>"greater_than_or_equal"];
@@ -37,18 +36,12 @@ class AlertRuleFormula extends Model
     public static $logicals       = ["or"=>"Or", "and"=>"And"];
     
 
-    public function alert_rule_id()
+    public function alert_rule()
     {
         return $this->belongsTo(AlertRule::class);
     }
-    public function measurement_id()
+    public function measurement()
     {
         return $this->belongsTo(Measurement::class);
     }
-    
-    public function getFutureAttribute()
-    {
-        return $this->period_minutes < 0 ? true : false; // default formula looks back in time, negative minutes are looking forward (future)
-    }
-
 }

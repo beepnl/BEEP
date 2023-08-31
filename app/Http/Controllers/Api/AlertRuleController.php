@@ -78,9 +78,9 @@ class AlertRuleController extends Controller
             'description'               => 'nullable|string',
             'formulas.*.alert_rule_id'  => 'nullable|integer|exists:alert_rules,id',
             'formulas.*.measurement_id' => 'required|integer|exists:measurements,id',
-            'formulas.*.calculation'    => ['required', Rule::in(array_keys(AlertRule::$calculations))],
-            'formulas.*.comparator'     => ['required', Rule::in(array_keys(AlertRule::$comparators))],
-            'formulas.*.comparison'     => ['required', Rule::in(array_keys(AlertRule::$comparisons))],
+            'formulas.*.calculation'    => ['required', Rule::in(array_keys(AlertRuleFormula::$calculations))],
+            'formulas.*.comparator'     => ['required', Rule::in(array_keys(AlertRuleFormula::$comparators))],
+            'formulas.*.comparison'     => ['required', Rule::in(array_keys(AlertRuleFormula::$comparisons))],
             'formulas.*.period_minutes' => 'required|integer|min:0',
             'formulas.*.threshold_value'=> 'required|numeric',
             'formulas.*.future'         => 'required|boolean',
@@ -98,7 +98,7 @@ class AlertRuleController extends Controller
         if ($validator->fails())
             return response()->json(['errors'=>$validator->errors()]);
 
-        $alert_rule_formula = Models\AlertRuleFormula::create($request->all());
+        $alert_rule_formula = AlertRuleFormula::create($request->all());
 
         if ($validator->fails())
             return response()->json(['errors'=>$validator->errors()]);
@@ -224,7 +224,7 @@ class AlertRuleController extends Controller
         $formulas_sync_array = [];
         foreach ($formulas as $f)
         {
-            $f_id = $f->id;
+            $f_id = $f['id'];
             unset($f['id']);
             $formulas_sync_array[$f_id] = $f;
         }

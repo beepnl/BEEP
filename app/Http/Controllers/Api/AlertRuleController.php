@@ -224,9 +224,16 @@ class AlertRuleController extends Controller
         $formulas_sync_array = [];
         foreach ($formulas as $f)
         {
-            $f_id = $f['id'];
-            unset($f['id']);
-            $formulas_sync_array[$f_id] = $f;
+            if (isset($f['id']))
+            {
+                $f_id = $f['id'];
+                unset($f['id']);
+                $formulas_sync_array[$f_id] = $f;
+            }
+            else
+            {
+                $formulas_sync_array[] = $f;
+            }
         }
         $alertrule->formulas()->sync($formulas_sync_array);
 

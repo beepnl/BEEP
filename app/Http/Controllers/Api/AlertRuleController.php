@@ -229,9 +229,9 @@ class AlertRuleController extends Controller
         {
             if (isset($f['id']))
             {
-                $f_id = $f['id'];
-                unset($f['id']);
-                $formulas_sync_array[$f_id] = $f;
+                // update formula
+                $arf = $alertrule->formulas()->find($f_id);
+                $arf->update($f);
             }
             else
             {

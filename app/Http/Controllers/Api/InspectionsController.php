@@ -225,6 +225,7 @@ class InspectionsController extends Controller
         if (isset($inspection) == false)
             return response()->json(null, 404);
 
+        $inspection->makeVisible('items');
         $inspection_items  = InspectionItem::where('inspection_id',$inspection->id)->groupBy('category_id')->get();
         $inspection->items = $inspection_items;
         return response()->json($inspection);

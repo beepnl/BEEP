@@ -63,7 +63,9 @@
         {!! $errors->first('show_in_alerts', '<p class="help-block">:message</p>') !!}
     </div>
 </div>
-
+<div class="col-xs-12">
+	<br>
+</div>
 <div class="col-xs-12 col-md-3">
 	<div class="form-group {{ $errors->has('weather') ? 'has-error' : ''}}">
 	    <label for="weather" control-label>{{ 'Weather related' }}</label>
@@ -76,6 +78,21 @@
 			</div>
         </div>
         {!! $errors->first('weather', '<p class="help-block">:message</p>') !!}
+    </div>
+</div>
+
+<div class="col-xs-12 col-md-3">
+	<div class="form-group {{ $errors->has('future') ? 'has-error' : ''}}">
+	    <label for="future" control-label>{{ 'Get data from future' }}</label>
+	    <div>
+	        <div class="radio">
+    			<label><input name="future" type="radio" value="1" @if (isset($measurement)) {{ (1 == $measurement->future) ? 'checked' : '' }} @else {{ 'checked' }} @endif> Yes</label>
+			</div>
+			<div class="radio">
+			    <label><input name="future" type="radio" value="0" {{ (isset($measurement) && 0 == $measurement->future) ? 'checked' : '' }}> No</label>
+			</div>
+        </div>
+        {!! $errors->first('future', '<p class="help-block">:message</p>') !!}
     </div>
 </div>
 

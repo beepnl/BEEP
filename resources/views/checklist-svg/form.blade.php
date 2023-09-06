@@ -23,6 +23,15 @@
 	</div>
 </div>
 <div class="col-xs-12">
+	<div class="form-group {{ $errors->has('app_version') ? 'has-error' : ''}}">
+	    <label for="app_version" control-label>{{ 'App version' }}</label>
+	    <div>
+	        <input class="form-control" name="app_version" type="text" id="app_version" value="{{ $checklistsvg->app_version ?? ''}}" >
+	        {!! $errors->first('app_version', '<p class="help-block">:message</p>') !!}
+	    </div>
+	</div>
+</div>
+<div class="col-xs-12">
 	<div class="form-group {{ $errors->has('svg') ? 'has-error' : ''}}">
 	    <label for="svg" control-label>{{ 'Svg' }}</label>
 	    <div>

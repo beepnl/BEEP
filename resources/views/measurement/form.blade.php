@@ -146,7 +146,7 @@
 	    <div>
 	        <select name="data_source_type" class="form-control" id="data_source_type" required>
 			    @foreach (App\Measurement::$data_source_types as $optionKey => $optionValue)
-			        <option value="{{ $optionKey }}" {{ (isset($alertruleformula->data_source_type) && $alertruleformula->data_source_type == $optionKey) ? 'selected' : ''}}>{{ $optionValue }}</option>
+			        <option value="{{ $optionKey }}" {{ (isset($measurement->data_source_type) && $measurement->data_source_type == $optionKey) ? 'selected' : ''}}>{{ $optionValue }}</option>
 			    @endforeach
 			</select>
 	        {!! $errors->first('data_source_type', '<p class="help-block">:message</p>') !!}

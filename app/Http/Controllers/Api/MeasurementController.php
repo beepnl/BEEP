@@ -1845,8 +1845,11 @@ class MeasurementController extends Controller
         $whereTime            = 'time >= \''.$start_date.'\' AND time <= \''.$end_date.'\'';
 
         $innerQueries = [];
-         foreach($devices as $i => $device){
-            $innerQueries[$i] = $device->getInnerCleanQuery($resolution, $start_date, $end_date, $limit, $threshold, $frame, $timeZone);
+         foreach($devices as $i => $device)
+         {
+            $innerCleanQuery  = $device->getInnerCleanQuery($resolution, $start_date, $end_date, $limit, $threshold, $frame, $timeZone);
+            if ($innerCleanQuery !== null)
+                $innerQueries[$i] = $innerCleanQuery;
          }
 
         $innerQuery = implode(', ', $innerQueries);

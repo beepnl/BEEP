@@ -604,8 +604,13 @@ class Device extends Model
         $groupByKeyResolution = 'GROUP BY "key",time('.$resolution.') FILL('.$fill.')';
         $groupBySelectOuter   = 'CUMULATIVE_SUM(SUM(weight_delta)) as net_weight_kg';
         $innerQuery           = $this->getInnerCleanQuery($resolution, $start_date, $end_date, $limit, $threshold, $frame, $timeZone);
+        
+        if ($innerQuery === null)
+            return null;
+
         $sensorQuery          = 'SELECT '.$groupBySelectOuter.' FROM '.$innerQuery.' WHERE '.$whereTime.' '.$groupByKeyResolution.' LIMIT '.$limit;
         $cleanedWeightQuery   = 'SELECT mean(net_weight_kg) as net_weight_kg FROM ('.$sensorQuery.') WHERE '.$whereTime.' '.$groupByResolution.' LIMIT '.$limit; // this is necessary to fill with null values when data is missing
+        
         return $cleanedWeightQuery;
     }
 
@@ -617,21 +622,25 @@ class Device extends Model
 
         $whereTreshold = 'weight_delta < '.$threshold.' AND weight_delta >'.-1*$threshold;
 
+        $inspections = [];
+        
+        if ($this->hive)
+        {
+            $inspections = $this -> hive -> getAllInspectionDates();
 
-        $inspections = $this -> hive -> getAllInspectionDates();
+            sort($inspections);
 
-        sort($inspections);
-
-        // choose inspections in time frame only and convert to utc
-        $filteredInspections = [];
-        foreach($inspections as $inspection){
-            $inspection_stamp = new Moment($inspection, $timeZone);
-            $inspection_utc = $inspection_stamp->setTimezone('UTC')->format($this->timeFormat);
-            if($inspection_utc >= $start_date & $inspection_utc <= $end_date){
-                array_push($filteredInspections, $inspection_utc);
+            // choose inspections in time frame only and convert to utc
+            $filteredInspections = [];
+            foreach($inspections as $inspection){
+                $inspection_stamp = new Moment($inspection, $timeZone);
+                $inspection_utc = $inspection_stamp->setTimezone('UTC')->format($this->timeFormat);
+                if($inspection_utc >= $start_date & $inspection_utc <= $end_date){
+                    array_push($filteredInspections, $inspection_utc);
+                }
             }
+            $inspections = $filteredInspections;
         }
-        $inspections = $filteredInspections;
         #return Response::json( ['status'=>$inspections] );
 
         // array for time frames shortly before and after inspections

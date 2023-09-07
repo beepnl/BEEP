@@ -54,14 +54,14 @@ class AlertRuleController extends Controller
      * api/alert-rules/{id} POST
      * Create the specified user alert rule.
      * @authenticated
-     * @bodyParam measurement_id integer required The physical quantity / unit to alert for. 
-     * @bodyParam calculation string required Calculation to be done with measurement value(s): (min, max, ave, der, cnt) -> Minimum, Maximum, Average (mean), Derivative, Count.
-     * @bodyParam comparator string required Logical comparator to perform with comparison calculation result and threshold_value (=, <, >, <=, >=).
-     * @bodyParam comparison string required Comparison function to perform with measurement value(s): (val, dif, abs, abs_dif) -> Value, Difference, Absolute value, Absolute value of the difference.
-     * @bodyParam threshold_value float required The threshold value beyond which the alert will be sent. 
+     * @bodyParam formulas.*.measurement_id integer required The physical quantity / unit to alert for. 
+     * @bodyParam formulas.*.calculation string required Calculation to be done with measurement value(s): (min, max, ave, der, cnt) -> Minimum, Maximum, Average (mean), Derivative, Count.
+     * @bodyParam formulas.*.comparator string required Logical comparator to perform with comparison calculation result and threshold_value (=, <, >, <=, >=).
+     * @bodyParam formulas.*.comparison string required Comparison function to perform with measurement value(s): (val, dif, abs, abs_dif) -> Value, Difference, Absolute value, Absolute value of the difference.
+     * @bodyParam formulas.*.threshold_value float required The threshold value beyond which the alert will be sent. 
      * @bodyParam name string The name of the alert rule. 
      * @bodyParam description string The description of the alert rule. 
-     * @bodyParam calculation_minutes integer The amount of minutes used for calculating the (min, max, ave, der, cnt) of the measurement value(s). If not provided, the last recorded value is used as a reference.
+     * @bodyParam formulas.*.period_minutes integer The amount of minutes used for calculating the (min, max, ave, der, cnt) of the measurement value(s). If not provided, the last recorded value is used as a reference.
      * @bodyParam exclude_months array Array of month indexes (1-12). If not filled the standard alert is 'always on'. Example: [1,2,3,11,12]
      * @bodyParam exclude_hours array Array of hour indexes (0-23). If not filled the standard alert is 'always on'. Example: [0,1,2,3,22,23]
      * @bodyParam exclude_hive_ids array Array of Hive ids. If not filled the standard alert is evaluated on 'all hives'.
@@ -76,6 +76,7 @@ class AlertRuleController extends Controller
         $validator = Validator::make($request->all(), [
             'name'                      => 'nullable|string',
             'description'               => 'nullable|string',
+            'formulas'                  => 'required|array',
             'formulas.*.alert_rule_id'  => 'nullable|integer|exists:alert_rules,id',
             'formulas.*.measurement_id' => 'required|integer|exists:measurements,id',
             'formulas.*.calculation'    => ['required', Rule::in(array_keys(AlertRuleFormula::$calculations))],
@@ -120,11 +121,20 @@ class AlertRuleController extends Controller
         else
             $requestData['exclude_hours'] = null;
 
+        $formulas = $request->input('formulas');
+        // For backwards compatibility, set 1st formula values on AlertRule
+        $requestData['measurement_id']      = $formulas[0]['measurement_id'];
+        $requestData['calculation']         = $formulas[0]['calculation'];
+        $requestData['comparator']          = $formulas[0]['comparator'];
+        $requestData['comparison']          = $formulas[0]['comparison'];
+        $requestData['calculation_minutes'] = $formulas[0]['period_minutes'];
+        $requestData['threshold_value']     = $formulas[0]['threshold_value'];
+
         $alertrule = Auth::user()->alert_rules()->create($requestData);
 
         // Add formulas
-        foreach ($request->input('formulas') as $f)
-            $alertrule->formulas()->attach($f);
+        foreach ($formulas as $f)
+            $alertrule->formulas()->create($f);
 
         return response()->json($alertrule, 201);
     }
@@ -168,6 +178,7 @@ class AlertRuleController extends Controller
         $validator = Validator::make($request->all(), [
             'name'                      => 'nullable|string',
             'description'               => 'nullable|string',
+            'formulas'                  => 'required|array',
             'formulas.*.alert_rule_id'  => 'nullable|integer|min:'.$id.'|max:'.$id,
             'formulas.*.measurement_id' => 'required|integer|exists:measurements,id',
             'formulas.*.calculation'    => ['required', Rule::in(array_keys(AlertRule::$calculations))],
@@ -241,7 +252,7 @@ class AlertRuleController extends Controller
         if (count($formulas_input_new) > 0)
         {
             foreach ($formulas_input_new as $f)
-                $alertrule->formulas()->attach($f);
+                $alertrule->formulas()->create($f);
         }
 
         return response()->json($alertrule, 200);

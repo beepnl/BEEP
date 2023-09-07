@@ -129,7 +129,10 @@ class AlertRuleController extends Controller
 
         $formulas = $request->input('formulas');
         foreach ($formulas as $f)
-            $alertrule->formulas()->attach($f);
+        {
+            $f->alert_rule_id = $alertrule->id;
+            AlertRuleFormula::create($f);
+        }
 
         return response()->json($alertrule, 201);
     }

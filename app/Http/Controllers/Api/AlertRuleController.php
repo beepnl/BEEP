@@ -98,12 +98,7 @@ class AlertRuleController extends Controller
         if ($validator->fails())
             return response()->json(['errors'=>$validator->errors()]);
 
-        $alert_rule_formula = AlertRuleFormula::create($request->all());
-
-        if ($validator->fails())
-            return response()->json(['errors'=>$validator->errors()]);
-
-
+        
         $requestData = $request->except('default_rule','formulas'); // never let users create a default rule via the API
         
         $requestData['name']                 = substr($request->input('name'), 0, 50);
@@ -127,12 +122,9 @@ class AlertRuleController extends Controller
 
         $alertrule = Auth::user()->alert_rules()->create($requestData);
 
-        $formulas = $request->input('formulas');
-        foreach ($formulas as $f)
-        {
-            $f->alert_rule_id = $alertrule->id;
-            AlertRuleFormula::create($f);
-        }
+        // Add formulas
+        foreach ($request->input('formulas') as $f)
+            $alertrule->formulas()->attach($f);
 
         return response()->json($alertrule, 201);
     }

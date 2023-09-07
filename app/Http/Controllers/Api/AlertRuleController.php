@@ -215,29 +215,34 @@ class AlertRuleController extends Controller
 
         $alertrule->update($requestData);
 
-        $formulas = $request->input('formulas');
-        $formulas_sync_array = [];
-        $formulas_add_array  = [];
-        
-        // remove non existing formulas
-        foreach ($formulas as $f)
+        // Edit formulas
+        $formulas_input      = $request->input('formulas');
+        $formulas_input_ids  = [];
+        $formulas_input_new  = [];
+
+        foreach ($formulas_input as $f)
         {
             if (isset($f['id']))
-            {
-                // update formula
-                $arf = $alertrule->formulas()->find($f_id);
-                $arf->update($f);
-            }
+                $formulas_input_ids[$f['id']] = $f;
             else
-            {
-                $formulas_add_array[] = $f;
-            }
+                $formulas_input_new[] = $f;
         }
-        $alertrule->formulas()->sync($formulas_sync_array);
 
+        // update or remove non existing formulas
+        foreach ($alertrule->formulas as $f)
+        {
+            // Update existing
+            if (isset($formulas_input_ids[$f->id]))
+                $f->update($formulas_input_ids[$f->id]);
+            else // or delete (iuf not in array)
+                $f->delete();
+        }
         // add new formulas
-        foreach ($formulas_add_array as $f)
-            $alertrule->formulas()->attach($f);
+        if (count($formulas_input_new) > 0)
+        {
+            foreach ($formulas_input_new as $f)
+                $alertrule->formulas()->attach($f);
+        }
 
         return response()->json($alertrule, 200);
     }

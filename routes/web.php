@@ -149,6 +149,7 @@ Route::group(
 				Route::resource('alert', 			'AlertController');
 				Route::resource('alert-rule', 		'AlertRuleController');
 				Route::resource('alert-rule-formula','AlertRuleFormulaController');
+				Route::resource('calculation-model', 'CalculationModelController');
 
 				Route::delete('checklists/destroy/copies',	['as'=>'checklists.copies','uses'=>'ChecklistController@destroyCopies']);
 				

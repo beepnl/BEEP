@@ -1579,7 +1579,7 @@ class MeasurementController extends Controller
                     $sensors_out = array_merge($sensors_out, array_values($data_time_key_arr));
 
             }
-            return Response::json(['sensor_query' => $sensorQuery, 'cleanWeight_query' => $clean_weight_query, 'cleanWeight_out'=> $clean_weight_out, 'sensors_out' => $sensors_out]);
+            //return Response::json(['sensor_query' => $sensorQuery, 'cleanWeight_query' => $clean_weight_query, 'cleanWeight_out'=> $clean_weight_out, 'measurements' => $sensors_out]);
         }
 
         if (count($sensors_out) == 0)

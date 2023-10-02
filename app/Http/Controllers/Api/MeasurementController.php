@@ -1492,6 +1492,7 @@ class MeasurementController extends Controller
         }
 
         $sensors_out = [];
+        $sensorQuery = '';
 
         if ($groupBySelect != null && $groupBySelect != '')
         {

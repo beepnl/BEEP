@@ -1990,8 +1990,17 @@ class MeasurementController extends Controller
         
 
         $innerQueries = [];
-         foreach($devices as $i => $device){
+         foreach($devices as $i => $device)
+         {
             $innerQuery = $this->getDeviations($device, $resolution, $start_date, $end_date, $limit, $threshold, $frame, $timeZone);
+//          foreach($devices as $i => $device)
+//          {
+//             $innerCleanQuery  = $device->getInnerCleanQuery($resolution, $start_date, $end_date, $limit, $threshold, $frame, $timeZone);
+//             if ($innerCleanQuery !== null)
+//                 $innerQueries[$i] = $innerCleanQuery;
+//          }
+//          $innerQuery = implode(', ', $innerQueries);
+
 
             if($resolution != null)
             {

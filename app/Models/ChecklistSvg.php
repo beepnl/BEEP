@@ -27,7 +27,7 @@ class ChecklistSvg extends Model
      *
      * @var array
      */
-    protected $fillable = ['user_id', 'checklist_id', 'name', 'svg', 'pages', 'last_print'];
+    protected $fillable = ['user_id', 'checklist_id', 'name', 'svg', 'pages', 'last_print', 'app_version'];
 
     public function checklist()
     {

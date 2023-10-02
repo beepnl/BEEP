@@ -1479,6 +1479,9 @@ class ResearchDataController extends Controller
         
         //dd($query);
 
+        if ($query === null)
+            return [];
+
         // Load data
         $cache_timeout_sec = 84600; // 24 hours, was env('CACHE_TIMEOUT_LONG')
         $out = Cache::remember('research-query-'.$query, $cache_timeout_sec, function () use ($query, $queryList, $options, $adds, $replace_results, $calculation)

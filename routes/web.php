@@ -148,6 +148,7 @@ Route::group(
 				Route::resource('sample-code', 		'SampleCodeController');
 				Route::resource('alert', 			'AlertController');
 				Route::resource('alert-rule', 		'AlertRuleController');
+				Route::resource('alert-rule-formula','AlertRuleFormulaController');
 
 				Route::delete('checklists/destroy/copies',	['as'=>'checklists.copies','uses'=>'ChecklistController@destroyCopies']);
 				
@@ -156,13 +157,12 @@ Route::group(
 		// Open research routes based on database access
 		Route::get('dashboard', ['as'=>'dashboard.index','uses'=>'DashboardController@index']);
 
-		Route::resource('checklists', 	'ChecklistController');
-		Route::resource('inspections', 	'InspectionsController');
-		Route::resource('users', 		'UserController');		
-		Route::resource('hive-tags', 	'HiveTagsController');
-		Route::resource('checklist-svg','ChecklistSvgController');
+		Route::resource('checklists', 			'ChecklistController');
+		Route::resource('inspections', 			'InspectionsController');
+		Route::resource('users', 				'UserController');		
+		Route::resource('hive-tags', 			'HiveTagsController');
+		Route::resource('checklist-svg',		'ChecklistSvgController');
 		
-
 		Route::get('research', 				['as'=>'research.index','uses'=>'ResearchController@index']);
 		Route::get('research/{id}', 		['as'=>'research.show','uses'=>'ResearchController@show']);
 		Route::get('research/{id}/edit',	['as'=>'research.edit','uses'=>'ResearchController@edit']);

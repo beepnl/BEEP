@@ -93,10 +93,10 @@ class DashboardController extends Controller
         $data['qrtusers_more_5_hives']        = DB::table('hives')
                                                 ->join('users', 'hives.user_id', '=', 'users.id')
                                                 ->selectRaw('users.id, COUNT(hives.id) as hive_cnt')
+                                                ->groupBy('user_id')
                                                 ->where('users.created_at','!=','users.updated_at')
                                                 ->where('users.updated_at','>', $last_qrt.' 00:00:00')
-                                                ->groupBy('user_id')
-                                                ->havingRaw('hive_cnt > 5')
+                                                ->having('hive_cnt', '>', 5)
                                                 ->get()->count();
              
         $data['yearusers']                    = User::whereDate('last_login', '>', $last_year)->count();

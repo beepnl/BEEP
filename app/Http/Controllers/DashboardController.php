@@ -92,7 +92,7 @@ class DashboardController extends Controller
         */
         $data['qrtusers_more_5_hives']        = DB::table('hives')
                                                 ->join('users', 'hives.user_id', '=', 'users.id')
-                                                ->selectRaw('COUNT(hives.id) as hive_cnt')
+                                                ->selectRaw('users.id, COUNT(hives.id) as hive_cnt')
                                                 ->where('hives.deleted_at', NULL)
                                                 ->where('users.created_at','!=','users.updated_at')
                                                 ->where('users.last_login','>', $last_qrt)

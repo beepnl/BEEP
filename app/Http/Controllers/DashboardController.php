@@ -94,8 +94,8 @@ class DashboardController extends Controller
                                                 ->join('users', 'hives.user_id', '=', 'users.id')
                                                 ->selectRaw('users.id, COUNT(hives.id) as hive_cnt')
                                                 ->where('users.created_at','!=','users.updated_at')
-                                                ->where('users.last_login','>', $last_qrt.' 00:00:00')
-                                                ->groupBy('hives.user_id')
+                                                ->where('users.updated_at','>', $last_qrt.' 00:00:00')
+                                                ->groupBy('user_id')
                                                 ->havingRaw('hive_cnt > 5')
                                                 ->get()->count();
              

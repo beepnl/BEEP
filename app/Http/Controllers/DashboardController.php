@@ -92,17 +92,10 @@ class DashboardController extends Controller
         WHERE hives.deleted_at IS NULL AND users.created_at != users.updated_at AND last_login > '2023-01-01'
         GROUP BY hives.user_id HAVING hive_cnt > 5
         */
-        $data['qrtusers_more_5_hives']        = DB::table('hives')
-                                                ->selectRaw('users.id, COUNT(hives.id) as hive_cnt, users.created_at, users.last_login')
-                                                ->join('users', 'hives.user_id', '=', 'users.id')
-                                                ->where('users.created_at','!=','users.updated_at')
-                                                ->where('users.last_login','>', $last_qrt.' 00:00:00')
-                                                ->groupBy('user_id')
-                                                ->havingRaw('hive_cnt > 1')
-                                                ->get();
-
-                                                dd($data['qrtusers_more_5_hives']);
-
+        $data['qrtusers_more_5_hives']        = count(DB::select(DB::raw('SELECT hives.`user_id`, COUNT(hives.`id`) as hive_cnt, users.`created_at`, users.`last_login` FROM hives 
+                                                        INNER JOIN users ON hives.`user_id` = users.`id`
+                                                        WHERE hives.`deleted_at` IS NULL AND users.`created_at` != users.`updated_at` AND users.`last_login` > \''.$last_qrt.'\'
+                                                        GROUP BY hives.`user_id` HAVING hive_cnt > 5')));
              
         $data['yearusers']                    = User::whereDate('last_login', '>', $last_year)->count();
         $data['locations']                    = Location::count();

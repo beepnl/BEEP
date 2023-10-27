@@ -103,8 +103,8 @@
 		<!-- small box -->
 			<div class="small-box bg-primary">
 				<div class="inner">
-					<h3>{{ $data['activeusers'] }} / {{ $data['qrtusers'] }}</h3>
-					<p>Active users <br>Last month / 3 months</p>
+					<h3>{{ $data['activeusers'] }} / {{ $data['qrtusers'] }} / {{ $data['qrtusers_more_5_hives'] }}</h3>
+					<p>Active users <br>Last month / 3 months / 3 months >5 hives</p>
 				</div>
 				<div class="icon">
 					<i class="fa fa-user-circle-o"></i>

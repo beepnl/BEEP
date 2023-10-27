@@ -82,7 +82,9 @@ class DashboardController extends Controller
         $data['hourusers']                    = User::where('last_login', '>', $last_hour)->count();
         $data['dayusers']                     = User::where('last_login', '>', $last_day)->count();
         $data['activeusers']                  = User::whereDate('last_login', '>', $last_month)->count();
-        $data['qrtusers']                     = User::whereDate('last_login', '>', $last_qrt)->count();
+
+        $users_last_qrt                       = User::whereDate('last_login', '>', $last_qrt);
+        $data['qrtusers']                     = $users_last_qrt->count();
 
         /* Active users query:
         SELECT hives.user_id,COUNT(hives.id) as hive_cnt, users.`created_at`, users.`last_login` FROM hives 
@@ -91,13 +93,16 @@ class DashboardController extends Controller
         GROUP BY hives.user_id HAVING hive_cnt > 5
         */
         $data['qrtusers_more_5_hives']        = DB::table('hives')
+                                                ->selectRaw('users.id, COUNT(hives.id) as hive_cnt, users.created_at, users.last_login')
                                                 ->join('users', 'hives.user_id', '=', 'users.id')
-                                                ->selectRaw('users.id, COUNT(hives.id) as hive_cnt')
-                                                ->groupBy('user_id')
                                                 ->where('users.created_at','!=','users.updated_at')
-                                                ->where('users.updated_at','>', $last_qrt.' 00:00:00')
-                                                ->having('hive_cnt', '>', 5)
-                                                ->get()->count();
+                                                ->where('users.last_login','>', $last_qrt.' 00:00:00')
+                                                ->groupBy('user_id')
+                                                ->havingRaw('hive_cnt > 1')
+                                                ->get();
+
+                                                dd($data['qrtusers_more_5_hives']);
+
              
         $data['yearusers']                    = User::whereDate('last_login', '>', $last_year)->count();
         $data['locations']                    = Location::count();

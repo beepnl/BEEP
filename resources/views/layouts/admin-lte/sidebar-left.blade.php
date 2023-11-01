@@ -108,7 +108,7 @@
 
       @role('superadmin')
       <li class="header">{{ __('general.superadmin').' '.__('general.menu') }} <i class="fa fa-warning" title="NB: ONLY USE IF YOU ARE ABSOLUTELY SURE WHAT YOU ARE DOING!"></i></li>
-      <li class="treeview {{ preg_match('(users|roles|permissions|image|alert-rule|alert|sample-code|hive-tags|checklist-svgs)', Request::url()) === 1 ? 'active' : '' }}">
+      <li class="treeview {{ preg_match('(users|roles|permissions|image|alert-rule|alert-rule-formula|calculation-model|alert|sample-code|hive-tags|checklist-svgs)', Request::url()) === 1 ? 'active' : '' }}">
           <a href="#">
             <span><i class="fa fa-list"></i></span>
             <span>{{ __('general.superadmin').' '.__('general.menu') }}</span>
@@ -122,7 +122,8 @@
             <li class="{{ Route::currentRouteNamed('permissions.index') ? 'active' : '' }}"><a href="{{ route('permissions.index') }}"><i class="fa fa-lock"></i><span>{{ __('general.Permissions') }}</span></a></li>
             <li class="{{ Route::currentRouteNamed('image.index') ? 'active' : '' }}"><a href="{{ route('image.index') }}"><i class="fa fa-photo"></i><span>{{ __('general.Images') }}</span></a></li>
             <li class="{{ Route::currentRouteNamed('alert-rule.index') ? 'active' : '' }}"><a href="{{ route('alert-rule.index') }}"><i class="fa fa-exclamation-circle"></i><span>{{ __('general.AlertRules') }}</span></a></li>
-            <li class="{{ Route::currentRouteNamed('alert-rule-formula.index') ? 'active' : '' }}"><a href="{{ route('alert-rule-formula.index') }}"><i class="fa fa-calculator"></i><span>{{ __('general.AlertRuleFormulas') }}</span></a></li>
+            <li class="{{ Route::currentRouteNamed('alert-rule-formula.index') ? 'active' : '' }}"><a href="{{ route('alert-rule-formula.index') }}"><i class="fa fa-superscript"></i><span>{{ __('general.AlertRuleFormulas') }}</span></a></li>
+            <li class="{{ Route::currentRouteNamed('calculation-model.index') ? 'active' : '' }}"><a href="{{ route('calculation-model.index') }}"><i class="fa fa-calculator"></i><span>Calculation models</span></a></li>
             <li class="{{ Route::currentRouteNamed('alert.index') ? 'active' : '' }}"><a href="{{ route('alert.index') }}"><i class="fa fa-bell"></i><span>{{ __('general.Alerts') }}</span></a></li>
             <li class="{{ Route::currentRouteNamed('sample-code.index') ? 'active' : '' }}"><a href="{{ route('sample-code.index') }}"><i class="fa fa-qrcode"></i><span>Sample codes</span></a></li>
             <li class="{{ Route::currentRouteNamed('hive-tags.index') ? 'active' : '' }}"><a href="{{ route('hive-tags.index') }}"><i class="fa fa-qrcode"></i><span>Hive tags</span></a></li>

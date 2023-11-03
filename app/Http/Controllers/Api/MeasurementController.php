@@ -238,6 +238,8 @@ class MeasurementController extends Controller
                     $device = $this->addDeviceMeta($device, 'bootcount', $data_array['bootcount']);
                 if (isset($data_array['time_device']))
                     $device = $this->addDeviceMeta($device, 'time_device', $data_array['time_device']);
+                if (isset($data_array['time_clock']) && $data_array['time_clock'] == 'rtc')
+                    $device = $this->addDeviceMeta($device, 'last_downlink_result', 'RTC installed');
             }
             // store metadata from sensor
             $device->last_message_received = date('Y-m-d H:i:s');

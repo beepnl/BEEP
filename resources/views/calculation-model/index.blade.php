@@ -43,14 +43,36 @@
         <table id="table-calculation-model" class="table table-responsive table-striped">
             <thead>
                 <tr>
-                    <th>#</th><th>Name</th><th>Measurement Id</th><th>Data Measurement Id</th><th>Data Interval</th><th>Data Relative Interval</th><th>Data Interval Index</th><th>Data Api Url</th><th>Data Api Http Request</th><th>Actions</th>
+                    <th>#</th>
+                    <th>Name</th>
+                    <th>Input Measurement</th>
+                    <th>Output Measurement</th>
+                    <th>Data Interval</th>
+                    <th>Relative interval</th>
+                    <th># Intervals</th>
+                    <th>Index</th>
+                    <th>calculation</th>
+                    <th>Last data call</th>
+                    <th>Api Url</th>
+                    <th>Api Http Request</th>
+                    <th>Actions</th>
                 </tr>
             </thead>
             <tbody>
             @foreach($calculationmodel as $item)
                 <tr>
                     <td>{{ $loop->iteration or $item->id }}</td>
-                    <td>{{ $item->name }}</td><td>{{ $item->measurement_id }}</td><td>{{ $item->data_measurement_id }}</td><td>{{ $item->data_interval }}</td><td>{{ $item->data_relative_interval }}</td><td>{{ $item->data_interval_index }}</td><td>{{ $item->data_api_url }}</td><td>{{ $item->data_api_http_request }}</td>
+                    <td>{{ $item->name }}</td>
+                    <td>{{ $item->measurement->pq_name_unit }}</td>
+                    <td>{{ $item->input_measurement->pq_name_unit }}</td>
+                    <td>{{ $item->data_interval }}</td>
+                    <td>{{ $item->data_relative_interval }}</td>
+                    <td>{{ $item->data_interval_amount }}</td>
+                    <td>{{ $item->data_interval_index }}</td>
+                    <td>{{ $item->calculation }}</td>
+                    <td>{{ $item->data_last_call }}</td>
+                    <td>{{ $item->data_api_url }}</td>
+                    <td>{{ $item->data_api_http_request }}</td>
                     <td col-sm-1>
                         <a href="{{ route('calculation-model.show', $item->id) }}" title="{{ __('crud.show') }}"><button class="btn btn-default"><i class="fa fa-eye" aria-hidden="true"></i></button></a>
 

@@ -27,7 +27,7 @@ class CalculationModel extends Model
      *
      * @var array
      */
-    protected $fillable = ['name', 'measurement_id', 'data_measurement_id', 'data_interval', 'data_relative_interval', 'data_interval_index', 'data_api_url', 'data_api_http_request', 'data_last_call', 'calculation', 'repository_url', 'data_intervals'];
+    protected $fillable = ['name', 'measurement_id', 'data_measurement_id', 'data_interval', 'data_relative_interval', 'data_interval_index', 'data_api_url', 'data_api_http_request', 'data_last_call', 'calculation', 'repository_url', 'data_interval_amount', 'calculation_interval_minutes'];
     protected $casts    = ['data_relative_interval'=>'boolean'];
 
     /**
@@ -44,8 +44,8 @@ class CalculationModel extends Model
      * calculation              enum    internal/api/lambda
      * repository_url           str     Description of the current model
      * data_processing_function str     Name of the function to post process the data before 
-     * data_intervals           int     Amount of data intervals to fetch
-     * 
+     * data_interval_amount     int     Amount of data intervals to fetch
+     * calculation_interval_minutes int Prefered calculation interval
      */
 
     // Internal or external model calculation type

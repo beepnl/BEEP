@@ -19,6 +19,7 @@ class CreateCalculationModelsTable extends Migration
             $table->integer('measurement_id')->unsigned();
             $table->integer('data_measurement_id')->unsigned();
             $table->string('data_interval')->default('1d');
+            $table->integer('data_interval_amount')->default(1);
             $table->boolean('data_relative_interval')->default(true);
             $table->integer('data_interval_index')->default(0);
             $table->string('data_api_url')->nullable();
@@ -26,6 +27,7 @@ class CreateCalculationModelsTable extends Migration
             $table->timestamp('data_last_call')->nullable();
             $table->string('calculation')->nullable();
             $table->string('repository_url')->nullable();
+            $table->integer('calculation_interval_minutes')->unsigned()->nullable();
         });
     }
 

@@ -36,24 +36,42 @@
 </div>
 <div class="col-xs-12">
 	<div class="form-group {{ $errors->has('data_relative_interval') ? 'has-error' : ''}}">
-	    <label for="data_relative_interval" control-label>{{ 'Data Relative Interval' }}</label>
+	    <label for="data_relative_interval" control-label>{{ 'Relative Interval' }}</label>
 	    <div>
 	        <div class="radio">
-    <label><input name="data_relative_interval" type="radio" value="1" {{ (isset($calculationmodel) && 1 == $calculationmodel->data_relative_interval) ? 'checked' : '' }}> Yes</label>
-</div>
-<div class="radio">
-    <label><input name="data_relative_interval" type="radio" value="0" @if (isset($calculationmodel)) {{ (0 == $calculationmodel->data_relative_interval) ? 'checked' : '' }} @else {{ 'checked' }} @endif> No</label>
-</div>
+		    <label><input name="data_relative_interval" type="radio" value="1" {{ (isset($calculationmodel) && 1 == $calculationmodel->data_relative_interval) ? 'checked' : '' }}> Yes</label>
+		</div>
+		<div class="radio">
+		    <label><input name="data_relative_interval" type="radio" value="0" @if (isset($calculationmodel)) {{ (0 == $calculationmodel->data_relative_interval) ? 'checked' : '' }} @else {{ 'checked' }} @endif> No</label>
+		</div>
 	        {!! $errors->first('data_relative_interval', '<p class="help-block">:message</p>') !!}
 	    </div>
 	</div>
 </div>
 <div class="col-xs-12">
 	<div class="form-group {{ $errors->has('data_interval_index') ? 'has-error' : ''}}">
-	    <label for="data_interval_index" control-label>{{ 'Data Interval Index' }}</label>
+	    <label for="data_interval_index" control-label>{{ 'Interval index (offset; positive = history, negative = future' }}</label>
 	    <div>
 	        <input class="form-control" name="data_interval_index" type="number" step="1" id="data_interval_index" value="{{ $calculationmodel->data_interval_index ?? ''}}" >
 	        {!! $errors->first('data_interval_index', '<p class="help-block">:message</p>') !!}
+	    </div>
+	</div>
+</div>
+<div class="col-xs-12">
+	<div class="form-group {{ $errors->has('data_interval_amount') ? 'has-error' : ''}}">
+	    <label for="data_interval_amount" control-label>{{ 'Interval amount' }}</label>
+	    <div>
+	        <input class="form-control" name="data_interval_amount" type="number" min="1" step="1" id="data_interval_amount" value="{{ $calculationmodel->data_interval_amount ?? ''}}" >
+	        {!! $errors->first('data_interval_amount', '<p class="help-block">:message</p>') !!}
+	    </div>
+	</div>
+</div>
+<div class="col-xs-12">
+	<div class="form-group {{ $errors->has('calculation_interval_minutes') ? 'has-error' : ''}}">
+	    <label for="calculation_interval_minutes" control-label>{{ 'Calculation interval minutes' }}</label>
+	    <div>
+	        <input class="form-control" name="calculation_interval_minutes" type="number" min="1" step="1" id="calculation_interval_minutes" value="{{ $calculationmodel->calculation_interval_minutes ?? ''}}" >
+	        {!! $errors->first('calculation_interval_minutes', '<p class="help-block">:message</p>') !!}
 	    </div>
 	</div>
 </div>

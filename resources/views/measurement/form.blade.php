@@ -158,7 +158,7 @@
 	<div class="form-group {{ $errors->has('data_api_url') ? 'has-error' : ''}}">
 	    <label for="data_api_url" control-label>{{ 'Data API URL (to get data from)' }}</label>
 	    <div>
-	        <input class="form-control" name="data_api_url" type="text" id="data_api_url" maxlength="6" value="{{ isset($measurement->data_api_url) ? $measurement->data_api_url : '' }}" >
+	        <input class="form-control" name="data_api_url" type="text" id="data_api_url" value="{{ isset($measurement->data_api_url) ? $measurement->data_api_url : '' }}" >
 	        {!! $errors->first('data_api_url', '<p class="help-block">:message</p>') !!}
 	    </div>
 	</div>
@@ -166,9 +166,9 @@
 
 <div class="col-xs-12 col-md-4">
 	<div class="form-group {{ $errors->has('data_repository_url') ? 'has-error' : ''}}">
-	    <label for="data_repository_url" control-label>{{ 'Data repository url (Github repo)' }}</label>
+	    <label for="data_repository_url" control-label>{{ 'Info url (Github/Helpdesk)' }}</label>
 	    <div>
-	        <input class="form-control" name="data_repository_url" type="text" id="data_repository_url" maxlength="6" value="{{ isset($measurement->data_repository_url) ? $measurement->data_repository_url : '' }}" >
+	        <input class="form-control" name="data_repository_url" type="text" id="data_repository_url" value="{{ isset($measurement->data_repository_url) ? $measurement->data_repository_url : '' }}" >
 	        {!! $errors->first('data_repository_url', '<p class="help-block">:message</p>') !!}
 	    </div>
 	</div>

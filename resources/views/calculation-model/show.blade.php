@@ -13,6 +13,7 @@
             @permission('role-edit')
                 <a href="{{ route('calculation-model.edit', $calculationmodel->id) }}" title="{{ __('crud.edit') }}"><button class="btn btn-primary"><i class="fa fa-pencil" aria-hidden="true"></i></button></a>
             @endpermission
+                <a href="{{ route('calculation-model.run', $calculationmodel->id) }}" title="{{ __('crud.edit') }}"><button class="btn btn-danger"><i class="fa fa-refresh" aria-hidden="true"></i></button></a>
         @endslot
 
         @slot('body')
@@ -20,11 +21,51 @@
             <table class="table table-responsive table-striped">
                 <tbody>
                     <tr>
-                        <th>ID</th><td>{{ $calculationmodel->id }}</td>
+                        <th>ID</th>
+                        <td>{{ $calculationmodel->id }}</td>
                     </tr>
-                    <tr><th> Name </th><td> {{ $calculationmodel->name }} </td></tr><tr><th> Measurement Id </th><td> {{ $calculationmodel->measurement_id }} </td></tr><tr><th> Data Measurement Id </th><td> {{ $calculationmodel->data_measurement_id }} </td></tr><tr><th> Data Interval </th><td> {{ $calculationmodel->data_interval }} </td></tr><tr><th> Data Relative Interval </th><td> {{ $calculationmodel->data_relative_interval }} </td></tr><tr><th> Data Interval Index </th><td> {{ $calculationmodel->data_interval_index }} </td></tr><tr><th> Data Api Url </th><td> {{ $calculationmodel->data_api_url }} </td></tr><tr><th> Data Api Http Request </th><td> {{ $calculationmodel->data_api_http_request }} </td></tr>
+                    <tr>
+                        <th> Name </th>
+                        <td> {{ $calculationmodel->name }} </td>
+                    </tr>
+                    <tr>
+                        <th> Measurement Id </th>
+                        <td> {{ $calculationmodel->measurement_id }} </td>
+                    </tr>
+                    <tr>
+                        <th> Data Measurement Id </th>
+                        <td> {{ $calculationmodel->data_measurement_id }} </td>
+                    </tr>
+                    <tr>
+                        <th> Data Interval </th>
+                        <td> {{ $calculationmodel->data_interval }} </td>
+                    </tr>
+                    <tr>
+                        <th> Data Relative Interval </th>
+                        <td> {{ $calculationmodel->data_relative_interval }} </td>
+                    </tr>
+                    <tr>
+                        <th> Data Interval Index </th>
+                        <td> {{ $calculationmodel->data_interval_index }} </td>
+                    </tr>
+                    <tr>
+                        <th> Data Api Url </th>
+                        <td> {{ $calculationmodel->data_api_url }} </td>
+                    </tr>
+                    <tr>
+                        <th> Data Api Http Request </th>
+                        <td> {{ $calculationmodel->data_api_http_request }} </td>
+                    </tr>
                 </tbody>
             </table>
+
+            @if(isset($model_result))
+
+            <textarea rows="10" style="width: 100%;">
+                {{ $model_result }}
+            </textarea>
+
+            @endif
 
         @endslot
     @endcomponent

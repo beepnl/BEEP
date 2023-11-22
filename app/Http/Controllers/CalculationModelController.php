@@ -82,6 +82,15 @@ class CalculationModelController extends Controller
         return view('calculation-model.show', compact('calculationmodel'));
     }
 
+
+    public function run(Request $request, $id)
+    {
+        $calculationmodel = CalculationModel::findOrFail($id);
+        $model_result     = $calculationmodel->run_model($request->user());
+
+        return view('calculation-model.show', compact('calculationmodel','model_result'));
+    }
+
     /**
      * Show the form for editing the specified resource.
      *

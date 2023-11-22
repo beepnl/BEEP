@@ -72,7 +72,7 @@ class CalculationModel extends Model
     public function run_model($user)
     {
         $interval_array = $this->interval_array();
-        $model_result   = ['error'=>'empty result'];
+        $model_result   = ['error'=>'empty result', 'user'=>$user->name];
         
         if ($user)
         {
@@ -84,11 +84,12 @@ class CalculationModel extends Model
                     {
                         // get data arrays per apiary ()
                         $apiaries = $devices->groupBy('location_name');
-
+                        $model_result['devices'] = $devices->count();
 
                         foreach ($apiaries as $apiary_name => $hive_devices) 
                         {
-                            $model_result= ['apiary'=>$apiary_name, 'hives'=>$hive_devices->count()];
+                            $model_result['apiary'] = $apiary_name;
+                            $model_result['hives']  = $hive_devices->count();
 
                             $apiary_data = [];
                             foreach ($hive_devices as $device)

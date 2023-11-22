@@ -20,7 +20,7 @@
 
             @if(isset($model_result))
 
-                <textarea rows="60" style="width: 100%;">
+                <textarea rows="32" style="width: 100%;">
                     {{ json_encode($model_result, JSON_PRETTY_PRINT) }}
                 </textarea>
 

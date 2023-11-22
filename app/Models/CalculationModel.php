@@ -208,39 +208,51 @@ class CalculationModel extends Model
     // Add device clean weight to data array
     private function addDeviceCleanWeight($apiary_data, $device, $interval_array)
     {
-        $cleanWeight_query = $device -> getCleanedWeightQuery($this->data_interval, $interval_array['start'], $interval_array['end']); // getCleanedWeightQuery($resolution, $start_date, $end_date, $limit=5000, $threshold=0.75, $frame=2, $timeZone='UTC')
+        //$cleanWeight_query = $device -> getCleanedWeightQuery($this->data_interval, $interval_array['start'], $interval_array['end']); // getCleanedWeightQuery($resolution, $start_date, $end_date, $limit=5000, $threshold=0.75, $frame=2, $timeZone='UTC')
         
+        $fill              = env('INFLUX_FILL') !== null ? env('INFLUX_FILL') : 'null';
+        $groupByResolution = 'GROUP BY time('.$this->data_interval.') fill('.$fill.')';
+        $whereKeyAndTime   = $device->influxWhereKeys().' AND time >= \''.$interval_array['start'].'\' AND time <= \''.$interval_array['end'].'\'';
+        $cleanWeight_query = 'SELECT "weight_kg" FROM "sensors" WHERE '.$whereKeyAndTime.' '.$groupByResolution.' LIMIT '.$this->data_interval_amount;
+
         $cleanWeight_out = Cache::remember($cleanWeight_query, env('CACHE_TIMEOUT_LONG'), function () use ($cleanWeight_query)
         {
             return Device::getInfluxQuery($cleanWeight_query, 'alert');
         });
 
-        //dd(['ccw' => count($cleanWeight_out), 'so' => count($cleanWeight_out)]);
+        if (count($cleanWeight_out) > 0)
+        {
+            //dd(['ccw' => count($cleanWeight_out), 'so' => count($cleanWeight_out)]);
         
-        if (count($cleanWeight_out) == (count($apiary_data)+1))
-        {
-            array_shift($cleanWeight_out);
-        }
-                    
-        if (count($apiary_data) == 0)
-        {
-            $apiary_data = $cleanWeight_out;
-        }
-        else
-        {
-            if (count($cleanWeight_out) == count($apiary_data))
+            if (count($cleanWeight_out) == (count($apiary_data)+1))
             {
-                foreach ($apiary_data as $key => $value) 
+                array_shift($cleanWeight_out);
+            }
+                        
+            if (count($apiary_data) == 0)
+            {
+                $apiary_data = $cleanWeight_out;
+            }
+            else
+            {
+                if (count($cleanWeight_out) == count($apiary_data))
                 {
-                    foreach ($cleanWeight_out[$key] as $name => $value) 
+                    foreach ($apiary_data as $key => $value) 
                     {
-                        if ($name != 'time')
-                            $apiary_data[$key][$name] =  $value;
+                        foreach ($cleanWeight_out[$key] as $name => $value) 
+                        {
+                            if ($name != 'time')
+                                $apiary_data[$key][$name] =  $value;
+                        }
                     }
                 }
             }
-        }
             
+        }
+        else
+        {
+            $apiary_data['query'] = $cleanWeight_query;
+        }
         //dd(['cleanWeight_out'=> count($cleanWeight_out), 'apiary_data' => count($apiary_data), 'sensor_query' => $sensorQuery, 'cleanWeight_query' => $cleanWeight_query, 'cleanWeight_out'=>$cleanWeight_out, 'apiary_data'=>$apiary_data]);
         
         return $apiary_data;

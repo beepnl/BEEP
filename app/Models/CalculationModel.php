@@ -71,11 +71,13 @@ class CalculationModel extends Model
 
     public function run_model($user)
     {
-        $interval_array = $this->interval_array();
-        $model_result   = ['error'=>'empty result', 'user'=>$user->name, 'interval_array'=>$interval_array];
+        $model_result = ['error'=>'empty result'];
         
         if ($user)
         {
+            $interval_array = $this->interval_array();
+            $model_result   = ['user'=>$user->name, 'interval_array'=>$interval_array];
+        
             switch($this->calculation)
             {
                 case 'model_cumulative_daily_weight_anomaly':
@@ -101,13 +103,13 @@ class CalculationModel extends Model
                                     return $model_result;
                                 }
                             }
+                            $model_result['api_result'] = $this->model_cumulative_daily_weight_anomaly($apiary_data);
                         }
-                        $model_result = $this->model_cumulative_daily_weight_anomaly($apiary_data);
                     }
 
                     break;
                 case 'model_colony_failure_weight_history':
-                    $data_arrays = $this->model_colony_failure_weight_history($data_arrays);
+                    $model_result = $this->model_colony_failure_weight_history($data_arrays);
                     break;
                 default:
                     // No calculation

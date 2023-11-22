@@ -13,7 +13,7 @@
             @permission('role-edit')
                 <a href="{{ route('calculation-model.edit', $calculationmodel->id) }}" title="{{ __('crud.edit') }}"><button class="btn btn-primary"><i class="fa fa-pencil" aria-hidden="true"></i></button></a>
             @endpermission
-                <a href="{{ route('calculation-model.run', $calculationmodel->id) }}" title="{{ __('crud.edit') }}"><button class="btn btn-danger"><i class="fa fa-refresh" aria-hidden="true"></i></button></a>
+                <a href="{{ route('calculation-model.run', $calculationmodel->id) }}" title="{{ __('crud.edit') }}"><button class="btn btn-danger loading-spinner" data-loading-text="<i class='fa fa-refresh fa-spin'></i>"><i class="fa fa-refresh" aria-hidden="true"></i></button></a>
         @endslot
 
         @slot('body')
@@ -62,7 +62,7 @@
             @if(isset($model_result))
 
             <textarea rows="10" style="width: 100%;">
-                {{ $model_result }}
+                {{ json_encode($model_result, JSON_PRETTY_PRINT) }}
             </textarea>
 
             @endif

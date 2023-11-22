@@ -89,7 +89,11 @@ class CalculationModel extends Model
                         {
                             $apiary_data = [];
                             foreach ($hive_devices as $device)
+                            {
                                 $apiary_data = $this->addDeviceCleanWeight($apiary_data, $device, $interval_array);
+                                if (count($apiary_data) > 0)
+                                    return $apiary_data;
+                            }
                         }
                         $model_result = $this->model_cumulative_daily_weight_anomaly($apiary_data);
                     }

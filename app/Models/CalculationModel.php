@@ -90,20 +90,25 @@ class CalculationModel extends Model
 
                         foreach ($apiaries as $apiary_name => $hive_devices) 
                         {
-                            $model_result['apiary'] = $apiary_name;
-                            $model_result['hives']  = $hive_devices->count();
+                            $model_result[$apiary_name] = [];
+                            $model_result[$apiary_name]['hives'] = $hive_devices->count();
 
                             $apiary_data = [];
+                            $has_data = false;
                             foreach ($hive_devices as $device)
                             {
                                 $apiary_data = $this->addDeviceCleanWeight($apiary_data, $device, $interval_array);
                                 if (count($apiary_data) > 0)
                                 {
-                                    $model_result['apiary_data'] = $apiary_data;
-                                    return $model_result;
+                                    $model_result[$apiary_name][$device->name] = [];
+                                    $model_result[$apiary_name][$device->name]['apiary_data'] = $apiary_data;
+                                    $has_data = true;
                                 }
                             }
-                            $model_result['api_result'] = $this->model_cumulative_daily_weight_anomaly($apiary_data);
+                            if ($has_data){
+                                $model_result[$apiary_name]['api_result'] = $this->model_cumulative_daily_weight_anomaly($apiary_data);
+                                return $model_result;
+                            }
                         }
                     }
 

@@ -222,7 +222,7 @@ class CalculationModel extends Model
             array_shift($cleanWeight_out);
         }
                     
-        if (count($cleanWeight_out) == count($apiary_data))
+        if (count($cleanWeight_out) == count($apiary_data) || count($apiary_data) == 0)
         {
             foreach ($apiary_data as $key => $value) 
             {

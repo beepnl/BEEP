@@ -88,9 +88,6 @@ class CalculationModelController extends Controller
         $calculationmodel = CalculationModel::findOrFail($id);
         $model_result     = $calculationmodel->run_model($request->user());
 
-        if ($model_result == null)
-            $model_result = ['error'=>'empty result'];
-
         return view('calculation-model.show', compact('calculationmodel','model_result'));
     }
 

@@ -72,7 +72,7 @@ class CalculationModel extends Model
     public function run_model($user)
     {
         $interval_array = $this->interval_array();
-        $model_result   = ['error'=>'empty result', 'user'=>$user->name];
+        $model_result   = ['error'=>'empty result', 'user'=>$user->name, 'interval_array'=>$interval_array];
         
         if ($user)
         {

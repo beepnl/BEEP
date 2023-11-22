@@ -222,14 +222,21 @@ class CalculationModel extends Model
             array_shift($cleanWeight_out);
         }
                     
-        if (count($cleanWeight_out) == count($apiary_data) || count($apiary_data) == 0)
+        if (count($apiary_data) == 0)
         {
-            foreach ($apiary_data as $key => $value) 
+            $apiary_data = $cleanWeight_out;
+        }
+        else
+        {
+            if (count($cleanWeight_out) == count($apiary_data))
             {
-                foreach ($cleanWeight_out[$key] as $name => $value) 
+                foreach ($apiary_data as $key => $value) 
                 {
-                    if ($name != 'time')
-                        $apiary_data[$key][$name] =  $value;
+                    foreach ($cleanWeight_out[$key] as $name => $value) 
+                    {
+                        if ($name != 'time')
+                            $apiary_data[$key][$name] =  $value;
+                    }
                 }
             }
         }

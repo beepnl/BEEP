@@ -97,10 +97,15 @@ class CalculationModel extends Model
                             $has_data = false;
                             foreach ($hive_devices as $device)
                             {
+                                $model_result[$apiary_name][$device->name] = [];
+                                
                                 $apiary_data = $this->addDeviceCleanWeight($apiary_data, $device, $interval_array);
-                                if (count($apiary_data) > 0)
+                                if (isset($apiary_data['query']))
+                                {   
+                                    $model_result[$apiary_name][$device->name]['query'] = $apiary_data['query'];
+                                }
+                                else if (count($apiary_data) > 0)
                                 {
-                                    $model_result[$apiary_name][$device->name] = [];
                                     $model_result[$apiary_name][$device->name]['apiary_data'] = $apiary_data;
                                     $has_data = true;
                                 }

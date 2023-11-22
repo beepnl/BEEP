@@ -106,12 +106,12 @@ class CalculationModel extends Model
                                 }
                                 else if (count($apiary_data) > 0)
                                 {
-                                    $model_result[$apiary_name][$device->name]['apiary_data'] = $apiary_data;
                                     $has_data = true;
                                 }
                             }
                             if ($has_data){
-                                $model_result[$apiary_name]['api_result'] = $this->model_cumulative_daily_weight_anomaly($apiary_data);
+                                $model_result[$apiary_name]['apiary_data'] = $apiary_data;
+                                $model_result[$apiary_name]['api_result']  = $this->model_cumulative_daily_weight_anomaly($apiary_data);
                                 return $model_result;
                             }
                         }
@@ -218,7 +218,8 @@ class CalculationModel extends Model
         $fill              = env('INFLUX_FILL') !== null ? env('INFLUX_FILL') : 'null';
         $groupByResolution = 'GROUP BY time('.$this->data_interval.') fill('.$fill.')';
         $whereKeyAndTime   = $device->influxWhereKeys().' AND time >= \''.$interval_array['start'].'\' AND time <= \''.$interval_array['end'].'\'';
-        $cleanWeight_query = 'SELECT "weight_kg" FROM "sensors" WHERE '.$whereKeyAndTime.' '.$groupByResolution.' LIMIT '.$this->data_interval_amount;
+        $name              = "weight_$device->id";
+        $cleanWeight_query = 'SELECT MEAN("weight_kg") as "'.$name.'" FROM "sensors" WHERE '.$whereKeyAndTime.' '.$groupByResolution.' LIMIT '.$this->data_interval_amount;
 
         $cleanWeight_out = Cache::remember($cleanWeight_query, env('CACHE_TIMEOUT_LONG'), function () use ($cleanWeight_query)
         {
@@ -272,21 +273,30 @@ class CalculationModel extends Model
         {
             $url  = $this->data_api_url;
             $type = $this->data_api_http_request == 'POST' ? 'POST' : 'GET';
+
+            $out  = ['url'=>$url, 'type'=>$type];
             try
             {
                 $guzzle   = new Client();
-                $response = $guzzle->request($type, $url, ['json' => $data, 'verify' => true, 'http_errors' => false]);
+                $response = $guzzle->request($type, $url, ['json' => json_encode($data), 'verify' => true, 'http_errors' => false]);
                 if ($response)
                 {
+                    $out['status'] = $response->getStatusCode();
                     if ($response->getStatusCode() == 200)
+                    {
                         return json_decode($response->getBody());
+                    }
                     else
+                    {
                         Log::error(['service'=>'CalculationModel::callApi', 'url'=>$url, 'type'=>$type, 'error'=>['body'=>json_decode($response->getBody()), 'code'=>$response->getStatusCode()]]);
+                        $out['body'] = json_decode($response->getBody());
+                    }
                 }
             }
             catch(\Exception $e)
             {
                 Log::error(['service'=>'CalculationModel::callApi', 'url'=>$url, 'type'=>$type, 'error'=>$e->getMessage()]);
+                $out['error'] = $e->getMessage();
             }
         }
         return $out;

@@ -208,7 +208,7 @@ class CalculationModel extends Model
     // Add device clean weight to data array
     private function addDeviceCleanWeight($apiary_data, $device, $interval_array)
     {
-        $cleanWeight_query = $device -> getCleanedWeightQuery($this->data_interval, $interval_array['start'], $interval_array['end'], $this->data_interval_amount); // getCleanedWeightQuery($resolution, $start_date, $end_date, $limit=5000, $threshold=0.75, $frame=2, $timeZone='UTC')
+        $cleanWeight_query = $device -> getCleanedWeightQuery($this->data_interval, $interval_array['start'], $interval_array['end']); // getCleanedWeightQuery($resolution, $start_date, $end_date, $limit=5000, $threshold=0.75, $frame=2, $timeZone='UTC')
         
         $cleanWeight_out = Cache::remember($cleanWeight_query, env('CACHE_TIMEOUT_LONG'), function () use ($cleanWeight_query)
         {

@@ -76,7 +76,12 @@ class AlertRuleController extends Controller
         $validator = Validator::make($request->all(), [
             'name'                      => 'nullable|string',
             'description'               => 'nullable|string',
-            'formulas'                  => 'required|array',
+            'measurement_id'            => 'required_without:formulas|integer|exists:measurements,id',
+            'calculation'               => ['required_without:formulas', Rule::in(array_keys(AlertRule::$calculations))],
+            'comparator'                => ['required_without:formulas', Rule::in(array_keys(AlertRule::$comparators))],
+            'comparison'                => ['required_without:formulas', Rule::in(array_keys(AlertRule::$comparisons))],
+            'threshold_value'           => 'required_without:formulas|numeric',
+            'formulas'                  => 'required_without:calculation|array',
             'formulas.*.alert_rule_id'  => 'nullable|integer|exists:alert_rules,id',
             'formulas.*.measurement_id' => 'required|integer|exists:measurements,id',
             'formulas.*.calculation'    => ['required', Rule::in(array_keys(AlertRuleFormula::$calculations))],
@@ -121,20 +126,26 @@ class AlertRuleController extends Controller
         else
             $requestData['exclude_hours'] = null;
 
-        $formulas = $request->input('formulas');
-        // For backwards compatibility, set 1st formula values on AlertRule
-        $requestData['measurement_id']      = $formulas[0]['measurement_id'];
-        $requestData['calculation']         = $formulas[0]['calculation'];
-        $requestData['comparator']          = $formulas[0]['comparator'];
-        $requestData['comparison']          = $formulas[0]['comparison'];
-        $requestData['calculation_minutes'] = $formulas[0]['period_minutes'];
-        $requestData['threshold_value']     = $formulas[0]['threshold_value'];
+        if ($request->filled('formulas'))
+        {
+            $formulas = $request->input('formulas');
+            // For backwards compatibility, set 1st formula values on AlertRule
+            $requestData['measurement_id']      = $formulas[0]['measurement_id'];
+            $requestData['calculation']         = $formulas[0]['calculation'];
+            $requestData['comparator']          = $formulas[0]['comparator'];
+            $requestData['comparison']          = $formulas[0]['comparison'];
+            $requestData['calculation_minutes'] = $formulas[0]['period_minutes'];
+            $requestData['threshold_value']     = $formulas[0]['threshold_value'];
+        }
 
         $alertrule = Auth::user()->alert_rules()->create($requestData);
 
         // Add formulas
-        foreach ($formulas as $f)
-            $alertrule->formulas()->create($f);
+        if ($request->filled('formulas'))
+        {
+            foreach ($formulas as $f)
+                $alertrule->formulas()->create($f);
+        }
 
         return response()->json($alertrule, 201);
     }
@@ -178,7 +189,12 @@ class AlertRuleController extends Controller
         $validator = Validator::make($request->all(), [
             'name'                      => 'nullable|string',
             'description'               => 'nullable|string',
-            'formulas'                  => 'required|array',
+            'measurement_id'            => 'required_without:formulas|integer|exists:measurements,id',
+            'calculation'               => ['required_without:formulas', Rule::in(array_keys(AlertRule::$calculations))],
+            'comparator'                => ['required_without:formulas', Rule::in(array_keys(AlertRule::$comparators))],
+            'comparison'                => ['required_without:formulas', Rule::in(array_keys(AlertRule::$comparisons))],
+            'threshold_value'           => 'required_without:formulas|numeric',
+            'formulas'                  => 'required_without:calculation|array',
             'formulas.*.alert_rule_id'  => 'nullable|integer|min:'.$id.'|max:'.$id,
             'formulas.*.measurement_id' => 'required|integer|exists:measurements,id',
             'formulas.*.calculation'    => ['required', Rule::in(array_keys(AlertRule::$calculations))],
@@ -227,32 +243,35 @@ class AlertRuleController extends Controller
         $alertrule->update($requestData);
 
         // Edit formulas
-        $formulas_input      = $request->input('formulas');
-        $formulas_input_ids  = [];
-        $formulas_input_new  = [];
+        if ($request->filled('formulas'))
+        {
+            $formulas_input      = $request->input('formulas');
+            $formulas_input_ids  = [];
+            $formulas_input_new  = [];
 
-        foreach ($formulas_input as $f)
-        {
-            if (isset($f['id']))
-                $formulas_input_ids[$f['id']] = $f;
-            else
-                $formulas_input_new[] = $f;
-        }
+            foreach ($formulas_input as $f)
+            {
+                if (isset($f['id']))
+                    $formulas_input_ids[$f['id']] = $f;
+                else
+                    $formulas_input_new[] = $f;
+            }
 
-        // update or remove non existing formulas
-        foreach ($alertrule->formulas as $f)
-        {
-            // Update existing
-            if (isset($formulas_input_ids[$f->id]))
-                $f->update($formulas_input_ids[$f->id]);
-            else // or delete (iuf not in array)
-                $f->delete();
-        }
-        // add new formulas
-        if (count($formulas_input_new) > 0)
-        {
-            foreach ($formulas_input_new as $f)
-                $alertrule->formulas()->create($f);
+            // update or remove non existing formulas
+            foreach ($alertrule->formulas as $f)
+            {
+                // Update existing
+                if (isset($formulas_input_ids[$f->id]))
+                    $f->update($formulas_input_ids[$f->id]);
+                else // or delete (iuf not in array)
+                    $f->delete();
+            }
+            // add new formulas
+            if (count($formulas_input_new) > 0)
+            {
+                foreach ($formulas_input_new as $f)
+                    $alertrule->formulas()->create($f);
+            }
         }
 
         return response()->json($alertrule, 200);

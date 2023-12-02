@@ -686,24 +686,88 @@ class MeasurementController extends Controller
         return $data_array;
     }
 
+    // Swisscom format when sent from Akenza.io: 
+    //
+    // port 3:
+    /*
+    {
+        "device": {
+            "id": "02e63e56154c23f9",
+            "name": "BEEP 039B",
+            "description": null,
+            "integrationId": "06d41cc325f5f85c",
+            "workspaceId": "29c9507be9085606",
+            "dataFlowId": "08a1a49cba0db0d0",
+            "customFields": {},
+            "tags": [],
+            "deviceId": "F391228701BB039B",
+            "connectivity": "LORA"
+        },
+        "rule": null,
+        "timestamp": "2023-06-06T14:18:38.881Z",
+        "dateStored": null,
+        "deviceId": "F391228701BB039B",  // devEUI
+        "rawData": {
+            "port": 3,
+            "payloadHex": "1b0d5b0d4e640a011973950401096c0c0a0946000300020007000900010001000100020001000007000000000000",
+            "payload_hex": "1b0d5b0d4e640a011973950401096c0c0a0946000300020007000900010001000100020001000007000000000000"
+        },
+        "uplinkMetrics": {
+            "id": "037e73af9d3324a2",
+            "uplinkId": "3a8a7c70-64b5-4f1c-9c70-60d63a83ee0a",
+            "deviceId": "02e63e56154c23f9",
+            "uplinkSize": 436,
+            "timestamp": "2023-06-06T14:18:38.881Z",
+            "port": 3,
+            "frameCountUp": 96,
+            "frameCountDown": 7,
+            "rssi": -117.0,
+            "snr": -13.75,
+            "sf": 12,
+            "txPower": 16.0,
+            "numberOfGateways": 1,
+            "esp": -130.93,
+            "sqi": 2
+        },
+        "data": {
+            "geoLocationAlgorithmUsed": null,
+            "DevEUI": "F391228701BB039B",
+            "Time": "2023-06-06T14:18:38.881Z",
+            "CustomerID": "100047074",
+            "DevLAT": null,
+            "DevLON": null,
+            "DevLocRadius": null,
+            "NwGeolocAlgoUsed": null,
+            "FPort": 3,
+            "payload_hex": "1b0d5b0d4e640a011973950401096c0c0a0946000300020007000900010001000100020001000007000000000000",
+            "FCntUp": "96",
+            "FCntDn": "7",
+            "LrrRSSI": "-117.000000",
+            "LrrSNR": "-13.750000",
+            "SpFact": "12",
+            "TxPower": "16.000000",
+            "DevLrrCnt": "1"
+        }
+    }
+    */
     private function parse_swisscom_payload($request_data)
     {
         $data_array = [];
 
-        if (isset($request_data['data']['DevEUI']))
-            if (Device::where('key', $request_data['data']['DevEUI'])->count() > 0)
-                $data_array['key'] = $request_data['data']['DevEUI'];
+        if (isset($request_data['deviceId']))
+            if (Device::where('key', $request_data['deviceId'])->count() > 0)
+                $data_array['key'] = $request_data['deviceId'];
+                
+        if (isset($request_data['rawData']['port']))
+            $data_array['port'] = $request_data['rawData']['port'];
+
+        if (isset($request_data['rawData']['payload_hex']))
+            $data_array['payload'] = $request_data['rawData']['payload_hex'];
 
         if (isset($request_data['uplinkMetrics']['rssi']))
                 $data_array['rssi'] = $request_data['uplinkMetrics']['rssi'];
         if (isset($request_data['uplinkMetrics']['snr']))
                 $data_array['snr']  = $request_data['uplinkMetrics']['snr'];
-
-        if (isset($request_data['data']['FPort']))
-            $data_array['port'] = $request_data['data']['FPort'];
-
-        if (isset($request_data['data']['payload_hex']))
-            $data_array['payload'] = $request_data['data']['payload_hex'];
 
         if (isset($data_array['key']) && isset($data_array['payload']) && isset($data_array['port']))
             $data_array = array_merge($data_array, $this->decode_swisscom_payload($data_array));
@@ -867,17 +931,17 @@ class MeasurementController extends Controller
             $data_array = $this->parse_ttn_payload($request_data);
             $payload_type = 'ttn-v3';
         }
-        else if ($request->filled('reported_at') && $request->filled('payload')) // Helium HTTPS POST
+        else if (($request->filled('reported_at') && $request->filled('payload'))) // Helium HTTPS POST
         {
             $data_array = $this->parse_helium_payload($request_data);
             $payload_type = 'helium';
         }
-        else if ($request->filled('rawData') && $request->filled('uplinkMetrics')) // Swisscom HTTPS POST
+        else if (($request->filled('rawData') || $request->filled('uplinkMetrics'))) // Swisscom HTTPS POST
         {
             $data_array = $this->parse_swisscom_payload($request_data);
             $payload_type = 'swisscom';
         }
-        else if (is_array($request_data) && $this->is_kpn_things_payload($request_data))
+        else if ((is_array($request_data) && $this->is_kpn_things_payload($request_data)))
         {
             $data_array = $this->parse_kpnthings_payload($request_data);
             $payload_type = 'kpn-things';

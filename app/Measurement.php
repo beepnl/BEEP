@@ -26,15 +26,18 @@ class Measurement extends Model
 
     /**
      * Attributes that should be mass-assignable.
+     * data_source_type     : type of data source $data_types
+     * data_api_url         : (external) url to call data from
+     * data_repository_url  : Github repository URL with explanation, and background of measurement source
      *
      * @var array
      */
-    protected $fillable = ['abbreviation', 'physical_quantity_id', 'show_in_charts', 'chart_group', 'min_value', 'max_value', 'hex_color', 'show_in_alerts', 'show_in_dials', 'weather'];
+    protected $fillable        = ['abbreviation', 'physical_quantity_id', 'show_in_charts', 'chart_group', 'min_value', 'max_value', 'hex_color', 'show_in_alerts', 'show_in_dials', 'weather', 'data_source_type', 'data_api_url', 'data_repository_url', 'future'];
 
-    protected $hidden  = ['created_at', 'updated_at']; //'parent'
+    protected $hidden          = ['created_at', 'updated_at']; //'parent'
 
-    protected $appends  = ['pq','unit','pq_name_unit', 'low_value', 'high_value']; //'parent'
-
+    protected $appends         = ['pq','unit','pq_name_unit', 'low_value', 'high_value']; //'parent'
+    public static $data_source_types = ['db_influx'=>'Influx Database', 'api'=>'API', 'lambda_model'=>'Lambda Model', 'open_weather'=>'Open Weather'];
 
     public function getPqAttribute()
     {
@@ -81,11 +84,11 @@ class Measurement extends Model
         // {
         //     $abbr = '';
         //     $mabb = $this->abbreviation;
-        //     $aind = strpos($mabb, '_'); 
+        //     $aind = strpos($mabb, '_');
         //     $abbr = ' - '.($aind ? substr($mabb, 0, $aind) : $mabb);
         //     $name .= $abbr;
         // }
-        // else 
+        // else
         if ($name == '-' && isset($this->abbreviation))
         {
             $name = str_replace('_', ' ', $this->abbreviation);
@@ -97,7 +100,7 @@ class Measurement extends Model
     {
         return $this->physical_quantity()->value('unit');
     }
-    
+
     public function pq_name_unit($translate = true)
     {
         if ($this->physical_quantity_id != null)
@@ -117,9 +120,12 @@ class Measurement extends Model
 
     public static function getIdByAbbreviation($abbreviation)
     {
-        $m = Measurement::where('abbreviation', $abbreviation)->first();
-        if ($m)
-            return $m->id;
+        $measurement_abbr_ids = Cache::remember('measurement-abbr-ids', env('CACHE_TIMEOUT_LONG'), function ()
+        {
+            return Measurement::pluck('id', 'abbreviation')->toArray();
+        });
+        if (isset($measurement_abbr_ids[$abbreviation]))
+            return $measurement_abbr_ids[$abbreviation];
 
         return null;
     }
@@ -135,7 +141,7 @@ class Measurement extends Model
         $name_value = $output ? 'output' : 'valid';
         $locale     = $locale == null ? LaravelLocalization::getCurrentLocale() : $locale;
         return Cache::remember('measurement-list-'.$locale.'-'.$name_table.'-'.$name_value, env('CACHE_TIMEOUT_LONG'), function () use ($output, $weather)
-        { 
+        {
             if ($output)
                 return Measurement::where('weather',$weather)->where('show_in_charts', true)->pluck('abbreviation')->toArray();
 
@@ -146,7 +152,7 @@ class Measurement extends Model
     public static function getWeightMeasurementIds()
     {
         return Cache::remember('measurement-weight-ids', env('CACHE_TIMEOUT_LONG'), function ()
-        { 
+        {
             $input_id  = Measurement::where('abbreviation','w_v')->value('id');
             $output_id = Measurement::where('abbreviation','weight_kg')->value('id');
             return ['input_id'=>$input_id, 'output_id'=>$output_id];

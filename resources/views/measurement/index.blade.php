@@ -48,7 +48,8 @@
                     <th>Physical Quantity</th>
                     <th>Show In Charts / Dials / Alerts</th>
                     <th>Weather</th>
-                    <th>Chart Group</th>
+                    <th>Future</th>
+                    <th>Source</th>
                     <th>Min</th>
                     <th>Max</th>
                     <th>Color</th>
@@ -63,7 +64,8 @@
                     <td>{{ $item->pq_name_unit }}</td>
                     <td>{{ isset($item->show_in_charts) && 1 == $item->show_in_charts ? 'Yes' : 'No' }} / {{ isset($item->show_in_dials) && 1 == $item->show_in_dials ? 'Yes' : 'No' }} / {{ isset($item->show_in_alerts) && 1 == $item->show_in_alerts ? 'Yes' : 'No' }}</td>
                     <td>{{ isset($item->weather) && 1 == $item->weather ? 'Yes' : 'No' }}</td>
-                    <td>{{ $item->chart_group }}</td>
+                    <td>{{ isset($item->future) && 1 == $item->future ? 'Yes' : 'No' }}</td>
+                    <td>{{ isset($item->data_source_type) ? App\Measurement::$data_source_types[$item->data_source_type] : '-' }}</td>
                     <td>{{ $item->min_value }}</td>
                     <td>{{ $item->max_value }}</td>
                     <td><span style="background-color: #{{ $item->hex_color }}; border: 1px solid #000; border-radius: 4px; display: inline-block; width: 20px; height: 20px; vertical-align: middle;"></span> #{{ $item->hex_color }}</td>

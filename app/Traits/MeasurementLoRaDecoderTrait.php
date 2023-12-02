@@ -284,12 +284,19 @@ trait MeasurementLoRaDecoderTrait
                             $out['measurement_interval_min']       = hexdec(substr($p, 56, 4)); 
                         }
                         // From 1.5.9 time is added to startup message
-                        if (strlen($p) == 70 && substr($p, 60, 2) == '25')
+                        if (strlen($p) == 70)
                         {
-                            $unixts = hexdec(substr($p, 62, 8));
-                            if ($unixts)
+                            $time_id        = substr($p, 60, 2); 
+                            $time_available = $time_id == '25' || $time_id == '26' || $time_id == '32' ? true : false;
+
+                            if ($time_available)
                             {
-                                $out['time_device'] = $unixts;
+                                $unixts = hexdec(substr($p, 62, 8));
+                                if ($unixts)
+                                {
+                                    $out['time_clock']  = $time_id == '26' || $time_id == '32' ? 'rtc' : 'mcu'; // 2023-08-16 added to FW 1.5.14+: 25 == PCB clock. 26/32 == RTC clock
+                                    $out['time_device'] = $unixts;
+                                }
                             }
                         }
                     }
@@ -308,12 +315,19 @@ trait MeasurementLoRaDecoderTrait
                         }
 
                         // From 1.5.9 time is added to startup message
-                        if (strlen($p) == 86 && substr($p, 74, 2) == '25')
+                        if (strlen($p) == 86) 
                         {
-                            $unixts = hexdec(substr($p, 76, 8));
-                            if ($unixts)
+                            $time_id        = substr($p, 74, 2); 
+                            $time_available = $time_id == '25' || $time_id == '26' || $time_id == '32' ? true : false;
+
+                            if ($time_available)
                             {
-                                $out['time_device'] = $unixts;
+                                $unixts = hexdec(substr($p, 76, 8));
+                                if ($unixts)
+                                {
+                                    $out['time_clock']  = $time_id == '26' || $time_id == '32' ? 'rtc' : 'mcu'; // 2023-08-16 added to FW 1.5.14+: 25 == PCB clock. 26/32 == RTC clock
+                                    $out['time_device'] = $unixts;
+                                }
                             }
                         }
                     }
@@ -470,14 +484,22 @@ trait MeasurementLoRaDecoderTrait
                     // Get time from payload (flash log)
                     // 1b0bf10bea64 0a01019889 0400 0c0a00ff008e001d0010000f000e000c000b000900090008 070849160703f8 25 5f5b73d2 0a
                     // bat          weight     temo fft                                              bme280         time unixts \n
-                    $sb = $sb+14;
-                    if (strlen($pu) > $sb && substr($pu, $sb, 2) == '25')
+                    $sb             = $sb+14;
+                    if (strlen($pu) > $sb)
                     {
-                        $time_start = $sb+2;
-                        $unixts = hexdec(substr($p, $time_start, 8));
-                        if ($unixts && $unixts > 1546300800) // unix timestamp > Tue Jan 01 2019 00:00:00 GMT+0000
+                        $time_id        = substr($pu, $sb, 2);
+                        $time_available = $time_id == '25' || $time_id == '26' || $time_id == '32' ? true : false;
+
+                        if ($time_available)
                         {
-                            $out['time_device'] = $unixts;
+                            $time_start = $sb+2;
+                            $unixts     = hexdec(substr($p, $time_start, 8));
+                            
+                            if ($unixts && $unixts > 1546300800) // unix timestamp > Tue Jan 01 2019 00:00:00 GMT+0000
+                            {
+                                $out['time_clock']  = $time_id == '26' || $time_id == '32' ? 'rtc' : 'mcu'; // 2023-08-16 added to FW 1.5.14+: 25 == PCB clock. 26/32 == RTC clock
+                                $out['time_device'] = $unixts;
+                            }
                         }
                     }
                 }

@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use LaravelLocalization;
 
 use Auth;
+use Cache;
 use Moment\Moment;
 
 class Inspection extends Model
@@ -36,11 +37,33 @@ class Inspection extends Model
      */
     protected $fillable = ['notes', 'created_at', 'impression', 'attention', 'reminder', 'reminder_date', 'checklist_id', 'image_id'];
 
-    protected $hidden   = ['pivot','deleted_at', 'hives'];
+    protected $hidden   = ['pivot','deleted_at', 'hives', 'items'];
 
-    protected $appends  = ['owner', 'thumb_url', 'hive_id', 'item_count'];
+    protected $appends  = ['owner', 'thumb_url', 'hive_id', 'item_count', 'searchable'];
 
     public $timestamps = false;
+
+
+    public static function boot()
+    {
+        parent::boot();
+
+        static::updated(function($i)
+        {
+            $i->empty_cache();
+        });
+
+        static::deleted(function($i)
+        {
+            $i->empty_cache();
+        });
+    }
+
+    // Cache functions
+    public function empty_cache()
+    {
+        Cache::forget('inspection-'.$this->id.'-searchable-array');
+    }
 
 
 
@@ -73,6 +96,15 @@ class Inspection extends Model
         return $this->items()->count();
     }
 
+    public function getSearchableAttribute()
+    {
+        return Cache::rememberForever('inspection-'.$this->id.'-searchable-array', function ()
+        {
+            return $this->items->whereIn('type', ['text', 'sample_code', 'date'])->pluck('value')->toArray();
+        });
+    }
+
+    // Relations
     public function users()
     {
         return $this->belongsToMany(User::class, 'inspection_user');

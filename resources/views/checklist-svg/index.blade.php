@@ -43,14 +43,28 @@
         <table id="table-checklist-svg" class="table table-responsive table-striped">
             <thead>
                 <tr>
-                    <th>#</th><th>User Id</th><th>Checklist Id</th><th>Name</th><th>Svg</th><th>Pages</th><th>Last Print</th><th>Actions</th>
+                    <th>#</th>
+                    <th>User Id</th>
+                    <th>Checklist Id</th>
+                    <th>Name</th>
+                    <th>Svg</th>
+                    <th>Pages</th>
+                    <th>Last Print</th>
+                    <th>App version</th>
+                    <th>Actions</th>
                 </tr>
             </thead>
             <tbody>
             @foreach($checklistsvg as $item)
                 <tr>
                     <td>{{ $loop->iteration or $item->id }}</td>
-                    <td>{{ $item->user_id }}</td><td>{{ $item->checklist_id }}</td><td>{{ $item->name }}</td><td>{{ $item->svg }}</td><td>{{ $item->pages }}</td><td>{{ $item->last_print }}</td>
+                    <td>{{ $item->user_id }}</td>
+                    <td>{{ $item->checklist_id }}</td>
+                    <td>{{ $item->name }}</td>
+                    <td>{{ $item->svg }}</td>
+                    <td>{{ $item->pages }}</td>
+                    <td>{{ $item->last_print }}</td>
+                    <td>{{ $item->app_version }}</td>
                     <td col-sm-1>
                         <a href="{{ route('checklist-svg.show', $item->id) }}" title="{{ __('crud.show') }}"><button class="btn btn-default"><i class="fa fa-eye" aria-hidden="true"></i></button></a>
 

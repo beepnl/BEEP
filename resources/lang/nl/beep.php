@@ -48,6 +48,8 @@ return [
     'Alerts'            => 'Alarmen',
     'AlertRule'         => 'Alarmregel',
     'AlertRules'        => 'Alarmregels',
+    'AlertRuleFormula'  => 'Alarmregelformule',
+    'AlertRuleFormulas' => 'Alarmregelformules',
 
     'min'               => 'minimum',
     'max'               => 'maximum',

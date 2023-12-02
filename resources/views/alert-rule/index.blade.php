@@ -68,7 +68,17 @@
                     <td>{{ $item->calculation_minutes }} x{{ $item->alert_on_occurences }}</td>
                     <td>{{ $item->last_evaluated_at }}</td>
                     <td>{{ $item->last_calculated_at }}</td>
-                    <td>{{ $item->readableFunction() }}</td>
+                    <td>
+                        @if($item->formulas->count() > 0)
+                        <div>Formulas: 
+                            @foreach($item->formulas as $f)
+                            <a href="/alert-rule-formula/{{$f->id}}"><span class="badge badge-default">{{$f->id}}</span></a>
+                            @endforeach
+                        </div>
+                        @else
+                        {{ $item->readableFunction() }}
+                        @endif
+                    </td>
                     <td>{{ $item->measurement->pq_name_unit }}</td>
                     <td>{{ $item->alert_via_email }}</td>
                     <td>{{ $item->default_rule }}</td>

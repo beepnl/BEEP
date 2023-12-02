@@ -1,4 +1,4 @@
-<div class="col-xs-12 col-md-4">
+<div class="col-xs-12 col-md-6">
 	<div class="form-group {{ $errors->has('active') ? 'has-error' : ''}}">
 	    <label for="active" control-label>{{ 'Active' }}</label>
 	    <div>
@@ -12,7 +12,7 @@
 	    </div>
 	</div>
 </div>
-<div class="col-xs-12 col-md-4">
+<div class="col-xs-12 col-md-6">
 	<div class="form-group {{ $errors->has('default_rule') ? 'has-error' : ''}}">
 	    <label for="default_rule" control-label>{{ 'Default Rule' }}</label>
 	    <div>

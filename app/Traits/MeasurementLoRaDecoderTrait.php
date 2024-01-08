@@ -286,7 +286,7 @@ trait MeasurementLoRaDecoderTrait
                         // From 1.5.9 time is added to startup message
                         if (strlen($p) == 70)
                         {
-                            $time_id        = substr($p, 60, 2); 
+                            $time_id        = substr($pu, 60, 2); 
                             $time_available = $time_id == '25' || $time_id == '26' || $time_id == '2E' ? true : false;
 
                             if ($time_available)
@@ -317,7 +317,7 @@ trait MeasurementLoRaDecoderTrait
                         // From 1.5.9 time is added to startup message
                         if (strlen($p) == 86) 
                         {
-                            $time_id        = substr($p, 74, 2); 
+                            $time_id        = substr($pu, 74, 2); 
                             $time_available = $time_id == '25' || $time_id == '26' || $time_id == '2E' ? true : false;
 
                             if ($time_available)

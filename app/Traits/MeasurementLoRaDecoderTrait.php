@@ -330,7 +330,7 @@ trait MeasurementLoRaDecoderTrait
                                 }
                             }
                         }
-                    }a
+                    }
                 }
             }
             else if ($port == 3 || $port == 4)

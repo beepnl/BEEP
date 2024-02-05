@@ -1,11 +1,11 @@
 [
    {
     "version": "1.5.14",
-    "release_date": "2023-11-08T14:10:00Z",
-    "release_notes": "BEEP base 1.5.14 adds the RTC status indicator for a DS3231 real time clock to be able to facilitate offline usage of the BEEP base.",
+    "release_date": "2024-01-03T15:00:00Z",
+    "release_notes": "BEEP base 1.5.14 adds the option for registering the real time clock (RTC DS3231) installation to store accurate time in the log files, to facilitate offline usage of the BEEP base.",
     "stability": "test",
-    "size": 372222,
-    "download_url": "https://assets.beep.nl/firmware/basev3/1.5.14/Beepbase_app_1.5.14.zip"
+    "size": 304128,
+    "download_url": "https://assets.beep.nl/firmware/basev3/1.5.14/Beepbase_app_v1.5.14-031223.zip"
    },
    {
     "version": "1.5.13",

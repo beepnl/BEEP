@@ -8,20 +8,20 @@
 	</div>
 </div>
 <div class="col-xs-12 col-md-4">
-	<div class="form-group {{ $errors->has('measurement_id') ? 'has-error' : ''}}">
-	    <label for="measurement_id" control-label>{{ 'Output Measurement' }}</label>
+	<div class="form-group {{ $errors->has('data_measurement_id') ? 'has-error' : ''}}">
+	    <label for="data_measurement_id" control-label>{{ 'IN: Data Measurement' }}</label>
 	    <div>
-	        {!! Form::select('measurement_id', App\Measurement::selectList(), e($calculationmodel->measurement_id ?? null), array('placeholder'=>__('crud.select', ['item'=>__('general.measurement')]),'class' => 'form-control select2')) !!}
-	        {!! $errors->first('measurement_id', '<p class="help-block">:message</p>') !!}
+	        {!! Form::select('data_measurement_id', App\Measurement::selectList(), e($calculationmodel->data_measurement_id ?? null), array('placeholder'=>__('crud.select', ['item'=>__('general.measurement')]),'class' => 'form-control select2')) !!}
+	        {!! $errors->first('data_measurement_id', '<p class="help-block">:message</p>') !!}
 	    </div>
 	</div>
 </div>
 <div class="col-xs-12 col-md-4">
-	<div class="form-group {{ $errors->has('data_measurement_id') ? 'has-error' : ''}}">
-	    <label for="data_measurement_id" control-label>{{ 'Data Measurement' }}</label>
+	<div class="form-group {{ $errors->has('measurement_id') ? 'has-error' : ''}}">
+	    <label for="measurement_id" control-label>{{ 'OUT: Output Measurement' }}</label>
 	    <div>
-	        {!! Form::select('data_measurement_id', App\Measurement::selectList(), e($calculationmodel->data_measurement_id ?? null), array('placeholder'=>__('crud.select', ['item'=>__('general.measurement')]),'class' => 'form-control select2')) !!}
-	        {!! $errors->first('data_measurement_id', '<p class="help-block">:message</p>') !!}
+	        {!! Form::select('measurement_id', App\Measurement::selectList(), e($calculationmodel->measurement_id ?? null), array('placeholder'=>__('crud.select', ['item'=>__('general.measurement')]),'class' => 'form-control select2')) !!}
+	        {!! $errors->first('measurement_id', '<p class="help-block">:message</p>') !!}
 	    </div>
 	</div>
 </div>

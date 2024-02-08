@@ -18,6 +18,7 @@
         @endslot
 
         @slot('bodyClass')
+            table-responsive
         @endslot
 
         @slot('body')
@@ -39,8 +40,7 @@
             });
         </script>
 
-
-        <table id="table-calculation-model" class="table table-responsive table-striped">
+        <table id="table-calculation-model" class="table table-striped">
             <thead>
                 <tr>
                     <th>#</th>
@@ -55,13 +55,13 @@
                     <th>Last data call</th>
                     <th>Api Url</th>
                     <th>Api Http Request</th>
-                    <th>Actions</th>
+                    <th style="width: 100px;">Actions</th>
                 </tr>
             </thead>
-            <tbody>
+            <tbody style="overflow-wrap: anywhere;">
             @foreach($calculationmodel as $item)
                 <tr>
-                    <td>{{ $loop->iteration or $item->id }}</td>
+                    <td>{{ $item->id }}</td>
                     <td>{{ $item->name }}</td>
                     <td>{{ $item->measurement->pq_name_unit }}</td>
                     <td>{{ $item->input_measurement->pq_name_unit }}</td>

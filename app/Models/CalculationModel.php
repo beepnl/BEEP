@@ -112,14 +112,46 @@ class CalculationModel extends Model
                             if ($has_data){
                                 $model_result[$apiary_name]['apiary_data'] = $apiary_data;
                                 $model_result[$apiary_name]['api_result']  = $this->model_cumulative_daily_weight_anomaly($apiary_data);
-                                return $model_result;
+                                return $model_result;  // TODO: remove after it works
                             }
                         }
                     }
 
                     break;
                 case 'model_colony_failure_weight_history':
-                    $model_result = $this->model_colony_failure_weight_history($data_arrays);
+                    // Send 240 cumulative weight values in a flat array
+                    $devices = $user->allDevices()->get();
+                    if ($devices->count() > 0)
+                    {
+                        // get data arrays per apiary ()
+                        $apiaries = $devices->groupBy('location_name');
+                        $model_result['devices'] = $devices->count();
+
+                        foreach ($apiaries as $apiary_name => $hive_devices) 
+                        {
+                            $model_result[$apiary_name] = [];
+                            $model_result[$apiary_name]['hives'] = $hive_devices->count();
+
+                            $has_data = false;
+                            foreach ($hive_devices as $device)
+                            {
+                                $model_result[$apiary_name][$device->name] = [];
+                                
+                                $device_data = [];
+                                $device_data = $this->addDeviceCleanWeight($device_data, $device, $interval_array);
+                                if (isset($device_data['query']))
+                                {   
+                                    $model_result[$apiary_name][$device->name]['query'] = $device_data['query'];
+                                }
+                                else if (count($device_data) > 0)
+                                {
+                                    $has_data = true;
+                                    $model_result[$apiary_name][$device->name]['api_result']  = $this->model_colony_failure_weight_history($device_data);
+                                    return $model_result; // TODO: remove after it works
+                                }
+                            }
+                        }
+                    }
                     break;
                 default:
                     // No calculation
@@ -137,13 +169,25 @@ class CalculationModel extends Model
     private function model_cumulative_daily_weight_anomaly($apiary_weight_data_arrays)
     {
         // Send data to external model Lambda in JSON POST format
+        // http://calculation.beep.nl:8080/cumulative_weight_anomaly
         $model_result_json = $this->callApi($apiary_weight_data_arrays);
         return $model_result_json;
     }
 
     private function model_colony_failure_weight_history($data_arrays)
     {
-        return $data_arrays;
+        // Send 240 weight diff values
+        // http://calculation.beep.nl:8080/colony_survival_prediction
+        $weight_array = [];
+
+        // transform from 240 timestamps + values to single array of 240 values
+        foreach ($data_arrays as $data_array)
+        {
+            if (isset($data_array['net_weight_kg']))
+                $weight_array[] = $data_array['net_weight_kg'];
+
+        }
+        return $this->callApi($weight_array);
     }
 
 
@@ -255,10 +299,10 @@ class CalculationModel extends Model
             }
             
         }
-        else
-        {
-            $apiary_data['query'] = $cleanWeight_query;
-        }
+        // else
+        // {
+        //     $apiary_data['query'] = $cleanWeight_query;
+        // }
         //dd(['cleanWeight_out'=> count($cleanWeight_out), 'apiary_data' => count($apiary_data), 'sensor_query' => $sensorQuery, 'cleanWeight_query' => $cleanWeight_query, 'cleanWeight_out'=>$cleanWeight_out, 'apiary_data'=>$apiary_data]);
         
         return $apiary_data;

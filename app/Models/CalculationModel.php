@@ -171,6 +171,7 @@ class CalculationModel extends Model
         // Send data to external model Lambda in JSON POST format
         // http://calculation.beep.nl:8080/cumulative_weight_anomaly
         $model_result_json = $this->callApi($apiary_weight_data_arrays);
+        
         return $model_result_json;
     }
 
@@ -187,7 +188,9 @@ class CalculationModel extends Model
                 $weight_array[] = $data_array['net_weight_kg'];
 
         }
-        return $this->callApi($weight_array);
+        $model_result_json = $this->callApi(['weights'=>$weight_array]);
+
+        return $model_result_json * 100;
     }
 
 

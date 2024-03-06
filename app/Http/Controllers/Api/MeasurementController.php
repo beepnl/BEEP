@@ -937,7 +937,7 @@ class MeasurementController extends Controller
             $data_array = $this->parse_helium_payload($request_data);
             $this->cacheRequestRate('store-lora-sensors-helium');
         }
-        else if (is_array($request_data) && count($request_data) > 1 && isset($request_data['rawData']) && isset($request_data['uplinkMetrics']))
+        else if (is_array($request_data) && count($request_data) > 1 && isset($request_data['rawData']['port']) && isset($request_data['deviceId']))
         {
             $data_array = $this->parse_swisscom_payload($request_data);
             $this->cacheRequestRate('store-lora-sensors-swisscom');

@@ -691,11 +691,19 @@ class MeasurementController extends Controller
         $data_array = [];
 
         if (isset($request_data['data']['DevEUI']))
-            if (Device::where('key', $request_data['data']['DevEUI'])->count() > 0)
-                $data_array['key'] = $request_data['data']['DevEUI'];
+        {
+            $key       = $request_data['data']['DevEUI'];
+            $key_lower = strtolower($key);
+
+            if (Device::where('key', $key)->count() > 0)
+                $data_array['key'] = $key;
+            else if (Device::where('key', $key_lower)->count() > 0)
+                $data_array['key'] = $key_lower;
+        }
 
         if (isset($request_data['uplinkMetrics']['rssi']))
                 $data_array['rssi'] = $request_data['uplinkMetrics']['rssi'];
+            
         if (isset($request_data['uplinkMetrics']['snr']))
                 $data_array['snr']  = $request_data['uplinkMetrics']['snr'];
 

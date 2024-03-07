@@ -689,7 +689,7 @@ class MeasurementController extends Controller
     private function parse_swisscom_payload($request_data)
     {
         $data_array = [];
-
+        
         if (isset($request_data['data']['DevEUI']))
         {
             $key       = $request_data['data']['DevEUI'];
@@ -865,10 +865,10 @@ class MeasurementController extends Controller
             $data_array = $this->parse_ttn_payload($request_data);
             $payload_type = 'ttn-v2';
         }
-        else if (($request->filled('data') || $request->filled('identifiers'))) // TTN V3 Packet broker HTTPS POST
+        else if ($request->filled('rawData') && $request->filled('uplinkMetrics') && $request->filled('deviceId')) // Swisscom HTTPS POST
         {
-            $data_array = $this->parse_ttn_payload($request_data['data']);
-            $payload_type = 'ttn-v3-pb';
+            $data_array = $this->parse_swisscom_payload($request_data);
+            $payload_type = 'swisscom';
         }
         else if (($request->filled('end_device_ids') || $request->filled('uplink_message'))) // TTN V3 HTTPS POST
         {
@@ -880,15 +880,15 @@ class MeasurementController extends Controller
             $data_array = $this->parse_helium_payload($request_data);
             $payload_type = 'helium';
         }
-        else if ($request->filled('rawData') && $request->filled('uplinkMetrics')) // Swisscom HTTPS POST
-        {
-            $data_array = $this->parse_swisscom_payload($request_data);
-            $payload_type = 'swisscom';
-        }
         else if (is_array($request_data) && $this->is_kpn_things_payload($request_data))
         {
             $data_array = $this->parse_kpnthings_payload($request_data);
             $payload_type = 'kpn-things';
+        }
+        else if (($request->filled('data') || $request->filled('identifiers'))) // TTN V3 Packet broker HTTPS POST
+        {
+            $data_array = $this->parse_ttn_payload($request_data['data']);
+            $payload_type = 'ttn-v3-pb';
         }
 
         $this->cacheRequestRate('store-lora-sensors-'.$payload_type);
@@ -914,16 +914,18 @@ class MeasurementController extends Controller
     public function storeMeasurementData(Request $request)
     {
         $request_data = $request->input();
+
         // Check for valid data
         if (($request->filled('payload_fields') || $request->filled('payload_raw')) && $request->filled('hardware_serial')) // TTN HTTP POST
         {
             $data_array = $this->parse_ttn_payload($request_data);
             $this->cacheRequestRate('store-lora-sensors-ttn-v2');
         }
-        else if (($request->filled('data') && $request->filled('identifiers'))) // TTN V3 Packet broker HTTPS POST
+        else if (is_array($request_data) && count($request_data) > 1 && isset($request_data['rawData']['port']) && isset($request_data['deviceId']))
         {
-            $data_array = $this->parse_ttn_payload($request_data['data']);
-            $this->cacheRequestRate('store-lora-sensors-ttn-v3-pb');
+            
+            $data_array = $this->parse_swisscom_payload($request_data);
+            $this->cacheRequestRate('store-lora-sensors-swisscom');
         }
         else if (($request->filled('end_device_ids') || $request->filled('uplink_message'))) // TTN V3 HTTPS POST
         {
@@ -945,10 +947,10 @@ class MeasurementController extends Controller
             $data_array = $this->parse_helium_payload($request_data);
             $this->cacheRequestRate('store-lora-sensors-helium');
         }
-        else if (is_array($request_data) && count($request_data) > 1 && isset($request_data['rawData']['port']) && isset($request_data['deviceId']))
+        else if (($request->filled('data') && $request->filled('identifiers'))) // TTN V3 Packet broker HTTPS POST
         {
-            $data_array = $this->parse_swisscom_payload($request_data);
-            $this->cacheRequestRate('store-lora-sensors-swisscom');
+            $data_array = $this->parse_ttn_payload($request_data['data']);
+            $this->cacheRequestRate('store-lora-sensors-ttn-v3-pb');
         }
         else if ($request->filled('data')) // Check for sensor string (colon and pipe devided) fw v1-3
         {

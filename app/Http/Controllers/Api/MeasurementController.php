@@ -1792,22 +1792,23 @@ class MeasurementController extends Controller
 
             $whereTreshold = 'weight_delta > '.$threshold.' OR weight_delta <'.-1*$threshold;
 
-         
-            $inspections = $device -> hive -> getAllInspectionDates();
-
-            sort($inspections);
-        
-            // choose inspections in time frame only and convert to utc
-            $filteredInspections = [];
-            foreach($inspections as $inspection){
-                $inspection_stamp = new Moment($inspection, $timeZone);
-                $inspection_utc = $inspection_stamp->setTimezone('UTC')->format($this->timeFormat);
-                if($inspection_utc >= $start_date & $inspection_utc <= $end_date){
-                    array_push($filteredInspections, $inspection_utc);
-                }
-            }      
-            $inspections = $filteredInspections;
-            #return Response::json( ['status'=>$inspections] );
+            if (isset($device -> hive))
+            {
+                $inspections = $device -> hive -> getAllInspectionDates();
+                sort($inspections);
+            
+                // choose inspections in time frame only and convert to utc
+                $filteredInspections = [];
+                foreach($inspections as $inspection){
+                    $inspection_stamp = new Moment($inspection, $timeZone);
+                    $inspection_utc = $inspection_stamp->setTimezone('UTC')->format($this->timeFormat);
+                    if($inspection_utc >= $start_date & $inspection_utc <= $end_date){
+                        array_push($filteredInspections, $inspection_utc);
+                    }
+                }      
+                $inspections = $filteredInspections;
+                #return Response::json( ['status'=>$inspections] );
+            }
             
             // array for time frames shortly before and after inspections
             $inspectionTuples = [];

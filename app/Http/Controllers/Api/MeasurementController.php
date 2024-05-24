@@ -1786,11 +1786,10 @@ class MeasurementController extends Controller
 
     private function getDeviations(Device $device, $resolution, $start_date, $end_date, $limit, $threshold, $frame, $timeZone){
 
-            
-            $wherekeys=$device->influxWhereKeys();
-            
+            $wherekeys = $device->influxWhereKeys();
 
             $whereTreshold = 'weight_delta > '.$threshold.' OR weight_delta <'.-1*$threshold;
+            $inspections   = [];
 
             if (isset($device -> hive))
             {
@@ -1818,14 +1817,15 @@ class MeasurementController extends Controller
             $inspectionFrame = $frame;
 
             // create first tuple / or the only tuple needed
-            if(count($inspections) != 0){
+            $length = count($inspections);
+            
+            if($length > 0){
                 $periodTuples[0] = ['\''.$start_date.'\'', '\''.$inspections[0].'\''.' - '.$inspectionFrame.'h', $resolution];
             }else{
                 $periodTuples[0] = ['\''.$start_date.'\'', '\''.$end_date.'\'', $resolution];
             }
 
             // create all tuples
-            $length = count($inspections);
             $i = 0;
             while($i <= $length-1){
                 $cur = current($inspections);

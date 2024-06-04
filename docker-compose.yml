@@ -9,6 +9,7 @@ networks:
 volumes:
   dbdata:
     driver: local
+  influx_data: {}
 
 # Workflow
 services:
@@ -76,6 +77,22 @@ services:
       - laravel
     links:
       - mysql
+
+  influxdb:
+    image: influxdb:1.5.4-alpine
+    volumes: 
+      - influx_data:/var/lib/influxdb
+    healthcheck:
+      test: "ln -sf /bin/busybox /bin/wget && /bin/wget -q -Y off http://localhost:8086/metrics -O /dev/null > /dev/null 2>&1"
+      interval: 25s
+      timeout: 3s
+    restart: always
+    environment: 
+      INFLUXDB_DB: bee_data
+      INFLUXDB_USER: user_influx
+      INFLUXDB_USER_PASSWORD: pass_influx
+    networks:
+      - laravel
 
   php:
     build:

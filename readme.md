@@ -144,21 +144,71 @@ e. You should see the back-end dashboard, looking like this:
 ![BEEP Management interface](https://github.com/beepnl/BEEP/raw/master/BEEP-management-interface.png)
 
 
+
 # Installation using docker compose
 
-A simple setup for small installations can be achived with [docker-compose](https://docs.docker.com/compose/). The tool will spinn up a mysqldb, influx, a webserver and initialize the beep database.
+A simple setup for small installations can be achived with [docker-compose](https://docs.docker.com/compose/). The tool will spin up a webserver and initialize the beep database.
 
 1. [Install docker-compose](https://docs.docker.com/compose/install/)
 2. Checkout BEEP and switch into the code repository
-3. Adjust `docker-compose.yaml`(set suitable environment variables).
-4. Run `docker-compose up`. During the first start, you might see some database connectivity issues. Docker compose will restart the BEEP Server component untill a database connection is available. So don't worry.
-5. Register as a new user: [http://localhost:8000/webapp](http://localhost:8000/webapp).
-6. Grant user administrator rights: `docker-compose exec  mysql mysql -h localhost -P 3306 -ppass -u user -D bee_data -Bse "INSERT INTO role_user (user_id,role_id) VALUES(1,1);"`
-7. Login to mamagement interface: [http://localhost:8000/admin](http://localhost:8000/admin)
+3. Make your own .env file: run `cp .env.example .env`
+4. [Create a free mailtrap.io account](https://mailtrap.io/register/signup)
+5. Fill in your mailtrap username & password in your .env file for `MAIL_USERNAME` and `MAIL_PASSWORD` (find it in your mailtrap account via Email Testing -> My inbox -> Integration)
+6. Run `php artisan key:generate`
+7. Run `composer install && sudo chmod -R 777 storage && sudo chmod -R 777 bootstrap/cache`
+8. Run `docker-compose up -d --build`
+9. Optional: verify whether the docker containers are running: run `docker ps`
+10. Run `docker-compose run --rm artisan migrate --seed`
+11. [Check whether backend login page is working](http://localhost:8086/login)
+12. If everything is running smoothly, create a login via the frontend webapp [BEEP VUE (v3) app](https://github.com/beepnl/beep-vue-app).
+To connect the BEEP VUE app with the BEEP backend, make sure to specify the following .env variables in your local BEEP VUE app installation:
+VUE_APP_API_URL = http://localhost:8086/api/
+VUE_APP_BASE_API_URL = http://localhost:8086/
+(Psssst there is a shortcut for creating a login: just use the old [BEEP Angular JS (v2) app](https://github.com/beepnl/BEEP/tree/master/resources/assets) app directly, via http://localhost:8086/webapp#!/login/create
+but beware to only use it to create your login, as the rest of the app is deprecated! (The v3 app replaced the v2 app in 2021))
+13. With your newly created login, [login to the backend](http://localhost:8086/login). N.B. verification email from the previous step will be send to your mailtrap inbox
 
-To upgrade beep to the latest version, simply stop and start docker-compose.
+As the setup is based on docker containers, code changes inside the repository will not have an effect until the underlying docker image is updated. 
 
-As the setup is based on docker containers, code changes inside the repository will not have an effeact till the underlying docker image is updated. 
+### Start/Stop the project
+
+```sh
+docker-compose stop
+`docker-compose start` OR `docker-compose up -d`
+```
+
+
+### Clear/Clean the project
+
+```sh
+docker-compose stop
+docker-compose down -v
+docker-compose up -d --build
+
+docker-compose run --rm artisan clear:data
+docker-compose run --rm artisan cache:clear
+docker-compose run --rm artisan view:clear
+docker-compose run --rm artisan route:clear
+docker-compose run --rm artisan clear-compiled
+docker-compose run --rm artisan config:cache
+docker-compose run --rm artisan storage:link
+docker-compose run --rm artisan migrate
+```
+
+## Ports
+
+Ports used in the project:
+| Software        | Port |
+|---------------- | ---- |
+| **nginx**       | 8086 |
+| **phpmyadmin**  | 8087 |
+| **mysql**       | 3306 |
+| **php**         | 9000 |
+| **redis**       | 6379 |
+
+## Phpmyadmin
+
+In case you need to, login via http://localhost:8087/index.php -> Server: mysql, username: root, password: secret
 
 
 # Get your BEEP base measurement data into the BEEP app

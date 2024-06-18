@@ -539,7 +539,7 @@ class MeasurementController extends Controller
                     if ($item['n'] == 'port' && isset($item['v']))
                         $port = true;
 
-                    if ($item['n'] == 'locOrigin' && isset($item['vs'] && $item['vs'] == 'KPNLORA')) // location 
+                    if ($item['n'] == 'locOrigin' && isset($item['vs']) && $item['vs'] == 'KPNLORA') // location 
                         $loc = true;
                 }
             }

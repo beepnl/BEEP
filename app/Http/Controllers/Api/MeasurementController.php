@@ -208,7 +208,7 @@ class MeasurementController extends Controller
 
     private function storeMeasurements($data_array)
     {
-        if (!in_array('key', array_keys($data_array)) || $data_array['key'] == '' || $data_array['key'] == null)
+        if (!isset($data_array['key']) || $data_array['key'] == '' || $data_array['key'] == null)
         {
             Storage::disk('local')->put('sensors/sensor_no_key.log', json_encode($data_array));
             $this->cacheRequestRate('store-measurements-400');

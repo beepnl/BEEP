@@ -147,7 +147,7 @@ e. You should see the back-end dashboard, looking like this:
 
 # Installation using docker compose
 
-A simple setup for small installations can be achived with [docker-compose](https://docs.docker.com/compose/). The tool will spin up a webserver and initialize the beep database.
+A simple setup for small installations can be achived with [docker-compose](https://docs.docker.com/compose/). The tool will spin up a webserver and initialize the beep mysql and influxdb database.
 
 1. [Install docker-compose](https://docs.docker.com/compose/install/)
 2. Checkout BEEP and switch into the code repository
@@ -159,14 +159,16 @@ A simple setup for small installations can be achived with [docker-compose](http
 8. Run `docker-compose up -d --build`
 9. Optional: verify whether the docker containers are running: run `docker ps`
 10. Run `docker-compose run --rm artisan migrate --seed`
-11. [Check whether backend login page is working](http://localhost:8086/login)
+11. [Check whether backend login page is working](http://localhost:8087/login)
 12. If everything is running smoothly, create a login via the frontend webapp [BEEP VUE (v3) app](https://github.com/beepnl/beep-vue-app).
 To connect the BEEP VUE app with the BEEP backend, make sure to specify the following .env variables in your local BEEP VUE app installation:
-VUE_APP_API_URL = http://localhost:8086/api/
-VUE_APP_BASE_API_URL = http://localhost:8086/
-(Psssst there is a shortcut for creating a login: just use the old [BEEP Angular JS (v2) app](https://github.com/beepnl/BEEP/tree/master/resources/assets) app directly, via http://localhost:8086/webapp#!/login/create
+VUE_APP_API_URL = http://localhost:8087/api/
+VUE_APP_BASE_API_URL = http://localhost:8087/
+(Psssst there is a shortcut for creating a login: just use the old [BEEP Angular JS (v2) app](https://github.com/beepnl/BEEP/tree/master/resources/assets) app directly, via http://localhost:8087/webapp#!/login/create
 but beware to only use it to create your login, as the rest of the app is deprecated! (The v3 app replaced the v2 app in 2021))
-13. With your newly created login, [login to the backend](http://localhost:8086/login). N.B. verification email from the previous step will be send to your mailtrap inbox
+13. With your newly created login, [login to the backend](http://localhost:8087/login). N.B. verification email from the previous step will be send to your mailtrap inbox
+14. Give your newly created user the superadmin role, via [phpmyadmin](http://localhost:8088/index.php) (server: mysql, user: root, password: secret):
+Go to bee_data db, users table, check your user id. Then in the role_user table, edit the role_id for that user_id to '1 - superadmin' and save. 
 
 As the setup is based on docker containers, code changes inside the repository will not have an effect until the underlying docker image is updated. 
 
@@ -195,20 +197,27 @@ docker-compose run --rm artisan storage:link
 docker-compose run --rm artisan migrate
 ```
 
+### View logs
+
+```sh
+docker logs [CONTAINER-NAME]
+```
+
 ## Ports
 
 Ports used in the project:
 | Software        | Port |
 |---------------- | ---- |
-| **nginx**       | 8086 |
-| **phpmyadmin**  | 8087 |
+| **nginx**       | 8087 |
+| **phpmyadmin**  | 8088 |
 | **mysql**       | 3306 |
+| **influxdb**    | 8086 |
 | **php**         | 9000 |
 | **redis**       | 6379 |
 
 ## Phpmyadmin
 
-In case you need to, login via http://localhost:8087/index.php -> Server: mysql, username: root, password: secret
+In case you need to, login via http://localhost:8088/index.php -> Server: mysql, username: root, password: secret
 
 
 # Get your BEEP base measurement data into the BEEP app

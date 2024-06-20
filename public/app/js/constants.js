@@ -4,7 +4,7 @@
  *
  */
 var LANG = [];
-var API_URL = document.URL.indexOf('beep.test') > -1 ? 'https://beep.test/api/' : ((document.URL.indexOf('test.beep.nl') > -1) ? 'https://test.beep.nl/api/' : ((document.URL.indexOf('app.beep.nl') > -1) ? 'https://api.beep.nl/api/' : 'http://localhost:8086/api/')); //var API_URL 				= 'https://api.beep.nl/api/';
+var API_URL = document.URL.indexOf('beep.test') > -1 ? 'https://beep.test/api/' : ((document.URL.indexOf('test.beep.nl') > -1) ? 'https://test.beep.nl/api/' : ((document.URL.indexOf('app.beep.nl') > -1) ? 'https://api.beep.nl/api/' : 'http://localhost:8087/api/')); //var API_URL 				= 'https://api.beep.nl/api/';
 
 var CONNECTION_FREQ_REMOTE = 60 * 1000;
 var COLORS = {

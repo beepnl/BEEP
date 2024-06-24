@@ -210,7 +210,7 @@ class MeasurementController extends Controller
 
     private function storeMeasurements($data_array)
     {
-        if (!in_array('key', array_keys($data_array)) || $data_array['key'] == '' || $data_array['key'] == null)
+        if (!isset($data_array['key']) || $data_array['key'] == '' || $data_array['key'] == null)
         {
             Storage::disk('local')->put('sensors/sensor_no_key.log', json_encode($data_array));
             $this->cacheRequestRate('store-measurements-400');
@@ -517,6 +517,7 @@ class MeasurementController extends Controller
         $dev_eui = false;
         $payload = false;
         $port    = false;
+        $loc     = false;
         /*
         KPN Thing payload (2023-04-13):
         [
@@ -539,10 +540,13 @@ class MeasurementController extends Controller
 
                     if ($item['n'] == 'port' && isset($item['v']))
                         $port = true;
+
+                    if ($item['n'] == 'locOrigin' && isset($item['vs']) && $item['vs'] == 'KPNLORA') // location 
+                        $loc = true;
                 }
             }
         }
-        return $dev_eui && $payload && $port; // only true if all three items are available
+        return $dev_eui && ($loc || ($port && $payload)); // only true if all three items are available
     }
 
     /*  KPN Things JSON uplink payload (payload optionally added to bn object after 2023-04-13):
@@ -588,6 +592,15 @@ class MeasurementController extends Controller
 
                     if ($item['n'] == 'port' && isset($item['v']))
                         $data_array['port'] = intval($item['v']);
+
+                    if ($item['n'] == 'latitude' && isset($item['v']))
+                        $data_array['lat'] = floatval($item['v']);
+
+                    if ($item['n'] == 'longitude' && isset($item['v']))
+                        $data_array['lon'] = floatval($item['v']);
+
+                    if ($item['n'] == 'locTime' && isset($item['v']))
+                        $data_array['time'] = intval($item['v']);
                 }
             }
         }

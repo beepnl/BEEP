@@ -147,7 +147,7 @@ class MeasurementController extends Controller
                 );
             }
         }
-        // die(print_r($this->valid_sensors));
+        // die(print_r($points));
         $stored = false;
         if (count($points) > 0)
         {

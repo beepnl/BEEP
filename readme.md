@@ -169,6 +169,34 @@ but beware to only use it to create your login, as the rest of the app is deprec
 13. With your newly created login, [login to the backend](http://localhost:8087/login). N.B. verification email from the previous step will be send to your mailtrap inbox
 14. Give your newly created user the superadmin role, via [phpmyadmin](http://localhost:8088/index.php) (server: mysql, user: root, password: secret):
 Go to bee_data db, users table, check your user id. Then in the role_user table, edit the role_id for that user_id to '1 - superadmin' and save. 
+15. Now setup Influxdb for the measurements data. [Create a login via the Influxdb onboarding UI](http://localhost:8086/) (choose your username and password, organization: beep, database: bee_data). Then copy and store the API token.
+16. Add your Influxdb credentials to your .env file for `INFLUXDB_USER` and `INFLUXDB_PASSWORD` and the influx-configs file at storage/influxdb2/config like so:
+[yourusername]
+  url = "http://localhost:8086"
+  token = "your API token from step 15"
+  org = "beep"
+  active = true
+17. Run `docker-compose run --rm artisan config:clear` to clear the config cache
+18. Make your bee_data database writable inside the influxdb docker container
+```bash
+docker exec -t influxdb bash
+influx bucket list (-> copy bee_data bucket id (or obtain it via the UI at http://localhost:8086 instead))
+influx v1 dbrp create --db bee_data --rp autogen --bucket-id [your bucket id]  --default
+```
+19. Optional: test write to your influxdb via the docker container:
+```bash
+docker exec -t influxdb bash (skip if moving on from previous step directly)
+influx write --bucket bee_data --host http://localhost:8086 "m,host=host1 field1=1.2"
+```
+Check the data you posted via the Influxdb UI at http://localhost:8086
+20. Test posting a measurement via your dockerized BEEP backend: 
+    - Create a new device in the BEEP VUE app (see step 12) in the /devices page, copy the 'Device unique identifier', this is your 'key'. (Hive is not required, but also possible to first create an apiary and hive to attach to your device)
+    - Create at least 1 measurement type at http://localhost:8087/en/measurement, with 'Influx Database' as the Data Source type. For example Abbreviation 't_i', Physical Quantity Id: Temperature (C)
+    - Post a measurement via Postman or curl, see [API documentation](https://api.beep.nl/docs/#apimeasurementcontroller-POSTapi-sensors). For example:
+      POST http://localhost:8087/api/sensors?key=[your device key]&t_i=34.5 (where 't_i' is your newly created measurement abbreviation from above, the value can be anything).
+    - Response should be ‘saved’. Datapoint should be visible in the Influxdb bee_data.
+    - In order to view your datapoint in the BEEP VUE app /data tab, first run `docker-compose run --rm artisan cache:clear` to clear the cache. Then hard refresh the app in order to load your newly created measurement type, otherwise the datapoint will not be visible in the frontend.
+
 
 As the setup is based on docker containers, code changes inside the repository will not have an effect until the underlying docker image is updated. 
 
@@ -189,6 +217,7 @@ docker-compose up -d --build
 
 docker-compose run --rm artisan clear:data
 docker-compose run --rm artisan cache:clear
+docker-compose run --rm artisan config:clear
 docker-compose run --rm artisan view:clear
 docker-compose run --rm artisan route:clear
 docker-compose run --rm artisan clear-compiled

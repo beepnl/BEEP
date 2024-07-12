@@ -471,6 +471,30 @@ class ResearchController extends Controller
                             'Data file']
                         ];
 
+            $spreadsheet_array['Alert rules'] = [
+                            [
+                                'User_id',
+                                'Name',
+                                'Function',
+                                'Calculation minutes',
+                                'Last calculated',
+                                'Last evaluated'
+                            ]
+                        ];
+
+            $spreadsheet_array['Alerts'] = [
+                            [
+                                'User_id',
+                                'Device_id',
+                                'Location_id',
+                                'Hive_id',
+                                'Date',
+                                'Function',
+                                'Value',
+                                'Count'
+                            ]
+                        ];
+
             // Add item names to header row of inspections
             // first combine all user's itemnames
             $item_ancs  = [];
@@ -730,6 +754,14 @@ class ResearchController extends Controller
                         if (count($user_sensor_defs) > 0)
                             foreach ($user_sensor_defs as $sdef) 
                                 $spreadsheet_array[__('export.sensordefs')][] = $sdef;
+
+                        $alert_rules = $this->getAlertRules($user_id, $user_alert_rules, $date_curr_consent);
+                        foreach ($alert_rules as $ar)
+                            $spreadsheet_array['Alert rules'][] = $ar;
+
+                        $alerts = $this->getAlerts($user_id, $user_alerts, $date_curr_consent, $date_next_consent);
+                        foreach ($alerts as $al)
+                            $spreadsheet_array['Alerts'][] = $al;
 
                         if ($user_devices->count() > 0)
                         {
@@ -1174,6 +1206,65 @@ class ResearchController extends Controller
             ];
         });
     }
+
+    /*
+    $spreadsheet_array['Alert rules'] = [
+        [
+            'User_id',
+            'Name',
+            'Formula',
+            'Calculation minutes',
+            'Last calculated',
+            'Last evaluated'
+        ]
+    ];
+    */
+    private function getAlertRules($user_id, $alert_rules, $date_start=null)
+    {
+        return $alert_rules->where('created_at', '>=', $date_start)->sortByDesc('created_at')->sortBy('user_id')->map(function($item) use ($user_id)
+        {
+            return [
+                $user_id,
+                $item->name, 
+                $item->readableFunction(),
+                $item->calculation_minutes,
+                $item->last_calculated_at,
+                $item->last_evaluated_at
+            ];
+        });
+    }
+
+    /*
+    $spreadsheet_array['Alerts'] = [
+        [
+            'User_id',
+            'Device_id',
+            'Location_id',
+            'Hive_id',
+            'Date',
+            'Function',
+            'Value',
+            'Count'
+        ]
+    ];
+    */
+    private function getAlerts($user_id, $alerts, $date_start=null, $date_until=null)
+    {
+        return $alerts->where('created_at', '>=', $date_start)->where('created_at', '<=', $date_until)->sortByDesc('created_at')->sortBy('user_id')->sortBy('device_id')->map(function($item) use ($user_id)
+        {
+            return [
+                $user_id,
+                $item->device_id, 
+                $item->location_id,
+                $item->hive_id,
+                $item->created_at,
+                $item->alert_function,
+                $item->alert_value,
+                $item->count
+            ];
+        });
+    }
+
 
     private function getInspections($user_id, $inspections, $item_names, $date_start=null, $date_until=null)
     {

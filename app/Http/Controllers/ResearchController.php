@@ -281,7 +281,7 @@ class ResearchController extends Controller
 
         //die(print_r([$request->input('user_ids'), $consent_users_selected, $users]));
         // Fill dates array
-        $assets = ["users"=>0, "apiaries"=>0, "hives"=>0, "inspections"=>0, "devices"=>0, "measurements"=>0, "measurements_imported"=>0, "measurements_total"=>0, "data_completeness"=>0, "weather"=>0, "flashlogs"=>0, "samplecodes"=>0, "sensor_definitions"=>0];
+        $assets = ["users"=>0, "apiaries"=>0, "hives"=>0, "inspections"=>0, "devices"=>0, "measurements"=>0, "measurements_imported"=>0, "measurements_total"=>0, "data_completeness"=>0, "weather"=>0, "flashlogs"=>0, "samplecodes"=>0, "sensor_definitions"=>0, "alert_rules"=>0, "alerts"=>0];
 
         $moment = $moment_start;
         while($moment < $moment_end)
@@ -563,6 +563,8 @@ class ResearchController extends Controller
             $user_meas_import  = [];
             $user_weather_data = [];
             $user_sensor_defs  = [];
+            $user_alert_rules  = $user->alert_rules()->where('default_rule', 0)->where('active', 1)->get();
+            $user_alerts       = $user->alerts;
             
             //die(print_r($user_devices->toArray()));
 
@@ -697,6 +699,7 @@ class ResearchController extends Controller
                     $user_data_counts['hives']              = $user_hives->where('created_at', '<=', $date_next_consent)->count();
                     $user_data_counts['devices']            = $user_devices->where('created_at', '<=', $date_next_consent)->count();
                     $user_data_counts['flashlogs']          = $user_flashlogs->where('created_at', '<=', $date_next_consent)->count();
+                    $user_data_counts['alert_rules']        = $user_alert_rules->where('created_at', '<=', $date_next_consent)->count();
                     $user_data_counts['sensor_definitions'] = count($user_sensor_defs);
 
                     //print_r([$i, $index, $user_consent, $date_curr_consent, $date_next_consent, $user_data_counts, $user_devices->toArray()]);
@@ -779,6 +782,7 @@ class ResearchController extends Controller
                     $dates[$d]['hives']      += $user_data_counts['hives'];
                     $dates[$d]['devices']    += $user_data_counts['devices'];
                     $dates[$d]['sensor_definitions'] += $user_data_counts['sensor_definitions'];
+                    $dates[$d]['alert_rules']+= $user_data_counts['alert_rules'];
 
                     $inspections_today        = $hive_inspections->where('created_at', '>=', $d_start)->where('created_at', '<=', $d_end)->count();
                     $dates[$d]['inspections'] = $v['inspections'] + $inspections_today;
@@ -788,6 +792,9 @@ class ResearchController extends Controller
 
                     $samplecodes_today        = $user_samplecodes->where('sample_date', '>=', $d_start)->where('sample_date', '<=', $d_end)->count();
                     $dates[$d]['samplecodes'] = $v['samplecodes'] + $samplecodes_today;
+
+                    $alerts_today             = $user_alerts->where('created_at', '>=', $d_start)->where('created_at', '<=', $d_end)->count();
+                    $dates[$d]['alerts']      = $v['alerts'] + $alerts_today;
                     
                     if (in_array($d, array_keys($user_measurements)))
                         $dates[$d]['measurements'] = $v['measurements'] + $user_measurements[$d];
@@ -817,7 +824,7 @@ class ResearchController extends Controller
         {
             foreach ($day_arr as $asset => $count) 
             {
-                if ($asset == 'inspections' || $asset == 'measurements' || $asset == 'measurements_imported' || $asset == 'measurements_total' || $asset == 'data_completeness' || $asset == 'weather' || $asset == 'samplecodes' || $asset == 'flashlogs')
+                if ($asset == 'inspections' || $asset == 'measurements' || $asset == 'measurements_imported' || $asset == 'measurements_total' || $asset == 'data_completeness' || $asset == 'weather' || $asset == 'samplecodes' || $asset == 'flashlogs' || $asset == 'alerts')
                     $totals[$asset] += $count;
                 else
                     $totals[$asset] = max($totals[$asset], $count);

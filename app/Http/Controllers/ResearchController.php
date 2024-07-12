@@ -564,7 +564,7 @@ class ResearchController extends Controller
             $user_weather_data = [];
             $user_sensor_defs  = [];
             $user_alert_rules  = $user->alert_rules()->where('default_rule', 0)->where('active', 1)->get();
-            $user_alerts       = $user->alerts;
+            $user_alerts       = isset($device_ids) ? $user->alerts()->whereIn('device_id', $device_ids)->get() : $user->alerts;
             
             //die(print_r($user_devices->toArray()));
 

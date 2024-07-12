@@ -474,6 +474,7 @@ class ResearchController extends Controller
             $spreadsheet_array['Alert rules'] = [
                             [
                                 'User_id',
+                                __('export.created_at'),
                                 'Name',
                                 'Function',
                                 'Calculation minutes',
@@ -488,7 +489,7 @@ class ResearchController extends Controller
                                 'Device_id',
                                 'Location_id',
                                 'Hive_id',
-                                'Date',
+                                __('export.created_at'),
                                 'Function',
                                 'Value',
                                 'Count'
@@ -1211,6 +1212,7 @@ class ResearchController extends Controller
     $spreadsheet_array['Alert rules'] = [
         [
             'User_id',
+            'Date',
             'Name',
             'Formula',
             'Calculation minutes',
@@ -1225,6 +1227,7 @@ class ResearchController extends Controller
         {
             return [
                 $user_id,
+                $item->created_at,
                 $item->name, 
                 $item->readableFunction(),
                 $item->calculation_minutes,

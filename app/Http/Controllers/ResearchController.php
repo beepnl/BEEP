@@ -588,7 +588,7 @@ class ResearchController extends Controller
             $user_weather_data = [];
             $user_sensor_defs  = [];
             $user_alert_rules  = $user->alert_rules()->where('default_rule', 0)->where('active', 1)->get();
-            $user_alerts       = isset($device_ids) ? $user->alerts()->whereIn('device_id', $device_ids)->get() : $user->alerts;
+            $user_alerts       = isset($device_ids) ? $user->alerts()->whereIn('device_id', $device_ids)->where('show', 1)->get() : $user->alerts()->where('show', 1)->get();
             
             //die(print_r($user_devices->toArray()));
 
@@ -755,7 +755,7 @@ class ResearchController extends Controller
                             foreach ($user_sensor_defs as $sdef) 
                                 $spreadsheet_array[__('export.sensordefs')][] = $sdef;
 
-                        $alert_rules = $this->getAlertRules($user_id, $user_alert_rules, $date_curr_consent);
+                        $alert_rules = $this->getAlertRules($user_id, $user_alert_rules, $date_curr_consent, $date_next_consent);
                         foreach ($alert_rules as $ar)
                             $spreadsheet_array['Alert rules'][] = $ar;
 
@@ -1219,9 +1219,9 @@ class ResearchController extends Controller
         ]
     ];
     */
-    private function getAlertRules($user_id, $alert_rules, $date_start=null)
+    private function getAlertRules($user_id, $alert_rules, $date_start=null, $date_until=null)
     {
-        return $alert_rules->where('created_at', '>=', $date_start)->sortByDesc('created_at')->sortBy('user_id')->map(function($item) use ($user_id)
+        return $alert_rules->where('created_at', '<=', $date_until)->sortByDesc('created_at')->map(function($item) use ($user_id)
         {
             return [
                 $user_id,
@@ -1250,7 +1250,7 @@ class ResearchController extends Controller
     */
     private function getAlerts($user_id, $alerts, $date_start=null, $date_until=null)
     {
-        return $alerts->where('created_at', '>=', $date_start)->where('created_at', '<=', $date_until)->sortByDesc('created_at')->sortBy('user_id')->sortBy('device_id')->map(function($item) use ($user_id)
+        return $alerts->where('created_at', '>=', $date_start)->where('created_at', '<=', $date_until)->sortByDesc('created_at')->sortBy('hive_id')->map(function($item) use ($user_id)
         {
             return [
                 $user_id,

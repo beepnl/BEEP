@@ -123,6 +123,14 @@
                             <th class="row-header" style="max-height: 45px; overflow: scroll; white-space: nowrap;"><span><i class="fa fa-2x fa-thermometer"></i> Weather data points</span></th> 
                             <th class="row-header">{{ $totals['weather'] }}</th> 
                         </tr>
+                        <tr>
+                            <th class="row-header" style="max-height: 45px; overflow: scroll; white-space: nowrap;"><span><i class="fa fa-2x fa fa-exclamation-circle"></i> Active alert rules</span></th> 
+                            <th class="row-header">{{ $totals['alert_rules'] }}</th> 
+                        </tr>
+                        <tr>
+                            <th class="row-header" style="max-height: 45px; overflow: scroll; white-space: nowrap;"><span><i class="fa fa-2x fa-bell"></i> Alerts</span></th> 
+                            <th class="row-header">{{ $totals['alerts'] }}</th> 
+                        </tr>
                     </tbody>
                 </table>
             </div>
@@ -196,6 +204,16 @@
                         <tr>
                             @foreach($dates as $date => $d)
                                 <td>{{ $d['weather'] > 0 ? $d['weather'] : '' }}</td>
+                            @endforeach
+                        </tr>
+                        <tr>
+                            @foreach($dates as $date => $d)
+                                <td>{{ $d['alert_rules'] > 0 ? $d['alert_rules'] : '' }}</td>
+                            @endforeach
+                        </tr>
+                        <tr>
+                            @foreach($dates as $date => $d)
+                                <td>{{ $d['alerts'] > 0 ? $d['alerts'] : '' }}</td>
                             @endforeach
                         </tr>
                     </tbody>

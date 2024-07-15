@@ -180,7 +180,7 @@ class SensorDefinitionController extends Controller
             return response()->json($sensordefinition, 201);
         }
 
-        Log::error('sensordefinition_storage_error');
+        Log::error('sensordefinition_storage_error: '.json_encode($request->input()->toArray()));
 
         return response()->json('no_device_found', 404);
     }

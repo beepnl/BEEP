@@ -129,19 +129,22 @@ class AlertRuleController extends Controller
         if ($request->filled('formulas'))
         {
             $formulas = $request->input('formulas');
-            // For backwards compatibility, set 1st formula values on AlertRule
-            $requestData['measurement_id']      = $formulas[0]['measurement_id'];
-            $requestData['calculation']         = $formulas[0]['calculation'];
-            $requestData['comparator']          = $formulas[0]['comparator'];
-            $requestData['comparison']          = $formulas[0]['comparison'];
-            $requestData['calculation_minutes'] = $formulas[0]['period_minutes'];
-            $requestData['threshold_value']     = $formulas[0]['threshold_value'];
+            if (count($formulas) > 0)
+            {
+                // For backwards compatibility, set 1st formula values on AlertRule
+                $requestData['measurement_id']      = $formulas[0]['measurement_id'];
+                $requestData['calculation']         = $formulas[0]['calculation'];
+                $requestData['comparator']          = $formulas[0]['comparator'];
+                $requestData['comparison']          = $formulas[0]['comparison'];
+                $requestData['calculation_minutes'] = $formulas[0]['period_minutes'];
+                $requestData['threshold_value']     = $formulas[0]['threshold_value'];
+            }
         }
 
         $alertrule = Auth::user()->alert_rules()->create($requestData);
 
         // Add formulas
-        if ($request->filled('formulas'))
+        if (isset($formulas) && count($formulas) > 0)
         {
             foreach ($formulas as $f)
                 $alertrule->formulas()->create($f);

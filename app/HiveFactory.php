@@ -191,7 +191,8 @@ class HiveFactory
 			else if ($broodLayerDiff < 0)
 			{
 				$category_id = Category::findCategoryIdByParentAndName('hive_layer', 'brood');
-				$hive->layers()->where('category_id',$category_id)->limit(-1*$broodLayerDiff)->delete();
+				if ($category_id)
+					$hive->layers()->where('category_id',$category_id)->limit(-1*$broodLayerDiff)->delete();
 			}
 
 			$honeyLayerDiff = $honeyLayerAmount - $hive->getHoneylayersAttribute();
@@ -204,7 +205,8 @@ class HiveFactory
 			else if ($honeyLayerDiff < 0)
 			{
 				$category_id = Category::findCategoryIdByParentAndName('hive_layer', 'honey');
-				$hive->layers()->where('category_id',$category_id)->limit(-1*$honeyLayerDiff)->delete();
+				if ($category_id)
+					$hive->layers()->where('category_id',$category_id)->limit(-1*$honeyLayerDiff)->delete();
 			}
 		}
 		
@@ -226,7 +228,8 @@ class HiveFactory
 				else if ($frameDiff < 0)
 				{
 					$category_id = Category::findCategoryIdByParentAndName('hive_frame', 'wax');
-					$layer->frames()->where('category_id',$category_id)->limit(-1*$frameDiff)->delete();
+					if ($category_id)
+						$layer->frames()->where('category_id',$category_id)->limit(-1*$frameDiff)->delete();
 				}
 			}
 		}

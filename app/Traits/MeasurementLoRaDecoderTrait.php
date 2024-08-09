@@ -234,8 +234,9 @@ trait MeasurementLoRaDecoderTrait
 
     private function convert24BitTo32BitSigned($value) {
 
+        
         $hexValue = str_pad($value, 6, '0', STR_PAD_LEFT);
-
+        Log::debug("convert24BitTo32BitSigned v=$value, h=$hexValue");
 
         // Mask to keep only the lowest 24 bits
         $hexValue = $hexValue & 0xFFFFFF;

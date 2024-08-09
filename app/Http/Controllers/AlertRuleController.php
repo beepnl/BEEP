@@ -17,31 +17,22 @@ class AlertRuleController extends Controller
      */
     public function index(Request $request)
     {
-        $keyword = $request->get('search');
+        $user_id = $request->input('user_id');
+        $search  = $request->input('search');
         $perPage = 100;
 
-        if (!empty($keyword)) {
-            $alertrule = AlertRule::where('name', 'LIKE', "%$keyword%")
-                ->orWhere('description', 'LIKE', "%$keyword%")
-                ->orWhere('measurement_id', 'LIKE', "%$keyword%")
-                ->orWhere('calculation', 'LIKE', "%$keyword%")
-                ->orWhere('calculation_minutes', 'LIKE', "%$keyword%")
-                ->orWhere('comparator', 'LIKE', "%$keyword%")
-                ->orWhere('comparison', 'LIKE', "%$keyword%")
-                ->orWhere('threshold_value', 'LIKE', "%$keyword%")
-                ->orWhere('exclude_months', 'LIKE', "%$keyword%")
-                ->orWhere('exclude_hours', 'LIKE', "%$keyword%")
-                ->orWhere('alert_via_email', 'LIKE', "%$keyword%")
-                ->orWhere('webhook_url', 'LIKE', "%$keyword%")
-                ->orWhere('active', 'LIKE', "%$keyword%")
-                ->orWhere('user_id', 'LIKE', "%$keyword%")
-                ->orWhere('default_rule', 'LIKE', "%$keyword%")
+        if (!empty($user_id)) {
+            $alertrule = AlertRule::where('user_id', $user_id)
+                ->paginate($perPage);
+        }
+        else if (!empty($search)) {
+            $alertrule = AlertRule::where('name', 'LIKE', "%$search%")
                 ->paginate($perPage);
         } else {
             $alertrule = AlertRule::paginate($perPage);
         }
 
-        return view('alert-rule.index', compact('alertrule'));
+        return view('alert-rule.index', compact('alertrule','search','user_id'));
     }
 
     /**

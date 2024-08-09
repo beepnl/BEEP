@@ -281,7 +281,7 @@ class ResearchController extends Controller
 
         //die(print_r([$request->input('user_ids'), $consent_users_selected, $users]));
         // Fill dates array
-        $assets = ["users"=>0, "apiaries"=>0, "hives"=>0, "inspections"=>0, "devices"=>0, "measurements"=>0, "measurements_imported"=>0, "measurements_total"=>0, "data_completeness"=>0, "weather"=>0, "flashlogs"=>0, "samplecodes"=>0, "sensor_definitions"=>0];
+        $assets = ["users"=>0, "apiaries"=>0, "hives"=>0, "inspections"=>0, "devices"=>0, "measurements"=>0, "measurements_imported"=>0, "measurements_total"=>0, "data_completeness"=>0, "weather"=>0, "flashlogs"=>0, "samplecodes"=>0, "sensor_definitions"=>0, "alert_rules"=>0, "alerts"=>0];
 
         $moment = $moment_start;
         while($moment < $moment_end)
@@ -471,6 +471,31 @@ class ResearchController extends Controller
                             'Data file']
                         ];
 
+            $spreadsheet_array['Alert rules'] = [
+                            [
+                                'User_id',
+                                __('export.created_at'),
+                                'Name',
+                                'Function',
+                                'Calculation minutes',
+                                'Last calculated',
+                                'Last evaluated'
+                            ]
+                        ];
+
+            $spreadsheet_array['Alerts'] = [
+                            [
+                                'User_id',
+                                'Device_id',
+                                'Location_id',
+                                'Hive_id',
+                                __('export.created_at'),
+                                'Function',
+                                'Value',
+                                'Count'
+                            ]
+                        ];
+
             // Add item names to header row of inspections
             // first combine all user's itemnames
             $item_ancs  = [];
@@ -563,6 +588,8 @@ class ResearchController extends Controller
             $user_meas_import  = [];
             $user_weather_data = [];
             $user_sensor_defs  = [];
+            $user_alert_rules  = $user->alert_rules()->where('default_rule', 0)->where('active', 1)->get();
+            $user_alerts       = isset($device_ids) ? $user->alerts()->whereIn('device_id', $device_ids)->where('show', 1)->get() : $user->alerts()->where('show', 1)->get();
             
             //die(print_r($user_devices->toArray()));
 
@@ -697,6 +724,7 @@ class ResearchController extends Controller
                     $user_data_counts['hives']              = $user_hives->where('created_at', '<=', $date_next_consent)->count();
                     $user_data_counts['devices']            = $user_devices->where('created_at', '<=', $date_next_consent)->count();
                     $user_data_counts['flashlogs']          = $user_flashlogs->where('created_at', '<=', $date_next_consent)->count();
+                    $user_data_counts['alert_rules']        = $user_alert_rules->where('created_at', '<=', $date_next_consent)->count();
                     $user_data_counts['sensor_definitions'] = count($user_sensor_defs);
 
                     //print_r([$i, $index, $user_consent, $date_curr_consent, $date_next_consent, $user_data_counts, $user_devices->toArray()]);
@@ -727,6 +755,14 @@ class ResearchController extends Controller
                         if (count($user_sensor_defs) > 0)
                             foreach ($user_sensor_defs as $sdef) 
                                 $spreadsheet_array[__('export.sensordefs')][] = $sdef;
+
+                        $alert_rules = $this->getAlertRules($user_id, $user_alert_rules, $date_curr_consent, $date_next_consent);
+                        foreach ($alert_rules as $ar)
+                            $spreadsheet_array['Alert rules'][] = $ar;
+
+                        $alerts = $this->getAlerts($user_id, $user_alerts, $date_curr_consent, $date_next_consent);
+                        foreach ($alerts as $al)
+                            $spreadsheet_array['Alerts'][] = $al;
 
                         if ($user_devices->count() > 0)
                         {
@@ -779,6 +815,7 @@ class ResearchController extends Controller
                     $dates[$d]['hives']      += $user_data_counts['hives'];
                     $dates[$d]['devices']    += $user_data_counts['devices'];
                     $dates[$d]['sensor_definitions'] += $user_data_counts['sensor_definitions'];
+                    $dates[$d]['alert_rules']+= $user_data_counts['alert_rules'];
 
                     $inspections_today        = $hive_inspections->where('created_at', '>=', $d_start)->where('created_at', '<=', $d_end)->count();
                     $dates[$d]['inspections'] = $v['inspections'] + $inspections_today;
@@ -788,6 +825,9 @@ class ResearchController extends Controller
 
                     $samplecodes_today        = $user_samplecodes->where('sample_date', '>=', $d_start)->where('sample_date', '<=', $d_end)->count();
                     $dates[$d]['samplecodes'] = $v['samplecodes'] + $samplecodes_today;
+
+                    $alerts_today             = $user_alerts->where('created_at', '>=', $d_start)->where('created_at', '<=', $d_end)->count();
+                    $dates[$d]['alerts']      = $v['alerts'] + $alerts_today;
                     
                     if (in_array($d, array_keys($user_measurements)))
                         $dates[$d]['measurements'] = $v['measurements'] + $user_measurements[$d];
@@ -817,7 +857,7 @@ class ResearchController extends Controller
         {
             foreach ($day_arr as $asset => $count) 
             {
-                if ($asset == 'inspections' || $asset == 'measurements' || $asset == 'measurements_imported' || $asset == 'measurements_total' || $asset == 'data_completeness' || $asset == 'weather' || $asset == 'samplecodes' || $asset == 'flashlogs')
+                if ($asset == 'inspections' || $asset == 'measurements' || $asset == 'measurements_imported' || $asset == 'measurements_total' || $asset == 'data_completeness' || $asset == 'weather' || $asset == 'samplecodes' || $asset == 'flashlogs' || $asset == 'alerts')
                     $totals[$asset] += $count;
                 else
                     $totals[$asset] = max($totals[$asset], $count);
@@ -1052,7 +1092,7 @@ class ResearchController extends Controller
                 isset($queen) ? $queen->id : '',
                 isset($queen) ? $queen->name : '',
                 isset($queen) ? $queen->color : '',
-                isset($queen) ? $queen->created_at : '',
+                isset($queen) ? $queen->birth_date : '',
                 isset($queen) ? $queen->fertilized : '',
                 isset($queen) ? $queen->clipped : '',
                 $item->getBroodlayersAttribute(),
@@ -1167,6 +1207,67 @@ class ResearchController extends Controller
             ];
         });
     }
+
+    /*
+    $spreadsheet_array['Alert rules'] = [
+        [
+            'User_id',
+            'Date',
+            'Name',
+            'Formula',
+            'Calculation minutes',
+            'Last calculated',
+            'Last evaluated'
+        ]
+    ];
+    */
+    private function getAlertRules($user_id, $alert_rules, $date_start=null, $date_until=null)
+    {
+        return $alert_rules->where('created_at', '<=', $date_until)->sortByDesc('created_at')->map(function($item) use ($user_id)
+        {
+            return [
+                $user_id,
+                $item->created_at,
+                $item->name, 
+                $item->readableFunction(),
+                $item->calculation_minutes,
+                $item->last_calculated_at,
+                $item->last_evaluated_at
+            ];
+        });
+    }
+
+    /*
+    $spreadsheet_array['Alerts'] = [
+        [
+            'User_id',
+            'Device_id',
+            'Location_id',
+            'Hive_id',
+            'Date',
+            'Function',
+            'Value',
+            'Count'
+        ]
+    ];
+    */
+    private function getAlerts($user_id, $alerts, $date_start=null, $date_until=null)
+    {
+        return $alerts->where('created_at', '>=', $date_start)->where('created_at', '<=', $date_until)->sortByDesc('created_at')->sortBy('hive_id')->map(function($item) use ($user_id)
+        {
+            return [
+                $user_id,
+                $item->device_id, 
+                $item->location_id,
+                $item->hive_id,
+                $item->created_at,
+                $item->alert_function,
+                $item->alert_value,
+                $item->count
+            ];
+        });
+    }
+
 
     private function getInspections($user_id, $inspections, $item_names, $date_start=null, $date_until=null)
     {

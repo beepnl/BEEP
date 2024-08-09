@@ -512,7 +512,7 @@ class ExportController extends Controller
                 $item->color,
                 isset($queen) ? $queen->name : '',
                 isset($queen) ? $queen->color : '',
-                isset($queen) ? $queen->created_at : '',
+                isset($queen) ? $queen->birth_date : '',
                 isset($queen) ? $queen->fertilized : '',
                 isset($queen) ? $queen->clipped : '',
                 $item->getBroodlayersAttribute(),

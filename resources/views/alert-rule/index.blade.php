@@ -3,7 +3,7 @@
 @section('page-title') {{ __('crud.management', ['item'=>__('beep.AlertRule')]) }}
     {!! Form::open(['method' => 'GET', 'route' => 'alert-rule.index', 'class' => 'form-inline', 'role' => 'search', 'style'=>'display: inline-block;'])  !!}
     <div class="input-group" style="display: inline-block;">
-        <input type="text" class="form-control" style="max-width: 100px;" name="search" placeholder="Name..." value="{{ $search }}">
+        <input type="text" class="form-control" style="max-width: 100px;" name="rule_id" placeholder="Rule ID" value="{{ $rule_id }}">
         <span class="input-group-btn">
             <button type="submit" class="btn btn-deafult"><i class="fa fa-search"></i></button>
         </span>
@@ -97,6 +97,7 @@
                     <td>{{ $item->alert_via_email }}</td>
                     <td>{{ $item->default_rule }}</td>
                     <td col-sm-1>
+                        <a href="{{ route('alert.index', ['rule_id'=>$item->id]) }}" title="{{ __('crud.show') }} Alerts"><button class="btn btn-default"><i class="fa fa-bell" aria-hidden="true"></i></button></a>
                         <a href="{{ route('alert-rule.show', $item->id) }}" title="{{ __('crud.show') }}"><button class="btn btn-default"><i class="fa fa-eye" aria-hidden="true"></i></button></a>
 
                         <a href="{{ route('alert-rule.edit', $item->id) }}" title="{{ __('crud.edit') }}"><button class="btn btn-primary"><i class="fa fa-pencil" aria-hidden="true"></i></button></a>

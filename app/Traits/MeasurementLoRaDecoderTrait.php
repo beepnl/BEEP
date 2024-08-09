@@ -429,13 +429,13 @@ trait MeasurementLoRaDecoderTrait
                         {
                             if ($weight_amount == 1)
                             {
-                                $out['w_v'] = convert24BitTo32BitSigned(substr($p, $sb+4, 6));
+                                $out['w_v'] = self::convert24BitTo32BitSigned(substr($p, $sb+4, 6));
                             }
                             else if ($weight_amount > 1)
                             {
                                 for ($i=0; $i < $weight_amount; $i++)
                                 { 
-                                    $out['w_v_'.$i+1] = convert24BitTo32BitSigned(substr($p, $sb+4+($i*6), 6)); // w_v_1, w_v_2, etc
+                                    $out['w_v_'.$i+1] = self::convert24BitTo32BitSigned(substr($p, $sb+4+($i*6), 6)); // w_v_1, w_v_2, etc
                                 }
                             }
                         }

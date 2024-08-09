@@ -17,28 +17,31 @@ class AlertController extends Controller
      */
     public function index(Request $request)
     {
-        $keyword = $request->get('search');
+        $rule_id   = $request->input('rule_id');
+        $device_id = $request->input('device_id');
+        $user_id   = $request->input('user_id');
         $perPage = 100;
 
-        if (!empty($keyword)) {
-            $alert = Alert::where('alert_rule_id', 'LIKE', "%$keyword%")
-                ->orWhere('alert_function', 'LIKE', "%$keyword%")
-                ->orWhere('alert_value', 'LIKE', "%$keyword%")
-                ->orWhere('measurement_id', 'LIKE', "%$keyword%")
-                ->orWhere('show', 'LIKE', "%$keyword%")
-                ->orWhere('location_name', 'LIKE', "%$keyword%")
-                ->orWhere('hive_name', 'LIKE', "%$keyword%")
-                ->orWhere('device_name', 'LIKE', "%$keyword%")
-                ->orWhere('location_id', 'LIKE', "%$keyword%")
-                ->orWhere('hive_id', 'LIKE', "%$keyword%")
-                ->orWhere('device_id', 'LIKE', "%$keyword%")
-                ->orWhere('user_id', 'LIKE', "%$keyword%")
+        if (!empty($rule_id))
+        {
+            $alert = Alert::where('alert_rule_id', $rule_id)
+                ->paginate($perPage);
+        } 
+        else if (!empty($device_id))
+        {
+            $alert = Alert::where('device_id', $device_id)
+                ->paginate($perPage);
+        } 
+        else if (!empty($user_id))
+        {
+            $alert = Alert::where('user_id', $user_id)
+                ->orderByDesc('updated_at')
                 ->paginate($perPage);
         } else {
             $alert = Alert::orderByDesc('updated_at')->paginate($perPage);
         }
 
-        return view('alert.index', compact('alert'));
+        return view('alert.index', compact('alert','rule_id','device_id','user_id'));
     }
 
     /**

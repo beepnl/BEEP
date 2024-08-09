@@ -1,6 +1,26 @@
 @extends('layouts.app')
 
 @section('page-title') {{ __('crud.management', ['item'=>__('beep.Alert')]) }}
+    {!! Form::open(['method' => 'GET', 'route' => 'alert.index', 'class' => 'form-inline', 'role' => 'search', 'style'=>'display: inline-block;'])  !!}
+    <div class="input-group" style="display: inline-block;">
+        <input type="text" class="form-control" style="max-width: 100px;" name="rule_id" placeholder="Alert Rule ID" value="{{ $rule_id }}">
+        <span class="input-group-btn">
+            <button type="submit" class="btn btn-deafult"><i class="fa fa-search"></i></button>
+        </span>
+    </div>
+    <div class="input-group" style="display: inline-block;">
+        <input type="text" class="form-control" style="max-width: 100px;" name="device_id" placeholder="Device ID" value="{{ $device_id }}">
+        <span class="input-group-btn">
+            <button type="submit" class="btn btn-deafult"><i class="fa fa-search"></i></button>
+        </span>
+    </div>
+    <div class="input-group" style="display: inline-block;">
+        <input type="text" class="form-control" style="max-width: 100px;" name="user_id" placeholder="User ID" value="{{ $user_id }}">
+        <span class="input-group-btn">
+            <button type="submit" class="btn btn-deafult"><i class="fa fa-search"></i></button>
+        </span>
+    </div>
+    {!! Form::close() !!}
 @endsection
 
 @section('content')

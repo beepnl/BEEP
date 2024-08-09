@@ -11,19 +11,19 @@
 			{{ __('crud.overview', ['item'=>__('general.devices')]) }}
 	        {!! Form::open(['method' => 'GET', 'route' => 'devices.index', 'class' => 'form-inline', 'role' => 'search'])  !!}
 	        <div class="input-group" style="display: inline-block;">
-	            <input type="text" class="form-control" style="max-width: 160px;" name="research" placeholder="Research..." value="{{ request('research') }}">
+	            <input type="text" class="form-control" style="max-width: 100px;" name="research" placeholder="Research..." value="{{ request('research') }}">
 	            <span class="input-group-btn">
 	                <button type="submit" class="btn btn-deafult"><i class="fa fa-search"></i></button>
 	            </span>
 	        </div>
 	        <div class="input-group" style="display: inline-block;">
-	            <input type="text" class="form-control" style="max-width: 160px;" name="user" placeholder="User..." value="{{ request('user') }}">
+	            <input type="text" class="form-control" style="max-width: 100px;" name="user" placeholder="User..." value="{{ request('user') }}">
 	            <span class="input-group-btn">
 	                <button type="submit" class="btn btn-deafult"><i class="fa fa-search"></i></button>
 	            </span>
 	        </div>
 	        <div class="input-group" style="display: inline-block;">
-	            <input type="text" class="form-control" style="max-width: 160px;" name="search" placeholder="Device properties..." value="{{ request('search') }}">
+	            <input type="text" class="form-control" style="max-width: 100px;" name="search" placeholder="Device properties..." value="{{ request('search') }}">
 	            <span class="input-group-btn">
 	                <button type="submit" class="btn btn-deafult"><i class="fa fa-search"></i></button>
 	            </span>

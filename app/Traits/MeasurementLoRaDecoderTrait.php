@@ -194,7 +194,7 @@ trait MeasurementLoRaDecoderTrait
         return $parsed;
     }
 
-
+    // Calculte 2's complement signed integer from hex value
     private function hexdecs($hex)
     {
         // ignore non hex characters
@@ -213,50 +213,6 @@ trait MeasurementLoRaDecoderTrait
        
         // if dec value is larger than its complement we have a negative value (first bit is set)
         return $dec > $_dec ? -$_dec : $dec;
-    }
-
-    private function decimalToHex24Bit($decimalValue) {
-        // Convert the decimal value to a hexadecimal string
-        $hexValue = dechex($decimalValue);
-
-        // Ensure the hexadecimal value is 24-bit (6 hex digits)
-        // Pad with leading zeros if necessary
-        $hexValue = str_pad($hexValue, 6, '0', STR_PAD_LEFT);
-
-        // If the value is negative, handle the 2's complement conversion
-        if ($decimalValue < 0) {
-            // Convert to 32-bit unsigned to handle negative values
-            $hexValue = substr($hexValue, -6); // Keep only the last 6 digits for 24-bit representation
-        }
-
-        return strtoupper($hexValue); // Convert to uppercase for standard hex format
-    }
-
-    private function convert24BitTo32BitSigned($value) {
-
-        $value = strtoupper($value);
-
-        if (substr($value, 0, 2) != '0x')
-            $value = "0x$value";
-
-        $hexValue = str_pad($value, 6, '0', STR_PAD_LEFT);
-        Log::debug("convert24BitTo32BitSigned v=$value, h=$hexValue");
-
-        // Mask to keep only the lowest 24 bits
-        $hexValue = $hexValue & 0xFFFFFF;
-
-        // Check if the MSB of the 24-bit value is set (sign bit)
-        if ($hexValue & 0x800000) {
-            // If it's negative, perform sign extension by ORing with 0xFF000000
-            $hexValue = $hexValue | 0xFF000000;
-        }
-
-        $intValue = (int)$hexValue;
-        
-        Log::debug("convert24BitTo32BitSigned v=$value, h=$hexValue int=$intValue");
-
-        // Cast the result to a signed 32-bit integer
-        return $intValue;
     }
 
     private function createOrUpdateDefinition($device, $abbr_in, $abbr_out, $offset=null, $multiplier=null)
@@ -444,13 +400,13 @@ trait MeasurementLoRaDecoderTrait
                         {
                             if ($weight_amount == 1)
                             {
-                                $out['w_v'] = self::convert24BitTo32BitSigned(substr($p, $sb+4, 6));
+                                $out['w_v'] = self::hexdecs(substr($p, $sb+4, 6));
                             }
                             else if ($weight_amount > 1)
                             {
                                 for ($i=0; $i < $weight_amount; $i++)
                                 { 
-                                    $out['w_v_'.$i+1] = self::convert24BitTo32BitSigned(substr($p, $sb+4+($i*6), 6)); // w_v_1, w_v_2, etc
+                                    $out['w_v_'.$i+1] = self::hexdecs(substr($p, $sb+4+($i*6), 6)); // w_v_1, w_v_2, etc
                                 }
                             }
                         }
@@ -469,13 +425,13 @@ trait MeasurementLoRaDecoderTrait
                     {
                         if ($temp_amount == 1)
                         {
-                            $out['t_i'] = $this->hexdecs(substr($p, $sb+4, 4))/100;
+                            $out['t_i'] = self::hexdecs(substr($p, $sb+4, 4))/100;
                         }
                         else if ($temp_amount > 1 && $temp_amount < 11)
                         {
                             for ($i=0; $i < $temp_amount; $i++)
                             { 
-                                $out['t_'.$i] = $this->hexdecs(substr($p, $sb+4+($i*4), 4))/100;
+                                $out['t_'.$i] = self::hexdecs(substr($p, $sb+4+($i*4), 4))/100;
                             }
                         }
                     }

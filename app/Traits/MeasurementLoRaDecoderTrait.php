@@ -472,7 +472,7 @@ trait MeasurementLoRaDecoderTrait
 
                     if (strlen($pu) > $sb && substr($pu, $sb, 2) == '07')
                     {
-                      $bme280_t = hexdec(substr($p, $bme_start, 4));
+                      $bme280_t = hexdecs(substr($p, $bme_start, 4)); // signed int
                       $bme280_h = hexdec(substr($p, $bme_start+4, 4));
                       $bme280_p = hexdec(substr($p, $bme_start+8, 4));
                       if (($bme280_t + $bme280_h + $bme280_p) != 0)

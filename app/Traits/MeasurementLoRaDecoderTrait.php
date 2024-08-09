@@ -1,6 +1,8 @@
 <?php
 namespace App\Traits;
 
+use Illuminate\Support\Facades\Log;
+
 use App\Measurement;
 use Cache;
 
@@ -231,17 +233,25 @@ trait MeasurementLoRaDecoderTrait
     }
 
     private function convert24BitTo32BitSigned($value) {
+
+        $hexValue = str_pad($value, 6, '0', STR_PAD_LEFT);
+
+
         // Mask to keep only the lowest 24 bits
-        $value = $value & 0xFFFFFF;
+        $hexValue = $hexValue & 0xFFFFFF;
 
         // Check if the MSB of the 24-bit value is set (sign bit)
-        if ($value & 0x800000) {
+        if ($hexValue & 0x800000) {
             // If it's negative, perform sign extension by ORing with 0xFF000000
-            $value = $value | 0xFF000000;
+            $hexValue = $hexValue | 0xFF000000;
         }
 
+        $intValue = (int)$hexValue;
+        
+        Log::debug("convert24BitTo32BitSigned v=$value, h=$hexValue int=$intValue");
+
         // Cast the result to a signed 32-bit integer
-        return (int)$value;
+        return $intValue;
     }
 
     private function createOrUpdateDefinition($device, $abbr_in, $abbr_out, $offset=null, $multiplier=null)

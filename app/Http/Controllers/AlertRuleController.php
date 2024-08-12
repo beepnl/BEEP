@@ -18,7 +18,7 @@ class AlertRuleController extends Controller
     public function index(Request $request)
     {
         $user_id = $request->input('user_id');
-        $search  = $request->input('search');
+        $rule_id  = $request->input('rule_id');
         $perPage = 100;
 
         if (!empty($user_id)) {
@@ -26,13 +26,13 @@ class AlertRuleController extends Controller
                 ->paginate($perPage);
         }
         else if (!empty($search)) {
-            $alertrule = AlertRule::where('name', 'LIKE', "%$search%")
+            $alertrule = AlertRule::where('id', $rule_id)
                 ->paginate($perPage);
         } else {
             $alertrule = AlertRule::paginate($perPage);
         }
 
-        return view('alert-rule.index', compact('alertrule','search','user_id'));
+        return view('alert-rule.index', compact('alertrule','rule_id','user_id'));
     }
 
     /**

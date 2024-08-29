@@ -814,7 +814,7 @@ class ResearchController extends Controller
                     $dates[$d]['users']      += $user_data_counts['users'];
                     $dates[$d]['apiaries']   += $user_data_counts['apiaries'];
                     $dates[$d]['hives']      += $user_data_counts['hives'];
-                    $dates[$d]['devices']    += $user_data_counts['devices'];
+                    $dates[$d]['devices']    += $user_devices_online->where('last_message_received', '>=', $d_start)->count();
                     $dates[$d]['sensor_definitions'] += $user_data_counts['sensor_definitions'];
                     $dates[$d]['alert_rules']+= $user_data_counts['alert_rules'];
 

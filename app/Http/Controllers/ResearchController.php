@@ -281,7 +281,7 @@ class ResearchController extends Controller
 
         //die(print_r([$request->input('user_ids'), $consent_users_selected, $users]));
         // Fill dates array
-        $assets = ["users"=>0, "apiaries"=>0, "hives"=>0, "inspections"=>0, "devices"=>0, "measurements"=>0, "measurements_imported"=>0, "measurements_total"=>0, "data_completeness"=>0, "weather"=>0, "flashlogs"=>0, "samplecodes"=>0, "sensor_definitions"=>0, "alert_rules"=>0, "alerts"=>0];
+        $assets = ["users"=>0, "apiaries"=>0, "hives"=>0, "inspections"=>0, "devices"=>0, "devices_online"=>[], "measurements"=>0, "measurements_imported"=>0, "measurements_total"=>0, "data_completeness"=>0, "weather"=>0, "flashlogs"=>0, "samplecodes"=>0, "sensor_definitions"=>0, "alert_rules"=>0, "alerts"=>0];
 
         $moment = $moment_start;
         while($moment < $moment_end)
@@ -815,6 +815,7 @@ class ResearchController extends Controller
                     $dates[$d]['apiaries']   += $user_data_counts['apiaries'];
                     $dates[$d]['hives']      += $user_data_counts['hives'];
                     $dates[$d]['devices']    += $user_devices_online->where('last_message_received', '>=', $d_start)->count();
+                    $dates[$d]['devices_online'] = array_merge($dates[$d]['devices_online'], $user_devices_online->where('last_message_received', '>=', $d_start)->pluck('name')->toArray());
                     $dates[$d]['sensor_definitions'] += $user_data_counts['sensor_definitions'];
                     $dates[$d]['alert_rules']+= $user_data_counts['alert_rules'];
 

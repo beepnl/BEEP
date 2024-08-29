@@ -582,6 +582,7 @@ class ResearchController extends Controller
 
             $devices_all       = $devices_all->merge($user_devices_all);
             $user_devices      = isset($device_ids) ? $user_devices_all->whereIn('id', $device_ids) : $user_devices_all;
+            $user_devices_online = $user_devices->where('last_message_received', '>=', $date_start);
             $user_flashlogs    = FlashLog::where('user_id', $user_id)->where('created_at', '>=', $date_start)->where('created_at', '<', $date_until)->orderBy('created_at')->get();
             $user_samplecodes  = $user->samplecodes()->where('sample_date', '>=', $date_start)->where('sample_date', '<', $date_until)->orderBy('sample_date')->get();
             $user_measurements = [];
@@ -606,7 +607,7 @@ class ResearchController extends Controller
 
             //die(print_r([$date_until, $hive_inspections->toArray(), $user_hives->toArray()]));
 
-            if ($user_devices->count() > 0)
+            if ($user_devices_online->count() > 0)
             {
                 // get daily counts of sensor measurements
                 $points           = [];
@@ -615,7 +616,7 @@ class ResearchController extends Controller
                 $user_dloc_coords = [];
 
                 // Add sensor data
-                foreach ($user_devices as $device) 
+                foreach ($user_devices_online as $device) 
                 {
                     $user_device_keys[]= $device->influxWhereKeys();
                     $loc = $device->location();
@@ -722,7 +723,7 @@ class ResearchController extends Controller
                     $user_data_counts['users']              = $user_consent;
                     $user_data_counts['apiaries']           = $user_apiaries->where('created_at', '<=', $date_next_consent)->count();
                     $user_data_counts['hives']              = $user_hives->where('created_at', '<=', $date_next_consent)->count();
-                    $user_data_counts['devices']            = $user_devices->where('created_at', '<=', $date_next_consent)->count();
+                    $user_data_counts['devices']            = $user_devices_online->where('created_at', '<=', $date_next_consent)->count();
                     $user_data_counts['flashlogs']          = $user_flashlogs->where('created_at', '<=', $date_next_consent)->count();
                     $user_data_counts['alert_rules']        = $user_alert_rules->where('created_at', '<=', $date_next_consent)->count();
                     $user_data_counts['sensor_definitions'] = count($user_sensor_defs);
@@ -764,9 +765,9 @@ class ResearchController extends Controller
                         foreach ($alerts as $al)
                             $spreadsheet_array['Alerts'][] = $al;
 
-                        if ($user_devices->count() > 0)
+                        if ($user_devices_online->count() > 0)
                         {
-                            foreach ($user_devices as $device)
+                            foreach ($user_devices_online as $device)
                             {
                                 // Add device to spreadsheet
                                 if ($device->created_at < $date_next_consent)

@@ -96,7 +96,7 @@
                         </tr>
                         @endif
                         <tr>
-                            <th class="row-header" style="max-height: 45px; overflow: scroll; white-space: nowrap;"><span><i class="fa fa-2x fa-feed"></i> Devices</span></th> 
+                            <th class="row-header" style="max-height: 45px; overflow: scroll; white-space: nowrap;" @if(isset($date_start)) title="Devices online after {{ substr($date_start, 0, 10) }}" @endif><span><i class="fa fa-2x fa-feed"></i> Devices online</span></th> 
                             <th class="row-header">{{ $totals['devices'] }}</th> 
                         </tr>
                         <tr>

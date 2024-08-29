@@ -353,6 +353,9 @@ class InspectionsController extends Controller
                         $category = Category::find($cat_id);
                         if (isset($category) && isset($value))
                         {
+                            if (is_array($value))
+                                $value = implode(',',$value); // convert value to string
+
                             $itemData = 
                             [
                                 'category_id'   => $category->id,

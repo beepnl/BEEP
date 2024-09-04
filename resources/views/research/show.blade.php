@@ -173,7 +173,7 @@
                         @endif
                         <tr>
                             @foreach($dates as $date => $d)
-                                <td title="Device names online: {{ implode(', ', $d['devices_online']) }}">{{ $d['devices'] > 0 ? $d['devices'] : '' }}</td>
+                                <td title="Device gone offline: {{ implode(', ', $d['devices_offline']) }}&#10;&#10;Devices online: {{ implode(', ', $d['devices_online']) }}">{{ $d['devices'] > 0 ? $d['devices'] : '' }}</td>
                             @endforeach
                         </tr>
                         <tr>

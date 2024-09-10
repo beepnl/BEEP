@@ -809,20 +809,20 @@ class ResearchController extends Controller
                 }
 
                 // Fill day array
-                if ($user_consent && $d_start > $date_curr_consent)
+                if ($user_consent && $d_start >= $date_curr_consent)
                 {
                     // Count
                     $dates[$d]['users']      += $user_data_counts['users'];
                     $dates[$d]['apiaries']   += $user_data_counts['apiaries'];
                     $dates[$d]['hives']      += $user_data_counts['hives'];
                     $dates[$d]['devices']    += $user_devices_online->where('last_message_received', '>=', $d_start)->count();
-                    $dates[$d]['devices_online'] = array_merge($dates[$d]['devices_online'], $user_devices_online->where('last_message_received', '>=', $d_start)->pluck('name')->toArray());
+                    $dates[$d]['devices_online'] = array_merge($v['devices_online'], $user_devices_online->where('last_message_received', '>=', $d_start)->pluck('name')->toArray());
                     if (count($last_devices_online) > 0)
                     {
                         $dates[$d]['devices_offline'] = array_diff($last_devices_online, $dates[$d]['devices_online']);
                     }
                     $last_devices_online      = $dates[$d]['devices_online'];
-                    
+
                     $dates[$d]['sensor_definitions'] += $user_data_counts['sensor_definitions'];
                     $dates[$d]['alert_rules']+= $user_data_counts['alert_rules'];
 

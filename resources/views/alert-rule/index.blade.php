@@ -14,8 +14,8 @@
             <button type="submit" class="btn btn-deafult"><i class="fa fa-search"></i></button>
         </span>
     </div> --}}
-    <div class="form-control" class="input-group" style="display: inline-block; font-size:16px;">
-        {!! Form::select('user_id', $users, $user_id, array('class' => 'form-control select2', 'onchange'=>'this.form.submit()')) !!}
+    <div class="input-group" style="display: inline-block; font-size:16px;">
+        {!! Form::select('user_id', $users, $user_id, array('class' => 'form-control select2', 'placeholder'=>'Select user...', 'onchange'=>'this.form.submit()')) !!}
         {!! $errors->first('user_id', '<p class="help-block">:message</p>') !!}
     </div>
     <div style="display: inline-block;">
@@ -38,7 +38,7 @@
             @endpermission
         @endslot
 
-        @slot('bodyClass')
+        @slot('bodyClass') table-responsive
         @endslot
 
         @slot('body')
@@ -61,7 +61,7 @@
             });
         </script>
 
-
+        <div class="row">
         <table id="table-alert-rule" class="table table-responsive table-striped">
             <thead>
                 <tr>
@@ -123,9 +123,9 @@
             @endforeach
             </tbody>
         </table>
+        </div>
 
         <div class="pagination-wrapper"> {!! $alertrule->render() !!} </div>
-
         @endslot
     @endcomponent
 @endsection

@@ -24,17 +24,21 @@ class AlertRuleController extends Controller
         $users   = User::all()->pluck('name', 'id');
         $perPage = 100;
 
-        if ($no_meas)
-            $alertrule = AlertRule::all()->where('no_value', '=', true)->paginate($perPage);
-
         if (!empty($user_id)) {
             $alertrule = AlertRule::where('user_id', $user_id)
                 ->paginate($perPage);
         }
-        else if (!empty($rule_id)) {
+        else if (!empty($rule_id)) 
+        {
             $alertrule = AlertRule::where('id', $rule_id)
                 ->paginate($perPage);
-        } else {
+        } 
+        else if ($no_meas)
+        {
+            $alertrule = AlertRule::where('calculation_minutes', '>', 0)->get()->where('no_value', '=', 1)->paginate($perPage);
+        }
+        else 
+        {
             $alertrule = AlertRule::paginate($perPage);
         }
 

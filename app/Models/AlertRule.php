@@ -90,14 +90,14 @@ class AlertRule extends Model
 
     public function getNoValueAttribute()
     {
-        if ($this->threshold_value === 0 && !empty($this->attributes['calculation']) && $this->attributes['calculation'] == 'cnt')
+        if ($this->threshold_value == 0 && !empty($this->attributes['calculation']) && $this->attributes['calculation'] == 'cnt')
         {
             return true;
         }
         else if ($this->formulas->count() > 0)
         {
             $f = $this->formulas->first();
-            if ($f->threshold_value === 0 && $f->calculation == 'cnt')
+            if ($f->threshold_value == 0 && $f->calculation == 'cnt')
                 return true;
         }
         return false;

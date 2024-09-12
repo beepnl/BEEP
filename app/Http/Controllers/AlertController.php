@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests;
 use App\Http\Controllers\Controller;
-
+use App\User;
 use App\Models\Alert;
 use Illuminate\Http\Request;
 
@@ -20,6 +20,8 @@ class AlertController extends Controller
         $rule_id   = $request->input('rule_id');
         $device_id = $request->input('device_id');
         $user_id   = $request->input('user_id');
+        $no_meas   = boolval($request->input('no_measurements', 0));
+        $users     = User::all()->pluck('name', 'id');
         $perPage = 100;
 
         if (!empty($rule_id))
@@ -37,11 +39,17 @@ class AlertController extends Controller
             $alert = Alert::where('user_id', $user_id)
                 ->orderByDesc('updated_at')
                 ->paginate($perPage);
-        } else {
+        }
+        else if ($no_meas)
+        {
+            $alert = Alert::where('alert_function', 'LIKE', '%= 0')->paginate($perPage);
+        }
+        else
+        {
             $alert = Alert::orderByDesc('updated_at')->paginate($perPage);
         }
 
-        return view('alert.index', compact('alert','rule_id','device_id','user_id'));
+        return view('alert.index', compact('alert','rule_id','device_id','user_id','no_meas','users'));
     }
 
     /**

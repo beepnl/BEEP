@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests;
 use App\Http\Controllers\Controller;
 
+use App\User;
 use App\Models\AlertRule;
 use Illuminate\Http\Request;
 
@@ -18,21 +19,28 @@ class AlertRuleController extends Controller
     public function index(Request $request)
     {
         $user_id = $request->input('user_id');
-        $rule_id  = $request->input('rule_id');
+        $rule_id = $request->input('rule_id');
+        $no_meas = boolval($request->input('no_measurements', 0));
+        $users   = User::all()->pluck('name', 'id');
         $perPage = 100;
+
+        if ($no_meas)
+            $alertrule = AlertRule::all()->where('no_value', '=', true)->paginate($perPage);
 
         if (!empty($user_id)) {
             $alertrule = AlertRule::where('user_id', $user_id)
                 ->paginate($perPage);
         }
-        else if (!empty($search)) {
+        else if (!empty($rule_id)) {
             $alertrule = AlertRule::where('id', $rule_id)
                 ->paginate($perPage);
         } else {
             $alertrule = AlertRule::paginate($perPage);
         }
 
-        return view('alert-rule.index', compact('alertrule','rule_id','user_id'));
+
+
+        return view('alert-rule.index', compact('alertrule','rule_id','user_id','users','no_meas'));
     }
 
     /**

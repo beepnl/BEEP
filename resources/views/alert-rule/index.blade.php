@@ -8,11 +8,18 @@
             <button type="submit" class="btn btn-deafult"><i class="fa fa-search"></i></button>
         </span>
     </div>
-    <div class="input-group" style="display: inline-block;">
+    {{-- <div class="input-group" style="display: inline-block;">
         <input type="text" class="form-control" style="max-width: 100px;" name="user_id" placeholder="User ID" value="{{ $user_id }}">
         <span class="input-group-btn">
             <button type="submit" class="btn btn-deafult"><i class="fa fa-search"></i></button>
         </span>
+    </div> --}}
+    <div class="form-control" class="input-group" style="display: inline-block; font-size:16px;">
+        {!! Form::select('user_id', $users, $user_id, array('class' => 'form-control select2', 'onchange'=>'this.form.submit()')) !!}
+        {!! $errors->first('user_id', '<p class="help-block">:message</p>') !!}
+    </div>
+    <div style="display: inline-block;">
+        <input type="checkbox" style="min-width: 10px;" name="no_measurements" value="1" onchange="this.form.submit();" @if($no_meas) checked @endif> <span style="font-size:16px;">No measurements</span></input>
     </div>
     {!! Form::close() !!}
 @endsection

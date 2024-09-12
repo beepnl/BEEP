@@ -42,7 +42,7 @@ class AlertController extends Controller
         }
         else if ($no_meas)
         {
-            $alert = Alert::where('alert_function', 'LIKE', '%= 0')->paginate($perPage);
+            $alert = Alert::where('alert_value', '=', 0)->paginate($perPage);
         }
         else
         {

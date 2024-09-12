@@ -296,7 +296,8 @@ trait MeasurementLoRaDecoderTrait
                                 $unixts = hexdec(substr($p, 62, 8));
                                 if ($unixts)
                                 {
-                                    $out['time_clock']  = $time_id == '26' || $time_id == '2D' ? 'rtc' : 'mcu'; // 2023-08-16 added to FW 1.5.14+: 25 == PCB clock. 26/2E == RTC clock
+
+                                    $out['time_clock']  = $time_id == '26' || $time_id == '2D' ? 'rtc' : 'mcu'; // 2023-08-16 added to FW 1.5.14+: 25 == PCB clock. 26/2D == RTC clock
                                     $out['time_device'] = $unixts;
                                 }
                             }
@@ -327,7 +328,7 @@ trait MeasurementLoRaDecoderTrait
                                 $unixts = hexdec(substr($p, 76, 8));
                                 if ($unixts)
                                 {
-                                    $out['time_clock']  = $time_id == '26' || $time_id == '2D' ? 'rtc' : 'mcu'; // 2023-08-16 added to FW 1.5.14+: 25 == PCB clock. 26/2E == RTC clock
+                                    $out['time_clock']  = $time_id == '26' || $time_id == '2D' ? 'rtc' : 'mcu'; // 2023-08-16 added to FW 1.5.14+: 25 == PCB clock. 26/2D == RTC clock
                                     $out['time_device'] = $unixts;
                                 }
                             }
@@ -499,7 +500,7 @@ trait MeasurementLoRaDecoderTrait
                             
                             if ($unixts && $unixts > 1546300800) // unix timestamp > Tue Jan 01 2019 00:00:00 GMT+0000
                             {
-                                $out['time_clock']  = $time_id == '26' || $time_id == '2D' ? 'rtc' : 'mcu'; // 2023-08-16 added to FW 1.5.14+: 25 == PCB clock. 26/2E == RTC clock
+                                $out['time_clock']  = $time_id == '26' || $time_id == '2D' ? 'rtc' : 'mcu'; // 2023-08-16 added to FW 1.5.14+: 25 == PCB clock. 26/2D == RTC clock
                                 $out['time_device'] = $unixts;
                             }
                         }

@@ -16,7 +16,7 @@ return [
     'hive'          => 'Hive',
     'hive_name'     => 'Hive name',
     'hives'         => 'Hives',
-    'devices'       => 'Sensor devices',
+    'devices'       => 'Sensor devices (online)',
     'location'      => 'Apiary',
     'locations'     => 'Apiaries',
     'attention'     => 'Needs attention',

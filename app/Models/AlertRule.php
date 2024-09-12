@@ -39,7 +39,7 @@ class AlertRule extends Model
      */
     protected $fillable           = ['name', 'description', 'measurement_id', 'calculation', 'calculation_minutes', 'comparator', 'comparison', 'threshold_value', 'exclude_months', 'exclude_hours', 'exclude_hive_ids', 'alert_via_email', 'webhook_url', 'active', 'user_id', 'default_rule', 'timezone', 'alert_on_occurences', 'last_calculated_at', 'last_evaluated_at', 'formulas'];
     protected $hidden             = ['last_calculated_at'];
-    protected $appends            = ['formulas'];
+    protected $appends            = ['formulas','no_value'];
 
     public static $calculations   = ["min"=>"Minimum", "max"=>"Maximum", "ave"=>"Average", "cnt"=>"Count"]; // exclude "der"=>"Derivative" for the moment (because of user interpretation complexity)
     public static $influx_calc    = ["min"=>"MIN", "max"=>"MAX", "ave"=>"MEAN", "der"=>"DERIVATIVE", "cnt"=>"COUNT"];
@@ -90,6 +90,21 @@ class AlertRule extends Model
     public function getExcludeHiveIdsAttribute()
     {
         return !empty($this->attributes['exclude_hive_ids']) ? array_map(function($value){ return intval($value); }, explode(",", $this->attributes['exclude_hive_ids'])) : [];
+    }
+
+    public function getNoValueAttribute()
+    {
+        if ($this->threshold_value == 0 && !empty($this->attributes['calculation']) && $this->attributes['calculation'] == 'cnt')
+        {
+            return true;
+        }
+        else if ($this->formulas->count() > 0)
+        {
+            $f = $this->formulas->first();
+            if ($f->threshold_value == 0 && $f->calculation == 'cnt')
+                return true;
+        }
+        return false;
     }
 
     public function getFormulasAttribute()
@@ -144,11 +159,10 @@ class AlertRule extends Model
     {
         return $this->hasMany(Alert::class);
     }
-
     
     public static function selectList()
     {
-        return AlertRule::orderBy('name')->pluck('name','id');
+        return self::orderBy('name')->pluck('name','id');
     }
 
     public function remove_hive_id_from_exclude_hive_ids($hive_id)
@@ -233,7 +247,7 @@ class AlertRule extends Model
             return 0;
         }
 
-        if (!isset(AlertRule::$influx_calc[$r->calculation]))
+        if (!isset(self::$influx_calc[$r->calculation]))
         {
             if($log_on)
                 Log::debug($debug_start.' Undefined calculation: '.$r->calculation);
@@ -241,7 +255,7 @@ class AlertRule extends Model
         }
         $diff_comp   = $r->comparison == 'dif' || $r->comparison == 'abs_dif' || $r->comparison == 'inc' || $r->comparison == 'dec' ? true : false;
         $m_abbr      = $r->measurement->abbreviation;
-        $influx_func = AlertRule::$influx_calc[$r->calculation];
+        $influx_func = self::$influx_calc[$r->calculation];
         $limit       = $diff_comp ? $r->alert_on_occurences + 1 : $r->alert_on_occurences; // one extra for diff calculation
         $direct_data = isset($data_array) && count($data_array) > 0 && isset($data_array[0][$m_abbr]) ? true : false;
 
@@ -661,7 +675,7 @@ class AlertRule extends Model
         $parse_min  = min(60, env('PARSE_ALERT_RULES_EVERY_X_MIN', 15));
         $log_on     = env('LOG_ALERT_RULE_PARSING', false);
 
-        $alertRules = AlertRule::whereIn('id', $rule_ids)
+        $alertRules = self::whereIn('id', $rule_ids)
                         ->where('active', 1)
                         ->where('default_rule', 0)
                         ->where('alert_on_occurences', '=', 1)
@@ -716,7 +730,7 @@ class AlertRule extends Model
             $evalCount  = 0;
             $min_ago_e  = date('Y-m-d H:i:s', time()-(59*$parse_min)); // a bit less than 15 min ago
 
-            $alertRules = AlertRule::where('active', 1)
+            $alertRules = self::where('active', 1)
                             ->where('default_rule', 0)
                             ->where('user_id', '!=', null)
                             ->where('calculation_minutes', '>=', $parse_min) // do not parse alerts that are set to parsing 'at time of device data' (i.e. calculation_minutes == 0)
@@ -740,7 +754,7 @@ class AlertRule extends Model
             // if ($alertCount > 0)
             //     Log::debug('|=> Evaluated rules='.$evalCount.', created/updated alerts='.$alertCount);
         }
-        AlertRule::cacheRequestRate('alert-timed', $alertCount);
+        self::cacheRequestRate('alert-timed', $alertCount);
         return $alertCount;
     }
 }

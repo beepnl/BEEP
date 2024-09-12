@@ -153,4 +153,7 @@ $(function () {
       $('#checklist-tree').jstree(true).search(v);
     }, 250);
   });
+
+  // Show tooltips immediately
+  $(document).tooltip({show: null});
 });

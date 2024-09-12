@@ -33,6 +33,7 @@ class AlertRuleFormula extends Model
     protected $fillable           = ['alert_rule_id', 'measurement_id', 'calculation', 'comparator', 'comparison', 'logical', 'period_minutes', 'threshold_value', 'future'];
     protected $hidden             = [];
     protected $casts              = ['future'=>'boolean'];
+    protected $appends            = ['calculation_minutes'];
 
     public static $calculations   = ["min"=>"Minimum", "max"=>"Maximum", "ave"=>"Average", "cnt"=>"Count"]; // exclude "der"=>"Derivative" for the moment (because of user interpretation complexity)
     public static $comparators    = ["="=>"equal_to", "<"=>"less_than", ">"=>"greater_than", "<="=>"less_than_or_equal", ">="=>"greater_than_or_equal"];
@@ -60,6 +61,16 @@ class AlertRuleFormula extends Model
             return $this->user->allDevices()->get();
 
         return $this->user->devices;
+
+    }
+    public function getCalculationMinutesAttribute()
+    {
+        $ar = $this->alert_rule;
+        if ($ar)
+            return $ar->calculation_minutes;
+
+        return null;
+
     }
 
     public function getUnit()

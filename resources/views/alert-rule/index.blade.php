@@ -67,6 +67,7 @@
                     <th>Last alert</th>
                     <th>Function</th>
                     <th>Measurement</th>
+                    <th>Alerts</th>
                     <th>Email</th>
                     <th>Default</th>
                     <th>Actions</th>
@@ -86,7 +87,7 @@
                         @if($item->formulas->count() > 0)
                         <div>Formulas: 
                             @foreach($item->formulas as $f)
-                            <a href="/alert-rule-formula/{{$f->id}}"><span class="badge badge-default">{{$f->id}}</span></a>
+                            <a href="/alert-rule-formula/{{$f->id}}"><span class="badge badge-default">{{$f->id}}: {{$f->readableFunction(true)}}</span></a>
                             @endforeach
                         </div>
                         @else
@@ -94,6 +95,7 @@
                         @endif
                     </td>
                     <td>{{ $item->measurement->pq_name_unit }}</td>
+                    <td>{{ $item->alerts()->count() }}</td>
                     <td>{{ $item->alert_via_email }}</td>
                     <td>{{ $item->default_rule }}</td>
                     <td col-sm-1>

@@ -4,7 +4,9 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use App\Measurement;
+use Translation;
 use App\Models\AlertRule;
+use LaravelLocalization;
 use Cache;
 
 class AlertRuleFormula extends Model
@@ -49,7 +51,7 @@ class AlertRuleFormula extends Model
 
     public function user()
     {
-        return $this->alert_rule->user;
+        return $this->alert_rule->user();
     }
 
     public function user_devices($include_shared=true)
@@ -65,20 +67,66 @@ class AlertRuleFormula extends Model
         return $this->calculation == 'cnt' || $this->calculation == 'der' || $this->measurement->unit == '-' ? '' : ''.$this->measurement->unit;
     }
 
+    public function getPq($abbr=false)
+    {
+        $loc = LaravelLocalization::getCurrentLocale();
+        $pq  = '';
+
+        if (isset($this->measurement_id) && isset($this->measurement->physical_quantity))
+        { 
+            $pq = $this->measurement->physical_quantity;
+            return Cache::remember('ar-'.$this->id.'-pq-name-'.$loc, env('CACHE_TIMEOUT_LONG'), function () use ($loc, $pq, $abbr) 
+            {
+                if ($this->calculation == 'der' || !isset($pq))
+                {
+                    return '';
+                }
+                elseif (isset($pq))
+                {
+                    if ($abbr)
+                        return $pq->abbreviation;
+                    else
+                        return $pq->transName();
+                }
+
+                return '';
+            });
+        }
+        return '';
+    }
+
     public function readableFunction($short=false, $value=null)
     {
-        $f          = $this;
-        $unit       = $f->getUnit();
-        $calc       = $f->period_minutes == 0 ? '' : ''.$f->calculation.' ';
-        $calc_trans = $f->period_minutes == 0 ? '' : __('beep.'.$f->calculation).' ';
+        $arf        = $this;
+        $locales    = config('laravellocalization.supportedLocales');
+        $locale     = isset($locale) && isset($locales[$locale]) ? $locale : ( isset($arf->user->locale) && isset($locales[$arf->user->locale]) ? $arf->user->locale : LaravelLocalization::getCurrentLocale() );
+        $pq_name    = isset($m_abbr) ? Translation::get($locale, $m_abbr, 'measurement') : $arf->getPq();
+        $unit       = $arf->getUnit();
+        $direct     = $arf->calculation_minutes == 0 ? true : false;
+        $calc       = $direct ? '' : ''.__('beep.'.$arf->calculation).' ';                             // min / max / average / count
+        $comparison = $arf->comparison == 'val' ? '' : ' '.__('beep.'.$arf->comparison);  // value (not shown) / increase / difference
+        $cnt_zero   = $arf->calculation == 'cnt' && ($value === 0 || $arf->threshold_value == 0) ? true : false;
+        $text_zero  = ucfirst(__('beep.cnt_zero')).' ';                                     // Absence of
+        $calc_trans = $direct ? '' : ($cnt_zero ? $text_zero : $calc.$comparison);          // Absence of / average value
 
-        if ($value != null) // alert function
-            return ucfirst($calc_trans).__('beep.'.$f->comparison).' '.$f->measurement->pq.' = '.$value.$unit."\n(".$f->comparator.' '.$f->threshold_value.$unit.')';
+        // alert function with value
+        if ($value != null) 
+        {
+            if ($cnt_zero)
+                return ucfirst($calc_trans).$pq_name.__('beep.values');
+            else
+                return ucfirst($calc_trans).' '.$pq_name.' = '.$value.$unit."\n(".$arf->comparator.' '.$arf->threshold_value.$unit.')'; // value Temperature average value = 10.3°C
+        }
 
+        // alert function for logging
         if ($short)
-            return $f->measurement->abbreviation.' '.$calc.$f->comparison.' '.$f->comparator.' '.$f->threshold_value.$unit;
+            return $arf->getPq(true).' '.$calc.$arf->comparison.' '.$arf->comparator.' '.$arf->threshold_value.$unit;
 
-        return $f->measurement->pq.' '.$calc_trans.__('beep.'.$f->comparison).' '.$f->comparator.' '.$f->threshold_value.$unit;
+        // alert function without value (for alert rule display)
+        if ($cnt_zero)
+            return ucfirst($calc_trans).$pq_name.__('beep.values'); // Absence of Temperature values
+
+        return $pq_name.' '.$calc_trans.__('beep.'.$arf->comparison).' '.$arf->comparator.' '.$arf->threshold_value.$unit; // Temperature average value = 10.3°C
     }
 
     // for selected measurement, get data and evaluate formula on data

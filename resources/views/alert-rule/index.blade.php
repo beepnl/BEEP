@@ -67,6 +67,7 @@
                     <th>Last alert</th>
                     <th>Function</th>
                     <th>Measurement</th>
+                    <th>Alerts</th>
                     <th>Email</th>
                     <th>Default</th>
                     <th>Actions</th>
@@ -86,7 +87,7 @@
                         @if($item->formulas->count() > 0)
                         <div>Formulas: 
                             @foreach($item->formulas as $f)
-                            <a href="/alert-rule-formula/{{$f->id}}"><span class="badge badge-default">{{$f->id}}</span></a>
+                            <a href="/alert-rule-formula/{{$f->id}}"><span class="badge badge-default">{{$f->id}}: {{$f->readableFunction(true)}}</span></a>
                             @endforeach
                         </div>
                         @else
@@ -94,11 +95,13 @@
                         @endif
                     </td>
                     <td>{{ $item->measurement->pq_name_unit }}</td>
+                    <td>{{ $item->alerts()->count() }}</td>
                     <td>{{ $item->alert_via_email }}</td>
                     <td>{{ $item->default_rule }}</td>
-                    <td col-sm-1>
+                    <td style="min-width: 210px;">
                         <a href="{{ route('alert.index', ['rule_id'=>$item->id]) }}" title="{{ __('crud.show') }} Alerts"><button class="btn btn-default"><i class="fa fa-bell" aria-hidden="true"></i></button></a>
                         <a href="{{ route('alert-rule.show', $item->id) }}" title="{{ __('crud.show') }}"><button class="btn btn-default"><i class="fa fa-eye" aria-hidden="true"></i></button></a>
+                        <a href="{{ route('alert-rule.parse', $item->id) }}" title="Run AlertRule now"><button class="btn btn-warning"><i class="fa fa-refresh" aria-hidden="true"></i></button></a>
 
                         <a href="{{ route('alert-rule.edit', $item->id) }}" title="{{ __('crud.edit') }}"><button class="btn btn-primary"><i class="fa fa-pencil" aria-hidden="true"></i></button></a>
 

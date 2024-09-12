@@ -12,6 +12,31 @@ class Translation extends Model
 
     public $timestamps = false;
 
+    public static function boot()
+    {
+        parent::boot();
+
+        static::created(function($t)
+        {
+            $t->forgetCache();
+        });
+
+        static::updated(function($t)
+        {
+            $t->forgetCache();
+        });
+
+        static::deleted(function($t)
+        {
+            $t->forgetCache();
+        });
+    }
+
+    public function forgetCache()
+    {
+        Category::forgetTaxonomyListCache();
+    }
+
     // Relations
 
     public function language()
@@ -87,6 +112,19 @@ class Translation extends Model
 			return true;
 	    }
 	    return false;
+    }
+
+    public static function get($locale, $name, $type)
+    {
+        $lang_id = Language::where('twochar', strtolower($locale))->value('id');
+        //dd($lang_id, $locale, $name, $type);
+        if (empty($lang_id))
+            return '';
+
+        return Cache::remember('trans-lang-'.$locale.'-type-'.$type.'-name-'.$name, env('CACHE_TIMEOUT_LONG'), function () use ($name, $type, $lang_id)
+        {
+            return self::where('name', $name)->where('type', $type)->where('language_id', $lang_id)->value('translation');
+        });
     }
 
     public static function createTranslations($name, $type)

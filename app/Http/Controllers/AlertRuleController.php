@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 
 use App\Models\AlertRule;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 class AlertRuleController extends Controller
 {
@@ -45,6 +46,26 @@ class AlertRuleController extends Controller
         $alertrule = new AlertRule();
         return view('alert-rule.create');
     }
+
+    /**
+     * Parse AR
+     */
+    public function parse(Request $request, $id)
+    {
+        $alertrule = AlertRule::findOrFail($id);
+        $alertrule->last_evaluated_at = null;
+        $alertrule->last_calculated_at = null;
+
+        $log_on = env('LOG_ALERT_RULE_PARSING', false);
+        
+        if($log_on)
+            Log::info("Manual trigger of AlertRule $id via ->parseRule(null, null, $log_on)");
+
+        $alerts = $alertrule->parseRule(null, null, $log_on);
+
+        return redirect('alert-rule')->with('success', "Alert Rule ($id) $alertrule->name parsed. Result: ".json_encode($alerts));
+    }
+
 
     /**
      * Store a newly created resource in storage.

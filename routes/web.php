@@ -141,6 +141,7 @@ Route::group(
 				Route::get('roles/{id}/edit',	['as'=>'roles.edit','uses'=>'RoleController@edit','middleware' => ['permission:role-edit']]);
 				Route::patch('roles/{id}',		['as'=>'roles.update','uses'=>'RoleController@update','middleware' => ['permission:role-edit']]);
 				Route::delete('roles/{id}',		['as'=>'roles.destroy','uses'=>'RoleController@destroy','middleware' => ['permission:role-delete']]);
+				Route::get('alert-rule/{id}/parse',['as'=>'alert-rule.parse','uses'=>'AlertRuleController@parse']);
 
 				// Resource controllers 
 				Route::resource('permissions', 		'PermissionController');

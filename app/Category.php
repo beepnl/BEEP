@@ -5,6 +5,7 @@ namespace App;
 use Illuminate\Database\Eloquent\Model;
 use Kalnoy\Nestedset\NodeTrait;
 use LaravelLocalization;
+use Cache;
 
 class Category extends Model
 {
@@ -25,6 +26,58 @@ class Category extends Model
         'research' => 'Research specific item',
         'system' => 'System (required for interface)',
     ]; 
+
+    public static function boot()
+    {
+        parent::boot();
+
+        static::created(function($c)
+        {
+            $c->forgetCache();
+        });
+
+        static::updated(function($c)
+        {
+            $c->forgetCache();
+        });
+
+        static::deleted(function($c)
+        {
+            $c->forgetCache();
+            Translation::where('type','category')->where('name', $c->name)->delete();
+        });
+    }
+
+    public function forgetCache()
+    {
+
+        Cache::forget('cat-'.$this->id.'-input-type');
+        Cache::forget('root-'.$this->id.'-anc');
+        Cache::forget('root-'.$this->id.'-trans-anc');
+
+        $locales = Language::pluck('twochar');
+        
+        foreach ($locales as $locale) 
+        {
+            // Category
+            Cache::forget('trans-'.$this->id.'-'.$this->name);
+            Cache::forget('trans-'.$this->id.'-'.$this->name.'-lan');
+            Cache::forget('trans-'.$this->id.'-'.$locale);
+            Cache::forget('trans-'.$this->id.'-'.$locale.'-'.$this->name);
+            Cache::forget('trans-'.$this->id.'-'.$locale.'-'.$this->name.'anc');
+            // Area
+            Cache::forget('area-type-array-'.$locale);
+            Cache::forget('area-type-array-'.$locale.'-translated');
+        }
+        
+        self::forgetTaxonomyListCache();
+    }
+
+    public static function forgetTaxonomyListCache()
+    {
+        Cache::forget('taxonomy_lists');
+        Cache::forget('taxonomy_lists_nh3_reduction_chart_groups');
+    }
 
     // Relations
     public function getInputAttribute()
@@ -177,33 +230,45 @@ class Category extends Model
         return count($range) == 0 ? null : implode("\n", $range);
     }
 
-    public function translation($language_abbr)
+public function translation($language_abbr)
     {
-        $lang_id = Language::where('abbreviation', $language_abbr)->pluck('id');
-        if ($lang_id)
-            return Translation::where('type', 'category')->where('language_id', $lang_id)->where('name', $this->name)->value('translation');
-        
-        return $this->name;
+        return Cache::rememberForever('trans-'.$this->id.'-'.$language_abbr, function () use ($language_abbr){
+            $lang_id = Language::where('abbreviation', $language_abbr)->pluck('id');
+            if ($lang_id)
+                return Translation::where('type','category')->where('language_id', $lang_id)->where('name', $this->name)->value('translation');
+            
+            return $this->name;
+        });
     }
 
     public function translations()
     {
-        $trans = Translation::where('type', 'category')->where('name', $this->name)->pluck('translation','language_id');
-        if ($trans)
-            return $trans;
-        
-        return [['translation'=>$this->name, 'language_id'=>0]];
+        return Cache::rememberForever('trans-'.$this->id.'-'.$this->name.'-lan', function (){
+            $trans = Translation::where('type','category')->where('name', $this->name)->pluck('translation','language_id');
+            if ($trans)
+                return $trans;
+            
+            return [['translation'=>$this->name, 'language_id'=>0]];
+        });
     }
 
     public function trans()
     {
-        return Translation::translateArray($this->name);
+        return Cache::rememberForever('trans-'.$this->id.'-'.$this->name, function () {
+            return Translation::translateArray($this->name);
+        });
     }
 
     public function transName($locale = null)
     {
-        $trans = Translation::translate($this->name);
-        return isset($trans) ? $trans : $this->name;
+        if ($locale == null)
+            $locale = LaravelLocalization::getCurrentLocale();
+        
+        return Cache::rememberForever('trans-'.$this->id.'-'.$locale.'-'.$this->name, function () use ($locale){
+            $trans = $this->trans;
+            return isset($trans[$locale]) ? $trans[$locale] : $this->name;
+        });
+
     }
 
     public function ancName($locale = null, $sep = " > ")
@@ -211,10 +276,12 @@ class Category extends Model
         if ($locale == null)
             $locale = LaravelLocalization::getCurrentLocale();
         
-        $ancest = $this->getAncestors()->map(function($item,$key) use ($locale, $sep){
-            return $item->transName($locale).$sep;
+        return Cache::rememberForever('trans-'.$this->id.'-'.$locale.'-'.$this->name.'-anc', function () use ($locale, $sep){
+            $ancest = $this->getAncestors()->map(function($item,$key) use ($locale, $sep){
+                return $item->transName($locale).$sep;
+            });
+            return $ancest->implode('');
         });
-        return $ancest->implode('');
     }
 
     public function rootName($locale = null)
@@ -222,7 +289,10 @@ class Category extends Model
         if ($locale == null)
             $locale = LaravelLocalization::getCurrentLocale();
 
-        $ancest = $this->getAncestors();
+        $ancest = Cache::rememberForever('root-'.$this->id.'-trans-anc', function ()
+        {
+            return $this->getAncestors();
+        });
         if ($ancest->count() > 0)
             return $ancest->get(0)->transName($locale);
 
@@ -231,12 +301,16 @@ class Category extends Model
 
     public function rootNodeName()
     {
-        $ancest = $this->getAncestors();
+        $ancest = Cache::rememberForever('root-'.$this->id.'-anc', function ()
+        {
+            return $this->getAncestors();
+        });
         if ($ancest->count() > 0)
             return $ancest->get(0)->name;
 
         return "";
     }
+
 
     public function useAmount()
     {
@@ -274,8 +348,8 @@ class Category extends Model
     //finding on ::child()
     public static function findCategoryByParentAndName($parent_name, $name) 
     {
-        //$parent = Category::whereJoin('name', $parent_name)->whereJoin('children.name', $name)->first();
-        $parent = Category::where('name', $parent_name)->first();
+        //$parent = self::whereJoin('name', $parent_name)->whereJoin('children.name', $name)->first();
+        $parent = self::where('name', $parent_name)->first();
 
         if (isset($parent))
             return $parent->children()->where('name', $name)->first();
@@ -285,7 +359,7 @@ class Category extends Model
 
     public static function findCategoryIdByParentAndName($parent_name, $name)
     {
-        $cat = Category::findCategoryByParentAndName($parent_name, $name);
+        $cat = self::findCategoryByParentAndName($parent_name, $name);
         if (isset($cat))
             return $cat->id;
 
@@ -294,22 +368,22 @@ class Category extends Model
 
     public static function descendentsByRootParentAndName($root_name, $parent_name, $name, $whereTypeIn=['system']) 
     {
-        $category = Category::findCategoryByRootParentAndName($root_name, $parent_name, $name, $whereTypeIn);
+        $category = self::findCategoryByRootParentAndName($root_name, $parent_name, $name, $whereTypeIn);
         //die(print_r($category->toArray()));
         if (isset($category))
-            return Category::whereDescendantOf($category)->get();
+            return self::whereDescendantOf($category)->get();
 
         return [];
     }
 
     public static function findCategoryByRootParentAndName($root_name, $parent_name, $name, $whereTypeIn=['system']) 
     {
-        $root = Category::whereIsRoot()->where('name', $root_name)->first();
+        $root = self::whereIsRoot()->where('name', $root_name)->first();
 
         if ($root_name === $parent_name && isset($root))
             $parent = $root;
         else
-            $parent = Category::descendantsAndSelf($root)->whereIn('type', $whereTypeIn)->where('name', $parent_name)->first();
+            $parent = self::descendantsAndSelf($root)->whereIn('type', $whereTypeIn)->where('name', $parent_name)->first();
 
         //dd($parent);
         if (isset($parent))
@@ -320,7 +394,7 @@ class Category extends Model
 
     public static function findCategoryIdByRootParentAndName($root_name, $parent_name, $name, $whereTypeIn=['system'])
     {
-        $cat = Category::findCategoryByRootParentAndName($root_name, $parent_name, $name, $whereTypeIn);
+        $cat = self::findCategoryByRootParentAndName($root_name, $parent_name, $name, $whereTypeIn);
         if (isset($cat))
             return $cat->id;
 
@@ -332,9 +406,9 @@ class Category extends Model
         $locale = LaravelLocalization::getCurrentLocale();
 
         if ($order)
-            return Category::whereIsRoot()->whereNotIn('type', ['system'])->get()->sortBy("trans.$locale", SORT_NATURAL|SORT_FLAG_CASE)->pluck('id')->toArray();
+            return self::whereIsRoot()->whereNotIn('type', ['system'])->get()->sortBy("trans.$locale", SORT_NATURAL|SORT_FLAG_CASE)->pluck('id')->toArray();
 
-        return Category::whereIsRoot()->whereNotIn('type', ['system'])->get()->pluck('id')->toArray();
+        return self::whereIsRoot()->whereNotIn('type', ['system'])->get()->pluck('id')->toArray();
     }
 
     public static function getTaxonomy($rootNodes=null, $order=true, $flat=false, $whereNotInTypes=['system'])
@@ -344,9 +418,9 @@ class Category extends Model
         if (gettype($rootNodes) !== 'array' || count($rootNodes) == 0)
         {
             if ($order === true)
-                $rootNodes = Category::whereIsRoot()->whereNotIn('type', ['system'])->get()->sortBy("trans.$locale", SORT_NATURAL|SORT_FLAG_CASE)->pluck('id');
+                $rootNodes = self::whereIsRoot()->whereNotIn('type', ['system'])->get()->sortBy("trans.$locale", SORT_NATURAL|SORT_FLAG_CASE)->pluck('id');
             else
-                $rootNodes = Category::whereIsRoot()->whereNotIn('type', ['system'])->pluck('id');
+                $rootNodes = self::whereIsRoot()->whereNotIn('type', ['system'])->pluck('id');
 
         }
         
@@ -354,17 +428,17 @@ class Category extends Model
         foreach ($rootNodes as $node)
         {
             if ($flat == true && ($order === null || $order === false))
-                $taxonomy = $taxonomy->merge(Category::whereNotIn('type', $whereNotInTypes)->descendantsAndSelf($node) );
+                $taxonomy = $taxonomy->merge(self::whereNotIn('type', $whereNotInTypes)->descendantsAndSelf($node) );
             else if ($flat == true && $order === true)
-                $taxonomy = $taxonomy->merge(Category::whereNotIn('type', $whereNotInTypes)->descendantsAndSelf($node)->sortBy("trans.$locale", SORT_NATURAL|SORT_FLAG_CASE) );
+                $taxonomy = $taxonomy->merge(self::whereNotIn('type', $whereNotInTypes)->descendantsAndSelf($node)->sortBy("trans.$locale", SORT_NATURAL|SORT_FLAG_CASE) );
             else if ($flat == false && $order === null)
-                $taxonomy = $taxonomy->merge(Category::whereNotIn('type', $whereNotInTypes)->descendantsAndSelf($node)->toTree() );
+                $taxonomy = $taxonomy->merge(self::whereNotIn('type', $whereNotInTypes)->descendantsAndSelf($node)->toTree() );
             else if ($flat == false)
             {
                 if (gettype($order) == 'array' && count($order) > 0)
-                    $taxonomy = $taxonomy->merge(Category::descendantsAndSelf($node)->whereNotIn('type', $whereNotInTypes)->sortBy(function($cat, $key) use ($order) { return array_search($cat->id, $order); })->toTree());
+                    $taxonomy = $taxonomy->merge(self::descendantsAndSelf($node)->whereNotIn('type', $whereNotInTypes)->sortBy(function($cat, $key) use ($order) { return array_search($cat->id, $order); })->toTree());
                 else
-                    $taxonomy = $taxonomy->merge(Category::descendantsAndSelf($node)->whereNotIn('type', $whereNotInTypes)->sortBy("trans.$locale", SORT_NATURAL|SORT_FLAG_CASE)->toTree());
+                    $taxonomy = $taxonomy->merge(self::descendantsAndSelf($node)->whereNotIn('type', $whereNotInTypes)->sortBy("trans.$locale", SORT_NATURAL|SORT_FLAG_CASE)->toTree());
             }
         }
 

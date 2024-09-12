@@ -37,6 +37,62 @@ class Measurement extends Model
     protected $appends               = ['pq','unit','pq_name_unit', 'low_value', 'high_value']; //'parent'
     public static $data_source_types = ['db_influx'=>'Influx Database', 'api'=>'API', 'lambda_model'=>'Lambda Model', 'open_weather'=>'Open Weather'];
 
+    public static function boot()
+    {
+        parent::boot();
+
+        static::created(function($m)
+        {
+            $m->forgetCache();
+        });
+
+        static::updated(function($m)
+        {
+            $m->forgetCache();
+        });
+
+        static::deleted(function($m)
+        {
+            $m->forgetCache();
+        });
+    }
+
+    public function forgetCache()
+    {
+        Cache::forget('api-gateway-valid_measurements');
+        Cache::forget('measurements-pq-abbr');
+        Cache::forget('measurements-pq-abbr-weather');
+        Cache::forget('measurements-pq-abbr-weather-show-in-charts');
+        Cache::forget('measurements-pq-abbr-no-weather');
+        Cache::forget('measurements-pq-abbr-no-weather-show-in-charts');
+        Cache::forget('measurements-min-max-values');
+        Cache::forget('measurement-list-weather-output-names');
+        Cache::forget('measurement-list-weather-output-pq');
+        Cache::forget('measurement-list-weather-valid-names');
+        Cache::forget('measurement-list-weather-valid-pq');
+        Cache::forget('measurement-list-sensors-output-names');
+        Cache::forget('measurement-list-sensors-output-pq');
+        Cache::forget('measurement-list-sensors-valid-names');
+        Cache::forget('measurement-list-sensors-valid-pq');
+        Cache::forget('measurement-list-weather-output-names-hide-grade');
+        Cache::forget('measurement-list-weather-output-pq-hide-grade');
+        Cache::forget('measurement-list-weather-valid-names-hide-grade');
+        Cache::forget('measurement-list-weather-valid-pq-hide-grade');
+        Cache::forget('measurement-list-sensors-output-names-hide-grade');
+        Cache::forget('measurement-list-sensors-output-pq-hide-grade');
+        Cache::forget('measurement-list-sensors-valid-names-hide-grade');
+        Cache::forget('measurement-list-sensors-valid-pq-hide-grade');
+        Cache::forget('measurement-'.$this->id.'-trans-'.$this->abbreviation);
+        Cache::forget('measurement-'.$this->id.'-pq-'.$this->physical_quantity_id);
+        Cache::forget('measurement-'.$this->id.'-pq-'.$this->physical_quantity_id.'-'.$this->abbreviation.'-name');
+        Cache::forget('measurement-'.$this->id.'-pq-'.$this->physical_quantity_id.'-unit');
+        Cache::forget('measurement-display-decimals');
+        Category::forgetTaxonomyListCache();
+        if (isset($this->physical_quantity_id))
+            $this->physical_quantity->forgetCache();
+    }
+
+
     public function getPqAttribute()
     {
         return $this->pq_name();
@@ -67,47 +123,77 @@ class Measurement extends Model
         return $this->hasOne(PhysicalQuantity::class, 'id', 'physical_quantity_id');
     }
 
-    public function transName($locale = null)
+    private function physical_quantity_cached()
     {
-        $trans = Translation::translate($this->abbreviation, null, false, 'measurement');
-        return isset($trans) ? $trans : $this->name;
+        return Cache::remember('measurement-'.$this->id.'-pq-'.$this->physical_quantity_id, env('CACHE_TIMEOUT_LONG'), function () {
+            return $this->physical_quantity;
+        });
     }
 
-    public function pq_name($translate = true)
+    public function pq_name()
     {
         // add sensor name (temporarily)
-        $trans = $translate ? Translation::translate($this->abbreviation, null, false, 'measurement') : null;
-        $name  = isset($trans) && strtolower($trans) != $this->abbreviation ? $trans : $this->physical_quantity()->value('name');
-        // if (($name != '' && $name != '-') && isset($this->abbreviation))
-        // {
-        //     $abbr = '';
-        //     $mabb = $this->abbreviation;
-        //     $aind = strpos($mabb, '_');
-        //     $abbr = ' - '.($aind ? substr($mabb, 0, $aind) : $mabb);
-        //     $name .= $abbr;
-        // }
-        // else
-        if ($name == '-' && isset($this->abbreviation))
-        {
-            $name = str_replace('_', ' ', $this->abbreviation);
-        }
-        return $name;
+        return Cache::remember('measurement-'.$this->id.'-pq-'.$this->physical_quantity_id.'-'.$this->abbreviation.'-name', env('CACHE_TIMEOUT_LONG'), function () {
+            //$abbr = '';
+            // if (isset($this->abbreviation))
+            // {
+            //     $mabb = $this->abbreviation;
+            //     $aind = strpos($mabb, '_'); 
+            //     $abbr = ' - '.($aind ? substr($mabb, 0, $aind) : $mabb);
+            // }
+            return $this->physical_quantity_cached()->name; //.$abbr;
+        });
     }
 
     public function unit()
     {
-        return $this->physical_quantity()->value('unit');
+        return Cache::remember('measurement-'.$this->id.'-pq-'.$this->physical_quantity_id.'-unit', env('CACHE_TIMEOUT_LONG'), function () {
+            $pq = $this->physical_quantity_cached();
+            if ($pq)
+                return $pq->unit;
+            else
+                return '';
+        });
     }
-
-    public function pq_name_unit($translate = true)
+    
+    public function pq_name_unit()
     {
         if ($this->physical_quantity_id != null)
         {
-            $unit = $this->unit() != null && $this->unit() != '' && $this->unit() != '-' ? ' ('.$this->unit().')' : '';
-            $name = $this->pq_name($translate).$unit;
+            $unit = $this->unit() != null && $this->unit() != '' ? ' ('.$this->unit().')' : '';
+            $name = $this->pq_name().$unit;
             if ($name)
                 return $name;
         }
+        return null;
+    }
+
+    public function trans()
+    {
+        //$trans = Translation::where('name', $this->name)->with('language')->get()->pluck('translation','language.lang');
+        $out = Cache::rememberForever('measurement-'.$this->id.'-trans-'.$this->abbreviation, function () {
+            $trans = DB::table('translations')
+                    ->join('languages', 'translations.language_id', '=', 'languages.id')
+                    ->where('translations.type', 'measurement')
+                    ->where('translations.name', $this->abbreviation)
+                    ->select('translations.translation', 'languages.twochar')
+                    ->get();
+            
+            if ($trans)
+            {
+                $out = [];
+                foreach($trans as $item)
+                    $out[$item->twochar] = $item->translation; 
+                
+                if (count($out) > 0)
+                    return $out;
+            }
+            return null;
+        });
+
+        if ($out)
+            return $out;
+
         return null;
     }
 

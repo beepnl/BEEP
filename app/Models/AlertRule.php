@@ -11,8 +11,10 @@ use App\Models\Alert;
 use Moment\Moment;
 use Mail;
 use Cache;
+use Translation;
 use App\Mail\AlertMail;
 use App\Models\AlertRuleFormula;
+use LaravelLocalization;
 
 class AlertRule extends Model
 {
@@ -100,6 +102,32 @@ class AlertRule extends Model
         return $this->calculation == 'cnt' || $this->calculation == 'der' || $this->measurement->unit == '-' ? '' : ''.$this->measurement->unit;
     }
 
+    public function getPq($abbr=false)
+    {
+        $pq = null;
+        
+        if (isset($this->measurement_id) && isset($this->measurement->physical_quantity))
+            $pq = $abbr ? $this->measurement->physical_quantity->abbreviation : $this->measurement->pq;
+
+        if ($pq)
+        {
+            $loc = LaravelLocalization::getCurrentLocale();
+            return Cache::remember('ar-'.$this->id.'-pq-name-'.$loc.'-'.$pq, env('CACHE_TIMEOUT_LONG'), function () use ($loc, $pq) 
+                {
+                    if ($this->calculation == 'der' || !isset($pq))
+                        return '';
+                    elseif (isset($pq))
+                        return $pq;
+
+                    return '';
+                });
+            }
+        else
+        {
+            return '';
+        }
+    }
+
     public function measurement()
     {
         return $this->belongsTo(Measurement::class);
@@ -111,6 +139,10 @@ class AlertRule extends Model
     public function formulas()
     {
         return $this->hasMany(AlertRuleFormula::class);
+    }
+    public function alerts()
+    {
+        return $this->hasMany(Alert::class);
     }
 
     
@@ -153,18 +185,36 @@ class AlertRule extends Model
     public function readableFunction($short=false, $value=null)
     {
         $rule       = $this;
+        
+        $locales    = config('laravellocalization.supportedLocales');
+        $locale     = isset($locale) && isset($locales[$locale]) ? $locale : ( isset($rule->user->locale) && isset($locales[$rule->user->locale]) ? $rule->user->locale : LaravelLocalization::getCurrentLocale() );
+        $pq_name    = isset($m_abbr) ? Translation::get($locale, $m_abbr, 'measurement') : $rule->getPq();
         $unit       = $rule->getUnit();
-        $calc       = $rule->calculation_minutes == 0 ? '' : ''.$rule->calculation.' ';
-        $calc_trans = $rule->calculation_minutes == 0 ? '' : __('beep.'.$rule->calculation).' ';
+        $direct     = $rule->calculation_minutes == 0 ? true : false;
+        $calc       = $direct ? '' : ''.__('beep.'.$rule->calculation).' ';                             // min / max / average / count
+        $comparison = $rule->comparison == 'val' ? '' : ' '.__('beep.'.$rule->comparison);  // value (not shown) / increase / difference
+        $cnt_zero   = $rule->calculation == 'cnt' && ($value === 0 || $rule->threshold_value == 0) ? true : false;
+        $text_zero  = ucfirst(__('beep.cnt_zero')).' ';                                     // Absence of
+        $calc_trans = $direct ? '' : ($cnt_zero ? $text_zero : $calc.$comparison);          // Absence of / average value
 
+        // alert function with value
+        if ($value != null) 
+        {
+            if ($cnt_zero)
+                return ucfirst($calc_trans).$pq_name.__('beep.values');
+            else
+                return ucfirst($calc_trans).' '.$pq_name.' = '.$value.$unit."\n(".$rule->comparator.' '.$rule->threshold_value.$unit.')'; // value Temperature average value = 10.3°C
+        }
 
-        if ($value != null) // alert function
-            return ucfirst($calc_trans).__('beep.'.$rule->comparison).' '.$rule->measurement->pq.' = '.$value.$unit."\n(".$rule->comparator.' '.$rule->threshold_value.$unit.')';
-
+        // alert function for logging
         if ($short)
-            return $rule->measurement->abbreviation.' '.$calc.$rule->comparison.' '.$rule->comparator.' '.$rule->threshold_value.$unit;
+            return $rule->getPq(true).' '.$calc.$rule->comparison.' '.$rule->comparator.' '.$rule->threshold_value.$unit;
 
-        return $rule->measurement->pq.' '.$calc_trans.__('beep.'.$rule->comparison).' '.$rule->comparator.' '.$rule->threshold_value.$unit;
+        // alert function without value (for alert rule display)
+        if ($cnt_zero)
+            return ucfirst($calc_trans).$pq_name.__('beep.values'); // Absence of Temperature values
+        else
+            return $pq_name.' '.$calc_trans.__('beep.'.$rule->comparison).' '.$rule->comparator.' '.$rule->threshold_value.$unit; // Temperature average value = 10.3°C
     }
 
     public function evaluateDeviceRuleAlerts($device, $user, $alert_rule_calc_date, $data_array=null, $log_on=false)
@@ -200,12 +250,6 @@ class AlertRule extends Model
         else
             $last_val_inf= $d->getAlertSensorValues($m_abbr, $influx_func, $r->calculation_minutes, $limit); // provides: ['values'=>$values,'query'=>$query, 'from'=>'cache', 'min_ago'=>$val_min_ago]
 
-        if ($last_val_inf['min_ago'] > $r->calculation_minutes)
-        {
-            if($log_on)
-                Log::debug($debug_start.' Not evaluating, data from '.$last_val_inf['min_ago'].'m ago is longer ago than '.$r->calculation_minutes.'m (calc min)');
-            return 0;
-        }
 
         $last_values      = $last_val_inf['values'];
         $alert_count      = 0;
@@ -215,6 +259,13 @@ class AlertRule extends Model
         $last_values_data = [];
         $last_value_count = $diff_comp ? count($last_values) - 1 : min($r->alert_on_occurences, count($last_values));
         $alert_on_no_vals = $r->calculation == 'cnt' && $r->threshold_value == 0 ? true : false;
+        
+        if ($last_val_inf['min_ago'] > $r->calculation_minutes && $alert_on_no_vals == false)
+        {
+            if($log_on)
+                Log::debug($debug_start.' Not evaluating, data from '.$last_val_inf['min_ago'].'m ago is longer ago than '.$r->calculation_minutes.'m (calc min)');
+            return 0;
+        }
 
         if ($last_value_count > 0 || $alert_on_no_vals)
         {

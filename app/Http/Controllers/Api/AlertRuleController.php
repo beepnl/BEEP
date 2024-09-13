@@ -153,7 +153,7 @@ class AlertRuleController extends Controller
         if (isset($formulas) && count($formulas) > 0)
         {
             foreach ($formulas as $f)
-                $alertrule->formulas()->create($f);
+                $alertrule->alert_rule_formulas()->create($f);
         }
 
         return response()->json($alertrule, 201);
@@ -279,7 +279,7 @@ class AlertRuleController extends Controller
             if (count($formulas_input_new) > 0)
             {
                 foreach ($formulas_input_new as $f)
-                    $alertrule->formulas()->create($f);
+                    $alertrule->alert_rule_formulas()->create($f);
             }
         }
 

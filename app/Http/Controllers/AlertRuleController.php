@@ -21,11 +21,12 @@ class AlertRuleController extends Controller
      */
     public function index(Request $request)
     {
+        $perPage = 100;
         $user_id = $request->input('user_id');
         $rule_id = $request->input('rule_id');
-        $no_meas = boolval($request->input('no_measurements', 0));
         $users   = User::all()->pluck('name', 'id');
-        $perPage = 100;
+        $no_meas = boolval($request->input('no_measurements', 0));
+        $default_rule = boolval($request->input('default_rule', 0));
 
         if (!empty($user_id)) {
             $alertrule = AlertRule::where('user_id', $user_id)
@@ -36,6 +37,10 @@ class AlertRuleController extends Controller
             $alertrule = AlertRule::where('id', $rule_id)
                 ->paginate($perPage);
         } 
+        else if ($default_rule)
+        {
+            $alertrule = AlertRule::where('default_rule', 1)->get()->paginate($perPage);
+        }
         else if ($no_meas)
         {
             $alertrule = AlertRule::where('calculation_minutes', '>', 0)->get()->where('no_value', '=', 1)->paginate($perPage);
@@ -47,7 +52,7 @@ class AlertRuleController extends Controller
 
 
 
-        return view('alert-rule.index', compact('alertrule','rule_id','user_id','users','no_meas'));
+        return view('alert-rule.index', compact('alertrule','rule_id','user_id','users','no_meas','default_rule'));
     }
 
     /**

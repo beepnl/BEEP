@@ -21,6 +21,9 @@
     <div style="display: inline-block;">
         <input type="checkbox" style="min-width: 10px;" name="no_measurements" value="1" onchange="this.form.submit();" @if($no_meas) checked @endif> <span style="font-size:16px;">No measurements</span></input>
     </div>
+    <div style="display: inline-block;">
+        <input type="checkbox" style="min-width: 10px;" name="default_rule" value="1" onchange="this.form.submit();" @if($default_rule) checked @endif> <span style="font-size:16px;">Default</span></input>
+    </div>
     {!! Form::close() !!}
 @endsection
 

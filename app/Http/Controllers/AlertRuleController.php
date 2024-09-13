@@ -10,6 +10,8 @@ use App\Models\AlertRule;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 
+use Cache;
+
 class AlertRuleController extends Controller
 {
     /**
@@ -114,6 +116,9 @@ class AlertRuleController extends Controller
         
         AlertRule::create($requestData);
 
+        if (boolval($requestData['default_rule']))
+            Cache::forget('alert-rules-default');
+
         return redirect('alert-rule')->with('flash_message', 'AlertRule added!');
     }
 
@@ -181,6 +186,9 @@ class AlertRuleController extends Controller
 
         $alertrule = AlertRule::findOrFail($id);
         $alertrule->update($requestData);
+
+        if (boolval($requestData['default_rule']))
+            Cache::forget('alert-rules-default');
 
         return redirect('alert-rule')->with('flash_message', 'AlertRule updated!');
     }

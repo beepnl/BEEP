@@ -12,6 +12,7 @@ use Illuminate\Validation\Rule;
 
 use Auth;
 use Validator;
+use Cache;
 
 /**
  * @group Api\AlertRuleController
@@ -40,13 +41,18 @@ class AlertRuleController extends Controller
      * @authenticated
      * @return \Illuminate\Http\Response
      */
-    public function default(Request $request)
+    public function default_rules(Request $request)
     {
-        $alert_rules = AlertRule::where('default_rule', 1)->orderBy('name');
+        
+        $alert_rules = Cache::remember('alert-rules-default', env('CACHE_TIMEOUT_LONG'), function (){
+            $dar = AlertRule::where('default_rule', 1)->get();
+            return $dar->makeHidden(['user_id','webhook_url','exclude_hive_ids','timezone','last_evaluated_at'])->toArray();
+        });
 
-        if ($alert_rules->count() > 0)
-            return response()->json(['alert-rules'=>$alert_rules->get()]);
+        if (count($alert_rules) > 0)
+            return response()->json(['alert-rules'=>$alert_rules]);
 
+        Cache::forget('alert-rules-default');
         return response()->json(['error'=>'no default alert rules available'],404);
     }
 

@@ -37,8 +37,8 @@ class AlertRule extends Model
      *
      * @var array
      */
-    protected $fillable           = ['name', 'description', 'measurement_id', 'calculation', 'calculation_minutes', 'comparator', 'comparison', 'threshold_value', 'exclude_months', 'exclude_hours', 'exclude_hive_ids', 'alert_via_email', 'webhook_url', 'active', 'user_id', 'default_rule', 'timezone', 'alert_on_occurences', 'last_calculated_at', 'last_evaluated_at', 'formulas'];
-    protected $hidden             = ['last_calculated_at'];
+    protected $fillable           = ['name', 'description', 'measurement_id', 'calculation', 'calculation_minutes', 'comparator', 'comparison', 'threshold_value', 'exclude_months', 'exclude_hours', 'exclude_hive_ids', 'alert_via_email', 'webhook_url', 'active', 'user_id', 'default_rule', 'timezone', 'alert_on_occurences', 'last_calculated_at', 'last_evaluated_at'];
+    protected $hidden             = ['last_calculated_at','alert_rule_formulas'];
     protected $appends            = ['formulas','no_value'];
 
     public static $calculations   = ["min"=>"Minimum", "max"=>"Maximum", "ave"=>"Average", "cnt"=>"Count"]; // exclude "der"=>"Derivative" for the moment (because of user interpretation complexity)
@@ -109,7 +109,7 @@ class AlertRule extends Model
 
     public function getFormulasAttribute()
     {
-        return $this->formulas()->get();
+        return $this->alert_rule_formulas;
     }
 
     public function getUnit()
@@ -151,7 +151,7 @@ class AlertRule extends Model
     {
         return $this->belongsTo(User::class);
     }
-    public function formulas()
+    public function alert_rule_formulas()
     {
         return $this->hasMany(AlertRuleFormula::class);
     }

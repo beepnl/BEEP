@@ -254,6 +254,7 @@ class AlertRule extends Model
             return 0;
         }
         $diff_comp   = $r->comparison == 'dif' || $r->comparison == 'abs_dif' || $r->comparison == 'inc' || $r->comparison == 'dec' ? true : false;
+        $round_decim = $diff_comp ? 2 : 1;    // round to 2 decimals for difference comparison, because difference can be 0 too sooon for 1 decimal (temperature sensor of e.g. brood), otherwise to 1 decimal
         $m_abbr      = $r->measurement->abbreviation;
         $influx_func = self::$influx_calc[$r->calculation];
         $limit       = $diff_comp ? $r->alert_on_occurences + 1 : $r->alert_on_occurences; // one extra for diff calculation
@@ -354,8 +355,9 @@ class AlertRule extends Model
                     if (is_nan($calc))
                         continue;
 
-                    $calc  = round($calc, 1); // round to 1 decimal, just like the threshold_value
-                    $thres = round($r->threshold_value, 1);
+                    
+                    $calc  = round($calc, $round_decim); // round, just like the threshold_value
+                    $thres = round($r->threshold_value, $round_decim);
                     
                     $evaluation = false;
                     switch($r->comparator)
@@ -506,7 +508,7 @@ class AlertRule extends Model
                         $last_values_array= [];
                         foreach ($last_values_data as $key => $value) 
                         {
-                            $last_values_array[] = round($value, 1);
+                            $last_values_array[] = round($value, $round_decim);
                         }
                         $last_values_string = implode(' -> ',$last_values_array).$r->getUnit();
                     }

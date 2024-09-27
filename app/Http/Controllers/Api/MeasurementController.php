@@ -1509,6 +1509,8 @@ class MeasurementController extends Controller
                 $whereLoc = '"lat" = \''.$location->coordinate_lat.'\' AND "lon" = \''.$location->coordinate_lon.'\' AND time >= \''.$start_date.'\' AND time <= \''.$end_date.'\'';
                 $queryListWeather   = Device::getAvailableSensorNamesFromData('loc'.$location->id, $names_w, $whereLoc, 'weather', true, $cache_sensor_names);
 
+                $weather = ['load'=>$loadWeather, 'queryListWeather'=>$queryListWeather];
+
                 foreach ($queryListWeather as $i => $name)
                     $queryListWeather[$i] = 'MEAN("'.$name.'") AS "'.$name.'"';
 
@@ -1526,7 +1528,9 @@ class MeasurementController extends Controller
         }
 
         // Add weather data
-        $weather = ['load'=>$loadWeather, 'groupBySelectWeather'=>$groupBySelectWeather];
+        if (!isset($weather))
+            $weather = ['load'=>$loadWeather, 'groupBySelectWeather'=>$groupBySelectWeather];
+        
         if ($loadWeather && $groupBySelectWeather != null && $location && isset($location->coordinate_lat) && isset($location->coordinate_lon))
         {
             $weatherQuery = 'SELECT '.$groupBySelectWeather.' FROM "weather" WHERE "lat" = \''.$location->coordinate_lat.'\' AND "lon" = \''.$location->coordinate_lon.'\' AND time >= \''.$start_date.'\' AND time <= \''.$end_date.'\' '.$groupByResolution.' LIMIT '.$limit;

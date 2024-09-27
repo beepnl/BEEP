@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\App;
 use App\Measurement;
 use App\User;
 use App\Device;
@@ -201,7 +202,7 @@ class AlertRule extends Model
         $rule       = $this;
         
         $locales    = config('laravellocalization.supportedLocales');
-        $locale     = isset($locale) && isset($locales[$locale]) ? $locale : ( isset($rule->user->locale) && isset($locales[$rule->user->locale]) ? $rule->user->locale : LaravelLocalization::getCurrentLocale() );
+        $locale     = isset($locales[$arf->user->locale]) ? $arf->user->locale : LaravelLocalization::getCurrentLocale();
         $pq_name    = isset($m_abbr) ? Translation::get($locale, $m_abbr, 'measurement') : $rule->getPq();
         $unit       = $rule->getUnit();
         $direct     = $rule->calculation_minutes == 0 ? true : false;
@@ -620,6 +621,11 @@ class AlertRule extends Model
                 $r->delete();
             }
             return ['eval'=>0,'calc'=>0,'msg'=>'no_user'];
+        } 
+        else
+        {
+            if (isset($user->locale))
+                App::setLocale($user->locale); // make sure all (blade)translations are in users language
         }
 
         // Evaluate rule

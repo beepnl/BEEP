@@ -110,7 +110,8 @@ class AlertRuleFormula extends Model
     {
         $arf        = $this;
         $locales    = config('laravellocalization.supportedLocales');
-        $locale     = isset($locale) && isset($locales[$locale]) ? $locale : ( isset($arf->user->locale) && isset($locales[$arf->user->locale]) ? $arf->user->locale : LaravelLocalization::getCurrentLocale() );
+        $locale     = isset($locales[$arf->user->locale]) ? $arf->user->locale : LaravelLocalization::getCurrentLocale();
+        
         $pq_name    = isset($m_abbr) ? Translation::get($locale, $m_abbr, 'measurement') : $arf->getPq();
         $unit       = $arf->getUnit();
         $direct     = $arf->calculation_minutes == 0 ? true : false;

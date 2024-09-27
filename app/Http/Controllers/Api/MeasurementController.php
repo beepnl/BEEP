@@ -1448,7 +1448,6 @@ class MeasurementController extends Controller
         if (!isset($device))
             return Response::json('sensor-none-error', 500);
 
-        $location      = $device->location()->get();
         $names         = $request->input('names', $this->output_sensors);
         $names_w       = $this->output_weather;
 
@@ -1525,41 +1524,46 @@ class MeasurementController extends Controller
         }
 
         // Add weather data
-        if ($loadWeather && $groupBySelectWeather != null && isset($location->coordinate_lat) && isset($location->coordinate_lon))
+        if ($loadWeather && $groupBySelectWeather != null)
         {
-            $weatherQuery = 'SELECT '.$groupBySelectWeather.' FROM "weather" WHERE "lat" = \''.$location->coordinate_lat.'\' AND "lon" = \''.$location->coordinate_lon.'\' AND time >= \''.$start_date.'\' AND time <= \''.$end_date.'\' '.$groupByResolution.' LIMIT '.$limit;
-            $weather_out  = Device::getInfluxQuery($weatherQuery, 'weather');
-
-            if (count($sensors_out) == 0)
+            $location = $device->location;
+        
+            if (isset($location->coordinate_lat) && isset($location->coordinate_lon))
             {
-                $sensors_out = $weather_out;
-            }
-            else if (count($weather_out) > 0)
-            {
-                // Add weather data to existing sensor data
-                $data_time_key_arr = [];
+                $weatherQuery = 'SELECT '.$groupBySelectWeather.' FROM "weather" WHERE "lat" = \''.$location->coordinate_lat.'\' AND "lon" = \''.$location->coordinate_lon.'\' AND time >= \''.$start_date.'\' AND time <= \''.$end_date.'\' '.$groupByResolution.' LIMIT '.$limit;
+                $weather_out  = Device::getInfluxQuery($weatherQuery, 'weather');
 
-                foreach ($weather_out as $values)
+                if (count($sensors_out) == 0)
                 {
-                    $time = $values['time'];
-                    $data_time_key_arr[$time] = $values;
+                    $sensors_out = $weather_out;
                 }
-                // add clean_weight values to sensor time keys where the clean_weight values also exist
-                if (count($data_time_key_arr) > 0)
+                else if (count($weather_out) > 0)
                 {
-                    foreach ($sensors_out as $i => $values)
+                    // Add weather data to existing sensor data
+                    $data_time_key_arr = [];
+
+                    foreach ($weather_out as $values)
                     {
                         $time = $values['time'];
-                        if (isset($data_time_key_arr[$time])) // add clean_weight data to already available datetime
+                        $data_time_key_arr[$time] = $values;
+                    }
+                    // add clean_weight values to sensor time keys where the clean_weight values also exist
+                    if (count($data_time_key_arr) > 0)
+                    {
+                        foreach ($sensors_out as $i => $values)
                         {
-                            $sensors_out[$i] = array_merge($sensors_out[$i], $data_time_key_arr[$time]);
-                            unset($data_time_key_arr[$time]); // to retain missing values and add then later
+                            $time = $values['time'];
+                            if (isset($data_time_key_arr[$time])) // add clean_weight data to already available datetime
+                            {
+                                $sensors_out[$i] = array_merge($sensors_out[$i], $data_time_key_arr[$time]);
+                                unset($data_time_key_arr[$time]); // to retain missing values and add then later
+                            }
                         }
                     }
+                    // add missing time values to sensors
+                    if (count($data_time_key_arr) > 0)
+                        $sensors_out = array_merge($sensors_out, array_values($data_time_key_arr));
                 }
-                // add missing time values to sensors
-                if (count($data_time_key_arr) > 0)
-                    $sensors_out = array_merge($sensors_out, array_values($data_time_key_arr));
             }
         }
 

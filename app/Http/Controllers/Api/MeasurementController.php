@@ -1526,6 +1526,7 @@ class MeasurementController extends Controller
         }
 
         // Add weather data
+        $weather = null;
         if ($loadWeather && $groupBySelectWeather != null && $location && isset($location->coordinate_lat) && isset($location->coordinate_lon))
         {
             $weatherQuery = 'SELECT '.$groupBySelectWeather.' FROM "weather" WHERE "lat" = \''.$location->coordinate_lat.'\' AND "lon" = \''.$location->coordinate_lon.'\' AND time >= \''.$start_date.'\' AND time <= \''.$end_date.'\' '.$groupByResolution.' LIMIT '.$limit;
@@ -1534,9 +1535,12 @@ class MeasurementController extends Controller
             if (count($sensors_out) == 0)
             {
                 $sensors_out = $weather_out;
+                $weather = ['count'=>0, 'lat'=>$location->coordinate_lat, 'lon'=>$location->coordinate_lon];
             }
             else if (count($weather_out) > 0)
             {
+                $weather = ['count'=>count($weather_out), 'lat'=>$location->coordinate_lat, 'lon'=>$location->coordinate_lon];
+
                 // Add weather data to existing sensor data
                 $data_time_key_arr = [];
 
@@ -1610,7 +1614,7 @@ class MeasurementController extends Controller
         if (count($sensors_out) == 0)
             return Response::json('sensor-no-data-error', 500);
 
-        return Response::json( ['id'=>$device->id, 'interval'=>$interval, 'relative_interval'=>$relative_interval, 'index'=>$index, 'timeGroup'=>$timeGroup, 'resolution'=>$resolution, 'measurements'=>$sensors_out, 'sensorDefinitions'=>$sensorDefinitions, 'cacheSensorNames'=>$cache_sensor_names] );
+        return Response::json( ['id'=>$device->id, 'interval'=>$interval, 'relative_interval'=>$relative_interval, 'index'=>$index, 'timeGroup'=>$timeGroup, 'resolution'=>$resolution, 'measurements'=>$sensors_out, 'sensorDefinitions'=>$sensorDefinitions, 'cacheSensorNames'=>$cache_sensor_names, 'weather'=>$weather] );
     }
 
 

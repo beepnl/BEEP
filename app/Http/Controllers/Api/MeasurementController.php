@@ -1504,15 +1504,12 @@ class MeasurementController extends Controller
             }
 
             // Add weather
-            if ($location && isset($location->coordinate_lat) && isset($location->coordinate_lon))
-            {
-                $whereLoc = '"lat" = \''.$location->coordinate_lat.'\' AND "lon" = \''.$location->coordinate_lon.'\' AND time >= \''.$start_date.'\' AND time <= \''.$end_date.'\'';
-                $queryListWeather   = Device::getAvailableSensorNamesFromData('loc'.$location->id, $names_w, $whereLoc, 'weather', true, $cache_sensor_names);
+            if ($loadWeather){
 
-                $weather = ['load'=>$loadWeather, 'queryListWeather'=>$queryListWeather];
+                $queryListWeather = [];
 
-                foreach ($queryListWeather as $i => $name)
-                    $queryListWeather[$i] = 'MEAN("'.$name.'") AS "'.$name.'"';
+                foreach ($names_w as $name)
+                    $queryListWeather[] = 'MEAN("'.$name.'") AS "'.$name.'"';
 
                 $groupBySelectWeather = implode(', ', $queryListWeather);
             }
@@ -1528,8 +1525,7 @@ class MeasurementController extends Controller
         }
 
         // Add weather data
-        if (!isset($weather))
-            $weather = ['load'=>$loadWeather, 'groupBySelectWeather'=>$groupBySelectWeather];
+        $weather = ['load'=>$loadWeather, 'groupBySelectWeather'=>$groupBySelectWeather];
         
         if ($loadWeather && $groupBySelectWeather != null && $location && isset($location->coordinate_lat) && isset($location->coordinate_lon))
         {

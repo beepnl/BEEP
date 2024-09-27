@@ -149,7 +149,7 @@ class Weather extends Model
             if ($loc->devices()->count() > 0)
             {
                 $result = Weather::callApi($loc);
-                if (gettype($result) == 'string')
+                if (gettype($result) == 'string') // array is error
                     $count++;
             }
         }

@@ -1526,7 +1526,7 @@ class MeasurementController extends Controller
         }
 
         // Add weather data
-        $weather = null;
+        $weather = ['load'=>$loadWeather, 'groupBySelectWeather'=>$groupBySelectWeather];
         if ($loadWeather && $groupBySelectWeather != null && $location && isset($location->coordinate_lat) && isset($location->coordinate_lon))
         {
             $weatherQuery = 'SELECT '.$groupBySelectWeather.' FROM "weather" WHERE "lat" = \''.$location->coordinate_lat.'\' AND "lon" = \''.$location->coordinate_lon.'\' AND time >= \''.$start_date.'\' AND time <= \''.$end_date.'\' '.$groupByResolution.' LIMIT '.$limit;

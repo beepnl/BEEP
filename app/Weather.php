@@ -3,6 +3,7 @@
 namespace App;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Log;
 use App\Location;
 use App\Controllers\Api\MeasurementController;
 use Storage;
@@ -148,11 +149,15 @@ class Weather extends Model
             if ($loc->devices()->count() > 0)
             {
                 $result = Weather::callApi($loc);
-                if (gettype($result) == 'string')
+                if (gettype($result) == 'string') // array is error
                     $count++;
             }
         }
-        return 'updated_'.$count.'_locations';
+
+        $msg = 'weather_updated_'.$count.'_locations';
+
+        Log::info($msg);
+        return $msg;
     }
 
     /*
@@ -305,6 +310,7 @@ class Weather extends Model
             catch(\Exception $e)
             {
                 // gracefully do nothing
+                Log::error($e);
             }
         }
         return $stored;

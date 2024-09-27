@@ -202,7 +202,7 @@ class Device extends Model
 
     public function location()
     {
-        if (isset($this->hive))
+        if (isset($this->hive_id))
             return $this->hive->location();
 
         return null;

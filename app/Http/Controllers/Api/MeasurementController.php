@@ -1448,7 +1448,7 @@ class MeasurementController extends Controller
         if (!isset($device))
             return Response::json('sensor-none-error', 500);
 
-        $location      = $device->location;
+        $location      = $device->location()->get();
         $names         = $request->input('names', $this->output_sensors);
         $names_w       = $this->output_weather;
 
@@ -1525,24 +1525,19 @@ class MeasurementController extends Controller
         }
 
         // Add weather data
-        $weather = ['load'=>$loadWeather, 'groupBySelectWeather'=>$groupBySelectWeather];
+        //$weather = ['load'=>$loadWeather, 'groupBySelectWeather'=>$groupBySelectWeather];
         
         if ($loadWeather && $groupBySelectWeather != null && $location && isset($location->coordinate_lat) && isset($location->coordinate_lon))
         {
             $weatherQuery = 'SELECT '.$groupBySelectWeather.' FROM "weather" WHERE "lat" = \''.$location->coordinate_lat.'\' AND "lon" = \''.$location->coordinate_lon.'\' AND time >= \''.$start_date.'\' AND time <= \''.$end_date.'\' '.$groupByResolution.' LIMIT '.$limit;
             $weather_out  = Device::getInfluxQuery($weatherQuery, 'weather');
 
-            $weather = ['load'=>$loadWeather, 'count'=>count($sensors_out), 'loc'=>$location->get()->toArray()];
-
             if (count($sensors_out) == 0)
             {
                 $sensors_out = $weather_out;
-                $weather = ['count'=>0, 'lat'=>$location->coordinate_lat, 'lon'=>$location->coordinate_lon];
             }
             else if (count($weather_out) > 0)
             {
-                $weather = ['count'=>count($weather_out), 'lat'=>$location->coordinate_lat, 'lon'=>$location->coordinate_lon];
-
                 // Add weather data to existing sensor data
                 $data_time_key_arr = [];
 
@@ -1616,7 +1611,7 @@ class MeasurementController extends Controller
         if (count($sensors_out) == 0)
             return Response::json('sensor-no-data-error', 500);
 
-        return Response::json( ['id'=>$device->id, 'interval'=>$interval, 'relative_interval'=>$relative_interval, 'index'=>$index, 'timeGroup'=>$timeGroup, 'resolution'=>$resolution, 'measurements'=>$sensors_out, 'sensorDefinitions'=>$sensorDefinitions, 'cacheSensorNames'=>$cache_sensor_names, 'weather'=>$weather] );
+        return Response::json( ['id'=>$device->id, 'interval'=>$interval, 'relative_interval'=>$relative_interval, 'index'=>$index, 'timeGroup'=>$timeGroup, 'resolution'=>$resolution, 'measurements'=>$sensors_out, 'sensorDefinitions'=>$sensorDefinitions, 'cacheSensorNames'=>$cache_sensor_names] );
     }
 
 

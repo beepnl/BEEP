@@ -1448,7 +1448,7 @@ class MeasurementController extends Controller
         if (!isset($device))
             return Response::json('sensor-none-error', 500);
 
-        $location      = $device->location();
+        $location      = $device->location;
         $names         = $request->input('names', $this->output_sensors);
         $names_w       = $this->output_weather;
 

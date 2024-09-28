@@ -65,9 +65,9 @@ class Location extends Model
         return $this->belongsTo(Category::class);
     }
 
-    public function devices()
+    public function device_count()
     {
-        return $this->hasManyThrough(Device::class, Hive::class);
+        return $this->hasManyThrough(Device::class, Hive::class)->count();
     }
 
     public function continent()

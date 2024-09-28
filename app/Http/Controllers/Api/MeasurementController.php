@@ -1526,7 +1526,7 @@ class MeasurementController extends Controller
         // Add weather data
         if ($loadWeather && $groupBySelectWeather != null)
         {
-            $location = $device->location;
+            $location = $device->location();
         
             if (isset($location->coordinate_lat) && isset($location->coordinate_lon))
             {

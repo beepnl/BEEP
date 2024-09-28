@@ -146,7 +146,7 @@ class Weather extends Model
 
         foreach ($locations as $loc) 
         {
-            if ($loc->devices()->count() > 0)
+            if ($loc->device_count() > 0)
             {
                 $result = Weather::callApi($loc);
                 if (gettype($result) == 'string') // array is error

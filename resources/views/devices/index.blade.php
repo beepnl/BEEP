@@ -71,6 +71,7 @@
 						<th style="min-width: 170px;">DEV EUI ({{ __('crud.key') }}) / HW ID</th>
 						<th style="min-width: 140px;">Last seen (UTC)</th>
 						<th><img src="/img/icn_bat.svg" style="width: 20px;"></th>
+						<th>RTC</th>
 						<th>Hardware version</th>
 						<th style="min-width: 100px;">Firmware version</th>
 						<th>Interval (min) / ratio</th>
@@ -90,6 +91,7 @@
 						<td>{{ $device->key }} <span style="font-size: 10px">{{ isset($device->former_key_list) ? '(former: '.str_replace(',', ', ', $device->former_key_list).')' : ''}}</span> / {{ $device->hardware_id }}</td>
 						<td>{{ $device->last_message_received }}</td>
 						<td>{{ isset($device->battery_voltage) ? $device->battery_voltage.' V' : '' }}</td>
+						<td>{{ $device->rtc }}</td>
 						<td><p style="font-size: 10px">{{ $device->hardware_version }}</p></td>
 						<td><p style="font-size: 10px">{{ $device->firmware_version }} @if(isset($device->datetime)) ({{ $device->datetime_offset_sec > 0 ? '+'.$device->datetime_offset_sec : $device->datetime_offset_sec }} sec)<br>{{ $device->datetime }}@endif</p></td>
 						<td>{{ $device->measurement_interval_min }} / {{ $device->measurement_transmission_ratio }} @if(isset($device->measurement_interval_min)) (=send 1x/{{ $device->measurement_interval_min * max(1,$device->measurement_transmission_ratio) }}min) @endif</td>

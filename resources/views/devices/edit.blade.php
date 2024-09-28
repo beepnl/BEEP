@@ -135,6 +135,20 @@
                 <p>{{ $item->created_at }}</p>
             </div>
         </div>
+        <div class="col-xs-12 col-md-4">
+            <div class="form-group {{ $errors->has('rtc') ? 'has-error' : ''}}">
+                <label for="rtc" control-label>{{ 'RTC' }}</label>
+                <div>
+                    <div class="radio">
+                        <label><input name="rtc" type="radio" value="1" {{ (isset($alertrule) && 1 == $alertrule->rtc) ? 'checked' : '' }}> Yes</label>
+                    </div>
+                    <div class="radio">
+                        <label><input name="rtc" type="radio" value="0" @if (isset($alertrule)) {{ (0 == $alertrule->rtc) ? 'checked' : '' }} @else {{ 'checked' }} @endif> No</label>
+                    </div>
+                    {!! $errors->first('rtc', '<p class="help-block">:message</p>') !!}
+                </div>
+            </div>
+        </div>
         <div class="col-xs-12 col-sm-12 col-md-12 text-center">
             <br>
 			<button type="submit" class="btn btn-primary btn-block">{{ __('crud.save') }}</button>

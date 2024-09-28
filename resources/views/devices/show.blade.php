@@ -20,6 +20,12 @@
         </div>
         <div class="col-xs-12 col-sm-4 col-md-3">
             <div class="form-group">
+                <label>RTC:</label>
+                <p><label class="label label-default">{{ $item->rtc }}</label></p>
+            </div>
+        </div>
+        <div class="col-xs-12 col-sm-4 col-md-3">
+            <div class="form-group">
                 <label>{{ __('crud.created_at') }}:</label>
                 <p>{{ $item->created_at }}</p>
             </div>

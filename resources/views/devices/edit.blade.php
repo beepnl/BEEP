@@ -140,10 +140,10 @@
                 <label for="rtc" control-label>{{ 'RTC' }}</label>
                 <div>
                     <div class="radio">
-                        <label><input name="rtc" type="radio" value="1" {{ (isset($alertrule) && 1 == $alertrule->rtc) ? 'checked' : '' }}> Yes</label>
+                        <label><input name="rtc" type="radio" value="1" {{ (isset($item) && 1 == $item->rtc) ? 'checked' : '' }}> Yes</label>
                     </div>
                     <div class="radio">
-                        <label><input name="rtc" type="radio" value="0" @if (isset($alertrule)) {{ (0 == $alertrule->rtc) ? 'checked' : '' }} @else {{ 'checked' }} @endif> No</label>
+                        <label><input name="rtc" type="radio" value="0" @if (isset($item)) {{ (0 == $item->rtc) ? 'checked' : '' }} @else {{ 'checked' }} @endif> No</label>
                     </div>
                     {!! $errors->first('rtc', '<p class="help-block">:message</p>') !!}
                 </div>

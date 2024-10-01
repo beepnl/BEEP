@@ -20,7 +20,7 @@ class Device extends Model
     protected $table    = 'sensors';
 
     protected $cascadeDeletes = ['sensorDefinitions'];
-    protected $fillable = ['user_id', 'hive_id', 'category_id', 'name', 'key', 'last_message_received', 'hardware_id', 'firmware_version', 'hardware_version', 'boot_count', 'measurement_interval_min', 'measurement_transmission_ratio', 'ble_pin', 'battery_voltage', 'next_downlink_message', 'last_downlink_result', 'datetime', 'datetime_offset_sec', 'former_key_list'];
+    protected $fillable = ['user_id', 'hive_id', 'category_id', 'name', 'key', 'last_message_received', 'hardware_id', 'firmware_version', 'hardware_version', 'boot_count', 'measurement_interval_min', 'measurement_transmission_ratio', 'ble_pin', 'battery_voltage', 'next_downlink_message', 'last_downlink_result', 'datetime', 'datetime_offset_sec', 'former_key_list', 'rtc'];
 	protected $guarded 	= ['id'];
     protected $hidden   = ['user_id', 'category_id', 'deleted_at', 'hive', 'former_key_list'];
     protected $appends  = ['type','hive_name', 'location_name', 'owner', 'online'];

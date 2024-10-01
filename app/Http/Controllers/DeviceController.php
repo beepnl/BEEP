@@ -242,6 +242,7 @@ class DeviceController extends Controller
             'key' => 'required',
             'user_id' => 'required',
             'category_id' => 'required',
+            'rtc' => 'nullable|boolean',
         ]);
 
         $data = $request->all();
@@ -350,6 +351,7 @@ class DeviceController extends Controller
             'user_id' => 'required',
             'category_id' => 'required',
             'hive_id' => 'nullable|integer',
+            'rtc' => 'nullable|boolean',
         ]);
 
         $data   = $request->all();

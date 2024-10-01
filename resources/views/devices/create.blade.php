@@ -50,10 +50,10 @@
                 <label for="rtc" control-label>{{ 'RTC' }}</label>
                 <div>
                     <div class="radio">
-                        <label><input name="rtc" type="radio" value="1" {{ (isset($alertrule) && 1 == $alertrule->rtc) ? 'checked' : '' }}> Yes</label>
+                        <label><input name="rtc" type="radio" value="1"> Yes</label>
                     </div>
                     <div class="radio">
-                        <label><input name="rtc" type="radio" value="0" @if (isset($alertrule)) {{ (0 == $alertrule->rtc) ? 'checked' : '' }} @else {{ 'checked' }} @endif> No</label>
+                        <label><input name="rtc" type="radio" value="0" checked> No</label>
                     </div>
                     {!! $errors->first('rtc', '<p class="help-block">:message</p>') !!}
                 </div>

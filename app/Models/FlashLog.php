@@ -721,7 +721,7 @@ class FlashLog extends Model
         }
         
         // // If the device has an RTC, assume that all times match
-        if ($device->rtc == true)
+        if ($device->rtc == true && isset($flashlog[$start_index]['time_device']) && isset($flashlog[$end_index]['time_device']))
         {
             $end_moment  = new Moment($flashlog[$end_index]['time_device']);
             $time_end    = $end_moment->format($this->timeFormat);

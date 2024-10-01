@@ -728,11 +728,11 @@ class FlashLog extends Model
             $match_first = ['flashlog_index'=>$start_index, 'minute_interval'=>$interval, 'time'=>$db_time];
             $block       = $this->setFlashBlockTimes($match_first, $block_index, $start_index, $end_index, $flashlog, $device, $show, $interval_sec, $add_sensordefinitions);
             $flashlog    = $block['flashlog'];
-            $log[]       = ['block'=>$i, 'block_i'=>$block_index, 'start_i'=>$start_index, 'end_i'=>$end_index, 'duration_hours'=>$duration_hrs, 'fl_i'=>$start_index, 'db_time'=>$db_time, 'fw_version'=>$on['firmware_version'], 'interval_min'=>$interval, 'transmission_ratio'=>$on['measurement_transmission_ratio'], 'interval_sec'=>$interval_sec, 'index_start'=>$block['index_start'], 'index_end'=>$block['index_end'], 'time_start'=>$block['time_start'], 'time_end'=>$time_end, 'setCount'=>$block['setCount'], 'matches'=>['matches'=>array_fill(0, $matches_min, ['time'=>'RTC'])]];
+            $log[]       = ['block'=>$i, 'block_i'=>$block_index, 'start_i'=>$start_index, 'end_i'=>$end_index, 'duration_hours'=>$duration_hrs, 'fl_i'=>$start_index, 'db_time'=>$db_time, 'fw_version'=>$on['firmware_version'], 'interval_min'=>$interval, 'transmission_ratio'=>$on['measurement_transmission_ratio'], 'interval_sec'=>$interval_sec, 'index_start'=>$start_index, 'index_end'=>$end_index, 'time_start'=>$db_time, 'time_end'=>$time_end, 'setCount'=>$block['setCount'], 'matches'=>['matches'=>array_fill(0, $matches_min, ['time'=>'RTC'])]];
 
             $setCount += $block['setCount'];
             $db_time  = $time_end;
-            $fl_index = $block['index_end'];
+            $fl_index = $end_index;
 
             return ['has_matches'=>true, 'flashlog'=>$flashlog, 'db_time'=>$db_time, 'log'=>$log, 'fl_index'=>$fl_index, 'setCount'=>$setCount];
         }        

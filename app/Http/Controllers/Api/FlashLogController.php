@@ -368,6 +368,7 @@ class FlashLogController extends Controller
 
                 if (isset($header_item) && gettype($header_item) == 'array')
                 {
+                    // format CSV
                     $csv_sens = array_keys($header_item);
                     $csv_head = [];
                     foreach ($csv_sens as $header) 
@@ -776,22 +777,33 @@ class FlashLogController extends Controller
                                         $db_data_cln[] = array_filter($db_data_block[$i]);
                                 
                                     // Run through the data to see how many % of the data matches
-                                    if ($data_minutes <= 43200)
+                                    if ($device->rtc)
                                     {
-                                        $match_percentage = $this->matchPercentage($fl_data_cln, $db_data_cln, $match_props);
-                                        $out['block_data_match_percentage']  = $match_percentage['perc_match'];
-                                        $out['block_data_flashlog_sec_diff'] = $match_percentage['sec_diff'];
-                                        $out['block_data_match_errors']      = $match_percentage['errors'];
-                                        $out['block_data_diff_percentage']   = $match_percentage['avg_diff'];
-                                        $out['block_data_match_count']       = $match_percentage['match_count'];
+                                        $out['block_data_match_percentage']  = 100;
+                                        $out['block_data_flashlog_sec_diff'] = 0;
+                                        $out['block_data_match_errors']      = '';
+                                        $out['block_data_diff_percentage']   = 0;
+                                        $out['block_data_match_count']       = $index_amount;
                                     }
                                     else
                                     {
-                                        $out['block_data_match_percentage']  = 0;
-                                        $out['block_data_flashlog_sec_diff'] = '?';
-                                        $out['block_data_match_errors']      = 'Cannot calculate matches for periods >30 days';
-                                        $out['block_data_diff_percentage']   = 0;
-                                        $out['block_data_match_count']       = 0;
+                                        if ($data_minutes <= 43200)
+                                        {
+                                            $match_percentage = $this->matchPercentage($fl_data_cln, $db_data_cln, $match_props);
+                                            $out['block_data_match_percentage']  = $match_percentage['perc_match'];
+                                            $out['block_data_flashlog_sec_diff'] = $match_percentage['sec_diff'];
+                                            $out['block_data_match_errors']      = $match_percentage['errors'];
+                                            $out['block_data_diff_percentage']   = $match_percentage['avg_diff'];
+                                            $out['block_data_match_count']       = $match_percentage['match_count'];
+                                        }
+                                        else
+                                        {
+                                            $out['block_data_match_percentage']  = 0;
+                                            $out['block_data_flashlog_sec_diff'] = '?';
+                                            $out['block_data_match_errors']      = 'Cannot calculate matches for periods >30 days';
+                                            $out['block_data_diff_percentage']   = 0;
+                                            $out['block_data_match_count']       = 0;
+                                        }
                                     }
 
                                     // Add min start / max end time for ChartJS view

@@ -650,7 +650,7 @@ class ResearchController extends Controller
 
             $devices_all       = $devices_all->merge($user_devices_all);
             $user_devices      = isset($device_ids) ? $user_devices_all->whereIn('id', $device_ids) : $user_devices_all;
-            $user_devices_online = $user_devices->where('last_message_received', '>=', $date_start);
+            $user_devices_online = isset($device_ids) ? $user_devices_all->whereIn('id', $device_ids)->where('last_message_received', '>=', $date_start) : $user_devices_all->where('last_message_received', '>=', $date_start);
             $user_flashlogs    = FlashLog::where('user_id', $user_id)->where('created_at', '>=', $date_start)->where('created_at', '<', $date_until)->orderBy('created_at')->get();
             $user_samplecodes  = $user->samplecodes()->where('sample_date', '>=', $date_start)->where('sample_date', '<', $date_until)->orderBy('sample_date')->get();
             $user_measurements = [];
@@ -688,7 +688,7 @@ class ResearchController extends Controller
                 {
                     $user_device_keys[]= $device->influxWhereKeys();
                     $loc = $device->location();
-                    if ($loc && isset($loc->coordinate_lat) && isset($loc->coordinate_lon)) 
+                    if ($loc !== null && isset($loc->coordinate_lat) && isset($loc->coordinate_lon)) 
                         $user_dloc_coords[] = '("lat" = \''.$loc->coordinate_lat.'\' AND "lon" = \''.$loc->coordinate_lon.'\')';
 
                     // Add sensor definitions
@@ -709,6 +709,7 @@ class ResearchController extends Controller
                         //die($query); 
                         $points = $this->client::query($query)->getPoints();
                     } catch (InfluxDB\Exception $e) {
+                        Log::error('Research data query error: '.$e->getMessage());
                         // return Response::json('influx-group-by-query-error', 500);
                     }
                     if (count($points) > 0)
@@ -730,6 +731,7 @@ class ResearchController extends Controller
                     try{
                         $weather = $this->client::query('SELECT COUNT("temperature") as "count" FROM "weather" WHERE '.$user_location_coord_where.' AND time >= \''.$date_curr_consent.'\' AND time <= \''.$moment_end->format('Y-m-d H:i:s').'\' GROUP BY time(1d)')->getPoints(); // get first weather date
                     } catch (InfluxDB\Exception $e) {
+                        Log::error('Research weather query error: '.$e->getMessage());
                         // return Response::json('influx-group-by-query-error', 500);
                     }
                     if (count($weather) > 0)
@@ -858,7 +860,7 @@ class ResearchController extends Controller
 
                                         // Export data to file per device location / period
                                         $loc = $device->location();
-                                        if ($loc && isset($loc->coordinate_lat) && isset($loc->coordinate_lon)) 
+                                        if ($loc !== null && isset($loc->coordinate_lat) && isset($loc->coordinate_lon)) 
                                         {
                                             $where    = '"lat" = \''.$loc->coordinate_lat.'\' AND "lon" = \''.$loc->coordinate_lon.'\' AND time >= \''.$date_curr_consent.'\' AND time <= \''.$date_next_consent.'\'';
                                             $fileName = strtolower(env('APP_NAME')).'-export-research-'.$research->id.'-device-id-'.$device->id.'-weather-data-'.substr($date_curr_consent,0,10).'-'.substr($date_next_consent,0,10).'-'.Str::random(10).'.csv';
@@ -884,7 +886,7 @@ class ResearchController extends Controller
                     $dates[$d]['users']      += $user_data_counts['users'];
                     $dates[$d]['apiaries']   += $user_data_counts['apiaries'];
                     $dates[$d]['hives']      += $user_data_counts['hives'];
-                    $dates[$d]['devices']    += $user_devices->where('last_message_received', '>=', $d_start)->count();
+                    $dates[$d]['devices']    += $user_data_counts['devices'];
                     $dates[$d]['devices_online']+= $user_devices_online->where('last_message_received', '>=', $d_start)->count();
                     $dates[$d]['device_names']   = array_merge($dates[$d]['device_names'], $user_devices_online->where('last_message_received', '>=', $d_start)->pluck('name')->toArray());
                     if (count($last_devices_online) > 0)

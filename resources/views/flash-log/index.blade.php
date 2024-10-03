@@ -74,10 +74,11 @@
                     <td>{{ $item->log_parsed }}</td>
                     <td>{{ $item->log_has_timestamps }}</td>
                     <td>{{ round($item->bytes_received/1024/1024,3) }}MB @if(isset($item->log_size_bytes) && $item->log_size_bytes > 0) ({{ round(100*($item->bytes_received / $item->log_size_bytes),1) }}%) @endif </td>
-                    <td>
+                    <td>@if(isset($item->persisted_block_ids))
                         Days: {{ $item->persisted_days }}, 
-                        Meas: {{ $item->persisted_measurements }}, 
+                        Meas: {{ $item->persisted_measurements }} (@if($item->log_messages > 0){{ round(100 * $item->persisted_measurements / $item->log_messages) }}@else 0% @endif), 
                         Blks: {{ $item->persisted_block_ids }}
+                        @endif
                     </td>
                     <td col-sm-1>
                         <a href="{{ route('flash-log.show', $item->id) }}" title="{{ __('crud.show') }}"><button class="btn btn-default"><i class="fa fa-eye" aria-hidden="true"></i></button></a>

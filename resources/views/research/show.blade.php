@@ -100,7 +100,7 @@
                             <th class="row-header">{{ $totals['devices'] }}</th> 
                         </tr>
                         <tr>
-                            <th class="row-header" style="max-height: 45px; overflow: scroll; white-space: nowrap;" @if(isset($date_start)) title="Devices online after {{ substr($date_start, 0, 10) }}" @endif><span><i class="fa fa-2x fa-feed"></i> Devices online</span></th> 
+                            <th class="row-header" style="max-height: 45px; overflow: scroll; white-space: nowrap; cursor: help;"  @if(isset($date_start)) title="Devices online after {{ substr($date_start, 0, 10) }}" @endif><span><i class="fa fa-2x fa-feed"></i> Devices online</span></th> 
                             <th class="row-header">{{ $totals['devices_online'] }}</th> 
                         </tr>
                         <tr>
@@ -108,19 +108,19 @@
                             <th class="row-header">{{ $totals['flashlogs'] }}</th> 
                         </tr>
                         <tr>
-                            <th class="row-header" style="max-height: 45px; overflow: scroll; white-space: nowrap;" title="Total amount of time stamps that have been wirelessly transferred via LoRa"><span><i class="fa fa-2x fa-line-chart"></i> Measurements</span></th> 
+                            <th class="row-header" style="max-height: 45px; overflow: scroll; white-space: nowrap; cursor: help;" title="Total amount of time stamps that have been wirelessly transferred via LoRa"><span><i class="fa fa-2x fa-line-chart"></i> Measurements</span></th> 
                             <th class="row-header">{{ $totals['measurements'] }}</th> 
                         </tr>
                         <tr>
-                            <th class="row-header" style="max-height: 45px; overflow: scroll; white-space: nowrap;" title="Total amount of time stamps that have been imported by matching FlashLog data from the BEEP base memory to the database"><span><i class="fa fa-2x fa-line-chart"></i> Measurements imported</span></th> 
+                            <th class="row-header" style="max-height: 45px; overflow: scroll; white-space: nowrap; cursor: help;" title="Total amount of time stamps that have been imported by matching FlashLog data from the BEEP base memory to the database"><span><i class="fa fa-2x fa-line-chart"></i> Measurements imported</span></th> 
                             <th class="row-header">{{ $totals['measurements_imported'] }}</th> 
                         </tr>
                         <tr>
-                            <th class="row-header" style="max-height: 45px; overflow: scroll; white-space: nowrap;" title="Sum of all time stamps in the database. Each time stamp contains multiple measurement values (e.g. weight, temperature, etc.). Only the timestamps are counted here. "><span><i class="fa fa-2x fa-line-chart"></i> Measurements total</span></th> 
+                            <th class="row-header" style="max-height: 45px; overflow: scroll; white-space: nowrap; cursor: help;" title="Sum of all time stamps in the database. Each time stamp contains multiple measurement values (e.g. weight, temperature, etc.). Only the timestamps are counted here. "><span><i class="fa fa-2x fa-line-chart"></i> Measurements total</span></th> 
                             <th class="row-header">{{ $totals['measurements_total'] }}</th> 
                         </tr>
                         <tr>
-                            <th class="row-header" style="max-height: 45px; overflow: scroll; white-space: nowrap;" title="Total amount of 15 min time stamps divided by the amount of devices. The data completeness of {{ $totals['data_completeness'] }}% represents the average of all daily data completeness calculations of the displayed dates."><span><i class="fa fa-2x fa-line-chart"></i> Data completeness (%)</span></th> 
+                            <th class="row-header" style="max-height: 45px; overflow: scroll; white-space: nowrap; cursor: help;" title="Total amount of 15 min time stamps divided by the amount of devices. The data completeness of {{ $totals['data_completeness'] }}% represents the average of all daily data completeness calculations of the displayed dates."><span><i class="fa fa-2x fa-line-chart"></i> Data completeness (%)</span></th> 
                             <th class="row-header">{{ $totals['data_completeness'] }}%</th> 
                         </tr>
                         <tr>
@@ -151,7 +151,7 @@
                         @if(!isset($device_ids))
                         <tr>
                             @foreach($dates as $date => $d)
-                                <td>{{ $d['users'] > 0 ? $d['users'] : '' }}</td>
+                                <td style="cursor: help;" title="Users: {{ implode(', ', $d['user_names']) }}">{{ $d['users'] > 0 ? $d['users'] : '' }}</td>
                             @endforeach
                         </tr>
                         <tr>

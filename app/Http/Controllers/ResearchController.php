@@ -349,7 +349,7 @@ class ResearchController extends Controller
 
         //die(print_r([$request->input('user_ids'), $consent_users_selected, $users]));
         // Fill dates array
-        $assets = ["users"=>0, "apiaries"=>0, "hives"=>0, "inspections"=>0, "devices"=>0, "devices_online"=>0, "device_names"=>[], "devices_offline"=>[], "measurements"=>0, "measurements_imported"=>0, "measurements_total"=>0, "data_completeness"=>0, "weather"=>0, "flashlogs"=>0, "samplecodes"=>0, "sensor_definitions"=>0, "alert_rules"=>0, "alerts"=>0];
+        $assets = ["users"=>0, "user_names"=>[], "apiaries"=>0, "hives"=>0, "inspections"=>0, "devices"=>0, "devices_online"=>0, "device_names"=>[], "devices_offline"=>[], "measurements"=>0, "measurements_imported"=>0, "measurements_total"=>0, "data_completeness"=>0, "weather"=>0, "flashlogs"=>0, "samplecodes"=>0, "sensor_definitions"=>0, "alert_rules"=>0, "alerts"=>0];
 
         $moment = $moment_start;
         while($moment < $moment_end)
@@ -884,11 +884,13 @@ class ResearchController extends Controller
                 {
                     // Count
                     $dates[$d]['users']      += $user_data_counts['users'];
+                    $dates[$d]['user_names'][]= $user->name;
                     $dates[$d]['apiaries']   += $user_data_counts['apiaries'];
                     $dates[$d]['hives']      += $user_data_counts['hives'];
                     $dates[$d]['devices']    += $user_data_counts['devices'];
                     $dates[$d]['devices_online']+= $user_devices_online->where('last_message_received', '>=', $d_start)->count();
-                    $dates[$d]['device_names']   = array_merge($dates[$d]['device_names'], $user_devices_online->where('last_message_received', '>=', $d_start)->pluck('name')->toArray());
+                    $dates[$d]['device_names']= array_merge($dates[$d]['device_names'], $user_devices_online->where('last_message_received', '>=', $d_start)->pluck('name')->toArray());
+                    
                     if (count($last_devices_online) > 0)
                     {
                         $dates[$d]['devices_offline'] = array_diff($last_devices_online, $dates[$d]['device_names']);
@@ -925,9 +927,8 @@ class ResearchController extends Controller
                 }
 
                 $i++;
-            }
-            // die();
-        }
+            } // end day loop
+        } // end user loop
 
         // reverse array for display
         krsort($dates);

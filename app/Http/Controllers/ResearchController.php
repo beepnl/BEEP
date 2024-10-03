@@ -349,7 +349,7 @@ class ResearchController extends Controller
 
         //die(print_r([$request->input('user_ids'), $consent_users_selected, $users]));
         // Fill dates array
-        $assets = ["users"=>0, "apiaries"=>0, "hives"=>0, "inspections"=>0, "devices"=>0, "devices_online"=>[], "devices_offline"=>[], "measurements"=>0, "measurements_imported"=>0, "measurements_total"=>0, "data_completeness"=>0, "weather"=>0, "flashlogs"=>0, "samplecodes"=>0, "sensor_definitions"=>0, "alert_rules"=>0, "alerts"=>0];
+        $assets = ["users"=>0, "apiaries"=>0, "hives"=>0, "inspections"=>0, "devices"=>0, "devices_online"=>0, "device_names"=>[], "devices_offline"=>[], "measurements"=>0, "measurements_imported"=>0, "measurements_total"=>0, "data_completeness"=>0, "weather"=>0, "flashlogs"=>0, "samplecodes"=>0, "sensor_definitions"=>0, "alert_rules"=>0, "alerts"=>0];
 
         $moment = $moment_start;
         while($moment < $moment_end)
@@ -675,7 +675,7 @@ class ResearchController extends Controller
 
             //die(print_r([$date_until, $hive_inspections->toArray(), $user_hives->toArray()]));
 
-            if ($user_devices_online->count() > 0)
+            if ($user_devices->count() > 0)
             {
                 // get daily counts of sensor measurements
                 $points           = [];
@@ -684,7 +684,7 @@ class ResearchController extends Controller
                 $user_dloc_coords = [];
 
                 // Add sensor data
-                foreach ($user_devices_online as $device) 
+                foreach ($user_devices as $device) 
                 {
                     $user_device_keys[]= $device->influxWhereKeys();
                     $loc = $device->location();
@@ -792,7 +792,8 @@ class ResearchController extends Controller
                     $user_data_counts['users']              = $user_consent;
                     $user_data_counts['apiaries']           = $user_apiaries->where('created_at', '<=', $date_next_consent)->count();
                     $user_data_counts['hives']              = $user_hives->where('created_at', '<=', $date_next_consent)->count();
-                    $user_data_counts['devices']            = $user_devices_online->where('created_at', '<=', $date_next_consent)->count();
+                    $user_data_counts['devices']            = $user_devices->where('created_at', '<=', $date_next_consent)->count();
+                    $user_data_counts['devices_online']     = $user_devices_online->where('created_at', '<=', $date_next_consent)->count();
                     $user_data_counts['flashlogs']          = $user_flashlogs->where('created_at', '<=', $date_next_consent)->count();
                     $user_data_counts['alert_rules']        = $user_alert_rules->where('created_at', '<=', $date_next_consent)->count();
                     $user_data_counts['sensor_definitions'] = count($user_sensor_defs);
@@ -834,9 +835,9 @@ class ResearchController extends Controller
                         foreach ($alerts as $al)
                             $spreadsheet_array['Alerts'][] = $al;
 
-                        if ($user_devices_online->count() > 0)
+                        if ($user_devices->count() > 0)
                         {
-                            foreach ($user_devices_online as $device)
+                            foreach ($user_devices as $device)
                             {
                                 // Add device to spreadsheet
                                 if ($device->created_at < $date_next_consent)
@@ -883,13 +884,14 @@ class ResearchController extends Controller
                     $dates[$d]['users']      += $user_data_counts['users'];
                     $dates[$d]['apiaries']   += $user_data_counts['apiaries'];
                     $dates[$d]['hives']      += $user_data_counts['hives'];
-                    $dates[$d]['devices']    += $user_devices_online->where('last_message_received', '>=', $d_start)->count();
-                    $dates[$d]['devices_online'] = array_merge($dates[$d]['devices_online'], $user_devices_online->where('last_message_received', '>=', $d_start)->pluck('name')->toArray());
+                    $dates[$d]['devices']    += $user_devices->where('last_message_received', '>=', $d_start)->count();
+                    $dates[$d]['devices_online']+= $user_devices_online->where('last_message_received', '>=', $d_start)->count();
+                    $dates[$d]['device_names']   = array_merge($dates[$d]['device_names'], $user_devices_online->where('last_message_received', '>=', $d_start)->pluck('name')->toArray());
                     if (count($last_devices_online) > 0)
                     {
-                        $dates[$d]['devices_offline'] = array_diff($last_devices_online, $dates[$d]['devices_online']);
+                        $dates[$d]['devices_offline'] = array_diff($last_devices_online, $dates[$d]['device_names']);
                     }
-                    $last_devices_online      = $dates[$d]['devices_online'];
+                    $last_devices_online      = $dates[$d]['device_names'];
                     
                     $dates[$d]['sensor_definitions'] += $user_data_counts['sensor_definitions'];
                     $dates[$d]['alert_rules']+= $user_data_counts['alert_rules'];

@@ -96,8 +96,12 @@
                         </tr>
                         @endif
                         <tr>
-                            <th class="row-header" style="max-height: 45px; overflow: scroll; white-space: nowrap;" @if(isset($date_start)) title="Devices online after {{ substr($date_start, 0, 10) }}" @endif><span><i class="fa fa-2x fa-feed"></i> Devices online</span></th> 
+                            <th class="row-header" style="max-height: 45px; overflow: scroll; white-space: nowrap;"><span><i class="fa fa-2x fa-feed"></i> Devices</span></th> 
                             <th class="row-header">{{ $totals['devices'] }}</th> 
+                        </tr>
+                        <tr>
+                            <th class="row-header" style="max-height: 45px; overflow: scroll; white-space: nowrap;" @if(isset($date_start)) title="Devices online after {{ substr($date_start, 0, 10) }}" @endif><span><i class="fa fa-2x fa-feed"></i> Devices online</span></th> 
+                            <th class="row-header">{{ $totals['devices_online'] }}</th> 
                         </tr>
                         <tr>
                             <th class="row-header" style="max-height: 45px; overflow: scroll; white-space: nowrap;"><span><i class="fa fa-2x fa-list"></i> Flash logs</span></th> 
@@ -173,7 +177,12 @@
                         @endif
                         <tr>
                             @foreach($dates as $date => $d)
-                                <td style="cursor: help;" title="Device gone offline: {{ implode(', ', $d['devices_offline']) }}&#10;&#10;Devices online: {{ implode(', ', $d['devices_online']) }}">{{ $d['devices'] > 0 ? $d['devices'] : '' }}</td>
+                                <td>{{ $d['devices'] > 0 ? $d['devices'] : '' }}</td>
+                            @endforeach
+                        </tr>
+                        <tr>
+                            @foreach($dates as $date => $d)
+                                <td style="cursor: help;" title="Device gone offline: {{ implode(', ', $d['devices_offline']) }}&#10;&#10;Devices online: {{ implode(', ', $d['device_names']) }}">{{ $d['devices_online'] > 0 ? $d['devices_online'] : '' }}</td>
                             @endforeach
                         </tr>
                         <tr>

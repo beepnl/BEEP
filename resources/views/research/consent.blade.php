@@ -68,9 +68,9 @@
                     <td>{{ $item->consent }}</td>
                     <td>{{ $item->created_at }}</td>
                     <td>{{ $item->updated_at }}</td>
-                    <td>{{ $item->consent_hive_ids }}</td>
-                    <td>{{ $item->consent_sensor_ids }}</td>
-                    <td>{{ $item->consent_location_ids }}</td>
+                    <td style="word-break: break-word;">{{ $item->consent_hive_ids }}</td>
+                    <td style="word-break: break-word;">{{ $item->consent_sensor_ids }}</td>
+                    <td style="word-break: break-word;">{{ $item->consent_location_ids }}</td>
                     <td>
                         <a href="{{ route('research.consent_edit', ['id'=>$research->id, 'c_id'=>$item->id]) }}" title="{{ __('crud.edit') }}"><button class="btn btn-primary"><i class="fa fa-pencil" aria-hidden="true"></i></button></a>
 

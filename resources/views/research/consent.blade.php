@@ -56,7 +56,7 @@
                     <th col-xs-2>Hives</th>
                     <th col-xs-2>Devices</th>
                     <th col-xs-2>Locations</th>
-                    <th col-xs-2>Actions</th>
+                    <th style="min-width: 120px;">Actions</th>
                 </tr>
             </thead>
             <tbody>

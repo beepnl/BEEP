@@ -76,8 +76,8 @@
                     <td>{{ round($item->bytes_received/1024/1024,3) }}MB @if(isset($item->log_size_bytes) && $item->log_size_bytes > 0) ({{ round(100*($item->bytes_received / $item->log_size_bytes),1) }}%) @endif </td>
                     <td>@if(isset($item->persisted_block_ids))
                         Days: {{ $item->persisted_days }}, 
-                        Blks: {{ $item->persisted_block_ids }}<br>
-                        Meas: {{ $item->persisted_measurements }} (@if($item->log_messages > 0){{ round(100 * $item->persisted_measurements / $item->log_messages) }}% @else 0% @endif), 
+                        Blok: {{ $item->persisted_block_ids }}<br>
+                        Meas: {{ $item->persisted_measurements }} (@if($item->log_messages > 0){{ round(100 * $item->persisted_measurements / $item->log_messages) }}%@else 0%@endif), 
                         @endif
                     </td>
                     <td col-sm-1>

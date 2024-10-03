@@ -93,6 +93,11 @@ class ResearchController extends Controller
                     ->orderBy('updated_at','asc')
                     ->get();
 
+        foreach ($consents as $c)
+        {
+            $c->user_name = User::find($c->user_id)->name;
+        }
+
         return view('research.consent', compact('research', 'consents'));
     }
 
@@ -110,6 +115,8 @@ class ResearchController extends Controller
         $item->consent_sensor_ids = explode(',', $item->consent_sensor_ids);
         $item->consent_location_ids = explode(',', $item->consent_location_ids);
         $item->consent_hive_ids = explode(',', $item->consent_hive_ids);
+
+        $item->user_name = User::find($item->user_id)->name;
 
         if ($item)
         {

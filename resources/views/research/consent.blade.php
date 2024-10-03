@@ -1,15 +1,15 @@
 @extends('layouts.app')
 
 @section('page-title') {{ __('beep.Research').': '.(isset($research->name) ? $research->name : __('general.Item')).' (ID: '.$research->id.')' }} Research dates: {{ substr($research->start_date, 0, 10) }} - {{ substr($research->end_date, 0, 10) }}
-    @permission('role-edit')
-        <a href="{{ route('research.edit', $research->id) }}" title="{{ __('crud.edit') }}"><button class="btn btn-primary pull-right"><i class="fa fa-pencil" aria-hidden="true"></i></button></a>
+    @permission('role-view')
+        <a href="{{ route('research.show', $research->id) }}" title="{{ __('crud.show') }}"><button class="btn btn-primary pull-right"><i class="fa fa-eye" aria-hidden="true"></i></button></a>
     @endpermission
 @endsection
 
 @section('content')
     @component('components/box')
         @slot('title')
-            {{ __('crud.overview', ['item'=>__('beep.Research')]) }}
+            {{ __('crud.overview', ['item'=>'Research consents']) }}
         @endslot
 
         @slot('action')
@@ -63,7 +63,7 @@
             @foreach($consents as $item)
                 <tr>
                     {{-- <td>{{ $loop->iteration or $item->id }}</td> --}}
-                    <td>{{ $item->user_id }}</td>
+                    <td>{{ $item->user_id }}<br>{{ $item->user_name }}</td>
                     <td>{{ $item->id }}</td>
                     <td>{{ $item->consent }}</td>
                     <td>{{ $item->created_at }}</td>

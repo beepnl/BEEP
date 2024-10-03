@@ -917,7 +917,7 @@ class ResearchController extends Controller
                         $dates[$d]['measurements_imported'] = $v['measurements_imported'] + $user_meas_import[$d];
 
                     $dates[$d]['measurements_total']    = $dates[$d]['measurements'] + $dates[$d]['measurements_imported'];
-                    $dates[$d]['data_completeness']     = $dates[$d]['devices'] > 0 ? round(100 * $dates[$d]['measurements_total'] / ($dates[$d]['devices'] * (60*24/15))) : 0;
+                    $dates[$d]['data_completeness']     = $dates[$d]['devices'] > 0 ? round(100 * $dates[$d]['measurements_total'] / ($dates[$d]['devices'] * (60*24/15))) : '';
 
                     if (in_array($d, array_keys($user_weather_data)))
                         $dates[$d]['weather']= $v['weather'] + $user_weather_data[$d];
@@ -933,7 +933,8 @@ class ResearchController extends Controller
         krsort($dates);
 
         // Count totals
-        $totals = $assets;
+        $totals    = $assets;
+        $data_days = 0;
         foreach ($dates as $day => $day_arr) 
         {
             foreach ($day_arr as $asset => $count) 
@@ -942,12 +943,17 @@ class ResearchController extends Controller
                     $totals[$asset] += $count;
                 else
                     $totals[$asset] = max($totals[$asset], $count);
+
+                if ($asset == 'measurements_total' && $count > 0)
+                    $data_days++;
             }
         }
 
         // Average data completenes
-        if (count($dates) > 0)
-            $totals['data_completeness'] = round($totals['data_completeness'] / count($dates));
+        if ($data_days > 0)
+        {
+            $totals['data_completeness'] = round($totals['data_completeness'] / $data_days);
+        }
 
         // Export data, show download link
         if ($download)

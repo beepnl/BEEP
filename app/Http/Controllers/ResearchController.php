@@ -77,6 +77,65 @@ class ResearchController extends Controller
         return view('research.index', compact('research'));
     }
 
+    public function consent($id, Request $request)
+    {
+        $this->checkAuthorization($request);
+
+        if ($request->user()->hasRole('superadmin'))
+            $research = Research::findOrFail($id);
+        else
+            $research = $request->user()->allResearches()->find($id);
+        
+        $consents = DB::table('research_user')
+                    ->where('research_id', $id)
+                    ->whereDate('updated_at', '<=', $research->end_date)
+                    ->orderBy('user_id')
+                    ->orderBy('updated_at','asc')
+                    ->get();
+
+        return view('research.consent', compact('research', 'consents'));
+    }
+
+    public function consent_edit($id, $c_id, Request $request)
+    {
+        $this->checkAuthorization($request);
+
+        if ($request->user()->hasRole('superadmin') == false)
+            return redirect('research.index')->with('error', 'Unauthorized');
+        
+        $research = Research::findOrFail($id);
+        $item     = DB::table('research_user')->where('id', $c_id)->first();
+
+        // Convert to arrays for selection
+        $item->consent_sensor_ids = explode(',', $item->consent_sensor_ids);
+        $item->consent_location_ids = explode(',', $item->consent_location_ids);
+        $item->consent_hive_ids = explode(',', $item->consent_hive_ids);
+
+        if ($item)
+        {
+            if ($request->filled('delete') && $request->input('delete') == 1)
+            {
+                DB::delete('delete from research_user where id = ?', [$c_id]);
+            }
+            else
+            {
+                if ($request->filled('consent_sensor_ids') && is_array($request->input('consent_sensor_ids')))
+                    DB::update('update research_user set consent_sensor_ids = ? where id = ?', [implode(',',$request->input('consent_sensor_ids')), $c_id]);
+                
+                if ($request->filled('consent_location_ids') && is_array($request->input('consent_location_ids')))
+                    DB::update('update research_user set consent_location_ids = ? where id = ?', [implode(',',$request->input('consent_location_ids')), $c_id]);
+                
+                if ($request->filled('consent_hive_ids') && is_array($request->input('consent_hive_ids')))
+                    DB::update('update research_user set consent_hive_ids = ? where id = ?', [implode(',',$request->input('consent_hive_ids')), $c_id]);
+                
+
+            }
+        }
+
+        return view('research.consent_edit', compact('research', 'item'));
+    }
+    
+
     /**
      * Show the form for creating a new resource.
      *

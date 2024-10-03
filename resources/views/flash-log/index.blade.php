@@ -55,6 +55,7 @@
                     <th>Log parsed</th>
                     <th>Log time</th>
                     <th>Log size</th>
+                    <th>Persisted</th>
                     <th style="width: 190px;">Actions</th>
                 </tr>
             </thead>
@@ -73,6 +74,11 @@
                     <td>{{ $item->log_parsed }}</td>
                     <td>{{ $item->log_has_timestamps }}</td>
                     <td>{{ round($item->bytes_received/1024/1024,3) }}MB @if(isset($item->log_size_bytes) && $item->log_size_bytes > 0) ({{ round(100*($item->bytes_received / $item->log_size_bytes),1) }}%) @endif </td>
+                    <td>
+                        Days: {{ $item->persisted_days }}, 
+                        Meas: {{ $item->persisted_measurements }}, 
+                        Blks: {{ $item->persisted_block_ids }}
+                    </td>
                     <td col-sm-1>
                         <a href="{{ route('flash-log.show', $item->id) }}" title="{{ __('crud.show') }}"><button class="btn btn-default"><i class="fa fa-eye" aria-hidden="true"></i></button></a>
 

@@ -56,7 +56,7 @@
                     <th col-xs-2>Hives</th>
                     <th col-xs-2>Devices</th>
                     <th col-xs-2>Locations</th>
-                    <th style="min-width: 120px;">Actions</th>
+                    <th style="min-width: 80px;">Actions</th>
                 </tr>
             </thead>
             <tbody>
@@ -72,7 +72,9 @@
                     <td style="word-break: break-word;">{{ $item->consent_sensor_ids }}</td>
                     <td style="word-break: break-word;">{{ $item->consent_location_ids }}</td>
                     <td>
+                        @if($item->consent == 1)
                         <a href="{{ route('research.consent_edit', ['id'=>$research->id, 'c_id'=>$item->id]) }}" title="{{ __('crud.edit') }}"><button class="btn btn-primary"><i class="fa fa-pencil" aria-hidden="true"></i></button></a>
+                        @endif
 
                         <form method="POST" action="{{ route('research.consent_edit', ['id'=>$research->id, 'c_id'=>$item->id, 'delete'=>1]) }}" accept-charset="UTF-8" style="display:inline">
                             {{ method_field('PATCH') }}

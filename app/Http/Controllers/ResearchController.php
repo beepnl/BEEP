@@ -123,8 +123,9 @@ class ResearchController extends Controller
             if ($request->filled('delete') && $request->input('delete') == 1)
             {
                 DB::delete('delete from research_user where id = ?', [$c_id]);
+                return redirect()->route('research.consent', $id)->with('success', 'Consent deleted');
             }
-            else
+            else if ($request->filled('consent_sensor_ids') || $request->filled('consent_location_ids') || $request->filled('consent_hive_ids'))
             {
                 if ($request->filled('consent_sensor_ids') && is_array($request->input('consent_sensor_ids')))
                     DB::update('update research_user set consent_sensor_ids = ? where id = ?', [implode(',',$request->input('consent_sensor_ids')), $c_id]);
@@ -134,9 +135,10 @@ class ResearchController extends Controller
                 
                 if ($request->filled('consent_hive_ids') && is_array($request->input('consent_hive_ids')))
                     DB::update('update research_user set consent_hive_ids = ? where id = ?', [implode(',',$request->input('consent_hive_ids')), $c_id]);
-                
 
+                return redirect()->route('research.consent', $id)->with('success', 'Consent updated');
             }
+
         }
 
         return view('research.consent_edit', compact('research', 'item'));

@@ -725,6 +725,7 @@ class ResearchDataController extends Controller
     @bodyParam measurements string Comma separated string of measurements (e.g. weight_kg,t_i,t_0,t_1) to query. Default: * (all measurments available).
     @bodyParam index integer Historic index of the interval from now. 0=period with current time included. 1=previous interval. Required without end. Example: 0
     @bodyParam timezone string Provide the front-end timezone to correct the time from UTC to front-end time. Example: Europe/Amsterdam
+    @bodyParam output_csv_links boolean Optionally provide true if you want the data to be returned as an array of CSV files in stead of JSON data.
     */
     public function research_data(Request $request, $id, $item)
     {
@@ -749,6 +750,7 @@ class ResearchDataController extends Controller
             'precision'             => ['nullable', Rule::in(['rfc3339','h','m','s','ms','u'])],
             'index'                 => 'nullable|integer|min:0', // only in case of 1 device requested, to provide 'normal' data view
             'timezone'              => 'nullable|timezone',
+            'output_csv_links'      => 'nullable|boolean',
         ]);
 
         // Check if user is present on 
@@ -784,6 +786,7 @@ class ResearchDataController extends Controller
         $data_call  = in_array($interval, ['hour','day','week','month','year','research','live']);
         $m_start    = $date_start;
         $m_until    = $date_until;
+        $csv_output = $request->filled('output_csv_links') ? boolval($request->input('output_csv_links')) : false;
             
         if ($request->filled('date_start'))
         {
@@ -1107,64 +1110,75 @@ class ResearchDataController extends Controller
 
                                             $adds = $calculation == 'WEEKMAP' ? [] : ['device_id'=>$device->id];
                                             $where= $device->influxWhereKeys().' AND time >= \''.$m_start.'\' AND time <= \''.$m_until.'\'';
-                                            $meas = $this->getArrayFromInflux($where, $measurements, 'sensors', $m_interval, $calculation, $calc_prop, $decimals, $precision, $adds, $limit, $device, $timeZone, $m_start, $m_until); // $where, $measurements='*', $database='sensors', $interval='1h', $calculation='MEAN', $calc_prop=null, $decimals=2, $precision='rfc3339', $adds=[], $limit=5000)
-
-                                            // filter out all non month-year data
-                                            if ($filter_year_months)
+                                            
+                                            if ($csv_output)
                                             {
-                                                $meas_filtered = [];
-                                                foreach ($meas as $m)
-                                                {
-                                                    $time       = $m['time'];
-                                                    $year_month = substr($time, 0, 7); // TODO: Make local time, now UTC
-
-                                                    if (in_array($year_month, $year_months))
-                                                        $meas_filtered[] = $m;
-                                                }
-                                                $meas = $meas_filtered;
+                                                // 2021-03-30_T1UK_HPP 8a.csv
+                                                $file_name = substr($m_start, 0, 10).'_'.$research->name.'_'.$device->location_name.$device->hive_name;
+                                                $file_path = $this->exportCsvFromInflux($where, $file_name, $measurements, 'sensors');
+                                                $data[]    = $file_path;
                                             }
-
-                                            // merge data with already available
-                                            if ($calculation == 'WEEKMAP' && count($data) > 0) // only merge weekmaps if data is already filled
+                                            else
                                             {
-                                                // weekmap data: [measurement][day][hour] = value
-                                                $wm_add = false;
-                                                foreach ($meas as $wd_m => $wd_array)
-                                                {
-                                                    foreach ($wd_array as $wd => $wd_val)
-                                                    {
-                                                        if (gettype($wd_val) == 'array' && count($wd_val) > 0) // weekday array, $wd = weekday name
-                                                        {
-                                                            foreach ($wd_val as $wd_h => $wd_h_ave)
-                                                            {
-                                                                if (isset($data[$wd_m][$wd][$wd_h]))
-                                                                    $data[$wd_m][$wd][$wd_h] = ($data[$wd_m][$wd][$wd_h] + $wd_h_ave) / 2; // TODO: solve wrong average calculation for >2 values
-                                                                else
-                                                                    $data[$wd_m][$wd][$wd_h] = $wd_h_ave; // add unexisting weekhour value
+                                                $meas = $this->getArrayFromInflux($where, $measurements, 'sensors', $m_interval, $calculation, $calc_prop, $decimals, $precision, $adds, $limit, $device, $timeZone, $m_start, $m_until); // $where, $measurements='*', $database='sensors', $interval='1h', $calculation='MEAN', $calc_prop=null, $decimals=2, $precision='rfc3339', $adds=[], $limit=5000)
 
-                                                                $wm_add = true;
+                                                // filter out all non month-year data
+                                                if ($filter_year_months)
+                                                {
+                                                    $meas_filtered = [];
+                                                    foreach ($meas as $m)
+                                                    {
+                                                        $time       = $m['time'];
+                                                        $year_month = substr($time, 0, 7); // TODO: Make local time, now UTC
+
+                                                        if (in_array($year_month, $year_months))
+                                                            $meas_filtered[] = $m;
+                                                    }
+                                                    $meas = $meas_filtered;
+                                                }
+
+                                                // merge data with already available
+                                                if ($calculation == 'WEEKMAP' && count($data) > 0) // only merge weekmaps if data is already filled
+                                                {
+                                                    // weekmap data: [measurement][day][hour] = value
+                                                    $wm_add = false;
+                                                    foreach ($meas as $wd_m => $wd_array)
+                                                    {
+                                                        foreach ($wd_array as $wd => $wd_val)
+                                                        {
+                                                            if (gettype($wd_val) == 'array' && count($wd_val) > 0) // weekday array, $wd = weekday name
+                                                            {
+                                                                foreach ($wd_val as $wd_h => $wd_h_ave)
+                                                                {
+                                                                    if (isset($data[$wd_m][$wd][$wd_h]))
+                                                                        $data[$wd_m][$wd][$wd_h] = ($data[$wd_m][$wd][$wd_h] + $wd_h_ave) / 2; // TODO: solve wrong average calculation for >2 values
+                                                                    else
+                                                                        $data[$wd_m][$wd][$wd_h] = $wd_h_ave; // add unexisting weekhour value
+
+                                                                    $wm_add = true;
+                                                                }
                                                             }
                                                         }
                                                     }
-                                                }
-                                                if ($wm_add)
-                                                {
-                                                    $wm_device_ids = [$device->id];
-                                                    
-                                                    if (isset($data['device_ids']))
-                                                        $wm_device_ids = array_merge($wm_device_ids, explode(',', $data['device_ids']));
+                                                    if ($wm_add)
+                                                    {
+                                                        $wm_device_ids = [$device->id];
+                                                        
+                                                        if (isset($data['device_ids']))
+                                                            $wm_device_ids = array_merge($wm_device_ids, explode(',', $data['device_ids']));
 
-                                                    sort($wm_device_ids);
-                                                    $data['device_ids'] = implode(',', $wm_device_ids);
+                                                        sort($wm_device_ids);
+                                                        $data['device_ids'] = implode(',', $wm_device_ids);
+                                                    }
                                                 }
-                                            }
-                                            else // no WEEKMAP, or first data of WEEKMAP
-                                            {
-                                                $data = array_merge($data, $meas);
-
-                                                if ($calculation == 'WEEKMAP' && count($data) > 0) // set the first id's of the WEEKMAP data
+                                                else // no WEEKMAP, or first data of WEEKMAP
                                                 {
-                                                    $data['device_ids'] = $device->id;
+                                                    $data = array_merge($data, $meas);
+
+                                                    if ($calculation == 'WEEKMAP' && count($data) > 0) // set the first id's of the WEEKMAP data
+                                                    {
+                                                        $data['device_ids'] = $device->id;
+                                                    }
                                                 }
                                             }
                                         }
@@ -1172,60 +1186,71 @@ class ResearchDataController extends Controller
 
                                     // Add weather data
                                     $loc = $device->location();
-                                    if ($loc && $loc->created_at <= $m_until && $loc->lat != '' && $loc->lon != '')
+                                    if ($loc && isset($loc->created_at) && $loc->created_at <= $m_until && $loc->lat != '' && $loc->lon != '')
                                     {
                                         $where  = '"lat" = \''.$loc->lat.'\' AND "lon" = \''.$loc->lon.'\' AND time >= \''.$m_start.'\' AND time <= \''.$m_until.'\'';
-                                        $adds   = ['device_id'=>$device->id]; // provide anonimized (10-15km diameter) for end result
-                                        $data_w = $this->getArrayFromInflux($where, $measurements, 'weather', $m_interval, $calculation, $calc_prop, $decimals, $precision, $adds, $limit);
-
-                                        // Merge measurements with weather data 
-                                        if (count($data_w) > 0)
+                                        
+                                        if ($csv_output)
                                         {
-                                            if ($m_interval == '*' || count($data) == 0 || $m_interval == 'research')
+                                            // 2021-03-30_T1UK_HPP 8a.csv
+                                            $file_name = substr($m_start, 0, 10).'_'.$research->name.'_'.$device->location_name.$device->hive_name;
+                                            $file_path = $this->exportCsvFromInflux($where, $file_name, $measurements, 'weather');
+                                            $data[]    = $file_path;
+                                        }
+                                        else
+                                        {
+                                            $adds   = ['device_id'=>$device->id]; // provide anonimized (10-15km diameter) for end result
+                                            $data_w = $this->getArrayFromInflux($where, $measurements, 'weather', $m_interval, $calculation, $calc_prop, $decimals, $precision, $adds, $limit);
+
+                                            // Merge measurements with weather data 
+                                            if (count($data_w) > 0)
                                             {
-                                                
-                                                if ($filter_year_months) // filter out all non month-year data
+                                                if ($m_interval == '*' || count($data) == 0 || $m_interval == 'research')
                                                 {
-                                                    $meas_filtered = [];
-                                                    foreach ($data_w as $m)
-                                                    {
-                                                        $time       = $m['time'];
-                                                        $year_month = substr($time, 0, 7); // TODO: Make local time, now UTC
-                                                        if (in_array($year_month, $year_months))
-                                                            $meas_filtered[] = $m;
-                                                    }
-                                                    $data_w = $meas_filtered;
-                                                }
-                                                $data = array_merge($data, $data_w);
-                                            }
-                                            else // merge neatly in same time objects
-                                            {
-                                                $weather_time_key = [];
-                                                foreach ($data_w as $values) 
-                                                {
-                                                    $time = $values['time'];
+                                                    
                                                     if ($filter_year_months) // filter out all non month-year data
                                                     {
-                                                        $year_month  = substr($time, 0, 7); // TODO: Make local time, now UTC
-                                                        if (in_array($year_month, $year_months))
-                                                            $weather_time_key[$time] = $values;
+                                                        $meas_filtered = [];
+                                                        foreach ($data_w as $m)
+                                                        {
+                                                            $time       = $m['time'];
+                                                            $year_month = substr($time, 0, 7); // TODO: Make local time, now UTC
+                                                            if (in_array($year_month, $year_months))
+                                                                $meas_filtered[] = $m;
+                                                        }
+                                                        $data_w = $meas_filtered;
                                                     }
-                                                    else
-                                                    {
-                                                        $weather_time_key[$time] = $values;
-                                                    }
-                                                }                
-
-                                                // add weather values to sensor time keys where the weather values also exist
-                                                if (filled($weather_time_key))
+                                                    $data = array_merge($data, $data_w);
+                                                }
+                                                else // merge neatly in same time objects
                                                 {
-                                                    foreach ($data as $i => $values)
+                                                    $weather_time_key = [];
+                                                    foreach ($data_w as $values) 
                                                     {
                                                         $time = $values['time'];
-                                                        if (isset($weather_time_key[$time])) // add weather data to already available datetime
+                                                        if ($filter_year_months) // filter out all non month-year data
                                                         {
-                                                            foreach ($weather_time_key[$time] as $m => $v)
-                                                                $data[$i][$m] = $v;
+                                                            $year_month  = substr($time, 0, 7); // TODO: Make local time, now UTC
+                                                            if (in_array($year_month, $year_months))
+                                                                $weather_time_key[$time] = $values;
+                                                        }
+                                                        else
+                                                        {
+                                                            $weather_time_key[$time] = $values;
+                                                        }
+                                                    }                
+
+                                                    // add weather values to sensor time keys where the weather values also exist
+                                                    if (filled($weather_time_key))
+                                                    {
+                                                        foreach ($data as $i => $values)
+                                                        {
+                                                            $time = $values['time'];
+                                                            if (isset($weather_time_key[$time])) // add weather data to already available datetime
+                                                            {
+                                                                foreach ($weather_time_key[$time] as $m => $v)
+                                                                    $data[$i][$m] = $v;
+                                                            }
                                                         }
                                                     }
                                                 }
@@ -1243,7 +1268,7 @@ class ResearchDataController extends Controller
         }
 
         // Check if the mean values need to be added 
-        if ($data_call)
+        if ($data_call && $csv_output == false)
         {
             $data_count = count($data);
             
@@ -1593,6 +1618,85 @@ class ResearchDataController extends Controller
         });
 
         return $out;
+    }
+
+
+    private function exportCsvFromInflux($where, $fileName='research-export-', $measurements='*', $database='sensors', $separator=',')
+    {
+        $options= ['precision'=>'rfc3339', 'format'=>'csv'];
+        
+        if ($database == 'sensors')
+        {
+            if (isset($measurements) && gettype($measurements) == 'array' && count($measurements) > 0)
+                $names = $measurements;
+            else
+                $names = $this->output_sensors;
+
+            $queryList = Device::getAvailableSensorNamesNoCache($names, $where, $database);
+            
+            if (isset($queryList) && gettype($queryList) == 'array' && count($queryList) > 0)
+                $groupBySelect = implode(', ', $queryList);
+            else 
+                $groupBySelect = '"'.implode('","',$names).'"';
+
+            $query = 'SELECT '.$groupBySelect.',"from_flashlog" FROM "'.$database.'" WHERE '.$where;
+        }
+        else // i.e. weather data
+        {
+            if ($measurements == null || $measurements == '' || $measurements === '*')
+                $sensor_measurements = '*';
+            else
+                $sensor_measurements = $measurements;
+
+            $query = 'SELECT '.$sensor_measurements.' FROM "'.$database.'" WHERE '.$where;
+        }
+        
+        try{
+            $data   = $this->client::query($query, $options)->getPoints(); // get first sensor date
+        } catch (InfluxDB\Exception $e) {
+            return null;
+        }
+
+        if (count($data) == 0)
+            return null;
+
+        $csv_file = $data;
+
+        //format CSV header row: time, sensor1 (unit2), sensor2 (unit2), etc. Excluse the 'sensor' and 'key' columns
+        $csv_file = "";
+
+        $csv_sens = array_keys($data[0]);
+        $csv_head = [];
+        foreach ($csv_sens as $sensor_name) 
+        {
+            if ($sensor_name == 'from_flashlog')
+            {
+                $csv_head[] = 'Imported from device flash log';
+            }
+            else
+            {
+                $meas       = Measurement::where('abbreviation', $sensor_name)->first();
+                $csv_head[] = $meas ? $meas->pq_name_unit().' ('.$sensor_name.')' : $sensor_name;
+            }
+        }
+        $csv_head = '"'.implode('"'.$separator.'"', $csv_head).'"'."\r\n";
+
+        // format CSV file body
+        $csv_body = [];
+        foreach ($data as $sensor_values) 
+        {
+            $csv_body[] = implode($separator, $sensor_values);
+        }
+        $csv_file = $csv_head.implode("\r\n", $csv_body);
+
+        // return the CSV file content in a file on disk
+        $filePath = 'exports/'.$fileName;
+        $disk     = env('EXPORT_STORAGE', 'public');
+
+        if (Storage::disk($disk)->put($filePath, $csv_file, ['mimetype' => 'text/csv']))
+            return Storage::disk($disk)->url($filePath);
+
+        return null;
     }
 
 }

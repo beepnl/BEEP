@@ -21,6 +21,7 @@ use Response;
 use DB;
 use Cache;
 use InfluxDB;
+use Storage;
 
 /**
  * @group Api\ResearchDataController

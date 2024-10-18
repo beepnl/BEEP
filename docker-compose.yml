@@ -1,0 +1,148 @@
+version: '3.8'
+
+#Docker Networks
+networks:
+  laravel:
+    driver: bridge
+
+#Volumes
+volumes:
+  dbdata:
+    driver: local
+  influx_data: {}
+
+# Workflow
+services:
+  nginx:
+    build:
+      context: .
+      dockerfile: ./compose/nginx/Dockerfile
+    container_name: nginx
+    ports:
+      - "8087:80"
+    volumes:
+      - .:/var/www/html:delegated
+    depends_on:
+      - php
+      - mysql
+      - influxdb
+    networks:
+      - laravel
+
+  mysql:
+    image: mysql:5.7.29
+    container_name: mysql
+    restart: unless-stopped
+    tty: true
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_DATABASE: bee_data
+      MYSQL_USER: root
+      MYSQL_PASSWORD: secret
+      MYSQL_ROOT_PASSWORD: secret
+      SERVICE_TAGS: dev
+      SERVICE_NAME: mysql
+    volumes:
+      - ./compose/mysql/my.cnf:/etc/mysql/my.cnf
+      - dbdata:/var/lib/mysql/
+    networks:
+      - laravel
+
+  redis:
+    image: "redis:latest"
+    container_name: redis
+    restart: unless-stopped
+    tty: true
+    ports:
+      - "6379:6379"
+    networks:
+      - laravel
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    container_name: phpmyadmin
+    environment:
+      MYSQL_ROOT_PASSWORD: secret
+      PMA_HOST: mysql
+      PMA_PORT: 3306
+      PMA_ARBITRARY: 1
+    restart: always
+    depends_on:
+      - mysql
+    ports:
+    - "8088:80"
+    volumes:
+      - /sessions
+    networks:
+      - laravel
+    links:
+      - mysql
+
+  influxdb:
+    image: influxdb:latest
+    container_name: influxdb
+    volumes:
+      - ./storage/influxdb2/config/influx-configs:/etc/influxdb2/influx-configs
+      - ./storage/influxdb2/data:/var/lib/influxdb2:rw
+    healthcheck:
+      test: "ln -sf /bin/busybox /bin/wget && /bin/wget -q -Y off http://localhost:8086/metrics -O /dev/null > /dev/null 2>&1"
+      interval: 25s
+      timeout: 3s
+    restart: unless-stopped
+    ports:
+      - "8086:8086"
+    networks:
+      - laravel
+
+  php:
+    build:
+      context: .
+      dockerfile: ./compose/php/Dockerfile
+    container_name: php
+    volumes:
+      - .:/var/www/html:delegated
+    ports:
+      - "9000:9000"
+    depends_on:
+      - influxdb
+    networks:
+      - laravel
+
+  composer:
+    build:
+      context: .
+      dockerfile: ./compose/php/composer/Dockerfile
+    container_name: composer
+    volumes:
+      - .:/var/www/html
+    working_dir: /var/www/html
+    depends_on:
+      - php
+    user: laravel
+    networks:
+      - laravel
+    entrypoint: ['composer', '--ignore-platform-reqs']
+
+  npm:
+    image: node:15.0.1
+    container_name: npm
+    volumes:
+      - .:/var/www/html
+    working_dir: /var/www/html
+    entrypoint: ['npm']
+
+  artisan:
+    build:
+      context: .
+      dockerfile: ./compose/php/Dockerfile
+    container_name: artisan
+    volumes:
+      - .:/var/www/html:delegated
+    depends_on:
+      - mysql
+    working_dir: /var/www/html
+    user: laravel
+    entrypoint: ['php', '/var/www/html/artisan']
+    networks:
+      - laravel

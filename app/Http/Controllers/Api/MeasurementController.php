@@ -147,7 +147,7 @@ class MeasurementController extends Controller
                 );
             }
         }
-        //die(print_r($points));
+        // die(print_r($points));
         $stored = false;
         if (count($points) > 0)
         {
@@ -158,6 +158,8 @@ class MeasurementController extends Controller
             }
             catch(\Exception $e)
             {
+                // enable for DEBUG
+                // die(print_r($e->getMessage()));
                 // gracefully do nothing
             }
         }

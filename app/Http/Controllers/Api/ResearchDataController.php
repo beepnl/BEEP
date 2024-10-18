@@ -1668,18 +1668,25 @@ class ResearchDataController extends Controller
 
         $csv_sens = array_keys($data[0]);
         $csv_head = [];
-        foreach ($csv_sens as $sensor_name) 
+        if ($translate)
         {
-            if ($sensor_name == 'from_flashlog')
+            foreach ($csv_sens as $sensor_name) 
             {
-                $csv_head[] = 'Imported from device flash log';
+                if ($sensor_name == 'from_flashlog')
+                {
+                    $csv_head[] = 'Imported from device flash log';
+                }
+                else
+                {
+                    $meas       = Measurement::where('abbreviation', $sensor_name)->first();
+                    $csv_head[] = $meas ? $meas->pq_name_unit().' ('.$sensor_name.')' : $sensor_name;
+                }
             }
-            else
-            {
-                $meas       = $translate ? Measurement::where('abbreviation', $sensor_name)->first() : null;
-                $csv_head[] = $meas ? $meas->pq_name_unit().' ('.$sensor_name.')' : $sensor_name;
-            }
-        }
+        } 
+        else
+        {
+            $csv_head = $csv_sens;
+        } 
         $csv_head = '"'.implode('"'.$separator.'"', $csv_head).'"'."\r\n";
 
         // format CSV file body

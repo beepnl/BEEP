@@ -1691,9 +1691,15 @@ class ResearchDataController extends Controller
 
         // format CSV file body
         $csv_body = [];
-        foreach ($data as $sensor_values) 
+        foreach ($data as $sensor_array) 
         {
-            $csv_body[] = implode($separator, $sensor_values);
+            if (isset($sensor_array['time']))
+            {
+                $time_str = $sensor_array['time'];
+                $sensor_array['time'] = substr($time_str, 0, 10).' '.substr($time_str, 12, 8); // Format from 2024-10-16T03:17:14Z => YYYY-MM-DD HH:mm:ss
+            }
+
+            $csv_body[] = implode($separator, $sensor_array);
         }
         $csv_file = $csv_head.implode("\r\n", $csv_body);
 

@@ -1622,7 +1622,7 @@ class ResearchDataController extends Controller
     }
 
 
-    private function exportCsvFromInflux($where, $fileName='research-export-', $measurements='*', $database='sensors', $separator=',')
+    private function exportCsvFromInflux($where, $fileName='research-export-', $measurements='*', $database='sensors', $separator=',', $translate=false)
     {
         $options= ['precision'=>'rfc3339', 'format'=>'csv'];
         
@@ -1676,7 +1676,7 @@ class ResearchDataController extends Controller
             }
             else
             {
-                $meas       = Measurement::where('abbreviation', $sensor_name)->first();
+                $meas       = $translate ? Measurement::where('abbreviation', $sensor_name)->first() : $sensor_name;
                 $csv_head[] = $meas ? $meas->pq_name_unit().' ('.$sensor_name.')' : $sensor_name;
             }
         }

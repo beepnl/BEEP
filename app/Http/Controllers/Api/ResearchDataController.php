@@ -1115,7 +1115,7 @@ class ResearchDataController extends Controller
                                             if ($csv_output)
                                             {
                                                 // 2021-03-30_T1UK_HPP 8a.csv
-                                                $file_name = substr($m_start, 0, 10).'_'.$research->name.'_'.$device->location_name.$device->hive_name.'.csv';
+                                                $file_name = $research->name.'/'.substr($m_start, 0, 10).'/'.$device->location_name.$device->hive_name.'.csv';
                                                 $file_path = $this->exportCsvFromInflux($where, $file_name, $measurements, 'sensors');
                                                 $data[]    = $file_path;
                                             }

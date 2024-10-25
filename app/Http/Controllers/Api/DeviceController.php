@@ -438,7 +438,7 @@ class DeviceController extends Controller
             $device = Device::onlyTrashed()->where('hardware_id', $hwi)->orWhere('id', $id)->orWhere('key', $key)->first();
             if ($device)
             {
-                if ($device->user_id == $user_id) // If deleted device is owned by user, undelete it
+                if ($device->user_id === $user_id) // If deleted device is owned by user, undelete it
                 {
                     $deleted_date = $device->deleted_at;
                     $device->restore();

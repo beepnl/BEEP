@@ -173,7 +173,7 @@ class DeviceController extends Controller
         $dev_eui = $request->input('lorawan_device.dev_eui');
         $app_key = $request->input('lorawan_device.app_key');
 
-        if ($this->canUserClaimDevice(null, $dev_eui, $dev_id) === false)
+        if ($this->canUserClaimDevice(null, $dev_eui, $dev_id, true, 'postTTNDevice') === false)
             return Response::json("device_not_yours", 403);
 
         $response = $this->updateOrCreateTTNDevice($dev_id, $dev_eui, $app_key);
@@ -716,7 +716,7 @@ class DeviceController extends Controller
         }
         else
         {
-            if ($this->canUserClaimDevice($sid, $key, $hwi) === false)
+            if ($this->canUserClaimDevice($sid, $key, $hwi, true, 'updateOrCreateDevice') === false)
                 return ['errors'=>'Cannot create device: (KEY/DEV EUI: '.$key.', HW ID: '.$hwi.')', 'http_response_code'=>400];
 
             $valid_data = $validator->validated();

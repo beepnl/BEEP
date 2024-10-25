@@ -443,7 +443,7 @@ class DeviceController extends Controller
                     $deleted_date = $device->deleted_at;
                     $device->restore();
                     $can_claim = 1;
-                    Log::info("UserID=$user_id restored deleted Device with: ID=$device->id, HWI=$hwi, KEY=$key (from: $from)");
+                    Log::info("UserID=$user_id (device->user_id=$device->user_id) restored deleted Device with: ID=$device->id, HWI=$hwi, KEY=$key (from: $from)");
                     
                     // also restore trashed sensordefinitions if available
                     $sensor_definitions_deleted = SensorDefinition::onlyTrashed()->where('device_id', $device->id)->where('deleted_at', $deleted_date)->get();

@@ -96,6 +96,7 @@ class DeviceController extends Controller
         $keyword     = $request->get('search');
         $search_user = $request->get('user');
         $search_res  = $request->get('research');
+        $high_weight = boolval($request->get('high_weight', false));
         $perPage     = 10;
         $devices     = Device::withTrashed()->where('id', '!=', null);
 

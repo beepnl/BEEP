@@ -920,7 +920,7 @@ class ResearchController extends Controller
 
                     $dates[$d]['measurements_total']    = $dates[$d]['measurements'] + $dates[$d]['measurements_imported'];
                     $dates[$d]['data_completeness']     = $dates[$d]['devices'] > 0 ? round(100 * $dates[$d]['measurements_total'] / ($dates[$d]['devices'] * (60*24/15))) : '';
-                    $dates[$d]['data_completeness_online'] = $dates[$d]['devices_online'] > 0 ? max(100, round(100 * $dates[$d]['measurements_total'] / ($dates[$d]['devices_online'] * (60*24/15)))) : '';
+                    $dates[$d]['data_completeness_online'] = $dates[$d]['devices_online'] > 0 ? min(100, round(100 * $dates[$d]['measurements_total'] / ($dates[$d]['devices_online'] * (60*24/15)))) : '';
 
                     if (in_array($d, array_keys($user_weather_data)))
                         $dates[$d]['weather']= $v['weather'] + $user_weather_data[$d];

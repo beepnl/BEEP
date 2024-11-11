@@ -1,11 +1,11 @@
 [
     {
         "version": "1.6.0",
-        "release_date": "2024-09-27T08:00:00Z",
+        "release_date": "2024-11-11T10:45:00Z",
         "release_notes": "BEEP base 1.6.0 adds the option for connecting both an I2C real time clock (RTC DS3231) to store/retrieve accurate time and a BME280 temperature/humidity/air pressure usage of the BEEP base.",
-        "stability": "test",
-        "size": 363250,
-        "download_url": "https://assets.beep.nl/firmware/basev3/1.6.0/Beepbase_sd_boot_app_1.60.zip"
+        "stability": "stable",
+        "size": 185538,
+        "download_url": "https://assets.beep.nl/firmware/basev3/1.6.0/Beepbase_app_1.60.zip"
     },
     {
         "version": "1.5.13",

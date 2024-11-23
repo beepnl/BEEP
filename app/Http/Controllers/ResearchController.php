@@ -349,7 +349,7 @@ class ResearchController extends Controller
 
         //die(print_r([$request->input('user_ids'), $consent_users_selected, $users]));
         // Fill dates array
-        $assets = ["users"=>0, "user_names"=>[], "apiaries"=>0, "hives"=>0, "inspections"=>0, "devices"=>0, "devices_online"=>0, "device_names"=>[], "devices_offline"=>[], "measurements"=>0, "measurements_imported"=>0, "measurements_total"=>0, "data_completeness"=>0, "weather"=>0, "flashlogs"=>0, "samplecodes"=>0, "sensor_definitions"=>0, "alert_rules"=>0, "alerts"=>0];
+        $assets = ["users"=>0, "user_names"=>[], "apiaries"=>0, "hives"=>0, "inspections"=>0, "devices"=>0, "devices_online"=>0, "device_names"=>[], "devices_offline"=>[], "measurements"=>0, "measurements_imported"=>0, "measurements_total"=>0, "data_completeness"=>0, "data_completeness_online"=>0, "weather"=>0, "flashlogs"=>0, "samplecodes"=>0, "sensor_definitions"=>0, "alert_rules"=>0, "alerts"=>0];
 
         $moment = $moment_start;
         while($moment < $moment_end)
@@ -920,6 +920,7 @@ class ResearchController extends Controller
 
                     $dates[$d]['measurements_total']    = $dates[$d]['measurements'] + $dates[$d]['measurements_imported'];
                     $dates[$d]['data_completeness']     = $dates[$d]['devices'] > 0 ? round(100 * $dates[$d]['measurements_total'] / ($dates[$d]['devices'] * (60*24/15))) : '';
+                    $dates[$d]['data_completeness_online'] = $dates[$d]['devices_online'] > 0 ? min(100, round(100 * $dates[$d]['measurements_total'] / ($dates[$d]['devices_online'] * (60*24/15)))) : '';
 
                     if (in_array($d, array_keys($user_weather_data)))
                         $dates[$d]['weather']= $v['weather'] + $user_weather_data[$d];

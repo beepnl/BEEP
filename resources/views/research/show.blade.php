@@ -120,7 +120,11 @@
                             <th class="row-header">{{ $totals['measurements_total'] }}</th> 
                         </tr>
                         <tr>
-                            <th class="row-header" style="max-height: 45px; overflow: scroll; white-space: nowrap; cursor: help;" title="Total amount of 15 min time stamps divided by the amount of devices. The data completeness of {{ $totals['data_completeness'] }}% represents the average of all daily data completeness calculations of the displayed dates."><span><i class="fa fa-2x fa-line-chart"></i> Data completeness (%)</span></th> 
+                            <th class="row-header" style="max-height: 45px; overflow: scroll; white-space: nowrap; cursor: help;" title="Total amount of 15 min time stamps divided by the amount of online devices. The data completeness of {{ $totals['data_completeness_online'] }}% represents the average of all daily data completeness calculations of the displayed dates."><span><i class="fa fa-2x fa-line-chart"></i> Data completeness (%)</span></th> 
+                            <th class="row-header">{{ $totals['data_completeness_online'] }}%</th> 
+                        </tr>
+                        <tr>
+                            <th class="row-header" style="max-height: 45px; overflow: scroll; white-space: nowrap; cursor: help;" title="Total amount of 15 min time stamps divided by the amount of devices. The data completeness of {{ $totals['data_completeness'] }}% represents the average of all daily data completeness calculations of the displayed dates."><span><i class="fa fa-2x fa-line-chart"></i> Data compl. all dev (%)</span></th> 
                             <th class="row-header">{{ $totals['data_completeness'] }}%</th> 
                         </tr>
                         <tr>
@@ -203,6 +207,11 @@
                         <tr>
                             @foreach($dates as $date => $d)
                                 <td>{{ $d['measurements_total'] > 0 ? $d['measurements_total'] : '' }}</td>
+                            @endforeach
+                        </tr>
+                        <tr>
+                            @foreach($dates as $date => $d)
+                                <td>{{ $d['data_completeness_online'] > 0 ? $d['data_completeness_online'] : '' }}</td>
                             @endforeach
                         </tr>
                         <tr>

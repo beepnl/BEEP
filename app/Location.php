@@ -21,6 +21,32 @@ class Location extends Model
 
     public $timestamps = false;
 
+    // Caching
+    public static function boot()
+    {
+        parent::boot();
+
+        static::created(function ($l) {
+            $l->empty_cache();
+        });
+
+        static::updated(function ($l) {
+            $l->empty_cache();
+        });
+
+        static::deleted(function ($l) {
+            $l->empty_cache();
+        });
+    }
+
+    // Cache functions
+    public function empty_cache($clear_user=true)
+    {
+        if ($clear_user)
+            User::emptyIdCache($this->user_id, 'apiary');
+    }
+
+
     // Relations
     public function getTypeAttribute()
     {

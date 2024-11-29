@@ -22,6 +22,38 @@ class Group extends Model
 
     public $appends  = ['hives','users','admin','creator']; // 'hive_ids'
 
+    // Caching
+    public static function boot()
+    {
+        parent::boot();
+
+        static::created(function ($g) {
+            $g->empty_cache();
+        });
+
+        static::updated(function ($g) {
+            $g->empty_cache();
+        });
+
+        static::deleted(function ($g) {
+            $g->empty_cache();
+        });
+    }
+
+    // Cache functions
+    public function empty_cache($clear_users=true)
+    {
+        if ($clear_users)
+        {
+            $user_ids = $this->users()->pluck('id');
+            foreach ($user_ids as $uid) {
+                User::emptyIdCache($uid, 'group');
+            }
+        }
+    }
+
+
+
     // Relations
     public function getHivesAttribute()
     {

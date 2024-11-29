@@ -26,6 +26,47 @@ class Device extends Model
     protected $appends  = ['type','hive_name', 'location_name', 'owner', 'online'];
 
     public $timestamps  = false;
+    public $old_hive_id = null;
+
+    public static function boot()
+    {
+        parent::boot();
+
+        static::created(function ($d) {
+            //Log::info("Created Device $d->id $d->name");
+            $d->empty_cache();
+        });
+
+        static::updating(function ($d) {
+            $d->old_hive_id = $d->hive_id;
+        });
+
+        static::updated(function ($d) {
+            if ($d->old_hive_id != $d->hive_id)
+            {
+                Log::info("Updated Device $d->id hive_id from $d->old_hive_id to $d->hive_id");
+                $d->empty_cache(false);
+            }
+        });
+
+        static::deleted(function ($d) {
+            //Log::info("Deleted Device $d->id $d->name");
+            $d->empty_cache();
+        });
+    }
+
+    public function empty_cache($clear_users=true)
+    {
+        Cache::forget('device-'.$this->id.'-hive-'.$this->hive_id.'-user-ids');
+        Cache::forget('device-'.$this->id.'-hive-'.$this->hive_id.'-rule-ids');
+
+        Log::debug("Device ID $this->id cache emptied");
+
+        if ($clear_users)
+            User::emptyIdCache($this->user_id, 'device');
+
+    }
+
 
     public static function cacheRequestRate($name, $retention_sec=86400)
     {

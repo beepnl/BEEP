@@ -48,9 +48,14 @@ class Inspection extends Model
     {
         parent::boot();
 
+        static::created(function ($i) {
+            //Log::info("Created Device $d->id $d->name");
+            $i->empty_cache();
+        });
+
         static::updated(function($i)
         {
-            $i->empty_cache();
+            $i->empty_cache(false);
         });
 
         static::deleted(function($i)
@@ -60,9 +65,17 @@ class Inspection extends Model
     }
 
     // Cache functions
-    public function empty_cache()
+    public function empty_cache($clear_users=true)
     {
         Cache::forget('inspection-'.$this->id.'-searchable-array');
+
+        if ($clear_users)
+        {
+            $user_ids = $this->users()->pluck('id')->toArray();
+            foreach ($user_ids as $uid) {
+                User::emptyIdCache($uid, 'inspection');
+            }
+        }
     }
 
 

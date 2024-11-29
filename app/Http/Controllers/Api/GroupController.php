@@ -27,9 +27,10 @@ class GroupController extends Controller
 
     public function index(Request $request, $code=200, $message=null, $error=null)
     {
-        $groups = $request->user()->groups()->orderBy('name')->get();
-        $invite = $request->user()->groupInvitations();
-        return response()->json(['invitations'=>$invite, 'groups'=>$groups, 'message'=>$message, 'error'=>$error], $code);
+        $groupsAndInvites = $request->user()->groupsAndInvites();
+        $groupsAndInvites['message'] = $message;
+        $groupsAndInvites['error']   = $error;
+        return response()->json($groupsAndInvites, $code);
     }
 
     /**
@@ -101,7 +102,6 @@ class GroupController extends Controller
         $requestData = $request->only(['name','description','hex_color']);
         $group       = Group::create($requestData);
         $request->user()->groups()->attach($group, ['creator'=>true,'admin'=>true,'accepted'=>now()]);
-        
         $this->syncHives($request, $group);
         
         $msg = $this->syncUsers($request, $group);
@@ -314,6 +314,7 @@ class GroupController extends Controller
                     $validUser->groups()->attach($group->id, ['creator'=>false,'admin'=>$admin,'invited'=>now(),'token'=>$token]);
                     $invite_grp[$validUser->email] = ['name'=>$name, 'admin'=>$admin, 'token'=>$token];
                 }
+                $validUser->emptyCache();
             }
             else
             {

@@ -58,6 +58,7 @@ class User extends Authenticatable
         if ($type == null || $type == 'device')
         {
             Cache::forget('user-'.$user_id.'-all-device-ids');
+            Cache::forget('user-'.$user_id.'-all-device-ids-editable');
         }
         // Cache::forget('user-'.$user_id.'-historic-device-ids');
         // Cache::forget('user-'.$user_id.'-all-device-objects');
@@ -264,7 +265,8 @@ class User extends Authenticatable
 
     public function allDevices($editable = false) // Including Group hive locations
     {
-        $all_ids = Cache::remember('user-'.$this->id.'-all-device-ids', env('CACHE_TIMEOUT_LONG'), function () use ($editable) {
+        $cache_name = 'user-'.$this->id.'-all-device-ids'.($editable ? '-editable' : '');
+        $all_ids    = Cache::remember($cache_name, env('CACHE_TIMEOUT_LONG'), function () use ($editable) {
             $own_ids = $this->devices()->pluck('id');
             $hiv_ids = $this->groupHiveIds($editable);
             $sen_ids = DB::table('sensors')->whereIn('hive_id',$hiv_ids)->distinct('hive_id')->pluck('id')->toArray();

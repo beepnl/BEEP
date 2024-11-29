@@ -370,11 +370,11 @@ class User extends Authenticatable
 
     public function groupsAndInvites(){
 
-        //return Cache::remember('user-'.$this->id.'-groups-and-invites', env('CACHE_TIMEOUT_LONG'), function () {
+        return Cache::remember('user-'.$this->id.'-groups-and-invites', env('CACHE_TIMEOUT_LONG'), function () {
             $groups = $this->groups()->orderBy('name')->get();
-            $invite = [];//$this->groupInvitations();
+            $invite = $this->groupInvitations();
             return ['invitations'=>$invite, 'groups'=>$groups];
-        //});
+        });
     }
 
     public function alert_rules()

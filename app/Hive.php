@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Log;
 use App\Http\Resources\InspectionCollection;
 use Auth;
+use Cache;
 
 class Hive extends Model
 {

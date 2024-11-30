@@ -78,8 +78,9 @@ class Hive extends Model
         if (isset($this->location_id))
         {
             $cache_name = "hive-$this->id-location-name";
-            $loc_name   = Cache::rememberForever($cache_name, function () {
-                return isset($this->location) ? $this->location->name : '';
+            $location   = $this->location;
+            $loc_name   = Cache::rememberForever($cache_name, function () use ($location) {
+                return isset($location) ? $location->name : '';
             });
             if ($loc_name == '')
                 Cache::forget($cache_name);

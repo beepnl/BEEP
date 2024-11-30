@@ -25,6 +25,11 @@ class Hive extends Model
     {
         parent::boot();
 
+        static::updated(function($h)
+        {   
+            $h->empty_cache();
+        });
+
         static::deleting(function($h)
         {
             // remove device-hive link
@@ -40,21 +45,45 @@ class Hive extends Model
                 foreach ($ars as $a)
                     $a->remove_hive_id_from_exclude_hive_ids($h->id);
             }
-            
+            $h->empty_cache();
         });
     }
 
+    public function empty_cache($clear_user=true)
+    {
+        Cache::forget("hive-$this->id-layer-count-honey");
+        Cache::forget("hive-$this->id-layer-count-brood");
+        Cache::forget("hive-$this->id-layer-count-feeding_box");
+        Cache::forget("hive-$this->id-layer-count-queen_excluder");
+        Cache::forget("hive-$this->id-location-name");
+
+        Log::debug("Hive ID $this->id cache emptied");
+
+        if ($clear_user)
+            User::emptyIdCache($this->user_id, 'apiary');
+    }
 
 	// Relations
 	public function getTypeAttribute()
     {
-        return Category::find($this->hive_type_id)->name;
+        return Cache::rememberForever("hive-type-$this->hive_type_id-name", function () {
+            return Category::find($this->hive_type_id)->name;
+        });
     }
 
     public function getLocationAttribute()
     {
-        $loc = Location::find($this->location_id);
-        return isset($loc) ? $loc->name : '';
+        $loc_name = '';
+        if (isset($this->location_id))
+        {
+            $cache_name = "hive-$this->id-location-name";
+            $loc_name   = Cache::rememberForever($cache_name, function () {
+                return isset($this->location) ? $this->location->name : '';
+            });
+            if ($loc_name == '')
+                Cache::forget($cache_name);
+        }
+        return $loc_name;
     }
 
     public function getLastInspectionDateAttribute()
@@ -94,22 +123,42 @@ class Hive extends Model
 
     public function getHoneylayersAttribute()
     {
-        return $this->layers()->where('category_id', Category::findCategoryIdByParentAndName('hive_layer','honey'))->count();
+        $cat_id = Cache::rememberForever('hive-layer-type-id-honey', function () {
+            return Category::findCategoryIdByParentAndName('hive_layer','honey');
+        });
+        return  Cache::rememberForever("hive-$this->id-layer-count-honey", function () {
+            return $this->layers()->where('category_id', $cat_id)->count();
+        });
     }
 
     public function getBroodlayersAttribute()
     {
-        return $this->layers()->where('category_id', Category::findCategoryIdByParentAndName('hive_layer','brood'))->count();
+        $cat_id = Cache::rememberForever('hive-layer-type-id-brood', function () {
+            return Category::findCategoryIdByParentAndName('hive_layer','brood');
+        });
+        return  Cache::rememberForever("hive-$this->id-layer-count-brood", function () {
+            return $this->layers()->where('category_id', $cat_id)->count();
+        });
     }
 
     public function getFeedingBoxAttribute()
     {
-        return $this->layers()->where('category_id', Category::findCategoryIdByParentAndName('hive_layer','feeding_box'))->count();
+        $cat_id = Cache::rememberForever('hive-layer-type-id-feeding_box', function () {
+            return Category::findCategoryIdByParentAndName('hive_layer','feeding_box');
+        });
+        return  Cache::rememberForever("hive-$this->id-layer-count-feeding_box", function () {
+            return $this->layers()->where('category_id', $cat_id)->count();
+        });
     }
 
     public function getQueenExcluderAttribute()
     {
-        return $this->layers()->where('category_id', Category::findCategoryIdByParentAndName('hive_layer','queen_excluder'))->count();
+        $cat_id = Cache::rememberForever('hive-layer-type-id-queen_excluder', function () {
+            return Category::findCategoryIdByParentAndName('hive_layer','queen_excluder');
+        });
+        return  Cache::rememberForever("hive-$this->id-layer-count-queen_excluder", function () {
+            return $this->layers()->where('category_id', $cat_id)->count();
+        });
     }
 
     public function getSensorsAttribute()

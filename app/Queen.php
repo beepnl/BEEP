@@ -5,6 +5,7 @@ namespace App;
 use Iatstuti\Database\Support\CascadeSoftDeletes;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\Log;
 
 class Queen extends Model
 {
@@ -17,10 +18,43 @@ class Queen extends Model
 
     public $timestamps = false;
 
+    // Caching
+    public static function boot()
+    {
+        parent::boot();
+
+        static::created(function ($q) {
+            $q->empty_cache();
+        });
+
+        static::updated(function ($q) {
+            $q->empty_cache();
+        });
+
+        static::deleted(function ($q) {
+            $q->empty_cache();
+        });
+    }
+
+    // Cache functions
+    public function empty_cache($clear_hive=true)
+    {
+        Log::debug("Queen ID $this->id cache emptied");
+
+        if ($clear_hive)
+            $this->hive->empty_cache();
+    }
+
     // Relations
     public function getRaceAttribute()
     {
-        return isset($this->race_id) && $this->race_id != '' ? Category::find($this->race_id) != null ? Category::find($this->race_id)->name : '' : '';
+        if (isset($this->race_id) && $this->race_id != '')
+        {
+            return Cache::rememberForever("queen-race-$this->race_id-name", function () {
+                return Category::find($this->race_id)->name;
+            });
+        }
+        return '';
     }
 
     public function getMotherAttribute()

@@ -5,6 +5,7 @@ namespace App;
 use Iatstuti\Database\Support\CascadeSoftDeletes;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\Log;
 use LaravelLocalization;
 
 use Auth;
@@ -68,6 +69,7 @@ class Inspection extends Model
     public function empty_cache($clear_users=true)
     {
         Cache::forget('inspection-'.$this->id.'-searchable-array');
+        Log::debug("inspection ID $this->id cache emptied");
 
         if ($clear_users)
         {
@@ -76,6 +78,7 @@ class Inspection extends Model
                 User::emptyIdCache($uid, 'inspection');
             }
         }
+
     }
 
 

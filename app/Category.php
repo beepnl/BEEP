@@ -50,10 +50,14 @@ class Category extends Model
 
     public function forgetCache()
     {
-
+        
         Cache::forget('cat-'.$this->id.'-input-type');
         Cache::forget('root-'.$this->id.'-anc');
         Cache::forget('root-'.$this->id.'-trans-anc');
+        Cache::forget("hive-type-$this->id-name");
+        Cache::forget("hive-layer-type-$this->id-name");
+        Cache::forget("location-type-$this->id-name");
+        Cache::forget("queen-race-$this->id-name");
 
         $locales = Language::pluck('twochar');
         
@@ -77,6 +81,10 @@ class Category extends Model
     {
         Cache::forget('taxonomy_lists');
         Cache::forget('taxonomy_lists_nh3_reduction_chart_groups');
+        Cache::forget('hive-layer-type-id-honey');
+        Cache::forget('hive-layer-type-id-brood');
+        Cache::forget('hive-layer-type-id-feeding_box');
+        Cache::forget('hive-layer-type-id-queen_excluder');
     }
 
     // Relations

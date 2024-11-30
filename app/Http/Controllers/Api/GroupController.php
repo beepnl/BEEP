@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
 use Auth;
 use Mail;
@@ -166,7 +167,9 @@ class GroupController extends Controller
     {
         $res = $this->detachFromGroup($request->user(), $request->user()->groups()->findOrFail($id));
         if ($res)
+        {
             return response()->json(['message'=>'group_detached'], 200);
+        }
 
         return response()->json(['error'=>'no_group_detached'], 404);
     }
@@ -174,14 +177,15 @@ class GroupController extends Controller
     private function detachFromGroup($user, $group)
     {
         $user_hive_ids       = $user->hives()->pluck('hives.id')->toArray();
-        $group_hive_ids      = $group->hives()->pluck('hives.id')->toArray();
+        $group_hive_ids      = $group->group_hives()->pluck('hives.id')->toArray();
         $user_group_hive_ids = array_intersect($group_hive_ids, $user_hive_ids);
         
         //die(print_r(['user_hives'=>$user_hive_ids,'hives'=>$group_hive_ids, 'match'=>$user_group_hive_ids]));
         
-        $group->hives()->detach($user_group_hive_ids);
+        $group->group_hives()->detach($user_group_hive_ids);
         $user->groups()->detach($group->id);
         
+        $group->empty_cache();
         // ToDo make next admin in group owner
         return true;
     }
@@ -215,7 +219,8 @@ class GroupController extends Controller
             if (in_array($hive_id, $edit_ids))
                 $sync_ids[$hive_id] = ['edit_hive'=>true];
         }
-        return $group->hives()->sync($sync_ids);
+        $group->empty_cache(false);
+        return $group->group_hives()->sync($sync_ids);
     }
 
 
@@ -349,7 +354,8 @@ class GroupController extends Controller
         {
             return ['error'=>implode(', ', $error_msg)];
         }
-        return $group->users();
+        $group->empty_cache();
+        return $group->group_users();
     }
 
 

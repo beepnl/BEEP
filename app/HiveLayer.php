@@ -16,6 +16,32 @@ class HiveLayer extends Model
 
     public $timestamps = false;
 
+    // Cache functions
+    public static function boot()
+    {
+        parent::boot();
+
+        static::created(function ($l) {
+            $l->empty_cache();
+        });
+
+        static::updated(function ($l) {
+            $l->empty_cache();
+        });
+
+        static::deleted(function ($l) {
+            $l->empty_cache();
+        });
+    }
+
+    public function empty_cache($clear_hive=true)
+    {
+        Log::debug("Hive layer ID $this->id cache emptied");
+
+        if ($clear_hive)
+            $this->hive->empty_cache();
+    }
+
     // Relations
     public function getFramecountAttribute()
     {
@@ -24,7 +50,9 @@ class HiveLayer extends Model
 
     public function getTypeAttribute()
     {
-        return Category::find($this->category_id)->name;
+        return Cache::rememberForever("hive-layer-type-$this->category_id-name", function () {
+            return Category::find($this->category_id)->name;
+        });
     }
 
 	public function hive()

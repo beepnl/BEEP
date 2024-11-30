@@ -5,6 +5,7 @@ namespace App;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Auth\MustVerifyEmail;
 use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Support\Facades\Log;
 use Laratrust\Traits\LaratrustUserTrait;
 
 use App\Notifications\VerifyEmail;
@@ -88,6 +89,8 @@ class User extends Authenticatable
             Cache::forget('user-'.$user_id.'-group-hive-ids-editable');
             Cache::forget('user-'.$user_id.'-groups-and-invites');
         }
+
+        Log::debug("User ID $user_id $type cache emptied");
     }
 
     public function getAvatarAttribute()

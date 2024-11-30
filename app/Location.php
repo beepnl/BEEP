@@ -5,6 +5,7 @@ namespace App;
 use Iatstuti\Database\Support\CascadeSoftDeletes;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\Log;
 
 use Auth;
 
@@ -42,6 +43,8 @@ class Location extends Model
     // Cache functions
     public function empty_cache($clear_user=true)
     {
+        Log::debug("Location ID $this->id cache emptied");
+
         if ($clear_user)
             User::emptyIdCache($this->user_id, 'apiary');
     }
@@ -50,12 +53,16 @@ class Location extends Model
     // Relations
     public function getTypeAttribute()
     {
-        return Category::find($this->category_id)->name;
+        return Cache::rememberForever("location-type-$this->category_id-name", function () {
+            return Category::find($this->category_id)->name;
+        });
     }
 
     public function getContinentAttribute()
     {
-        return Continent::find($this->continent_id)->name;
+        return Cache::rememberForever("continent-$this->continent_id-name", function () {
+            return Continent::find($this->continent_id)->name;
+        });
     }
 
     public function getOwnerAttribute()

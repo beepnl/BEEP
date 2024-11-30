@@ -60,6 +60,9 @@ class Hive extends Model
 
         Log::debug("Hive ID $this->id cache emptied");
 
+        foreach($this->groups as $group)
+            $group->empty_cache(false);
+
         if ($clear_user)
             User::emptyIdCache($this->user_id, 'apiary');
     }

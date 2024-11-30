@@ -78,7 +78,9 @@ class User extends Authenticatable
         if ($type == null || $type == 'apiary')
         {
             Cache::forget('user-'.$user_id.'-all-location-ids');
+            Cache::forget('user-'.$user_id.'-all-my-location-ids');
             Cache::forget('user-'.$user_id.'-all-hive-ids');
+            Cache::forget('user-'.$user_id.'-all-hive-ids-editable');
             Cache::forget('user-'.$user_id.'-apiaries');
             Cache::forget('locations-user-'.$user_id);
         }
@@ -149,7 +151,7 @@ class User extends Authenticatable
 
     public function groupHiveIds($editable = false)
     {
-        $cache_name = 'user-'.$this->id.'-group-hive-ids-'.($editable ? '-editable' : '');
+        $cache_name = 'user-'.$this->id.'-group-hive-ids'.($editable ? '-editable' : '');
         $hive_ids   = Cache::remember($cache_name, env('CACHE_TIMEOUT_LONG'), function () use ($editable){
             
             $group_ids = $this->groups->pluck('id')->toArray();
@@ -171,7 +173,8 @@ class User extends Authenticatable
 
     public function allHives($editable = false) // Including Group hives
     {
-        $all_ids = Cache::remember('user-'.$this->id.'-all-hive-ids', env('CACHE_TIMEOUT_LONG'), function () use ($editable) {
+        $cache_name = 'user-'.$this->id.'-all-hive-ids'.($editable ? '-editable' : '');
+        $all_ids = Cache::remember($cache_name, env('CACHE_TIMEOUT_LONG'), function () use ($editable) {
             $own_ids = $this->hives()->pluck('id');
             $hiv_ids = $this->groupHiveIds($editable);
             $all_ids = $own_ids->merge($hiv_ids);
@@ -198,7 +201,7 @@ class User extends Authenticatable
 
     public function allInspections($editable = false) // Including Group hive locations
     {
-        $cache_name = 'user-'.$this->id.'-all-'.($editable?'editable-':'').'inspection-ids';
+        $cache_name = 'user-'.$this->id.'-all'.($editable?'-editable':'').'-inspection-ids';
         $all_ids = Cache::remember($cache_name, env('CACHE_TIMEOUT_LONG'), function () use ($editable){
             $own_ids = $this->inspections()->pluck('id');
             $hiv_ids = $this->groupHiveIds($editable);
@@ -333,11 +336,12 @@ class User extends Authenticatable
         return $this->hasMany(Location::class);
     }
 
-    public function all_location_ids() // Including rental locations
+    public function all_location_ids($mine = false) // Including rental locations
     {
-        return Cache::remember('user-'.$this->id.'-all-location-ids', env('CACHE_TIMEOUT_LONG'), function () {
+        $cache_name = 'user-'.$this->id.'-all'.($mine?'-my':'').'-location-ids';
+        return Cache::remember($cache_name, env('CACHE_TIMEOUT_LONG'), function () {
             $own_ids = $this->locations()->pluck('id');
-            $hiv_ids = $this->groupHives($editable)->pluck('id');
+            $hiv_ids = $this->groupHives($mine)->pluck('id');
             $loc_ids = DB::table('hives')->whereIn('id',$hiv_ids)->distinct('hive_id')->pluck('location_id')->toArray();
             $all_ids = $own_ids->merge($loc_ids);
             return $all_ids;
@@ -346,7 +350,7 @@ class User extends Authenticatable
 
     public function allLocations($mine = false) // Including rental locations
     {
-        $all_ids = $this->all_location_ids();
+        $all_ids = $this->all_location_ids($mine);
         return Location::whereIn('id', $all_ids);
     }
 

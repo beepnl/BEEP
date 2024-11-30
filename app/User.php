@@ -339,7 +339,7 @@ class User extends Authenticatable
     public function all_location_ids($mine = false) // Including rental locations
     {
         $cache_name = 'user-'.$this->id.'-all'.($mine?'-my':'').'-location-ids';
-        return Cache::remember($cache_name, env('CACHE_TIMEOUT_LONG'), function () {
+        return Cache::remember($cache_name, env('CACHE_TIMEOUT_LONG'), function () use ($mine){
             $own_ids = $this->locations()->pluck('id');
             $hiv_ids = $this->groupHives($mine)->pluck('id');
             $loc_ids = DB::table('hives')->whereIn('id',$hiv_ids)->distinct('hive_id')->pluck('location_id')->toArray();

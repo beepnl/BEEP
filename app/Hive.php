@@ -128,7 +128,7 @@ class Hive extends Model
         $cat_id = Cache::rememberForever('hive-layer-type-id-honey', function () {
             return Category::findCategoryIdByParentAndName('hive_layer','honey');
         });
-        return  Cache::rememberForever("hive-$this->id-layer-count-honey", function () {
+        return  Cache::rememberForever("hive-$this->id-layer-count-honey", function () use ($cat_id) {
             return $this->layers()->where('category_id', $cat_id)->count();
         });
     }
@@ -138,7 +138,7 @@ class Hive extends Model
         $cat_id = Cache::rememberForever('hive-layer-type-id-brood', function () {
             return Category::findCategoryIdByParentAndName('hive_layer','brood');
         });
-        return  Cache::rememberForever("hive-$this->id-layer-count-brood", function () {
+        return  Cache::rememberForever("hive-$this->id-layer-count-brood", function () use ($cat_id) {
             return $this->layers()->where('category_id', $cat_id)->count();
         });
     }
@@ -148,7 +148,7 @@ class Hive extends Model
         $cat_id = Cache::rememberForever('hive-layer-type-id-feeding_box', function () {
             return Category::findCategoryIdByParentAndName('hive_layer','feeding_box');
         });
-        return  Cache::rememberForever("hive-$this->id-layer-count-feeding_box", function () {
+        return  Cache::rememberForever("hive-$this->id-layer-count-feeding_box", function () use ($cat_id) {
             return $this->layers()->where('category_id', $cat_id)->count();
         });
     }
@@ -158,7 +158,7 @@ class Hive extends Model
         $cat_id = Cache::rememberForever('hive-layer-type-id-queen_excluder', function () {
             return Category::findCategoryIdByParentAndName('hive_layer','queen_excluder');
         });
-        return  Cache::rememberForever("hive-$this->id-layer-count-queen_excluder", function () {
+        return  Cache::rememberForever("hive-$this->id-layer-count-queen_excluder", function () use ($cat_id) {
             return $this->layers()->where('category_id', $cat_id)->count();
         });
     }

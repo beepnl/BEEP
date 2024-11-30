@@ -71,6 +71,9 @@ class Inspection extends Model
         Cache::forget('inspection-'.$this->id.'-searchable-array');
         Log::debug("inspection ID $this->id cache emptied");
 
+        foreach ($this->hives as $hive)
+            $hive->empty_cache($clear_users);
+
         if ($clear_users)
         {
             $user_ids = $this->users()->pluck('id')->toArray();

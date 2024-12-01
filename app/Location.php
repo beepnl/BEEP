@@ -21,6 +21,7 @@ class Location extends Model
     protected $appends  = ['type', 'continent', 'owner'];
 
     public $timestamps = false;
+    public $prev_weather_time = null;
 
     // Caching
     public static function boot()
@@ -31,8 +32,13 @@ class Location extends Model
             $l->empty_cache();
         });
 
+        static::updating(function ($l) {
+            $l->prev_weather_time = $l->last_weather_time;
+        });
+
         static::updated(function ($l) {
-            $l->empty_cache();
+            if ($l->prev_weather_time == $l->last_weather_time) // do not empty cache by only weather time change
+                $l->empty_cache();
         });
 
         static::deleted(function ($l) {

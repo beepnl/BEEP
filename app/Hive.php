@@ -187,10 +187,10 @@ class Hive extends Model
     private function getLastInspectionItem($name)
     {
         $inspection = Cache::remember("hive-$this->id-last-inspection-item", 5, function () {
-            return $this->inspections()->orderBy('created_at','desc')->first()->toArray();
+            return $this->inspections()->orderBy('created_at','desc')->first();
         });
-        if (isset($inspection[$name]))
-            return $inspection[$name];
+        if (isset($inspection->{$name}))
+            return $inspection->{$name};
     }
 
     public function getAllInspectionDates()

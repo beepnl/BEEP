@@ -319,7 +319,7 @@ class GroupController extends Controller
                     $validUser->groups()->attach($group->id, ['creator'=>false,'admin'=>$admin,'invited'=>now(),'token'=>$token]);
                     $invite_grp[$validUser->email] = ['name'=>$name, 'admin'=>$admin, 'token'=>$token];
                 }
-                $validUser->emptyCache();
+                $validUser->emptyCache('group');
             }
             else
             {

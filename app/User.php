@@ -376,12 +376,13 @@ class User extends Authenticatable
         });
     }
 
-    public function groupsAndInvites(){
-
+    public function groupsAndInvites()
+    {
         return Cache::remember('user-'.$this->id.'-groups-and-invites', env('CACHE_TIMEOUT_LONG'), function () {
             $groups = $this->groups()->orderBy('name')->get();
             $invite = $this->groupInvitations();
-            return ['invitations'=>$invite, 'groups'=>$groups];
+            $date   = date('Y-m-d H:i:s');
+            return ['invitations'=>$invite, 'groups'=>$groups, 'cache_date'=>$date];
         });
     }
 

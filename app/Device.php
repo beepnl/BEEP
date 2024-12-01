@@ -27,7 +27,6 @@ class Device extends Model
     protected $appends  = ['type','hive_name', 'location_name', 'owner', 'online'];
 
     public $timestamps  = false;
-    public $old_hive_id = null;
 
     public static function boot()
     {
@@ -38,15 +37,11 @@ class Device extends Model
             $d->empty_cache();
         });
 
-        static::updating(function ($d) {
-            $d->old_hive_id = $d->hive_id;
-        });
-
         static::updated(function ($d) {
-            if ($d->old_hive_id != $d->hive_id)
+            if ($d->wasChanged('hive_id'))
             {
-                Log::info("Updated Device $d->id hive_id from $d->old_hive_id to $d->hive_id");
-                $d->empty_cache(false);
+                Log::info("Updated Device $d->id hive_id to $d->hive_id");
+                $d->empty_cache();
             }
         });
 

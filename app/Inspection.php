@@ -72,7 +72,7 @@ class Inspection extends Model
         Log::debug("inspection ID $this->id cache emptied");
 
         foreach ($this->hives as $hive)
-            $hive->empty_cache($clear_users);
+            $hive->empty_cache(false);
 
         if ($clear_users)
         {

@@ -57,6 +57,7 @@ class Hive extends Model
         Cache::forget("hive-$this->id-layer-count-feeding_box");
         Cache::forget("hive-$this->id-layer-count-queen_excluder");
         Cache::forget("hive-$this->id-location-name");
+        Cache::forget("hive-$this->id-last-inspection-item");
 
         Log::debug("Hive ID $this->id cache emptied");
 
@@ -185,11 +186,11 @@ class Hive extends Model
 
     private function getLastInspectionItem($name)
     {
-        $item = $this->inspections()->orderBy('created_at','desc')->first();
-        if (isset($item[$name]))
-            return $item[$name];
-
-        return null;
+        $inspection = Cache::remember("hive-$this->id-last-inspection-item", 5, function () {
+            return $this->inspections()->orderBy('created_at','desc')->first()->toArray();
+        });
+        if (isset($inspection[$name]))
+            return $inspection[$name];
     }
 
     public function getAllInspectionDates()

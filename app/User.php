@@ -73,6 +73,7 @@ class User extends Authenticatable
         {
             Cache::forget('user-'.$user_id.'-all-inspection-ids');
             Cache::forget('user-'.$user_id.'-all-editable-inspection-ids');
+            Cache::forget('user-'.$user_id.'-apiaries'); // clear cached apiaries, for last inspection on hive
         }
 
         if ($type == null || $type == 'apiary')

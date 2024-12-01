@@ -143,6 +143,8 @@ class Weather extends Model
         $locations = Location::where('coordinate_lat', '!=', null)->where('coordinate_lon', '!=', null)->get();
 
         $count = 0;
+        $time  = time();
+        Log::info('Weather::updateLocations()');
 
         foreach ($locations as $loc) 
         {
@@ -153,8 +155,8 @@ class Weather extends Model
                     $count++;
             }
         }
-
-        $msg = 'weather_updated_'.$count.'_locations';
+        $secs = time() - $time;
+        $msg  = "Weather::updateLocations() updated $count locations in $secs sec";
 
         Log::info($msg);
         return $msg;

@@ -38,11 +38,24 @@ class Device extends Model
         });
 
         static::updated(function ($d) {
+            $empty_cache = false;
             if ($d->wasChanged('hive_id'))
             {
-                Log::info("Updated Device $d->id hive_id to $d->hive_id");
-                $d->empty_cache();
+                Log::info("Updated Device id=$d->id hive_id to $d->hive_id");
+                $empty_cache = true;
             }
+            if ($d->wasChanged('key'))
+            {
+                Log::info("Updated Device id=$d->id key to $d->key");
+                $empty_cache = true;
+            }
+            if ($d->wasChanged('name'))
+            {
+                Log::info("Updated Device id=$d->id name to $d->name");
+                $empty_cache = true;
+            }
+            if ($empty_cache)
+                $d->empty_cache();
         });
 
         static::deleted(function ($d) {

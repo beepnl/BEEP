@@ -39,6 +39,21 @@ class Device extends Model
 
         static::updated(function ($d) {
             $empty_cache = false;
+            if ($d->wasChanged('deleted_at'))
+            {
+                Log::info("Updated Device id=$d->id deleted_at to $d->deleted_at");
+                $empty_cache = true;
+            }
+            if ($d->wasChanged('user_id'))
+            {
+                Log::info("Updated Device id=$d->id user_id to $d->user_id");
+                $empty_cache = true;
+            }
+            if ($d->wasChanged('firmware_version'))
+            {
+                Log::info("Updated Device id=$d->id firmware_version to $d->firmware_version");
+                $empty_cache = true;
+            }
             if ($d->wasChanged('hive_id'))
             {
                 Log::info("Updated Device id=$d->id hive_id to $d->hive_id");

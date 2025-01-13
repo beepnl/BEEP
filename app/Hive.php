@@ -26,6 +26,11 @@ class Hive extends Model
     {
         parent::boot();
 
+        static::created(function($h)
+        {   
+            $h->empty_cache();
+        });
+
         static::updated(function($h)
         {   
             $h->empty_cache();

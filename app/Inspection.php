@@ -50,7 +50,7 @@ class Inspection extends Model
         parent::boot();
 
         static::created(function ($i) {
-            //Log::info("Created Device $d->id $d->name");
+            //Log::info("Created Inspection $i->id");
             $i->empty_cache();
         });
 

@@ -260,6 +260,7 @@ class InspectionsController extends Controller
         if ($validator->fails())
             return response()->json(['errors'=>$validator->errors()], 422);
 
+        $user = Auth::user();
         if ($request->filled('date') && ( $request->filled('items') || ($request->filled('item_ids') && $request->filled('item_vals')) ) )
         {
             $moment               = new Moment($request->input('date'));
@@ -297,7 +298,6 @@ class InspectionsController extends Controller
                 $items = $request->input('items');  
             }
 
-            $user         = Auth::user();
             $location     = $user->allLocations(true)->find($request->input('location_id'));
 
             $hive_ids     = [];
@@ -381,7 +381,11 @@ class InspectionsController extends Controller
         }
 
         if (isset($inspection))
+        {
+            // Empty user cache, because the inspection if synced 
+            $user->emptyCache('inspection');
             return response()->json($inspection->id, 201);
+        }
 
         return response()->json('error', 500);
 

@@ -994,7 +994,7 @@ class MeasurementController extends Controller
     api/sensors/flashlog
     POST data from BEEP base fw 1.5.0+ FLASH log (with timestamp), interpret data and store in InlfuxDB (overwriting existing data). BEEP base BLE cmd: when the response is 200 OK and erase_mx_flash > -1, provide the ERASE_MX_FLASH BLE command (0x21) to the BEEP base with the last byte being the HEX value of the erase_mx_flash value (0 = 0x00, 1 = 0x01, i.e.0x2100, or 0x2101, i.e. erase_type:"fatfs", or erase_type:"full")
     @authenticated
-    @bodyParam id integer Device id to update. (Required without key and hardware_id)
+    @bodyParam id integer Device id to target. (Required without key and hardware_id)
     @bodyParam key string DEV EUI of the sensor to enable storing sensor data incoming on the api/sensors or api/lora_sensors endpoint. (Required without id and hardware_id)
     @bodyParam hardware_id string Hardware id of the device as device name in TTN. (Required without id and key)
     @bodyParam data string MX_FLASH_LOG Hexadecimal string lines (new line) separated, with many rows of log data, or text file binary with all data inside.

@@ -51,10 +51,11 @@ class Group extends Model
 
         if ($clear_users)
         {
-            Cache::forget('group-'.$this->id.'-users');
             foreach ($this->group_users as $user) {
                 $user->emptyCache('group');
             }
+            // clear group users cache after clearing users cache 
+            Cache::forget('group-'.$this->id.'-users');
         }
     }
 

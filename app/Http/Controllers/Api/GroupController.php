@@ -28,7 +28,25 @@ class GroupController extends Controller
 
     public function index(Request $request, $code=200, $message=null, $error=null)
     {
-        $groupsAndInvites = $request->user()->groupsAndInvites();
+        if ($request->filled('ids'))
+        {
+            if (gettype($request->input('ids') == 'array'))
+                $group_ids = $request->input('ids');
+            else
+                $group_ids = explode(',', $request->input('ids'));
+        }
+
+        if (isset($group_ids))
+        {
+            $groupsAndInvites = [];
+            $groupsAndInvites['invitations'] = $request->user()->groupInvitations();
+            $groupsAndInvites['groups']      = $request->user()->groups()->whereIn('id', $group_ids)->orderBy('name')->get();
+        }
+        else
+        {
+            $groupsAndInvites = $request->user()->groupsAndInvites();
+        }
+        
         $groupsAndInvites['message'] = $message;
         $groupsAndInvites['error']   = $error;
         return response()->json($groupsAndInvites, $code);

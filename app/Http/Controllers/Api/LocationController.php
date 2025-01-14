@@ -38,10 +38,26 @@ class LocationController extends Controller
      */
     public function index(Request $request)
     {
-        if ($request->filled('root') && $request->input('root'))
-            return response()->json(['locations'=>$request->user()->locations()->get()]);
+        if ($request->filled('ids'))
+        {
+            if (gettype($request->input('ids') == 'array'))
+                $location_ids = $request->input('ids');
+            else
+                $location_ids = explode(',', $request->input('ids'));
+        }
 
-        $locations = $request->user()->allApiaries();
+        if ($request->filled('root') && $request->input('root'))
+        {
+            if (isset($location_ids))
+                return response()->json(['locations'=>$request->user()->locations()->whereIn('id', $location_ids)->get()]);
+            else
+                return response()->json(['locations'=>$request->user()->locations()->get()]);
+        }
+
+        if (isset($location_ids))
+            $locations = $request->user()->locations()->whereIn('id', $location_ids)->with(['hives.layers', 'hives.queen'])->get();
+        else
+            $locations = $request->user()->allApiaries();
 
         return response()->json(['locations'=>$locations]); // removed with(['hives.layers.frames', 'hives.queen'])
     }

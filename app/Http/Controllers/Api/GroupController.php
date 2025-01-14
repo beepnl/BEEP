@@ -30,13 +30,10 @@ class GroupController extends Controller
     {
         if ($request->filled('ids'))
         {
-            if (gettype($request->input('ids') == 'array'))
+            if (gettype($request->input('ids')) == 'array')
                 $group_ids = $request->input('ids');
             else
                 $group_ids = explode(',', $request->input('ids'));
-
-            foreach ($group_ids as $key => $value)
-                $group_ids[$key] = intval($value);
         }
 
         if (isset($group_ids) && gettype($group_ids) == 'array')

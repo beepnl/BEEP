@@ -40,13 +40,10 @@ class LocationController extends Controller
     {
         if ($request->filled('ids'))
         {
-            if (gettype($request->input('ids') == 'array'))
+            if (gettype($request->input('ids')) == 'array')
                 $location_ids = $request->input('ids');
             else
                 $location_ids = explode(',', $request->input('ids'));
-
-            foreach ($location_ids as $key => $value)
-                $location_ids[$key] = intval($value);
         }
 
         if ($request->filled('root') && $request->input('root'))

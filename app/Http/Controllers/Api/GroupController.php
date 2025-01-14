@@ -30,13 +30,10 @@ class GroupController extends Controller
     {
         if ($request->filled('ids'))
         {
-            if (gettype($request->input('ids') == 'array'))
-                $group_ids = $request->input('ids');
-            else
-                $group_ids = explode(',', $request->input('ids'));
+            $group_ids = explode(',', $request->input('ids'));
         }
 
-        if (isset($group_ids))
+        if (isset($group_ids) && gettype($group_ids) == 'array')
         {
             $groupsAndInvites = [];
             $groupsAndInvites['invitations'] = $request->user()->groupInvitations();

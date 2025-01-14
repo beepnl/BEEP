@@ -54,7 +54,7 @@ class LocationController extends Controller
                 return response()->json(['locations'=>$request->user()->locations()->get()]);
         }
 
-        if (isset($location_ids))
+        if (isset($location_ids) && gettype($location_ids) == 'array')
             $locations = $request->user()->locations()->whereIn('id', $location_ids)->with(['hives.layers', 'hives.queen'])->get();
         else
             $locations = $request->user()->allApiaries();

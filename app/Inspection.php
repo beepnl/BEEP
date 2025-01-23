@@ -114,7 +114,7 @@ class Inspection extends Model
         });
     }
 
-    public function getHiveIdsAttribute()
+    public function getHiveIdAttribute()
     {
         $hive_ids = $this->getHiveIdsAttribute();
         return count($hive_ids) > 0 ? $hive_ids[0] : null;

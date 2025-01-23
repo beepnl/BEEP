@@ -26,6 +26,11 @@ class InspectionsController extends Controller
     /**
     api/inspections GET
     Show the 'inspections' list with objects reflecting only the general inspection data.
+    @bodyParam hive_ids array Only show inspections connected to hive_ids.
+    @bodyParam search string Filter on text inside notes, reminder, created_at, reminder_date, inspection item names/values. Example: test
+    @bodyParam id integer Filter on one specific inspection id if filled. Example: 23
+    @bodyParam start string Date >= (YYYY-MM-DD HH:mm:ss) to filter inspections from. Example: 2024-02-14 00:00:00
+    @bodyParam end string Date <= (YYYY-MM-DD HH:mm:ss) to filter inspections to. Example: 2024-02-18 00:00:00
     @authenticated
     **/
     public function index(Request $request)
@@ -44,8 +49,37 @@ class InspectionsController extends Controller
                                         ->orWhere('created_at', 'LIKE', '%'.$search.'%')
                                         ->orWhere('reminder', 'LIKE', '%'.$search.'%')
                                         ->orWhere('id', intval($search));
+
+            if ($request->filled('start'))
+                $inspections = $inspections->where('created_at', '>=', $request->input('start'));
+
+            if ($request->filled('end'))
+                $inspections = $inspections->where('created_at', '<=', $request->input('end'));
         }
         
+        // Add filters on items with appends
+        if ($request->filled('hive_ids')) {
+            $hive_ids_in = $request->input('hive_ids');
+            $hive_ids    = gettype($hive_ids_in) == 'array' ? $hive_ids_in : explode(',', $hive_ids_in);
+            // filter by occurence in hive_ids array 
+            $inspections = $inspections->reject(function (Inspection $ins, int $key) use ($hive_ids){
+                return in_array($ins->hive_id, $hive_ids) === false;
+            });
+        }
+
+        if ($request->filled('location_ids')) {
+            $location_ids_in = $request->input('location_ids');
+            $location_ids    = gettype($location_ids_in) == 'array' ? $location_ids_in : explode(',', $location_ids_in);
+            // filter by occurence in location_ids array 
+            $inspections = $inspections->reject(function (Inspection $ins, int $key) use ($location_ids){
+                return in_array($ins->location_id, $location_ids) === false;
+            });
+        }
+
+        if (empty($inspections)) {
+            return response()->json(null, 404);
+        }
+
         if ($inspections->count() == 0)
             return response()->json(null, 404);
 

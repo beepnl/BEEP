@@ -38,9 +38,9 @@ class Inspection extends Model
      */
     protected $fillable = ['notes', 'created_at', 'impression', 'attention', 'reminder', 'reminder_date', 'checklist_id', 'image_id'];
 
-    protected $hidden   = ['pivot','deleted_at', 'hives', 'items'];
+    protected $hidden   = ['pivot','deleted_at', 'hives', 'locations', 'items'];
 
-    protected $appends  = ['owner', 'thumb_url', 'hive_id', 'item_count', 'searchable'];
+    protected $appends  = ['owner', 'thumb_url', 'hive_id', 'location_id', 'item_count', 'searchable'];
 
     public $timestamps = false;
 
@@ -68,7 +68,11 @@ class Inspection extends Model
     // Cache functions
     public function empty_cache($clear_users=true)
     {
+        Cache::forget('inspection-'.$this->id.'-hive-ids');
+        Cache::forget('inspection-'.$this->id.'-location-ids');
+        Cache::forget('inspection-'.$this->id.'-item-count');
         Cache::forget('inspection-'.$this->id.'-searchable-array');
+        
         Log::debug("inspection ID $this->id cache emptied");
 
         foreach ($this->hives as $hive)
@@ -102,17 +106,40 @@ class Inspection extends Model
         return null;
     }
 
-    public function getHiveIdAttribute()
+    public function getHiveIdsAttribute()
     {
-        if ($this->hives()->count() > 0)
-            return $this->hives()->first()->id;
+        return Cache::rememberForever('inspection-'.$this->id.'-hive-ids', function ()
+        {
+            return $this->hives()->pluck('id')->toArray();
+        });
+    }
 
-        return null;
+    public function getHiveIdsAttribute()
+    {
+        $hive_ids = $this->getHiveIdsAttribute();
+        return count($hive_ids) > 0 ? $hive_ids[0] : null;
+    }
+
+    public function getLocationIdsAttribute()
+    {
+        return Cache::rememberForever('inspection-'.$this->id.'-location-ids', function ()
+        {
+            return $this->locations()->pluck('id')->toArray();
+        });
+    }
+
+    public function getLocationIdAttribute()
+    {
+        $loc_ids = $this->getLocationIdsAttribute();
+        return count($loc_ids) > 0 ? $loc_ids[0] : null;
     }
 
     public function getItemCountAttribute()
     {
-        return $this->items()->count();
+        return Cache::rememberForever('inspection-'.$this->id.'-item-count', function ()
+        {
+            return $this->items()->count();
+        });
     }
 
     public function getSearchableAttribute()

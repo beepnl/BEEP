@@ -941,20 +941,24 @@ class ResearchController extends Controller
         {
             foreach ($day_arr as $asset => $count) 
             {
-                if ($asset == 'inspections' || $asset == 'measurements' || $asset == 'measurements_imported' || $asset == 'measurements_total' || $asset == 'data_completeness' || $asset == 'weather' || $asset == 'samplecodes' || $asset == 'flashlogs' || $asset == 'alerts')
-                    $totals[$asset] += $count;
-                else
-                    $totals[$asset] = max($totals[$asset], $count);
+                if (is_numeric($count))
+                {
+                    if ($asset == 'inspections' || $asset == 'measurements' || $asset == 'measurements_imported' || $asset == 'measurements_total' || $asset == 'data_completeness' || $asset == 'data_completeness_online' || $asset == 'weather' || $asset == 'samplecodes' || $asset == 'flashlogs' || $asset == 'alerts')
+                        $totals[$asset] += $count;
+                    else
+                        $totals[$asset] = max($totals[$asset], $count);
 
-                if ($asset == 'measurements_total' && $count > 0)
-                    $data_days++;
+                    if ($asset == 'measurements_total' && $count > 0)
+                        $data_days++;
+                }
             }
         }
 
         // Average data completenes
         if ($data_days > 0)
         {
-            $totals['data_completeness'] = round($totals['data_completeness'] / $data_days);
+            $totals['data_completeness']        = round($totals['data_completeness'] / $data_days);
+            $totals['data_completeness_online'] = round($totals['data_completeness_online'] / $data_days);
         }
 
         // Export data, show download link

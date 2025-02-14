@@ -531,9 +531,13 @@ class ResearchController extends Controller
                             __('export.deleted_at')]
                         ];
 
-            $spreadsheet_array['Weather data'] = [
+            if ($dl_sensordata)
+                $spreadsheet_array['Weather data'] = [
                             ['User_id',
                             'Device_id',
+                            'Location_id',
+                            'Location_lat',
+                            'Location_lon',
                             'Date from',
                             'Date to',
                             'Data file']
@@ -854,7 +858,7 @@ class ResearchController extends Controller
                                         $filePath = $this->exportCsvFromInflux($where, $fileName, '*', 'sensors');
                                         if ($filePath)
                                         {
-                                            $spreadsheet_array['Sensor data'][] = [$user_id, $device->id, $date_curr_consent, $date_next_consent, $filePath];
+                                            $spreadsheet_array['Sensor data'][] = [$user_id, $device->id, $date_curr_consent, $date_next_consent, "$filePath"];
                                             $sensor_urls[$fileName] = $filePath;
                                         }
 
@@ -867,7 +871,7 @@ class ResearchController extends Controller
                                             $filePath = $this->exportCsvFromInflux($where, $fileName, '*', 'weather');
                                             if ($filePath)
                                             {
-                                                $spreadsheet_array['Weather data'][] = [$user_id, $device->id, $date_curr_consent, $date_next_consent, $filePath];
+                                                $spreadsheet_array['Weather data'][] = [$user_id, $device->id, $loc->id, $loc->coordinate_lat, $loc->coordinate_lon, $date_curr_consent, $date_next_consent, "$filePath"];
                                                 $sensor_urls[$fileName] = $filePath;
                                             }
                                         }

@@ -57,6 +57,8 @@ class InspectionsController extends Controller
                 $inspections = $inspections->where('created_at', '<=', $request->input('end'));
         }
         
+        $inspections = $inspections->get(); // convert query to collection
+
         // Add filters on items with appends
         if ($request->filled('hive_ids')) {
             $hive_ids_in = $request->input('hive_ids');
@@ -83,7 +85,7 @@ class InspectionsController extends Controller
         if ($inspections->count() == 0)
             return response()->json(null, 404);
 
-        return response()->json($inspections->get());
+        return response()->json($inspections);
     }
 
 

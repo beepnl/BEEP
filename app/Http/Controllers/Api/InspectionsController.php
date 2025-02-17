@@ -146,6 +146,13 @@ class InspectionsController extends Controller
     List all inspections linked to Hive id. The 'inspections' object contains a descending date ordered list of general inspection data. The 'items_by_date' object contains a list of (rows of) inspection items that can be placed (in columns) under the inspections by created_at date (table format). NB: Use 'Accept-Language' Header (default nl_NL) to provide localized category names (anc, name) in items_by_date. 
     @authenticated
     @urlParam hive_id required The hive to request inspections from. 
+    @bodyParam search string Filter inspections on text inside notes, reminder, created_at, reminder_date, inspection item names/values. Example: test
+    bodyParam id integer If provided, select single inspection. Example: 15
+    @bodyParam impression string Filter by one or more impression values 1-3 (smileys). Default: null. Example: 2,3
+    @bodyParam attention boolean Filter by having attention set (0-1). Default: null. Example: null
+    @bodyParam reminder boolean Filter by having a reminder set (0-1). Default: null. Example: This is an inspection reminder
+    @bodyParam start string Date >= (YYYY-MM-DD HH:mm:ss) to filter inspections from. Default: null. Example: 2024-02-14 00:00:00
+    @bodyParam end string Date <= (YYYY-MM-DD HH:mm:ss) to filter inspections to. Default: null. Example: 2024-02-18 00:00:00
     @response {
     "inspections": [
         {

@@ -301,6 +301,12 @@ class Hive extends Model
         }
         else
         {
+            if ($request->filled('start'))
+                $inspections = $inspections->where('created_at', '>=', $request->input('start'));
+
+            if ($request->filled('end'))
+                $inspections = $inspections->where('created_at', '<=', $request->input('end'));
+
             if (!empty($search)) {
                 $inspections = $inspections->filter(function($item) use ($search){
                     $match = 0;

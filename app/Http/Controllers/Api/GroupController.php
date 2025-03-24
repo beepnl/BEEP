@@ -78,21 +78,29 @@ class GroupController extends Controller
         else
         {
             $valid_data     = $validator->validated();
-            $group_user_id  = DB::table('group_user')->where('token',$valid_data['token'])->where('group_id',$valid_data['group_id'])->value('user_id');
-            $user_name      = User::where('id',$group_user_id)->value('name');
+            $group_id       = $valid_data['group_id'];
+            $token          = $valid_data['token'];
             $decline        = (isset($valid_data['decline']) && boolval($valid_data['decline']) === true) ? true : false;
+            $group_user_id  = DB::table('group_user')->where('token',$token)->where('group_id',$group_id)->value('user_id');
+            $user_name      = User::where('id',$group_user_id)->value('name');
 
             if ($decline)
-                $res = DB::table('group_user')->where('token',$valid_data['token'])->where('group_id',$valid_data['group_id'])->update(['invited'=>null,'accepted'=>null,'declined'=>now(),'token'=>null]);
+                $res = DB::table('group_user')->where('token',$token)->where('group_id',$group_id)->update(['invited'=>null,'accepted'=>null,'declined'=>now(),'token'=>null]);
             else
-                $res = DB::table('group_user')->where('token',$valid_data['token'])->where('group_id',$valid_data['group_id'])->update(['invited'=>null,'accepted'=>now(),'declined'=>null,'token'=>null]);
+                $res = DB::table('group_user')->where('token',$token)->where('group_id',$group_id)->update(['invited'=>null,'accepted'=>now(),'declined'=>null,'token'=>null]);
 
             if ($res)
             {
-                $this->sendAcceptMailToGroupAdmins($valid_data['group_id'], $user_name, $group_user_id, $decline);
+                $this->sendAcceptMailToGroupAdmins($group_id, $user_name, $group_user_id, $decline);
                 $msg = $decline ? 'group_declined' : 'group_activated'; 
                 return response()->json(['message'=>$msg]);
             }
+
+            // Empty group cache upon new member
+            $group = Group::where('id', $group_id)->first();
+            if ($group)
+                $group->empty_cache();
+
         }
         return response()->json('token_error',500);
     }

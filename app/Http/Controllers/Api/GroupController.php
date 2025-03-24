@@ -93,13 +93,14 @@ class GroupController extends Controller
             {
                 $this->sendAcceptMailToGroupAdmins($group_id, $user_name, $group_user_id, $decline);
                 $msg = $decline ? 'group_declined' : 'group_activated'; 
+                // Empty group cache upon new member
+                $group = Group::where('id', $group_id)->first();
+                if ($group)
+                    $group->empty_cache();
+                
                 return response()->json(['message'=>$msg]);
             }
 
-            // Empty group cache upon new member
-            $group = Group::where('id', $group_id)->first();
-            if ($group)
-                $group->empty_cache();
 
         }
         return response()->json('token_error',500);

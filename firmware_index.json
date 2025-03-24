@@ -3,7 +3,7 @@
         "version": "1.6.1",
         "release_date": "2025-02-07T14:50:00Z",
         "release_notes": "BEEP base 1.6.1 should fix occasional high energy consumption when a real time clock (RTC DS3231) is installed inside the BEEP base.",
-        "stability": "test",
+        "stability": "stable",
         "size": 185554,
         "download_url": "https://assets.beep.nl/firmware/basev3/1.6.1/Beepbase_app_1.61.zip"
     },

@@ -25,15 +25,19 @@ use Validator;
  */
 class GroupController extends Controller
 {
-
+    /**
+     * api/groups GET
+     * List all groups, or by ids
+     * @authenticated
+     * @urlParam ids string P
+     */
     public function index(Request $request, $code=200, $message=null, $error=null)
     {
         if ($request->filled('ids'))
         {
-            if (gettype($request->input('ids')) == 'array')
-                $group_ids = $request->input('ids');
-            else
-                $group_ids = explode(',', $request->input('ids'));
+            $group_ids = $request->input('ids');
+            if (gettype($group_ids) == 'string')
+                $group_ids = explode(',', $group_ids);
         }
 
         if (isset($group_ids) && gettype($group_ids) == 'array')

@@ -77,12 +77,10 @@ class Group extends Model
 
     public function getUsersAttribute()
     {
-        // return Cache::remember('group-'.$this->id.'-users', env('CACHE_TIMEOUT_LONG'), function () {
+        return Cache::remember('group-'.$this->id.'-users', env('CACHE_TIMEOUT_LONG'), function () {
             return $this->group_users()->withPivot('admin', 'creator', 'invited', 'accepted', 'declined', 'token')->get()->map(function ($item, $key)
             {
                 $user            = $item->only(['id','name','avatar','email']);
-                Log::debug('group-'.$this->id.'-users');
-                Log::debug($item);
                 $user['admin']   = (bool)$item->pivot->admin;
                 $user['creator'] = (bool)$item->pivot->creator;
                 $user['invited'] = $item->pivot->invited;
@@ -92,7 +90,7 @@ class Group extends Model
 
                 return $user; 
             });
-        // });
+        });
     }
 
     public function getAdminAttribute()

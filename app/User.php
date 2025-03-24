@@ -367,10 +367,9 @@ class User extends Authenticatable
         return $this->belongsToMany(Group::class, 'group_user')->whereNotNull('invited')->whereNull('accepted')->whereNull('declined')->get()->map(function ($item, $key) use ($user_id)
         {
             $invite              = $item->only(['id','name','description','color']);
-            Log::debug($item->users);
-            $groupUserArray      = $item->users->where('id',$user_id)->first();
+            $groupUserArray      = $item->users->firstWhere('id',$user_id);
             $invite['invited']   = (isset($groupUserArray['invited'])) ? $groupUserArray['invited'] : null;
-            $invite['token']     = (isset($groupUserArray['token'])) ? $groupUserArray['token'] : null;
+            $invite['token']     = (isset($groupUserArray['token'])) && $user_id == Auth::user()->id ? $groupUserArray['token'] : null; // only if yourself, add tokens to accept group invites
             $invite['hivecount'] = $item->hives->count();
             $invite['usercount'] = $item->users->whereNotNull('accepted')->count();
             return $invite; 

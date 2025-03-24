@@ -86,8 +86,7 @@ class Group extends Model
                 $user['invited'] = $item->pivot->invited;
                 $user['accepted']= $item->pivot->accepted;
                 $user['declined']= $item->pivot->declined;
-                $user['token']   = ($user['id'] == Auth::user()->id) ? $item->pivot->token : null; // only if yourself, add tokens to accept group invites
-
+                $user['token']   = $item->pivot->token; 
                 return $user; 
             });
         });

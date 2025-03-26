@@ -175,6 +175,7 @@ class GroupController extends Controller
         if ($group)
         {
             $this->syncHives($request, $group);
+            $group->empty_cache();
             
             if ($group->getAdminAttribute())
             {
@@ -196,10 +197,12 @@ class GroupController extends Controller
 
     public function detach(Request $request, $id)
     {
-        $res = $this->detachFromGroup($request->user(), $request->user()->groups()->findOrFail($id));
-        if ($res)
+        $group = $request->user()->groups()->findOrFail($id);
+        if ($group)
         {
-            return response()->json(['message'=>'group_detached'], 200);
+            $res   = $this->detachFromGroup($request->user(), $group);
+            if ($res)
+                return response()->json(['message'=>'group_detached'], 200);
         }
 
         return response()->json(['error'=>'no_group_detached'], 404);
@@ -250,7 +253,6 @@ class GroupController extends Controller
             if (in_array($hive_id, $edit_ids))
                 $sync_ids[$hive_id] = ['edit_hive'=>true];
         }
-        $group->empty_cache(false);
         return $group->group_hives()->sync($sync_ids);
     }
 

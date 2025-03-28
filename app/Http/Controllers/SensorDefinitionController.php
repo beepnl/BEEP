@@ -102,7 +102,7 @@ class SensorDefinitionController extends Controller
     {
         
         $requestData = $request->all();
-        
+        $requestData['updated_at'] = str_replace('T', ' ', $requestData['updated_at']);
         SensorDefinition::create($requestData);
 
         return redirect('sensordefinition')->with('flash_message', 'SensorDefinition added!');
@@ -148,7 +148,7 @@ class SensorDefinitionController extends Controller
     {
         
         $requestData = $request->all();
-        
+        $requestData['updated_at'] = str_replace('T', ' ', $requestData['updated_at']);
         $sensordefinition = SensorDefinition::findOrFail($id);
         $sensordefinition->update($requestData);
 

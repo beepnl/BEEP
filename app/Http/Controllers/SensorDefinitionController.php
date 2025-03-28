@@ -107,7 +107,7 @@ class SensorDefinitionController extends Controller
         ]);
         $requestData = $request->all();
         
-        $requestData['updated_at'] = str_replace('T', ' ', $requestData['updated_at']);
+        $requestData['updated_at'] = str_replace('T', ' ', $requestData['updated_at']).':00';
 
         SensorDefinition::create($requestData);
 
@@ -158,8 +158,8 @@ class SensorDefinitionController extends Controller
         ]);
         $sensordefinition = SensorDefinition::findOrFail($id);
         $requestData = $request->all();
-        $requestData['updated_at'] = str_replace('T', ' ', $requestData['updated_at']);
-        Log::debug($requestData);
+        $requestData['updated_at'] = str_replace('T', ' ', $requestData['updated_at']).':00';
+        //Log::debug($requestData);
         $sensordefinition->update($requestData);
 
         return redirect('sensordefinition')->with('flash_message', 'SensorDefinition updated!');

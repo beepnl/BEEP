@@ -1,4 +1,4 @@
-<div class="col-xs-12">
+<div class="col-md-6 col-xs-12">
 	<div class="form-group {{ $errors->has('name') ? 'has-error' : ''}}">
 	    <label for="name" control-label>{{ 'Name' }}</label>
 	    <div>
@@ -7,7 +7,16 @@
 	    </div>
 	</div>
 </div>
-<div class="col-xs-12">
+<div class="col-md-6 col-xs-12">
+	<div class="form-group {{ $errors->has('updated_at') ? 'has-error' : ''}}">
+	    <label for="updated_at" control-label>Calibration start date (Updated at)</label>
+	    <div>
+	        <input class="form-control" name="updated_at" type="datetime-local" id="updated_at" value="{{ isset($sensordefinition->updated_at) ? substr(str_replace(' ', 'T', $sensordefinition->updated_at), 0, 16) : '' }}">
+	        {!! $errors->first('updated_at', '<p class="help-block">:message</p>') !!}
+	    </div>
+	</div>
+</div>
+<div class="col-md-4 col-xs-12">
 	<div class="form-group {{ $errors->has('inside') ? 'has-error' : ''}}">
 	    <label for="inside" control-label>{{ 'Inside' }}</label>
 	    <div>
@@ -16,7 +25,7 @@
 	    </div>
 	</div>
 </div>
-<div class="col-xs-12">
+<div class="col-md-4 col-xs-12">
 	<div class="form-group {{ $errors->has('offset') ? 'has-error' : ''}}">
 	    <label for="offset" control-label>{{ 'Offset (zero Value)' }}</label>
 	    <div>
@@ -25,7 +34,7 @@
 	    </div>
 	</div>
 </div>
-<div class="col-xs-12">
+<div class="col-md-4 col-xs-12">
 	<div class="form-group {{ $errors->has('multiplier') ? 'has-error' : ''}}">
 	    <label for="multiplier" control-label>{{ 'Unit Per Value' }}</label>
 	    <div>
@@ -35,7 +44,7 @@
 	</div>
 </div>
 
-<div class="col-xs-12">
+<div class="col-md-6 col-xs-12">
 	<div class="form-group {{ $errors->has('input_measurement_id') ? 'has-error' : ''}}">
 	    <label for="input_measurement_id" control-label>{{ 'Measurement' }}</label>
 	    <div>
@@ -45,7 +54,7 @@
 	</div>
 </div>
 
-<div class="col-xs-12">
+<div class="col-md-6 col-xs-12">
 	<div class="form-group {{ $errors->has('output_measurement_id') ? 'has-error' : ''}}">
 	    <label for="output_measurement_id" control-label>{{ 'Measurement' }}</label>
 	    <div>

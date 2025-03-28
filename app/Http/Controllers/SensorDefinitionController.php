@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Log;
 
 use App\User;
 use App\Device;
@@ -100,9 +101,14 @@ class SensorDefinitionController extends Controller
      */
     public function store(Request $request)
     {
-        
+        $this->validate($request, [
+            'device_id' => 'required|integer|exists:sensors,id',
+            'input_measurement_id' => 'integer|exists:measurements,id',
+        ]);
         $requestData = $request->all();
+        
         $requestData['updated_at'] = str_replace('T', ' ', $requestData['updated_at']);
+
         SensorDefinition::create($requestData);
 
         return redirect('sensordefinition')->with('flash_message', 'SensorDefinition added!');
@@ -146,10 +152,14 @@ class SensorDefinitionController extends Controller
      */
     public function update(Request $request, $id)
     {
-        
+        $this->validate($request, [
+            'device_id' => 'required|integer|exists:sensors,id',
+            'input_measurement_id' => 'integer|exists:measurements,id',
+        ]);
+        $sensordefinition = SensorDefinition::findOrFail($id);
         $requestData = $request->all();
         $requestData['updated_at'] = str_replace('T', ' ', $requestData['updated_at']);
-        $sensordefinition = SensorDefinition::findOrFail($id);
+        Log::debug($requestData);
         $sensordefinition->update($requestData);
 
         return redirect('sensordefinition')->with('flash_message', 'SensorDefinition updated!');

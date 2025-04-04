@@ -1466,7 +1466,7 @@ class MeasurementController extends Controller
             $measurement_id   = Measurement::getIdByAbbreviation($name);
             $sensordefinition = $device->sensorDefinitions->where('output_measurement_id', $measurement_id)->sortByDesc('updated_at')->first();
             if ($sensordefinition)
-                $sensorDefinitions["$name"] = ['name'=>$sensordefinition->name, 'inside'=>$sensordefinition->inside];
+                $sensorDefinitions["$name"] = $sensordefinition->toArray();
         }
 
         //Get the data interval
@@ -1990,7 +1990,7 @@ class MeasurementController extends Controller
             foreach($devices as $device){
                 $sensordefinition = $device->sensorDefinitions->where('output_measurement_id', $measurement_id)->sortByDesc('updated_at')->first();
                 if ($sensordefinition)
-                    $sensorDefinitions["$name"] = ['name'=>$sensordefinition->name, 'inside'=>$sensordefinition->inside];
+                    $sensorDefinitions["$name"] = $sensordefinition->toArray();
 
             }
         }

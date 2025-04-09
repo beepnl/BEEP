@@ -478,7 +478,6 @@ class ResearchController extends Controller
                             'Hive_id',
                             'Location_id',
                             'Type',
-                            'last_message_received',
                             'hardware_id',
                             'firmware_version',
                             'hardware_version',
@@ -489,6 +488,10 @@ class ResearchController extends Controller
                             'battery_voltage',
                             'next_downlink_message',
                             'last_downlink_result',
+                            'rtc_installed',
+                            'last_message_received',
+                            'datetime_offset_sec',
+                            'sensor_definition_count',
                             __('export.created_at'),
                             __('export.deleted_at')]
                         ];
@@ -1249,7 +1252,6 @@ class ResearchController extends Controller
             $item->hive_id,
             $item->location_id,
             $item->getTypeAttribute(),
-            $item->last_message_received,
             $item->hardware_id,
             $item->firmware_version,
             $item->hardware_version,
@@ -1260,6 +1262,10 @@ class ResearchController extends Controller
             $item->battery_voltage,
             $item->next_downlink_message,
             $item->last_downlink_result,
+            $item->rtc,
+            $item->last_message_received,
+            $item->datetime_offset_sec,
+            $item->sensorDefinitions()->count(),
             $item->created_at,
             $item->deleted_at
         ];

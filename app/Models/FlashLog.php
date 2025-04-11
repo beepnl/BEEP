@@ -942,7 +942,7 @@ class FlashLog extends Model
                 if (isset($f['time']))
                     $records_timed++;
 
-                if (isset($f['weight_kg']))
+                if (isset($f['weight_kg']) || isset($f['w_v']))
                     $records_weight++;
             }
 

@@ -242,7 +242,7 @@ class MeasurementController extends Controller
                     $device = $this->addDeviceMeta($device, 'time_device', $data_array['time_device']);
                 if (isset($data_array['time_clock']) && $data_array['time_clock'] == 'rtc')
                 {
-                    $device = $this->addDeviceMeta($device, 'last_downlink_result', 'RTC installed');
+                    $device = $this->addDeviceMeta($device, 'last_downlink_result', 'RTC detected');
                     $device = $this->addDeviceMeta($device, 'rtc', true);
                 }
             }

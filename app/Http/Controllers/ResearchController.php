@@ -490,7 +490,8 @@ class ResearchController extends Controller
                             'last_downlink_result',
                             'rtc_installed',
                             'last_message_received',
-                            'datetime_offset_sec',
+                            'device_datetime_last_received',
+                            'device_datetime_offset_sec',
                             'sensor_definition_count',
                             __('export.created_at'),
                             __('export.deleted_at')]
@@ -1264,6 +1265,7 @@ class ResearchController extends Controller
             $item->last_downlink_result,
             $item->rtc,
             $item->last_message_received,
+            $item->datetime,
             $item->datetime_offset_sec,
             $item->sensorDefinitions()->count(),
             $item->created_at,

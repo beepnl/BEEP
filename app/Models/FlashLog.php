@@ -403,6 +403,7 @@ class FlashLog extends Model
 
 
     // Flashlog parsing functions
+    // Try to make blocks of data for matching
     private function getFlashLogOnOffs($device, $flashlog, $start_index=0, $start_time='2018-01-01 00:00:00')
     {
         $onoffs      = [];
@@ -426,13 +427,16 @@ class FlashLog extends Model
                 {
                     if ($f_port == 2)
                     {
-                        $p2_mes_count++;
-                        $onoffs[$i] = $f;
-                        $onoffs[$i]['block_count'] = 1;
-                        if (!$device->rtc && isset($onoffs[$i-1]))
+                        if ($i < $fl_index_end && $flashlog[$i+1]['port'] == 3) // check for a measurement message after this port 2 to be valid
                         {
-                            $onoffs[$i]['block_count'] = $onoffs[$i-1]['block_count'] + 1; // count amount of messages in a row
-                            unset($onoffs[$i-1]); // make sure only the last on/off message of every block is returned (if it has the same interval)
+                            $p2_mes_count++;
+                            $onoffs[$i] = $f;
+                            $onoffs[$i]['block_count'] = 1;
+                            if (!$device->rtc && isset($onoffs[$i-1]))
+                            {
+                                $onoffs[$i]['block_count'] = $onoffs[$i-1]['block_count'] + 1; // count amount of messages in a row
+                                unset($onoffs[$i-1]); // make sure only the last on/off message of every block is returned (if it has the same interval)
+                            }
                         }
                     }
                     else if ($p2_mes_count == 0 && $f_port == 3)

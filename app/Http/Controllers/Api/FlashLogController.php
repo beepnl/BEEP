@@ -439,7 +439,6 @@ class FlashLogController extends Controller
         $out_log     = [];
 
         $flashlog = $this->getUserFlashlogs($id);
-
         if ($flashlog)
         {
             $device = $flashlog->device;
@@ -458,6 +457,7 @@ class FlashLogController extends Controller
                 if(isset($flashlog->log_file))
                 {
                     $out = $flashlog->log(null, null, $save_result, true, true, $matches_min, $match_props, $db_records, $save_result, $from_cache, 0, $add_weight); // $data='', $log_bytes=null, $save=true, $fill=false, $show=false, $matches_min_override=null, $match_props_override=null, $db_records_override=null, $save_override=false, $from_cache=true, $match_days_offset=0, $add_sensordefinitions=true
+                    //die(print_r($out));
 
                     if (isset($out['log']))
                         $out_log = $out['log'];

@@ -403,26 +403,67 @@ class FlashLog extends Model
 
 
     // Flashlog parsing functions
-    private function getFlashLogOnOffs($flashlog, $start_index=0, $start_time='2018-01-01 00:00:00')
+    private function getFlashLogOnOffs($device, $flashlog, $start_index=0, $start_time='2018-01-01 00:00:00')
     {
         $onoffs      = [];
         $fl_index    = $start_index;
-        $fl_index_end= count($flashlog) - 1;
+        $fl_length   = count($flashlog);
+        $fl_index_end= $fl_length - 1;
+
+        $first_p3_mes= null;
+        $last_p3_mes = null;
+        $p3_mes_count= 0;
+        $p2_mes_count= 0;
 
         for ($i=$fl_index; $i < $fl_index_end; $i++) 
         {
             $f = $flashlog[$i];
-            if (isset($f['port']) && $f['port'] == 2 && isset($f['beep_base'])) // check for port 2 messages (switch on/off) in between 'before' and 'after' matches
+            if (isset($f['port'])) // check for port 2 messages (switch on/off) in between 'before' and 'after' matches
             {
-                $onoffs[$i] = $f;
-                $onoffs[$i]['block_count'] = 1;
-                if (isset($onoffs[$i-1]))
+                $f_port = intval($f['port']);
+
+                if ($f_port > 0 && isset($f['beep_base']))
                 {
-                    $onoffs[$i]['block_count'] = $onoffs[$i-1]['block_count'] + 1; // count amount of messages in a row
-                    unset($onoffs[$i-1]); // make sure only the last on/off message of every block is returned (if it has the same interval)
+                    if ($f_port == 2)
+                    {
+                        $p2_mes_count++;
+                        $onoffs[$i] = $f;
+                        $onoffs[$i]['block_count'] = 1;
+                        if (!$device->rtc && isset($onoffs[$i-1]))
+                        {
+                            $onoffs[$i]['block_count'] = $onoffs[$i-1]['block_count'] + 1; // count amount of messages in a row
+                            unset($onoffs[$i-1]); // make sure only the last on/off message of every block is returned (if it has the same interval)
+                        }
+                    }
+                    else if ($p2_mes_count == 0 && $f_port == 3)
+                    {
+                        if (!isset($first_p3_mes))
+                            $first_p3_mes = $f;
+
+                        $last_p3_mes = $f;
+                        $p3_mes_count++;
+                    }
                 }
             }
         }
+        // For FlashLogs without port 2 messaged: check if there are port3 messages
+        if ($device->rtc && count($onoffs) == 0 && $p2_mes_count == 0 && $p3_mes_count > 10)
+        {
+            // if a port 2 message is missing take the firt port 3 message 
+            $first_p3_mes['port'] = 2;
+            $first_p3_mes_time    = isset($first_p3_mes['time']) ? $first_p3_mes['time'] : 0;
+            $last_p3_mes_time     = isset($last_p3_mes['time']) ? $last_p3_mes['time'] : 0;
+            $first_p3_mes_i       = isset($first_p3_mes['i']) ? $first_p3_mes['i'] : 0;
+            $last_p3_mes_i        = isset($last_p3_mes['i']) ? $last_p3_mes['i'] : 0;
+            
+            $p3_total_indices     = $last_p3_mes_i - $first_p3_mes_i;
+            $time_p3_total_sec    = strtotime($last_p3_mes_time) - strtotime($first_p3_mes_time);
+            $first_p3_mes['measurement_interval_min'] = $time_p3_total_sec > 0 && $p3_total_indices > 0 ? ($time_p3_total_sec / 60) / $p3_total_indices : $device->measurement_interval_min;
+            $first_p3_mes['i'] = $first_p3_mes['i'] - 1;
+            
+            $onoffs[0] = $first_p3_mes;
+        }
+        //die(print_r([$fl_index, $fl_index_end, $onoffs]));
         return array_values($onoffs);
     }
 
@@ -697,7 +738,7 @@ class FlashLog extends Model
         $has_matches     = false;
         $block_index     = $on['i'];
         $start_index     = $block_index+1;
-        $interval        = intval($on['measurement_interval_min']); // transmission ratio is not of importance here, because log contains all measurements
+        $interval        = isset($on['measurement_interval_min']) ? intval($on['measurement_interval_min']) : $device->measurement_interval_min; // transmission ratio is not of importance here, because log contains all measurements
         $interval_sec    = $interval * 60; // transmission ratio is not of importance here, because log contains all measurements
 
         $db_moment       = new Moment($db_time);
@@ -731,7 +772,15 @@ class FlashLog extends Model
 
             if (isset($block['index_start']))
             {
-                $log[] = ['block'=>$i, 'block_i'=>$block_index, 'start_i'=>$start_index, 'end_i'=>$end_index, 'duration_hours'=>$duration_hrs, 'fl_i'=>$start_index, 'db_time'=>$db_time, 'fw_version'=>$on['firmware_version'], 'interval_min'=>$interval, 'transmission_ratio'=>$on['measurement_transmission_ratio'], 'interval_sec'=>$interval_sec, 'index_start'=>$block['index_start'], 'index_end'=>$block['index_end'], 'time_start'=>$block['time_start'], 'time_end'=>$time_end, 'setCount'=>$block['setCount'], 'matches'=>['matches'=>array_fill(0, $matches_min, ['time'=>'RTC'])]];
+                $log_block = ['block'=>$i, 'block_i'=>$block_index, 'start_i'=>$start_index, 'end_i'=>$end_index, 'duration_hours'=>$duration_hrs, 'fl_i'=>$start_index, 'db_time'=>$db_time, 'interval_min'=>$interval, 'interval_sec'=>$interval_sec, 'index_start'=>$block['index_start'], 'index_end'=>$block['index_end'], 'time_start'=>$block['time_start'], 'time_end'=>$time_end, 'setCount'=>$block['setCount'], 'matches'=>['matches'=>array_fill(0, $matches_min, ['time'=>'RTC'])]];
+
+                if (isset($on['measurement_transmission_ratio']))
+                    $log_block['transmission_ratio'] = $on['measurement_transmission_ratio'];
+
+                if (isset($on['firmware_version']))
+                    $log_block['fw_version'] = $on['firmware_version'];
+
+                $log[] = $log_block;
 
                 $setCount += $block['setCount'];
                 $fl_index = $block['index_end'];
@@ -856,7 +905,7 @@ class FlashLog extends Model
         $db_time  = '2019-01-01 00:00:00'; // start before any BEEP bases were live
         $setCount = 0;
         $log      = [];
-        $on_offs  = $this->getFlashLogOnOffs($flashlog, $fl_index);
+        $on_offs  = $this->getFlashLogOnOffs($device, $flashlog, $fl_index);
         //die(print_r($on_offs));
         $device_id= $device->id;
         $matches  = 0;

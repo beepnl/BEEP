@@ -39,6 +39,7 @@ class Calculation extends Model
 
         if (count($calibration_m_abbr) > 0) {
         	
+        	Log::debug($calibration_m_abbr);
         	$measurement_min_max = Measurement::minMaxValuesArray();
             $data_meas = array_keys($data_array);
             $cali_meas = array_keys($calibration_m_abbr);

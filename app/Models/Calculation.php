@@ -12,7 +12,7 @@ use Illuminate\Support\Facades\Log;
 class Calculation extends Model
 {
 
-	public static function addDeviceMeasurementCalibrations($device, $data_array)
+	public static function addDeviceMeasurementCalibrations($device, $data_array, $calibration_m_abbr)
     {
         /** $device->calibrationsMeasurementAbbreviations():
          * [m_input_abbr =>
@@ -35,11 +35,10 @@ class Calculation extends Model
          * ]
          * ordered in ascending updated order
          **/
-        $calibration_m_abbr = $device->calibrationsMeasurementAbbreviations();
 
         if (count($calibration_m_abbr) > 0) {
         	
-        	Log::debug($calibration_m_abbr);
+        	//Log::debug($calibration_m_abbr);
         	$measurement_min_max = Measurement::minMaxValuesArray();
             $data_meas = array_keys($data_array);
             $cali_meas = array_keys($calibration_m_abbr);

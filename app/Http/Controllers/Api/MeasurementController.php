@@ -1527,8 +1527,16 @@ class MeasurementController extends Controller
         {
             $sensorQuery = 'SELECT '.$groupBySelect.' FROM "sensors" WHERE '.$whereKeyAndTime.' '.$groupByResolution.' LIMIT '.$limit;
             $sensors_out = Device::getInfluxQuery($sensorQuery, 'data');
-            // Check for SensorDefinitions that have 'recalculate' set to true
-            $sensors_out = Calculation::addDeviceMeasurementCalibrations($device, $sensors_out);
+            
+            // Apply SensorDefinitions that have 'recalculate' set to true
+            $calibration_m_abbr = $device->calibrationsMeasurementAbbreviations();
+            if (count($calibration_m_abbr) > 0)
+            {
+                foreach ($sensors_out as $i => $data_array)
+                {
+                    $sensors_out[$i] = Calculation::addDeviceMeasurementCalibrations($device, $data_array);
+                }
+            }
         }
 
         // Add weather data

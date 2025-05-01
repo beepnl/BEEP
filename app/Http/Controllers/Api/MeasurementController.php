@@ -284,7 +284,7 @@ class MeasurementController extends Controller
 
         $time = time();
         if (isset($data_array['time']))
-            $time = intVal($data_array['time']);
+            $time = intval($data_array['time']);
 
 
         // Add senaor data based on available device sensorDefinitions
@@ -294,8 +294,14 @@ class MeasurementController extends Controller
         foreach ($sensor_defs as $sd)
         {
             if (isset($sd->output_abbr) && isset($data_array[$sd->input_abbr]))
+            {
                 $data_array = $device->addSensorDefinitionMeasurements($data_array, $data_array[$sd->input_abbr], $sd->input_measurement_id, $date, $sensor_defs_all);
+                
+            }
         }
+        if (isset($data_array['debug']) && $data_array['debug'] == 1)
+            return Response::json($data_array);
+
         // store battery voltage after applying sensor defs
         if (isset($data_array['bv']))
         {

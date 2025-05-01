@@ -68,7 +68,7 @@ class SensorDefinitionController extends Controller
         }
 
 
-        $request_data = $request->only('name', 'inside', 'offset', 'multiplier', 'input_measurement_id', 'output_measurement_id', 'device_id');
+        $request_data = $request->only('name', 'inside', 'offset', 'multiplier', 'input_measurement_id', 'output_measurement_id', 'device_id', 'updated_at');
 
         $request_data['input_measurement_id']  = isset($measurement_in) ? $measurement_in->id : null;
         $request_data['output_measurement_id'] = isset($measurement_out) ? $measurement_out->id : (isset($measurement_in) ? $measurement_in->id : null);

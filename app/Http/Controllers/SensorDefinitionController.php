@@ -89,7 +89,9 @@ class SensorDefinitionController extends Controller
      */
     public function create()
     {
-        return view('sensordefinition.create');
+        $devices_select     = App\Device::selectList();
+        $measurement_select = App\Measurement::selectList();
+        return view('sensordefinition.create', compact('devices_select','measurement_select'));
     }
 
     /**
@@ -137,9 +139,10 @@ class SensorDefinitionController extends Controller
      */
     public function edit($id)
     {
-        $sensordefinition = SensorDefinition::findOrFail($id);
-
-        return view('sensordefinition.edit', compact('sensordefinition'));
+        $sensordefinition   = SensorDefinition::findOrFail($id);
+        $devices_select     = App\Device::selectList();
+        $measurement_select = App\Measurement::selectList();
+        return view('sensordefinition.edit', compact('sensordefinition','devices_select','measurement_select'));
     }
 
     /**

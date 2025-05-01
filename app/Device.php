@@ -83,7 +83,8 @@ class Device extends Model
     {
         Cache::forget('device-'.$this->id.'-hive-'.$this->hive_id.'-user-ids');
         Cache::forget('device-'.$this->id.'-hive-'.$this->hive_id.'-rule-ids');
-
+        Cache::forget('device-'.$this->id.'-calibrations-measurement-types');
+        
         Log::debug("Device ID $this->id cache emptied");
 
         if ($clear_users)
@@ -224,7 +225,9 @@ class Device extends Model
 
     public function activeSensorDefinitions()
     {
-        return $this->sensorDefinitions()->orderBy('updated_at', 'desc')->get()->unique('input_measurement_id', 'output_measurement_id');
+        return Cache::rememberForever('device-'.$this->id.'-active-calibrations', function () {
+            return $this->sensorDefinitions()->orderBy('updated_at', 'desc')->get()->unique('input_measurement_id', 'output_measurement_id');
+        });
     }
 
     // provide sensorfdefinitions in descending in order
@@ -844,6 +847,27 @@ class Device extends Model
         //die(print_r($out_arr));
 
         return $out_arr;
+    }
+
+    public function calibrationsMeasurementAbbreviations()
+    {
+        return Cache::rememberForever('device-'.$this->id.'-calibrations-measurement-types', function () {
+            $out = [];
+            $cals = $this->sensorDefinitions()->where('recalculate', '=', true)->orderBy('updated_at', 'asc')->get();
+            foreach ($cals as $cal) {
+                if (isset($cal->input_abbr)) {
+                    $m_abbr = $cal->input_abbr;
+                    $c_unix = strtotime($cal->updated_at);
+                    if (isset($out[$m_abbr])) {
+                        $out[$m_abbr][$c_unix] = ['id' => $cal->id, 'output_abbr' => $cal->output_abbr, 'multiplier' => $cal->multiplier, 'offset' => $cal->offset];
+                    } else {
+                        $out[$m_abbr] = [$c_unix => ['id' => $cal->id, 'output_abbr' => $cal->output_abbr, 'multiplier' => $cal->multiplier, 'offset' => $cal->offset]];
+                    }
+                }
+            }
+
+            return $out;
+        });
     }
 
 }

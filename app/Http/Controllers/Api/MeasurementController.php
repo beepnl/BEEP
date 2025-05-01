@@ -11,6 +11,7 @@ use App\Measurement;
 use App\Models\FlashLog;
 use App\Models\Webhook;
 use App\Models\AlertRule;
+use App\Models\Calculation;
 // use App\Transformer\SensorTransformer;
 use Validator;
 use InfluxDB;

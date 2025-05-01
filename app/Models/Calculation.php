@@ -31,7 +31,7 @@ class Calculation extends Model
 
         if (count($calibration_m_abbr) > 0) {
         	
-        	Log::debug($calibration_m_abbr);
+        	//Log::debug($calibration_m_abbr);
         	
         	$measurement_min_max = Measurement::minMaxValuesArray();
             $data_meas = array_keys($data_array);
@@ -54,7 +54,7 @@ class Calculation extends Model
                     $unixes = array_keys($calis); // unix timestamps
                     $length = count($unixes);
 
-                    Log::debug(['tine'=>$time, 'unix_d'=>$unix_d, 'length'=>$length]);
+                    Log::debug(['time'=>$time, 'unix_d'=>$unix_d, 'length'=>$length]);
 
                     for ($i = 0; $i < $length; $i++) {
                         $unix_curr = $unixes[$i];

@@ -16,7 +16,7 @@
 	    </div>
 	</div>
 </div>
-<div class="col-md-4 col-xs-12">
+<div class="col-xs-12 col-md-3">
 	<div class="form-group {{ $errors->has('inside') ? 'has-error' : ''}}">
 	    <label for="inside" control-label>{{ 'Inside' }}</label>
 	    <div>
@@ -25,7 +25,7 @@
 	    </div>
 	</div>
 </div>
-<div class="col-md-4 col-xs-12">
+<div class="col-xs-12 col-md-3">
 	<div class="form-group {{ $errors->has('offset') ? 'has-error' : ''}}">
 	    <label for="offset" control-label>{{ 'Offset (zero Value)' }}</label>
 	    <div>
@@ -34,7 +34,7 @@
 	    </div>
 	</div>
 </div>
-<div class="col-md-4 col-xs-12">
+<div class="col-xs-12 col-md-3">
 	<div class="form-group {{ $errors->has('multiplier') ? 'has-error' : ''}}">
 	    <label for="multiplier" control-label>{{ 'Unit Per Value' }}</label>
 	    <div>
@@ -42,6 +42,20 @@
 	        {!! $errors->first('multiplier', '<p class="help-block">:message</p>') !!}
 	    </div>
 	</div>
+</div>
+<div class="col-xs-12 col-md-3">
+	<div class="form-group {{ $errors->has('recalculate') ? 'has-error' : ''}}">
+	    <label for="recalculate" control-label>Recalculate (always until next)</label>
+	    <div>
+	        <div class="radio">
+    			<label><input name="recalculate" type="radio" value="1" @if (isset($measurement)) {{ (1 == $measurement->recalculate) ? 'checked' : '' }} @else {{ 'checked' }} @endif> Yes</label>
+			</div>
+			<div class="radio">
+			    <label><input name="recalculate" type="radio" value="0" {{ (isset($measurement) && 0 == $measurement->recalculate) ? 'checked' : '' }}> No</label>
+			</div>
+        </div>
+        {!! $errors->first('recalculate', '<p class="help-block">:message</p>') !!}
+    </div>
 </div>
 
 <div class="col-md-6 col-xs-12">

@@ -79,6 +79,7 @@
                     <th>Unit Per Value</th>
                     <th>Measurement in</th>
                     <th>Measurement out</th>
+                    <th>Recalculate</th>
                     <th>Device</th>
                     <th>Actions</th>
                 </tr>
@@ -94,6 +95,7 @@
                     <td>{{ $item->multiplier }}</td>
                     <td>{{ isset($item->input_measurement) ? $item->input_measurement->abbreviation : '-' }}</td>
                     <td>{{ isset($item->output_measurement) ? $item->output_measurement->abbreviation : '-'  }}</td>
+                    <td>{{ $item->recalculate }}</td>
                     <td>{{ isset($item->device) ? $item->device->name : '-'  }}</td>
                     <td col-sm-1>
                         <a href="{{ route('sensordefinition.show', $item->id) }}" title="{{ __('crud.show') }}"><button class="btn btn-default"><i class="fa fa-eye" aria-hidden="true"></i></button></a>

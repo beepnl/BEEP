@@ -14,36 +14,32 @@ class Calculation extends Model
 
 	public static function addDeviceMeasurementCalibrations($device, $data_array, $calibration_m_abbr)
     {
-        /** $device->calibrationsMeasurementAbbreviations():
-         * [m_input_abbr =>
-         *  [
-         *  unix=>
-         *   [
-         *   'id'=>id,
-         *   'output_abbr'=>output_abbr,
-         *   'multiplier'=>multiplier,
-         *   'offset'=>offset
-         *   ],
-         *  unix=>
-         *   [
-         *   'id'=>id,
-         *   'output_abbr'=>output_abbr,
-         *   'multiplier'=>multiplier,
-         *   'offset'=>offset
-         *   ]
-         *  ]
-         * ]
-         * ordered in ascending updated order
-         **/
+        /** $calibration_m_abbr:
+        ['w_v' => 
+			[
+			    1743801780 => 
+				    [
+				      'id' => 1338,
+				      'output_abbr' => 'weight_kg',
+				      'multiplier' => 1.0,
+				      'offset' => 100.0,
+				    ]
+			]
+        ]
+        ordered in ascending updated order
+        **/
 
         if (count($calibration_m_abbr) > 0) {
         	
-        	//Log::debug($calibration_m_abbr);
+        	Log::debug($calibration_m_abbr);
+        	
         	$measurement_min_max = Measurement::minMaxValuesArray();
             $data_meas = array_keys($data_array);
             $cali_meas = array_keys($calibration_m_abbr);
             $cali_match = array_intersect($cali_meas, $data_meas);
-
+			
+			Log::debug($cali_match);
+            
             if (isset($data_array['time']) && count($cali_match) > 0) {
                 foreach ($cali_match as $m_in_abbr) {
                     $data_value = $data_array[$m_in_abbr];
@@ -57,6 +53,8 @@ class Calculation extends Model
                     $unix_d = strtotime($time);
                     $unixes = array_keys($calis); // unix timestamps
                     $length = count($unixes);
+
+                    Log::debug(['tine'=>$time, 'unix_d'=>$unix_d, 'length'=>$length]);
 
                     for ($i = 0; $i < $length; $i++) {
                         $unix_curr = $unixes[$i];

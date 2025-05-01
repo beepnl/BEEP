@@ -29,14 +29,39 @@ class SensorDefinition extends Model
      *
      * @var array
      */
-    protected $fillable = ['name', 'inside', 'offset', 'multiplier', 'input_measurement_id', 'output_measurement_id', 'device_id', 'updated_at'];
+
+    // recalculate: true => on the fly correction + at sensor value storage, false (default) => only calculate at sensor value storage
+    protected $fillable = ['name', 'inside', 'offset', 'multiplier', 'input_measurement_id', 'output_measurement_id', 'device_id', 'updated_at', 'recalculate']; 
     protected $appends  = ['input_abbr', 'output_abbr'];
     protected $hidden   = ['input_measurement', 'output_measurement', 'deleted_at'];
+
+    public static function boot()
+    {
+        parent::boot();
+
+        static::created(function ($c) {
+            $c->forgetCache();
+        });
+
+        self::updated(function ($c) {
+            $c->forgetCache();
+        });
+
+        self::deleted(function ($c) {
+            $c->forgetCache();
+        });
+    }
+
+    public function forgetCache()
+    {
+        Cache::forget('device-'.$this->device_id.'-active-calibrations');
+        Cache::forget('device-'.$this->device_id.'-calibrations-measurement-types');
+    }
 
     public function getInputAbbrAttribute()
     {
         if ($this->input_measurement_id != null)
-            return Cache::remember('meas-id-'.$this->input_measurement_id.'-abbr', env('CACHE_TIMEOUT_LONG'), function (){
+            return Cache::rememberForever('meas-id-'.$this->input_measurement_id.'-abbr', function (){
                 return $this->input_measurement->abbreviation;
             });
 
@@ -46,9 +71,14 @@ class SensorDefinition extends Model
     public function getOutputAbbrAttribute()
     {
         if ($this->output_measurement_id != null)
-            return Cache::remember('meas-id-'.$this->output_measurement_id.'-abbr', env('CACHE_TIMEOUT_LONG'), function (){
+            return Cache::rememberForever('meas-id-'.$this->output_measurement_id.'-abbr', function (){
                 return $this->output_measurement->abbreviation;
             });
+
+        // Fallback
+        if ($this->input_measurement_id != null) {
+            return $this->getInputAbbrAttribute();
+        } 
 
         return null;
     }
@@ -86,35 +116,21 @@ class SensorDefinition extends Model
 
             $outputValue = (floatval($inputValue) - $offset) * $multi;
 
-            $this_om = $this->output_measurement;
-            if (isset($this_om))
+            $outAbbr = $this->output_abbr;
+            if (isset($outAbbr))
             {
-                $oid    = $this->output_measurement_id;
-                $iid    = $this->input_measurement_id;
-                $om_min = Cache::remember('meas-id-'.$oid.'-min', env('CACHE_TIMEOUT_LONG'), function () use ($this_om){
-                    if (isset($this_om->min_value))
-                        return $m = $this_om->min_value;
-                    else
-                        return null;
-                });
-                $om_max = Cache::remember('meas-id-'.$oid.'-max', env('CACHE_TIMEOUT_LONG'), function () use ($this_om){
-                    if (isset($this_om->max_value))
-                        return $m = $this_om->max_value;
-                    else
-                        return null;
-                });
+                $mima   = Measurement::minMaxValuesArray();
+                $om_min = $mima[$outAbbr]['min'];
+                $om_max = $mima[$outAbbr]['max'];
 
                 //die(print_r(['in'=>$inputValue, 'out'=>$outputValue, 'min'=>$om_min, 'max'=>$om_max]));
 
                 if (isset($om_min) && $outputValue < $om_min)
-                {
                     return null;
-                }
 
                 if (isset($om_max) && $outputValue > $om_max)
-                {
                     return null;
-                }
+                
             }
         }
 

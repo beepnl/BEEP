@@ -86,6 +86,9 @@ class Measurement extends Model
         Cache::forget('measurement-'.$this->id.'-pq-'.$this->physical_quantity_id);
         Cache::forget('measurement-'.$this->id.'-pq-'.$this->physical_quantity_id.'-'.$this->abbreviation.'-name');
         Cache::forget('measurement-'.$this->id.'-pq-'.$this->physical_quantity_id.'-unit');
+        Cache::forget('meas-id-'.$this->id.'-abbr'); // fot SensorDefinition
+        Cache::forget('meas-id-'.$this->id.'-min'); // fot SensorDefinition
+        Cache::forget('meas-id-'.$this->id.'-max'); // fot SensorDefinition
         Cache::forget('measurement-display-decimals');
         Category::forgetTaxonomyListCache();
         if (isset($this->physical_quantity_id))
@@ -240,6 +243,19 @@ class Measurement extends Model
             $input_id  = Measurement::where('abbreviation','w_v')->value('id');
             $output_id = Measurement::where('abbreviation','weight_kg')->value('id');
             return ['input_id'=>$input_id, 'output_id'=>$output_id];
+        });
+    }
+
+    public static function minMaxValuesArray()
+    {
+        return Cache::rememberForever('measurements-min-max-values', function () {
+            $out = [];
+            $measurements = self::all();
+            foreach ($measurements as $m) {
+                $out[$m->abbreviation] = ['min' => $m->min_value, 'max' => $m->max_value];
+            }
+
+            return $out;
         });
     }
 

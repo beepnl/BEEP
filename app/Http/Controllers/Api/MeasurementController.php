@@ -1526,6 +1526,8 @@ class MeasurementController extends Controller
         {
             $sensorQuery = 'SELECT '.$groupBySelect.' FROM "sensors" WHERE '.$whereKeyAndTime.' '.$groupByResolution.' LIMIT '.$limit;
             $sensors_out = Device::getInfluxQuery($sensorQuery, 'data');
+            // Check for SensorDefinitions that have 'recalculate' set to true
+            $sensors_out = Calculation::addDeviceMeasurementCalibrations($device, $sensors_out);
         }
 
         // Add weather data

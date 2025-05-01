@@ -38,7 +38,7 @@ class Calculation extends Model
             $cali_meas = array_keys($calibration_m_abbr);
             $cali_match = array_intersect($cali_meas, $data_meas);
 			
-			Log::debug($cali_match);
+			Log::debug(['data'=>$data_array, 'cali'=>$cali_meas, 'match'=>$cali_match]);
             
             if (isset($data_array['time']) && count($cali_match) > 0) {
                 foreach ($cali_match as $m_in_abbr) {

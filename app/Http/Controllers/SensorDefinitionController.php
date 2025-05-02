@@ -109,7 +109,7 @@ class SensorDefinitionController extends Controller
         ]);
         $requestData = $request->all();
         $updated_at  = str_replace('T', ' ', $requestData['updated_at']).':00';
-
+        $requestData['updated_at'] = $updated_at;
         $sensordefinition = SensorDefinition::create($requestData);
         $sensordefinition->updated_at = $updated_at;
         $sensordefinition->save(['timestamps' => false]); // then set new updated_at
@@ -163,7 +163,7 @@ class SensorDefinitionController extends Controller
         $sensordefinition = SensorDefinition::findOrFail($id);
         $requestData = $request->all();
         $updated_at  = str_replace('T', ' ', $requestData['updated_at']).':00';
-        Log::debug($updated_at);
+        $requestData['updated_at'] = $updated_at;
         // prevent updated_at from updating by the update action
         $sensordefinition->update($requestData); // first change updated_at
         $sensordefinition->updated_at = $updated_at;

@@ -1549,7 +1549,7 @@ class MeasurementController extends Controller
             if ($add_calibrations)
             {
                 foreach ($sensors_out as $i => $data_array)
-                    $sensors_out[$i] = Calculation::addDeviceMeasurementCalibrations($device, $data_array, $calibration_m_abbr);
+                    $sensors_out[$i] = SensorDefinition::addDeviceMeasurementCalibrations($device, $data_array, $calibration_m_abbr);
             }
         }
 

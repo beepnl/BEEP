@@ -853,7 +853,7 @@ class Device extends Model
     {
         return Cache::rememberForever('device-'.$this->id.'-calibrations-measurement-types', function () {
             $out = [];
-            $cals = $this->sensorDefinitions()->where('recalculate', '=', true)->where('input_measurement_id', '!=', 'output_measurement_id')->orderBy('updated_at', 'asc')->get();
+            $cals = $this->sensorDefinitions()->where('recalculate', '=', true)->whereColumn('input_measurement_id', '!=', 'output_measurement_id')->orderBy('updated_at', 'asc')->get();
             foreach ($cals as $cal) {
                 if (isset($cal->input_abbr)) {
                     $m_abbr = $cal->input_abbr;

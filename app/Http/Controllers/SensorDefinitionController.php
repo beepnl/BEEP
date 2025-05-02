@@ -164,7 +164,7 @@ class SensorDefinitionController extends Controller
         $updated_at  = str_replace('T', ' ', $requestData['updated_at']).':00';
         //Log::debug($requestData);
         // prevent updated_at from updating by the update action
-        $sensordefinition->update($request_data); // first change updated_at
+        $sensordefinition->update($requestData); // first change updated_at
         $sensordefinition->updated_at = $updated_at;
         $sensordefinition->save(['timestamps' => false]); // then set new updated_at
 

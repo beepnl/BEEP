@@ -111,7 +111,9 @@ class SensorDefinitionController extends Controller
         
         $requestData['updated_at'] = str_replace('T', ' ', $requestData['updated_at']).':00';
 
-        SensorDefinition::create($requestData);
+        $sensordefinition = SensorDefinition::create($requestData);
+        $sensordefinition->updated_at = $updated_at;
+        $sensordefinition->save(['timestamps' => false]); // then set new updated_at
 
         return redirect('sensordefinition')->with('flash_message', 'SensorDefinition added!');
     }

@@ -8,6 +8,7 @@ use App\User;
 use App\Device;
 use App\Category;
 use App\Measurement;
+use App\SensorDefinition;
 use App\Models\FlashLog;
 use App\Models\Webhook;
 use App\Models\AlertRule;

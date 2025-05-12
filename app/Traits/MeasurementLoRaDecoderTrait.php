@@ -58,7 +58,6 @@ trait MeasurementLoRaDecoderTrait
 
             if(isset($data['downlink_message']))  
                     $port = $data['downlink_message']['f_port'];
-                    Log::info('TTN downlink message:', $data);
             
             if(isset($data['uplink_message']['decoded_payload']) && (isset($data['uplink_message']['decoded_payload']['payload_fields']) || count($data['uplink_message']['decoded_payload']) > 2)) // uplink: at least has payload fields, or 3 decoded payload fields (not only ['bytes'])
             {
@@ -68,10 +67,24 @@ trait MeasurementLoRaDecoderTrait
                     $data_array = $data['uplink_message']['decoded_payload'];
             }
 
-            if(isset($data['downlink_message']['decoded_payload'])) // downlink
+            if(isset($data['downlink_message']) && $data['f_port'] == 6) // downlink
             {
-                    $data_array = $data['downlink_message']['decoded_payload']['bytes'];
-                    Log::info('$data_array from TTN downlink message:', $data_array);
+                $data_array = $data['downlink_message'];
+                Log::info('TTN downlink received:', $data);
+
+                $payload = bin2hex(base64_decode($data['downlink_message']['frm_payload'])); // TTN v3 uplink with BEEP base payload 
+                Log::info('$payload from downlink:', $payload);
+
+                // $data_array = $this->decode_beep_payload($payload, $port);
+
+                $data_array['port']   = $port;
+                $data_array['key']    = $data['end_device_ids']['dev_eui'];
+
+                Log::info('full $data_array from downlink:', $data_array);
+                Log::info('dev_eui:', $data['end_device_ids']['dev_eui']);
+
+                return $data_array;
+
             }
             else
             {

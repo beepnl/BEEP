@@ -51,23 +51,7 @@ trait MeasurementLoRaDecoderTrait
                 $data_array['beep_base'] = true;
 
         }
-        else if (isset($data['end_device_ids']['dev_eui']) && isset($data['uplink_message']['frm_payload']) || isset($data['downlink_message']['frm_payload']) && isset($data['uplink_message']['f_port']) || isset($data['downlink_message']['f_port']) ) // ttn v3 uplink or downlink
-        {
-            if(isset($data['uplink_message']))    
-                    $port = $data['uplink_message']['f_port'];
-
-            if(isset($data['downlink_message']))  
-                    $port = $data['downlink_message']['f_port'];
-            
-            if(isset($data['uplink_message']['decoded_payload']) && (isset($data['uplink_message']['decoded_payload']['payload_fields']) || count($data['uplink_message']['decoded_payload']) > 2)) // uplink: at least has payload fields, or 3 decoded payload fields (not only ['bytes'])
-            {
-                if (isset($data['uplink_message']['decoded_payload']['payload_fields']))
-                    $data_array = $data['uplink_message']['decoded_payload']['payload_fields']; // TTN v3 with defined payload_fields (using decoder)
-                else
-                    $data_array = $data['uplink_message']['decoded_payload'];
-            }
-
-            if(isset($data['downlink_message']) && $data['f_port'] == 6) // downlink
+        else if(isset($data['downlink_message']) && $data['f_port'] == 6) // downlink
             {
                 $data_array = $data['downlink_message'];
                 Log::info('TTN downlink received:', $data);
@@ -84,8 +68,24 @@ trait MeasurementLoRaDecoderTrait
                 Log::info('dev_eui:', $data['end_device_ids']['dev_eui']);
 
                 return $data_array;
-
             }
+        else if (isset($data['end_device_ids']['dev_eui']) && isset($data['uplink_message']['frm_payload']) || isset($data['downlink_message']['frm_payload']) && isset($data['uplink_message']['f_port']) || isset($data['downlink_message']['f_port']) ) // ttn v3 uplink or downlink
+        {
+            if(isset($data['uplink_message']))    
+                    $port = $data['uplink_message']['f_port'];
+
+            if(isset($data['downlink_message']))  
+                    $port = $data['downlink_message']['f_port'];
+            
+            if(isset($data['uplink_message']['decoded_payload']) && (isset($data['uplink_message']['decoded_payload']['payload_fields']) || count($data['uplink_message']['decoded_payload']) > 2)) // uplink: at least has payload fields, or 3 decoded payload fields (not only ['bytes'])
+            {
+                if (isset($data['uplink_message']['decoded_payload']['payload_fields']))
+                    $data_array = $data['uplink_message']['decoded_payload']['payload_fields']; // TTN v3 with defined payload_fields (using decoder)
+                else
+                    $data_array = $data['uplink_message']['decoded_payload'];
+            }
+
+            
             else
             {
                 $payload    = bin2hex(base64_decode($data['uplink_message']['frm_payload'])); // TTN v3 uplink with BEEP base payload 

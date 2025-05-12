@@ -715,7 +715,7 @@ class AlertRule extends Model
             }
             else if ($log_on)
             {
-                Log::debug($debug_start.'direct_data=0 ('.$r->readableFunc2tion(true).') No data available for: '.$m_abbr);
+                Log::debug($debug_start.'direct_data=0 ('.$r->readableFunction(true).') No data available for: '.$m_abbr);
             }
         }
         // if ($alertCount > 0)

@@ -51,17 +51,16 @@ trait MeasurementLoRaDecoderTrait
                 $data_array['beep_base'] = true;
 
         }
-        else if(isset($data['downlink_message']) && $data['f_port'] == 6) // downlink
+        else if(isset($data['f_port']) && $data['f_port'] == 6) // downlink
             {
-                $data_array = $data['downlink_message'];
                 Log::info('TTN downlink received:', $data);
 
-                $payload = bin2hex(base64_decode($data['downlink_message']['frm_payload'])); // TTN v3 uplink with BEEP base payload 
+                $payload = bin2hex(base64_decode($data['frm_payload'])); 
                 Log::info('$payload from downlink:', $payload);
 
                 // $data_array = $this->decode_beep_payload($payload, $port);
 
-                $data_array['port']   = $port;
+                $data_array['port']   = $data['f_port'];
                 $data_array['key']    = $data['end_device_ids']['dev_eui'];
 
                 Log::info('full $data_array from downlink:', $data_array);

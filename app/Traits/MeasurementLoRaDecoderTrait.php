@@ -42,7 +42,7 @@ trait MeasurementLoRaDecoderTrait
 
 
         }
-        if(isset($data['f_port']) && $data['f_port'] == 6) // TTN v3 downlink
+        else if(isset($data['f_port']) && ($data['f_port'] == 6)) // TTN v3 downlink
             {
                 Log::info('TTN downlink received:', $data);
 

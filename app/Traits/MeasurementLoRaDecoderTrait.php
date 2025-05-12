@@ -49,16 +49,25 @@ trait MeasurementLoRaDecoderTrait
                 $data_array['beep_base'] = true;
 
         }
-        else if (isset($data['end_device_ids']['dev_eui']) && isset($data['uplink_message']['frm_payload']) && isset($data['uplink_message']['f_port'])) // ttn v3 Uplink
+        else if (isset($data['end_device_ids']['dev_eui']) && isset($data['uplink_message']['frm_payload']) || isset($data['downlink_message']['frm_payload']) && isset($data['uplink_message']['f_port']) || isset($data['downlink_message']['f_port']) ) // ttn v3 uplink or downlink
         {
-            $port = $data['uplink_message']['f_port'];
+            if(isset($data['uplink_message']))    
+                    $port = $data['uplink_message']['f_port'];
+
+            if(isset($data['downlink_message']))  
+                   $port = $data['downlink_message']['f_port'];
             
-            if (isset($data['uplink_message']['decoded_payload']) && (isset($data['uplink_message']['decoded_payload']['payload_fields']) || count($data['uplink_message']['decoded_payload']) > 2)) // at least has payload fields, or 3 decoded payload fields (not only ['bytes'])
+            if(isset($data['uplink_message']['decoded_payload']) && (isset($data['uplink_message']['decoded_payload']['payload_fields']) || count($data['uplink_message']['decoded_payload']) > 2)) // uplink: at least has payload fields, or 3 decoded payload fields (not only ['bytes'])
             {
                 if (isset($data['uplink_message']['decoded_payload']['payload_fields']))
                     $data_array = $data['uplink_message']['decoded_payload']['payload_fields']; // TTN v3 with defined payload_fields (using decoder)
                 else
                     $data_array = $data['uplink_message']['decoded_payload'];
+            }
+
+            if(isset($data['downlink_message']['decoded_payload'])) // downlink
+            {
+                    $data_array = $data['downlink_message']['decoded_payload'];
             }
             else
             {

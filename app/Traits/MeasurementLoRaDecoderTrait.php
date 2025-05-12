@@ -42,16 +42,7 @@ trait MeasurementLoRaDecoderTrait
 
 
         }
-        else if (isset($data['end_device_ids']['dev_eui']) && isset($data['end_device_ids']['device_id']) && isset($data['join_accept']['received_at'])) // TTN v3 Join accept
-        {
-            $data_array['hardware_id'] = $data['end_device_ids']['device_id'];
-            $data_array['key'] = $data['end_device_ids']['dev_eui'];
-
-            if (isset($data['end_device_ids']['application_ids']['application_id']) && $data['end_device_ids']['application_ids']['application_id'] == 'beep-base-production')
-                $data_array['beep_base'] = true;
-
-        }
-        else if(isset($data['f_port']) && $data['f_port'] == 6) // downlink
+        if(isset($data['f_port']) && $data['f_port'] == 6) // TTN v3 downlink
             {
                 Log::info('TTN downlink received:', $data);
 
@@ -68,6 +59,16 @@ trait MeasurementLoRaDecoderTrait
 
                 return $data_array;
             }
+        else if (isset($data['end_device_ids']['dev_eui']) && isset($data['end_device_ids']['device_id']) && isset($data['join_accept']['received_at'])) // TTN v3 Join accept
+        {
+            $data_array['hardware_id'] = $data['end_device_ids']['device_id'];
+            $data_array['key'] = $data['end_device_ids']['dev_eui'];
+
+            if (isset($data['end_device_ids']['application_ids']['application_id']) && $data['end_device_ids']['application_ids']['application_id'] == 'beep-base-production')
+                $data_array['beep_base'] = true;
+
+        }
+
         else if (isset($data['end_device_ids']['dev_eui']) && isset($data['uplink_message']['frm_payload']) || isset($data['downlink_message']['frm_payload']) && isset($data['uplink_message']['f_port']) || isset($data['downlink_message']['f_port']) ) // ttn v3 uplink or downlink
         {
             if(isset($data['uplink_message']))    

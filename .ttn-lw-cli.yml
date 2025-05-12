@@ -1,0 +1,37 @@
+base:
+  config: []
+  log:
+    format: console
+    level: info
+  experimental:
+    features: []
+credentials-id: beep.eu1.cloud.thethings.industries
+input-format: json
+output-format: json
+allow-unknown-hosts: false
+oauth-server-address: https://beep.eu1.cloud.thethings.industries/oauth
+identity-server-grpc-address: beep.eu1.cloud.thethings.industries:8884
+gateway-server-enabled: true
+gateway-server-grpc-address: beep.eu1.cloud.thethings.industries:8884
+network-server-enabled: true
+network-server-grpc-address: beep.eu1.cloud.thethings.industries:8884
+application-server-enabled: true
+application-server-grpc-address: beep.eu1.cloud.thethings.industries:8884
+join-server-enabled: true
+join-server-grpc-address: beep.eu1.cloud.thethings.industries:8884
+device-template-converter-grpc-address: beep.eu1.cloud.thethings.industries:8884
+device-claiming-server-grpc-address: beep.eu1.cloud.thethings.industries:8884
+qr-code-generator-grpc-address: beep.eu1.cloud.thethings.industries:8884
+packet-broker-agent-grpc-address: beep.eu1.cloud.thethings.industries:8884
+insecure: false
+ca: /Users/orlo/BEEP/ca.3317a4.pem
+dump-requests: false
+skip-version-check: false
+retry:
+  max: 0
+  default-timeout: 100ms
+  enable-metadata: true
+  jitter: 0
+telemetry:
+  enable: true
+  target: https://telemetry.thethingsstack.io/collect

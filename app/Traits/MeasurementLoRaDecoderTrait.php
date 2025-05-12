@@ -27,6 +27,8 @@ trait MeasurementLoRaDecoderTrait
             $data_array['port'] = $port;
             if (isset($data['hardware_serial']) && !isset($data_array['key']))
                 $data_array['key'] = $data['hardware_serial']; // LoRa WAN == Device EUI
+            if (isset($data['device_id']) && !isset($data_array['key']))
+                $data_array['key'] = $data['device_id']; // hardware ID is "device_id" in TTN v3 downlink 
             if (isset($data['metadata']['gateways'][0]['rssi']))
                 $data_array['rssi'] = $data['metadata']['gateways'][0]['rssi'];
             if (isset($data['metadata']['gateways'][0]['snr']))
@@ -55,7 +57,8 @@ trait MeasurementLoRaDecoderTrait
                     $port = $data['uplink_message']['f_port'];
 
             if(isset($data['downlink_message']))  
-                   $port = $data['downlink_message']['f_port'];
+                    $port = $data['downlink_message']['f_port'];
+                    die(print_r($data));
             
             if(isset($data['uplink_message']['decoded_payload']) && (isset($data['uplink_message']['decoded_payload']['payload_fields']) || count($data['uplink_message']['decoded_payload']) > 2)) // uplink: at least has payload fields, or 3 decoded payload fields (not only ['bytes'])
             {
@@ -67,11 +70,12 @@ trait MeasurementLoRaDecoderTrait
 
             if(isset($data['downlink_message']['decoded_payload'])) // downlink
             {
-                    $data_array = $data['downlink_message']['decoded_payload'];
+                    $data_array = $data['downlink_message']['decoded_payload']['bytes'];
+                    die(print_r($data_array));
             }
             else
             {
-                $payload    = bin2hex(base64_decode($data['uplink_message']['frm_payload'])); // TTN v3 with BEEP base payload 
+                $payload    = bin2hex(base64_decode($data['uplink_message']['frm_payload'])); // TTN v3 uplink with BEEP base payload 
                 $data_array = $this->decode_beep_payload($payload, $port);
             }
 

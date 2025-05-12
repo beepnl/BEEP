@@ -58,9 +58,7 @@ trait MeasurementLoRaDecoderTrait
 
             if(isset($data['downlink_message']))  
                     $port = $data['downlink_message']['f_port'];
-                    Log::info('TTN downlink message:');
-                    Log::info($data['downlink_message']);
-
+                    Log::info('TTN downlink message:', $data['downlink_message']);
             
             if(isset($data['uplink_message']['decoded_payload']) && (isset($data['uplink_message']['decoded_payload']['payload_fields']) || count($data['uplink_message']['decoded_payload']) > 2)) // uplink: at least has payload fields, or 3 decoded payload fields (not only ['bytes'])
             {
@@ -73,8 +71,7 @@ trait MeasurementLoRaDecoderTrait
             if(isset($data['downlink_message']['decoded_payload'])) // downlink
             {
                     $data_array = $data['downlink_message']['decoded_payload']['bytes'];
-                    Log::info('$data_array from TTN downlink message:');
-                    Log::info($data_array);
+                    Log::info('$data_array from TTN downlink message:', $data_array);
             }
             else
             {

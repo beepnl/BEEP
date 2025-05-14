@@ -1006,6 +1006,8 @@ class ResearchController extends Controller
             'device_ids.*'  => 'nullable|exists:sensors,id',
         ]);
 
+        $demo = $request->filled('demo') && boolval($request->input('demo')) ? true : false;
+
         //die(print_r($request->all()));
 
         if ($request->user()->hasRole('superadmin'))
@@ -1297,6 +1299,18 @@ class ResearchController extends Controller
                             }
                         }
                     }
+                    else if ($demo) // DEMO
+                    {
+                        foreach ($dates as $date => $value) {
+                            foreach ($user_devices as $d) {
+                                $dates[$date]['devices'][$d->key]['points'] = 0;
+                                $dates[$date]['devices'][$d->key]['from_flashlog'] = 0;
+                                $dates[$date]['devices'][$d->key]['total'] = 0;
+                                $dates[$date]['devices'][$d->key]['perc'] = random_int(0, 100);
+                            }
+                        }
+                    }
+
                 }
 
                 // // Add weather data
@@ -1435,6 +1449,49 @@ class ResearchController extends Controller
 
         // reverse array for display
         krsort($dates);
+        //dd ($dates);
+        // Count totals
+        $totals    = $assets;
+        $data_days = count($dates);
+        foreach ($dates as $day => $day_arr) 
+        {
+            foreach ($day_arr as $asset => $items) 
+            {
+                // if (is_numeric($items))
+                // {
+                //     if ($asset == 'inspections' || $asset == 'measurements' || $asset == 'measurements_imported' || $asset == 'measurements_total' || $asset == 'data_completeness' || $asset == 'data_completeness_online' || $asset == 'weather' || $asset == 'samplecodes' || $asset == 'flashlogs' || $asset == 'alerts')
+                //         $totals[$asset] += $items;
+                //     else
+                //         $totals[$asset] = max($totals[$asset], $items);
+
+                //     // if ($asset == 'measurements_total' && $items > 0)
+                //     //     $data_days++;
+                // }
+                if ($asset == 'devices')
+                {
+                    foreach ($items as $key => $device_data_array)
+                    {
+                        if (!isset($totals['devices'][$key]))
+                            $totals['devices'][$key] = ['total'=>0, 'from_flashlog'=>0, 'points'=>0, 'perc'=>0 ];
+
+                        $totals['devices'][$key]['total'] += $device_data_array['total'];
+                        $totals['devices'][$key]['points'] += $device_data_array['points'];
+                        $totals['devices'][$key]['from_flashlog'] += $device_data_array['from_flashlog'];
+                        $totals['devices'][$key]['perc'] += $device_data_array['perc'];
+                    }
+                }
+            }
+        }
+
+        // Average data completenes
+        if ($data_days > 0)
+        {
+            foreach ($totals['devices'] as $key => $totals_data_array)
+            {
+                $totals['devices'][$key]['data_completeness'] = round($totals_data_array['perc'] / $data_days);
+            }
+        }
+        //dd($totals);
 
         // Make readable devices select list 
         $devices_select = [];
@@ -1442,7 +1499,7 @@ class ResearchController extends Controller
         foreach ($devices_sorted as $d)
             $devices_select[$d->id] = $d->name.' - ('.$d->user->name.')'; 
 
-        return view('research.data', compact('research', 'devices_all', 'dates', 'consent_users_select', 'consent_users_selected', 'devices_select', 'device_ids', 'date_start', 'date_until',));
+        return view('research.data', compact('research', 'devices_all', 'dates', 'totals', 'consent_users_select', 'consent_users_selected', 'devices_select', 'device_ids', 'date_start', 'date_until',));
     }
 
 

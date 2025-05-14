@@ -1437,7 +1437,7 @@ class ResearchController extends Controller
         foreach ($devices_sorted as $d)
             $devices_select[$d->id] = $d->name.' - ('.$d->user->name.')'; 
 
-        return view('research.data', compact('research', 'user_devices', 'dates', 'consent_users_select', 'consent_users_selected', 'devices_select', 'device_ids', 'date_start', 'date_until',));
+        return view('research.data', compact('research', 'devices_all', 'dates', 'consent_users_select', 'consent_users_selected', 'devices_select', 'device_ids', 'date_start', 'date_until',));
     }
 
 

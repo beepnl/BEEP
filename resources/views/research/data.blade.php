@@ -104,7 +104,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach ($user_devices as $key => $device)
+                        @foreach ($devices_all as $key => $device)
                         <tr class="tb-row-small" @if (isset($device->deleted_at)) style="color: #AAA;" title="Device has been deleted at {{$device->deleted_at}}" @endif>
                             <th class="tb-row-small row-header">{{ $device->name }}</th> 
                             <th class="tb-row-small row-header">{{ $device->location_name }}</th> 
@@ -124,7 +124,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach ($user_devices as $key => $device)
+                        @foreach ($devices_all as $key => $device)
                         <tr>
                             @foreach($dates as $date => $d)
                                 <td class="tb-row-small">{{ isset($d['devices'][$key]['perc']) ? $d['devices'][$key]['perc'].'%' : '' }}</td>

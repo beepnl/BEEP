@@ -1241,7 +1241,7 @@ class ResearchController extends Controller
                     try{
                         $this->cacheRequestRate('influx-get');
                         $this->cacheRequestRate('influx-research');
-                        $query  = 'SELECT COUNT("bv") as "count" FROM "sensors" WHERE '.$user_device_keys.' AND time >= \''.$date_curr_consent.'\' AND time <= \''.$moment_end->format('Y-m-d H:i:s').'\' GROUP BY time(1d),key,from_flashlog';
+                        $query  = 'SELECT COUNT("bv") as "count" FROM "sensors" WHERE '.$user_device_keys.' AND time >= \''.$date_curr_consent.'\' AND time <= \''.$moment_end->format('Y-m-d H:i:s').'\' GROUP BY time(1d),key';
                         //die($query); 
                         $points = $this->client::query($query)->getPoints();
 
@@ -1258,7 +1258,7 @@ class ResearchController extends Controller
                         {
                             $date = substr($point['time'],0,10);
                             $key  = $point['key'];
-                            $fl   = $point['from_flashlog'];
+                            $fl   = isset($point['from_flashlog']) && $point['from_flashlog'] === '1' ? true : false;
 
                             if (isset($dates[$date]))
                             {
@@ -1274,7 +1274,7 @@ class ResearchController extends Controller
                                 $dates[$date]['devices'][$key]['total'] += $point['count'];
                                 $dates[$date]['devices'][$key]['perc'] = min(100, round(100 * $dates[$date]['devices'][$key]['total'] / 96)); // data once each 15 min 
                                 
-                                if ($fl === '1')
+                                if ($fl)
                                 {
                                     $dates[$date]['devices'][$key]['from_flashlog'] = $point['count'];
                                     $user_meas_import[$date] += $point['count'];

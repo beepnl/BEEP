@@ -1293,7 +1293,7 @@ class ResearchController extends Controller
                             }
                             else
                             {
-                                Log::debug("Date not set: ".count($date)); 
+                                Log::debug("Date not set: ".$date); 
                             }
                         }
                     }

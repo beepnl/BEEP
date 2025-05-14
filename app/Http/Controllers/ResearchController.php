@@ -215,7 +215,7 @@ class ResearchController extends Controller
     }
 
     /**
-     * Display the specified resource.
+     * Display Research overview.
      *
      * @param  int  $id
      *
@@ -985,6 +985,462 @@ class ResearchController extends Controller
 
         return view('research.show', compact('research', 'dates', 'consent_users_select', 'consent_users_selected', 'download_url', 'sensor_urls', 'totals', 'date_start', 'date_until', 'devices_select', 'device_ids'));
     }
+
+
+/**
+     * Display Research data per device.
+     *
+     * @param  int  $id
+     *
+     * @return \Illuminate\View\View
+     */
+    public function data($id, Request $request)
+    {
+        $this->checkAuthorization($request);
+
+        $this->validate($request, [
+            'date_start'    => 'nullable|date',
+            'date_until'    => 'nullable|date|after:date_start',
+            'user_ids.*'    => 'nullable|exists:users,id',
+            'device_ids.*'  => 'nullable|exists:sensors,id',
+        ]);
+
+        //die(print_r($request->all()));
+
+        if ($request->user()->hasRole('superadmin'))
+            $research = Research::findOrFail($id);
+        else
+            $research = $request->user()->allResearches()->find($id);
+
+        $device_ids   = $request->input('device_ids');
+        $devices_all  = collect();
+        $initial_days = 30;
+
+        // Make dates table:
+        /* [date] => [
+              key1 => [points, imported]
+              key2 => [points, imported]
+           ]
+        
+        */
+        $dates        = [];
+
+        $date_today   = date('Y-m-d');
+        $date_last    = isset($research->end_date) ? $research->end_date : $date_today;
+        $date_start   = max($research->start_date, $request->input('date_start', $research->start_date));
+        $date_until   = min($research->end_date, $request->input('date_until', $date_last));
+
+        $moment_now   = new Moment();
+        $moment_start = new Moment($date_start);
+        $moment_until = new Moment($date_until);
+        $moment_end   = new Moment($research->end_date);
+        $moment_now   = $moment_now->startof('day');
+        $moment_until = $moment_until->endof('day');
+        $moment_end   = $moment_end->endof('day');
+
+        $research_days= $moment_start->from($moment_end)->getDays();
+        $days_from_now= $moment_start->from($moment_now)->getDays();
+        $days_from_end= $moment_now->from($moment_end)->getDays();
+
+        $initial_days = min($research_days+1, $initial_days);
+        $day_diff     = 0;
+
+        if ($days_from_now <= 0) // research has not started yet
+        {
+            $moment_select = new Moment($date_start);
+            $date_start = $moment_select->startof('day')->format('Y-m-d');
+            $moment_select = new Moment($date_start);
+            $date_until = min($date_until, $moment_select->endof('day')->addDays($initial_days-1)->format('Y-m-d'));
+        }
+        else if ($days_from_end <= 0) // research has already finished
+        {
+            $moment_select = new Moment($date_until);
+            $date_start = $moment_select->startof('day')->addDays(-$initial_days-1)->format('Y-m-d');
+            $moment_select = new Moment($date_until);
+            $date_until = min($date_until, $moment_select->endof('day')->format('Y-m-d'));
+
+        }
+        else // now is within research start end end date
+        {
+            if ($request->filled('date_start') == false)
+            {
+                $days_from_sta = max(0, $initial_days - $days_from_now);
+                $moment_select = new Moment();
+                $date_start    = $moment_select->startof('day')->addDays(-$initial_days-1-$days_from_sta)->format('Y-m-d');
+            }
+
+            if ($request->filled('date_until') == false)
+            {
+                $moment_select = new Moment();
+                $date_until    = min($date_until, $moment_select->endof('day')->addDays(-$days_from_sta)->format('Y-m-d'));
+            }
+        }
+        //dd($date_start, $research->start_date, $date_until, $date_last, $research->end_date, $days_from_now, $days_from_end);
+
+        // Cap to research
+        if ($date_start < $research->start_date)
+            $date_start = $research->start_date;
+
+        if ($date_until > $research->end_date)
+            $date_until = $research->end_date;
+
+        $moment_start = new Moment($date_start);
+        $moment_end   = new Moment($date_until);
+
+        //dd($date_start, $date_until, $research_days, $days_from_now, $days_from_end, $day_diff, $moment_now, $moment_start, $moment_end);
+        
+        // count user consents within dates
+        $consent_users_select = DB::table('research_user')
+                                    ->join('users', 'users.id', '=', 'research_user.user_id')
+                                    ->select('users.name','users.id')
+                                    ->selectRaw('sum(research_user.consent) as consents')
+                                    ->where('research_user.research_id', $id)
+                                    ->whereDate('research_user.updated_at', '<', $date_until)
+                                    ->groupBy('research_user.user_id')
+                                    ->having('consents', '>', 0)
+                                    ->pluck('name','id')
+                                    ->toArray();
+
+        asort($consent_users_select, SORT_NATURAL);
+
+        $consent_users_selected = [];
+
+        // select users
+        if ($request->has('user_ids'))
+            $consent_users_selected = $request->input('user_ids');
+        else if (isset($research->default_user_ids))
+            $consent_users_selected = $research->default_user_ids;
+        else if (count($consent_users_select) > 0)
+            $consent_users_selected = [array_keys($consent_users_select)[0]];
+
+        $consents = DB::table('research_user')
+                            ->where('research_id', $id)
+                            ->whereIn('user_id', $consent_users_selected)
+                            ->whereDate('updated_at', '<', $date_until)
+                            ->groupBy('user_id')
+                            ->get();
+
+        $users = User::whereIn('id', $consent_users_selected)->get();
+
+        //die(print_r([$request->input('user_ids'), $consent_users_selected, $users]));
+        // Fill dates array
+        $assets = ["users"=>0, "user_names"=>[], "devices"=>[], "devices_online"=>0, "device_names"=>[], "devices_offline"=>[], "measurements"=>0, "measurements_imported"=>0, "measurements_total"=>0, "data_completeness"=>0, "data_completeness_online"=>0, "weather"=>0, "flashlogs"=>0, "samplecodes"=>0, "sensor_definitions"=>0, "alert_rules"=>0, "alerts"=>0];
+
+        $moment = $moment_start;
+        
+        // Fill $dates array
+        while($moment < $moment_end)
+        {
+            // make date
+            $dates[$moment->format('Y-m-d')] = $assets;
+            // next
+            $moment = $moment->addDays(1);
+        }
+
+
+        // Fill dates array with counts of data, and select the data for each user by consent
+        foreach ($users as $u) 
+        {
+            $user_id       = $u->id;
+            $user          = User::find($user_id);
+            $user_consents = DB::table('research_user')->where('research_id', $id)->where('user_id', $user_id)->whereDate('updated_at', '<', $date_until)->orderBy('updated_at','asc')->get()->toArray();
+            
+            if (!isset($user) || !isset($user_consents) || count($user_consents) == 0)
+                continue;
+
+            $user_consent_obj  = $user_consents[0];
+            $user_consent      = $user_consent_obj->consent;
+            $date_curr_consent = $date_start > $user_consent_obj->updated_at ? $date_start : $user_consent_obj->updated_at;
+            $date_next_consent = $moment_end->format('Y-m-d H:i:s');
+            $index             = 0;
+
+            if (count($user_consents) > 1)
+            {
+                $date_next_consent = $user_consents[1]->updated_at;
+                $index             = 1;
+            }
+            elseif ($user_consent === 0) // if only 1 and consent is false, continue to next user
+            {
+                continue;
+            }
+
+
+            //die(print_r([$user_consents, $date_curr_consent, $date_next_consent, $index]));
+
+            // add user data
+            if (isset($user_consent_obj->consent_location_ids)) // Set consent based on specific items
+            {
+                $loc_array     = explode(',', $user_consent_obj->consent_location_ids);
+                $user_apiaries = $user->locations()->withTrashed()->whereIn('id', $loc_array)->where('created_at', '<', $date_until)->orderBy('created_at')->get();
+            }
+            else
+            {
+                $user_apiaries = $user->locations()->withTrashed()->where('created_at', '<', $date_until)->orderBy('created_at')->get();
+            }
+
+            if (isset($user_consent_obj->consent_hive_ids)) // Set consent based on specific items
+            {
+                $hive_array    = explode(',', $user_consent_obj->consent_hive_ids);
+                $user_hives    = $user->hives()->withTrashed()->whereIn('id', $hive_array)->where('created_at', '<', $date_until)->orderBy('created_at')->get();
+            }
+            else
+            {
+                $user_hives    = $user->hives()->withTrashed()->where('created_at', '<', $date_until)->orderBy('created_at')->get();
+            }
+
+            if (isset($user_consent_obj->consent_sensor_ids)) // Set consent based on specific items
+            {
+                $device_array     = explode(',', $user_consent_obj->consent_sensor_ids);
+                $user_devices_all = $user->devices()->withTrashed()->whereIn('id', $device_array)->where('created_at', '<', $date_until)->orderBy('created_at')->get();
+            }
+            else
+            {
+                $user_devices_all = $user->devices()->withTrashed()->where('created_at', '<', $date_until)->orderBy('created_at')->get();
+            }
+
+            $devices_all       = $devices_all->merge($user_devices_all);
+            $user_devices      = isset($device_ids) ? $user_devices_all->whereIn('id', $device_ids) : $user_devices_all;
+            $user_devices_online = isset($device_ids) ? $user_devices_all->whereIn('id', $device_ids)->where('last_message_received', '>=', $date_start) : $user_devices_all->where('last_message_received', '>=', $date_start);
+            $user_flashlogs    = FlashLog::where('user_id', $user_id)->where('created_at', '>=', $date_start)->where('created_at', '<', $date_until)->orderBy('created_at')->get();
+            $user_measurements = [];
+            $user_meas_import  = [];
+            $user_weather_data = [];
+            $user_sensor_defs  = [];
+            $user_alert_rules  = $user->alert_rules()->where('default_rule', 0)->where('active', 1)->get();
+            $user_alerts       = isset($device_ids) ? $user->alerts()->whereIn('device_id', $device_ids)->where('show', 1)->get() : $user->alerts()->where('show', 1)->get();
+            
+            //die(print_r($user_devices->toArray()));
+
+            if ($user_devices->count() > 0)
+            {
+                // get daily counts of sensor measurements
+                $points           = [];
+                $weather          = [];
+                $user_device_keys = [];
+                $user_dloc_coords = [];
+
+                // Add sensor data
+                foreach ($user_devices as $device) 
+                {
+                    $user_device_keys[]= $device->influxWhereKeys();
+                    $loc = $device->location();
+                    if ($loc !== null && isset($loc->coordinate_lat) && isset($loc->coordinate_lon)) 
+                        $user_dloc_coords[] = '("lat" = \''.$loc->coordinate_lat.'\' AND "lon" = \''.$loc->coordinate_lon.'\')';
+
+                    // Add sensor definitions
+                    $sensor_defs = $this->getSensorDefinitions($device, $date_next_consent);
+                    foreach ($sensor_defs as $sdef)
+                        $user_sensor_defs[] = $sdef;
+
+                }
+
+                if (count($user_device_keys) > 0)
+                {
+                    $user_device_keys = '('.implode(' OR ', $user_device_keys).')';
+
+                    try{
+                        $this->cacheRequestRate('influx-get');
+                        $this->cacheRequestRate('influx-research');
+                        $query  = 'SELECT COUNT("bv") as "count" FROM "sensors" WHERE '.$user_device_keys.' AND time >= \''.$date_curr_consent.'\' AND time <= \''.$moment_end->format('Y-m-d H:i:s').'\' GROUP BY key,time(1d),from_flashlog';
+                        //die($query); 
+                        $point_data = $this->client::query($query);
+                        
+                        $points = [];
+                        if (isset($point_data->results))
+                            $points = $point_data->getPoints();
+
+                    } catch (InfluxDB\Exception $e) {
+                        Log::error('Research data query error: '.$e->getMessage());
+                        // return Response::json('influx-group-by-query-error', 500);
+                    }
+                    if (count($points) > 0)
+                    {
+                        // TODO: remove dd
+                        //dd($points);
+
+                        foreach ($points as $point)
+                        {
+                            $date = substr($point['time'],0,10);
+                            $key  = $point['key'];
+                            $fl   = $point['from_flashlog'];
+
+                            if (isset($dates[$date]))
+                            {
+                                if (!isset($dates[$date]['devices'][$key]))
+                                    $dates[$date]['devices'][$key] = ['points'=>0, 'from_flashlog'=>0, 'total'=>0, 'perc'=>0];
+
+                                if (!isset($user_meas_import[$date]))
+                                    $user_meas_import[$date] = 0;
+
+                                if (!isset($user_measurements[$date]))
+                                    $user_measurements[$date] = 0;
+
+                                $dates[$date]['devices'][$key]['total'] += $point['count'];
+                                $dates[$date]['devices'][$key]['perc'] = min(100, round(100 * $dates[$date]['devices'][$key]['total'] / 96)); // data once each 15 min 
+                                
+                                if ($fl === '1')
+                                {
+                                    $dates[$date]['devices'][$key]['from_flashlog'] = $point['count'];
+                                    $user_meas_import[$date] += $point['count'];
+                                }
+                                else
+                                {
+                                    $dates[$date]['devices'][$key]['points'] = $point['count'];
+                                    $user_measurements[$date] += $point['count'];
+                                }
+                                    
+                            }
+                        }
+                    }
+                }
+
+                // // Add weather data
+                // $user_location_coord_where = '('.implode(' OR ', $user_dloc_coords).')';
+                // if (count($user_dloc_coords) > 0 && isset($date_curr_consent))
+                // {
+                //     try{
+                //         $weather = $this->client::query('SELECT COUNT("temperature") as "count" FROM "weather" WHERE '.$user_location_coord_where.' AND time >= \''.$date_curr_consent.'\' AND time <= \''.$moment_end->format('Y-m-d H:i:s').'\' GROUP BY time(1d)')->getPoints(); // get first weather date
+                //     } catch (InfluxDB\Exception $e) {
+                //         Log::error('Research weather query error: '.$e->getMessage());
+                //         // return Response::json('influx-group-by-query-error', 500);
+                //     }
+                //     if (count($weather) > 0)
+                //     {
+                //         foreach ($weather as $point) 
+                //             $user_weather_data[substr($point['time'],0,10)] = $point['count'];
+                //     }
+                // }
+            }
+
+            // go over dates, compare consent dates
+        //     $i = 0;
+        //     $user_data_counts    = $assets;
+        //     $last_devices_online = [];
+
+        //     foreach ($dates as $d => $v) 
+        //     {
+        //         $d_start      = $d.' 00:00:00';
+        //         $d_end        = $d.' 23:59:59';
+        //         $next_consent = false;
+
+        //         if ($d_end >= $date_next_consent && $index > 0 && $index < count($user_consents)) // change user_consent if multiple user_consents exist and check date is past the active consent date 
+        //         {
+        //             $next_consent = true;
+
+        //             // take current user_consent
+        //             $user_consent       = $user_consents[$index]->consent;
+        //             $date_curr_consent  = $user_consents[$index]->updated_at;
+        //             //fill up to next consent date
+        //             if ($index < count($user_consents)-1)
+        //                 $date_next_consent  = $user_consents[$index+1]->updated_at;
+        //             else
+        //                 $date_next_consent = $moment_end->format('Y-m-d H:i:s');
+
+        //             // hide this data from dataset, because earlier than requested
+        //             if ($date_next_consent < $date_start || $date_curr_consent > $date_until)
+        //             {
+        //                 $index++;
+        //                 continue;
+        //             }
+                    
+        //             // minimize consent dates to start/unit date
+        //             if ($date_curr_consent < $date_start)
+        //                 $date_curr_consent = $date_start.' 00:00:00';
+
+        //             if ($date_next_consent > $date_until)
+        //                 $date_next_consent = $date_until.' 23:59:59';
+
+        //             //print_r([$index, $user_consent, $date_start, $date_until, $date_curr_consent, $date_next_consent, $moment_end]);
+
+        //             $index++;
+        //         }
+                
+            
+
+        //         // Fill objects for consent period
+        //         // if ($user_consent && ($next_consent || $i == 0))
+        //         // {    
+        //         //     // add 
+        //         //     $user_data_counts['users']              = $user_consent;
+        //         //     $user_data_counts['apiaries']           = $user_apiaries->where('created_at', '<=', $date_next_consent)->count();
+        //         //     $user_data_counts['hives']              = $user_hives->where('created_at', '<=', $date_next_consent)->count();
+        //         //     $user_data_counts['devices']            = $user_devices->where('created_at', '<=', $date_next_consent)->count();
+        //         //     $user_data_counts['devices_online']     = $user_devices_online->where('created_at', '<=', $date_next_consent)->count();
+        //         //     $user_data_counts['flashlogs']          = $user_flashlogs->where('created_at', '<=', $date_next_consent)->count();
+        //         //     $user_data_counts['alert_rules']        = $user_alert_rules->where('created_at', '<=', $date_next_consent)->count();
+        //         //     $user_data_counts['sensor_definitions'] = count($user_sensor_defs);
+
+        //         // }
+
+        //         // Fill day array
+        //         if ($user_consent && $d_start > $date_curr_consent)
+        //         {
+        //             foreach ($user_devices as $device) {
+        //                 // code...
+        //             }
+
+        //             $dates[$d]['users']      += $user_data_counts['users'];
+        //             $dates[$d]['user_names'][]= $user->name;
+        //             $dates[$d]['apiaries']   += $user_data_counts['apiaries'];
+        //             $dates[$d]['hives']      += $user_data_counts['hives'];
+        //             $dates[$d]['devices']    += $user_data_counts['devices'];
+        //             $dates[$d]['devices_online']+= $user_devices_online->where('last_message_received', '>=', $d_start)->count();
+        //             $dates[$d]['device_names']= array_merge($dates[$d]['device_names'], $user_devices_online->where('last_message_received', '>=', $d_start)->pluck('name')->toArray());
+                    
+        //             if (count($last_devices_online) > 0)
+        //             {
+        //                 $dates[$d]['devices_offline'] = array_diff($last_devices_online, $dates[$d]['device_names']);
+        //             }
+        //             $last_devices_online      = $dates[$d]['device_names'];
+                    
+        //             $dates[$d]['sensor_definitions'] += $user_data_counts['sensor_definitions'];
+        //             $dates[$d]['alert_rules']+= $user_data_counts['alert_rules'];
+
+        //             $inspections_today        = $hive_inspections->where('created_at', '>=', $d_start)->where('created_at', '<=', $d_end)->count();
+        //             $dates[$d]['inspections'] = $v['inspections'] + $inspections_today;
+                    
+        //             $flashlogs_today          = $user_flashlogs->where('created_at', '>=', $d_start)->where('created_at', '<=', $d_end)->count();
+        //             $dates[$d]['flashlogs']   = $v['flashlogs'] + $flashlogs_today;
+
+        //             $samplecodes_today        = $user_samplecodes->where('sample_date', '>=', $d_start)->where('sample_date', '<=', $d_end)->count();
+        //             $dates[$d]['samplecodes'] = $v['samplecodes'] + $samplecodes_today;
+
+        //             $alerts_today             = $user_alerts->where('created_at', '>=', $d_start)->where('created_at', '<=', $d_end)->count();
+        //             $dates[$d]['alerts']      = $v['alerts'] + $alerts_today;
+                    
+        //             if (in_array($d, array_keys($user_measurements)))
+        //                 $dates[$d]['measurements'] = $v['measurements'] + $user_measurements[$d];
+
+        //             if (in_array($d, array_keys($user_meas_import)))
+        //                 $dates[$d]['measurements_imported'] = $v['measurements_imported'] + $user_meas_import[$d];
+
+        //             $dates[$d]['measurements_total']    = $dates[$d]['measurements'] + $dates[$d]['measurements_imported'];
+        //             $dates[$d]['data_completeness']     = $dates[$d]['devices'] > 0 ? round(100 * $dates[$d]['measurements_total'] / ($dates[$d]['devices'] * (60*24/15))) : '';
+        //             $dates[$d]['data_completeness_online'] = $dates[$d]['devices_online'] > 0 ? min(100, round(100 * $dates[$d]['measurements_total'] / ($dates[$d]['devices_online'] * (60*24/15)))) : '';
+
+        //             if (in_array($d, array_keys($user_weather_data)))
+        //                 $dates[$d]['weather']= $v['weather'] + $user_weather_data[$d];
+
+        //         }
+
+        //         $i++;
+        //     } // end day loop
+        
+        } // end user loop
+
+        // reverse array for display
+        krsort($dates);
+
+        // Make readable devices select list 
+        $devices_select = [];
+        $devices_sorted = $devices_all->sortBy('user_id')->sortBy('name');
+        foreach ($devices_sorted as $d)
+            $devices_select[$d->id] = $d->name.' - ('.$d->user->name.')'; 
+
+        return view('research.data', compact('research', 'user_devices', 'dates', 'consent_users_select', 'consent_users_selected', 'devices_select', 'device_ids', 'date_start', 'date_until',));
+    }
+
+
 
     /**
      * Show the form for editing the specified resource.

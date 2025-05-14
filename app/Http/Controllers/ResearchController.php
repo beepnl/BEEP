@@ -1241,9 +1241,13 @@ class ResearchController extends Controller
                     try{
                         $this->cacheRequestRate('influx-get');
                         $this->cacheRequestRate('influx-research');
-                        $query  = 'SELECT COUNT("bv") as "count" FROM "sensors" WHERE '.$user_device_keys.' AND time >= \''.$date_curr_consent.'\' AND time <= \''.$moment_end->format('Y-m-d H:i:s').'\' GROUP BY time(1d),key';
+                        $query  = 'SELECT COUNT("bv") as "count" FROM "sensors" WHERE '.$user_device_keys.' AND time >= \''.$date_curr_consent.'\' AND time <= \''.$moment_end->format('Y-m-d H:i:s').'\' GROUP BY "key",time(1d),from_flashlog';
                         //die($query); 
-                        $points = $this->client::query($query)->getPoints();
+                        $point_data = $this->client::query($query);
+                        
+                        $points = [];
+                        if (isset($point_data->results))
+                            $points = $point_data->getPoints();
 
                     } catch (InfluxDB\Exception $e) {
                         Log::error('Research data query error: '.$e->getMessage());

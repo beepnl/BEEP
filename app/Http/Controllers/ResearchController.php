@@ -1242,7 +1242,7 @@ class ResearchController extends Controller
                     try{
                         $this->cacheRequestRate('influx-get');
                         $this->cacheRequestRate('influx-research');
-                        $query  = 'SELECT COUNT("bv") as "count" FROM "sensors" WHERE '.$user_device_keys.' AND time >= \''.$date_curr_consent.' 00:00:00\' AND time <= \''.$moment_end->format('Y-m-d H:i:s').'\' GROUP BY "key",time(1d)';
+                        $query  = 'SELECT COUNT("bv") as "count" FROM "sensors" WHERE '.$user_device_keys.' AND time >= \''.$date_curr_consent.' 00:00:00\' AND time <= \''.$moment_end->format('Y-m-d H:i:s').'\' GROUP BY "key",time(1d),from_flashlog';
                         Log::debug($query); 
                         $points = $this->client::query($query)->getPoints();
                         
@@ -1258,7 +1258,7 @@ class ResearchController extends Controller
                     if (count($points) > 0)
                     {
                         // TODO: remove dd
-                        dd($points);
+                        //dd($points);
                         foreach ($points as $point)
                         {
                             $date = substr($point['time'],0,10);
@@ -1290,6 +1290,10 @@ class ResearchController extends Controller
                                     $user_measurements[$date] += $point['count'];
                                 }
                                     
+                            }
+                            else
+                            {
+                                Log::debug("Date not set: ".count($date)); 
                             }
                         }
                     }

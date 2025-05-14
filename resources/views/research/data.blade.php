@@ -124,10 +124,10 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach ($devices_all as $key => $device)
+                        @foreach ($devices_all as $device)
                         <tr>
                             @foreach($dates as $date => $d)
-                                <td class="tb-row-small">{{ isset($d['devices'][$key]['perc']) ? $d['devices'][$key]['perc'].'%' : '' }}</td>
+                                <td class="tb-row-small">{{ isset($d['devices'][$device->key]['perc']) ? $d['devices'][$device->key]['perc'].'%' : '' }}</td>
                             @endforeach
                         </tr>
                        @endforeach

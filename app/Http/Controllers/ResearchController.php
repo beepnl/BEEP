@@ -1258,7 +1258,7 @@ class ResearchController extends Controller
                     if (count($points) > 0)
                     {
                         // TODO: remove dd
-                        //dd($points);
+                        dd($points);
                         foreach ($points as $point)
                         {
                             $date = substr($point['time'],0,10);

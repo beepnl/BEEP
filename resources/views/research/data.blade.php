@@ -18,7 +18,7 @@
         @endslot
 
         @slot('body')
-            <form method="GET" action="{{ route('research.show',$research->id) }}" accept-charset="UTF-8" class="form-horizontal" enctype="multipart/form-data">
+            <form method="GET" action="{{ route('research.data',$research->id) }}" accept-charset="UTF-8" class="form-horizontal" enctype="multipart/form-data">
                 <div class="col-xs-12 col-md-4">
                     <div class="form-group {{ $errors->has('user_ids') ? 'has-error' : ''}}">
                         <label for="user_ids" control-label>{{ 'Select consented users' }} ({{ count($consent_users_selected) }} / {{ count($consent_users_select) }})</label>

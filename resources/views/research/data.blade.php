@@ -18,6 +18,7 @@
         @endslot
 
         @slot('body')
+        <div class="col-xs-12">
             <form method="GET" action="{{ route('research.data',$research->id) }}" accept-charset="UTF-8" class="form-horizontal" enctype="multipart/form-data">
                 <div class="col-xs-12 col-md-4">
                     <div class="form-group {{ $errors->has('user_ids') ? 'has-error' : ''}}">
@@ -63,77 +64,78 @@
                     </div>
                 </div>
             </form>
-            <hr>
-            <script type="text/javascript">
-                $(document).ready(function() {
-                    $("#table-devices").DataTable(
-                    {
-                        "pageLength": 10,
-                        "language": 
-                            @php
-                                echo File::get(public_path('js/datatables/i18n/'.LaravelLocalization::getCurrentLocaleName().'.lang'));
-                            @endphp
-                        ,
-                        "order": 
-                        [
-                            [ 2, "asc" ]
-                        ],
-                    });
+        </div>
+        <hr>
+        <script type="text/javascript">
+            $(document).ready(function() {
+                $("#table-devices").DataTable(
+                {
+                    "pageLength": 10,
+                    "language": 
+                        @php
+                            echo File::get(public_path('js/datatables/i18n/'.LaravelLocalization::getCurrentLocaleName().'.lang'));
+                        @endphp
+                    ,
+                    "order": 
+                    [
+                        [ 2, "asc" ]
+                    ],
                 });
+            });
 
-            </script>
+        </script>
 
-            <style type="text/css">
-                .tb-row-small{
-                    height: 45px; 
-                    max-height: 45px; 
-                    min-height: 45px; 
-                    overflow: scroll; 
-                    white-space: nowrap;" 
-                }
-            </style>
-            <h2>Device data completeness per day (%)</h2>
-            <!-- Data table -->
-            <div style="display: inline-block; width: 400px; overflow: scroll;">
-                <table class="table table-responsive table-striped table-header-rotated">
-                    <thead>
-                        <tr>
-                            <th class="rotate">Device</th>
-                            <th class="rotate">Apiary</th>
-                            <th class="rotate">Hive</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach ($devices_all as $key => $device)
-                        <tr class="tb-row-small" @if (isset($device->deleted_at)) style="color: #AAA;" title="Device has been deleted at {{$device->deleted_at}}" @endif>
-                            <th class="tb-row-small row-header">{{ $device->name }}</th> 
-                            <th class="tb-row-small row-header">{{ $device->location_name }}</th> 
-                            <th class="tb-row-small row-header">{{ $device->hive_name }}</th> 
-                        </tr>
+        <style type="text/css">
+            .tb-row-small{
+                height: 45px; 
+                max-height: 45px; 
+                min-height: 45px; 
+                overflow: scroll; 
+                white-space: nowrap;" 
+            }
+        </style>
+        <h2>Device data completeness per day (%)</h2>
+        <!-- Data table -->
+        <div style="display: inline-block; width: 400px; overflow: scroll;">
+            <table class="table table-responsive table-striped table-header-rotated">
+                <thead>
+                    <tr>
+                        <th class="rotate">Device</th>
+                        <th class="rotate">Apiary</th>
+                        <th class="rotate">Hive</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach ($devices_all as $key => $device)
+                    <tr class="tb-row-small" @if (isset($device->deleted_at)) style="color: #AAA;" title="Device has been deleted at {{$device->deleted_at}}" @endif>
+                        <th class="tb-row-small row-header">{{ $device->name }}</th> 
+                        <th class="tb-row-small row-header">{{ $device->location_name }}</th> 
+                        <th class="tb-row-small row-header">{{ $device->hive_name }}</th> 
+                    </tr>
+                    @endforeach
+                </tbody>
+            </table>
+        </div>
+        <div style="display: inline-block; width: calc( 100% - 410px); overflow-y: hidden; overflow-x: auto;">
+            <table class="table table-responsive table-striped table-header-rotated">
+                <thead>
+                    <tr>
+                        @foreach($dates as $date => $d)
+                            <th class="rotate"><div><span>{{ $date }}</span></div></th>
                         @endforeach
-                    </tbody>
-                </table>
-            </div>
-            <div style="display: inline-block; width: calc( 100% - 410px); overflow-y: hidden; overflow-x: auto;">
-                <table class="table table-responsive table-striped table-header-rotated">
-                    <thead>
-                        <tr>
-                            @foreach($dates as $date => $d)
-                                <th class="rotate"><div><span>{{ $date }}</span></div></th>
-                            @endforeach
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach ($devices_all as $device)
-                        <tr>
-                            @foreach($dates as $date => $d)
-                                <td class="tb-row-small">{{ isset($d['devices'][$device->key]['perc']) ? $d['devices'][$device->key]['perc'] : '' }}</td>
-                            @endforeach
-                        </tr>
-                       @endforeach
-                    </tbody>
-                </table>
-            </div>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach ($devices_all as $device)
+                    <tr>
+                        @foreach($dates as $date => $d)
+                            <td class="tb-row-small">{{ isset($d['devices'][$device->key]['perc']) ? $d['devices'][$device->key]['perc'] : '' }}</td>
+                        @endforeach
+                    </tr>
+                   @endforeach
+                </tbody>
+            </table>
+        </div>
 
         @endslot
     @endcomponent

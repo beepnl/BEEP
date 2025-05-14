@@ -63,7 +63,7 @@
                     </div>
                 </div>
             </form>
-
+            <hr>
             <script type="text/javascript">
                 $(document).ready(function() {
                     $("#table-devices").DataTable(
@@ -92,7 +92,7 @@
                     white-space: nowrap;" 
                 }
             </style>
-
+            <h2>Device data completeness per day (%)</h2>
             <!-- Data table -->
             <div style="display: inline-block; width: 400px; overflow: scroll;">
                 <table class="table table-responsive table-striped table-header-rotated">
@@ -127,7 +127,7 @@
                         @foreach ($devices_all as $device)
                         <tr>
                             @foreach($dates as $date => $d)
-                                <td class="tb-row-small">{{ isset($d['devices'][$device->key]['perc']) ? $d['devices'][$device->key]['perc'].'%' : '' }}</td>
+                                <td class="tb-row-small">{{ isset($d['devices'][$device->key]['perc']) ? $d['devices'][$device->key]['perc'] : '' }}</td>
                             @endforeach
                         </tr>
                        @endforeach

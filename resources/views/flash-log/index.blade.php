@@ -92,22 +92,22 @@
             });
         </script>
 
-
+        <div style="overflow-x: scroll;">
         <table id="table-flash-log" class="table table-responsive table-striped">
             <thead>
                 <tr>
                     <th>#</th>
-                    <th>Upload date</th>
-                    <th>Last update</th>
+                    <th style="min-width: 60px;">Upload date</th>
+                    <th style="min-width: 60px;">Last update</th>
                     <th>User</th>
-                    <th>Device</th>
+                    <th style="min-width: 100px;">Device</th>
                     <th>Hive</th>
                     <th>Messages</th>
                     <th>Time %</th>
                     <th>Erased/ Parsed/ Time</th>
-                    <th>Log start</th>
-                    <th>Log end</th>
-                    <th>Logs/ day (days)</th>
+                    <th style="min-width: 60px;">Log start</th>
+                    <th style="min-width: 60px;">Log end</th>
+                    <th style="min-width: 60px;">Time log %</th>
                     <th>Size</th>
                     <th>Persisted</th>
                     <th style="min-width: 280px;">Actions</th>
@@ -127,7 +127,7 @@
                     <td>{{ $item->log_erased }} / {{ $item->log_parsed }} / {{ $item->log_has_timestamps }}</td>
                     <td>{{ $item->log_date_start }}</td>
                     <td>{{ $item->log_date_end }}</td>
-                    <td>{{ $item->logs_per_day }}<br>({{ $item->getLogDays() }})</td>
+                    <td>{{ $item->getTimeLogPercentage() }}% of<br>{{ $item->getLogDays() }} days</td>
                     <td>{{ round($item->bytes_received/1024/1024,3) }}MB @if(isset($item->log_size_bytes) && $item->log_size_bytes > 0) ({{ round(100*($item->bytes_received / $item->log_size_bytes),1) }}%) @endif </td>
                     <td>@if(isset($item->persisted_block_ids))
                         Days: {{ $item->persisted_days }}, 
@@ -160,6 +160,7 @@
             @endforeach
             </tbody>
         </table>
+        </div>
 
         <div class="pagination-wrapper"> {!! $flashlog->render() !!} </div>
 

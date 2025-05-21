@@ -147,8 +147,13 @@ class FlashLogController extends Controller
 
             if ($fill_csv && isset($flashlog->log_parsed)) // use parsed log file to generate CSV
             {
-                $flashlog_parsed_json = json_decode($flashlog->getFileContent('log_file_parsed'), true);
-                $save_output          = FlashLog::exportData($flashlog_parsed_json, "$flashlog->device_name-log-file-$id-all-data", true, ';', true);
+                $flashlog_parsed_text = $flashlog->getFileContent('log_file_parsed');
+                if (empty($flashlog_parsed_text))
+                    return redirect()->route('flash-log.index', $query_par)->with('error', "FlashLog $id log_file_parsed is empty");
+
+                $flashlog_parsed_json = json_decode($flashlog_parsed_text, true);
+                $csv_file_name        = "flashlog-$id-device-id-$flashlog->device_id-sensor-data";
+                $save_output          = FlashLog::exportData($flashlog_parsed_json, $csv_file_name, true, ';', true);
 
                 if (isset($save_output['link']))
                 {
@@ -158,10 +163,10 @@ class FlashLogController extends Controller
                     $flashlog->logs_per_day   = $flashlog->getLogPerDay();
                     $flashlog->save();
                     
-                    return redirect()->route('flash-log.index', $query_par)->with('success', 'FlashLog CSV set: '.$flashlog->csv_url);
+                    return redirect()->route('flash-log.index', $query_par)->with('success', "FlashLog $id CSV set: $flashlog->csv_url");
                 }
 
-                return redirect()->route('flash-log.index', $query_par)->with('error', 'FlashLog CSV error: '.implode(', ',$save_output));
+                return redirect()->route('flash-log.index', $query_par)->with('error', "FlashLog $id CSV error: ".implode(', ',$save_output));
 
             }
             else
@@ -178,15 +183,15 @@ class FlashLogController extends Controller
                 }
                 else
                 {
-                    return redirect()->route('flash-log.index', $query_par)->with('error', 'Flashlog file \''.$flashlog->log_file.'\' not found');
+                    return redirect()->route('flash-log.index', $query_par)->with('error', "FlashLog $id file '$flashlog->log_file' not found");
                 }
             }
         }
         else
         {
-            return redirect()->route('flash-log.index', $query_par)->with('error', 'No flashlog file present, nothing to parse');
+            return redirect()->route('flash-log.index', $query_par)->with('error', "FlashLog $id No flashlog file present, nothing to parse");
         }
-        return redirect()->route('flash-log.index', $query_par)->with('success', 'FlashLog parsed again: '.implode(', ',$out));
+        return redirect()->route('flash-log.index', $query_par)->with('success', "FlashLog $id parsed again: ".implode(', ',$out));
     }
 
     /**

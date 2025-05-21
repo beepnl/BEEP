@@ -140,7 +140,7 @@ class FlashLog extends Model
         return $array;
     }
 
-    public function getLogDays()
+    public function getLogDays() // only logs with set time
     {
         if (isset($this->log_date_start) && isset($this->log_date_end))
         {
@@ -154,24 +154,52 @@ class FlashLog extends Model
         $log_days = $this->getLogDays();
         if (isset($log_days) && $log_days > 0 && isset($this->log_messages))
         {
-            return round($this->log_messages / $log_days);
+            return round($this->log_messages * ($this->time_percentage/100) / $log_days);
         }
         return null;
+    }
+
+    public function getDeviceMeasurementIntervalMin()
+    {
+        $device = $this->device;
+        if (isset($device) && isset($device->measurement_interval_min) && $device->measurement_interval_min > 0)
+            return $device->measurement_interval_min;
+
+        return 15;
+    }
+
+    public function getTimeLogPercentage()
+    {
+        $logs_per_day = $this->getLogPerDay();
+
+        if (isset($logs_per_day)) // means that $this->log_date_end is set
+        {
+            $interval_min = $this->getDeviceMeasurementIntervalMin();
+            $logs_per_day_full = (24 * 60) / $interval_min;
+            $logs_per_day_perc = round(100 * $logs_per_day / $logs_per_day_full, 1);
+            return $logs_per_day_perc;
+        }
+        return 0;
     }
 
     public function validLog()
     {
         /* validate log if: 
            1. created_at is within 1 hour from last timestamp
-           2. logs_per_day is > 90
+           2. log % > 90%: interval 15 min should have 96 msg/day (>86msg = >90%)
         */
         $logs_per_day = $this->getLogPerDay();
-        if (isset($logs_per_day) && $logs_per_day > 90) // means that $this->log_date_end is set
+        
+        if (isset($logs_per_day)) // means that $this->log_date_end is set
         {
             $created_u  = strtotime($this->created_at);
             $last_log_u = strtotime($this->log_date_end);
-            if ($last_log_u > $created_u - 3600)
-                return true;
+            if ($last_log_u >= $created_u - env('FLASHLOG_VALID_UPLOAD_DIFF_SEC', 3600))
+            {
+                $logs_per_day_perc = $this->getTimeLogPercentage();
+                if ($logs_per_day_perc >= env('FLASHLOG_VALID_TIME_LOG_PERC', 90))
+                    return true;
+            }
         }
         return false;
     }
@@ -1051,6 +1079,8 @@ class FlashLog extends Model
     {
         $link = $link_override ? $link_override : env('FLASHLOG_EXPORT_LINK', true);
 
+        //dd($name, gettype($data));
+        
         if ($data && gettype($data) == 'array' && count($data) > 0)
         {
             $fileBody   = null;
@@ -1067,7 +1097,7 @@ class FlashLog extends Model
                     $data_item = $data[$i];
                     if (isset($data_item['port']) && $data_item['port'] == 3 && count($data_item) > 10) // should have at least 10 items
                     {
-                        $header_item = self::cleanFlashlogItem($data_item, false);
+                        $header_item = self::cleanFlashlogItem($data_item, true);
                         break;
                     }
                 }
@@ -1094,14 +1124,17 @@ class FlashLog extends Model
                     {
                         if (isset($data_item['port']) && $data_item['port'] == 3)
                         {
-                            $csv_body[] = implode($separator, self::cleanFlashlogItem($data_item, false));
+                            $csv_body[] = implode($separator, self::cleanFlashlogItem($data_item, true));
 
-                            if (isset($data_item['time']) && isset($data_item['time_device']) && $data_item['time_device'] > self::$minUnixTime)
+                            if (isset($data_item['time']))
                             {
-                                if ($first_date === null)
-                                    $first_date = $data_item['time'];
+                                if (!isset($data_item['time_device']) || $data_item['time_device'] >= self::$minUnixTime) // time is set (also allow previously parsed Flashlogs without RTC), or time_device should be correctly set
+                                {
+                                    if ($first_date === null)
+                                        $first_date = $data_item['time'];
 
-                                $last_date = $data_item['time']; // update until last item with date
+                                    $last_date = $data_item['time']; // update until last item with date
+                                }
                             }
                         }
                     }
@@ -1112,6 +1145,7 @@ class FlashLog extends Model
             {
                 $fileBody = $data; // return json as body
             }
+            dd($name, $first_date, $last_date);
 
             if ($link)
             {
@@ -1120,7 +1154,8 @@ class FlashLog extends Model
                     $disk     = env('EXPORT_STORAGE', 'public');
                     $file_ext = $csv ? '.csv' : '.json';
                     $file_mime= $csv ? 'text/csv' : 'application/json';
-                    $filePath = 'exports/flashlog/beep-base-log-export-'.$name.'-'.Str::random(20).$file_ext;
+                    $file_date= (isset($first_date) ? substr($first_date, 0, 10) : '').'-'.(isset($last_date) ? substr($last_date, 0, 10) : '');
+                    $filePath = 'exports/flashlog/beep-export-'.$name.'-'.$file_date.'-'.Str::random(10).$file_ext;
                     $filePath = str_replace(' ', '', $filePath);
 
                     Storage::disk($disk)->put($filePath, $fileBody, ['mimetype' => $file_mime]);

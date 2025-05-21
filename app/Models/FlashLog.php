@@ -85,6 +85,19 @@ class FlashLog extends Model
     }
     
     // Get content of log_file, log_file_stripped, or log_file_parsed
+    public function getFileSizeBytes($type='log_file')
+    {
+        if(isset($this->{$type}))
+        {
+            $file = 'flashlog/'.last(explode('/',$this->{$type}));
+            //die(print_r($file));
+            $disk = env('FLASHLOG_STORAGE', 'public');
+            if (Storage::disk($disk)->exists($file))
+                return Storage::disk($disk)->size($file);
+        }
+        return null;
+    }
+
     public function getFileContent($type='log_file')
     {
         if(isset($this->{$type}))

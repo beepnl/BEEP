@@ -6,7 +6,59 @@
 @section('content')
     @component('components/box')
         @slot('title')
-            {{ __('crud.overview', ['item'=>__('beep.FlashLog')]) }}
+            {{ __('crud.overview', ['item'=>__('beep.Flash_logs')]) }}
+            {!! Form::open(['method' => 'GET', 'route' => 'flash-log.index', 'class' => 'form-inline', 'role' => 'search'])  !!}
+            <div class="input-group" style="display: inline-block;">
+                <input type="text" class="form-control" style="max-width: 100px;" name="device" placeholder="Device..." value="{{ request('device') }}">
+                <span class="input-group-btn">
+                    <button type="submit" class="btn btn-deafult"><i class="fa fa-search"></i></button>
+                </span>
+            </div>
+            <div class="input-group" style="display: inline-block;">
+                <input type="text" class="form-control" style="max-width: 100px;" name="user" placeholder="User..." value="{{ request('user') }}">
+                <span class="input-group-btn">
+                    <button type="submit" class="btn btn-deafult"><i class="fa fa-search"></i></button>
+                </span>
+            </div>
+            <div class="input-group" style="display: inline-block;">
+                <input type="number" class="form-control" style="max-width: 100px;" step="0.1" placeholder="MB >" name="mb" value="{{ request('mb') }}">
+            </div>
+
+            <div class="input-group" style="display: inline-block; margin-left: 20px;">
+                <label for="log_parsed" control-label>{{ 'Log parsed' }}</label>
+                <div>
+                    <div class="radio">
+                        <label><input onchange="this.form.submit()" name="log_parsed" type="radio" value="1" {{ ('' !== request('log_parsed') && '1' == request('log_parsed')) ? 'checked' : '' }}> Yes</label>
+                    </div>
+                    <div class="radio">
+                        <label><input onchange="this.form.submit()" name="log_parsed" type="radio" value="0" @if ('' !== request('log_parsed')) {{ ('0' == request('log_parsed')) ? 'checked' : '' }} @else {{ 'checked' }} @endif> No</label>
+                    </div>
+                </div>
+            </div>
+            <div class="input-group" style="display: inline-block; margin-left: 20px;">
+                <label for="log_has_timestamps" control-label>{{ 'Has time' }}</label>
+                <div>
+                    <div class="radio">
+                        <label><input onchange="this.form.submit()" name="log_has_timestamps" type="radio" value="1" {{ ('' !== request('log_has_timestamps') && '1' == request('log_has_timestamps')) ? 'checked' : '' }}> Yes</label>
+                    </div>
+                    <div class="radio">
+                        <label><input onchange="this.form.submit()" name="log_has_timestamps" type="radio" value="0" @if ('' !== request('log_has_timestamps')) {{ ('0' == request('log_has_timestamps')) ? 'checked' : '' }} @else {{ 'checked' }} @endif> No</label>
+                    </div>
+                </div>
+            </div>
+            <div class="input-group" style="display: inline-block; margin-left: 20px;">
+                <label for="csv_url" control-label>{{ 'Has CSV' }}</label>
+                <div>
+                    <div class="radio">
+                        <label><input onchange="this.form.submit()" name="csv_url" type="radio" value="1" {{ ('' !== request('csv_url') && '1' == request('csv_url')) ? 'checked' : '' }}> Yes</label>
+                    </div>
+                    <div class="radio">
+                        <label><input onchange="this.form.submit()" name="csv_url" type="radio" value="0" @if ('' !== request('csv_url')) {{ ('0' == request('csv_url')) ? 'checked' : '' }} @else {{ 'checked' }} @endif> No</label>
+                    </div>
+                </div>
+            </div>
+            {!! Form::close() !!}
+            <span><h5><em>NB: De 'Device', 'User' & 'Flashlog properties' filter velden filteren max 50 flashlog op volgorde van de laatste upload uit de database</em></h5></span>
         @endslot
 
         @slot('action')
@@ -26,6 +78,7 @@
             $(document).ready(function() {
                 $("#table-flash-log").DataTable(
                     {
+                    "pageLength": 50,
                     "language": 
                         @php
                             echo File::get(public_path('js/datatables/i18n/'.LaravelLocalization::getCurrentLocaleName().'.lang'));
@@ -51,17 +104,18 @@
                     <th>Hive</th>
                     <th>Messages</th>
                     <th>Time %</th>
-                    <th>Log erased</th>
-                    <th>Log parsed</th>
-                    <th>Log time</th>
-                    <th>Log size</th>
+                    <th>Erased/ Parsed/ Time</th>
+                    <th>Log start</th>
+                    <th>Log end</th>
+                    <th>Logs/ day (days)</th>
+                    <th>Size</th>
                     <th>Persisted</th>
-                    <th style="width: 240px;">Actions</th>
+                    <th style="min-width: 280px;">Actions</th>
                 </tr>
             </thead>
             <tbody>
             @foreach($flashlog as $item)
-                <tr>
+                <tr @if($item->validLog()) style="background: lightgreen;" @endif>
                     <td>{{ $item->id }}</td>
                     <td>{{ $item->created_at }}</td>
                     <td>{{ $item->updated_at }}</td>
@@ -70,9 +124,10 @@
                     <td>{{ $item->hive_name }}</td>
                     <td>{{ $item->log_messages }}</td>
                     <td>{{ $item->time_percentage }}%</td>
-                    <td>{{ $item->log_erased }}</td>
-                    <td>{{ $item->log_parsed }}</td>
-                    <td>{{ $item->log_has_timestamps }}</td>
+                    <td>{{ $item->log_erased }} / {{ $item->log_parsed }} / {{ $item->log_has_timestamps }}</td>
+                    <td>{{ $item->log_date_start }}</td>
+                    <td>{{ $item->log_date_end }}</td>
+                    <td>{{ $item->logs_per_day }}<br>({{ $item->getLogDays() }})</td>
                     <td>{{ round($item->bytes_received/1024/1024,3) }}MB @if(isset($item->log_size_bytes) && $item->log_size_bytes > 0) ({{ round(100*($item->bytes_received / $item->log_size_bytes),1) }}%) @endif </td>
                     <td>@if(isset($item->persisted_block_ids))
                         Days: {{ $item->persisted_days }}, 
@@ -89,7 +144,7 @@
 
                         <a href="{{ route('flash-log.parse', ['id'=>$item->id, 'no_fill'=>1] ) }}" title="{{ __('crud.parse') }}"><button title="Parse Flashlog without time fill and without adding Sensordefinitions " class="btn btn-warning loading-spinner" data-loading-text="<i class='fa fa-refresh fa-spin'></i>"><i class="fa fa-refresh" aria-hidden="true"></i></button></a>
                         
-                        
+                        <a href="{{ route('flash-log.parse', ['id'=>$item->id, 'csv'=>1] ) }}" title="{{ __('crud.parse') }}"><button title="Create new CSV" class="btn btn-success loading-spinner" data-loading-text="<i class='fa fa-refresh fa-spin'></i>"><i class="fa fa-table" aria-hidden="true"></i></button></a>
 
                         <a href="{{ route('flash-log.edit', $item->id) }}" title="{{ __('crud.edit') }}"><button class="btn btn-primary"><i class="fa fa-pencil" aria-hidden="true"></i></button></a>
 

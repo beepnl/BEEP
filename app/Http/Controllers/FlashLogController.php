@@ -6,6 +6,8 @@ use App\Http\Requests;
 use App\Http\Controllers\Controller;
 
 use App\Models\FlashLog;
+use App\User;
+use App\Device;
 use Illuminate\Http\Request;
 use Storage;
 
@@ -18,26 +20,59 @@ class FlashLogController extends Controller
      */
     public function index(Request $request)
     {
-        $keyword = $request->get('search');
-        $perPage = 500;
+        $bytes       = $request->filled('mb') ? intval($request->get('mb')*1024*1024) : null;
+        $log_parsed  = $request->filled('log_parsed') ? boolval($request->get('log_parsed')) : null;
+        $log_has_ts  = $request->filled('log_has_timestamps') ? boolval($request->get('log_has_timestamps')) : null;
+        $log_csv_url = $request->filled('csv_url') ? (boolval($request->get('csv_url')) ? '!=' : '=') : null; // != null / = null
+        $search_user = $request->get('user');
+        $search_dev  = $request->get('device');
+        $perPage     = 50;
 
-        if (!empty($keyword)) {
-            $flashlog = FlashLog::where('user_id', 'LIKE', "%$keyword%")
-                ->orWhere('device_id', 'LIKE', "%$keyword%")
-                ->orWhere('hive_id', 'LIKE', "%$keyword%")
-                ->orWhere('log_messages', 'LIKE', "%$keyword%")
-                ->orWhere('log_saved', 'LIKE', "%$keyword%")
-                ->orWhere('log_parsed', 'LIKE', "%$keyword%")
-                ->orWhere('log_has_timestamps', 'LIKE', "%$keyword%")
-                ->orWhere('bytes_received', 'LIKE', "%$keyword%")
-                ->orWhere('log_file', 'LIKE', "%$keyword%")
-                ->orWhere('log_file_stripped', 'LIKE', "%$keyword%")
-                ->orWhere('log_file_parsed', 'LIKE', "%$keyword%")
-                ->orderByDesc('updated_at')
-                ->paginate($perPage);
-        } else {
-            $flashlog = FlashLog::orderByDesc('updated_at')->paginate($perPage);
+        $flashlogs    = FlashLog::where('id', '!=', null);
+
+        $research_id = null;
+        if (!empty($search_dev)) 
+        {
+            $device_ids = Device::where('id', 'LIKE', "%$search_dev%")
+                            ->orWhere('name', 'LIKE', "%$search_dev%")
+                            ->orWhere('key', 'LIKE', "%$search_dev%")
+                            ->orWhere('hardware_id', 'LIKE', "%$search_dev%")
+                            ->pluck('id');
+
+            if (count($device_ids) > 0)
+            {
+                $flashlogs = $flashlogs->whereIn('device_id', $device_ids);
+            }
         }
+
+        if (!empty($search_user)) 
+        {
+            $user_ids = User::where('name', 'LIKE', "%$search_user%")
+                        ->orWhere('email', 'LIKE', "%$search_user%")
+                        ->orWhere('id', 'LIKE', "%$search_user%")
+                        ->pluck('id');
+            
+            if (count($user_ids) > 0)
+                $flashlogs = $flashlogs->whereIn('user_id', $user_ids);
+
+        }
+
+        if (isset($bytes)) 
+            $flashlogs = $flashlogs->where('bytes_received', '>', $bytes);
+
+        if (isset($log_parsed)) 
+            $flashlogs = $flashlogs->where('log_parsed', '=', $log_parsed);
+
+        if (isset($log_has_ts)) 
+            $flashlogs = $flashlogs->where('log_has_timestamps', '=', $log_has_ts);
+
+        if (isset($log_csv_url)) 
+            $flashlogs = $flashlogs->where('csv_url', $log_csv_url, null);
+
+        //dd($bytes, $log_parsed);
+
+        $flashlog = $flashlogs->orderByDesc('created_at')->paginate($perPage);
+
 
         return view('flash-log.index', compact('flashlog'));
     }
@@ -95,22 +130,48 @@ class FlashLogController extends Controller
     {
         $fill_time= $request->filled('no_fill') && $request->input('no_fill') == 1 ? false : true;
         $fill_sdef= $request->filled('no_sensor_def') && $request->input('no_sensor_def') == 1 ? false : true;
+        $fill_csv = $request->filled('csv') && $request->input('csv') == 1 ? true : false;
         $flashlog = FlashLog::findOrFail($id);
         $out      = [];
+        
+
         if(isset($flashlog->log_file))
         {
-            $data = $flashlog->getFileContent('log_file');
-            if (isset($data))
+            if ($fill_csv && isset($flashlog->log_parsed)) // use parsed log file to generate CSV
             {
-                // log($data='', $log_bytes=null, $save=true, $fill=false, $show=false, $matches_min_override=null, $match_props_override=null, $db_records_override=null, $save_override=false, $from_cache=true, $match_days_offset=0, $add_sensordefinitions=true)
-                $res  = $flashlog->log($data, null, true, $fill_time, false, null, null, null, false, false, $fill_sdef);
-                foreach ($res as $key => $value) {
-                    $out[] = $key.'='.$value; 
+                $flashlog_parsed_json = json_decode($flashlog->getFileContent('log_file_parsed'), true);
+                $save_output          = FlashLog::exportData($flashlog_parsed_json, "$flashlog->device_name-log-file-$id-all-data", true, ';', true);
+
+                if (isset($save_output['link']))
+                {
+                    $flashlog->csv_url        = $save_output['link'];
+                    $flashlog->log_date_start = $save_output['first_date'];
+                    $flashlog->log_date_end   = $save_output['last_date'];
+                    $flashlog->logs_per_day   = $flashlog->getLogPerDay();
+                    $flashlog->save();
+                    
+                    return redirect('flash-log')->with('success', 'FlashLog CSV set: '.$flashlog->csv_url);
                 }
+
+                return redirect('flash-log')->with('error', 'FlashLog CSV error: '.implode(', ',$save_output));
+
             }
             else
             {
-                return redirect('flash-log')->with('error', 'Flashlog file \''.$flashlog->log_file.'\' not found');
+
+                $data = $flashlog->getFileContent('log_file');
+                if (isset($data))
+                {
+                    // log($data='', $log_bytes=null, $save=true, $fill=false, $show=false, $matches_min_override=null, $match_props_override=null, $db_records_override=null, $save_override=false, $from_cache=true, $match_days_offset=0, $add_sensordefinitions=true)
+                    $res  = $flashlog->log($data, null, true, $fill_time, false, null, null, null, false, false, $fill_sdef);
+                    foreach ($res as $key => $value) {
+                        $out[] = $key.'='.$value; 
+                    }
+                }
+                else
+                {
+                    return redirect('flash-log')->with('error', 'Flashlog file \''.$flashlog->log_file.'\' not found');
+                }
             }
         }
         else

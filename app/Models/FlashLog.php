@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Str;
 use App\Traits\MeasurementLoRaDecoderTrait;
 
 use App\Hive;
@@ -40,7 +41,7 @@ class FlashLog extends Model
      *
      * @var array
      */
-    protected $fillable = ['user_id', 'device_id', 'hive_id', 'log_messages', 'log_saved', 'log_parsed', 'log_has_timestamps', 'bytes_received', 'log_file', 'log_file_stripped', 'log_file_parsed', 'log_size_bytes', 'log_erased', 'time_percentage', 'persisted_days', 'persisted_measurements', 'persisted_block_ids'];
+    protected $fillable = ['user_id', 'device_id', 'hive_id', 'log_messages', 'log_saved', 'log_parsed', 'log_has_timestamps', 'bytes_received', 'log_file', 'log_file_stripped', 'log_file_parsed', 'log_size_bytes', 'log_erased', 'time_percentage', 'persisted_days', 'persisted_measurements', 'persisted_block_ids', 'log_date_start', 'log_date_end', 'logs_per_day', 'csv_url'];
     protected $hidden   = ['device', 'hive', 'user', 'persisted_block_ids'];
 
     protected $appends  = ['device_name', 'hive_name', 'user_name'];
@@ -83,6 +84,7 @@ class FlashLog extends Model
         return null;
     }
     
+    // Get content of log_file, log_file_stripped, or log_file_parsed
     public function getFileContent($type='log_file')
     {
         if(isset($this->{$type}))
@@ -124,6 +126,41 @@ class FlashLog extends Model
         return $array;
     }
 
+    public function getLogDays()
+    {
+        if (isset($this->log_date_start) && isset($this->log_date_end))
+        {
+            return round( (strtotime($this->log_date_end) - strtotime($this->log_date_start))/(24*3600), 2);
+        }
+        return null;
+    }
+
+    public function getLogPerDay()
+    {
+        $log_days = $this->getLogDays();
+        if (isset($log_days) && $log_days > 0 && isset($this->log_messages))
+        {
+            return round($this->log_messages / $log_days);
+        }
+        return null;
+    }
+
+    public function validLog()
+    {
+        /* validate log if: 
+           1. created_at is within 1 hour from last timestamp
+           2. logs_per_day is > 90
+        */
+        $logs_per_day = $this->getLogPerDay();
+        if (isset($logs_per_day) && $logs_per_day > 90) // means that $this->log_date_end is set
+        {
+            $created_u  = strtotime($this->created_at);
+            $last_log_u = strtotime($this->log_date_end);
+            if ($last_log_u > $created_u - 3600)
+                return true;
+        }
+        return false;
+    }
 
     public function getLogCacheName($fill=false, $show=false, $matches_min_override=null, $match_props_override=null, $db_records_override=null)
     {
@@ -386,7 +423,7 @@ class FlashLog extends Model
             if (isset($this->log_saved) == false) // first upload 
                 $this->log_saved = $saved;
             
-            $this->bytes_received = $bytes;
+            $this->bytes_received = $bytes == 0 && isset($this->bytes_received) && $this->bytes_received > 0 ? $this->bytes_received : $bytes; // only update on >0
             $this->log_has_timestamps = $logtm > 0 ? true : false;
             $this->log_parsed = $parsed;
             $this->log_messages = $messages;
@@ -964,6 +1001,121 @@ class FlashLog extends Model
         }
 
         return $out;
+    }
+
+    public static function cleanFlashlogItem($data_array, $unset_time=true)
+    {
+        unset(
+            $data_array['payload_hex'],
+            $data_array['pl'],
+            $data_array['len'],
+            $data_array['vcc'],
+            $data_array['pl_bytes'],
+            $data_array['beep_base'],
+            $data_array['weight_sensor_amount'],
+            $data_array['ds18b20_sensor_amount'],
+            $data_array['port'],
+            $data_array['bat_perc'],
+            $data_array['fft_bin_amount'],
+            $data_array['fft_start_bin'],
+            $data_array['fft_stop_bin']
+        );
+        
+        if ($unset_time)
+            unset(
+                $data_array['i'],
+                $data_array['minute_interval'],
+                $data_array['minute']
+            );
+
+        return $data_array;
+    }
+
+    public static function exportData($data, $name, $csv=true, $separator=';', $link_override=false)
+    {
+        $link = $link_override ? $link_override : env('FLASHLOG_EXPORT_LINK', true);
+
+        if ($data && gettype($data) == 'array' && count($data) > 0)
+        {
+            $fileBody   = null;
+            $first_date = null; 
+            $last_date  = null; 
+            $data_count = count($data);
+
+            if ($csv)
+            {
+                // format CSV header row: time, sensor1 (unit2), sensor2 (unit2), etc. Excluse the 'sensor' and 'key' columns
+                $header_item = null;
+                for ($i=0; $i < $data_count; $i++) 
+                { 
+                    $data_item = $data[$i];
+                    if (isset($data_item['port']) && $data_item['port'] == 3)
+                    {
+                        $header_item = self::cleanFlashlogItem($data_item, false);
+                        $first_date  = isset($data_item['time']) ? $data_item['time'] : null;
+                        break;
+                    }
+                }
+
+                if (isset($header_item) && gettype($header_item) == 'array')
+                {
+                    // format CSV
+                    $csv_sens = array_keys($header_item);
+                    $csv_head = [];
+                    foreach ($csv_sens as $header) 
+                    {
+                        $meas       = Measurement::where('abbreviation', $header)->first();
+                        $col_head   = $meas ? $meas->pq_name_unit() : $header;
+                        if (in_array($col_head, $csv_head) && $col_head != $header) // two similar heads, so add $header
+                            $col_head .= ' - '.$header;
+
+                        $csv_head[] = $col_head;
+                    }
+                    $csv_head = '"'.implode('"'.$separator.'"', $csv_head).'"'."\r\n";
+
+                    // format CSV file body
+                    $csv_body = [];
+                    foreach ($data as $i => $data_item) 
+                    {
+                        if (isset($data_item['port']) && $data_item['port'] == 3)
+                        {
+                            $csv_body[] = implode($separator, self::cleanFlashlogItem($data_item, false));
+
+                            if ($first_date === null && isset($data_item['time']))
+                                $first_date = $data_item['time'];
+
+                            if ($i > $data_count - 10 && isset($data_item['time']))
+                                $last_date = $data_item['time'];
+                        }
+                    }
+                    $fileBody = $csv_head.implode("\r\n", $csv_body);
+                }
+            }
+            else
+            {
+                $fileBody = $data; // return json as body
+            }
+
+            if ($link)
+            {
+                if (isset($fileBody) && $fileBody !== '')
+                {
+                    $disk     = env('EXPORT_STORAGE', 'public');
+                    $file_ext = $csv ? '.csv' : '.json';
+                    $file_mime= $csv ? 'text/csv' : 'application/json';
+                    $filePath = 'exports/flashlog/beep-base-log-export-'.$name.'-'.Str::random(20).$file_ext;
+                    $filePath = str_replace(' ', '', $filePath);
+
+                    Storage::disk($disk)->put($filePath, $fileBody, ['mimetype' => $file_mime]);
+                    return ['link'=>Storage::disk($disk)->url($filePath), 'first_date'=>$first_date, 'last_date'=>$last_date];
+                }
+            }
+            else
+            {
+                return $fileBody;
+            }
+        }
+        return ['error'=>'export_not_saved'];
     }
 
 }

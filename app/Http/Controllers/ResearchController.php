@@ -519,8 +519,7 @@ class ResearchController extends Controller
                             'Data file']
                         ];
 
-            if ($dl_sensordata)
-                $spreadsheet_array['Sensor Flashlogs'] = [
+            $spreadsheet_array['Sensor Flashlogs'] = [
                             ['User_id',
                             'Device_id',
                             __('export.created_at'),

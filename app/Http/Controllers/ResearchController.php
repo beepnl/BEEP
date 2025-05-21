@@ -523,16 +523,27 @@ class ResearchController extends Controller
                 $spreadsheet_array['Sensor Flashlogs'] = [
                             ['User_id',
                             'Device_id',
+                            __('export.created_at'),
                             'Hive_id',
                             'Number of messages in file',
                             'Log saved to disk',
                             'Log parsed correctly',
+                            'Log erased from device',
                             'Log has timestamps',
+                            'Time percentage (%)',
                             'Bytes received',
+                            'Persisted days of data',
+                            'Persisted measurements',
+                            'Persisted blocks',
+                            'Log date start',
+                            'Log date end',
+                            'Logs per day',
+                            'Log time complete (%)',
+                            'Log valid',
+                            'CSV file',
                             'Raw log file',
                             'Stripped log file',
                             'Parsed log file',
-                            __('export.created_at'),
                             __('export.deleted_at')]
                         ];
 
@@ -1811,21 +1822,32 @@ class ResearchController extends Controller
 
     private function getFlashlogs($user_id, $flashlogs, $date_start=null, $date_until=null)
     {
-        return $flashlogs->where('created_at', '<=', $date_until)->sortByDesc('created_at')->sortBy('device_id')->map(function($item) use ($user_id)
+        return $flashlogs->where('created_at', '<=', $date_until)->sortBy('device_id')->sortByDesc('created_at')->map(function($item) use ($user_id)
         {
             return [
                 $user_id,
                 $item->device_id, 
+                $item->created_at,
                 $item->hive_id,
                 $item->log_messages,
                 $item->log_saved,
                 $item->log_parsed,
+                $item->log_erased,
                 $item->log_has_timestamps,
+                $item->time_percentage,
                 $item->bytes_received,
+                $item->persisted_days,
+                $item->persisted_measurements,
+                $item->persisted_block_ids,
+                $item->log_date_start,
+                $item->log_date_end,
+                $item->logs_per_day,
+                $item->getTimeLogPercentage(),
+                $item->validLog(),
+                $item->csv_url,
                 $item->log_file,
                 $item->log_file_stripped,
                 $item->log_file_parsed,
-                $item->created_at,
                 $item->deleted_at
             ];
         });

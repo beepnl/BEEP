@@ -1084,7 +1084,7 @@ class FlashLog extends Model
                             if ($first_date === null && isset($data_item['time']))
                                 $first_date = $data_item['time'];
 
-                            if ($i > $data_count - 10 && isset($data_item['time']))
+                            if (isset($data_item['time'])) // update until last item with date
                                 $last_date = $data_item['time'];
                         }
                     }

@@ -150,10 +150,10 @@ class FlashLogController extends Controller
                     $flashlog->logs_per_day   = $flashlog->getLogPerDay();
                     $flashlog->save();
                     
-                    return redirect('flash-log')->with('success', 'FlashLog CSV set: '.$flashlog->csv_url);
+                    return redirect()->route('flash-log.index', $request->query())->with('success', 'FlashLog CSV set: '.$flashlog->csv_url);
                 }
 
-                return redirect('flash-log')->with('error', 'FlashLog CSV error: '.implode(', ',$save_output));
+                return redirect()->route('flash-log.index', $request->query())->with('error', 'FlashLog CSV error: '.implode(', ',$save_output));
 
             }
             else
@@ -170,15 +170,15 @@ class FlashLogController extends Controller
                 }
                 else
                 {
-                    return redirect('flash-log')->with('error', 'Flashlog file \''.$flashlog->log_file.'\' not found');
+                    return redirect()->route('flash-log.index', $request->query())->with('error', 'Flashlog file \''.$flashlog->log_file.'\' not found');
                 }
             }
         }
         else
         {
-            return redirect('flash-log')->with('error', 'No flashlog file present, nothing to parse');
+            return redirect()->route('flash-log.index', $request->query())->with('error', 'No flashlog file present, nothing to parse');
         }
-        return redirect('flash-log')->with('success', 'FlashLog parsed again: '.implode(', ',$out));
+        return redirect()->route('flash-log.index', $request->query())->with('success', 'FlashLog parsed again: '.implode(', ',$out));
     }
 
     /**

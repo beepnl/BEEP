@@ -138,13 +138,13 @@
                     <td col-sm-1>
                         <a href="{{ route('flash-log.show', $item->id) }}" title="{{ __('crud.show') }}"><button class="btn btn-default"><i class="fa fa-eye" aria-hidden="true"></i></button></a>
 
-                        <a href="{{ route('flash-log.parse', $item->id) }}" title="{{ __('crud.parse') }}"><button title="Parse Flashlog with time fill and adding Sensordefinitions (slow)" class="btn btn-info loading-spinner" data-loading-text="<i class='fa fa-refresh fa-spin'></i>"><i class="fa fa-refresh" aria-hidden="true"></i></button></a>
+                        <a href="{{ route('flash-log.parse', array_merge(request()->query(), ['id'=>$item->id]) ) }}" title="{{ __('crud.parse') }}"><button title="Parse Flashlog with time fill and adding Sensordefinitions (slow)" class="btn btn-info loading-spinner" data-loading-text="<i class='fa fa-refresh fa-spin'></i>"><i class="fa fa-refresh" aria-hidden="true"></i></button></a>
                         
-                        <a href="{{ route('flash-log.parse', ['id'=>$item->id, 'no_sensor_def'=>1] ) }}" title="{{ __('crud.parse') }}"><button title="Parse Flashlog with time fill, but without adding Sensordefinitions" class="btn btn-default loading-spinner" data-loading-text="<i class='fa fa-refresh fa-spin'></i>"><i class="fa fa-refresh" aria-hidden="true"></i></button></a>
+                        <a href="{{ route('flash-log.parse', array_merge(request()->query(), ['id'=>$item->id, 'no_sensor_def'=>1]) ) }}" title="{{ __('crud.parse') }}"><button title="Parse Flashlog with time fill, but without adding Sensordefinitions" class="btn btn-default loading-spinner" data-loading-text="<i class='fa fa-refresh fa-spin'></i>"><i class="fa fa-refresh" aria-hidden="true"></i></button></a>
 
-                        <a href="{{ route('flash-log.parse', ['id'=>$item->id, 'no_fill'=>1] ) }}" title="{{ __('crud.parse') }}"><button title="Parse Flashlog without time fill and without adding Sensordefinitions " class="btn btn-warning loading-spinner" data-loading-text="<i class='fa fa-refresh fa-spin'></i>"><i class="fa fa-refresh" aria-hidden="true"></i></button></a>
+                        <a href="{{ route('flash-log.parse', array_merge(request()->query(), ['id'=>$item->id, 'no_fill'=>1]) ) }}" title="{{ __('crud.parse') }}"><button title="Parse Flashlog without time fill and without adding Sensordefinitions " class="btn btn-warning loading-spinner" data-loading-text="<i class='fa fa-refresh fa-spin'></i>"><i class="fa fa-refresh" aria-hidden="true"></i></button></a>
                         
-                        <a href="{{ route('flash-log.parse', ['id'=>$item->id, 'csv'=>1] ) }}" title="{{ __('crud.parse') }}"><button title="Create new CSV" class="btn btn-success loading-spinner" data-loading-text="<i class='fa fa-refresh fa-spin'></i>"><i class="fa fa-table" aria-hidden="true"></i></button></a>
+                        <a href="{{ route('flash-log.parse', array_merge(request()->query(), ['id'=>$item->id, 'csv'=>1]) ) }}" title="{{ __('crud.parse') }}"><button title="Create new CSV" class="btn btn-success loading-spinner" data-loading-text="<i class='fa fa-refresh fa-spin'></i>"><i class="fa fa-table" aria-hidden="true"></i></button></a>
 
                         <a href="{{ route('flash-log.edit', $item->id) }}" title="{{ __('crud.edit') }}"><button class="btn btn-primary"><i class="fa fa-pencil" aria-hidden="true"></i></button></a>
 

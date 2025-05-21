@@ -1091,71 +1091,74 @@ class FlashLog extends Model
             if ($csv)
             {
                 // format CSV header row: time, sensor1 (unit2), sensor2 (unit2), etc. Exclude the 'sensor' and 'key' columns
-                $header_item = null;
-                for ($i=$data_count-1; $i >= 0; $i--) 
+                $header_item  = null;
+                $header_count = 0;
+
+                for ($i=0; $i < $data_count; $i++) 
                 { 
                     $data_item = $data[$i];
-                    if (isset($data_item['port']) && $data_item['port'] == 3 && count($data_item) > 10) // should have at least 10 items
+                    if (isset($data_item['port']) && $data_item['port'] == 3) // should have at least 10 items
                     {
-                        $header_item = self::cleanFlashlogItem($data_item, true);
-                        break;
+                        //change order of time
+                        $data_time = null;
+                        $data_time_utc = '';
+                        
+                        if (isset($data_item['time']))
+                        {
+                            $data_time = $data_item['time'];
+                            unset($data_item['time']);
+                            
+                            $data_time_utc = str_replace(' ', 'T', $data_time).'Z'; // Format as Influx time + UTC timezone
+                        }
+                        
+                        $data_item       = array_merge(['time'=>$data_time_utc], $data_item); // Time in first column
+                        $data_item_clean = self::cleanFlashlogItem($data_item, true);
+                        $csv_body[]      = implode($separator, $data_item_clean);
+
+                        if (isset($data_time))
+                        {
+                            if (!isset($data_item['time_device']) || $data_item['time_device'] >= self::$minUnixTime) // time is set (also allow previously parsed Flashlogs without RTC), or time_device should be correctly set
+                            {
+                                if ($first_date === null)
+                                    $first_date = $data_time;
+
+                                $last_date = $data_time; // update until last item with date
+                            }
+                        }
+
+                        // get biggest headers
+                        $param_count = count($data_item_clean);
+                        if ($param_count > $header_count)
+                        {
+                            $header_count = $param_count;
+                            $header_item  = $data_item_clean;
+                        }
                     }
                 }
 
                 if (isset($header_item) && gettype($header_item) == 'array')
                 {
-                    unset($header_item['time']); // change order of the time column (in front) of the Flashlog array
-                    
                     // format CSV
                     $csv_sens = array_keys($header_item);
-                    $csv_head = ['time'];
+                    $csv_head = [];
                     foreach ($csv_sens as $header) 
                     {
-                        $meas       = Measurement::where('abbreviation', $header)->first();
-                        $col_head   = !$meas ? $header : $meas->pq_name_unit();
-                        $col_head  .= $meas ? " ($header)" : "";
-
-                        if (in_array($col_head, $csv_head) && $col_head != $header) // two similar heads, so add $header
-                            $col_head .= ' - '.$header;
+                        if ($header == 'time')
+                        {
+                            $col_head = 'time';
+                        }
+                        else
+                        {
+                            $meas       = Measurement::where('abbreviation', $header)->first();
+                            $col_head   = !$meas ? $header : $meas->pq_name_unit();
+                            $col_head  .= $meas ? " ($header)" : "";
+                        }
 
                         $csv_head[] = $col_head;
                     }
                     $csv_head = '"'.implode('"'.$separator.'"', $csv_head).'"'."\r\n";
 
                     // format CSV file body
-                    $csv_body = [];
-                    foreach ($data as $i => $data_item) 
-                    {
-                        if (isset($data_item['port']) && $data_item['port'] == 3)
-                        {
-                            //change order of time
-                            $data_time = null;
-                            $data_time_utc = '';
-                            
-                            if (isset($data_item['time']))
-                            {
-                                $data_time = $data_item['time'];
-                                unset($data_item['time']);
-                                
-                                $data_time_utc = str_replace(' ', 'T', $data_time).'Z'; // Format as Influx time + UTC timezone
-                            }
-                            
-                            $data_item     = array_merge(['time'=>$data_time_utc], $data_item); // Time in first column
-
-                            $csv_body[] = implode($separator, self::cleanFlashlogItem($data_item, true));
-
-                            if (isset($data_time))
-                            {
-                                if (!isset($data_item['time_device']) || $data_item['time_device'] >= self::$minUnixTime) // time is set (also allow previously parsed Flashlogs without RTC), or time_device should be correctly set
-                                {
-                                    if ($first_date === null)
-                                        $first_date = $data_time;
-
-                                    $last_date = $data_time; // update until last item with date
-                                }
-                            }
-                        }
-                    }
                     $fileBody = $csv_head.implode("\r\n", $csv_body);
                 }
             }

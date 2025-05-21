@@ -1145,7 +1145,7 @@ class FlashLog extends Model
             {
                 $fileBody = $data; // return json as body
             }
-            dd($name, $first_date, $last_date);
+            //dd($name, $first_date, $last_date);
 
             if ($link)
             {

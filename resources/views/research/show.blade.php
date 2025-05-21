@@ -64,7 +64,15 @@
             </div>
 
             <!-- Data table -->
-            <div style="display: inline-block; width: 300px;">
+            <style type="text/css">
+                .th.row-header {
+                    max-height: 45px;
+                    overflow: hidden;
+                    white-space: nowrap;
+                }
+
+            </style>
+            <div style="display: inline-block; width: 300px; margin-bottom: 15px;">
                 <table class="table table-responsive table-striped table-header-rotated" style="overflow: scroll;">
                     <thead>
                         <tr>
@@ -75,68 +83,68 @@
                     <tbody>
                         @if(!isset($device_ids))
                         <tr>
-                            <th class="row-header" style="max-height: 45px; overflow: scroll; white-space: nowrap;"><span><i class="fa fa-2x fa-user"></i> Users</span></th> 
+                            <th class="row-header" style=""><span><i class="fa fa-2x fa-user"></i> Users</span></th> 
                             <th class="row-header">{{ $totals['users'] }}</th> 
                         </tr>
                         <tr>
-                            <th class="row-header" style="max-height: 45px; overflow: scroll; white-space: nowrap;"><span><i class="fa fa-2x fa-map-marker"></i> Apiaries</span></th>
+                            <th class="row-header"><span><i class="fa fa-2x fa-map-marker"></i> Apiaries</span></th>
                             <th class="row-header">{{ $totals['apiaries'] }}</th> 
                         </tr>
                         <tr>
-                            <th class="row-header" style="max-height: 45px; overflow: scroll; white-space: nowrap;"><span><i class="fa fa-2x fa-archive"></i> Hives</span></th> 
+                            <th class="row-header"><span><i class="fa fa-2x fa-archive"></i> Hives</span></th> 
                             <th class="row-header">{{ $totals['hives'] }}</th> 
                         </tr>
                         <tr>
-                            <th class="row-header" style="max-height: 45px; overflow: scroll; white-space: nowrap;"><span><i class="fa fa-2x fa-edit"></i> Inspections</span></th> 
+                            <th class="row-header"><span><i class="fa fa-2x fa-edit"></i> Inspections</span></th> 
                             <th class="row-header">{{ $totals['inspections'] }}</th> 
                         </tr>
                         <tr>
-                            <th class="row-header" style="max-height: 45px; overflow: scroll; white-space: nowrap;"><span><i class="fa fa-2x fa-qrcode"></i> Sample codes</span></th>
+                            <th class="row-header"><span><i class="fa fa-2x fa-qrcode"></i> Sample codes</span></th>
                             <th class="row-header">{{ $totals['samplecodes'] }}</th>  
                         </tr>
                         @endif
                         <tr>
-                            <th class="row-header" style="max-height: 45px; overflow: scroll; white-space: nowrap;"><span><i class="fa fa-2x fa-feed"></i> Devices</span></th> 
+                            <th class="row-header"><span><i class="fa fa-2x fa-feed"></i> Devices</span></th> 
                             <th class="row-header">{{ $totals['devices'] }}</th> 
                         </tr>
                         <tr>
-                            <th class="row-header" style="max-height: 45px; overflow: scroll; white-space: nowrap; cursor: help;"  @if(isset($date_start)) title="Devices online after {{ substr($date_start, 0, 10) }}" @endif><span><i class="fa fa-2x fa-feed"></i> Devices online</span></th> 
+                            <th class="row-header" style="cursor: help;"  @if(isset($date_start)) title="Devices online after {{ substr($date_start, 0, 10) }}" @endif><span><i class="fa fa-2x fa-feed"></i> Devices online</span></th> 
                             <th class="row-header">{{ $totals['devices_online'] }}</th> 
                         </tr>
                         <tr>
-                            <th class="row-header" style="max-height: 45px; overflow: scroll; white-space: nowrap;"><span><i class="fa fa-2x fa-list"></i> Flash logs</span></th> 
+                            <th class="row-header"><span><i class="fa fa-2x fa-list"></i> Flash logs</span></th> 
                             <th class="row-header">{{ $totals['flashlogs'] }}</th> 
                         </tr>
                         <tr>
-                            <th class="row-header" style="max-height: 45px; overflow: scroll; white-space: nowrap; cursor: help;" title="Total amount of time stamps that have been wirelessly transferred via LoRa"><span><i class="fa fa-2x fa-line-chart"></i> Measurements</span></th> 
+                            <th class="row-header" style="cursor: help;" title="Total amount of time stamps that have been wirelessly transferred via LoRa"><span><i class="fa fa-2x fa-line-chart"></i> Measurements</span></th> 
                             <th class="row-header">{{ $totals['measurements'] }}</th> 
                         </tr>
                         <tr>
-                            <th class="row-header" style="max-height: 45px; overflow: scroll; white-space: nowrap; cursor: help;" title="Total amount of time stamps that have been imported by matching FlashLog data from the BEEP base memory to the database"><span><i class="fa fa-2x fa-line-chart"></i> Measurements imported</span></th> 
+                            <th class="row-header" style="cursor: help;" title="Total amount of time stamps that have been imported by matching FlashLog data from the BEEP base memory to the database"><span><i class="fa fa-2x fa-line-chart"></i> Measurements imported</span></th> 
                             <th class="row-header">{{ $totals['measurements_imported'] }}</th> 
                         </tr>
                         <tr>
-                            <th class="row-header" style="max-height: 45px; overflow: scroll; white-space: nowrap; cursor: help;" title="Sum of all time stamps in the database. Each time stamp contains multiple measurement values (e.g. weight, temperature, etc.). Only the timestamps are counted here. "><span><i class="fa fa-2x fa-line-chart"></i> Measurements total</span></th> 
+                            <th class="row-header" style="cursor: help;" title="Sum of all time stamps in the database. Each time stamp contains multiple measurement values (e.g. weight, temperature, etc.). Only the timestamps are counted here. "><span><i class="fa fa-2x fa-line-chart"></i> Measurements total</span></th> 
                             <th class="row-header">{{ $totals['measurements_total'] }}</th> 
                         </tr>
                         <tr>
-                            <th class="row-header" style="max-height: 45px; overflow: scroll; white-space: nowrap; cursor: help;" title="Total amount of 15 min time stamps divided by the amount of online devices. The data completeness of {{ $totals['data_completeness_online'] }}% represents the average of all daily data completeness calculations of the displayed dates."><span><i class="fa fa-2x fa-line-chart"></i><a href="/research/{{$research->id}}/data?{{request()->getQueryString()}}">Data completeness (%)</a></span></th> 
+                            <th class="row-header" style="cursor: help;" title="Total amount of 15 min time stamps divided by the amount of online devices. The data completeness of {{ $totals['data_completeness_online'] }}% represents the average of all daily data completeness calculations of the displayed dates."><span><i class="fa fa-2x fa-line-chart"></i><a href="/research/{{$research->id}}/data?{{request()->getQueryString()}}">Data completeness (%)</a></span></th> 
                             <th class="row-header">{{ $totals['data_completeness_online'] }}%</th> 
                         </tr>
                         <tr>
-                            <th class="row-header" style="max-height: 45px; overflow: scroll; white-space: nowrap; cursor: help;" title="Total amount of 15 min time stamps divided by the amount of devices. The data completeness of {{ $totals['data_completeness'] }}% represents the average of all daily data completeness calculations of the displayed dates."><span><i class="fa fa-2x fa-line-chart"></i> Data compl. all dev (%)</span></th> 
+                            <th class="row-header" style="cursor: help;" title="Total amount of 15 min time stamps divided by the amount of devices. The data completeness of {{ $totals['data_completeness'] }}% represents the average of all daily data completeness calculations of the displayed dates."><span><i class="fa fa-2x fa-line-chart"></i> Data compl. all dev (%)</span></th> 
                             <th class="row-header">{{ $totals['data_completeness'] }}%</th> 
                         </tr>
                         <tr>
-                            <th class="row-header" style="max-height: 45px; overflow: scroll; white-space: nowrap;"><span><i class="fa fa-2x fa-thermometer"></i> Weather data points</span></th> 
+                            <th class="row-header"><span><i class="fa fa-2x fa-thermometer"></i> Weather data points</span></th> 
                             <th class="row-header">{{ $totals['weather'] }}</th> 
                         </tr>
                         <tr>
-                            <th class="row-header" style="max-height: 45px; overflow: scroll; white-space: nowrap;"><span><i class="fa fa-2x fa fa-exclamation-circle"></i> Active alert rules</span></th> 
+                            <th class="row-header"><span><i class="fa fa-2x fa fa-exclamation-circle"></i> Active alert rules</span></th> 
                             <th class="row-header">{{ $totals['alert_rules'] }}</th> 
                         </tr>
                         <tr>
-                            <th class="row-header" style="max-height: 45px; overflow: scroll; white-space: nowrap;"><span><i class="fa fa-2x fa-bell"></i> Alerts</span></th> 
+                            <th class="row-header"><span><i class="fa fa-2x fa-bell"></i> Alerts</span></th> 
                             <th class="row-header">{{ $totals['alerts'] }}</th> 
                         </tr>
                     </tbody>

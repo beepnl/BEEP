@@ -144,13 +144,13 @@
             }
         </style>
 
-        <div class="row">
+
         <div class="col-xs-12">
             <hr>
-            <h2 style="margin-top: 20px; margin-left: 20px">Device data completeness per day (%)</h2>
+            <h2 style="margin-top: 20px;">Device data completeness per day (%)</h2>
             <!-- Data table -->
 
-            <div style="display: inline-block; width: 400px; overflow: scroll;">
+            <div style="display: inline-block; width: 400px; overflow-y: hidden; overflow-x: scroll;">
                 <table class="table table-responsive table-striped table-header-rotated">
                     <thead>
                         <tr>
@@ -168,13 +168,13 @@
                             <th class="tb-row-very-small row-header">{{ isset($totals['devices'][$device->key]) ? $totals['devices'][$device->key]['data_completeness'].'%' : '' }}</th> 
                             <th title="{{ $device->location_name }}" class="tb-row-very-small row-header">{{ $device->location_name }}</th> 
                             <th title="{{ $device->hive_name }}" class="tb-row-very-small row-header">{{ $device->hive_name }}</th> 
-                            <th class="tb-row-small row-header">{!! $device->getFlashLogsHtml() !!}</th> 
+                            <th class="tb-row-small row-header" style="padding-top: 0; padding-bottom: 0">{!! $device->getFlashLogsHtml() !!}</th> 
                         </tr>
                         @endforeach
                     </tbody>
                 </table>
             </div>
-            <div style="display: inline-block; width: calc( 100% - 410px); overflow-y: hidden; overflow-x: auto;">
+            <div style="display: inline-block; width: calc( 100% - 410px); overflow-y: hidden; overflow-x: scroll;">
                 <table class="table table-responsive table-striped table-header-rotated">
                     <thead>
                         <tr>
@@ -210,7 +210,6 @@
                     </tbody>
                 </table>
             </div>
-        </div>
         </div>
 
         @endslot

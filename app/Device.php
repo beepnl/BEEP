@@ -299,7 +299,7 @@ class Device extends Model
     public function getFlashLogsHtml($start_date='2019-01-01')
     {
         $flogs= $this->flashlogs()->where('created_at', '>', $start_date)->orderByDesc('created_at')->get();
-        $html = '<div style="height: 100%; overflow: scroll;"><ul style="padding:0; margin:0;">';
+        $html = '<div style="height: 100%; overflow-x: hidden; overflow-y: scroll;"><ul style="padding:0; margin:0;">';
 
         $i = 0;
         foreach ($flogs as $fl)

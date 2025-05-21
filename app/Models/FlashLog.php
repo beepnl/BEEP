@@ -21,6 +21,7 @@ class FlashLog extends Model
     protected $precision  = 's';
     protected $timeFormat = 'Y-m-d H:i:s';
     protected $weight_mid = 20;
+    protected static $minUnixTime= 1546297200; // min time for Flashlog internal time is: 2019-01-01 00:00:00
 
     /**
      * The database table used by the model.
@@ -333,7 +334,7 @@ class FlashLog extends Model
                     $logtm++;
                     $ts = intval($data_array['time_device']);
 
-                    if ($ts > 1546297200 && $ts < $max_time) // > 2019-01-01 00:00:00 < now
+                    if ($ts > self::$minUnixTime && $ts < $max_time) // > 2019-01-01 00:00:00 < now
                     {
                         $time_device = new Moment($ts);
                         $data_array['time'] = $time_device->format($this->timeFormat);
@@ -803,7 +804,7 @@ class FlashLog extends Model
 
         // check if database query should be based on the device time, or the cached time from the 
         //$use_device_time = false;
-        if (isset($flashlog[$start_index]['time_device']) && intval($flashlog[$start_index]['time_device']) > 1546297200)   
+        if (isset($flashlog[$start_index]['time_device']) && intval($flashlog[$start_index]['time_device']) > self::$minUnixTime)   
         {
             $device_moment = new Moment($flashlog[$start_index]['time_device']);
             $device_time   = $device_moment->format($this->timeFormat);
@@ -1038,7 +1039,9 @@ class FlashLog extends Model
             unset(
                 $data_array['i'],
                 $data_array['minute_interval'],
-                $data_array['minute']
+                $data_array['minute'],
+                $data_array['time_clock'],
+                $data_array['time_device']
             );
 
         return $data_array;
@@ -1057,15 +1060,14 @@ class FlashLog extends Model
 
             if ($csv)
             {
-                // format CSV header row: time, sensor1 (unit2), sensor2 (unit2), etc. Excluse the 'sensor' and 'key' columns
+                // format CSV header row: time, sensor1 (unit2), sensor2 (unit2), etc. Exclude the 'sensor' and 'key' columns
                 $header_item = null;
-                for ($i=0; $i < $data_count; $i++) 
+                for ($i=$data_count-1; $i >= 0; $i--) 
                 { 
                     $data_item = $data[$i];
-                    if (isset($data_item['port']) && $data_item['port'] == 3)
+                    if (isset($data_item['port']) && $data_item['port'] == 3 && count($data_item) > 10) // should have at least 10 items
                     {
                         $header_item = self::cleanFlashlogItem($data_item, false);
-                        $first_date  = isset($data_item['time']) ? $data_item['time'] : null;
                         break;
                     }
                 }
@@ -1094,11 +1096,13 @@ class FlashLog extends Model
                         {
                             $csv_body[] = implode($separator, self::cleanFlashlogItem($data_item, false));
 
-                            if ($first_date === null && isset($data_item['time']))
-                                $first_date = $data_item['time'];
+                            if (isset($data_item['time']) && $data_item['time'] > self::$minUnixTime)
+                            {
+                                if ($first_date === null)
+                                    $first_date = $data_item['time'];
 
-                            if (isset($data_item['time'])) // update until last item with date
-                                $last_date = $data_item['time'];
+                                $last_date = $data_item['time']; // update until last item with date
+                            }
                         }
                     }
                     $fileBody = $csv_head.implode("\r\n", $csv_body);

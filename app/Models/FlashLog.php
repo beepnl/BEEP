@@ -1104,13 +1104,17 @@ class FlashLog extends Model
 
                 if (isset($header_item) && gettype($header_item) == 'array')
                 {
+                    unset($header_item['time']); // change order of the time column (in front) of the Flashlog array
+                    
                     // format CSV
                     $csv_sens = array_keys($header_item);
-                    $csv_head = [];
+                    $csv_head = ['time'];
                     foreach ($csv_sens as $header) 
                     {
                         $meas       = Measurement::where('abbreviation', $header)->first();
-                        $col_head   = $meas ? $meas->pq_name_unit() : $header;
+                        $col_head   = !$meas ? $header : $meas->pq_name_unit();
+                        $col_head  .= $meas ? " ($header)" : "";
+
                         if (in_array($col_head, $csv_head) && $col_head != $header) // two similar heads, so add $header
                             $col_head .= ' - '.$header;
 
@@ -1124,16 +1128,28 @@ class FlashLog extends Model
                     {
                         if (isset($data_item['port']) && $data_item['port'] == 3)
                         {
+                            //change order of time
+                            $data_time = null;
+                            $data_time_utc = null;
+                            
+                            if (isset($data_item['time']))
+                            {
+                                $data_time = $data_item['time'];
+                                $data_time_utc = str_replace(' ', 'T', $data_time).'Z'; // Format as Influx time + UTC timezone
+                                unset($data_item['time']);
+                                $data_item = array_merge(['time'=>$data_time_utc], $data_item); // Time in first column
+                            }
+                            
                             $csv_body[] = implode($separator, self::cleanFlashlogItem($data_item, true));
 
-                            if (isset($data_item['time']))
+                            if (isset($data_time))
                             {
                                 if (!isset($data_item['time_device']) || $data_item['time_device'] >= self::$minUnixTime) // time is set (also allow previously parsed Flashlogs without RTC), or time_device should be correctly set
                                 {
                                     if ($first_date === null)
-                                        $first_date = $data_item['time'];
+                                        $first_date = $data_time;
 
-                                    $last_date = $data_item['time']; // update until last item with date
+                                    $last_date = $data_time; // update until last item with date
                                 }
                             }
                         }

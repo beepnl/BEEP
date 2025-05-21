@@ -1130,16 +1130,18 @@ class FlashLog extends Model
                         {
                             //change order of time
                             $data_time = null;
-                            $data_time_utc = null;
+                            $data_time_utc = '';
                             
                             if (isset($data_item['time']))
                             {
                                 $data_time = $data_item['time'];
-                                $data_time_utc = str_replace(' ', 'T', $data_time).'Z'; // Format as Influx time + UTC timezone
                                 unset($data_item['time']);
-                                $data_item = array_merge(['time'=>$data_time_utc], $data_item); // Time in first column
+                                
+                                $data_time_utc = str_replace(' ', 'T', $data_time).'Z'; // Format as Influx time + UTC timezone
                             }
                             
+                            $data_item     = array_merge(['time'=>$data_time_utc], $data_item); // Time in first column
+
                             $csv_body[] = implode($separator, self::cleanFlashlogItem($data_item, true));
 
                             if (isset($data_time))

@@ -1096,7 +1096,7 @@ class FlashLog extends Model
                         {
                             $csv_body[] = implode($separator, self::cleanFlashlogItem($data_item, false));
 
-                            if (isset($data_item['time']) && $data_item['time'] > self::$minUnixTime)
+                            if (isset($data_item['time']) && isset($data_item['time_device']) && $data_item['time_device'] > self::$minUnixTime)
                             {
                                 if ($first_date === null)
                                     $first_date = $data_item['time'];

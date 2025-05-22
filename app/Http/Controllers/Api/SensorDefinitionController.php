@@ -239,8 +239,11 @@ class SensorDefinitionController extends Controller
             //     else
             //         $request_data['inside'] = $request_data['inside'] === "true" || $request_data['inside'] === true || $request_data['inside'] == 1 ? 1 : 0;
             // }
-
+            $updated_at = $request_data['updated_at'];
             $sensordefinition->update($request_data);
+            $sensordefinition->updated_at = $updated_at;
+            $sensordefinition->save(['timestamps' => false]);
+
             return response()->json($sensordefinition, 200);
         }
         return response()->json('no_device_found', 404);

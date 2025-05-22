@@ -108,10 +108,11 @@ class SensorDefinitionController extends Controller
             'input_measurement_id' => 'integer|exists:measurements,id',
         ]);
         $requestData = $request->all();
-        
-        $requestData['updated_at'] = str_replace('T', ' ', $requestData['updated_at']).':00';
-
-        SensorDefinition::create($requestData);
+        $updated_at  = str_replace('T', ' ', $requestData['updated_at']).':00';
+        $requestData['updated_at'] = $updated_at;
+        $sensordefinition = SensorDefinition::create($requestData);
+        $sensordefinition->updated_at = $updated_at;
+        $sensordefinition->save(['timestamps' => false]); // then set new updated_at
 
         return redirect('sensordefinition')->with('flash_message', 'SensorDefinition added!');
     }
@@ -161,9 +162,12 @@ class SensorDefinitionController extends Controller
         ]);
         $sensordefinition = SensorDefinition::findOrFail($id);
         $requestData = $request->all();
-        $requestData['updated_at'] = str_replace('T', ' ', $requestData['updated_at']).':00';
-        //Log::debug($requestData);
-        $sensordefinition->update($requestData);
+        $updated_at  = str_replace('T', ' ', $requestData['updated_at']).':00';
+        $requestData['updated_at'] = $updated_at;
+        // prevent updated_at from updating by the update action
+        $sensordefinition->update($requestData); // first change updated_at
+        $sensordefinition->updated_at = $updated_at;
+        $sensordefinition->save(['timestamps' => false]); // then set new updated_at
 
         return redirect('sensordefinition')->with('flash_message', 'SensorDefinition updated!');
     }

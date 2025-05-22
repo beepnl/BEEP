@@ -8,6 +8,7 @@ use App\User;
 use App\Device;
 use App\Category;
 use App\Measurement;
+use App\SensorDefinition;
 use App\Models\FlashLog;
 use App\Models\Webhook;
 use App\Models\AlertRule;
@@ -1498,6 +1499,9 @@ class MeasurementController extends Controller
         $timeZone             = $intervalArr['timeZone'];
         $whereKeyAndTime      = $device->influxWhereKeys().' AND time >= \''.$start_date.'\' AND time <= \''.$end_date.'\'';
 
+        $calibration_m_abbr   = $device->calibrationsMeasurementAbbreviations();
+        $add_calibrations     = count($calibration_m_abbr) > 0 ? true : false;
+
         if($resolution != null)
         {
             if ($device)
@@ -1505,6 +1509,14 @@ class MeasurementController extends Controller
                 $fill              = env('INFLUX_FILL') !== null ? env('INFLUX_FILL') : 'null';
                 $groupByResolution = 'GROUP BY time('.$resolution.') fill('.$fill.')';
                 $queryList         = Device::getAvailableSensorNamesFromData($device->id, $names, $whereKeyAndTime, 'sensors', true, $cache_sensor_names);
+
+                // Add calibration input measurements for recalculation
+                if ($add_calibrations)
+                {
+                    $m_abbr_calibrations = array_keys($calibration_m_abbr);
+                    foreach ($m_abbr_calibrations as $m)
+                        $queryList[] = $m; // 'w_v', etc.
+                }
 
                 foreach ($queryList as $i => $name)
                     $queryList[$i] = 'MEAN("'.$name.'") AS "'.$name.'"';
@@ -1535,13 +1547,10 @@ class MeasurementController extends Controller
             $sensors_out = Device::getInfluxQuery($sensorQuery, 'data');
             
             // Apply SensorDefinitions that have 'recalculate' set to true
-            $calibration_m_abbr = $device->calibrationsMeasurementAbbreviations();
-            if (count($calibration_m_abbr) > 0)
+            if ($add_calibrations)
             {
                 foreach ($sensors_out as $i => $data_array)
-                {
-                    $sensors_out[$i] = Calculation::addDeviceMeasurementCalibrations($device, $data_array, $calibration_m_abbr);
-                }
+                    $sensors_out[$i] = SensorDefinition::addDeviceMeasurementCalibrations($device, $data_array, $calibration_m_abbr);
             }
         }
 

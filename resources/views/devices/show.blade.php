@@ -53,6 +53,7 @@
                                 <th>Hive</th>
                                 <th>Messages</th>
                                 <th>Time %</th>
+                                <th>Persisted days</th>
                                 <th>Log erased</th>
                                 <th>Log size</th>
                                 <th>Actions</th>
@@ -66,7 +67,8 @@
                                 <td>{{ $fl->updated_at }}</td>
                                 <td>{{ isset($fl->hive) ? $fl->hive->name : '' }}</td>
                                 <td>{{ $fl->log_messages }}</td>
-                                <td>{{ $fl->time_percentage}}</td>
+                                <td>{{ round($fl->time_percentage) }}</td>
+                                <td>{{ $fl->persisted_days}}</td>
                                 <td>{{ $fl->log_erased}}</td>
                                 <td>{{ round($fl->bytes_received/1024/1024,3) }}MB @if(isset($fl->log_size_bytes) && $fl->log_size_bytes > 0) ({{ round(100*($fl->bytes_received / $fl->log_size_bytes),1) }}%) @endif </td>
                                 <td col-sm-1>

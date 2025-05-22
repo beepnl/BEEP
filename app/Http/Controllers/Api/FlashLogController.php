@@ -211,33 +211,7 @@ class FlashLogController extends Controller
         return $stored;
     }
 
-    private function cleanFlashlogItem($data_array, $unset_time=true)
-    {
-        unset(
-            $data_array['payload_hex'],
-            $data_array['pl'],
-            $data_array['len'],
-            $data_array['vcc'],
-            $data_array['pl_bytes'],
-            $data_array['beep_base'],
-            $data_array['weight_sensor_amount'],
-            $data_array['ds18b20_sensor_amount'],
-            $data_array['port'],
-            $data_array['bat_perc'],
-            $data_array['fft_bin_amount'],
-            $data_array['fft_start_bin'],
-            $data_array['fft_stop_bin']
-        );
-        
-        if ($unset_time)
-            unset(
-                $data_array['i'],
-                $data_array['minute_interval'],
-                $data_array['minute']
-            );
-
-        return $data_array;
-    }
+    
 
     private function diff_percentage($val1, $val2, $round_decimals=1)
     {
@@ -344,81 +318,7 @@ class FlashLogController extends Controller
         return ['sec_diff'=>$secDiffAvg, 'perc_match'=>$percMatch, 'match_count'=>$match_count, 'avg_diff'=>$matchDiffAvg, 'errors'=>implode(', ', $errors)];
     }
 
-    private function exportData($data, $name, $csv=true, $separator=';')
-    {
-        $link = env('FLASHLOG_EXPORT_LINK', true);
-
-        if ($data && gettype($data) == 'array' && count($data) > 0)
-        {
-            $fileBody = null;
-            
-            if ($csv)
-            {
-                // format CSV header row: time, sensor1 (unit2), sensor2 (unit2), etc. Excluse the 'sensor' and 'key' columns
-                $header_item = null;
-                for ($i=0; $i < count($data); $i++) 
-                { 
-                    $data_item = $data[$i];
-                    if (isset($data_item['port']) && $data_item['port'] == 3)
-                    {
-                        $header_item = $this->cleanFlashlogItem($data_item, false);
-                        break;
-                    }
-                }
-
-                if (isset($header_item) && gettype($header_item) == 'array')
-                {
-                    // format CSV
-                    $csv_sens = array_keys($header_item);
-                    $csv_head = [];
-                    foreach ($csv_sens as $header) 
-                    {
-                        $meas       = Measurement::where('abbreviation', $header)->first();
-                        $col_head   = $meas ? $meas->pq_name_unit() : $header;
-                        if (in_array($col_head, $csv_head) && $col_head != $header) // two similar heads, so add $header
-                            $col_head .= ' - '.$header;
-
-                        $csv_head[] = $col_head;
-                    }
-                    $csv_head = '"'.implode('"'.$separator.'"', $csv_head).'"'."\r\n";
-
-                    // format CSV file body
-                    $csv_body = [];
-                    foreach ($data as $data_item) 
-                    {
-                        if (isset($data_item['port']) && $data_item['port'] == 3)
-                            $csv_body[] = implode($separator, $this->cleanFlashlogItem($data_item, false));
-                    }
-                    $fileBody = $csv_head.implode("\r\n", $csv_body);
-                }
-            }
-            else
-            {
-                $fileBody = $data; // return json as body
-            }
-
-            if ($link)
-            {
-                if (isset($fileBody) && $fileBody !== '')
-                {
-                    $disk     = env('EXPORT_STORAGE', 'public');
-                    $file_ext = $csv ? '.csv' : '.json';
-                    $file_mime= $csv ? 'text/csv' : 'application/json';
-                    $filePath = 'exports/flashlog/beep-base-log-export-'.$name.'-'.Str::random(20).$file_ext;
-                    $filePath = str_replace(' ', '', $filePath);
-
-                    Storage::disk($disk)->put($filePath, $fileBody, ['mimetype' => $file_mime]);
-                    return ['link'=>Storage::disk($disk)->url($filePath)];
-                }
-            }
-            else
-            {
-                return $fileBody;
-            }
-        }
-        return ['error'=>'export_not_saved'];
-    }
-
+    
     private function parse(Request $request, $id, $persist=false, $delete=false)
     {
         $flashlog_id = intval($id);
@@ -488,7 +388,7 @@ class FlashLogController extends Controller
                         $interval_multi = $interval_multi * $fl_per_db_int;
 
                         if ($export_csv || $export_json)
-                            return $this->exportData(array_slice($block_data, $block_start_i, $block_length), "user-$user_id-$device_name-log-file-$id-block-$block_id-matches-$has_matches", $export_csv);
+                            return FlashLog::exportData(array_slice($block_data, $block_start_i, $block_length), "user-$user_id-$device_name-log-file-$id-block-$block_id-matches-$has_matches", $export_csv);
 
                         // Check if there are matches (NB: Bug: persisted measurements now can only be deleted in a block with matches)
                         if ($has_matches)
@@ -612,7 +512,7 @@ class FlashLogController extends Controller
                                                 $data_item = $block_data[$i];
 
                                                 if (isset($data_item['time']) && isset($data_item['port']) && $data_item['port'] == 3) // time from flashlog should be between start and end of this interval
-                                                    $missing_data[] = $this->cleanFlashlogItem($data_item);
+                                                    $missing_data[] = FlashLog::cleanFlashlogItem($data_item);
 
                                             }
                                             // Store batches of data to InfluxDB
@@ -671,7 +571,7 @@ class FlashLogController extends Controller
                                                             $secDataItem = strtotime($data_item['time']);
                                                             
                                                             if (isset($data_item['port']) && $data_item['port'] == 3 && $secDataItem >= $secOfCountStart && $secDataItem < $secOfCountEnd) // time from flashlog should be between start and end of this interval
-                                                                $missing_data[] = $this->cleanFlashlogItem($data_item);
+                                                                $missing_data[] = FlashLog::cleanFlashlogItem($data_item);
 
                                                         }
                                                     }
@@ -755,7 +655,7 @@ class FlashLogController extends Controller
                                 $fl_data_cln    = [];
                                 for ($i=$start_index; $i<$end_index; $i++) 
                                 { 
-                                    $block_data_item = $this->cleanFlashlogItem($block_data[$i]);
+                                    $block_data_item = FlashLog::cleanFlashlogItem($block_data[$i]);
                                     $block_data_item['time'] .= 'Z'; // display as UTC
                                     $fl_data_cln[] = $block_data_item;
                                 }
@@ -882,7 +782,7 @@ class FlashLogController extends Controller
                                     $data_item = $block_data[$i];
                                     if (isset($data_item['port']) && $data_item['port'] == 3)
                                     {
-                                        $block_data_item = $this->cleanFlashlogItem($data_item, false);
+                                        $block_data_item = FlashLog::cleanFlashlogItem($data_item, false);
 
                                         if ($device_time_set == false && isset($block_data_item['minute']))
                                             $block_data_item['time'] = date('Y-m-d\TH:i:s\Z', 946681200 + $block_data_item['minute'] * 60); // display as UTC from 2000-01-01 00:00:00
@@ -908,7 +808,7 @@ class FlashLogController extends Controller
                         if ($export_csv || $export_json)
                         {
                             $all_log_data = json_decode($flashlog->getFileContent('log_file_parsed'), true);
-                            return $this->exportData($all_log_data, "user-$user_id-$device_name-log-file-$id-all-data", $export_csv);
+                            return FlashLog::exportData($all_log_data, "user-$user_id-$device_name-log-file-$id-all-data", $export_csv);
                         }
                     }
                 }

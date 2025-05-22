@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Str;
 use App\Traits\MeasurementLoRaDecoderTrait;
 
 use App\Hive;
@@ -20,6 +21,7 @@ class FlashLog extends Model
     protected $precision  = 's';
     protected $timeFormat = 'Y-m-d H:i:s';
     protected $weight_mid = 20;
+    protected static $minUnixTime= 1546297200; // min time for Flashlog internal time is: 2019-01-01 00:00:00
 
     /**
      * The database table used by the model.
@@ -40,7 +42,7 @@ class FlashLog extends Model
      *
      * @var array
      */
-    protected $fillable = ['user_id', 'device_id', 'hive_id', 'log_messages', 'log_saved', 'log_parsed', 'log_has_timestamps', 'bytes_received', 'log_file', 'log_file_stripped', 'log_file_parsed', 'log_size_bytes', 'log_erased', 'time_percentage', 'persisted_days', 'persisted_measurements', 'persisted_block_ids'];
+    protected $fillable = ['user_id', 'device_id', 'hive_id', 'log_messages', 'log_saved', 'log_parsed', 'log_has_timestamps', 'bytes_received', 'log_file', 'log_file_stripped', 'log_file_parsed', 'log_size_bytes', 'log_erased', 'time_percentage', 'persisted_days', 'persisted_measurements', 'persisted_block_ids', 'log_date_start', 'log_date_end', 'logs_per_day', 'csv_url'];
     protected $hidden   = ['device', 'hive', 'user', 'persisted_block_ids'];
 
     protected $appends  = ['device_name', 'hive_name', 'user_name'];
@@ -83,6 +85,20 @@ class FlashLog extends Model
         return null;
     }
     
+    // Get content of log_file, log_file_stripped, or log_file_parsed
+    public function getFileSizeBytes($type='log_file')
+    {
+        if(isset($this->{$type}))
+        {
+            $file = 'flashlog/'.last(explode('/',$this->{$type}));
+            //die(print_r($file));
+            $disk = env('FLASHLOG_STORAGE', 'public');
+            if (Storage::disk($disk)->exists($file))
+                return Storage::disk($disk)->size($file);
+        }
+        return null;
+    }
+
     public function getFileContent($type='log_file')
     {
         if(isset($this->{$type}))
@@ -124,6 +140,69 @@ class FlashLog extends Model
         return $array;
     }
 
+    public function getLogDays() // only logs with set time
+    {
+        if (isset($this->log_date_start) && isset($this->log_date_end))
+        {
+            return round( (strtotime($this->log_date_end) - strtotime($this->log_date_start))/(24*3600), 2);
+        }
+        return null;
+    }
+
+    public function getLogPerDay()
+    {
+        $log_days = $this->getLogDays();
+        if (isset($log_days) && $log_days > 0 && isset($this->log_messages))
+        {
+            return round($this->log_messages * ($this->time_percentage/100) / $log_days);
+        }
+        return null;
+    }
+
+    public function getDeviceMeasurementIntervalMin()
+    {
+        $device = $this->device;
+        if (isset($device) && isset($device->measurement_interval_min) && $device->measurement_interval_min > 0)
+            return $device->measurement_interval_min;
+
+        return 15;
+    }
+
+    public function getTimeLogPercentage()
+    {
+        $logs_per_day = $this->getLogPerDay();
+
+        if (isset($logs_per_day)) // means that $this->log_date_end is set
+        {
+            $interval_min = $this->getDeviceMeasurementIntervalMin();
+            $logs_per_day_full = (24 * 60) / $interval_min;
+            $logs_per_day_perc = round(100 * $logs_per_day / $logs_per_day_full, 1);
+            return $logs_per_day_perc;
+        }
+        return 0;
+    }
+
+    public function validLog()
+    {
+        /* validate log if: 
+           1. created_at is within 1 hour from last timestamp
+           2. log % > 90%: interval 15 min should have 96 msg/day (>86msg = >90%)
+        */
+        $logs_per_day = $this->getLogPerDay();
+        
+        if (isset($logs_per_day)) // means that $this->log_date_end is set
+        {
+            $created_u  = strtotime($this->created_at);
+            $last_log_u = strtotime($this->log_date_end);
+            if ($last_log_u >= $created_u - env('FLASHLOG_VALID_UPLOAD_DIFF_SEC', 3600))
+            {
+                $logs_per_day_perc = $this->getTimeLogPercentage();
+                if ($logs_per_day_perc >= env('FLASHLOG_VALID_TIME_LOG_PERC', 90))
+                    return true;
+            }
+        }
+        return false;
+    }
 
     public function getLogCacheName($fill=false, $show=false, $matches_min_override=null, $match_props_override=null, $db_records_override=null)
     {
@@ -283,7 +362,7 @@ class FlashLog extends Model
                     $logtm++;
                     $ts = intval($data_array['time_device']);
 
-                    if ($ts > 1546297200 && $ts < $max_time) // > 2019-01-01 00:00:00 < now
+                    if ($ts > self::$minUnixTime && $ts < $max_time) // > 2019-01-01 00:00:00 < now
                     {
                         $time_device = new Moment($ts);
                         $data_array['time'] = $time_device->format($this->timeFormat);
@@ -386,7 +465,7 @@ class FlashLog extends Model
             if (isset($this->log_saved) == false) // first upload 
                 $this->log_saved = $saved;
             
-            $this->bytes_received = $bytes;
+            $this->bytes_received = $bytes == 0 && isset($this->bytes_received) && $this->bytes_received > 0 ? $this->bytes_received : $bytes; // only update on >0
             $this->log_has_timestamps = $logtm > 0 ? true : false;
             $this->log_parsed = $parsed;
             $this->log_messages = $messages;
@@ -753,7 +832,7 @@ class FlashLog extends Model
 
         // check if database query should be based on the device time, or the cached time from the 
         //$use_device_time = false;
-        if (isset($flashlog[$start_index]['time_device']) && intval($flashlog[$start_index]['time_device']) > 1546297200)   
+        if (isset($flashlog[$start_index]['time_device']) && intval($flashlog[$start_index]['time_device']) > self::$minUnixTime)   
         {
             $device_moment = new Moment($flashlog[$start_index]['time_device']);
             $device_time   = $device_moment->format($this->timeFormat);
@@ -964,6 +1043,152 @@ class FlashLog extends Model
         }
 
         return $out;
+    }
+
+    public static function cleanFlashlogItem($data_array, $unset_time=true)
+    {
+        unset(
+            $data_array['payload_hex'],
+            $data_array['pl'],
+            $data_array['len'],
+            $data_array['vcc'],
+            $data_array['pl_bytes'],
+            $data_array['beep_base'],
+            $data_array['weight_sensor_amount'],
+            $data_array['ds18b20_sensor_amount'],
+            $data_array['port'],
+            $data_array['bat_perc'],
+            $data_array['fft_bin_amount'],
+            $data_array['fft_start_bin'],
+            $data_array['fft_stop_bin']
+        );
+        
+        if ($unset_time)
+            unset(
+                $data_array['i'],
+                $data_array['minute_interval'],
+                $data_array['minute'],
+                $data_array['time_clock'],
+                $data_array['time_device']
+            );
+
+        return $data_array;
+    }
+
+    public static function exportData($data, $name, $csv=true, $separator=';', $link_override=false)
+    {
+        $link = $link_override ? $link_override : env('FLASHLOG_EXPORT_LINK', true);
+
+        //dd($name, gettype($data));
+        
+        if ($data && gettype($data) == 'array' && count($data) > 0)
+        {
+            $fileBody   = null;
+            $first_date = null; 
+            $last_date  = null; 
+            $data_count = count($data);
+
+            if ($csv)
+            {
+                // format CSV header row: time, sensor1 (unit2), sensor2 (unit2), etc. Exclude the 'sensor' and 'key' columns
+                $header_item  = null;
+                $header_count = 0;
+
+                for ($i=0; $i < $data_count; $i++) 
+                { 
+                    $data_item = $data[$i];
+                    if (isset($data_item['port']) && $data_item['port'] == 3) // should have at least 10 items
+                    {
+                        //change order of time
+                        $data_time = null;
+                        $data_time_utc = '';
+                        
+                        if (isset($data_item['time']))
+                        {
+                            $data_time = $data_item['time'];
+                            unset($data_item['time']);
+                            
+                            $data_time_utc = str_replace(' ', 'T', $data_time).'Z'; // Format as Influx time + UTC timezone
+                        }
+                        
+                        $data_item       = array_merge(['time'=>$data_time_utc], $data_item); // Time in first column
+                        $data_item_clean = self::cleanFlashlogItem($data_item, true);
+                        $csv_body[]      = implode($separator, $data_item_clean);
+
+                        if (isset($data_time))
+                        {
+                            if (!isset($data_item['time_device']) || $data_item['time_device'] >= self::$minUnixTime) // time is set (also allow previously parsed Flashlogs without RTC), or time_device should be correctly set
+                            {
+                                if ($first_date === null)
+                                    $first_date = $data_time;
+
+                                $last_date = $data_time; // update until last item with date
+                            }
+                        }
+
+                        // get biggest headers
+                        $param_count = count($data_item_clean);
+                        if ($param_count > $header_count)
+                        {
+                            $header_count = $param_count;
+                            $header_item  = $data_item_clean;
+                        }
+                    }
+                }
+
+                if (isset($header_item) && gettype($header_item) == 'array')
+                {
+                    // format CSV
+                    $csv_sens = array_keys($header_item);
+                    $csv_head = [];
+                    foreach ($csv_sens as $header) 
+                    {
+                        if ($header == 'time')
+                        {
+                            $col_head = 'time';
+                        }
+                        else
+                        {
+                            $meas       = Measurement::where('abbreviation', $header)->first();
+                            $col_head   = !$meas ? $header : $meas->pq_name_unit();
+                            $col_head  .= $meas ? " ($header)" : "";
+                        }
+
+                        $csv_head[] = $col_head;
+                    }
+                    $csv_head = '"'.implode('"'.$separator.'"', $csv_head).'"'."\r\n";
+
+                    // format CSV file body
+                    $fileBody = $csv_head.implode("\r\n", $csv_body);
+                }
+            }
+            else
+            {
+                $fileBody = $data; // return json as body
+            }
+            //dd($name, $first_date, $last_date);
+
+            if ($link)
+            {
+                if (isset($fileBody) && $fileBody !== '')
+                {
+                    $disk     = env('EXPORT_STORAGE', 'public');
+                    $file_ext = $csv ? '.csv' : '.json';
+                    $file_mime= $csv ? 'text/csv' : 'application/json';
+                    $file_date= (isset($first_date) ? substr($first_date, 0, 10) : '').'-'.(isset($last_date) ? substr($last_date, 0, 10) : '');
+                    $filePath = 'exports/flashlog/beep-export-'.$name.'-'.$file_date.'-'.Str::random(10).$file_ext;
+                    $filePath = str_replace(' ', '', $filePath);
+
+                    Storage::disk($disk)->put($filePath, $fileBody, ['mimetype' => $file_mime]);
+                    return ['link'=>Storage::disk($disk)->url($filePath), 'first_date'=>$first_date, 'last_date'=>$last_date];
+                }
+            }
+            else
+            {
+                return $fileBody;
+            }
+        }
+        return ['error'=>'export_not_saved'];
     }
 
 }

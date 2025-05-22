@@ -169,6 +169,7 @@ Route::group(
 		
 		Route::get('research', 				['as'=>'research.index','uses'=>'ResearchController@index']);
 		Route::get('research/{id}', 		['as'=>'research.show','uses'=>'ResearchController@show']);
+		Route::get('research/{id}/data',    ['as'=>'research.data','uses'=>'ResearchController@data']);
 		Route::get('research/{id}/consent', ['as'=>'research.consent','uses'=>'ResearchController@consent']);
 		Route::get('research/{id}/consent/{c_id}', ['as'=>'research.consent_edit','uses'=>'ResearchController@consent_edit']);
 		Route::patch('research/{id}/consent/{c_id}', ['as'=>'research.consent_edit','uses'=>'ResearchController@consent_edit']);

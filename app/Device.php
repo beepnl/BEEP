@@ -296,6 +296,24 @@ class Device extends Model
         return $this->hasMany(FlashLog::class);
     }
 
+    public function getFlashLogsHtml($start_date='2019-01-01')
+    {
+        $flogs= $this->flashlogs()->where('created_at', '>', $start_date)->orderByDesc('created_at')->get();
+        $html = '<div style="height: 100%; overflow-x: hidden; overflow-y: scroll;"><ul style="padding:0; margin:0;">';
+
+        $i = 0;
+        foreach ($flogs as $fl)
+        {
+            $i++;
+            $html .= '<li style="padding:0; margin:0;"><a href="/devices/'.$this->id.'">'.$i.'. '.$fl->created_at.' '.($fl->persisted_days ? '('.$fl->persisted_days.' d)' : '').'</a></li>';
+        }
+
+        $html .= '</ul></div>';
+
+        return $html;
+    }
+
+
     public function getRefreshMin()
     {
         $int_min = isset($this->measurement_interval_min) ? $this->measurement_interval_min : 0;

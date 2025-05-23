@@ -153,7 +153,7 @@ class FlashLogController extends Controller
 
                 $flashlog_parsed_json = json_decode($flashlog_parsed_text, true);
                 $csv_file_name        = "flashlog-$id-device-id-$flashlog->device_id-sensor-data";
-                $save_output          = FlashLog::exportData($flashlog_parsed_json, $csv_file_name, true, ';', true);
+                $save_output          = FlashLog::exportData($flashlog_parsed_json, $csv_file_name, true, ',', true); // Research data is also exported with , as separator
 
                 if (isset($save_output['link']))
                 {

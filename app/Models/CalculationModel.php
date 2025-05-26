@@ -406,9 +406,9 @@ class CalculationModel extends Model
 
         return [
             'min' => $min,
-            'q1' => $q1,
+            'p25' => $q1,
             'median' => $q2,
-            'q3' => $q3,
+            'p75' => $q3,
             'max' => $max,
             'count' => $count,
             'bitResolution' => $bitResolution

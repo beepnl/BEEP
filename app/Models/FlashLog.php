@@ -475,6 +475,15 @@ class FlashLog extends Model
             $this->log_file_parsed = $f_par;
             $this->time_percentage = $time_percentage;
             $this->save();
+
+            // if data is available, also add CSV file from log_file_parsed
+            if (isset($flashlog_filled['flashlog']))
+            {
+                $csv_saved = $this->addCsvToFlashlog($flashlog_filled['flashlog']);
+                //dd($csv_saved, $this->meta_data);
+                if ($csv_saved)
+                    $result["Meta data"] = CalculationModel::arrayToString($this->meta_data);
+            }
         }
 
         Cache::put($cache_name, $result, 86400); // keep for a day
@@ -1199,6 +1208,45 @@ class FlashLog extends Model
             }
         }
         return ['error'=>'export_not_saved'];
+    }
+
+    // from log_file_parsed property
+    public function addCsvToFlashlog($flashlog_array = null)
+    {
+        $data_array = null;
+        $function_input = false;  
+        if (isset($flashlog_array) && is_array($flashlog_array) && count($flashlog_array) > 0)
+        {
+            $data_array = $flashlog_array;
+            $function_input = true;
+        }
+
+        if (!isset($data_array) && isset($this->log_parsed)) // use parsed log file to generate CSV
+        {
+            $flashlog_parsed_text = $this->getFileContent('log_file_parsed');
+            if (!empty($flashlog_parsed_text))
+            {
+                $data_array = json_decode($flashlog_parsed_text, true);
+            }
+        }
+
+        if (!empty($data_array))
+        {
+            $csv_file_name        = "flashlog-$this->id-device-id-$this->device_id-sensor-data";
+            $save_output          = FlashLog::exportData($data_array, $csv_file_name, true, ',', true); // Research data is also exported with , as separator
+
+            if (isset($save_output['link']))
+            {
+                $this->csv_url        = $save_output['link'];
+                $this->log_date_start = $save_output['first_date'];
+                $this->log_date_end   = $save_output['last_date'];
+                $this->meta_data      = $save_output['meta_data'];
+                $this->logs_per_day   = $this->getLogPerDay();
+                //dd($function_input, $save_output, $data_array);
+                return $this->save();
+            }
+        }
+        return false;
     }
 
 }

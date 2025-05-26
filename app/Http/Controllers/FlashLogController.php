@@ -153,24 +153,12 @@ class FlashLogController extends Controller
                     return redirect()->route('flash-log.index', $query_par)->with('error', "FlashLog $id log_file_parsed is empty");
 
                 $flashlog_parsed_json = json_decode($flashlog_parsed_text, true);
-                $csv_file_name        = "flashlog-$id-device-id-$flashlog->device_id-sensor-data";
-                $save_output          = FlashLog::exportData($flashlog_parsed_json, $csv_file_name, true, ',', true); // Research data is also exported with , as separator
+                $csv_saved = $flashlog->addCsvToFlashlog($flashlog_parsed_json);
 
-                if (isset($save_output['link']))
-                {
-                    $flashlog->csv_url        = $save_output['link'];
-                    $flashlog->log_date_start = $save_output['first_date'];
-                    $flashlog->log_date_end   = $save_output['last_date'];
-                    $flashlog->meta_data      = $save_output['meta_data'];
-                    $flashlog->logs_per_day   = $flashlog->getLogPerDay();
-                    $flashlog->save();
+                if ($csv_saved)
+                    return redirect()->route('flash-log.index', $query_par)->with('success', "FlashLog $id CSV set: $flashlog->csv_url, Meta data: ".CalculationModel::arrayToString($flashlog->meta_data));
 
-                    //dd($save_output['meta_data']);
-                    
-                    return redirect()->route('flash-log.index', $query_par)->with('success', "FlashLog $id CSV set: $flashlog->csv_url, Meta data: ".CalculationModel::arrayToString($save_output['meta_data']));
-                }
-
-                return redirect()->route('flash-log.index', $query_par)->with('error', "FlashLog $id CSV error: ".implode(', ',$save_output));
+                return redirect()->route('flash-log.index', $query_par)->with('error', "FlashLog $id CSV save error");
 
             }
             else
@@ -182,8 +170,9 @@ class FlashLogController extends Controller
                     // log($data='', $log_bytes=null, $save=true, $fill=false, $show=false, $matches_min_override=null, $match_props_override=null, $db_records_override=null, $save_override=false, $from_cache=true, $match_days_offset=0, $add_sensordefinitions=true)
                     $res  = $flashlog->log($data, null, true, $fill_time, false, null, null, null, false, false, $fill_sdef);
                     foreach ($res as $key => $value) {
-                        $out[] = $key.'='.$value; 
+                        $out[] = "$key=$value"; 
                     }
+
                 }
                 else
                 {

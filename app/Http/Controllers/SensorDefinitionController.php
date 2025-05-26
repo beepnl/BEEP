@@ -26,9 +26,14 @@ class SensorDefinitionController extends Controller
         $search_user = $request->get('user');
         $search_dev  = $request->get('device');
         $search_mid  = $request->get('measurement_id');
+        $device_id   = $request->get('device_id');
         $perPage     = 50;
         $defs        = SensorDefinition::where('id', '!=', null);
 
+        if (!empty($device_id)) 
+        {
+            $defs = $defs->where('device_id', $device_id);
+        }
         if (!empty($search_mid)) 
         {
             $defs = $defs->where('input_measurement_id', $search_mid)->orWhere('output_measurement_id', $search_mid);

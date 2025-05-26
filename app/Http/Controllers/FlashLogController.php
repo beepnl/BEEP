@@ -27,11 +27,15 @@ class FlashLogController extends Controller
         $log_csv_url = $request->filled('csv_url') ? (boolval($request->get('csv_url')) ? '!=' : '=') : null; // != null / = null
         $search_user = $request->get('user');
         $search_dev  = $request->get('device');
+        $device_id   = $request->get('device_id');
         $perPage     = 50;
 
         $flashlogs    = FlashLog::where('id', '!=', null);
 
-        $research_id = null;
+        if (!empty($device_id)) 
+        {
+            $flashlogs = $flashlogs->where('device_id', $device_id);
+        }
         if (!empty($search_dev)) 
         {
             $device_ids = Device::where('id', 'LIKE', "%$search_dev%")

@@ -53,7 +53,7 @@
                     </tr>
                     <tr>
                         <th> Device Id </th>
-                        <td> {{ $flashlog->device_id }} </td>
+                        <td> {{ $flashlog->device_id }} <a href="/sensordefinition?device_id={{ $flashlog->device_id }}">(Sensor definitions)</a></td>
                     </tr>
                     <tr>
                         <th> Hive Id </th>

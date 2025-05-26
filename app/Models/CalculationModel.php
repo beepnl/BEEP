@@ -375,13 +375,43 @@ class CalculationModel extends Model
         $q1 = $median($lowerHalf);
         $q3 = $median($upperHalf);
 
+
+        // Calculate bit resolution
+        $bitResolution = null;
+        $minDiff = null;
+
+        for ($i = 1; $i < $count; $i++) {
+            $diff = abs($data[$i] - $data[$i - 1]);
+            if ($diff > 0 && ($minDiff === null || $diff < $minDiff)) {
+                $minDiff = $diff;
+            }
+        }
+
+        if (isset($minDiff) && $minDiff > 0)
+        {
+           
+            // Calculate range
+            $range = $max - $min;
+
+            if ($range == 0) {
+                $bitResolution = 1; // All values same; technically 1 distinguishable value = 1 bit
+            }
+
+            // Calculate the number of distinguishable values
+            $distinctValues = $range / $minDiff;
+
+            // Bit resolution = ceil(log2(distinctValues))
+            $bitResolution = (int) ceil(log($distinctValues, 2));
+        }
+
         return [
             'min' => $min,
             'q1' => $q1,
             'median' => $q2,
             'q3' => $q3,
             'max' => $max,
-            'count' => $count
+            'count' => $count,
+            'bitResolution' => $bitResolution
         ];
     }
 
@@ -409,7 +439,7 @@ class CalculationModel extends Model
 
             return implode($separator, $result);
         }
-        
+
         return ''; 
     }
 }

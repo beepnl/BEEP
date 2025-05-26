@@ -4,11 +4,12 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests;
 use App\Http\Controllers\Controller;
+use Illuminate\Http\Request;
 
 use App\Models\FlashLog;
+use App\Models\CalculationModel;
 use App\User;
 use App\Device;
-use Illuminate\Http\Request;
 use Storage;
 
 class FlashLogController extends Controller
@@ -160,10 +161,13 @@ class FlashLogController extends Controller
                     $flashlog->csv_url        = $save_output['link'];
                     $flashlog->log_date_start = $save_output['first_date'];
                     $flashlog->log_date_end   = $save_output['last_date'];
+                    $flashlog->meta_data      = $save_output['meta_data'];
                     $flashlog->logs_per_day   = $flashlog->getLogPerDay();
                     $flashlog->save();
+
+                    //dd($save_output['meta_data']);
                     
-                    return redirect()->route('flash-log.index', $query_par)->with('success', "FlashLog $id CSV set: $flashlog->csv_url");
+                    return redirect()->route('flash-log.index', $query_par)->with('success', "FlashLog $id CSV set: $flashlog->csv_url, Meta data: ".CalculationModel::arrayToString($save_output['meta_data']));
                 }
 
                 return redirect()->route('flash-log.index', $query_par)->with('error', "FlashLog $id CSV error: ".implode(', ',$save_output));

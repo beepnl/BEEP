@@ -10,6 +10,7 @@ use App\Hive;
 use App\Device;
 use App\User;
 use App\Measurement;
+use App\Models\CalculationModel;
 use Moment\Moment;
 use Storage;
 use Cache;
@@ -42,10 +43,11 @@ class FlashLog extends Model
      *
      * @var array
      */
-    protected $fillable = ['user_id', 'device_id', 'hive_id', 'log_messages', 'log_saved', 'log_parsed', 'log_has_timestamps', 'bytes_received', 'log_file', 'log_file_stripped', 'log_file_parsed', 'log_size_bytes', 'log_erased', 'time_percentage', 'persisted_days', 'persisted_measurements', 'persisted_block_ids', 'log_date_start', 'log_date_end', 'logs_per_day', 'csv_url'];
+    protected $fillable = ['user_id', 'device_id', 'hive_id', 'log_messages', 'log_saved', 'log_parsed', 'log_has_timestamps', 'bytes_received', 'log_file', 'log_file_stripped', 'log_file_parsed', 'log_size_bytes', 'log_erased', 'time_percentage', 'persisted_days', 'persisted_measurements', 'persisted_block_ids', 'log_date_start', 'log_date_end', 'logs_per_day', 'csv_url', 'meta_data'];
     protected $hidden   = ['device', 'hive', 'user', 'persisted_block_ids'];
 
     protected $appends  = ['device_name', 'hive_name', 'user_name'];
+    protected $casts    = ['meta_data' => 'array'];
 
 
     public function hive()
@@ -1087,6 +1089,7 @@ class FlashLog extends Model
             $first_date = null; 
             $last_date  = null; 
             $data_count = count($data);
+            $weight_arr = [];
 
             if ($csv)
             {
@@ -1125,6 +1128,9 @@ class FlashLog extends Model
                                 $last_date = $data_time; // update until last item with date
                             }
                         }
+
+                        if (isset($data_item_clean['weight_kg']))
+                            $weight_arr[] = $data_item_clean['weight_kg'];
 
                         // get biggest headers
                         $param_count = count($data_item_clean);
@@ -1179,8 +1185,12 @@ class FlashLog extends Model
                     $filePath = 'exports/flashlog/beep-export-'.$name.'-'.$file_date.'-'.Str::random(10).$file_ext;
                     $filePath = str_replace(' ', '', $filePath);
 
+                    $meta_data  = null;
+                    if (count($weight_arr) > 0)
+                        $meta_data = ['weight_kg'=>CalculationModel::calculateBoxplot($weight_arr)];
+
                     Storage::disk($disk)->put($filePath, $fileBody, ['mimetype' => $file_mime]);
-                    return ['link'=>Storage::disk($disk)->url($filePath), 'first_date'=>$first_date, 'last_date'=>$last_date];
+                    return ['link'=>Storage::disk($disk)->url($filePath), 'first_date'=>$first_date, 'last_date'=>$last_date, 'meta_data'=>$meta_data];
                 }
             }
             else

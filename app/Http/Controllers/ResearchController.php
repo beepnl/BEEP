@@ -16,6 +16,7 @@ use App\Inspection;
 use App\Device;
 use App\Measurement;
 use App\Models\FlashLog;
+use App\Models\CalculationModel;
 
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
@@ -539,6 +540,7 @@ class ResearchController extends Controller
                             'Logs per day',
                             'Log time complete (%)',
                             'Log valid',
+                            'Log meta',
                             'CSV file',
                             'Raw log file',
                             'Stripped log file',
@@ -1823,6 +1825,8 @@ class ResearchController extends Controller
     {
         return $flashlogs->where('created_at', '<=', $date_until)->sortBy('device_id')->sortByDesc('created_at')->map(function($item) use ($user_id)
         {
+            $meta_data = isset($item->meta_data) ? CalculationModel::arrayToString($item->meta_data) : null;
+            
             return [
                 $user_id,
                 $item->device_id, 
@@ -1843,6 +1847,7 @@ class ResearchController extends Controller
                 $item->logs_per_day,
                 $item->getTimeLogPercentage(),
                 $item->validLog(),
+                $meta_data,
                 $item->csv_url,
                 $item->log_file,
                 $item->log_file_stripped,

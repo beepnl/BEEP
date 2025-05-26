@@ -348,6 +348,65 @@ class CalculationModel extends Model
         }
         return $out;
     }
+
+    // Boxplot from data array
+    public static function calculateBoxplot(array $data): array 
+    {
+        sort($data);
+        $count = count($data);
+
+        $median = function($arr) {
+            $n = count($arr);
+            $mid = floor($n / 2);
+            if ($n % 2) {
+                return $arr[$mid];
+            } else {
+                return ($arr[$mid - 1] + $arr[$mid]) / 2;
+            }
+        };
+
+        $min = min($data);
+        $max = max($data);
+        $q2 = $median($data);
+
+        $lowerHalf = array_slice($data, 0, floor($count / 2));
+        $upperHalf = array_slice($data, ceil($count / 2));
+
+        $q1 = $median($lowerHalf);
+        $q3 = $median($upperHalf);
+
+        return [
+            'min' => $min,
+            'q1' => $q1,
+            'median' => $q2,
+            'q3' => $q3,
+            'max' => $max,
+            'count' => $count
+        ];
+    }
+
+    public static function arrayToString(array $array, string $separator = ', ', string $prefix = ''): string {
+        $result = [];
+
+        foreach ($array as $key => $value)
+        {
+            $compositeKey = $prefix === '' ? $key : "$prefix.$key";
+
+            if (is_array($value))
+            {
+                $result[] = self::arrayToString($value, $separator, $compositeKey);
+            } else {
+            
+                $rounded_value = $value;
+                if (is_numeric($rounded_value))
+                    $rounded_value = round($rounded_value, 2);
+
+                $result[] = "$compositeKey: $rounded_value";
+            }
+        }
+
+        return implode($separator, $result);
+    }
 }
 
 

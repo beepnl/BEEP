@@ -385,27 +385,32 @@ class CalculationModel extends Model
         ];
     }
 
-    public static function arrayToString(array $array, string $separator = ', ', string $prefix = ''): string {
-        $result = [];
+    public static function arrayToString($array, string $separator = ', ', string $prefix = ''): string {
 
-        foreach ($array as $key => $value)
+        if (is_array($array))
         {
-            $compositeKey = $prefix === '' ? $key : "$prefix.$key";
-
-            if (is_array($value))
+            $result = [];
+            foreach ($array as $key => $value)
             {
-                $result[] = self::arrayToString($value, $separator, $compositeKey);
-            } else {
-            
-                $rounded_value = $value;
-                if (is_numeric($rounded_value))
-                    $rounded_value = round($rounded_value, 2);
+                $compositeKey = $prefix === '' ? $key : "$prefix.$key";
 
-                $result[] = "$compositeKey: $rounded_value";
+                if (is_array($value))
+                {
+                    $result[] = self::arrayToString($value, $separator, $compositeKey);
+                } else {
+                
+                    $rounded_value = $value;
+                    if (is_numeric($rounded_value))
+                        $rounded_value = round($rounded_value, 2);
+
+                    $result[] = "$compositeKey: $rounded_value";
+                }
             }
-        }
 
-        return implode($separator, $result);
+            return implode($separator, $result);
+        }
+        
+        return ''; 
     }
 }
 

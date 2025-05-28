@@ -1450,12 +1450,17 @@ class ResearchController extends Controller
         }
 
         // Average data completenes
+        $data_completeness_array = [];
         if ($data_days > 0)
         {
             foreach ($totals['devices'] as $key => $totals_data_array)
             {
-                $totals['devices'][$key]['data_completeness'] = round($totals_data_array['perc'] / $data_days);
+                $device_data_completeness = $totals_data_array['perc'] / $data_days;
+                $totals['devices'][$key]['data_completeness'] = round($device_data_completeness);
+                if ($device_data_completeness > 0)
+                    $data_completeness_array[] = $device_data_completeness;
             }
+            $data_completeness = round(array_sum($data_completeness_array) / count($data_completeness_array));
         }
         //dd($totals);
 
@@ -1465,7 +1470,7 @@ class ResearchController extends Controller
         foreach ($devices_sorted as $d)
             $devices_select[$d->id] = $d->name.' - ('.$d->user->name.')'; 
 
-        return view('research.data', compact('research', 'devices_all', 'devices_show', 'data_days', 'dates', 'totals', 'consent_users_select', 'consent_users_selected', 'devices_select', 'device_ids', 'date_start', 'date_until', 'add_flashlogs'));
+        return view('research.data', compact('research', 'devices_all', 'devices_show', 'data_days', 'dates', 'totals', 'data_completeness', 'consent_users_select', 'consent_users_selected', 'devices_select', 'device_ids', 'date_start', 'date_until', 'add_flashlogs'));
     }
 
 

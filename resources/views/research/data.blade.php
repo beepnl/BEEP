@@ -166,14 +166,14 @@
             <!-- Data table -->
 
             <div style="display: block;">
-            <div style="display: inline-block; width: 500px; overflow-y: hidden; overflow-x: scroll;">
+            <div style="display: inline-block; width: 550px; overflow-y: hidden; overflow-x: scroll;">
                 <table class="table table-responsive table-striped table-header-rotated">
                     <thead>
                         <tr>
                             <th class="rotate">Device</th>
                             <th class="rotate">Apiary</th>
                             <th class="rotate">Hive</th>
-                            <th class="rotate">Data</th>
+                            <th class="rotate" title="Average data completeness over all selected devices and dates"><span style="color:grey;">{{ $data_completeness }}%</span><br><br>Data</th>
                             @if($add_flashlogs)
                             <th class="rotate">Flashlogs</th>
                             @endif
@@ -199,7 +199,7 @@
                     </tbody>
                 </table>
             </div>
-            <div style="display: inline-block; width: calc( 100% - 510px); overflow-y: hidden; overflow-x: scroll;">
+            <div style="display: inline-block; width: calc( 100% - 560px); overflow-y: hidden; overflow-x: scroll;">
                 <table class="table table-responsive table-striped table-header-rotated">
                     <thead>
                         <tr>

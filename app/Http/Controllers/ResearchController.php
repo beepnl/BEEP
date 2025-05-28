@@ -1232,8 +1232,6 @@ class ResearchController extends Controller
                     $user_flashlogs= FlashLog::where('user_id', $user_id)->where('log_date_end', '>=', $date_start)->where('log_date_start', '<', $date_until)->orderBy('log_date_start')->get(); // only parsed and checked Flashlogs
             }
 
-            $user_measurements = [];
-            $user_meas_import  = [];
             $user_weather_data = [];
             $user_sensor_defs  = [];
             $user_alert_rules  = $user->alert_rules()->where('default_rule', 0)->where('active', 1)->get();
@@ -1301,16 +1299,10 @@ class ResearchController extends Controller
                             if (isset($dates[$date]))
                             {
                                 if (!isset($dates[$date]['devices'][$key]))
-                                    $dates[$date]['devices'][$key] = ['points'=>0, 'from_flashlog'=>0, 'total'=>0, 'perc'=>0];
-
-                                if (!isset($user_meas_import[$date]))
-                                    $user_meas_import[$date] = 0;
-
-                                if (!isset($user_measurements[$date]))
-                                    $user_measurements[$date] = 0;
+                                    $dates[$date]['devices'][$key] = ['points'=>0, 'from_flashlog'=>0, 'total'=>0, 'perc'=>0, 'first_date'=>$date];
 
                                 $meas_per_day = isset($device_key_mpday[$key]) ? $device_key_mpday[$key] : 96;
-                                if ($meas_per_day > 96)
+                                if ($meas_per_day != 96 && $meas_per_day > 0)
                                     $dates[$date]['devices'][$key]['err'] = 'measurement interval: '.(1440/$meas_per_day).' min';
 
                                 $dates[$date]['devices'][$key]['total'] += $point['count'];
@@ -1319,12 +1311,10 @@ class ResearchController extends Controller
                                 if ($fl)
                                 {
                                     $dates[$date]['devices'][$key]['from_flashlog'] = $point['count'];
-                                    $user_meas_import[$date] += $point['count'];
                                 }
                                 else
                                 {
                                     $dates[$date]['devices'][$key]['points'] = $point['count'];
-                                    $user_measurements[$date] += $point['count'];
                                 }
                                     
                             }
@@ -1384,25 +1374,24 @@ class ResearchController extends Controller
                             { 
                                 $date    = date('Y-m-d', $start_u + $d * 24 * 3600);
                                 $logpd   = $fl->logs_per_day;
-                                $logperc = $fl->id.': '.min(100, round(100 * $logpd / $meas_per_day));
+                                $logperc = min(100, round(100 * $logpd / $meas_per_day));
+                                $logp_id = $fl->id.': '.$logperc;
                                  
                                 //dd($fl, $date, $key);
-                                if (isset($dates[$date]))
+                                if ($logpd > 0 && isset($dates[$date]))
                                 {
                                     if (!isset($dates[$date]['devices'][$key]))
                                     {
-                                        $dates[$date]['devices'][$key] = ['points'=>0, 'from_flashlog'=>0, 'flashlog_prognose'=>$logperc, 'total'=>$logpd, 'perc'=>0];
+                                        $dates[$date]['devices'][$key] = ['points'=>$logpd, 'from_flashlog'=>$logpd, 'flashlog_prognose'=>$logp_id, 'total'=>$logpd, 'perc'=>$logperc];
                                     }
-                                    else
+                                    else if (isset($dates[$date]['devices'][$key]['total']) && $dates[$date]['devices'][$key]['total'] < $logpd) // replace total with prognose, because Flashlog should contain all
                                     {
-                                        if (isset($dates[$date]['devices'][$key]['total']) && $dates[$date]['devices'][$key]['total'] < $logpd) // replace total with prognose, because Flashlog should contain all
-                                        {
-                                            $dates[$date]['devices'][$key]['flashlog_prognose'] = $logperc; // id: %
-                                            $dates[$date]['devices'][$key]['total'] = $logpd; 
-                                        }
+                                        $dates[$date]['devices'][$key]['flashlog_prognose'] = $logp_id; // id: %
+                                        $dates[$date]['devices'][$key]['total'] = $logpd;
+                                        // Calculate new perc
+                                        $dates[$date]['devices'][$key]['perc'] = $logperc;
                                     }
-                                    // Calculate new perc
-                                    $dates[$date]['devices'][$key]['perc'] = min(100, round(100 * $dates[$date]['devices'][$key]['total'] / $meas_per_day));
+                                    
                                 }
                             }
                         }
@@ -1438,12 +1427,13 @@ class ResearchController extends Controller
                     foreach ($items as $key => $device_data_array)
                     {
                         if (!isset($totals['devices'][$key]))
-                            $totals['devices'][$key] = ['total'=>0, 'from_flashlog'=>0, 'points'=>0, 'perc'=>0 ];
+                            $totals['devices'][$key] = ['total'=>0, 'from_flashlog'=>0, 'points'=>0, 'perc'=>null];
 
                         $totals['devices'][$key]['total'] += $device_data_array['total'];
                         $totals['devices'][$key]['points'] += $device_data_array['points'];
                         $totals['devices'][$key]['from_flashlog'] += $device_data_array['from_flashlog'];
                         $totals['devices'][$key]['perc'] += $device_data_array['perc'];
+                        $totals['devices'][$key]['last_date'] = $day;
                     }
                 }
             }
@@ -1455,8 +1445,13 @@ class ResearchController extends Controller
         {
             foreach ($totals['devices'] as $key => $totals_data_array)
             {
-                $device_data_completeness = $totals_data_array['perc'] / $data_days;
+                $device_data_days         = isset($totals_data_array['first_date']) && isset($totals_data_array['last_date']) ? round(strtotime($totals_data_array['last_date']) - strtotime($totals_data_array['first_date']) / (24 * 3600)) : $data_days;
+                $device_data_completeness = $totals_data_array['perc'] / $device_data_days;
+
+                $totals['devices'][$key]['data_days'] = $device_data_days;
                 $totals['devices'][$key]['data_completeness'] = round($device_data_completeness);
+
+                // Add to average
                 if ($device_data_completeness > 0)
                     $data_completeness_array[] = $device_data_completeness;
             }

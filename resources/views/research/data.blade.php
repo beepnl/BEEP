@@ -230,14 +230,15 @@
                         @foreach ($devices_show as $device)
                         @php
                             $loc_id      = $device->getLocationIdAttribute();
-                            $data_points = isset($totals['devices'][$device->key]) ? $totals['devices'][$device->key]['total'].' weight data points' : '';
-                            $data_comp   = isset($totals['devices'][$device->key]) ? $totals['devices'][$device->key]['data_completeness'].'%' : '';
+                            $data_points = isset($totals['devices'][$device->key]['total']) ? $totals['devices'][$device->key]['total'].' weight data points' : '';
+                            $data_comp   = isset($totals['devices'][$device->key]['data_completeness']) ? $totals['devices'][$device->key]['data_completeness'].'%' : '';
+                            $data_days_dev = isset($totals['devices'][$device->key]['data_days']) ? $totals['devices'][$device->key]['data_days'] : $data_days;
                         @endphp
                         <tr class="tb-row-small" @if (isset($device->deleted_at)) style="color: #AAA;" title="Device has been deleted at {{$device->deleted_at}}" @else title="{{ $device->name }}" @endif>
                             <th title="{{ $device->name }} (id: {{ $device->id }})" class="tb-row-very-small row-header">{{ $device->name }} ({{ $device->id }})</th> 
                             <th title="{{ $device->location_name }} (id: {{ $loc_id }})" class="tb-row-very-small row-header">{{ $device->location_name }} ({{ $loc_id }})</th> 
                             <th title="{{ $device->hive_name }} (id: {{ $device->hive_id }})" class="tb-row-very-small row-header">{{ $device->hive_name }} ({{ $device->hive_id }})</th> 
-                            <th class="tb-row-very-small row-header" title="Average data completeness: $data_comp ({{ $data_points }} over all selected {{$data_days}} days)">{{ $data_comp }}</th> 
+                            <th class="tb-row-very-small row-header" title="Average data completeness: {{$data_comp}}% ({{ $data_points }} over {{$data_days_dev}} data days)">{{ $data_comp }}</th> 
                             @if($add_flashlogs)
                             <th class="tb-row-normal row-header" style="padding-top: 0; padding-bottom: 0">{!! $device->getFlashLogsHtml($date_start) !!}</th>
                             @endif

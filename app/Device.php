@@ -301,11 +301,9 @@ class Device extends Model
         $flogs= $this->flashlogs()->where('created_at', '>', $start_date)->orderByDesc('created_at')->get(); // get files after start, because can only be filled with data about start date
         $html = '<div style="height: 100%; overflow-x: hidden; overflow-y: scroll;"><ul style="padding:0; margin:0;">';
 
-        $i = 0;
         foreach ($flogs as $fl)
         {
-            $i++;
-            $color = $fl->validLog() ? 'style="color: green;" title="valid weight/time data"' : 'title="check for valid data"';
+            $color = $fl->validLog() ? 'style="color: green;" title="Flash log '.$fl->id.' has valid weight/time data"' : 'title="Flash log '.$fl->id.' should be checked for valid data"';
             $logd  = $fl->getLogDays() ? round($fl->getLogDays()).' days' : '';
             $pers  = $fl->persisted_days ? ', '.round($fl->persisted_days).' days persisted' : '';
             $post  = $pers || $logd ? ' ('.$logd.$pers.')' : ''; 

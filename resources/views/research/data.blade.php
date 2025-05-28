@@ -86,6 +86,14 @@
         </script>
 
         <style type="text/css">
+            .tb-row-normal{
+                height: 45px; 
+                max-height: 45px; 
+                min-height: 45px; 
+                overflow: hidden; 
+                white-space: nowrap;
+                width: 200px;
+            }
             .tb-row-small{
                 height: 45px; 
                 max-height: 45px; 
@@ -179,7 +187,7 @@
                             <th title="{{ $device->hive_name }}" class="tb-row-very-small row-header">{{ $device->hive_name }}</th> 
                             <th class="tb-row-very-small row-header" title="Average data completeness over all selected {{$data_days}} days">{{ isset($totals['devices'][$device->key]) ? $totals['devices'][$device->key]['data_completeness'].'%' : '' }}</th> 
                             @if($add_flashlogs)
-                            <th class="row-header" style="padding-top: 0; padding-bottom: 0">{!! $device->getFlashLogsHtml($date_start) !!}</th>
+                            <th class="tb-row-normal row-header" style="padding-top: 0; padding-bottom: 0">{!! $device->getFlashLogsHtml($date_start) !!}</th>
                             @endif
                         </tr>
                         @endforeach

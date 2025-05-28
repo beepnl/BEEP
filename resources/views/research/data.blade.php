@@ -197,7 +197,12 @@
                                 @php
                                     $perc      = '';
                                     $color     = '';
-                                    $prognose  = isset($d['devices'][$device->key]['flashlog_prognose']) ? 'prognose" title="Weight data in flashlog: '.$d['devices'][$device->key]['flashlog_prognose'].' points' : '';
+                                    $prognose  = '';
+
+                                    if ($add_flashlogs && isset($d['devices'][$device->key]['flashlog_prognose']))
+                                    {
+                                        $prognose = 'prognose" title="Weight data in flashlog: '.$d['devices'][$device->key]['flashlog_prognose'].' points';
+                                    }
 
                                     if (isset($d['devices'][$device->key]['perc']))
                                     {

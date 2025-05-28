@@ -150,7 +150,7 @@
             <h2 style="margin-top: 20px;">Device data completeness per day (%)</h2>
             <!-- Data table -->
 
-            <div style="display: inline-block; width: 400px; overflow-y: hidden; overflow-x: scroll;">
+            <div style="display: inline-block; width: 500px; overflow-y: hidden; overflow-x: scroll;">
                 <table class="table table-responsive table-striped table-header-rotated">
                     <thead>
                         <tr>
@@ -174,7 +174,7 @@
                     </tbody>
                 </table>
             </div>
-            <div style="display: inline-block; width: calc( 100% - 410px); overflow-y: hidden; overflow-x: scroll;">
+            <div style="display: inline-block; width: calc( 100% - 510px); overflow-y: hidden; overflow-x: scroll;">
                 <table class="table table-responsive table-striped table-header-rotated">
                     <thead>
                         <tr>
@@ -188,21 +188,23 @@
                         <tr>
                             @foreach($dates as $date => $d)
                                 @php
-                                    $perc = '';
-                                    $color= '';
+                                    $perc      = '';
+                                    $color     = '';
+                                    $prog_style= isset($d['devices'][$device->key]['flashlog_prognose']) ? 'style="border: 2px solid green;" title="Weight data in flashlog: '.$d['devices'][$device->key]['flashlog_prognose'].' points"' : '';
 
                                     if (isset($d['devices'][$device->key]['perc']))
                                     {
-                                        $perc = $d['devices'][$device->key]['perc'];
+                                        $perc      = $d['devices'][$device->key]['perc'];
                                         if ($perc >= 80)
                                             $color = 'gr';
                                         else if ($perc >= 40)
                                             $color = 'or';
                                         else
                                             $color = 'rd';
+
                                     }
                                 @endphp
-                                <td class="tb-row-small {{$color}}">{{ $perc }}</td>
+                                <td class="tb-row-small {{ $color }}" {!! $prog_style !!}>{{ $perc }}</td>
                                 {{-- <td class="tb-row-small" title="{{$device->name}} - {{$device->location_name}} - {{$device->hive_name}} - {{ $date }}">{{ isset($d['devices'][$device->key]['perc']) ? $d['devices'][$device->key]['perc'] : '' }}</td> --}}
                             @endforeach
                         </tr>

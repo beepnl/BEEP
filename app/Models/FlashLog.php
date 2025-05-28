@@ -62,6 +62,14 @@ class FlashLog extends Model
     {
         return $this->belongsTo(User::class);
     }
+    public function getDeviceKeyAttribute()
+    {
+        $device = $this->device;
+        if (isset($device))
+            return $device->key;
+
+        return null;
+    }
     public function getDeviceNameAttribute()
     {
         $device = $this->device;

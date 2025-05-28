@@ -1216,7 +1216,7 @@ class ResearchController extends Controller
             $devices_all       = $devices_all->merge($user_devices_all);
             $user_devices      = isset($device_ids) ? $user_devices_all->whereIn('id', $device_ids) : $user_devices_all;
             $user_devices_online = isset($device_ids) ? $user_devices_all->whereIn('id', $device_ids)->where('last_message_received', '>=', $date_start) : $user_devices_all->where('last_message_received', '>=', $date_start);
-            $user_flashlogs    = FlashLog::where('user_id', $user_id)->where('created_at', '>=', $date_start)->where('created_at', '<', $date_until)->orderBy('created_at')->get();
+            $user_flashlogs    = FlashLog::where('user_id', $user_id)->where('log_date_end', '>=', $date_start)->where('log_date_start', '<', $date_until)->orderBy('log_date_start')->get(); // only parsed and checked Flashlogs
             $user_measurements = [];
             $user_meas_import  = [];
             $user_weather_data = [];
@@ -1256,7 +1256,7 @@ class ResearchController extends Controller
                     try{
                         $this->cacheRequestRate('influx-get');
                         $this->cacheRequestRate('influx-research');
-                        $query  = 'SELECT COUNT("bv") as "count" FROM "sensors" WHERE '.$user_device_keys.' AND time >= \''.$date_curr_consent.'\' AND time <= \''.$moment_end->format('Y-m-d H:i:s').'\' GROUP BY "key",time(1d),from_flashlog';
+                        $query  = 'SELECT COUNT("w_v") as "count" FROM "sensors" WHERE '.$user_device_keys.' AND time >= \''.$date_curr_consent.'\' AND time <= \''.$moment_end->format('Y-m-d H:i:s').'\' GROUP BY "key",time(1d),from_flashlog';
                         Log::debug($query); 
                         $points = $this->client::query($query)->getPoints();
                         
@@ -1343,6 +1343,46 @@ class ResearchController extends Controller
                 // }
             }
 
+            // Add possible validated Flashlog data blocks as flashlog_prognose
+            if ($user_flashlogs->count() > 0)
+            {
+                foreach ($user_flashlogs as $fl)
+                {
+                    $key = $fl->getDeviceKeyAttribute();
+                    if ($key)
+                    {
+                        $start_u = strtotime($fl->log_date_start);
+                        $days    = $fl->getLogDays();
+
+                        for ($d=0; $d < $days; $d++)
+                        { 
+                            $date = date('Y-m-d', $start_u + $d * 24 * 3600);
+                            $logpd= $fl->logs_per_day;
+                             
+                            //dd($fl, $date, $key);
+                            if (isset($dates[$date]))
+                            {
+                                if (!isset($dates[$date]['devices'][$key]))
+                                {
+                                    $dates[$date]['devices'][$key] = ['points'=>0, 'from_flashlog'=>0, 'flashlog_prognose'=>$logpd, 'total'=>$logpd, 'perc'=>0];
+                                }
+                                else
+                                {
+                                    if (isset($dates[$date]['devices'][$key]['from_flashlog']))
+                                    {
+                                        $subtract_fl = $dates[$date]['devices'][$key]['from_flashlog'];
+                                        $dates[$date]['devices'][$key]['total'] -= $subtract_fl; // subtract persisted data from total, use prognose data
+                                    }
+                                    $dates[$date]['devices'][$key]['flashlog_prognose'] = $logpd;
+                                    $dates[$date]['devices'][$key]['total'] += $logpd; // add prognose to total
+                                }
+                                // Calculate new perc
+                                $perc = $dates[$date]['devices'][$key]['perc'] = min(100, round(100 * $dates[$date]['devices'][$key]['total'] / 96)); //
+                            }
+                        }
+                    }
+                }
+            }
             // go over dates, compare consent dates
         //     $i = 0;
         //     $user_data_counts    = $assets;
@@ -1462,6 +1502,7 @@ class ResearchController extends Controller
         // reverse array for display
         krsort($dates);
         //dd ($dates);
+
         // Count totals
         $totals    = $assets;
         $data_days = count($dates);
@@ -1486,9 +1527,11 @@ class ResearchController extends Controller
                         if (!isset($totals['devices'][$key]))
                             $totals['devices'][$key] = ['total'=>0, 'from_flashlog'=>0, 'points'=>0, 'perc'=>0 ];
 
+                        $flashlog_total = isset($device_data_array['flashlog_prognose']) ? $device_data_array['flashlog_prognose'] : $device_data_array['from_flashlog'];
+
                         $totals['devices'][$key]['total'] += $device_data_array['total'];
                         $totals['devices'][$key]['points'] += $device_data_array['points'];
-                        $totals['devices'][$key]['from_flashlog'] += $device_data_array['from_flashlog'];
+                        $totals['devices'][$key]['from_flashlog'] += $flashlog_total;
                         $totals['devices'][$key]['perc'] += $device_data_array['perc'];
                     }
                 }

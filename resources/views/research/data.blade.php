@@ -142,6 +142,9 @@
             .table-header-rotated > tbody > tr > td.gr{
                 background-color: #B5E989;
             }
+            td.prognose{
+                border: 2px dashed green;
+            }
         </style>
 
 
@@ -168,7 +171,7 @@
                             <th class="tb-row-very-small row-header">{{ isset($totals['devices'][$device->key]) ? $totals['devices'][$device->key]['data_completeness'].'%' : '' }}</th> 
                             <th title="{{ $device->location_name }}" class="tb-row-very-small row-header">{{ $device->location_name }}</th> 
                             <th title="{{ $device->hive_name }}" class="tb-row-very-small row-header">{{ $device->hive_name }}</th> 
-                            <th class="tb-row-small row-header" style="padding-top: 0; padding-bottom: 0">{!! $device->getFlashLogsHtml() !!}</th> 
+                            <th class="tb-row-small row-header" style="padding-top: 0; padding-bottom: 0">{!! $device->getFlashLogsHtml($date_start) !!}</th> 
                         </tr>
                         @endforeach
                     </tbody>
@@ -190,7 +193,7 @@
                                 @php
                                     $perc      = '';
                                     $color     = '';
-                                    $prog_style= isset($d['devices'][$device->key]['flashlog_prognose']) ? 'style="border: 2px solid green;" title="Weight data in flashlog: '.$d['devices'][$device->key]['flashlog_prognose'].' points"' : '';
+                                    $prognose  = isset($d['devices'][$device->key]['flashlog_prognose']) ? 'prognose" title="Weight data in flashlog: '.$d['devices'][$device->key]['flashlog_prognose'].' points' : '';
 
                                     if (isset($d['devices'][$device->key]['perc']))
                                     {
@@ -204,7 +207,7 @@
 
                                     }
                                 @endphp
-                                <td class="tb-row-small {{ $color }}" {!! $prog_style !!}>{{ $perc }}</td>
+                                <td class="tb-row-small {{ $color }} {!! $prognose !!}">{{ $perc }}</td>
                                 {{-- <td class="tb-row-small" title="{{$device->name}} - {{$device->location_name}} - {{$device->hive_name}} - {{ $date }}">{{ isset($d['devices'][$device->key]['perc']) ? $d['devices'][$device->key]['perc'] : '' }}</td> --}}
                             @endforeach
                         </tr>

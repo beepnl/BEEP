@@ -122,6 +122,14 @@ class Device extends Model
         return '';
     }
 
+    public function getLocationIdAttribute()
+    {
+        if (isset($this->hive))
+            return $this->hive->location_id;
+
+        return null;
+    }
+
     public function getLocationNameAttribute()
     {
         if (isset($this->hive))

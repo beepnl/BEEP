@@ -1017,6 +1017,7 @@ class ResearchController extends Controller
             'user_ids.*'    => 'nullable|exists:users,id',
             'device_ids.*'  => 'nullable|exists:sensors,id',
             'add_flashlogs' => 'nullable|boolean',
+            'invalid_log_prognose' => 'nullable|boolean',
         ]);
 
         $demo = $request->filled('demo') && boolval($request->input('demo')) ? true : false;
@@ -1030,6 +1031,7 @@ class ResearchController extends Controller
 
         $device_ids   = $request->input('device_ids');
         $add_flashlogs= boolval($request->input('add_flashlogs', 1));
+        $invalid_log_prognose = boolval($request->input('invalid_log_prognose', 0));
         $devices_all  = collect();
         $devices_show = collect();
         $initial_days = 30;
@@ -1369,13 +1371,13 @@ class ResearchController extends Controller
                 {
                     foreach ($user_flashlogs as $fl)
                     {
-                        $key          = $fl->getDeviceKeyAttribute();
-                        $meas_per_day = isset($device_key_mpday[$key]) ? $device_key_mpday[$key] : 96;
+                        $key = $fl->getDeviceKeyAttribute();
 
-                        if ($key)
+                        if ($key && ($fl->validLog() || $invalid_log_prognose))
                         {
-                            $start_u = strtotime($fl->log_date_start);
-                            $days    = $fl->getLogDays();
+                            $meas_per_day = isset($device_key_mpday[$key]) ? $device_key_mpday[$key] : 96;
+                            $start_u      = strtotime($fl->log_date_start);
+                            $days         = $fl->getLogDays();
 
                             // Walk through data days in Flashlog
                             for ($d=0; $d < $days; $d++)

@@ -20,49 +20,96 @@
         @slot('body')
         <div class="col-xs-12">
             <form method="GET" action="{{ route('research.data',$research->id) }}" accept-charset="UTF-8" class="form-horizontal" enctype="multipart/form-data">
+            <div class="row">
                 <div class="col-xs-12 col-md-4">
-                    <div class="form-group {{ $errors->has('user_ids') ? 'has-error' : ''}}">
-                        <label for="user_ids" control-label>{{ 'Select consented users' }} ({{ count($consent_users_selected) }} / {{ count($consent_users_select) }})</label>
-                        <div>
-                            {!! Form::select('user_ids[]', $consent_users_select, $consent_users_selected, array('id'=>'user_ids','class' => 'form-control select2', 'multiple')) !!}
-                            {!! $errors->first('user_ids', '<p class="help-block">:message</p>') !!}
+                    <div class="col-xs-12">
+                        <div class="form-group {{ $errors->has('user_ids') ? 'has-error' : ''}}">
+                            <label for="user_ids" control-label>{{ 'Select consented users' }} ({{ count($consent_users_selected) }} / {{ count($consent_users_select) }})</label>
+                            <div>
+                                {!! Form::select('user_ids[]', $consent_users_select, $consent_users_selected, array('id'=>'user_ids','class' => 'form-control select2', 'multiple')) !!}
+                                {!! $errors->first('user_ids', '<p class="help-block">:message</p>') !!}
+                            </div>
                         </div>
                     </div>
                 </div>
-                <div class="col-xs-12 col-md-4">
-                    <div class="form-group {{ $errors->has('device_ids') ? 'has-error' : ''}}">
-                        <label for="device_ids" control-label>{{ 'Devices filter (default: all)' }}</label>
-                        <div>
-                            {!! Form::select('device_ids[]', $devices_select, $device_ids, array('id'=>'device_ids','class' => 'form-control select2', 'multiple')) !!}
-                            {!! $errors->first('device_ids', '<p class="help-block">:message</p>') !!}
+                <div class="col-xs-12 col-md-8">
+                    <div class="row">
+                        <div class="col-xs-12 col-md-4">
+                            <div class="form-group {{ $errors->has('device_ids') ? 'has-error' : ''}}">
+                                <label for="device_ids" control-label>{{ 'Devices filter (default: all)' }}</label>
+                                <div>
+                                    {!! Form::select('device_ids[]', $devices_select, $device_ids, array('id'=>'device_ids','class' => 'form-control select2', 'multiple')) !!}
+                                    {!! $errors->first('device_ids', '<p class="help-block">:message</p>') !!}
+                                </div>
+                            </div>
+                        </div>
+                      
+                        <div class="col-xs-12 col-md-4">
+                            <div class="form-group {{ $errors->has('date_start') ? 'has-error' : ''}}">
+                                <label for="date_start" control-label>{{ 'From date (filters time based data)' }}</label>
+                                <div>
+                                    <input class="form-control" name="date_start" type="date" id="date_start" min="{{substr($research->start_date, 0, 10)}}" max="{{substr($research->end_date, 0, 10)}}" value="{{ isset($date_start) ? substr($date_start, 0, 10) : '' }}" >
+                                    {!! $errors->first('date_start', '<p class="help-block">:message</p>') !!}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xs-12 col-md-4">
+                            <div class="form-group {{ $errors->has('date_until') ? 'has-error' : ''}}">
+                                <label for="date_until" control-label>{{ 'Until date (filters time based data)' }}</label>
+                                <div>
+                                    <input class="form-control" name="date_until" type="date" id="date_until" min="{{substr($research->start_date, 0, 10)}}" max="{{substr($research->end_date, 0, 10)}}" value="{{ isset($date_until) ? substr($date_until, 0, 10) : '' }}" >
+                                    {!! $errors->first('date_until', '<p class="help-block">:message</p>') !!}
+                                </div>
+                            </div>
                         </div>
                     </div>
-                </div>
-              
-                <div class="col-xs-12 col-md-2">
-                    <div class="form-group {{ $errors->has('date_start') ? 'has-error' : ''}}">
-                        <label for="date_start" control-label>{{ 'From date (filters time based data)' }}</label>
-                        <div>
-                            <input class="form-control" name="date_start" type="date" id="date_start" min="{{substr($research->start_date, 0, 10)}}" max="{{substr($research->end_date, 0, 10)}}" value="{{ isset($date_start) ? substr($date_start, 0, 10) : '' }}" >
-                            {!! $errors->first('date_start', '<p class="help-block">:message</p>') !!}
+
+                    <div class="row">
+                        <div class="col-xs-12 col-md-4">
                         </div>
-                    </div>
-                </div>
-                <div class="col-xs-12 col-md-2">
-                    <div class="form-group {{ $errors->has('date_until') ? 'has-error' : ''}}">
-                        <label for="date_until" control-label>{{ 'Until date (filters time based data)' }}</label>
-                        <div>
-                            <input class="form-control" name="date_until" type="date" id="date_until" min="{{substr($research->start_date, 0, 10)}}" max="{{substr($research->end_date, 0, 10)}}" value="{{ isset($date_until) ? substr($date_until, 0, 10) : '' }}" >
-                            {!! $errors->first('date_until', '<p class="help-block">:message</p>') !!}
+
+                        <div class="col-xs-12 col-md-4">
+                            <div class="form-group {{ $errors->has('add_flashlogs') ? 'has-error' : ''}}">
+                                <label for="add_flashlogs" control-label>{{ 'Add flashlogs' }}</label>
+                                <div>
+                                    <div class="radio" style="display: inline-block;">
+                                        <label><input onchange="this.form.submit()" name="add_flashlogs" type="radio" value="1" @if (isset($add_flashlogs)) {{ (isset($add_flashlogs) && $add_flashlogs == 1) ? 'checked' : '' }} @else {{ 'checked' }} @endif> Yes</label>
+                                    </div>
+                                    <div class="radio" style="display: inline-block;">
+                                        <label><input onchange="this.form.submit()" name="add_flashlogs" type="radio" value="0" @if (isset($add_flashlogs)) {{ ($add_flashlogs == 0) ? 'checked' : '' }} @endif> No</label>
+                                    </div>
+                                    {!! $errors->first('add_flashlogs', '<p class="help-block">:message</p>') !!}
+                                </div>
+                            </div>
                         </div>
+                        @if($add_flashlogs)
+                        <div class="col-xs-12 col-md-4">
+                            <div class="form-group {{ $errors->has('invalid_log_prognose') ? 'has-error' : ''}}">
+                                <label for="invalid_log_prognose" control-label>{{ 'Use non validated flashlogs' }}</label>
+                                <div>
+                                    <div class="radio" style="display: inline-block;">
+                                        <label><input onchange="this.form.submit()" name="invalid_log_prognose" type="radio" value="1" {{ (isset($invalid_log_prognose) && $invalid_log_prognose == 1) ? 'checked' : '' }} > Yes</label>
+                                    </div>
+                                    <div class="radio" style="display: inline-block;">
+                                        <label><input onchange="this.form.submit()" name="invalid_log_prognose" type="radio" value="0" @if (isset($invalid_log_prognose)) {{ ($invalid_log_prognose == 0) ? 'checked' : '' }} @else {{ 'checked' }} @endif> No</label>
+                                    </div>
+                                    {!! $errors->first('invalid_log_prognose', '<p class="help-block">:message</p>') !!}
+                                </div>
+                            </div>
+                        </div>
+                        @endif
                     </div>
                 </div>
-                <div class="col-xs-12">
-                    <div class="form-group">
-                        <br>
-                        <button class="btn btn-primary btn-block loading-spinner" type="submit" data-loading-text="<i class='fa fa-circle-o-notch fa-spin'></i>"><i class="fa fa-refresh" aria-hidden="true"></i> Reload data completeness table</button>
-                    </div>
+                
+            </div>
+
+            <div class="col-xs-12">
+                <div class="form-group">
+                    <br>
+                    <button class="btn btn-primary btn-block loading-spinner" type="submit" data-loading-text="<i class='fa fa-circle-o-notch fa-spin'></i>"><i class="fa fa-refresh" aria-hidden="true"></i> Reload data completeness table</button>
                 </div>
+            </div>
+            
             </form>
         </div>
 
@@ -173,7 +220,7 @@
                             <th class="rotate">Device</th>
                             <th class="rotate">Apiary</th>
                             <th class="rotate">Hive</th>
-                            <th class="rotate" title="Average data completeness over all selected devices and dates"><span style="color:grey;">{{ $data_completeness }}%</span><br><br>Data</th>
+                            <th class="rotate" title="Average data completeness over all selected devices and dates"><span style="color:grey;">{{ empty($data_completeness) ?  '' : $data_completeness.'%' }}</span><br><br>Data</th>
                             @if($add_flashlogs)
                             <th class="rotate">Flashlogs</th>
                             @endif

@@ -1460,7 +1460,8 @@ class ResearchController extends Controller
                 if ($device_data_completeness > 0)
                     $data_completeness_array[] = $device_data_completeness;
             }
-            $data_completeness = round(array_sum($data_completeness_array) / count($data_completeness_array));
+
+            $data_completeness = count($data_completeness_array) > 0 ? round(array_sum($data_completeness_array) / count($data_completeness_array)) : '';
         }
         //dd($totals);
 
@@ -1470,7 +1471,7 @@ class ResearchController extends Controller
         foreach ($devices_sorted as $d)
             $devices_select[$d->id] = $d->name.' - ('.$d->user->name.')'; 
 
-        return view('research.data', compact('research', 'devices_all', 'devices_show', 'data_days', 'dates', 'totals', 'data_completeness', 'consent_users_select', 'consent_users_selected', 'devices_select', 'device_ids', 'date_start', 'date_until', 'add_flashlogs'));
+        return view('research.data', compact('research', 'devices_all', 'devices_show', 'data_days', 'dates', 'totals', 'data_completeness', 'consent_users_select', 'consent_users_selected', 'devices_select', 'device_ids', 'date_start', 'date_until', 'add_flashlogs', 'invalid_log_prognose'));
     }
 
 

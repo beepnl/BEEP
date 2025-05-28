@@ -305,8 +305,12 @@ class Device extends Model
         foreach ($flogs as $fl)
         {
             $i++;
-            $color = $fl->validLog() ? 'style="color: green;"' : '';
-            $html .= '<li style="padding:0; margin:0;"><a href="/flash-log/'.$fl->id.'" '.$color.'>'.$i.'. '.$fl->created_at.' '.($fl->persisted_days ? '('.$fl->persisted_days.' d)' : '').'</a></li>';
+            $color = $fl->validLog() ? 'style="color: green;" title="valid weight/time data"' : 'title="check for valid data"';
+            $logd  = $fl->getLogDays() ? round($fl->getLogDays()).' days' : '';
+            $pers  = $fl->persisted_days ? ', '.round($fl->persisted_days).' days persisted' : '';
+            $post  = $pers || $logd ? ' ('.$logd.$pers.')' : ''; 
+            $name  = $fl->id.'. '.substr($fl->created_at, 0, 10).$post;
+            $html .= '<li style="padding:0; margin:0;"><a href="/flash-log/'.$fl->id.'" '.$color.'>'.$name.'</a></li>';
         }
 
         $html .= '</ul></div>';

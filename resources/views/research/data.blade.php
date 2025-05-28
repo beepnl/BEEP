@@ -212,7 +212,7 @@
                                     }
                                     else if ($add_flashlogs && isset($d['devices'][$key]['flashlog_prognose']))
                                     {
-                                        $prognose = 'prognose" title="Weight data in flashlog: '.$d['devices'][$key]['flashlog_prognose'].'%';
+                                        $prognose = 'prognose" title="Weight data in flashlog '.$d['devices'][$key]['flashlog_prognose'].'%';
                                     }
 
                                     if (isset($d['devices'][$key]['perc']))

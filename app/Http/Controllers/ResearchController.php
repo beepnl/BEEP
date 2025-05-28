@@ -1382,7 +1382,7 @@ class ResearchController extends Controller
                             { 
                                 $date    = date('Y-m-d', $start_u + $d * 24 * 3600);
                                 $logpd   = $fl->logs_per_day;
-                                $logperc = min(100, round(100 * $logpd / $meas_per_day));
+                                $logperc = $fl->id.': '.min(100, round(100 * $logpd / $meas_per_day));
                                  
                                 //dd($fl, $date, $key);
                                 if (isset($dates[$date]))
@@ -1395,7 +1395,7 @@ class ResearchController extends Controller
                                     {
                                         if (isset($dates[$date]['devices'][$key]['total']) && $dates[$date]['devices'][$key]['total'] < $logpd) // replace total with prognose, because Flashlog should contain all
                                         {
-                                            $dates[$date]['devices'][$key]['flashlog_prognose'] = $logperc; // %
+                                            $dates[$date]['devices'][$key]['flashlog_prognose'] = $logperc; // id: %
                                             $dates[$date]['devices'][$key]['total'] = $logpd; 
                                         }
                                     }
@@ -1438,11 +1438,9 @@ class ResearchController extends Controller
                         if (!isset($totals['devices'][$key]))
                             $totals['devices'][$key] = ['total'=>0, 'from_flashlog'=>0, 'points'=>0, 'perc'=>0 ];
 
-                        $flashlog_total = isset($device_data_array['flashlog_prognose']) ? $device_data_array['flashlog_prognose'] : $device_data_array['from_flashlog'];
-
                         $totals['devices'][$key]['total'] += $device_data_array['total'];
                         $totals['devices'][$key]['points'] += $device_data_array['points'];
-                        $totals['devices'][$key]['from_flashlog'] += $flashlog_total;
+                        $totals['devices'][$key]['from_flashlog'] += $device_data_array['from_flashlog'];
                         $totals['devices'][$key]['perc'] += $device_data_array['perc'];
                     }
                 }

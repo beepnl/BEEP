@@ -154,16 +154,18 @@
         <div class="col-xs-12">
             <hr>
             <h2 style="margin-top: 20px;">Device data completeness per day (%)</h2>
+            <small>Data completeness = Percentage of maximum available weight data points per day per device (for the set mesurement interval, which defaults to 15 min = 96 data points per day)</small>
             <!-- Data table -->
 
+            <div style="display: block;">
             <div style="display: inline-block; width: 500px; overflow-y: hidden; overflow-x: scroll;">
                 <table class="table table-responsive table-striped table-header-rotated">
                     <thead>
                         <tr>
                             <th class="rotate">Device</th>
-                            <th class="rotate">Data</th>
                             <th class="rotate">Apiary</th>
                             <th class="rotate">Hive</th>
+                            <th class="rotate">Data</th>
                             @if($add_flashlogs)
                             <th class="rotate">Flashlogs</th>
                             @endif
@@ -173,11 +175,11 @@
                         @foreach ($devices_show as $device)
                         <tr class="tb-row-small" @if (isset($device->deleted_at)) style="color: #AAA;" title="Device has been deleted at {{$device->deleted_at}}" @else title="{{ $device->name }}" @endif>
                             <th title="{{ $device->name }}" class="tb-row-very-small row-header">{{ $device->name }}</th> 
-                            <th class="tb-row-very-small row-header">{{ isset($totals['devices'][$device->key]) ? $totals['devices'][$device->key]['data_completeness'].'%' : '' }}</th> 
                             <th title="{{ $device->location_name }}" class="tb-row-very-small row-header">{{ $device->location_name }}</th> 
                             <th title="{{ $device->hive_name }}" class="tb-row-very-small row-header">{{ $device->hive_name }}</th> 
+                            <th class="tb-row-very-small row-header" title="Average data completeness over all selected {{$data_days}} days">{{ isset($totals['devices'][$device->key]) ? $totals['devices'][$device->key]['data_completeness'].'%' : '' }}</th> 
                             @if($add_flashlogs)
-                            <th class="tb-row-small row-header" style="padding-top: 0; padding-bottom: 0">{!! $device->getFlashLogsHtml($date_start) !!}</th>
+                            <th class="row-header" style="padding-top: 0; padding-bottom: 0">{!! $device->getFlashLogsHtml($date_start) !!}</th>
                             @endif
                         </tr>
                         @endforeach
@@ -234,6 +236,7 @@
                        @endforeach
                     </tbody>
                 </table>
+            </div>
             </div>
         </div>
 

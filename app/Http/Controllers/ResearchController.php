@@ -1382,7 +1382,7 @@ class ResearchController extends Controller
                                 {
                                     if (!isset($dates[$date]['devices'][$key]))
                                     {
-                                        $dates[$date]['devices'][$key] = ['points'=>$logpd, 'from_flashlog'=>$logpd, 'flashlog_prognose'=>$logp_id, 'total'=>$logpd, 'perc'=>$logperc];
+                                        $dates[$date]['devices'][$key] = ['points'=>$logpd, 'from_flashlog'=>$logpd, 'flashlog_prognose'=>$logp_id, 'total'=>$logpd, 'perc'=>$logperc, 'first_date'=>$date];
                                     }
                                     else if (isset($dates[$date]['devices'][$key]['total']) && $dates[$date]['devices'][$key]['total'] < $logpd) // replace total with prognose, because Flashlog should contain all
                                     {
@@ -1408,6 +1408,7 @@ class ResearchController extends Controller
         // Count totals
         $totals    = $assets;
         $data_days = count($dates);
+
         foreach ($dates as $day => $day_arr) 
         {
             foreach ($day_arr as $asset => $items) 
@@ -1433,7 +1434,8 @@ class ResearchController extends Controller
                         $totals['devices'][$key]['points'] += $device_data_array['points'];
                         $totals['devices'][$key]['from_flashlog'] += $device_data_array['from_flashlog'];
                         $totals['devices'][$key]['perc'] += $device_data_array['perc'];
-                        $totals['devices'][$key]['last_date'] = $day;
+                        $totals['devices'][$key]['first_date'] = $device_data_array['first_date'];
+                        $totals['devices'][$key]['last_date'] = $date_until;
                     }
                 }
             }
@@ -1445,12 +1447,12 @@ class ResearchController extends Controller
         {
             foreach ($totals['devices'] as $key => $totals_data_array)
             {
-                $device_data_days         = isset($totals_data_array['first_date']) && isset($totals_data_array['last_date']) ? round(strtotime($totals_data_array['last_date']) - strtotime($totals_data_array['first_date']) / (24 * 3600)) : $data_days;
+                $device_data_days         = isset($totals_data_array['first_date']) && isset($totals_data_array['last_date']) ? round((strtotime($totals_data_array['last_date']) - strtotime($totals_data_array['first_date'])) / (24 * 3600)) : $data_days;
                 $device_data_completeness = $totals_data_array['perc'] / $device_data_days;
 
                 $totals['devices'][$key]['data_days'] = $device_data_days;
                 $totals['devices'][$key]['data_completeness'] = round($device_data_completeness);
-
+                
                 // Add to average
                 if ($device_data_completeness > 0)
                     $data_completeness_array[] = $device_data_completeness;

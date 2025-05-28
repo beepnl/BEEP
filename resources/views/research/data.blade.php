@@ -161,7 +161,9 @@
                             <th class="rotate">Data</th>
                             <th class="rotate">Apiary</th>
                             <th class="rotate">Hive</th>
+                            @if($add_flashlogs)
                             <th class="rotate">Flashlogs</th>
+                            @endif
                         </tr>
                     </thead>
                     <tbody>
@@ -171,7 +173,9 @@
                             <th class="tb-row-very-small row-header">{{ isset($totals['devices'][$device->key]) ? $totals['devices'][$device->key]['data_completeness'].'%' : '' }}</th> 
                             <th title="{{ $device->location_name }}" class="tb-row-very-small row-header">{{ $device->location_name }}</th> 
                             <th title="{{ $device->hive_name }}" class="tb-row-very-small row-header">{{ $device->hive_name }}</th> 
-                            <th class="tb-row-small row-header" style="padding-top: 0; padding-bottom: 0">{!! $device->getFlashLogsHtml($date_start) !!}</th> 
+                            @if($add_flashlogs)
+                            <th class="tb-row-small row-header" style="padding-top: 0; padding-bottom: 0">{!! $device->getFlashLogsHtml($date_start) !!}</th>
+                            @endif
                         </tr>
                         @endforeach
                     </tbody>

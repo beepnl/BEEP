@@ -1016,6 +1016,7 @@ class ResearchController extends Controller
             'date_until'    => 'nullable|date|after:date_start',
             'user_ids.*'    => 'nullable|exists:users,id',
             'device_ids.*'  => 'nullable|exists:sensors,id',
+            'add_flashlogs' => 'nullable|boolean',
         ]);
 
         $demo = $request->filled('demo') && boolval($request->input('demo')) ? true : false;
@@ -1028,6 +1029,7 @@ class ResearchController extends Controller
             $research = $request->user()->allResearches()->find($id);
 
         $device_ids   = $request->input('device_ids');
+        $add_flashlogs= boolval($request->input('add_flashlogs', 1));
         $devices_all  = collect();
         $initial_days = 30;
 
@@ -1216,7 +1218,11 @@ class ResearchController extends Controller
             $devices_all       = $devices_all->merge($user_devices_all);
             $user_devices      = isset($device_ids) ? $user_devices_all->whereIn('id', $device_ids) : $user_devices_all;
             $user_devices_online = isset($device_ids) ? $user_devices_all->whereIn('id', $device_ids)->where('last_message_received', '>=', $date_start) : $user_devices_all->where('last_message_received', '>=', $date_start);
-            $user_flashlogs    = FlashLog::where('user_id', $user_id)->where('log_date_end', '>=', $date_start)->where('log_date_start', '<', $date_until)->orderBy('log_date_start')->get(); // only parsed and checked Flashlogs
+            
+            $user_flashlogs    = collect();
+            if ($add_flashlogs)
+                $user_flashlogs= FlashLog::where('user_id', $user_id)->where('log_date_end', '>=', $date_start)->where('log_date_start', '<', $date_until)->orderBy('log_date_start')->get(); // only parsed and checked Flashlogs
+
             $user_measurements = [];
             $user_meas_import  = [];
             $user_weather_data = [];
@@ -1354,6 +1360,7 @@ class ResearchController extends Controller
                         $start_u = strtotime($fl->log_date_start);
                         $days    = $fl->getLogDays();
 
+                        // Walk through data days in Flashlog
                         for ($d=0; $d < $days; $d++)
                         { 
                             $date = date('Y-m-d', $start_u + $d * 24 * 3600);
@@ -1368,13 +1375,11 @@ class ResearchController extends Controller
                                 }
                                 else
                                 {
-                                    if (isset($dates[$date]['devices'][$key]['from_flashlog']))
+                                    if (isset($dates[$date]['devices'][$key]['total']) && $dates[$date]['devices'][$key]['total'] < $logpd) // replace total with prognose, because Flashlog should contain all
                                     {
-                                        $subtract_fl = $dates[$date]['devices'][$key]['from_flashlog'];
-                                        $dates[$date]['devices'][$key]['total'] -= $subtract_fl; // subtract persisted data from total, use prognose data
+                                        $dates[$date]['devices'][$key]['flashlog_prognose'] = $logpd;
+                                        $dates[$date]['devices'][$key]['total'] = $logpd; 
                                     }
-                                    $dates[$date]['devices'][$key]['flashlog_prognose'] = $logpd;
-                                    $dates[$date]['devices'][$key]['total'] += $logpd; // add prognose to total
                                 }
                                 // Calculate new perc
                                 $perc = $dates[$date]['devices'][$key]['perc'] = min(100, round(100 * $dates[$date]['devices'][$key]['total'] / 96)); //
@@ -1383,120 +1388,7 @@ class ResearchController extends Controller
                     }
                 }
             }
-            // go over dates, compare consent dates
-        //     $i = 0;
-        //     $user_data_counts    = $assets;
-        //     $last_devices_online = [];
 
-        //     foreach ($dates as $d => $v) 
-        //     {
-        //         $d_start      = $d.' 00:00:00';
-        //         $d_end        = $d.' 23:59:59';
-        //         $next_consent = false;
-
-        //         if ($d_end >= $date_next_consent && $index > 0 && $index < count($user_consents)) // change user_consent if multiple user_consents exist and check date is past the active consent date 
-        //         {
-        //             $next_consent = true;
-
-        //             // take current user_consent
-        //             $user_consent       = $user_consents[$index]->consent;
-        //             $date_curr_consent  = $user_consents[$index]->updated_at;
-        //             //fill up to next consent date
-        //             if ($index < count($user_consents)-1)
-        //                 $date_next_consent  = $user_consents[$index+1]->updated_at;
-        //             else
-        //                 $date_next_consent = $moment_end->format('Y-m-d H:i:s');
-
-        //             // hide this data from dataset, because earlier than requested
-        //             if ($date_next_consent < $date_start || $date_curr_consent > $date_until)
-        //             {
-        //                 $index++;
-        //                 continue;
-        //             }
-                    
-        //             // minimize consent dates to start/unit date
-        //             if ($date_curr_consent < $date_start)
-        //                 $date_curr_consent = $date_start.' 00:00:00';
-
-        //             if ($date_next_consent > $date_until)
-        //                 $date_next_consent = $date_until.' 23:59:59';
-
-        //             //print_r([$index, $user_consent, $date_start, $date_until, $date_curr_consent, $date_next_consent, $moment_end]);
-
-        //             $index++;
-        //         }
-                
-            
-
-        //         // Fill objects for consent period
-        //         // if ($user_consent && ($next_consent || $i == 0))
-        //         // {    
-        //         //     // add 
-        //         //     $user_data_counts['users']              = $user_consent;
-        //         //     $user_data_counts['apiaries']           = $user_apiaries->where('created_at', '<=', $date_next_consent)->count();
-        //         //     $user_data_counts['hives']              = $user_hives->where('created_at', '<=', $date_next_consent)->count();
-        //         //     $user_data_counts['devices']            = $user_devices->where('created_at', '<=', $date_next_consent)->count();
-        //         //     $user_data_counts['devices_online']     = $user_devices_online->where('created_at', '<=', $date_next_consent)->count();
-        //         //     $user_data_counts['flashlogs']          = $user_flashlogs->where('created_at', '<=', $date_next_consent)->count();
-        //         //     $user_data_counts['alert_rules']        = $user_alert_rules->where('created_at', '<=', $date_next_consent)->count();
-        //         //     $user_data_counts['sensor_definitions'] = count($user_sensor_defs);
-
-        //         // }
-
-        //         // Fill day array
-        //         if ($user_consent && $d_start > $date_curr_consent)
-        //         {
-        //             foreach ($user_devices as $device) {
-        //                 // code...
-        //             }
-
-        //             $dates[$d]['users']      += $user_data_counts['users'];
-        //             $dates[$d]['user_names'][]= $user->name;
-        //             $dates[$d]['apiaries']   += $user_data_counts['apiaries'];
-        //             $dates[$d]['hives']      += $user_data_counts['hives'];
-        //             $dates[$d]['devices']    += $user_data_counts['devices'];
-        //             $dates[$d]['devices_online']+= $user_devices_online->where('last_message_received', '>=', $d_start)->count();
-        //             $dates[$d]['device_names']= array_merge($dates[$d]['device_names'], $user_devices_online->where('last_message_received', '>=', $d_start)->pluck('name')->toArray());
-                    
-        //             if (count($last_devices_online) > 0)
-        //             {
-        //                 $dates[$d]['devices_offline'] = array_diff($last_devices_online, $dates[$d]['device_names']);
-        //             }
-        //             $last_devices_online      = $dates[$d]['device_names'];
-                    
-        //             $dates[$d]['sensor_definitions'] += $user_data_counts['sensor_definitions'];
-        //             $dates[$d]['alert_rules']+= $user_data_counts['alert_rules'];
-
-        //             $inspections_today        = $hive_inspections->where('created_at', '>=', $d_start)->where('created_at', '<=', $d_end)->count();
-        //             $dates[$d]['inspections'] = $v['inspections'] + $inspections_today;
-                    
-        //             $flashlogs_today          = $user_flashlogs->where('created_at', '>=', $d_start)->where('created_at', '<=', $d_end)->count();
-        //             $dates[$d]['flashlogs']   = $v['flashlogs'] + $flashlogs_today;
-
-        //             $samplecodes_today        = $user_samplecodes->where('sample_date', '>=', $d_start)->where('sample_date', '<=', $d_end)->count();
-        //             $dates[$d]['samplecodes'] = $v['samplecodes'] + $samplecodes_today;
-
-        //             $alerts_today             = $user_alerts->where('created_at', '>=', $d_start)->where('created_at', '<=', $d_end)->count();
-        //             $dates[$d]['alerts']      = $v['alerts'] + $alerts_today;
-                    
-        //             if (in_array($d, array_keys($user_measurements)))
-        //                 $dates[$d]['measurements'] = $v['measurements'] + $user_measurements[$d];
-
-        //             if (in_array($d, array_keys($user_meas_import)))
-        //                 $dates[$d]['measurements_imported'] = $v['measurements_imported'] + $user_meas_import[$d];
-
-        //             $dates[$d]['measurements_total']    = $dates[$d]['measurements'] + $dates[$d]['measurements_imported'];
-        //             $dates[$d]['data_completeness']     = $dates[$d]['devices'] > 0 ? round(100 * $dates[$d]['measurements_total'] / ($dates[$d]['devices'] * (60*24/15))) : '';
-        //             $dates[$d]['data_completeness_online'] = $dates[$d]['devices_online'] > 0 ? min(100, round(100 * $dates[$d]['measurements_total'] / ($dates[$d]['devices_online'] * (60*24/15)))) : '';
-
-        //             if (in_array($d, array_keys($user_weather_data)))
-        //                 $dates[$d]['weather']= $v['weather'] + $user_weather_data[$d];
-
-        //         }
-
-        //         $i++;
-        //     } // end day loop
-        
         } // end user loop
 
         // reverse array for display
@@ -1554,7 +1446,7 @@ class ResearchController extends Controller
         foreach ($devices_sorted as $d)
             $devices_select[$d->id] = $d->name.' - ('.$d->user->name.')'; 
 
-        return view('research.data', compact('research', 'devices_all', 'dates', 'totals', 'consent_users_select', 'consent_users_selected', 'devices_select', 'device_ids', 'date_start', 'date_until',));
+        return view('research.data', compact('research', 'devices_all', 'dates', 'totals', 'consent_users_select', 'consent_users_selected', 'devices_select', 'device_ids', 'date_start', 'date_until', 'add_flashlogs'));
     }
 
 

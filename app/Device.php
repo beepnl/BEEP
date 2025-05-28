@@ -306,7 +306,7 @@ class Device extends Model
         {
             $i++;
             $color = $fl->validLog() ? 'style="color: green;"' : '';
-            $html .= '<li style="padding:0; margin:0;"><a href="/devices/'.$this->id.'" '.$color.'>'.$i.'. '.$fl->created_at.' '.($fl->persisted_days ? '('.$fl->persisted_days.' d)' : '').'</a></li>';
+            $html .= '<li style="padding:0; margin:0;"><a href="/flash-log/'.$fl->id.'" '.$color.'>'.$i.'. '.$fl->created_at.' '.($fl->persisted_days ? '('.$fl->persisted_days.' d)' : '').'</a></li>';
         }
 
         $html .= '</ul></div>';

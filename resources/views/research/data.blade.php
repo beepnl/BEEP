@@ -145,6 +145,9 @@
             td.prognose{
                 border: 2px dashed green;
             }
+            td.error{
+                border: 2px solid red;
+            }
         </style>
 
 
@@ -167,7 +170,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach ($devices_all as $key => $device)
+                        @foreach ($devices_show as $device)
                         <tr class="tb-row-small" @if (isset($device->deleted_at)) style="color: #AAA;" title="Device has been deleted at {{$device->deleted_at}}" @else title="{{ $device->name }}" @endif>
                             <th title="{{ $device->name }}" class="tb-row-very-small row-header">{{ $device->name }}</th> 
                             <th class="tb-row-very-small row-header">{{ isset($totals['devices'][$device->key]) ? $totals['devices'][$device->key]['data_completeness'].'%' : '' }}</th> 
@@ -191,22 +194,30 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach ($devices_all as $device)
+                        @foreach ($devices_show as $device)
                         <tr>
+                            @php
+                                $key = $device->key;
+                            @endphp
                             @foreach($dates as $date => $d)
                                 @php
                                     $perc      = '';
                                     $color     = '';
                                     $prognose  = '';
+                                    $error     = '';
 
-                                    if ($add_flashlogs && isset($d['devices'][$device->key]['flashlog_prognose']))
+                                    if (isset($d['devices'][$key]['err']))
                                     {
-                                        $prognose = 'prognose" title="Weight data in flashlog: '.$d['devices'][$device->key]['flashlog_prognose'].' points';
+                                        $error = 'error" title="'.$d['devices'][$key]['err'];
+                                    }
+                                    else if ($add_flashlogs && isset($d['devices'][$key]['flashlog_prognose']))
+                                    {
+                                        $prognose = 'prognose" title="Weight data in flashlog: '.$d['devices'][$key]['flashlog_prognose'].'%';
                                     }
 
-                                    if (isset($d['devices'][$device->key]['perc']))
+                                    if (isset($d['devices'][$key]['perc']))
                                     {
-                                        $perc      = $d['devices'][$device->key]['perc'];
+                                        $perc      = $d['devices'][$key]['perc'];
                                         if ($perc >= 80)
                                             $color = 'gr';
                                         else if ($perc >= 40)
@@ -216,8 +227,8 @@
 
                                     }
                                 @endphp
-                                <td class="tb-row-small {{ $color }} {!! $prognose !!}">{{ $perc }}</td>
-                                {{-- <td class="tb-row-small" title="{{$device->name}} - {{$device->location_name}} - {{$device->hive_name}} - {{ $date }}">{{ isset($d['devices'][$device->key]['perc']) ? $d['devices'][$device->key]['perc'] : '' }}</td> --}}
+                                <td class="tb-row-small {{ $color }} {!! $prognose !!} {!! $error !!}">{{ $perc }}</td>
+                                {{-- <td class="tb-row-small" title="{{$device->name}} - {{$device->location_name}} - {{$device->hive_name}} - {{ $date }}">{{ isset($d['devices'][$key]['perc']) ? $d['devices'][$key]['perc'] : '' }}</td> --}}
                             @endforeach
                         </tr>
                        @endforeach

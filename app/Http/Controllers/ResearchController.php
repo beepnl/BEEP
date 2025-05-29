@@ -1233,7 +1233,7 @@ class ResearchController extends Controller
             }
 
             $user_weather_data = [];
-            $user_sensor_defs  = [];
+            // $user_sensor_defs  = [];
             $user_alert_rules  = $user->alert_rules()->where('default_rule', 0)->where('active', 1)->get();
             $user_alerts       = isset($device_ids) ? $user->alerts()->whereIn('device_id', $device_ids)->where('show', 1)->get() : $user->alerts()->where('show', 1)->get();
             
@@ -1245,25 +1245,33 @@ class ResearchController extends Controller
                 $points           = [];
                 $weather          = [];
                 $user_device_keys = [];
+                $device_key_looup = [];
                 $user_dloc_coords = [];
                 $device_key_mpday = []; // key => measurements per day (= 1440 / interval_min)
 
                 // Add sensor data
                 foreach ($user_devices as $device) 
                 {
-                    $user_device_keys[]  = $device->influxWhereKeys();
+                    $device_all_keys    = $device->allKeys();
+                    $current_key        = $device->key;
+                    // create lookup table to combine former device key log data to current device key
+                    foreach ($device_all_keys as $key)
+                        $device_key_looup[$key]  = $current_key;
+                    
+                    // Define measurements per day per device
                     $device_interval_min = isset($device->measurement_interval_min) && $device->measurement_interval_min > 0 ? $device->measurement_interval_min : 15;
-                    $device_key_mpday[$device->key] = 1440 / $device_interval_min;
+                    $device_key_mpday[$current_key] = 1440 / $device_interval_min;
                     
                     $loc = $device->location();
                     if ($loc !== null && isset($loc->coordinate_lat) && isset($loc->coordinate_lon)) 
                         $user_dloc_coords[] = '("lat" = \''.$loc->coordinate_lat.'\' AND "lon" = \''.$loc->coordinate_lon.'\')';
 
                     // Add sensor definitions
-                    $sensor_defs = $this->getSensorDefinitions($device, $date_next_consent);
-                    foreach ($sensor_defs as $sdef)
-                        $user_sensor_defs[] = $sdef;
+                    // $sensor_defs = $this->getSensorDefinitions($device, $date_next_consent);
+                    // foreach ($sensor_defs as $sdef)
+                    //     $user_sensor_defs[] = $sdef;
 
+                    $user_device_keys[] = $device->influxWhereKeys();
                 }
 
                 if (count($user_device_keys) > 0)
@@ -1293,7 +1301,7 @@ class ResearchController extends Controller
                         foreach ($points as $point)
                         {
                             $date = substr($point['time'],0,10);
-                            $key  = $point['key'];
+                            $key  = isset($device_key_looup[$point['key']]) ? $device_key_looup[$point['key']] : $point['key']; // lookup current device for former keys 
                             $fl   = isset($point['from_flashlog']) && $point['from_flashlog'] === '1' ? true : false;
 
                             if (isset($dates[$date]))

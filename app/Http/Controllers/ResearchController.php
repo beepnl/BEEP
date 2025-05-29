@@ -1460,11 +1460,13 @@ class ResearchController extends Controller
                 $device_data_completeness = round($totals_data_array['perc'] / $device_data_days, 2);
 
                 $totals['devices'][$key]['data_days'] = $device_data_days;
-                $totals['devices'][$key]['data_completeness'] = round($device_data_completeness);
-                
-                // Add to average
-                if ($device_data_completeness > 0)
+
+                // Add to average if > 2%
+                if ($device_data_completeness > 2)
+                {
+                    $totals['devices'][$key]['data_completeness'] = round($device_data_completeness);
                     $data_completeness_array[] = $device_data_completeness;
+                }
             }
 
             $data_completeness_count = count($data_completeness_array);

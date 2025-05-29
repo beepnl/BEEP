@@ -1369,7 +1369,8 @@ class ResearchController extends Controller
                 {
                     foreach ($user_flashlogs as $fl)
                     {
-                        $key = $fl->getDeviceKeyAttribute();
+                        $fl_dev_key = $fl->getDeviceKeyAttribute();
+                        $key        = isset($device_key_looup[$fl_dev_key]) ? $device_key_looup[$fl_dev_key] : null;
 
                         if ($key && ($fl->validLog() || $invalid_log_prognose))
                         {

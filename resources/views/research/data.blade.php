@@ -281,15 +281,15 @@
                                     
                                     if ($add_flashlogs)
                                     {
-                                        if (isset($d['devices'][$key]['flashlog']))
+                                        if (isset($d['devices'][$key]['flashlog_prognose']))
+                                        {
+                                            $class_arr[] = 'flashlog prognose';
+                                            $title_arr[] = 'Weight data in flashlog '.$d['devices'][$key]['flashlog_prognose'].'%';
+                                        }
+                                        else if (isset($d['devices'][$key]['flashlog']))
                                         {
                                             $class_arr[] = 'flashlog'; 
                                             $title_arr[] = 'Has flashlog with '.$d['devices'][$key]['flashlog'].' weight data points per day';
-                                        }
-                                        if (isset($d['devices'][$key]['flashlog_prognose']))
-                                        {
-                                            $class_arr[] = 'prognose';
-                                            $title_arr[] = 'Weight data in flashlog '.$d['devices'][$key]['flashlog_prognose'].'%';
                                         }
                                     }
 

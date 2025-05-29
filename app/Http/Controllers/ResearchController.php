@@ -1385,7 +1385,7 @@ class ResearchController extends Controller
                             for ($d=0; $d < $days; $d++)
                             { 
                                 $date = date('Y-m-d', $start_u + $d * 24 * 3600);
-                                 
+                                
                                 // Only add logs that have >80% weight and time data
                                 if ($logperc > 80 && isset($dates[$date]))
                                 {
@@ -1400,8 +1400,10 @@ class ResearchController extends Controller
                                         // Calculate new perc
                                         $dates[$date]['devices'][$key]['perc'] = $logperc;
                                     }
-                                    
                                 }
+                                // Indicate the flashlogs in already available data
+                                if (isset($dates[$date]['devices'][$key]))
+                                    $dates[$date]['devices'][$key]['flashlog'] = $logpd;
                             }
                         }
                     }

@@ -203,6 +203,9 @@
             td.error{
                 border: 2px solid red;
             }
+            td.flashlog{
+                border-bottom: 3px solid black;
+            }
         </style>
 
 
@@ -265,33 +268,49 @@
                             @foreach($dates as $date => $d)
                                 @php
                                     $perc      = '';
-                                    $color     = '';
-                                    $prognose  = '';
-                                    $error     = '';
+                                    $class     = '';
+                                    $title     = '';
+                                    $class_arr = [];
+                                    $title_arr = [];
 
                                     if (isset($d['devices'][$key]['err']))
                                     {
-                                        $error = 'error" title="'.$d['devices'][$key]['err'];
+                                        $class_arr[] = 'error';
+                                        $title_arr[] = $d['devices'][$key]['err'];
                                     }
-                                    else if ($add_flashlogs && isset($d['devices'][$key]['flashlog_prognose']))
+                                    
+                                    if ($add_flashlogs)
                                     {
-                                        $prognose = 'prognose" title="Weight data in flashlog '.$d['devices'][$key]['flashlog_prognose'].'%';
+                                        if (isset($d['devices'][$key]['flashlog']))
+                                        {
+                                            $class_arr[] = 'flashlog'; 
+                                            $title_arr[] = 'Has flashlog with '.$d['devices'][$key]['flashlog'].' weight data points per day';
+                                        }
+                                        if (isset($d['devices'][$key]['flashlog_prognose']))
+                                        {
+                                            $class_arr[] = 'prognose';
+                                            $title_arr[] = 'Weight data in flashlog '.$d['devices'][$key]['flashlog_prognose'].'%';
+                                        }
                                     }
 
                                     if (isset($d['devices'][$key]['perc']))
                                     {
                                         $perc      = $d['devices'][$key]['perc'];
                                         if ($perc >= 80)
-                                            $color = 'gr';
+                                            $class_arr[] = 'gr';
                                         else if ($perc >= 40)
-                                            $color = 'or';
+                                            $class_arr[] = 'or';
                                         else
-                                            $color = 'rd';
-
+                                            $class_arr[] = 'rd';
                                     }
+
+                                    if (count($class_arr) > 0)
+                                        $class = implode(' ', $class_arr);
+
+                                    if (count($title_arr) > 0)
+                                        $title = 'title="'.implode('&#10;', $title_arr).'"';
                                 @endphp
-                                <td class="tb-row-small {{ $color }} {!! $prognose !!} {!! $error !!}">{{ $perc }}</td>
-                                {{-- <td class="tb-row-small" title="{{$device->name}} - {{$device->location_name}} - {{$device->hive_name}} - {{ $date }}">{{ isset($d['devices'][$key]['perc']) ? $d['devices'][$key]['perc'] : '' }}</td> --}}
+                                <td class="tb-row-small {{ $class }}" {!! $title !!}>{{ $perc }}</td>
                             @endforeach
                         </tr>
                        @endforeach

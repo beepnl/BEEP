@@ -1448,7 +1448,7 @@ class ResearchController extends Controller
             foreach ($totals['devices'] as $key => $totals_data_array)
             {
                 $device_data_days         = isset($totals_data_array['first_date']) && isset($totals_data_array['last_date']) ? round((strtotime($totals_data_array['last_date']) - strtotime($totals_data_array['first_date'])) / (24 * 3600)) : $data_days;
-                $device_data_completeness = $totals_data_array['perc'] / $device_data_days;
+                $device_data_completeness = round($totals_data_array['perc'] / $device_data_days, 2);
 
                 $totals['devices'][$key]['data_days'] = $device_data_days;
                 $totals['devices'][$key]['data_completeness'] = round($device_data_completeness);
@@ -1458,7 +1458,8 @@ class ResearchController extends Controller
                     $data_completeness_array[] = $device_data_completeness;
             }
 
-            $data_completeness = count($data_completeness_array) > 0 ? round(array_sum($data_completeness_array) / count($data_completeness_array)) : '';
+            $data_completeness_count = count($data_completeness_array);
+            $data_completeness       = $data_completeness_count > 0 ? round(array_sum($data_completeness_array) / $data_completeness_count) : '';
         }
         //dd($totals);
 
@@ -1468,7 +1469,7 @@ class ResearchController extends Controller
         foreach ($devices_sorted as $d)
             $devices_select[$d->id] = $d->name.' - ('.$d->user->name.')'; 
 
-        return view('research.data', compact('research', 'devices_all', 'devices_show', 'data_days', 'dates', 'totals', 'data_completeness', 'consent_users_select', 'consent_users_selected', 'devices_select', 'device_ids', 'date_start', 'date_until', 'add_flashlogs', 'invalid_log_prognose'));
+        return view('research.data', compact('research', 'devices_all', 'devices_show', 'data_days', 'dates', 'totals', 'data_completeness', 'data_completeness_count', 'consent_users_select', 'consent_users_selected', 'devices_select', 'device_ids', 'date_start', 'date_until', 'add_flashlogs', 'invalid_log_prognose'));
     }
 
 

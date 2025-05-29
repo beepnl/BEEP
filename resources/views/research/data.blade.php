@@ -220,7 +220,7 @@
                             <th class="rotate">Device</th>
                             <th class="rotate">Apiary</th>
                             <th class="rotate">Hive</th>
-                            <th class="rotate" title="Average data completeness over all selected devices and dates"><span style="color:grey;">{{ empty($data_completeness) ?  '' : $data_completeness.'%' }}</span><br><br>Data</th>
+                            <th class="rotate" title="Average data completeness of the {{ $data_completeness_count }} selected devices and dates"><span style="color:grey;">{{ empty($data_completeness) ?  '' : $data_completeness.'%' }}</span><br><br>Data</th>
                             @if($add_flashlogs)
                             <th class="rotate">Flashlogs</th>
                             @endif

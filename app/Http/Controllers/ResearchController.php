@@ -1386,14 +1386,14 @@ class ResearchController extends Controller
                                 $logperc = min(100, round(100 * $logpd / $meas_per_day));
                                 $logp_id = $fl->id.': '.$logperc;
                                  
-                                //dd($fl, $date, $key);
-                                if ($logpd > 0 && isset($dates[$date]))
+                                // Only add logs that have >80% weight and time data
+                                if ($logperc > 80 && isset($dates[$date]))
                                 {
                                     if (!isset($dates[$date]['devices'][$key]))
                                     {
                                         $dates[$date]['devices'][$key] = ['points'=>$logpd, 'from_flashlog'=>$logpd, 'flashlog_prognose'=>$logp_id, 'total'=>$logpd, 'perc'=>$logperc, 'first_date'=>$date];
                                     }
-                                    else if (isset($dates[$date]['devices'][$key]['total']) && $dates[$date]['devices'][$key]['total'] < $logpd) // replace total with prognose, because Flashlog should contain all
+                                    else if (isset($dates[$date]['devices'][$key]['total']) && $logpd > $dates[$date]['devices'][$key]['total']) // replace total with prognose, because Flashlog should contain all
                                     {
                                         $dates[$date]['devices'][$key]['flashlog_prognose'] = $logp_id; // id: %
                                         $dates[$date]['devices'][$key]['total'] = $logpd;

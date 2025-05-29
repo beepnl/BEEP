@@ -1377,14 +1377,14 @@ class ResearchController extends Controller
                             $meas_per_day = isset($device_key_mpday[$key]) ? $device_key_mpday[$key] : 96;
                             $start_u      = strtotime($fl->log_date_start);
                             $days         = $fl->getLogDays();
+                            $logpd        = $fl->logs_per_day;
+                            $logperc      = min(100, round(100 * $logpd / $meas_per_day));
+                            $logp_id      = $fl->id.': '.$logperc;
 
                             // Walk through data days in Flashlog
                             for ($d=0; $d < $days; $d++)
                             { 
-                                $date    = date('Y-m-d', $start_u + $d * 24 * 3600);
-                                $logpd   = $fl->logs_per_day;
-                                $logperc = min(100, round(100 * $logpd / $meas_per_day));
-                                $logp_id = $fl->id.': '.$logperc;
+                                $date = date('Y-m-d', $start_u + $d * 24 * 3600);
                                  
                                 // Only add logs that have >80% weight and time data
                                 if ($logperc > 80 && isset($dates[$date]))

@@ -248,7 +248,7 @@
                 <div style="display: inline-block; width: 50%;">
                     <h2 style="margin-top: 20px;">Device data completeness per day (%)</h2>
                 </div>
-                <div style="display: inline-block; width: 45%; vertical-align: bottom;">
+                <div style="display: inline-block; width: 40%; vertical-align: bottom;">
                     <span>Legend table visualizations</span>
                     <table class="table table-header-rotated" style="border: 1px solid grey;">
                         <tbody>

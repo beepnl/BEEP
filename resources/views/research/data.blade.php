@@ -67,10 +67,9 @@
                     <div class="row">
                         <div class="col-xs-12 col-md-4">
                         </div>
-
                         <div class="col-xs-12 col-md-4">
                             <div class="form-group {{ $errors->has('add_flashlogs') ? 'has-error' : ''}}">
-                                <label for="add_flashlogs" control-label>{{ 'Add flashlogs' }}</label>
+                                <label for="add_flashlogs" control-label>{{ 'Show flashlogs' }}</label>
                                 <div>
                                     <div class="radio" style="display: inline-block;">
                                         <label><input onchange="this.form.submit()" name="add_flashlogs" type="radio" value="1" @if (isset($add_flashlogs)) {{ (isset($add_flashlogs) && $add_flashlogs == 1) ? 'checked' : '' }} @else {{ 'checked' }} @endif> Yes</label>
@@ -83,15 +82,29 @@
                             </div>
                         </div>
                         @if($add_flashlogs)
-                        <div class="col-xs-12 col-md-4">
-                            <div class="form-group {{ $errors->has('invalid_log_prognose') ? 'has-error' : ''}}">
-                                <label for="invalid_log_prognose" control-label>{{ 'Use non validated flashlogs' }}</label>
+                        {{-- <div class="col-xs-12 col-md-4">
+                            <div class="form-group {{ $errors->has('until_last_fl') ? 'has-error' : ''}}">
+                                <label for="until_last_fl" control-label>{{ 'Show complete until' }}</label>
                                 <div>
                                     <div class="radio" style="display: inline-block;">
-                                        <label><input onchange="this.form.submit()" name="invalid_log_prognose" type="radio" value="1" {{ (isset($invalid_log_prognose) && $invalid_log_prognose == 1) ? 'checked' : '' }} > Yes</label>
+                                        <label><input onchange="this.form.submit()" name="until_last_fl" type="radio" value="1" @if (isset($until_last_fl)) {{ (isset($until_last_fl) && $until_last_fl == 1) ? 'checked' : '' }} @else {{ 'checked' }} @endif> Last Flashlog</label>
                                     </div>
                                     <div class="radio" style="display: inline-block;">
-                                        <label><input onchange="this.form.submit()" name="invalid_log_prognose" type="radio" value="0" @if (isset($invalid_log_prognose)) {{ ($invalid_log_prognose == 0) ? 'checked' : '' }} @else {{ 'checked' }} @endif> No</label>
+                                        <label><input onchange="this.form.submit()" name="until_last_fl" type="radio" value="0" @if (isset($until_last_fl)) {{ ($until_last_fl == 0) ? 'checked' : '' }} @endif> Today</label>
+                                    </div>
+                                    {!! $errors->first('until_last_fl', '<p class="help-block">:message</p>') !!}
+                                </div>
+                            </div>
+                        </div> --}}
+                        <div class="col-xs-12 col-md-4">
+                            <div class="form-group {{ $errors->has('invalid_log_prognose') ? 'has-error' : ''}}">
+                                <label for="invalid_log_prognose" control-label>{{ 'Show flashlog type' }}</label>
+                                <div>
+                                    <div class="radio" style="display: inline-block;">
+                                        <label><input onchange="this.form.submit()" name="invalid_log_prognose" type="radio" value="1" {{ (isset($invalid_log_prognose) && $invalid_log_prognose == 1) ? 'checked' : '' }} > All</label>
+                                    </div>
+                                    <div class="radio" style="display: inline-block;">
+                                        <label><input onchange="this.form.submit()" name="invalid_log_prognose" type="radio" value="0" @if (isset($invalid_log_prognose)) {{ ($invalid_log_prognose == 0) ? 'checked' : '' }} @else {{ 'checked' }} @endif> Only validated</label>
                                     </div>
                                     {!! $errors->first('invalid_log_prognose', '<p class="help-block">:message</p>') !!}
                                 </div>
@@ -222,12 +235,35 @@
               border-bottom: 8px solid transparent;
               border-left: 10px solid #333; /* kleur van de pijl */
             }
+            td.explain{
+                border-top: 1px solid grey !important;
+                border-right: 1px solid grey;
+            }
         </style>
 
 
         <div class="col-xs-12">
             <hr>
-            <h2 style="margin-top: 20px;">Device data completeness per day (%)</h2>
+            <div style="vertical-align: bottom;">
+                <div style="display: inline-block; width: 50%;">
+                    <h2 style="margin-top: 20px;">Device data completeness per day (%)</h2>
+                </div>
+                <div style="display: inline-block; width: 45%; vertical-align: bottom;">
+                    <span>Legend table visualizations</span>
+                    <table class="table table-header-rotated" style="border: 1px solid grey;">
+                        <tbody>
+                            <tr class="tb-row-small">
+                                <td class="tb-row-small explain flashlog flashlog arrow-left">Flashlog upload date</td>
+                                <td class="tb-row-small explain flashlog">Flashlog available</td>
+                                <td style="border-top: 2px dashed green;" class="tb-row-small flashlog prognose">Flashlog data</td>
+                                <td class="tb-row-small explain gr">>80% db data</td>
+                                <td class="tb-row-small explain or">>40% db data</td>
+                                <td class="tb-row-small explain rd">=<40% db data</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
             <small>Data completeness = Percentage of maximum available weight data points per day per device (for the set mesurement interval, which defaults to 15 min = 96 data points per day). {{ $add_flashlogs ? 'Taking' : 'Not taking' }} into account prognose for available validated Flashlogs</small>
             <!-- Data table -->
 
@@ -237,8 +273,8 @@
                     <thead>
                         <tr>
                             <th class="rotate">Device</th>
-                            <th class="rotate">Apiary</th>
-                            <th class="rotate">Hive</th>
+                            <th class="rotate">Current Apiary</th>
+                            <th class="rotate">Current hive</th>
                             <th class="rotate" title="Average data completeness of the {{ $data_completeness_count }} selected devices and dates"><span style="color:grey;">{{ empty($data_completeness) ?  '' : $data_completeness.'%' }}</span><br><br>Data</th>
                             @if($add_flashlogs)
                             <th class="rotate">Flashlogs</th>

@@ -254,9 +254,9 @@
                             $data_days_dev = isset($totals['devices'][$device->key]['data_days']) ? $totals['devices'][$device->key]['data_days'] : $data_days;
                         @endphp
                         <tr class="tb-row-small" @if (isset($device->deleted_at)) style="color: #AAA;" title="Device has been deleted at {{$device->deleted_at}}" @else title="{{ $device->name }}" @endif>
-                            <th title="{{ $device->name }} (id: {{ $device->id }})" class="tb-row-very-small row-header">{{ $device->name }} ({{ $device->id }})</th> 
-                            <th title="{{ $device->location_name }} (id: {{ $loc_id }})" class="tb-row-very-small row-header">{{ $device->location_name }} ({{ $loc_id }})</th> 
-                            <th title="{{ $device->hive_name }} (id: {{ $device->hive_id }})" class="tb-row-very-small row-header">{{ $device->hive_name }} ({{ $device->hive_id }})</th> 
+                            <th @isset($device)title="{{ $device->name }} (id: {{ $device->id }} created: {{ $device->created_at }})"@endisset)" class="tb-row-very-small row-header">{{ $device->name }} ({{ $device->id }})</th> 
+                            <th @if(null !== $device->location()) title="{{ $device->location_name }} (id: {{ $loc_id }} created: {{ $device->location()->created_at }})"@endif class="tb-row-very-small row-header">{{ $device->location_name }} ({{ $loc_id }})</th> 
+                            <th @isset($device->hive) title="{{ $device->hive_name }} (id: {{ $device->hive_id }} created: {{ $device->hive->created_at }})"@endisset class="tb-row-very-small row-header">{{ $device->hive_name }} ({{ $device->hive_id }})</th> 
                             <th class="tb-row-very-small row-header" title="Average data completeness: {{$data_comp}} ({{ $data_points }} over {{$data_days_dev}} data days)">{{ $data_comp }}</th> 
                             @if($add_flashlogs)
                             <th class="tb-row-normal row-header" style="padding-top: 0; padding-bottom: 0">{!! $device->getFlashLogsHtml($date_start) !!}</th>

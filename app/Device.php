@@ -306,16 +306,20 @@ class Device extends Model
 
     public function getFlashLogsHtml($start_date='2019-01-01')
     {
-        $flogs= $this->flashlogs()->where('created_at', '>', $start_date)->orderByDesc('created_at')->get(); // get files after start, because can only be filled with data about start date
+        $flogs  = $this->flashlogs()->where('created_at', '>', $start_date)->orderByDesc('created_at')->get(); // get files after start, because can only be filled with data about start date
         $html = '<div style="height: 100%; overflow-x: hidden; overflow-y: scroll;"><ul style="padding:0; margin:0;">';
 
+        $meas_per_day = isset($this->interval_min) && $this->interval_min > 0 ? round(1440/$this->interval_min) : 96;
         foreach ($flogs as $fl)
         {
-            $color = $fl->validLog() ? 'style="color: green;" title="Flash log '.$fl->id.' has valid weight/time data"' : 'title="Flash log '.$fl->id.' should be checked for valid data"';
-            $logd  = $fl->getLogDays() ? round($fl->getLogDays()).' days' : '';
+            $logpd = $fl->logs_per_day;
+            $logperc = min(100, round(100 * $logpd / $meas_per_day));
+            $days  = $fl->getLogDays();
+            $logd  = $days ? round($days).' days x '.$logperc.'%' : '';
             $pers  = $fl->persisted_days ? ', '.round($fl->persisted_days).' days persisted' : '';
             $post  = $pers || $logd ? ' ('.$logd.$pers.')' : ''; 
             $name  = $fl->id.'. '.substr($fl->created_at, 0, 10).$post;
+            $color = $fl->validLog() ? 'style="color: green;" title="Flash log id:'.$fl->id.' has '.$logd.' valid weight/time data"' : 'title="Flash log '.$fl->id.' should be checked for valid data: has '.$logd.' of data, but end date might not be within 1 hour of the upload date."';
             $html .= '<li style="padding:0; margin:0;"><a href="/flash-log/'.$fl->id.'" '.$color.'>'.$name.'</a></li>';
         }
 

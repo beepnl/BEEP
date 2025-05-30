@@ -206,6 +206,22 @@
             td.flashlog{
                 border-bottom: 3px solid black;
             }
+            td.arrow-left {
+              position: relative;
+            }
+
+            td.arrow-left::before {
+              content: "";
+              position: absolute;
+              top: 100%;
+              left: 0px;
+              transform: translateY(-100%);
+              width: 0;
+              height: 0;
+              border-top: 8px solid transparent;
+              border-bottom: 8px solid transparent;
+              border-left: 10px solid #333; /* kleur van de pijl */
+            }
         </style>
 
 
@@ -284,12 +300,18 @@
                                         if (isset($d['devices'][$key]['flashlog_prognose']))
                                         {
                                             $class_arr[] = 'flashlog prognose';
-                                            $title_arr[] = 'Weight data in flashlog '.$d['devices'][$key]['flashlog_prognose'].'%';
+                                            $title_arr[] = 'Flashlog id:'.$d['devices'][$key]['flashlog_prognose'].'%';
                                         }
                                         else if (isset($d['devices'][$key]['flashlog']))
                                         {
                                             $class_arr[] = 'flashlog'; 
-                                            $title_arr[] = 'Has flashlog with '.$d['devices'][$key]['flashlog'].' weight data points per day';
+                                            $title_arr[] = 'Flashlog id:'.$d['devices'][$key]['flashlog'];
+                                        }
+
+                                        if (isset($d['devices'][$key]['flashlog_created']))
+                                        {
+                                            $class_arr[] = 'arrow-left';
+                                            $title_arr[] = 'Flashlog id:'.$d['devices'][$key]['flashlog_created'].' uploaded '.$date;
                                         }
                                     }
 

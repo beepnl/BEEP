@@ -297,10 +297,16 @@
                                     
                                     if ($add_flashlogs)
                                     {
+                                        if (isset($d['devices'][$key]['flashlog_created']))
+                                        {
+                                            $class_arr[] = 'arrow-left';
+                                            $title_arr[] = 'Flashlog id:'.$d['devices'][$key]['flashlog_created'] ;
+                                        }
                                         if (isset($d['devices'][$key]['flashlog_prognose']))
                                         {
                                             $class_arr[] = 'flashlog prognose';
-                                            $title_arr[] = 'Flashlog id:'.$d['devices'][$key]['flashlog_prognose'].'%';
+                                            if (!isset($d['devices'][$key]['flashlog_created']))
+                                                $title_arr[] = 'Flashlog id:'.$d['devices'][$key]['flashlog_prognose'].'%';
                                         }
                                         else if (isset($d['devices'][$key]['flashlog']))
                                         {
@@ -308,11 +314,6 @@
                                             $title_arr[] = 'Flashlog id:'.$d['devices'][$key]['flashlog'];
                                         }
 
-                                        if (isset($d['devices'][$key]['flashlog_created']))
-                                        {
-                                            $class_arr[] = 'arrow-left';
-                                            $title_arr[] = 'Flashlog id:'.$d['devices'][$key]['flashlog_created'].' uploaded '.$date;
-                                        }
                                     }
 
                                     if (isset($d['devices'][$key]['perc']))

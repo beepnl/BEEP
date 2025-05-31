@@ -1119,7 +1119,7 @@ class FlashLog extends Model
                 for ($i=0; $i < $data_count; $i++) 
                 { 
                     $data_item = $data[$i];
-                    if (isset($data_item['port']) && $data_item['port'] == 3) // should have at least 10 items
+                    if (isset($data_item['port']) && $data_item['port'] == 3) 
                     {
                         //change order of time
                         $data_time = null;
@@ -1135,32 +1135,33 @@ class FlashLog extends Model
                             $data_time_utc = str_replace(' ', 'T', $data_time).'Z'; // Format as Influx time + UTC timezone
                         }
                         
-                        $data_item       = array_merge(['time'=>$data_time_utc], $data_item); // Time in first column
-                        $data_item_clean = self::cleanFlashlogItem($data_item, true);
-
                         if ( $validate_time == false || (isset($data_ts) && $data_ts >= $time_min && $data_ts < $time_max))
+                        {
+                            $data_item       = array_merge(['time'=>$data_time_utc], $data_item); // Time in first column
+                            $data_item_clean = self::cleanFlashlogItem($data_item, true);
                             $csv_body[]  = implode($separator, $data_item_clean);
-
-                        if (isset($data_time))
-                        {
-                            if (!isset($data_item['time_device']) || ($data_item['time_device'] >= $time_min && $data_item['time_device'] < $time_max)) // time is set (also allow previously parsed Flashlogs without RTC), or time_device should be correctly set
+                        
+                            if (isset($data_time))
                             {
-                                if ($first_date === null)
-                                    $first_date = $data_time;
+                                if (!isset($data_item['time_device']) || ($data_item['time_device'] >= $time_min && $data_item['time_device'] < $time_max)) // time is set (also allow previously parsed Flashlogs without RTC), or time_device should be correctly set
+                                {
+                                    if ($first_date === null)
+                                        $first_date = $data_time;
 
-                                $last_date = $data_time; // update until last item with date
+                                    $last_date = $data_time; // update until last item with date
+                                }
                             }
-                        }
 
-                        if (isset($data_item_clean['weight_kg']))
-                            $weight_arr[] = $data_item_clean['weight_kg'];
+                            if (isset($data_item_clean['weight_kg']))
+                                $weight_arr[] = $data_item_clean['weight_kg'];
 
-                        // get biggest headers
-                        $param_count = count($data_item_clean);
-                        if ($param_count > $header_count)
-                        {
-                            $header_count = $param_count;
-                            $header_item  = $data_item_clean;
+                            // get biggest headers
+                            $param_count = count($data_item_clean);
+                            if ($param_count > $header_count)
+                            {
+                                $header_count = $param_count;
+                                $header_item  = $data_item_clean;
+                            }
                         }
                     }
                 }

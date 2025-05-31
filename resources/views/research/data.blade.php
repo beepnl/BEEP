@@ -242,7 +242,7 @@
 
 
         <div class="col-xs-12">
-            <hr>
+            
             <div style="vertical-align: bottom;">
                 <div style="display: inline-block; width: 50%;">
                     <h2 style="margin-top: 20px;">Device data completeness per day (%)</h2>
@@ -252,12 +252,12 @@
                     <table class="table table-header-rotated" style="border: 1px solid grey;">
                         <tbody>
                             <tr class="tb-row-small">
-                                <td class="tb-row-small explain flashlog flashlog arrow-left">Flashlog upload date</td>
-                                <td class="tb-row-small explain flashlog">Flashlog available</td>
-                                <td style="border-top: 2px dashed green;" class="tb-row-small flashlog prognose">Flashlog data</td>
-                                <td class="tb-row-small explain gr">>80% db data</td>
-                                <td class="tb-row-small explain or">>40% db data</td>
-                                <td class="tb-row-small explain rd">=<40% db data</td>
+                                <td class="tb-row-small explain flashlog flashlog arrow-left">Flashlog<br>upload date</td>
+                                <td class="tb-row-small explain flashlog">Flashlog<br>available</td>
+                                <td style="border-top: 2px dashed green;" class="tb-row-small flashlog prognose">Flashlog data<br>prognose %</td>
+                                <td class="tb-row-small explain gr">>80% db<br>data</td>
+                                <td class="tb-row-small explain or">>40% db<br>data</td>
+                                <td class="tb-row-small explain rd">=<40% db<br>data</td>
                             </tr>
                         </tbody>
                     </table>

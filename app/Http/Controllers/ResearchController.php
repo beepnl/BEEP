@@ -1236,9 +1236,11 @@ class ResearchController extends Controller
                 // cap start time to last flashlog creted_at
                 if ($until_last_fl && $user_flashlogs->count() > 0)
                 {
-                    $last_flashlog_upload_date = $user_flashlogs->sortByDesc('created_at')->first()->created_at;
-                    if ($last_flashlog_upload_date < $date_curr_consent)
-                        $date_curr_consent = $last_flashlog_upload_date;
+                    $last_flashlog_upload_date = $user_flashlogs->sortByDesc('created_at')->first()->created_at; // Carbon
+                    if ($last_flashlog_upload_date->timestamp < $moment_end->format('U'))
+                    {
+                        $moment_end = new Moment($last_flashlog_upload_date->timestamp);
+                    }
                 }
             }
 
@@ -1246,8 +1248,8 @@ class ResearchController extends Controller
 
             $user_weather_data = [];
             // $user_sensor_defs  = [];
-            $user_alert_rules  = $user->alert_rules()->where('default_rule', 0)->where('active', 1)->get();
-            $user_alerts       = isset($device_ids) ? $user->alerts()->whereIn('device_id', $device_ids)->where('show', 1)->get() : $user->alerts()->where('show', 1)->get();
+            // $user_alert_rules  = $user->alert_rules()->where('default_rule', 0)->where('active', 1)->get();
+            // $user_alerts       = isset($device_ids) ? $user->alerts()->whereIn('device_id', $device_ids)->where('show', 1)->get() : $user->alerts()->where('show', 1)->get();
             
             //die(print_r($user_devices->toArray()));
 

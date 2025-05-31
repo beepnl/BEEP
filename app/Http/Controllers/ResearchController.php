@@ -1106,8 +1106,9 @@ class ResearchController extends Controller
         if ($date_until > $research->end_date)
             $date_until = $research->end_date;
 
-        $moment_start = new Moment($date_start);
-        $moment_end   = new Moment($date_until);
+        $moment_start   = new Moment($date_start);
+        $moment_end     = new Moment($date_until);
+        $last_data_date = $date_until;
 
         //dd($date_start, $date_until, $research_days, $days_from_now, $days_from_end, $day_diff, $moment_now, $moment_start, $moment_end);
         
@@ -1240,7 +1241,7 @@ class ResearchController extends Controller
                     if ($last_flashlog_upload_date->timestamp < $moment_end->format('U'))
                     {
                         $moment_end = new Moment($last_flashlog_upload_date->timestamp);
-                        $date_until = $moment_end->format('Y-m-d H:i:s');
+                        $last_data_date = $moment_end->format('Y-m-d H:i:s');
                     }
                 }
             }
@@ -1468,7 +1469,7 @@ class ResearchController extends Controller
                         $totals['devices'][$key]['from_flashlog'] += $device_data_array['from_flashlog'];
                         $totals['devices'][$key]['perc'] += $device_data_array['perc'];
                         $totals['devices'][$key]['first_date'] = $device_data_array['first_date'];
-                        $totals['devices'][$key]['last_date'] = $date_until;
+                        $totals['devices'][$key]['last_date'] = $last_data_date;
                     }
                 }
             }

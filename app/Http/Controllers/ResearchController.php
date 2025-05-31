@@ -1240,6 +1240,7 @@ class ResearchController extends Controller
                     if ($last_flashlog_upload_date->timestamp < $moment_end->format('U'))
                     {
                         $moment_end = new Moment($last_flashlog_upload_date->timestamp);
+                        $date_until = $moment_end->format('Y-m-d H:i:s');
                     }
                 }
             }

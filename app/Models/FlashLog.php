@@ -1094,9 +1094,11 @@ class FlashLog extends Model
         return $data_array;
     }
 
-    public static function exportData($data, $name, $csv=true, $separator=';', $link_override=false)
+    public static function exportData($data, $name, $csv=true, $separator=';', $link_override=false, $validate_time=false)
     {
-        $link = $link_override ? $link_override : env('FLASHLOG_EXPORT_LINK', true);
+        $link     = $link_override ? $link_override : env('FLASHLOG_EXPORT_LINK', true);
+        $time_min = self::$minUnixTime;
+        $time_max = time();
 
         //dd($name, gettype($data));
         
@@ -1121,11 +1123,13 @@ class FlashLog extends Model
                     {
                         //change order of time
                         $data_time = null;
+                        $data_ts   = null;
                         $data_time_utc = '';
                         
                         if (isset($data_item['time']))
                         {
                             $data_time = $data_item['time'];
+                            $data_ts   = strtotime($data_time);
                             unset($data_item['time']);
                             
                             $data_time_utc = str_replace(' ', 'T', $data_time).'Z'; // Format as Influx time + UTC timezone
@@ -1133,11 +1137,13 @@ class FlashLog extends Model
                         
                         $data_item       = array_merge(['time'=>$data_time_utc], $data_item); // Time in first column
                         $data_item_clean = self::cleanFlashlogItem($data_item, true);
-                        $csv_body[]      = implode($separator, $data_item_clean);
+
+                        if ( $validate_time == false || (isset($data_ts) && $data_ts >= $time_min && $data_ts < $time_max))
+                            $csv_body[]  = implode($separator, $data_item_clean);
 
                         if (isset($data_time))
                         {
-                            if (!isset($data_item['time_device']) || $data_item['time_device'] >= self::$minUnixTime) // time is set (also allow previously parsed Flashlogs without RTC), or time_device should be correctly set
+                            if (!isset($data_item['time_device']) || ($data_item['time_device'] >= $time_min && $data_item['time_device'] < $time_max)) // time is set (also allow previously parsed Flashlogs without RTC), or time_device should be correctly set
                             {
                                 if ($first_date === null)
                                     $first_date = $data_time;
@@ -1241,7 +1247,7 @@ class FlashLog extends Model
         if (!empty($data_array))
         {
             $csv_file_name        = "flashlog-$this->id-device-id-$this->device_id-sensor-data";
-            $save_output          = FlashLog::exportData($data_array, $csv_file_name, true, ',', true); // Research data is also exported with , as separator
+            $save_output          = FlashLog::exportData($data_array, $csv_file_name, true, ',', true, true); // Research data is also exported with , as separator
 
             if (isset($save_output['link']))
             {

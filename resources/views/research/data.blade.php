@@ -65,8 +65,7 @@
                     </div>
 
                     <div class="row">
-                        <div class="col-xs-12 col-md-4">
-                        </div>
+                        
                         <div class="col-xs-12 col-md-4">
                             <div class="form-group {{ $errors->has('add_flashlogs') ? 'has-error' : ''}}">
                                 <label for="add_flashlogs" control-label>{{ 'Show flashlogs' }}</label>
@@ -82,7 +81,7 @@
                             </div>
                         </div>
                         @if($add_flashlogs)
-                        {{-- <div class="col-xs-12 col-md-4">
+                        <div class="col-xs-12 col-md-4">
                             <div class="form-group {{ $errors->has('until_last_fl') ? 'has-error' : ''}}">
                                 <label for="until_last_fl" control-label>{{ 'Show complete until' }}</label>
                                 <div>
@@ -95,7 +94,7 @@
                                     {!! $errors->first('until_last_fl', '<p class="help-block">:message</p>') !!}
                                 </div>
                             </div>
-                        </div> --}}
+                        </div>
                         <div class="col-xs-12 col-md-4">
                             <div class="form-group {{ $errors->has('invalid_log_prognose') ? 'has-error' : ''}}">
                                 <label for="invalid_log_prognose" control-label>{{ 'Show flashlog type' }}</label>

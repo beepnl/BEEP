@@ -1017,6 +1017,7 @@ class ResearchController extends Controller
             'user_ids.*'    => 'nullable|exists:users,id',
             'device_ids.*'  => 'nullable|exists:sensors,id',
             'add_flashlogs' => 'nullable|boolean',
+            'until_last_fl' => 'nullable|boolean',
             'invalid_log_prognose' => 'nullable|boolean',
         ]);
 
@@ -1031,6 +1032,7 @@ class ResearchController extends Controller
 
         $device_ids   = $request->input('device_ids');
         $add_flashlogs= boolval($request->input('add_flashlogs', 1));
+        $until_last_fl= boolval($request->input('until_last_fl', 1));
         $invalid_log_prognose = boolval($request->input('invalid_log_prognose', 0));
         $devices_all  = collect();
         $devices_show = collect();
@@ -1230,7 +1232,17 @@ class ResearchController extends Controller
                     $user_flashlogs= FlashLog::where('user_id', $user_id)->whereIn('device_id', $device_ids)->where('log_date_end', '>=', $date_start)->where('log_date_start', '<', $date_until)->orderBy('log_date_start')->get(); // only parsed and checked Flashlogs
                 else
                     $user_flashlogs= FlashLog::where('user_id', $user_id)->where('log_date_end', '>=', $date_start)->where('log_date_start', '<', $date_until)->orderBy('log_date_start')->get(); // only parsed and checked Flashlogs
+                
+                // cap start time to last flashlog creted_at
+                if ($until_last_fl && $user_flashlogs->count() > 0)
+                {
+                    $last_flashlog_upload_date = $user_flashlogs->sortByDesc('created_at')->first()->created_at;
+                    if ($last_flashlog_upload_date < $date_curr_consent)
+                        $date_curr_consent = $last_flashlog_upload_date;
+                }
             }
+
+
 
             $user_weather_data = [];
             // $user_sensor_defs  = [];
@@ -1274,6 +1286,7 @@ class ResearchController extends Controller
                     $user_device_keys[] = $device->influxWhereKeys();
                 }
 
+                // Get Influx data from device keys (also former) and combine them later to the current device key
                 if (count($user_device_keys) > 0)
                 {
                     $user_device_keys = '('.implode(' OR ', $user_device_keys).')';
@@ -1488,7 +1501,7 @@ class ResearchController extends Controller
         foreach ($devices_sorted as $d)
             $devices_select[$d->id] = $d->name.' - ('.$d->user->name.')'; 
 
-        return view('research.data', compact('research', 'devices_all', 'devices_show', 'data_days', 'dates', 'totals', 'data_completeness', 'data_completeness_count', 'consent_users_select', 'consent_users_selected', 'devices_select', 'device_ids', 'date_start', 'date_until', 'add_flashlogs', 'invalid_log_prognose'));
+        return view('research.data', compact('research', 'devices_all', 'devices_show', 'data_days', 'dates', 'totals', 'data_completeness', 'data_completeness_count', 'consent_users_select', 'consent_users_selected', 'devices_select', 'device_ids', 'date_start', 'date_until', 'add_flashlogs', 'until_last_fl', 'invalid_log_prognose'));
     }
 
 

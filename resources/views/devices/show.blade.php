@@ -203,7 +203,7 @@
                                 @endphp
                                 <tr>
                                     <td {!! $td_attr !!}>{{ $bl['block'] }}</td>
-                                    <td {!! $td_attr !!}>{{ $bl['fw_version'] }}</td>
+                                    <td {!! $td_attr !!}>{{ isset($bl['fw_version']) ? $bl['fw_version'] : '' }}</td>
                                     <td {!! $td_attr !!}>{{ $bl['start_i'] }}->{{ $bl['end_i'] }}<br>={{ $data_rows }} rows</td>
                                     <td {!! $td_attr !!}>{{ $db_row_cnt }}<br><span style="font-weight: bold;">={{ $db_row_perc }}% in DB</span></td>
                                     <td {!! $td_attr !!}>{{ isset($bl['db_time']) ? $bl['db_time'] : '-' }}</td>

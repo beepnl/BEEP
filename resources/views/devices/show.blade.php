@@ -93,29 +93,36 @@
 
                 @slot('body')
                     {!! Form::open(['method' => 'GET','route' => ['devices.flashlog', $item->id, $flashlog->id]]) !!}
-                    <div class="col-xs-12 col-sm-4 col-md-3">
+                    <div class="col-xs-12 col-sm-4 col-md-2">
                         <div class="form-group">
                             <label>Min # of DB matches:</label>
                             {!! Form::number('matches_min', $matches_min, array('class' => 'form-control')) !!}
                         </div>
                     </div>
-                    <div class="col-xs-12 col-sm-4 col-md-3">
+                    <div class="col-xs-12 col-sm-4 col-md-2">
                         <div class="form-group">
                             <label>Min # of match properties:</label>
                             {!! Form::number('match_props', $match_props, array('class' => 'form-control')) !!}
                         </div>
                     </div>
-                    <div class="col-xs-12 col-sm-4 col-md-3">
+                    <div class="col-xs-12 col-sm-4 col-md-2">
                         <div class="form-group">
                             <label>Number of DB records to query:</label>
                             {!! Form::number('db_records', $db_records, array('class' => 'form-control')) !!}
                         </div>
                     </div>
-                    <div class="col-xs-12 col-sm-4 col-md-3">
+                    <div class="col-xs-12 col-sm-4 col-md-2">
                         <div class="form-group">
                             <label>Save Flashlog result after parsing</label>
                             <br>
                             {!! Form::checkbox('save_result', 1, $save_result) !!}
+                        </div>
+                    </div>
+                    <div class="col-xs-12 col-sm-4 col-md-2">
+                        <div class="form-group">
+                            <label>Force NOT using RTC</label>
+                            <br>
+                            {!! Form::checkbox('dont_use_rtc', 1, $dont_use_rtc) !!}
                         </div>
                     </div>
                     <div class="col-xs-12">

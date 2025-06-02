@@ -219,7 +219,7 @@ class FlashLog extends Model
         return 'flashlog-'.$this->id.'-fill-'.$fill.'-show-'.$show.'-matches-'.$matches_min_override.'-dbrecs-'.$db_records_override; // removed -props-'.$match_props_override.'
     }
 
-    public function log($data='', $log_bytes=null, $save=true, $fill=false, $show=false, $matches_min_override=null, $match_props_override=null, $db_records_override=null, $save_override=false, $from_cache=true, $match_days_offset=0, $add_sensordefinitions=true)
+    public function log($data='', $log_bytes=null, $save=true, $fill=false, $show=false, $matches_min_override=null, $match_props_override=null, $db_records_override=null, $save_override=false, $from_cache=true, $match_days_offset=0, $add_sensordefinitions=true, $use_rtc=true)
     {
         if (!isset($this->device_id) || !isset($this->device))
             return ['error'=>'No device set, cannot parse Flashlog because need device key to get data from database'];
@@ -418,7 +418,7 @@ class FlashLog extends Model
 
         if ($fill && isset($out) && gettype($out) == 'array' && count($out) > 0)
         {
-            $flashlog_filled = $this->fillTimeFromInflux($device, $out, $save, $show, $matches_min_override, $match_props_override, $db_records_override, $match_days_offset, $add_sensordefinitions); // ['time_percentage'=>$time_percentage, 'records_timed'=>$records_timed, 'records_flashlog'=>$records_flashlog, 'time_insert_count'=>$setCount, 'flashlog'=>$flashlog];
+            $flashlog_filled = $this->fillTimeFromInflux($device, $out, $save, $show, $matches_min_override, $match_props_override, $db_records_override, $match_days_offset, $add_sensordefinitions, $use_rtc); // ['time_percentage'=>$time_percentage, 'records_timed'=>$records_timed, 'records_flashlog'=>$records_flashlog, 'time_insert_count'=>$setCount, 'flashlog'=>$flashlog];
             unset($out);
 
             if ($flashlog_filled)
@@ -835,7 +835,7 @@ class FlashLog extends Model
         return ['flashlog'=>$flashlog];
     }
 
-    private function matchFlashLogBlock($i, $fl_index, $end_index, $on, $flashlog, $setCount, $device, $log, $db_time, $matches_min, $match_props, $db_records, $show=false, $add_sensordefinitions=true)
+    private function matchFlashLogBlock($i, $fl_index, $end_index, $on, $flashlog, $setCount, $device, $log, $db_time, $matches_min, $match_props, $db_records, $show=false, $add_sensordefinitions=true, $use_rtc=true)
     {
         $has_matches     = false;
         $block_index     = $on['i'];
@@ -864,7 +864,7 @@ class FlashLog extends Model
         }
         
         // // If the device has an RTC, assume that all times match
-        if ($device->rtc == true && isset($flashlog[$start_index]['time_device']) && isset($flashlog[$end_index]['time_device']) && intval($flashlog[$end_index]['time_device']) <= time())
+        if ($use_rtc && $device->rtc && isset($flashlog[$start_index]['time_device']) && isset($flashlog[$end_index]['time_device']) && intval($flashlog[$end_index]['time_device']) <= time())
         {
             $end_moment  = new Moment($flashlog[$end_index]['time_device']);
             $time_end    = $end_moment->format($this->timeFormat);
@@ -984,7 +984,7 @@ class FlashLog extends Model
     3. Align the Flash log time for all 'blocks' of port 3 (measurements) between port 2 (on/off) records  
     4. Add the correct time to the Flashlog file
     */
-    private function fillTimeFromInflux($device, $flashlog=null, $save=false, $show=false, $matches_min_override=null, $match_props_override=null, $db_records_override=null, $match_days_offset=0, $add_sensordefinitions=true)
+    private function fillTimeFromInflux($device, $flashlog=null, $save=false, $show=false, $matches_min_override=null, $match_props_override=null, $db_records_override=null, $match_days_offset=0, $add_sensordefinitions=true, $use_rtc=true)
     {
         $out         = [];
         $matches_min = env('FLASHLOG_MIN_MATCHES', 5); // minimum amount of inline measurements that should be matched 
@@ -1017,7 +1017,7 @@ class FlashLog extends Model
             $end_index    = $i < count($on_offs)-1 ? $on_offs[$i+1]['i']-1 : count($flashlog)-1;
             // if ($start_index >= $fl_index)
             // {
-            $matchBlockResult = $this->matchFlashLogBlock($i, $fl_index, $end_index, $on, $flashlog, $setCount, $device, $log, $db_time, $matches_min, $match_props, $db_records, $show, $add_sensordefinitions);
+            $matchBlockResult = $this->matchFlashLogBlock($i, $fl_index, $end_index, $on, $flashlog, $setCount, $device, $log, $db_time, $matches_min, $match_props, $db_records, $show, $add_sensordefinitions, $use_rtc);
             $flashlog         = $matchBlockResult['flashlog'];
             $db_time          = $matchBlockResult['db_time'];
             $log              = $matchBlockResult['log'];

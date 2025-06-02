@@ -724,7 +724,7 @@ class FlashLog extends Model
         return $ave != 0 ? min(100, max(0, round(100 * $diff / $ave, 1))) : 0;
     }
 
-    private function setFlashBlockTimes($match, $blockInd, $startInd, $endInd, $flashlog, $device, $show=false, $sec_diff_per_index=null, $add_sensordefinitions=true)
+    private function setFlashBlockTimes($match, $blockInd, $startInd, $endInd, $flashlog, $device, $show=false, $sec_diff_per_index=null, $add_sensordefinitions=true, $use_device_time=false)
     {
         if (isset($match) && isset($match['flashlog_index']) && isset($match['minute_interval']) && isset($match['time'])) // set times for current block
         {
@@ -757,47 +757,51 @@ class FlashLog extends Model
                 if ($sensor_defs_c == 1)
                     $sensor_def = $sensor_defs_w->first();
 
-                //die(print_r(['add_sensordefinitions'=>$add_sensordefinitions, 'start'=>$blockStaDate, 'end'=>$blockEndDate, 'weight_m_ids'=>$weight_m_ids, 'sensor_defs_c'=>$sensor_defs_c, 'weight_sd'=>$sensor_defs_w->toArray(), 'fl'=>$flashlog[$startInd]]));
-
-                //die(print_r(['matchTime'=>$matchTime, 'matchSecInt'=>$matchSecInt, 'startInd'=>$startInd, 'blockStaDate'=>$blockStaDate, 'blockEndDate'=>$blockEndDate, 'match'=>$match]));
                 // add time to flashlog block
-                $setTimeStart = '';
-                $setTimeEnd   = '';
-                $addCounter   = 0;
+                $addCounter         = 0;
+                $blockDeviceStaDate = null;
+
                 for ($i=$startInd; $i <= $endInd; $i++) 
                 { 
-                    $fl = $flashlog[$i];
-
-                    // Add time if not present
-                    // if (!isset($fl['time']))
-                    // {
+                    $fl      = $flashlog[$i];
+                    $fl_time = null;
+                    if ($use_device_time)
+                    {
+                        if (isset($fl['time_device']))
+                        {
+                            $indexMoment= new Moment(intval($fl['time_device']));
+                            $fl_time    = $indexMoment->format($this->timeFormat);
+                            $fl['time'] = $fl_time;
+                            if ($blockDeviceStaDate === null)
+                            {
+                                $blockDeviceStaDate = $fl_time;
+                                $blockStaDate       = $fl_time;
+                                $blockEndDate       = $fl_time;
+                            }
+                            else
+                            {
+                                $blockEndDate       = $fl_time;
+                            }
+                        }
+                    }
+                    else
+                    {
                         $startMoment= new Moment($blockStaDate);
                         $indexMoment= $startMoment->addSeconds(round($addCounter * $matchSecInt));
-                        $fl['time'] = $indexMoment->format($this->timeFormat);
-
-                        // check for time_device, replace time with device time if less than 60 seconds off
-                        // if (isset($fl['time_device']))
-                        // {
-                        //     $second_deviation = abs($indexMoment->format('U') - $fl['time_device']);
-                        //     if ($second_deviation < 60)
-                        //     {
-                        //         $time_device = new Moment($fl['time_device']);
-                        //         $fl['time_device_readable'] = $time_device->format($this->timeFormat);
-                        //         //die(print_r(['fl'=>$fl, 'i'=>$i, 'blockStaOff'=>$blockStaOff, 'blockEndOff'=>$blockEndOff]));
-                        //     }
-                        // }
-                    //}
+                        $fl_time    = $indexMoment->format($this->timeFormat);
+                        $fl['time'] = $fl_time;
+                    }
 
                     // Add sensor definition measurement if not yet present (or if input_measurement_id == output_measurement_id) 
                     if ($fl['port'] == 3)
                     {
-                        if ($add_sensordefinitions && $sensor_defs_c > 0 && isset($fl['time']) && isset($fl['w_v']) && !isset($fl['weight_kg']) )
+                        if ($add_sensordefinitions && $sensor_defs_c > 0 && isset($fl_time) && isset($fl['w_v']) && !isset($fl['weight_kg']) )
                         {
                             if ($sensor_defs_c > 1) // select appropriate $sensor_def for multiple sensor_defs
                             {
                                 foreach ($sensor_defs_w as $sd) // ordered descending
                                 {
-                                    if ($sd->updated_at <= $fl['time']) // take the first sd before the current time
+                                    if ($sd->updated_at <= $fl_time) // take the first sd before the current time
                                     {
                                         $sensor_def = $sd;
                                         break;
@@ -848,28 +852,61 @@ class FlashLog extends Model
         $indexes         = max(0, $end_index - $start_index);
         $duration_min    = $interval * $indexes;
         $duration_hrs    = round($duration_min / 60, 1);
+        $min_timestamp   = self::$minUnixTime;
+        $max_timestamp   = time();
 
         // check if database query should be based on the device time, or the cached time from the 
-        //$use_device_time = false;
-        if (isset($flashlog[$start_index]['time_device']) && intval($flashlog[$start_index]['time_device']) > self::$minUnixTime)   
+        $use_device_time = false;
+
+        // get time_device start/end from block data
+        $time_device_start = null;
+        $time_device_end   = null;
+        $time_start_index  = $start_index;
+        $time_end_index    = $end_index;
+
+        if ($use_rtc)
         {
-            $device_moment = new Moment($flashlog[$start_index]['time_device']);
-            $device_time   = $device_moment->format($this->timeFormat);
-            if ($device_time > $db_time)
+            for ($i=$start_index; $i <= $end_index; $i++) 
             {
+                if (isset($flashlog[$i]['time_device']))
+                {
+                    $time_device = intval($flashlog[$i]['time_device']);
+                    if ($time_device_start === null && $time_device > self::$minUnixTime && $time_device < $max_timestamp)
+                    {
+                        $time_device_start = $time_device;
+                        $time_start_index  = $i;
+                    }
+                    // set end index
+                    if ($time_device_start !== null && $time_device > self::$minUnixTime && $time_device < $max_timestamp)
+                    {
+                        $time_device_end = $time_device;
+                        $time_end_index  = $i;
+                    }
+                }
+            }
+        }
+
+        if (isset($time_device_start))   
+        {
+            $diff_start_sec= $interval_sec * ($time_start_index - $start_index);
+            $device_moment = new Moment($time_device_start - $diff_start_sec);
+            $device_time   = $device_moment->format($this->timeFormat);
+            if ($time_device_start >= strtotime($db_time) - 60) // db time should be a little later than device time, becuase of lora message delay
+            {
+                // adjust time to use as start of block from db time to flashlog time
                 $db_time         = $device_time;
                 $db_moment       = $device_moment;
-                //$use_device_time = true;
+                $use_device_time = true;
             }
         }
         
-        // // If the device has an RTC, assume that all times match
-        if ($use_rtc && $device->rtc && isset($flashlog[$start_index]['time_device']) && isset($flashlog[$end_index]['time_device']) && intval($flashlog[$end_index]['time_device']) <= time())
+        // // If the device has an RTC, assume that all times match (if valid times)
+        if ($use_rtc && $device->rtc && isset($use_device_time))
         {
-            $end_moment  = new Moment($flashlog[$end_index]['time_device']);
+            $end_moment  = new Moment($time_device_end);
             $time_end    = $end_moment->format($this->timeFormat);
             $match_first = ['flashlog_index'=>$start_index, 'minute_interval'=>$interval, 'time'=>$db_time];
-            $block       = $this->setFlashBlockTimes($match_first, $block_index, $start_index, $end_index, $flashlog, $device, $show, $interval_sec, $add_sensordefinitions);
+            $block       = $this->setFlashBlockTimes($match_first, $block_index, $start_index, $end_index, $flashlog, $device, $show, $interval_sec, $add_sensordefinitions, $use_device_time);
             $flashlog    = $block['flashlog'];
 
             if (isset($block['index_start']))

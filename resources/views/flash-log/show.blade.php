@@ -52,8 +52,8 @@
                         <td> {{ $flashlog->user_id }} </td>
                     </tr>
                     <tr>
-                        <th> Device Id </th>
-                        <td> {{ $flashlog->device_id }} <a href="/sensordefinition?device_id={{ $flashlog->device_id }}">(Sensor definitions)</a></td>
+                        <th> Device </th>
+                        <td> <a href="/devices/{{ $flashlog->device_id }}">{{ $flashlog->device_id }}</a> <a href="/sensordefinition?device_id={{ $flashlog->device_id }}">(Sensor definitions)</a></td>
                     </tr>
                     <tr>
                         <th> Hive Id </th>

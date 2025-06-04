@@ -1404,8 +1404,8 @@ class ResearchController extends Controller
                             $start_u      = strtotime($fl->log_date_start);
                             $days_total   = $fl->getLogDays(false); // full period
                             $days_log     = $fl->getLogDays();
-                            $logpd        = $fl->logs_per_day;
-                            $logperc      = getTimeLogPercentage();
+                            $logpd        = $fl->getLogPerDay();
+                            $logperc      = $fl->getTimeLogPercentage($logpd);
                             $logperc_arr  = [];
 
                             // Walk through data days in Flashlog

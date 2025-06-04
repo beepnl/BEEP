@@ -1437,7 +1437,7 @@ class ResearchController extends Controller
                             if (isset($dates[$created_date]['devices'][$key]))
                                 $dates[$created_date]['devices'][$key]['flashlog_created'] = "$fl->id uploaded at $fl->created_at, containing $days days ($fl->log_date_start - $fl->log_date_end) of $logperc% ".($fl->validLog()?'':'NOT YET')." validated weight/time data";
                         }
-                        dd($fl, $dates);
+                        //dd($fl, $dates);
                     }
                 }
             } // end device loop

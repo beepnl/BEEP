@@ -105,6 +105,15 @@
                         <th> Log file CSV </th>
                         <td> <a target="_blank" href="{{ $flashlog->csv_url }}">{{ $flashlog->csv_url }}</a> </td>
                     </tr>
+
+                    <tr>
+                        <th> Log meta </th>
+                        <td>
+<textarea rows="10" style="width: 100%">
+{!! json_encode($flashlog->meta_data, JSON_PRETTY_PRINT) !!}
+</textarea>
+                        </td>
+                    </tr>
                 </tbody>
             </table>
 

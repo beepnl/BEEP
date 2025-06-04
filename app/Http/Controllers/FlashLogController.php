@@ -160,17 +160,19 @@ class FlashLogController extends Controller
                 $flashlog_parsed_json = json_decode($flashlog_parsed_text, true);
 
                 if ($fill_meta)
-                    $csv_saved = $flashlog->addMetaToFlashlog($flashlog_parsed_json);
+                    $fl_saved = $flashlog->addMetaToFlashlog($flashlog_parsed_json);
                 else
-                    $csv_saved = $flashlog->addCsvToFlashlog($flashlog_parsed_json);
+                    $fl_saved = $flashlog->addCsvToFlashlog($flashlog_parsed_json);
 
-                if ($csv_saved)
+                $type = $fill_meta ? 'Meta' : 'CSV';
+                
+                if ($fl_saved)
                 {
                     $meta_str = CalculationModel::arrayToString($flashlog->meta_data, ', ', '', ['valid_data_points']);
-                    return redirect()->route('flash-log.index', $query_par)->with('success', "FlashLog $id CSV set: $flashlog->csv_url, Meta data: ".$meta_str);
+                    return redirect()->route('flash-log.index', $query_par)->with('success', "FlashLog $id $type set: $flashlog->csv_url, Meta data: ".$meta_str);
                 }
 
-                return redirect()->route('flash-log.index', $query_par)->with('error', "FlashLog $id CSV save error");
+                return redirect()->route('flash-log.index', $query_par)->with('error', "FlashLog $id $type save error");
 
             }
             else

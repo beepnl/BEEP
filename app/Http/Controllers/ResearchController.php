@@ -1391,7 +1391,15 @@ class ResearchController extends Controller
 
                         if ($key && ($fl->validLog() || $invalid_log_prognose))
                         {
-                            $valid_data_p = isset($fl->meta_data['valid_data_points']) ? $fl->meta_data['valid_data_points'] : null;
+                            $valid_data_p = null;
+                            $use_data_days= false;
+
+                            if (isset($fl->meta_data['valid_data_points']))
+                            {
+                                $valid_data_p = $fl->meta_data['valid_data_points'];
+                                $use_data_days= true;
+                            }
+
                             $meas_per_day = isset($device_key_mpday[$key]) ? $device_key_mpday[$key] : 96;
                             $start_u      = strtotime($fl->log_date_start);
                             $days         = $fl->getLogDays();
@@ -1402,31 +1410,34 @@ class ResearchController extends Controller
                             // Walk through data days in Flashlog
                             for ($d=0; $d < $days; $d++)
                             { 
-                                $date          = date('Y-m-d', $start_u + $d * 24 * 3600);
-                                $logpd_date    = isset($valid_data_p[$date]) ? $valid_data_p[$date] : $logpd; // specific day count, or general count
-                                $logperc       = min(100, round(100 * $logpd_date / $meas_per_day));
-                                $logperc_arr[] = $logperc;
-                                $logp_id       = $fl->id.': '.$logperc;
-
-                                // Only add logs that have weight and time data
-                                if ($logpd_date > 0 && isset($dates[$date]))
+                                $date = date('Y-m-d', $start_u + $d * 24 * 3600);
+                                
+                                if (!$use_data_days || isset($valid_data_p[$date]))
                                 {
-                                    if (!isset($dates[$date]['devices'][$key]))
-                                    {
-                                        $dates[$date]['devices'][$key] = ['points'=>$logpd, 'from_flashlog'=>$logpd, 'flashlog_prognose'=>$logp_id, 'total'=>$logpd, 'perc'=>$logperc, 'first_date'=>$date];
-                                    }
-                                    else if (isset($dates[$date]['devices'][$key]['total']) && $logpd > $dates[$date]['devices'][$key]['total']) // replace total with prognose, because Flashlog should contain all
-                                    {
-                                        $dates[$date]['devices'][$key]['flashlog_prognose'] = $logp_id; // id: %
-                                        $dates[$date]['devices'][$key]['total'] = $logpd;
-                                        // Calculate new perc
-                                        $dates[$date]['devices'][$key]['perc'] = $logperc;
-                                    }
-                                }
-                                // Indicate the flashlogs in already available data
-                                if (isset($dates[$date]['devices'][$key]))
-                                    $dates[$date]['devices'][$key]['flashlog'] = $fl->id;
+                                    $logpd_date    = isset($valid_data_p[$date]) ? $valid_data_p[$date] : $logpd; // specific day count, or general count
+                                    $logperc       = min(100, round(100 * $logpd_date / $meas_per_day));
+                                    $logperc_arr[] = $logperc;
+                                    $logp_id       = $fl->id.': '.$logperc;
 
+                                    // Only add logs that have weight and time data
+                                    if ($logpd_date > 0 && isset($dates[$date]))
+                                    {
+                                        if (!isset($dates[$date]['devices'][$key]))
+                                        {
+                                            $dates[$date]['devices'][$key] = ['points'=>$logpd, 'from_flashlog'=>$logpd, 'flashlog_prognose'=>$logp_id, 'total'=>$logpd, 'perc'=>$logperc, 'first_date'=>$date];
+                                        }
+                                        else if (isset($dates[$date]['devices'][$key]['total']) && $logpd > $dates[$date]['devices'][$key]['total']) // replace total with prognose, because Flashlog should contain all
+                                        {
+                                            $dates[$date]['devices'][$key]['flashlog_prognose'] = $logp_id; // id: %
+                                            $dates[$date]['devices'][$key]['total'] = $logpd;
+                                            // Calculate new perc
+                                            $dates[$date]['devices'][$key]['perc'] = $logperc;
+                                        }
+                                    }
+                                    // Indicate the flashlogs in already available data
+                                    if (isset($dates[$date]['devices'][$key]))
+                                        $dates[$date]['devices'][$key]['flashlog'] = $fl->id;
+                                }
                             }
 
                             if (count($logperc_arr) > 0)

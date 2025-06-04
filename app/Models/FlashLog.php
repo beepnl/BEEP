@@ -152,7 +152,11 @@ class FlashLog extends Model
 
     public function getLogDays() // only logs with set time
     {
-        if (isset($this->log_date_start) && isset($this->log_date_end))
+        if (isset($this->meta_data['valid_data_points']))
+        {
+            return count($this->meta_data['valid_data_points']);
+        }
+        else if (isset($this->log_date_start) && isset($this->log_date_end))
         {
             return round( (strtotime($this->log_date_end) - strtotime($this->log_date_start))/(24*3600), 2);
         }

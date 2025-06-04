@@ -1391,20 +1391,25 @@ class ResearchController extends Controller
 
                         if ($key && ($fl->validLog() || $invalid_log_prognose))
                         {
+                            $valid_data_p = isset($fl->meta_data['valid_data_points']) ? $fl->meta_data['valid_data_points'] : null;
                             $meas_per_day = isset($device_key_mpday[$key]) ? $device_key_mpday[$key] : 96;
                             $start_u      = strtotime($fl->log_date_start);
                             $days         = $fl->getLogDays();
                             $logpd        = $fl->logs_per_day;
                             $logperc      = min(100, round(100 * $logpd / $meas_per_day));
-                            $logp_id      = $fl->id.': '.$logperc;
+                            $logperc_arr  = [];
 
                             // Walk through data days in Flashlog
                             for ($d=0; $d < $days; $d++)
                             { 
-                                $date = date('Y-m-d', $start_u + $d * 24 * 3600);
-                                
-                                // Only add logs that have >80% weight and time data
-                                if ($logperc > 80 && isset($dates[$date]))
+                                $date          = date('Y-m-d', $start_u + $d * 24 * 3600);
+                                $logpd_date    = isset($valid_data_p[$date]) ? $valid_data_p[$date] : $logpd; // specific day count, or general count
+                                $logperc       = min(100, round(100 * $logpd_date / $meas_per_day));
+                                $logperc_arr[] = $logperc;
+                                $logp_id       = $fl->id.': '.$logperc;
+
+                                // Only add logs that have weight and time data
+                                if ($logpd_date > 0 && isset($dates[$date]))
                                 {
                                     if (!isset($dates[$date]['devices'][$key]))
                                     {
@@ -1424,11 +1429,15 @@ class ResearchController extends Controller
 
                             }
 
+                            if (count($logperc_arr) > 0)
+                                $logperc = min(100, round(array_sum($logperc_arr) / count($logperc_arr)));
+
                             // Indicate upload date with arrow in table
                             $created_date = substr($fl->created_at, 0, 10);
                             if (isset($dates[$created_date]['devices'][$key]))
                                 $dates[$created_date]['devices'][$key]['flashlog_created'] = "$fl->id uploaded at $fl->created_at, containing $days days ($fl->log_date_start - $fl->log_date_end) of $logperc% ".($fl->validLog()?'':'NOT YET')." validated weight/time data";
                         }
+                        dd($fl, $dates);
                     }
                 }
             } // end device loop

@@ -1145,7 +1145,8 @@ class FlashLog extends Model
             $first_date = null; 
             $last_date  = null; 
             $data_count = count($data);
-            $weight_arr = [];
+            $weight_arr = []; // array of weight measurements
+            $date_arr   = []; // array with date (YYYY-MM-DD) as key and amount of valid data points (timestamps) as value
 
             if ($csv)
             {
@@ -1176,8 +1177,16 @@ class FlashLog extends Model
                         {
                             $data_item       = array_merge(['time'=>$data_time_utc], $data_item); // Time in first column
                             $data_item_clean = self::cleanFlashlogItem($data_item, true);
-                            $csv_body[]  = implode($separator, $data_item_clean);
-                        
+                            $csv_body[]      = implode($separator, $data_item_clean);
+                            $weight_set      = false;
+                            
+                            if (isset($data_item_clean['weight_kg']))
+                            {
+                                $weight_arr[] = $data_item_clean['weight_kg'];
+                                $weight_set   = true; // for counting valid data points
+                            }
+
+                            // Add data point to date_arr and set frist/last data date
                             if (isset($data_time))
                             {
                                 if (!isset($data_item['time_device']) || ($data_item['time_device'] >= $time_min && $data_item['time_device'] < $time_max)) // time is set (also allow previously parsed Flashlogs without RTC), or time_device should be correctly set
@@ -1187,10 +1196,13 @@ class FlashLog extends Model
 
                                     $last_date = $data_time; // update until last item with date
                                 }
-                            }
 
-                            if (isset($data_item_clean['weight_kg']))
-                                $weight_arr[] = $data_item_clean['weight_kg'];
+                                $data_date = substr($data_time, 0, 10);
+                                if (!isset($date_arr[$data_date]))
+                                    $date_arr[$data_date] = 0;
+                                
+                                $date_arr[$data_date] += intval($weight_set); // count 1 data point if weight AND time are set
+                            }
 
                             // get biggest headers
                             $param_count = count($data_item_clean);
@@ -1246,9 +1258,12 @@ class FlashLog extends Model
                     $filePath = 'exports/flashlog/beep-export-'.$name.'-'.$file_date.'-'.Str::random(10).$file_ext;
                     $filePath = str_replace(' ', '', $filePath);
 
-                    $meta_data  = null;
+                    $meta_data  = [];
                     if (count($weight_arr) > 0)
-                        $meta_data = ['weight_kg'=>CalculationModel::calculateBoxplot($weight_arr)];
+                        $meta_data['weight_kg'] = CalculationModel::calculateBoxplot($weight_arr);
+
+                    if (count($date_arr) > 0 && array_sum($date_arr) > 0)
+                        $meta_data['valid_data_points'] = $date_arr;
 
                     Storage::disk($disk)->put($filePath, $fileBody, ['mimetype' => $file_mime]);
                     return ['link'=>Storage::disk($disk)->url($filePath), 'first_date'=>$first_date, 'last_date'=>$last_date, 'meta_data'=>$meta_data];

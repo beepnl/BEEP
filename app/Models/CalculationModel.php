@@ -415,18 +415,21 @@ class CalculationModel extends Model
         ];
     }
 
-    public static function arrayToString($array, string $separator = ', ', string $prefix = ''): string {
+    public static function arrayToString($array, string $separator = ', ', string $prefix = '', $not_keys=[]): string {
 
         if (is_array($array))
         {
             $result = [];
             foreach ($array as $key => $value)
             {
+                if (is_array($not_keys) && in_array($key, $not_keys))
+                    continue;
+
                 $compositeKey = $prefix === '' ? $key : "$prefix.$key";
 
                 if (is_array($value))
                 {
-                    $result[] = self::arrayToString($value, $separator, $compositeKey);
+                    $result[] = self::arrayToString($value, $separator, $compositeKey, $not_keys);
                 } else {
                 
                     $rounded_value = $value;

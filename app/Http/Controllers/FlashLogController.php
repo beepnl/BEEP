@@ -136,10 +136,11 @@ class FlashLogController extends Controller
         $fill_time= $request->filled('no_fill') && $request->input('no_fill') == 1 ? false : true;
         $fill_sdef= $request->filled('no_sensor_def') && $request->input('no_sensor_def') == 1 ? false : true;
         $fill_csv = $request->filled('csv') && $request->input('csv') == 1 ? true : false;
+        $fill_meta= $request->filled('add_meta') && $request->input('add_meta') == 1 ? true : false;
         $flashlog = FlashLog::findOrFail($id);
         $out      = [];
         
-        $query_par= array_diff_key($request->query(), ['no_fill'=>0,'no_sensor_def'=>0,'csv'=>0]); // do not copy the command to the url params to prevent pressing wrong button
+        $query_par= array_diff_key($request->query(), ['no_fill'=>0,'no_sensor_def'=>0,'csv'=>0, 'add_meta'=>0]); // do not copy the command to the url params to prevent pressing wrong button
         //dd($query_par);
         if(isset($flashlog->log_file))
         {
@@ -150,17 +151,24 @@ class FlashLogController extends Controller
                 $flashlog->save();
             }
 
-            if ($fill_csv && isset($flashlog->log_parsed)) // use parsed log file to generate CSV
+            if (($fill_csv || $fill_meta) && isset($flashlog->log_parsed)) // use parsed log file to generate CSV
             {
                 $flashlog_parsed_text = $flashlog->getFileContent('log_file_parsed');
                 if (empty($flashlog_parsed_text))
                     return redirect()->route('flash-log.index', $query_par)->with('error', "FlashLog $id log_file_parsed is empty");
 
                 $flashlog_parsed_json = json_decode($flashlog_parsed_text, true);
-                $csv_saved = $flashlog->addCsvToFlashlog($flashlog_parsed_json);
+
+                if ($fill_meta)
+                    $csv_saved = $flashlog->addMetaToFlashlog($flashlog_parsed_json);
+                else
+                    $csv_saved = $flashlog->addCsvToFlashlog($flashlog_parsed_json);
 
                 if ($csv_saved)
-                    return redirect()->route('flash-log.index', $query_par)->with('success', "FlashLog $id CSV set: $flashlog->csv_url, Meta data: ".CalculationModel::arrayToString($flashlog->meta_data));
+                {
+                    $meta_str = CalculationModel::arrayToString($flashlog->meta_data, ', ', '', ['valid_data_points']);
+                    return redirect()->route('flash-log.index', $query_par)->with('success', "FlashLog $id CSV set: $flashlog->csv_url, Meta data: ".$meta_str);
+                }
 
                 return redirect()->route('flash-log.index', $query_par)->with('error', "FlashLog $id CSV save error");
 

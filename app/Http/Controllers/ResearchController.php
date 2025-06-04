@@ -1277,7 +1277,7 @@ class ResearchController extends Controller
                     // Define measurements per day per device
                     $device_interval_min = isset($device->measurement_interval_min) && $device->measurement_interval_min > 0 ? $device->measurement_interval_min : 15;
                     $device_key_mpday[$current_key] = 1440 / $device_interval_min;
-                    
+
                     $loc = $device->location();
                     if ($loc !== null && isset($loc->coordinate_lat) && isset($loc->coordinate_lon)) 
                         $user_dloc_coords[] = '("lat" = \''.$loc->coordinate_lat.'\' AND "lon" = \''.$loc->coordinate_lon.'\')';
@@ -1400,13 +1400,12 @@ class ResearchController extends Controller
                                 $use_data_days= true;
                             }
 
-                            $meas_per_day = isset($device_key_mpday[$key]) ? $device_key_mpday[$key] : 96;
+                            $meas_per_day = isset($fl->device) ? $fl->device->getMeasurementsPerDay() : 96;
                             $start_u      = strtotime($fl->log_date_start);
-                            $end_u        = strtotime($fl->log_date_end);
-                            $days_total   = ($end_u - $start_u) / (24 * 3600);
+                            $days_total   = $fl->getLogDays(false); // full period
                             $days_log     = $fl->getLogDays();
                             $logpd        = $fl->logs_per_day;
-                            $logperc      = min(100, round(100 * $logpd / $meas_per_day));
+                            $logperc      = getTimeLogPercentage();
                             $logperc_arr  = [];
 
                             // Walk through data days in Flashlog
@@ -1417,7 +1416,7 @@ class ResearchController extends Controller
                                 if (!$use_data_days || isset($valid_data_p[$date]))
                                 {
                                     $logpd_date    = isset($valid_data_p[$date]) ? $valid_data_p[$date] : $logpd; // specific day count, or general count
-                                    $logperc       = min(100, round(100 * $logpd_date / $meas_per_day));
+                                    $logperc       = $fl->getTimeLogPercentage($logpd_date);
                                     $logperc_arr[] = $logperc;
                                     $logp_id       = $fl->id.': '.$logperc;
 
@@ -1428,7 +1427,7 @@ class ResearchController extends Controller
                                         {
                                             $dates[$date]['devices'][$key] = ['points'=>$logpd, 'from_flashlog'=>$logpd, 'flashlog_prognose'=>$logp_id, 'total'=>$logpd, 'perc'=>$logperc, 'first_date'=>$date];
                                         }
-                                        else if (isset($dates[$date]['devices'][$key]['total']) && $logpd > $dates[$date]['devices'][$key]['total']) // replace total with prognose, because Flashlog should contain all
+                                        else if (isset($dates[$date]['devices'][$key]['total']) && $logpd >= $dates[$date]['devices'][$key]['total']) // replace total with prognose, because Flashlog should contain all
                                         {
                                             $dates[$date]['devices'][$key]['flashlog_prognose'] = $logp_id; // id: %
                                             $dates[$date]['devices'][$key]['total'] = $logpd;
@@ -1841,7 +1840,7 @@ class ResearchController extends Controller
     {
         return $flashlogs->where('created_at', '<=', $date_until)->sortBy('device_id')->sortByDesc('created_at')->map(function($item) use ($user_id)
         {
-            $meta_data = isset($item->meta_data) ? CalculationModel::arrayToString($item->meta_data) : null;
+            $meta_data = isset($item->meta_data) ? CalculationModel::arrayToString($item->meta_data, '|', '', ['valid_data_points']) : null;
             
             return [
                 $user_id,

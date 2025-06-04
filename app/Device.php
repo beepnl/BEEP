@@ -304,6 +304,12 @@ class Device extends Model
         return $this->hasMany(FlashLog::class);
     }
 
+    public function getMeasurementsPerDay()
+    {
+        $device_interval_min = isset($this->measurement_interval_min) && $this->measurement_interval_min > 0 ? $this->measurement_interval_min : 15;
+        return round(1440 / $device_interval_min);
+    }
+
     public function getFlashLogsHtml($start_date='2019-01-01')
     {
         $flogs  = $this->flashlogs()->where('created_at', '>', $start_date)->orderByDesc('created_at')->get(); // get files after start, because can only be filled with data about start date

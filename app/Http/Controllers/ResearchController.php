@@ -1402,13 +1402,15 @@ class ResearchController extends Controller
 
                             $meas_per_day = isset($device_key_mpday[$key]) ? $device_key_mpday[$key] : 96;
                             $start_u      = strtotime($fl->log_date_start);
-                            $days         = $fl->getLogDays();
+                            $end_u        = strtotime($fl->log_date_end);
+                            $days_total   = ($end_u - $start_u) / (24 * 3600);
+                            $days_log     = $fl->getLogDays();
                             $logpd        = $fl->logs_per_day;
                             $logperc      = min(100, round(100 * $logpd / $meas_per_day));
                             $logperc_arr  = [];
 
                             // Walk through data days in Flashlog
-                            for ($d=0; $d < $days; $d++)
+                            for ($d=0; $d < $days_total; $d++)
                             { 
                                 $date = date('Y-m-d', $start_u + $d * 24 * 3600);
                                 
@@ -1446,7 +1448,7 @@ class ResearchController extends Controller
                             // Indicate upload date with arrow in table
                             $created_date = substr($fl->created_at, 0, 10);
                             if (isset($dates[$created_date]['devices'][$key]))
-                                $dates[$created_date]['devices'][$key]['flashlog_created'] = "$fl->id uploaded at $fl->created_at, containing $days days ($fl->log_date_start - $fl->log_date_end) of $logperc% ".($fl->validLog()?'':'NOT YET')." validated weight/time data";
+                                $dates[$created_date]['devices'][$key]['flashlog_created'] = "$fl->id uploaded at $fl->created_at, containing $days_log days ($fl->log_date_start - $fl->log_date_end) of $logperc% ".($fl->validLog()?'':'NOT YET')." validated weight/time data";
                         }
                         //dd($fl, $dates);
                     }

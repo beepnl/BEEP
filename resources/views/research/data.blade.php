@@ -280,6 +280,7 @@
                             <th class="rotate">Current hive</th>
                             <th class="rotate" title="Average data completeness of the {{ $data_completeness_count }} selected devices and dates"><span style="color:grey;">{{ empty($data_completeness) ?  '' : $data_completeness.'%' }}</span><br><br>Data</th>
                             @if($add_flashlogs)
+                            <th class="rotate">CSV export</th>
                             <th class="rotate">Flashlogs</th>
                             @endif
                         </tr>
@@ -291,6 +292,19 @@
                             $data_points = isset($totals['devices'][$device->key]['total']) ? $totals['devices'][$device->key]['total'].' weight data points' : '';
                             $data_comp   = isset($totals['devices'][$device->key]['data_completeness']) ? $totals['devices'][$device->key]['data_completeness'].'%' : '';
                             $data_days_dev = isset($totals['devices'][$device->key]['data_days']) ? $totals['devices'][$device->key]['data_days'] : $data_days;
+                            $form_q_html = "";
+                            foreach(array_merge(request()->query(), ['log_device_id'=>$device->id]) as $key => $value)
+                            {
+                                if (is_array($value))
+                                {
+                                    foreach($value as $v)
+                                        $form_q_html .= '<input type="hidden" name="'.$key.'[]" value="'.$v.'">';
+                                }
+                                else if ($key != 'log_device_note')
+                                {
+                                    $form_q_html .= '<input type="hidden" name="'.$key.'" value="'.$value.'">';
+                                }
+                            }
                         @endphp
                         <tr class="tb-row-small" @if (isset($device->deleted_at)) style="color: #AAA;" title="Device has been deleted at {{$device->deleted_at}}" @else title="{{ $device->name }}" @endif>
                             <th @isset($device)title="{{ $device->name }} (id: {{ $device->id }} created: {{ $device->created_at }})"@endisset)" class="tb-row-very-small row-header">{{ $device->name }} ({{ $device->id }})</th> 
@@ -298,6 +312,16 @@
                             <th @isset($device->hive) title="{{ $device->hive_name }} (id: {{ $device->hive_id }} created: {{ $device->hive->created_at }})"@endisset class="tb-row-very-small row-header">{{ $device->hive_name }} ({{ $device->hive_id }})</th> 
                             <th class="tb-row-very-small row-header" title="Average data completeness: {{$data_comp}} ({{ $data_points }} over {{$data_days_dev}} data days)">{{ $data_comp }}</th> 
                             @if($add_flashlogs)
+                            <th class="tb-row-normal row-header" style="padding-top: 0; padding-bottom: 0;">
+                                <form id="create_csv_device_{{ $device->id }}" method="GET" action="{{ route('research.data', $research->id) }}" accept-charset="UTF-8" class="form-horizontal">
+                                    @isset($device->log_file_info['csv_url'])
+                                        <a href="{{ $device->log_file_info['csv_url'] }}"><button class="btn btn-success btn-sm" title="Download total CSV: {{ App\Models\CalculationModel::arrayToString($device->log_file_info, ' ', '', ['csv_url']) }}"><i class="fa fa-download" aria-hidden="true"></i></button></a>
+                                    @endisset
+                                    <button class="btn btn-default btn-sm" title="Create total CSV" type="submit"><i class="fa fa-upload" aria-hidden="true"></i></button>
+                                    <input type="text" name="log_device_note" placeholder="Note" value="{{ isset($device->log_file_info['note']) ? $device->log_file_info['note'] : '' }}">
+                                    {!! $form_q_html !!}
+                                </form>
+                            </th>
                             <th class="tb-row-normal row-header" style="padding-top: 0; padding-bottom: 0">{!! $device->getFlashLogsHtml($date_start) !!}</th>
                             @endif
                         </tr>

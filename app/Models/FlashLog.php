@@ -1240,7 +1240,7 @@ class FlashLog extends Model
         return ['error'=>'export_not_saved'];
     }
 
-    public function addMetaData($data, $validate_time=false)
+    public function addMetaData($data, $validate_time=false, $add_and_return_data=false)
     {
         $time_min = self::$minUnixTime;
         $time_max = time();
@@ -1322,6 +1322,12 @@ class FlashLog extends Model
         if (count($date_arr) > 0 && array_sum($date_arr) > 0)
             $meta_data['valid_data_points'] = $date_arr;
 
+        if ($add_and_return_data)
+        {
+            return ['log_date_start'=>$first_date, 'log_date_end'=>$last_date, 'meta_data'=>$meta_data];
+        }
+
+        // Default, save meta to Flashlog
         $this->log_date_start = $first_date;
         $this->log_date_end   = $last_date;
         $this->meta_data      = $meta_data;

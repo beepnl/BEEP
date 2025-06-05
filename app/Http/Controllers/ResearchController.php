@@ -1012,13 +1012,15 @@ class ResearchController extends Controller
         $this->checkAuthorization($request);
 
         $this->validate($request, [
-            'date_start'    => 'nullable|date',
-            'date_until'    => 'nullable|date|after:date_start',
-            'user_ids.*'    => 'nullable|exists:users,id',
-            'device_ids.*'  => 'nullable|exists:sensors,id',
-            'add_flashlogs' => 'nullable|boolean',
-            'until_last_fl' => 'nullable|boolean',
-            'invalid_log_prognose' => 'nullable|boolean',
+            'date_start'            => 'nullable|date',
+            'date_until'            => 'nullable|date|after:date_start',
+            'user_ids.*'            => 'nullable|exists:users,id',
+            'device_ids.*'          => 'nullable|exists:sensors,id',
+            'add_flashlogs'         => 'nullable|boolean',
+            'until_last_fl'         => 'nullable|boolean',
+            'invalid_log_prognose'  => 'nullable|boolean',
+            'log_device_id'         => 'nullable|exists:sensors,id',
+            'log_device_note'       => 'nullable|string',
         ]);
 
         $demo = $request->filled('demo') && boolval($request->input('demo')) ? true : false;
@@ -1030,13 +1032,15 @@ class ResearchController extends Controller
         else
             $research = $request->user()->allResearches()->find($id);
 
-        $device_ids   = $request->input('device_ids');
-        $add_flashlogs= boolval($request->input('add_flashlogs', 1));
-        $until_last_fl= boolval($request->input('until_last_fl', 1));
+        $device_ids      = $request->input('device_ids');
+        $log_device_id   = intval($request->input('log_device_id'));
+        $log_device_note = $request->input('log_device_note');
+        $add_flashlogs   = boolval($request->input('add_flashlogs', 1));
+        $until_last_fl   = boolval($request->input('until_last_fl', 1));
         $invalid_log_prognose = boolval($request->input('invalid_log_prognose', 0));
-        $devices_all  = collect();
-        $devices_show = collect();
-        $initial_days = 30;
+        $devices_all     = collect();
+        $devices_show    = collect();
+        $initial_days    = 30;
 
         // Make dates table:
         /* [date] => [
@@ -1147,7 +1151,7 @@ class ResearchController extends Controller
 
         //die(print_r([$request->input('user_ids'), $consent_users_selected, $users]));
         // Fill dates array
-        $assets = ["users"=>0, "user_names"=>[], "devices"=>[], "devices_online"=>0, "device_names"=>[], "devices_offline"=>[], "measurements"=>0, "measurements_imported"=>0, "measurements_total"=>0, "data_completeness"=>0, "data_completeness_online"=>0, "weather"=>0, "flashlogs"=>0, "samplecodes"=>0, "sensor_definitions"=>0, "alert_rules"=>0, "alerts"=>0];
+        $assets = ["users"=>0, "user_names"=>[], "devices"=>[], "devices_online"=>0, "device_names"=>[], "devices_offline"=>[], "measurements"=>0, "measurements_imported"=>0, "measurements_total"=>0, "data_completeness"=>0, "data_completeness_online"=>0, "flashlogs"=>0];
 
         $moment = $moment_start;
         
@@ -1454,6 +1458,7 @@ class ResearchController extends Controller
                             $created_date = substr($fl->created_at, 0, 10);
                             if (isset($dates[$created_date]['devices'][$key]))
                                 $dates[$created_date]['devices'][$key]['flashlog_created'] = "$fl->id uploaded at $fl->created_at, containing $days_log days ($fl->log_date_start - $fl->log_date_end) of $logperc% ".($fl->validLog()?'':'NOT YET')." validated weight/time data";
+
                         }
                         //dd($fl, $dates);
                     }
@@ -1531,6 +1536,43 @@ class ResearchController extends Controller
         $devices_sorted = $devices_all->sortBy('user_id')->sortBy('name');
         foreach ($devices_sorted as $d)
             $devices_select[$d->id] = $d->name.' - ('.$d->user->name.')'; 
+
+
+        // Create device log
+        $device_log = null;
+        if (in_array($log_device_id, $devices_all->pluck('id')->toArray()))
+        {
+            //dd($log_device_id);
+            $device_log= $devices_all->where('id', '=', $log_device_id)->first();
+            $flashlogs = $device_log->flashlogs()->where('log_date_end', '>=', $date_start)->where('log_date_start', '<', $date_until)->orderBy('log_date_start')->get();
+            $data_array= [];
+            foreach ($flashlogs as $flashlog)
+            {
+                if (isset($flashlog->log_parsed) && ($invalid_log_prognose || $flashlog->validLog()))
+                {
+                    $flashlog_parsed_text = $flashlog->getFileContent('log_file_parsed');
+                    if (!empty($flashlog_parsed_text))
+                        $data_array = array_merge(json_decode($flashlog_parsed_text, true), $data_array);
+                }
+            }
+            if (count($data_array) > 0)
+            {
+                // Get meta of complete (concatenated) dataset
+                $csv_file_name   = "device-$log_device_id-flashlog-data";
+                $save_output     = FlashLog::exportData($data_array, $csv_file_name, true, ',', true, true); // Research data is also exported with , as separator
+
+                if (isset($save_output['link']))
+                {
+                    $dummy_flashlog            = new FlashLog;
+                    $meta_data                 = $dummy_flashlog->addMetaData($data_array, true, true);
+                    $device_log->log_file_info = array_merge(['csv_url'=>$save_output['link'], 'created_date'=>date('Y-m-d H:i:s'), 'note'=>$log_device_note, 'valid'=>true], $meta_data);
+                    $device_log->save();
+                }
+            }
+        }
+        if ($device_log)
+            $devices_all->merge($device_log); // add for display of newly added log values
+
 
         return view('research.data', compact('research', 'devices_all', 'devices_show', 'data_days', 'dates', 'totals', 'data_completeness', 'data_completeness_count', 'consent_users_select', 'consent_users_selected', 'devices_select', 'device_ids', 'date_start', 'date_until', 'add_flashlogs', 'until_last_fl', 'invalid_log_prognose'));
     }

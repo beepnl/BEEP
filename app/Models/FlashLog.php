@@ -1126,11 +1126,11 @@ class FlashLog extends Model
         return $data_array;
     }
 
-    public static function exportData($data, $name, $csv=true, $separator=',', $link_override=false, $validate_time=false)
+    public static function exportData($data, $name, $csv=true, $separator=',', $link_override=false, $validate_time=false, $min_unix_ts=null, $max_unix_ts=null)
     {
         $link     = $link_override ? $link_override : env('FLASHLOG_EXPORT_LINK', true);
-        $time_min = self::$minUnixTime;
-        $time_max = time();
+        $time_min = isset($min_unix_ts) ? $min_unix_ts : self::$minUnixTime;
+        $time_max = isset($max_unix_ts) ? $max_unix_ts : time();
 
         //dd($name, gettype($data));
         

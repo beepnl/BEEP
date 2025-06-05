@@ -1538,7 +1538,7 @@ class ResearchController extends Controller
             $devices_select[$d->id] = $d->name.' - ('.$d->user->name.')'; 
 
 
-        // Create device log
+        // Create device log_file_info (CSV)
         $device_log = null;
         if (in_array($log_device_id, $devices_all->pluck('id')->toArray()))
         {
@@ -1559,7 +1559,21 @@ class ResearchController extends Controller
             {
                 // Get meta of complete (concatenated) dataset
                 $csv_file_name   = "device-$log_device_id-flashlog-data";
-                $save_output     = FlashLog::exportData($data_array, $csv_file_name, true, ',', true, true); // Research data is also exported with , as separator
+                $min_unix_ts     = strtotime($date_start);
+
+                // filter time
+                $delete_before_index = 0;
+                foreach ($data_array as $i => $value_array)
+                {
+                    if (isset($value_array['time']) && strtotime($value_array['time']) >= $min_unix_ts)
+                    {
+                        $delete_before_index = $i;
+                        break;
+                    }
+                }
+
+                $data_array = array_slice($data_array, $delete_before_index); // remove before index
+                $save_output= FlashLog::exportData($data_array, $csv_file_name, true, ',', true, true, $min_unix_ts); // Research data is also exported with , as separator
 
                 if (isset($save_output['link']))
                 {

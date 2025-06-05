@@ -315,7 +315,7 @@
                             <th class="tb-row-normal row-header" style="padding-top: 0; padding-bottom: 0;">
                                 <form id="create_csv_device_{{ $device->id }}" method="GET" action="{{ route('research.data', $research->id) }}" accept-charset="UTF-8" class="form-horizontal">
                                     @isset($device->log_file_info['csv_url'])
-                                        <a href="{{ $device->log_file_info['csv_url'] }}"><button class="btn btn-success btn-sm" title="Download total CSV: {{ App\Models\CalculationModel::arrayToString($device->log_file_info, ' ', '', ['csv_url']) }}"><i class="fa fa-download" aria-hidden="true"></i></button></a>
+                                        <a href="{{ $device->log_file_info['csv_url'] }}" target="_blank"><button class="btn btn-success btn-sm" title="Download total CSV: {{ App\Models\CalculationModel::arrayToString($device->log_file_info, ' ', '', ['csv_url','valid_data_points']) }}"><i class="fa fa-download" aria-hidden="true"></i></button></a>
                                     @endisset
                                     <button class="btn btn-default btn-sm" title="Create total CSV" type="submit"><i class="fa fa-upload" aria-hidden="true"></i></button>
                                     <input type="text" name="log_device_note" placeholder="Note" value="{{ isset($device->log_file_info['note']) ? $device->log_file_info['note'] : '' }}">

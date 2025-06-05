@@ -1298,7 +1298,7 @@ class ResearchController extends Controller
                     try{
                         $this->cacheRequestRate('influx-get');
                         $this->cacheRequestRate('influx-research');
-                        $query  = 'SELECT COUNT("w_v") as "count" FROM "sensors" WHERE '.$user_device_keys.' AND time >= \''.$date_curr_consent.'\' AND time <= \''.$moment_end->format('Y-m-d H:i:s').'\' GROUP BY "key",time(1d),from_flashlog';
+                        $query  = 'SELECT COUNT("w_v") as "count", MEAN("bv") as "bv" FROM "sensors" WHERE '.$user_device_keys.' AND time >= \''.$date_curr_consent.'\' AND time <= \''.$moment_end->format('Y-m-d H:i:s').'\' GROUP BY "key",time(1d),from_flashlog';
                         //Log::debug($query);
                         $points = $this->client::query($query)->getPoints();
                         
@@ -1331,6 +1331,7 @@ class ResearchController extends Controller
                                     $dates[$date]['devices'][$key]['err'] = 'measurement interval: '.(1440/$meas_per_day).' min';
 
                                 $dates[$date]['devices'][$key]['total'] += $point['count'];
+                                $dates[$date]['devices'][$key]['bv']   = $point['bv'];
                                 $dates[$date]['devices'][$key]['perc'] = min(100, round(100 * $dates[$date]['devices'][$key]['total'] / $meas_per_day)); // data once each 15 min 
                                 
                                 if ($fl)
@@ -1351,12 +1352,17 @@ class ResearchController extends Controller
                     }
                     else if ($demo) // DEMO
                     {
-                        foreach ($dates as $date => $value) {
-                            foreach ($user_devices as $d) {
+                        foreach ($dates as $date => $value)
+                        {
+                            foreach ($user_devices as $d)
+                            {
+                                $dates[$date]['devices'][$d->key]['first_date'] = $date;
                                 $dates[$date]['devices'][$d->key]['points'] = 0;
                                 $dates[$date]['devices'][$d->key]['from_flashlog'] = 0;
                                 $dates[$date]['devices'][$d->key]['total'] = 0;
                                 $dates[$date]['devices'][$d->key]['perc'] = random_int(0, 100);
+                                $dates[$date]['devices'][$d->key]['bv']   = random_int(240, 380)/100;
+
                             }
                         }
                     }

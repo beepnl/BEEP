@@ -218,6 +218,9 @@
             td.flashlog{
                 border-bottom: 3px solid black;
             }
+            td.lowbat{
+                border-top: 3px solid red !important;
+            }
             td.arrow-left {
               position: relative;
             }
@@ -255,6 +258,7 @@
                                 <td class="tb-row-small explain flashlog flashlog arrow-left">Flashlog<br>upload date</td>
                                 <td class="tb-row-small explain flashlog">Flashlog<br>available</td>
                                 <td style="border-top: 2px dashed green;" class="tb-row-small flashlog prognose">Flashlog data<br>prognose %</td>
+                                <td class="tb-row-small lowbat">Low<br>battery</td>
                                 <td class="tb-row-small explain gr">>80% db<br>data</td>
                                 <td class="tb-row-small explain or">>40% db<br>data</td>
                                 <td class="tb-row-small explain rd">=<40% db<br>data</td>
@@ -328,6 +332,13 @@
                                     {
                                         $class_arr[] = 'error';
                                         $title_arr[] = $d['devices'][$key]['err'];
+                                    }
+
+                                    if (isset($d['devices'][$key]['bv']))
+                                    {
+                                        $title_arr[] = 'Bat V='.$d['devices'][$key]['bv'];
+                                        if ($d['devices'][$key]['bv'] < 2.7)
+                                            $class_arr[] = 'lowbat';
                                     }
                                     
                                     if ($add_flashlogs)

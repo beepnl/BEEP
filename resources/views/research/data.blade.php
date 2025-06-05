@@ -308,20 +308,27 @@
                         @endphp
                         <tr class="tb-row-small" @if (isset($device->deleted_at)) style="color: #AAA;" title="Device has been deleted at {{$device->deleted_at}}" @else title="{{ $device->name }}" @endif>
                             <th @isset($device)title="{{ $device->name }} (id: {{ $device->id }} created: {{ $device->created_at }})"@endisset)" class="tb-row-very-small row-header">{{ $device->name }} ({{ $device->id }})</th> 
+
                             <th @if(null !== $device->location()) title="{{ $device->location_name }} (id: {{ $loc_id }} created: {{ $device->location()->created_at }})"@endif class="tb-row-very-small row-header">{{ $device->location_name }} ({{ $loc_id }})</th> 
+
                             <th @isset($device->hive) title="{{ $device->hive_name }} (id: {{ $device->hive_id }} created: {{ $device->hive->created_at }})"@endisset class="tb-row-very-small row-header">{{ $device->hive_name }} ({{ $device->hive_id }})</th> 
+
                             <th class="tb-row-very-small row-header" title="Average data completeness: {{$data_comp}} ({{ $data_points }} over {{$data_days_dev}} data days)">{{ $data_comp }}</th> 
+
                             @if($add_flashlogs)
                             <th class="tb-row-normal row-header" style="padding-top: 0; padding-bottom: 0;">
                                 <form id="create_csv_device_{{ $device->id }}" method="GET" action="{{ route('research.data', $research->id) }}" accept-charset="UTF-8" class="form-horizontal">
                                     @isset($device->log_file_info['csv_url'])
-                                        <a href="{{ $device->log_file_info['csv_url'] }}" target="_blank"><button class="btn btn-success btn-sm" title="Download total CSV: {{ App\Models\CalculationModel::arrayToString($device->log_file_info, ' ', '', ['csv_url','valid_data_points']) }}"><i class="fa fa-download" aria-hidden="true"></i></button></a>
+                                        <a href="{{ $device->log_file_info['csv_url'] }}" download><button class="btn btn-success btn-sm" title="Download total CSV: {{ App\Models\CalculationModel::arrayToString($device->log_file_info, ' ', '', ['csv_url','valid_data_points']) }}"><i class="fa fa-download" aria-hidden="true"></i></button></a>
                                     @endisset
+                                    
                                     <button class="btn btn-default btn-sm" title="Create total CSV" type="submit"><i class="fa fa-upload" aria-hidden="true"></i></button>
+                                    
                                     <input type="text" name="log_device_note" placeholder="Note" value="{{ isset($device->log_file_info['note']) ? $device->log_file_info['note'] : '' }}">
                                     {!! $form_q_html !!}
                                 </form>
                             </th>
+
                             <th class="tb-row-normal row-header" style="padding-top: 0; padding-bottom: 0">{!! $device->getFlashLogsHtml($date_start) !!}</th>
                             @endif
                         </tr>

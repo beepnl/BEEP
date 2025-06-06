@@ -1572,7 +1572,9 @@ class ResearchController extends Controller
                     }
                 }
 
-                $data_array = array_slice($data_array, $delete_before_index); // remove before index
+                if ($delete_before_index > 0)
+                    $data_array = array_slice($data_array, $delete_before_index); // remove before index
+                
                 $save_output= FlashLog::exportData($data_array, $csv_file_name, true, ',', true, true, $min_unix_ts); // Research data is also exported with , as separator
 
                 if (isset($save_output['link']))

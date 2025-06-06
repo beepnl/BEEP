@@ -62,6 +62,7 @@ Route::group([], function()
 		Route::post('devices/multiple',		'Api\DeviceController@storeMultiple');
 		Route::get('devices/ttn/{dev_id}',  'Api\DeviceController@getTTNDevice');
 		Route::post('devices/ttn/{dev_id}', 'Api\DeviceController@postTTNDevice');
+		Route::post('devices/clocksync',    'Api\DeviceController@clocksync');
 
 		Route::get('sensors/measurements', 	'Api\MeasurementController@data');
 		Route::get('sensors/comparemeasurements', 	'Api\MeasurementController@comparedata');

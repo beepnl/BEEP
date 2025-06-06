@@ -1137,7 +1137,8 @@ class FlashLog extends Model
         if ($data && gettype($data) == 'array' && count($data) > 0)
         {
             $fileBody   = null;
-            $first_date = null; 
+            $first_date = null;
+            $last_date  = null;
             $data_count = count($data);
             
             if ($csv)
@@ -1165,6 +1166,15 @@ class FlashLog extends Model
                                 unset($data_item['time']);
                                 
                                 $data_time_utc = str_replace(' ', 'T', $data_time).'Z'; // Format as Influx time + UTC timezone
+
+                                // Add data point to date_arr and set frist/last data date
+                                if (!isset($data_item['time_device']) || ($data_item['time_device'] >= $time_min && $data_item['time_device'] < $time_max)) // time is set (also allow previously parsed Flashlogs without RTC), or time_device should be correctly set
+                                {
+                                    if ($first_date === null)
+                                        $first_date = $data_time;
+
+                                    $last_date = $data_time; // update until last item with date
+                                }
                             }
                             
                             if ($validate_time == false || (isset($data_ts) && $data_ts >= $time_min && $data_ts < $time_max))
@@ -1240,7 +1250,7 @@ class FlashLog extends Model
         return ['error'=>'export_not_saved'];
     }
 
-    public function addMetaData($data, $validate_time=false, $add_and_return_data=false)
+    public function addMetaData($data, $validate_time=false, $only_return_meta_data=false)
     {
         $time_min = self::$minUnixTime;
         $time_max = time();
@@ -1322,9 +1332,9 @@ class FlashLog extends Model
         if (count($date_arr) > 0 && array_sum($date_arr) > 0)
             $meta_data['valid_data_points'] = $date_arr;
 
-        if ($add_and_return_data)
+        if ($only_return_meta_data)
         {
-            return ['log_date_start'=>$first_date, 'log_date_end'=>$last_date, 'meta_data'=>$meta_data];
+            return array_merge(['log_date_start'=>$first_date, 'log_date_end'=>$last_date], $meta_data);
         }
 
         // Default, save meta to Flashlog

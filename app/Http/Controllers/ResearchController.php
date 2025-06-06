@@ -1560,36 +1560,40 @@ class ResearchController extends Controller
             }
             if (count($data_array) > 0)
             {
-                // Get meta of complete (concatenated) dataset
-                $csv_file_name   = "device-$log_device_id-flashlog-data";
-                $min_unix_ts     = strtotime($date_start);
-                $max_unix_ts     = strtotime($date_until);
+                $min_unix_ts = strtotime($date_start);
+                $max_unix_ts = strtotime($date_until);
 
-                // filter time
+                // filter time: remove first values < min time, or > max time
                 $delete_until_index = 0;
                 foreach ($data_array as $i => $value_array)
                 {
                     if (isset($value_array['time']))
                     {
                         $data_ts = strtotime($value_array['time']);
-                        if ($data_ts < $min_unix_ts || $data_ts > $max_unix_ts) // remove first values < min time, or > max time
+                        if ($data_ts < $min_unix_ts || $data_ts > $max_unix_ts)
                             $delete_until_index = $i;
                         else
                             break;
                     }
                 }
-
                 if ($delete_until_index > 0)
                     $data_array = array_slice($data_array, $delete_until_index+1); // remove before index
 
-                $save_output= FlashLog::exportData($data_array, $csv_file_name, true, ',', true, true, $min_unix_ts); // Research data is also exported with , as separator
-
-                if (isset($save_output['link']))
+                if (count($data_array) > 0)
                 {
-                    $dummy_flashlog            = new FlashLog;
-                    $meta_data                 = $dummy_flashlog->addMetaData($data_array, true, true);
-                    $device_log->log_file_info = array_merge(['csv_url'=>$save_output['link'], 'created_date'=>date('Y-m-d H:i:s'), 'note'=>$log_device_note, 'valid'=>true], $meta_data);
-                    $device_log->save();
+                    $csv_file_name  = "device-$log_device_id-flashlog-data";
+                    $save_output    = FlashLog::exportData($data_array, $csv_file_name, true, ',', true, true, $min_unix_ts); // Research data is also exported with , as separator
+
+                    if (isset($save_output['link']))
+                    {
+                        // Get meta of complete (concatenated) dataset
+                        $dummy_flashlog = new FlashLog; // required for addMetaData
+                        $meta_data      = $dummy_flashlog->addMetaData($data_array, true, true);
+                        
+                        $device_log->log_file_info = array_merge(['note'=>$log_device_note, 'valid'=>true, 'created_date'=>date('Y-m-d H:i:s'), 'csv_url'=>$save_output['link']], $meta_data);
+
+                        $device_log->save();
+                    }
                 }
             }
         }

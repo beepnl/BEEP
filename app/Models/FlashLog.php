@@ -1186,8 +1186,11 @@ class FlashLog extends Model
                             if ($validate_time == false || (isset($data_ts) && $data_ts >= $time_min && $data_ts < $time_max))
                             {
                                 // Add missing temperature column (for for combined flashlogs having no t_i at first but afterwards added)
-                                if (!isset($data_item['t_i']))
-                                    $data_item = self::insertAt($data_item, 2, 't_i', null);
+                                if (isset($data_item['t_i']))
+                                {
+                                    $t_index   = array_search('w_v', array_keys($data_item));
+                                    $data_item = self::insertAt($data_item, $t_index+1, 't_i', null);
+                                }
 
                                 $data_item       = array_merge(['time'=>$data_time_utc], $data_item); // Time in first column
                                 $data_item_clean = self::cleanFlashlogItem($data_item, true);

@@ -316,7 +316,7 @@ class Device extends Model
         $flogs_count = $flogs->count();
         $flogs_valid = 0;
 
-        $html        = '<div style="display: inline-block; height: 100%;"><ul style="padding:0; margin:0;">';
+        $html        = '<div style="display: inline-block; height: 100%; overflow-x: hidden; overflow-y: scroll;"><ul style="padding:0; margin:0;">';
 
         $meas_per_day = isset($this->interval_min) && $this->interval_min > 0 ? round(1440/$this->interval_min) : 96;
         foreach ($flogs as $fl)
@@ -339,7 +339,7 @@ class Device extends Model
         $all_valid   = $flogs_count > 0 && $flogs_count == $flogs_valid ? true : false;
         $html_valid  = '<div style="display: inline-block; height: 30px; padding: 5px; border-radius: 5px; border: 1px solid grey; background-color: '.($all_valid ? 'green' : 'red').';">'.$flogs_valid.'/'.$flogs_count.'</div>';
 
-        return "<div style=\"height: 100%; overflow-x: hidden; overflow-y: scroll;\">$html_valid $html</div>";
+        return "<div style=\"max-height: 30px;\">$html_valid $html</div>";
     }
 
 

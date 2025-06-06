@@ -312,8 +312,11 @@ class Device extends Model
 
     public function getFlashLogsHtml($start_date='2019-01-01')
     {
-        $flogs  = $this->flashlogs()->where('created_at', '>', $start_date)->orderByDesc('created_at')->get(); // get files after start, because can only be filled with data about start date
-        $html = '<div style="height: 100%; overflow-x: hidden; overflow-y: scroll;"><ul style="padding:0; margin:0;">';
+        $flogs       = $this->flashlogs()->where('created_at', '>', $start_date)->orderByDesc('created_at')->get(); // get files after start, because can only be filled with data about start date
+        $flogs_count = $flogs->count();
+        $flogs_valid = 0;
+
+        $html        = '<div style="display: inline-block; max-height: 45px; overflow-x: hidden; overflow-y: scroll;"><ul style="padding:0; margin:0;">';
 
         $meas_per_day = isset($this->interval_min) && $this->interval_min > 0 ? round(1440/$this->interval_min) : 96;
         foreach ($flogs as $fl)
@@ -325,13 +328,18 @@ class Device extends Model
             $pers  = $fl->persisted_days ? ', '.round($fl->persisted_days).' days persisted' : '';
             $post  = $pers || $logd ? ' ('.$logd.$pers.')' : ''; 
             $name  = $fl->id.'. '.substr($fl->created_at, 0, 10).$post;
-            $color = $fl->validLog() ? 'style="color: green;" title="Flash log id:'.$fl->id.' has '.$logd.' valid weight/time data"' : 'title="Flash log '.$fl->id.' should be checked for valid data: has '.$logd.' of data, but end date might not be within 1 hour of the upload date."';
+            $valid = $fl->validLog();
+            $flogs_valid += $valid;
+            $color = $valid ? 'style="color: green;" title="Flash log id:'.$fl->id.' has '.$logd.' valid weight/time data"' : 'title="Flash log '.$fl->id.' should be checked for valid data: has '.$logd.' of data, but end date might not be within 1 hour of the upload date."';
             $html .= '<li style="padding:0; margin:0;"><a href="/flash-log/'.$fl->id.'" '.$color.'>'.$name.'</a></li>';
         }
 
         $html .= '</ul></div>';
 
-        return $html;
+        $all_valid   = $flogs_count > 0 && $flogs_count == $flogs_valid ? true : false;
+        $html_valid  = '<div style="display: inline-block; vertical-align:top; height: 30px; margin:0; margin-top:7px; padding: 5px; border-radius: 5px; border: 1px solid grey; background-color: '.($all_valid ? 'green' : 'red').';">'.$flogs_valid.'/'.$flogs_count.'</div>';
+
+        return "<div style=\"max-height: 42px;\">$html_valid $html</div>";
     }
 
 

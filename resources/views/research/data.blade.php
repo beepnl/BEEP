@@ -200,13 +200,13 @@
                 width: 10px;
                 height: 45px;
             }
-            .table-header-rotated > tbody > tr > td.rd{
+            .rd{
                 background-color: #F8DADA;
             }
-            .table-header-rotated > tbody > tr > td.or{
+            .or{
                 background-color: #F9E39B;
             }
-            .table-header-rotated > tbody > tr > td.gr{
+            .gr{
                 background-color: #B5E989;
             }
             td.prognose{
@@ -241,7 +241,51 @@
                 border-top: 1px solid grey !important;
                 border-right: 1px solid grey;
             }
+            button i {
+              pointer-events: none;
+            }
         </style>
+
+        <script>
+            
+            @php
+                $query_add_arr = [];
+                $not_arr       = ['log_device_id', 'only_change_value', 'only_change', 'log_device_note'];
+                foreach(request()->query() as $qp => $qv)
+                {
+                    if(in_array($qp, $not_arr))
+                        continue;
+
+                    if (is_array($qv))
+                    {
+                        foreach($qv as $v)
+                            $query_add_arr[] = $qp."[]=".$v;
+                    }
+                    else
+                    {
+                        $query_add_arr[] = "$qp=$qv";
+                    }
+
+                }
+                $query_add_js = implode('&', $query_add_arr);
+            @endphp
+
+            function handleKey(event) {
+                if ((event.type === "keydown" && event.key === "Enter") || event.type === "click") {
+                  event.preventDefault(); // Prevent default form submission
+
+                  const change_value   = typeof event.target.dataset.changeValue != 'undefined' ? event.target.dataset.changeValue : event.target.value;
+                  const device_id      = event.target.dataset.deviceId;
+                  const only_change    = event.target.dataset.onlyChange;
+
+                  //console.log(`New ${only_change} for device ${device_id}: ${change_value}`);
+
+                  if (typeof device_id != 'undefined' && typeof only_change != 'undefined' && typeof change_value != 'undefined')
+                    window.location.href = "{{ route('research.data', $research->id) }}?log_device_id="+device_id+"&only_change_value="+change_value+"&only_change="+only_change+"&{!! $query_add_js !!}";
+                }
+            }
+
+        </script>
 
 
         <div class="col-xs-12">
@@ -271,7 +315,7 @@
             <!-- Data table -->
 
             <div style="display: block;">
-            <div style="display: inline-block; width: 550px; overflow-y: hidden; overflow-x: scroll;">
+            <div style="display: inline-block; width: 750px; overflow-y: hidden; overflow-x: scroll;">
                 <table class="table table-responsive table-striped table-header-rotated">
                     <thead>
                         <tr>
@@ -305,6 +349,8 @@
                                     $form_q_html .= '<input type="hidden" name="'.$key.'" value="'.$value.'">';
                                 }
                             }
+                            $log_status = !isset($device->log_file_info['valid']) ? 'fa-question' : (boolval($device->log_file_info['valid']) ? 'fa-check' : 'fa-times');
+                            $log_color  = !isset($device->log_file_info['valid']) ? '' : (boolval($device->log_file_info['valid']) ? 'gr' : 'rd');
                         @endphp
                         <tr class="tb-row-small" @if (isset($device->deleted_at)) style="color: #AAA;" title="Device has been deleted at {{$device->deleted_at}}" @else title="{{ $device->name }}" @endif>
                             <th @isset($device)title="{{ $device->name }} (id: {{ $device->id }} created: {{ $device->created_at }})"@endisset)" class="tb-row-very-small row-header">{{ $device->name }} ({{ $device->id }})</th> 
@@ -317,15 +363,22 @@
 
                             @if($add_flashlogs)
                             <th class="tb-row-normal row-header" style="padding-top: 0; padding-bottom: 0;">
-                                <form id="create_csv_device_{{ $device->id }}" method="GET" action="{{ route('research.data', $research->id) }}" accept-charset="UTF-8" class="form-horizontal">
-                                    @isset($device->log_file_info['csv_url'])
-                                        <a href="{{ $device->log_file_info['csv_url'] }}" download><button class="btn btn-success btn-sm" title="Download total CSV: {{ App\Models\CalculationModel::arrayToString($device->log_file_info, ' ', '', ['csv_url','valid_data_points']) }}"><i class="fa fa-download" aria-hidden="true"></i></button></a>
-                                    @endisset
+                                <form id="create-csv-device-{{ $device->id }}" method="GET" action="{{ route('research.data', $research->id) }}" accept-charset="UTF-8" class="form-horizontal">
+                                    
+                                    <button style="width: 34px;" id="device-log-valid-{{ $device->id }}" data-device-id="{{ $device->id }}" data-only-change="valid"data-change-value="{{ isset($device->log_file_info['valid']) && boolval($device->log_file_info['valid']) ? 0 : 1 }}" onclick="handleKey(event)" class="btn btn-default btn-sm {{$log_color}}" title="Change valid"><i class="fa {{$log_status}}" aria-hidden="true"></i></button>
+                                    
+                                    
+                                    
+                                    <input id="device-note-{{ $device->id }}" data-device-id="{{ $device->id }}" data-only-change="note" type="text" name="log_device_note" placeholder="Note" value="{{ isset($device->log_file_info['note']) ? $device->log_file_info['note'] : '' }}" onkeydown="handleKey(event)">
+
+                                    {!! $form_q_html !!}
                                     
                                     <button class="btn btn-default btn-sm" title="Create total CSV" type="submit"><i class="fa fa-upload" aria-hidden="true"></i></button>
                                     
-                                    <input type="text" name="log_device_note" placeholder="Note" value="{{ isset($device->log_file_info['note']) ? $device->log_file_info['note'] : '' }}">
-                                    {!! $form_q_html !!}
+                                    @if(isset($device->log_file_info['csv_url']))
+                                        <a href="{{ $device->log_file_info['csv_url'] }}" target="_blank" download><button class="btn btn-success btn-sm" title="Download total CSV: {{ App\Models\CalculationModel::arrayToString($device->log_file_info, ' ', '', ['csv_url','valid_data_points']) }}"><i class="fa fa-download" aria-hidden="true"></i></button></a>
+                                    @endif
+                                    
                                 </form>
                             </th>
 
@@ -336,7 +389,7 @@
                     </tbody>
                 </table>
             </div>
-            <div style="display: inline-block; width: calc( 100% - 560px); overflow-y: hidden; overflow-x: scroll;">
+            <div style="display: inline-block; width: calc( 100% - 760px); overflow-y: hidden; overflow-x: scroll;">
                 <table class="table table-responsive table-striped table-header-rotated">
                     <thead>
                         <tr>

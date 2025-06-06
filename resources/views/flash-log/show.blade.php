@@ -98,7 +98,8 @@
                     <tr>
                         <th> Log file parsed </th>
                         <td> <a target="_blank" href="{{ $flashlog->log_file_parsed }}">{{ $flashlog->log_file_parsed }}</a> 
-                            <a href="{{ route('flash-log.parse', ['id'=>$flashlog->id, 'csv'=>1] ) }}" title="{{ __('crud.parse') }}"><button title="Create new CSV" class="btn btn-sm btn-success loading-spinner" data-loading-text="<i class='fa fa-refresh fa-spin'></i>"><i class="fa fa-table" aria-hidden="true"></i></button></a>
+                            <a href="{{ route('flash-log.parse', ['id'=>$flashlog->id, 'add_meta'=>1, 'load_show'=>1] ) }}" title="{{ __('crud.parse') }}"><button title="Add meta data" class="btn btn-sm btn-default loading-spinner" data-loading-text="<i class='fa fa-refresh fa-spin'></i>"><i class="fa fa-refresh" aria-hidden="true"></i></button></a>
+                            <a href="{{ route('flash-log.parse', ['id'=>$flashlog->id, 'csv'=>1, 'load_show'=>1] ) }}" title="{{ __('crud.parse') }}"><button title="Create new CSV" class="btn btn-sm btn-success loading-spinner" data-loading-text="<i class='fa fa-refresh fa-spin'></i>"><i class="fa fa-table" aria-hidden="true"></i></button></a>
                         </td>
                     </tr>
                     <tr>

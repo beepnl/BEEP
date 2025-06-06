@@ -1126,6 +1126,12 @@ class FlashLog extends Model
         return $data_array;
     }
 
+    public static function insertAt(array $array, int $position, $key, $value): array {
+        return array_slice($array, 0, $position, true)
+             + [$key => $value]
+             + array_slice($array, $position, null, true);
+    }
+
     public static function exportData($data, $name, $csv=true, $separator=',', $link_override=false, $validate_time=false, $min_unix_ts=null, $max_unix_ts=null)
     {
         $link     = $link_override ? $link_override : env('FLASHLOG_EXPORT_LINK', true);
@@ -1179,6 +1185,10 @@ class FlashLog extends Model
                             
                             if ($validate_time == false || (isset($data_ts) && $data_ts >= $time_min && $data_ts < $time_max))
                             {
+                                // Add missing temperature column (for for combined flashlogs having no t_i at first but afterwards added)
+                                if (!isset($data_item['t_i']))
+                                    $data_item = self::insertAt($data_item, 2, 't_i', null);
+
                                 $data_item       = array_merge(['time'=>$data_time_utc], $data_item); // Time in first column
                                 $data_item_clean = self::cleanFlashlogItem($data_item, true);
                                 $csv_body[]      = implode($separator, $data_item_clean);

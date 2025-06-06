@@ -996,4 +996,98 @@ class DeviceController extends Controller
             ], 500);
         }
     }
+
+    /**
+    * api/devices/lora_reset POST
+    * Send a LoRa reset command to a device
+    * @authenticated
+    * @bodyParam key string required DEV EUI of the device to reset
+    * @response {
+    *     "status": "LoRa reset downlink scheduled",
+    *     "device_id": "0123450d3707d834ee",
+    *     "payload": "940D"
+    * }
+    */
+    public function lora_reset(Request $request)
+    {
+        // Validate the request
+        $validator = Validator::make($request->all(), [
+            'key' => 'required|string'
+        ]);
+
+        if ($validator->fails()) {
+            return Response::json(['errors' => $validator->errors()], 422);
+        }
+
+        $key = strtolower($request->input('key'));
+        
+        // Find the device by key (DEV EUI)
+        $device = Auth::user()->devices()->where('key', $key)->first();
+        
+        if (!$device) {
+            return Response::json(['error' => 'Device not found'], 404);
+        }
+
+        // Check if device has hardware_id (required for TTN)
+        if (!$device->hardware_id) {
+            return Response::json(['error' => 'Device has no hardware_id configured for TTN'], 422);
+        }
+
+        // Create the payload for LoRa reset
+        $payload_hex = '940D';
+        $payload_base64 = base64_encode(hex2bin($payload_hex));
+
+        // Prepare the downlink data
+        $downlink_data = [
+            'downlinks' => [
+                [
+                    'frm_payload' => $payload_base64,
+                    'f_port' => 6
+                ]
+            ]
+        ];
+
+        // Send the downlink via TTN
+        try {
+            $guzzle = new Client();
+            $url = env('TTN_API_URL') . '/as/applications/' . env('TTN_APP_NAME') . '/webhooks/beep-test-api/devices/' . $device->hardware_id . '/down/push';
+            
+            $response = $guzzle->request('POST', $url, [
+                'headers' => [
+                    'Authorization' => 'Bearer ' . env('TTN_API_KEY'),
+                    'Content-Type' => 'application/json',
+                    'User-Agent' => 'beep-base-test'
+                ],
+                'json' => $downlink_data
+            ]);
+
+            if ($response->getStatusCode() == 202 || $response->getStatusCode() == 200) {
+                // Update the device with the scheduled downlink
+                $device->next_downlink_message = $payload_hex;
+                $device->save();
+
+                return Response::json([
+                    'status' => 'LoRa reset downlink scheduled',
+                    'device_id' => $device->hardware_id,
+                    'payload' => $payload_hex
+                ], 200);
+            } else {
+                return Response::json([
+                    'error' => 'Failed to schedule downlink',
+                    'status_code' => $response->getStatusCode()
+                ], 500);
+            }
+        } catch (RequestException $e) {
+            $error_response = $e->hasResponse() ? json_decode($e->getResponse()->getBody(), true) : null;
+            Log::error('TTN downlink failed', [
+                'device_id' => $device->hardware_id,
+                'error' => $error_response ?: $e->getMessage()
+            ]);
+            
+            return Response::json([
+                'error' => 'Failed to send downlink to TTN',
+                'details' => $error_response ?: $e->getMessage()
+            ], 500);
+        }
+    }
 }

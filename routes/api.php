@@ -62,7 +62,6 @@ Route::group([], function()
 		Route::post('devices/multiple',		'Api\DeviceController@storeMultiple');
 		Route::get('devices/ttn/{dev_id}',  'Api\DeviceController@getTTNDevice');
 		Route::post('devices/ttn/{dev_id}', 'Api\DeviceController@postTTNDevice');
-		Route::post('devices/clocksync',    'Api\DeviceController@clocksync');
 
 		Route::get('sensors/measurements', 	'Api\MeasurementController@data');
 		Route::get('sensors/comparemeasurements', 	'Api\MeasurementController@comparedata');
@@ -104,6 +103,8 @@ Route::group([], function()
 		Route::patch('user', 				'Api\UserController@edit');
 		Route::patch('userlocale', 			'Api\UserController@userlocale');
 		
+		// Device specific routes (must be before resource route)
+		Route::post('devices/clocksync',    'Api\DeviceController@clocksync');
 
 		// Control resources 
 		Route::resource('devices', 			'Api\DeviceController',		 			['except'=>['create','edit']]);

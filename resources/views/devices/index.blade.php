@@ -4,6 +4,9 @@
 @endsection
 
 @section('content')
+@role('superadmin')
+<meta name="api-token" content="{{ Auth::user()->api_token }}">
+@endrole
 
 			
 	@component('components/box')
@@ -67,6 +70,15 @@
                 var button = $(this);
                 var deviceKey = button.data('device-key');
                 
+                // Check if API token is available (user is superadmin)
+                var apiTokenMeta = $('meta[name="api-token"]');
+                if (apiTokenMeta.length === 0) {
+                    alert('This feature requires superadmin privileges.');
+                    return;
+                }
+                
+                var apiToken = apiTokenMeta.attr('content');
+                
                 if (!confirm('This will sync the device clock and then reset the device. Continue?')) {
                     return;
                 }
@@ -79,6 +91,7 @@
                     url: '/api/devices/clocksync',
                     type: 'POST',
                     headers: {
+                        'Authorization': 'Bearer ' + apiToken,
                         'Content-Type': 'application/json',
                         'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
                     },
@@ -91,6 +104,7 @@
                             url: '/api/devices/lora_reset',
                             type: 'POST',
                             headers: {
+                                'Authorization': 'Bearer ' + apiToken,
                                 'Content-Type': 'application/json',
                                 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
                             },

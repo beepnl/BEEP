@@ -1190,10 +1190,7 @@ class FlashLog extends Model
 
                                 // Add missing temperature column (for for combined flashlogs having no t_i at first but afterwards added)
                                 if (!isset($data_item_clean['t_i']))
-                                {
-                                    $t_index   = array_search('w_v', array_keys($data_item_clean));
-                                    $data_item = self::insertAt($data_item_clean, $t_index+1, 't_i', null);
-                                }
+                                    $data_item_clean = self::insertAt($data_item_clean, 2, 't_i', null);
 
                                 $csv_body[]      = implode($separator, $data_item_clean);
                                 

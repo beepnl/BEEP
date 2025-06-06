@@ -337,9 +337,9 @@ class Device extends Model
         $html .= '</ul></div>';
 
         $all_valid   = $flogs_count > 0 && $flogs_count == $flogs_valid ? true : false;
-        $html_valid  = '<div style="display: inline-block; height: 30px; margin:0; padding: 5px; border-radius: 5px; border: 1px solid grey; background-color: '.($all_valid ? 'green' : 'red').';">'.$flogs_valid.'/'.$flogs_count.'</div>';
+        $html_valid  = '<div style="display: inline-block; vertical-align:top; height: 30px; margin:0; margin-top:7px; padding: 5px; border-radius: 5px; border: 1px solid grey; background-color: '.($all_valid ? 'green' : 'red').';">'.$flogs_valid.'/'.$flogs_count.'</div>';
 
-        return "<div style=\"max-height: 45px;\">$html_valid $html</div>";
+        return "<div style=\"max-height: 42px;\">$html_valid $html</div>";
     }
 
 

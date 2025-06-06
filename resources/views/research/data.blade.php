@@ -315,7 +315,7 @@
             <!-- Data table -->
 
             <div style="display: block;">
-            <div style="display: inline-block; width: 550px; overflow-y: hidden; overflow-x: scroll;">
+            <div style="display: inline-block; width: 750px; overflow-y: hidden; overflow-x: scroll;">
                 <table class="table table-responsive table-striped table-header-rotated">
                     <thead>
                         <tr>
@@ -389,7 +389,7 @@
                     </tbody>
                 </table>
             </div>
-            <div style="display: inline-block; width: calc( 100% - 560px); overflow-y: hidden; overflow-x: scroll;">
+            <div style="display: inline-block; width: calc( 100% - 760px); overflow-y: hidden; overflow-x: scroll;">
                 <table class="table table-responsive table-striped table-header-rotated">
                     <thead>
                         <tr>

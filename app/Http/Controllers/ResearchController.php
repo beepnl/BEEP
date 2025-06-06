@@ -1862,7 +1862,7 @@ class ResearchController extends Controller
 
     private function getDevice($user_id, $item)
     {
-        $log_file_info      = isset($item->log_file_info) ? CalculationModel::arrayToString($device->log_file_info, ' | ', '', ['csv_url','valid_data_points']) : null;
+        $log_file_info      = isset($item->log_file_info) ? CalculationModel::arrayToString($item->log_file_info, ' | ', '', ['csv_url','valid_data_points']) : null;
         $log_file_validated = isset($item->log_file_info['created_date']) && isset($item->log_file_info['valid']) && boolval($item->log_file_info['valid']) ? $item->log_file_info['created_date'] : null;
         $log_file_csv       = isset($item->log_file_info['csv_url']) ? $item->log_file_info['csv_url'] : null;
         return [

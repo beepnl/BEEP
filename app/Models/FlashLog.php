@@ -166,6 +166,18 @@ class FlashLog extends Model
     public function getLogPerDay()
     {
         $log_days = $this->getLogDays();
+        if (isset($this->meta_data['valid_data_points']))
+        {
+            $valid_data_day_arr = $this->meta_data['valid_data_points'];
+            $valid_data_day_cnt = count($valid_data_day_arr);
+            if ($valid_data_day_cnt > 2)
+            {
+                // remove first and last item
+                array_shift($valid_data_day_arr); 
+                array_pop($valid_data_day_arr);
+                return round(array_sum($valid_data_day_arr) / $valid_data_day_cnt-2);
+            }
+        }
         if (isset($log_days) && $log_days > 0 && isset($this->log_messages))
         {
             return round($this->log_messages * (min(100, $this->time_percentage)/100) / $log_days);

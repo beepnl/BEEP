@@ -88,7 +88,7 @@
 	<div class="form-group {{ $errors->has('hive_id') ? 'has-error' : ''}}">
 	    <label for="hive_id" control-label>{{ 'Hive Id' }}</label>
 	    <div>
-	        {!! Form::select('hive_id', App\Hive::selectList(), e($alert->hive_id ?? null), array('placeholder'=>__('crud.select', ['item'=>__('general.hive')]),'class' => 'form-control select2')) !!}
+	        <input class="form-control" name="hive_id" value="{{ isset($alert->hive_id) ? $alert->hive_id : '' }}" id="hive_id">
 	        {!! $errors->first('hive_id', '<p class="help-block">:message</p>') !!}
 	    </div>
 	</div>

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 use App\Http\Controllers\Controller;
 
@@ -15,6 +16,7 @@ use App\Inspection;
 use App\Device;
 use App\Measurement;
 use App\Models\FlashLog;
+use App\Models\CalculationModel;
 
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
@@ -215,7 +217,7 @@ class ResearchController extends Controller
     }
 
     /**
-     * Display the specified resource.
+     * Display Research overview.
      *
      * @param  int  $id
      *
@@ -518,20 +520,31 @@ class ResearchController extends Controller
                             'Data file']
                         ];
 
-            if ($dl_sensordata)
-                $spreadsheet_array['Sensor Flashlogs'] = [
+            $spreadsheet_array['Sensor Flashlogs'] = [
                             ['User_id',
                             'Device_id',
+                            __('export.created_at'),
                             'Hive_id',
                             'Number of messages in file',
                             'Log saved to disk',
                             'Log parsed correctly',
+                            'Log erased from device',
                             'Log has timestamps',
+                            'Time percentage (%)',
                             'Bytes received',
+                            'Persisted days of data',
+                            'Persisted measurements',
+                            'Persisted blocks',
+                            'Log date start',
+                            'Log date end',
+                            'Logs per day',
+                            'Log time complete (%)',
+                            'Log valid',
+                            'Log meta',
+                            'CSV file',
                             'Raw log file',
                             'Stripped log file',
                             'Parsed log file',
-                            __('export.created_at'),
                             __('export.deleted_at')]
                         ];
 
@@ -986,6 +999,600 @@ class ResearchController extends Controller
         return view('research.show', compact('research', 'dates', 'consent_users_select', 'consent_users_selected', 'download_url', 'sensor_urls', 'totals', 'date_start', 'date_until', 'devices_select', 'device_ids'));
     }
 
+
+/**
+     * Display Research data per device.
+     *
+     * @param  int  $id
+     *
+     * @return \Illuminate\View\View
+     */
+    public function data($id, Request $request)
+    {
+        $this->checkAuthorization($request);
+
+        $this->validate($request, [
+            'date_start'            => 'nullable|date',
+            'date_until'            => 'nullable|date|after:date_start',
+            'user_ids.*'            => 'nullable|exists:users,id',
+            'device_ids.*'          => 'nullable|exists:sensors,id',
+            'add_flashlogs'         => 'nullable|boolean',
+            'until_last_fl'         => 'nullable|boolean',
+            'invalid_log_prognose'  => 'nullable|boolean',
+            'log_device_id'         => 'nullable|exists:sensors,id',
+            'log_device_note'       => 'nullable|string',
+        ]);
+
+        $demo = $request->filled('demo') && boolval($request->input('demo')) ? true : false;
+
+        //die(print_r($request->all()));
+
+        if ($request->user()->hasRole('superadmin'))
+            $research = Research::findOrFail($id);
+        else
+            $research = $request->user()->allResearches()->find($id);
+
+        $device_ids      = $request->input('device_ids');
+        $log_device_id   = intval($request->input('log_device_id'));
+        $log_device_note = $request->input('log_device_note');
+        $add_flashlogs   = boolval($request->input('add_flashlogs', 1));
+        $until_last_fl   = boolval($request->input('until_last_fl', 1));
+        $invalid_log_prognose = boolval($request->input('invalid_log_prognose', 0));
+        $devices_all     = collect();
+        $devices_show    = collect();
+        $initial_days    = 30;
+
+        // Make dates table:
+        /* [date] => [
+              key1 => [points, imported]
+              key2 => [points, imported]
+           ]
+        
+        */
+        $dates        = [];
+
+        $date_today   = date('Y-m-d');
+        $date_last    = isset($research->end_date) ? $research->end_date : $date_today;
+        $date_start   = max($research->start_date, $request->input('date_start', $research->start_date));
+        $date_until   = min($research->end_date, $request->input('date_until', $date_last));
+
+        $moment_now   = new Moment();
+        $moment_start = new Moment($date_start);
+        $moment_until = new Moment($date_until);
+        $moment_end   = new Moment($research->end_date);
+        $moment_now   = $moment_now->startof('day');
+        $moment_until = $moment_until->endof('day');
+        $moment_end   = $moment_end->endof('day');
+
+        $research_days= $moment_start->from($moment_end)->getDays();
+        $days_from_now= $moment_start->from($moment_now)->getDays();
+        $days_from_end= $moment_now->from($moment_end)->getDays();
+
+        $initial_days = min($research_days+1, $initial_days);
+        $day_diff     = 0;
+
+        if ($days_from_now <= 0) // research has not started yet
+        {
+            $moment_select = new Moment($date_start);
+            $date_start = $moment_select->startof('day')->format('Y-m-d');
+            $moment_select = new Moment($date_start);
+            $date_until = min($date_until, $moment_select->endof('day')->addDays($initial_days-1)->format('Y-m-d'));
+        }
+        else if ($days_from_end <= 0) // research has already finished
+        {
+            $moment_select = new Moment($date_until);
+            $date_start = $moment_select->startof('day')->addDays(-$initial_days-1)->format('Y-m-d');
+            $moment_select = new Moment($date_until);
+            $date_until = min($date_until, $moment_select->endof('day')->format('Y-m-d'));
+
+        }
+        else // now is within research start end end date
+        {
+            if ($request->filled('date_start') == false)
+            {
+                $days_from_sta = max(0, $initial_days - $days_from_now);
+                $moment_select = new Moment();
+                $date_start    = $moment_select->startof('day')->addDays(-$initial_days-1-$days_from_sta)->format('Y-m-d');
+            }
+
+            if ($request->filled('date_until') == false)
+            {
+                $moment_select = new Moment();
+                $date_until    = min($date_until, $moment_select->endof('day')->addDays(-$days_from_sta)->format('Y-m-d'));
+            }
+        }
+        //dd($date_start, $research->start_date, $date_until, $date_last, $research->end_date, $days_from_now, $days_from_end);
+
+        // Cap to research
+        if ($date_start < $research->start_date)
+            $date_start = $research->start_date;
+
+        if ($date_until > $research->end_date)
+            $date_until = $research->end_date;
+
+        $moment_start   = new Moment($date_start);
+        $moment_end     = new Moment($date_until);
+        $last_data_date = $date_until;
+
+        //dd($date_start, $date_until, $research_days, $days_from_now, $days_from_end, $day_diff, $moment_now, $moment_start, $moment_end);
+        
+        // count user consents within dates
+        $consent_users_select = DB::table('research_user')
+                                    ->join('users', 'users.id', '=', 'research_user.user_id')
+                                    ->select('users.name','users.id')
+                                    ->selectRaw('sum(research_user.consent) as consents')
+                                    ->where('research_user.research_id', $id)
+                                    ->whereDate('research_user.updated_at', '<', $date_until)
+                                    ->groupBy('research_user.user_id')
+                                    ->having('consents', '>', 0)
+                                    ->pluck('name','id')
+                                    ->toArray();
+
+        asort($consent_users_select, SORT_NATURAL);
+
+        $consent_users_selected = [];
+
+        // select users
+        if ($request->has('user_ids'))
+            $consent_users_selected = $request->input('user_ids');
+        else if (isset($research->default_user_ids))
+            $consent_users_selected = $research->default_user_ids;
+        else if (count($consent_users_select) > 0)
+            $consent_users_selected = [array_keys($consent_users_select)[0]];
+
+        $consents = DB::table('research_user')
+                            ->where('research_id', $id)
+                            ->whereIn('user_id', $consent_users_selected)
+                            ->whereDate('updated_at', '<', $date_until)
+                            ->groupBy('user_id')
+                            ->get();
+
+        $users = User::whereIn('id', $consent_users_selected)->get();
+
+        //die(print_r([$request->input('user_ids'), $consent_users_selected, $users]));
+        // Fill dates array
+        $assets = ["users"=>0, "user_names"=>[], "devices"=>[], "devices_online"=>0, "device_names"=>[], "devices_offline"=>[], "measurements"=>0, "measurements_imported"=>0, "measurements_total"=>0, "data_completeness"=>0, "data_completeness_online"=>0, "flashlogs"=>0];
+
+        $moment = $moment_start;
+        
+        // Fill $dates array
+        while($moment < $moment_end)
+        {
+            // make date
+            $dates[$moment->format('Y-m-d')] = $assets;
+            // next
+            $moment = $moment->addDays(1);
+        }
+
+
+        // Fill dates array with counts of data, and select the data for each user by consent
+        foreach ($users as $u) 
+        {
+            $user_id       = $u->id;
+            $user          = User::find($user_id);
+            $user_consents = DB::table('research_user')->where('research_id', $id)->where('user_id', $user_id)->whereDate('updated_at', '<', $date_until)->orderBy('updated_at','asc')->get()->toArray();
+            
+            if (!isset($user) || !isset($user_consents) || count($user_consents) == 0)
+                continue;
+
+            $user_consent_obj  = $user_consents[0];
+            $user_consent      = $user_consent_obj->consent;
+            $date_curr_consent = $date_start > $user_consent_obj->updated_at ? $date_start : $user_consent_obj->updated_at;
+            $date_next_consent = $moment_end->format('Y-m-d H:i:s');
+            $index             = 0;
+
+            if (count($user_consents) > 1)
+            {
+                $date_next_consent = $user_consents[1]->updated_at;
+                $index             = 1;
+            }
+            elseif ($user_consent === 0) // if only 1 and consent is false, continue to next user
+            {
+                continue;
+            }
+
+
+            //die(print_r([$user_consents, $date_curr_consent, $date_next_consent, $index]));
+
+            // add user data
+            if (isset($user_consent_obj->consent_location_ids)) // Set consent based on specific items
+            {
+                $loc_array     = explode(',', $user_consent_obj->consent_location_ids);
+                $user_apiaries = $user->locations()->withTrashed()->whereIn('id', $loc_array)->where('created_at', '<', $date_until)->orderBy('created_at')->get();
+            }
+            else
+            {
+                $user_apiaries = $user->locations()->withTrashed()->where('created_at', '<', $date_until)->orderBy('created_at')->get();
+            }
+
+            if (isset($user_consent_obj->consent_hive_ids)) // Set consent based on specific items
+            {
+                $hive_array    = explode(',', $user_consent_obj->consent_hive_ids);
+                $user_hives    = $user->hives()->withTrashed()->whereIn('id', $hive_array)->where('created_at', '<', $date_until)->orderBy('created_at')->get();
+            }
+            else
+            {
+                $user_hives    = $user->hives()->withTrashed()->where('created_at', '<', $date_until)->orderBy('created_at')->get();
+            }
+
+            if (isset($user_consent_obj->consent_sensor_ids)) // Set consent based on specific items
+            {
+                $device_array     = explode(',', $user_consent_obj->consent_sensor_ids);
+                $user_devices_all = $user->devices()->withTrashed()->whereIn('id', $device_array)->where('created_at', '<', $date_until)->orderBy('created_at')->get();
+            }
+            else
+            {
+                $user_devices_all = $user->devices()->withTrashed()->where('created_at', '<', $date_until)->orderBy('created_at')->get();
+            }
+
+            $devices_all       = $devices_all->merge($user_devices_all);
+            $user_devices      = isset($device_ids) ? $user_devices_all->whereIn('id', $device_ids) : $user_devices_all;
+            $devices_show      = $devices_show->merge($user_devices);
+            $user_devices_online = isset($device_ids) ? $user_devices_all->whereIn('id', $device_ids)->where('last_message_received', '>=', $date_start) : $user_devices_all->where('last_message_received', '>=', $date_start);
+            
+            $user_flashlogs    = collect();
+            if ($add_flashlogs)
+            {
+                if (isset($device_ids))
+                    $user_flashlogs= FlashLog::where('user_id', $user_id)->whereIn('device_id', $device_ids)->where('log_date_end', '>=', $date_start)->where('log_date_start', '<', $date_until)->orderBy('log_date_start')->get(); // only parsed and checked Flashlogs
+                else
+                    $user_flashlogs= FlashLog::where('user_id', $user_id)->where('log_date_end', '>=', $date_start)->where('log_date_start', '<', $date_until)->orderBy('log_date_start')->get(); // only parsed and checked Flashlogs
+                
+                // cap start time to last flashlog creted_at
+                if ($until_last_fl && $user_flashlogs->count() > 0)
+                {
+                    $last_flashlog_upload_date = $user_flashlogs->sortByDesc('created_at')->first()->created_at; // Carbon
+                    if ($last_flashlog_upload_date->timestamp < $moment_end->format('U'))
+                    {
+                        $moment_end = new Moment($last_flashlog_upload_date->timestamp);
+                        $last_data_date = $moment_end->format('Y-m-d H:i:s');
+                    }
+                }
+            }
+
+
+
+            $user_weather_data = [];
+            // $user_sensor_defs  = [];
+            // $user_alert_rules  = $user->alert_rules()->where('default_rule', 0)->where('active', 1)->get();
+            // $user_alerts       = isset($device_ids) ? $user->alerts()->whereIn('device_id', $device_ids)->where('show', 1)->get() : $user->alerts()->where('show', 1)->get();
+            
+            //die(print_r($user_devices->toArray()));
+
+            if ($user_devices->count() > 0)
+            {
+                // get daily counts of sensor measurements
+                $points           = [];
+                $weather          = [];
+                $user_device_keys = [];
+                $device_key_looup = [];
+                $user_dloc_coords = [];
+                $device_key_mpday = []; // key => measurements per day (= 1440 / interval_min)
+
+                // Add sensor data
+                foreach ($user_devices as $device) 
+                {
+                    $device_all_keys    = $device->allKeys();
+                    $current_key        = $device->key;
+                    // create lookup table to combine former device key log data to current device key
+                    foreach ($device_all_keys as $key)
+                        $device_key_looup[$key]  = $current_key;
+                    
+                    // Define measurements per day per device
+                    $device_interval_min = isset($device->measurement_interval_min) && $device->measurement_interval_min > 0 ? $device->measurement_interval_min : 15;
+                    $device_key_mpday[$current_key] = 1440 / $device_interval_min;
+
+                    $loc = $device->location();
+                    if ($loc !== null && isset($loc->coordinate_lat) && isset($loc->coordinate_lon)) 
+                        $user_dloc_coords[] = '("lat" = \''.$loc->coordinate_lat.'\' AND "lon" = \''.$loc->coordinate_lon.'\')';
+
+                    // Add sensor definitions
+                    // $sensor_defs = $this->getSensorDefinitions($device, $date_next_consent);
+                    // foreach ($sensor_defs as $sdef)
+                    //     $user_sensor_defs[] = $sdef;
+
+                    $user_device_keys[] = $device->influxWhereKeys();
+                }
+
+                // Get Influx data from device keys (also former) and combine them later to the current device key
+                if (count($user_device_keys) > 0)
+                {
+                    $user_device_keys = '('.implode(' OR ', $user_device_keys).')';
+
+                    try{
+                        $this->cacheRequestRate('influx-get');
+                        $this->cacheRequestRate('influx-research');
+                        $query  = 'SELECT COUNT("w_v") as "count", MEAN("bv") as "bv" FROM "sensors" WHERE '.$user_device_keys.' AND time >= \''.$date_curr_consent.'\' AND time <= \''.$moment_end->format('Y-m-d H:i:s').'\' GROUP BY "key",time(1d),from_flashlog';
+                        //Log::debug($query);
+                        $points = $this->client::query($query)->getPoints();
+                        
+                        // $points = [];
+                        // if (isset($point_data->results))
+                        //     $points = $point_data->getPoints();
+
+                    } catch (InfluxDB\Exception $e) {
+                        Log::error('Research data query error: '.$e->getMessage());
+                        // return Response::json('influx-group-by-query-error', 500);
+                    }
+                    //Log::debug("Points: ".count($points)); 
+                    if (count($points) > 0)
+                    {
+                        // TODO: remove dd
+                        //dd($points);
+                        foreach ($points as $point)
+                        {
+                            $date = substr($point['time'],0,10);
+                            $key  = isset($device_key_looup[$point['key']]) ? $device_key_looup[$point['key']] : $point['key']; // lookup current device for former keys 
+                            $fl   = isset($point['from_flashlog']) && $point['from_flashlog'] === '1' ? true : false;
+
+                            if (isset($dates[$date]))
+                            {
+                                if (!isset($dates[$date]['devices'][$key]))
+                                    $dates[$date]['devices'][$key] = ['points'=>0, 'from_flashlog'=>0, 'total'=>0, 'perc'=>0, 'first_date'=>$date];
+
+                                $meas_per_day = isset($device_key_mpday[$key]) ? $device_key_mpday[$key] : 96;
+                                if ($meas_per_day != 96 && $meas_per_day > 0)
+                                    $dates[$date]['devices'][$key]['err'] = 'measurement interval: '.(1440/$meas_per_day).' min';
+
+                                $dates[$date]['devices'][$key]['total'] += $point['count'];
+                                $dates[$date]['devices'][$key]['bv']   = $point['bv'];
+                                $dates[$date]['devices'][$key]['perc'] = min(100, round(100 * $dates[$date]['devices'][$key]['total'] / $meas_per_day)); // data once each 15 min 
+                                
+                                if ($fl)
+                                {
+                                    $dates[$date]['devices'][$key]['from_flashlog'] = $point['count'];
+                                }
+                                else
+                                {
+                                    $dates[$date]['devices'][$key]['points'] = $point['count'];
+                                }
+                                    
+                            }
+                            else
+                            {
+                                Log::debug("Date not set: ".$date); 
+                            }
+                        }
+                    }
+                    else if ($demo) // DEMO
+                    {
+                        foreach ($dates as $date => $value)
+                        {
+                            foreach ($user_devices as $d)
+                            {
+                                $dates[$date]['devices'][$d->key]['first_date'] = $date;
+                                $dates[$date]['devices'][$d->key]['points'] = 0;
+                                $dates[$date]['devices'][$d->key]['from_flashlog'] = 0;
+                                $dates[$date]['devices'][$d->key]['total'] = 0;
+                                $dates[$date]['devices'][$d->key]['perc'] = random_int(0, 100);
+                                $dates[$date]['devices'][$d->key]['bv']   = random_int(240, 380)/100;
+
+                            }
+                        }
+                    }
+
+                }
+
+                // // Add weather data
+                // $user_location_coord_where = '('.implode(' OR ', $user_dloc_coords).')';
+                // if (count($user_dloc_coords) > 0 && isset($date_curr_consent))
+                // {
+                //     try{
+                //         $weather = $this->client::query('SELECT COUNT("temperature") as "count" FROM "weather" WHERE '.$user_location_coord_where.' AND time >= \''.$date_curr_consent.'\' AND time <= \''.$moment_end->format('Y-m-d H:i:s').'\' GROUP BY time(1d)')->getPoints(); // get first weather date
+                //     } catch (InfluxDB\Exception $e) {
+                //         Log::error('Research weather query error: '.$e->getMessage());
+                //         // return Response::json('influx-group-by-query-error', 500);
+                //     }
+                //     if (count($weather) > 0)
+                //     {
+                //         foreach ($weather as $point) 
+                //             $user_weather_data[substr($point['time'],0,10)] = $point['count'];
+                //     }
+                // }
+            
+
+                // Add possible validated Flashlog data blocks as flashlog_prognose
+                if ($user_flashlogs->count() > 0)
+                {
+                    foreach ($user_flashlogs as $fl)
+                    {
+                        $fl_dev_key = $fl->getDeviceKeyAttribute();
+                        $key        = isset($device_key_looup[$fl_dev_key]) ? $device_key_looup[$fl_dev_key] : null;
+
+                        if ($key && ($fl->validLog() || $invalid_log_prognose))
+                        {
+                            $valid_data_p = null;
+                            $use_data_days= false;
+
+                            if (isset($fl->meta_data['valid_data_points']))
+                            {
+                                $valid_data_p = $fl->meta_data['valid_data_points'];
+                                $use_data_days= true;
+                            }
+
+                            $meas_per_day = isset($fl->device) ? $fl->device->getMeasurementsPerDay() : 96;
+                            $start_u      = strtotime($fl->log_date_start);
+                            $days_total   = $fl->getLogDays(false); // full period
+                            $days_log     = $fl->getLogDays();
+                            $logpd        = $fl->getLogPerDay();
+                            $logperc      = $fl->getTimeLogPercentage($logpd);
+                            $logperc_arr  = [];
+
+                            // Walk through data days in Flashlog
+                            for ($d=0; $d < $days_total; $d++)
+                            { 
+                                $date = date('Y-m-d', $start_u + $d * 24 * 3600);
+                                
+                                if (!$use_data_days || isset($valid_data_p[$date]))
+                                {
+                                    $logpd_date    = isset($valid_data_p[$date]) ? $valid_data_p[$date] : $logpd; // specific day count, or general count
+                                    $logperc       = $fl->getTimeLogPercentage($logpd_date);
+                                    $logperc_arr[] = $logperc;
+                                    $logp_id       = $fl->id.': '.$logperc;
+
+                                    // Only add logs that have weight and time data
+                                    if ($logpd_date > 0 && isset($dates[$date]))
+                                    {
+                                        if (!isset($dates[$date]['devices'][$key]))
+                                        {
+                                            $dates[$date]['devices'][$key] = ['points'=>$logpd, 'from_flashlog'=>$logpd, 'flashlog_prognose'=>$logp_id, 'total'=>$logpd, 'perc'=>$logperc, 'first_date'=>$date];
+                                        }
+                                        else if (isset($dates[$date]['devices'][$key]['total']) && $logpd >= $dates[$date]['devices'][$key]['total']) // replace total with prognose, because Flashlog should contain all
+                                        {
+                                            $dates[$date]['devices'][$key]['flashlog_prognose'] = $logp_id; // id: %
+                                            $dates[$date]['devices'][$key]['total'] = $logpd;
+                                            // Calculate new perc
+                                            $dates[$date]['devices'][$key]['perc'] = $logperc;
+                                        }
+                                    }
+                                    // Indicate the flashlogs in already available data
+                                    if (isset($dates[$date]['devices'][$key]))
+                                        $dates[$date]['devices'][$key]['flashlog'] = $fl->id;
+                                }
+                            }
+
+                            if (count($logperc_arr) > 0)
+                                $logperc = min(100, round(array_sum($logperc_arr) / count($logperc_arr)));
+
+                            // Indicate upload date with arrow in table
+                            $created_date = substr($fl->created_at, 0, 10);
+                            if (isset($dates[$created_date]['devices'][$key]))
+                                $dates[$created_date]['devices'][$key]['flashlog_created'] = "$fl->id uploaded at $fl->created_at, containing $days_log days ($fl->log_date_start - $fl->log_date_end) of $logperc% ".($fl->validLog()?'':'NOT YET')." validated weight/time data";
+
+                        }
+                        //dd($fl, $dates);
+                    }
+                }
+            } // end device loop
+
+        } // end user loop
+
+        // reverse array for display
+        krsort($dates);
+        //dd ($dates);
+
+        // Count totals
+        $totals    = $assets;
+        $data_days = count($dates);
+
+        foreach ($dates as $day => $day_arr) 
+        {
+            foreach ($day_arr as $asset => $items) 
+            {
+                // if (is_numeric($items))
+                // {
+                //     if ($asset == 'inspections' || $asset == 'measurements' || $asset == 'measurements_imported' || $asset == 'measurements_total' || $asset == 'data_completeness' || $asset == 'data_completeness_online' || $asset == 'weather' || $asset == 'samplecodes' || $asset == 'flashlogs' || $asset == 'alerts')
+                //         $totals[$asset] += $items;
+                //     else
+                //         $totals[$asset] = max($totals[$asset], $items);
+
+                //     // if ($asset == 'measurements_total' && $items > 0)
+                //     //     $data_days++;
+                // }
+                if ($asset == 'devices')
+                {
+                    foreach ($items as $key => $device_data_array)
+                    {
+                        if (!isset($totals['devices'][$key]))
+                            $totals['devices'][$key] = ['total'=>0, 'from_flashlog'=>0, 'points'=>0, 'perc'=>null];
+
+                        $totals['devices'][$key]['total'] += $device_data_array['total'];
+                        $totals['devices'][$key]['points'] += $device_data_array['points'];
+                        $totals['devices'][$key]['from_flashlog'] += $device_data_array['from_flashlog'];
+                        $totals['devices'][$key]['perc'] += $device_data_array['perc'];
+                        $totals['devices'][$key]['first_date'] = $device_data_array['first_date'];
+                        $totals['devices'][$key]['last_date'] = $last_data_date;
+                    }
+                }
+            }
+        }
+
+        // Average data completenes
+        $data_completeness_array = [];
+        if ($data_days > 0)
+        {
+            foreach ($totals['devices'] as $key => $totals_data_array)
+            {
+                $device_data_days         = isset($totals_data_array['first_date']) && isset($totals_data_array['last_date']) ? round((strtotime($totals_data_array['last_date']) - strtotime($totals_data_array['first_date'])) / (24 * 3600)) : $data_days;
+                $device_data_completeness = round($totals_data_array['perc'] / $device_data_days, 2);
+
+                $totals['devices'][$key]['data_days'] = $device_data_days;
+
+                // Add to average if > 2%
+                if ($device_data_completeness > 2)
+                {
+                    $totals['devices'][$key]['data_completeness'] = round($device_data_completeness);
+                    $data_completeness_array[] = $device_data_completeness;
+                }
+            }
+
+            $data_completeness_count = count($data_completeness_array);
+            $data_completeness       = $data_completeness_count > 0 ? round(array_sum($data_completeness_array) / $data_completeness_count) : '';
+        }
+        //dd($totals);
+
+        // Make readable devices select list 
+        $devices_select = [];
+        $devices_sorted = $devices_all->sortBy('user_id')->sortBy('name');
+        foreach ($devices_sorted as $d)
+            $devices_select[$d->id] = $d->name.' - ('.$d->user->name.')'; 
+
+
+        // Create device log_file_info (CSV)
+        $device_log = null;
+        if (in_array($log_device_id, $devices_all->pluck('id')->toArray()))
+        {
+            //dd($log_device_id);
+            $device_log= $devices_all->where('id', '=', $log_device_id)->first();
+            $flashlogs = $device_log->flashlogs()->where('log_date_end', '>=', $date_start)->where('log_date_start', '<', $date_until)->orderBy('log_date_start')->get();
+            $data_array= [];
+            foreach ($flashlogs as $flashlog)
+            {
+                if (isset($flashlog->log_parsed) && ($invalid_log_prognose || $flashlog->validLog()))
+                {
+                    $flashlog_parsed_text = $flashlog->getFileContent('log_file_parsed');
+                    if (!empty($flashlog_parsed_text))
+                        $data_array = array_merge($data_array, json_decode($flashlog_parsed_text, true));
+                }
+            }
+            if (count($data_array) > 0)
+            {
+                // Get meta of complete (concatenated) dataset
+                $csv_file_name   = "device-$log_device_id-flashlog-data";
+                $min_unix_ts     = strtotime($date_start);
+
+                // filter time
+                $delete_before_index = 0;
+                foreach ($data_array as $i => $value_array)
+                {
+                    if (isset($value_array['time']) && strtotime($value_array['time']) >= $min_unix_ts)
+                    {
+                        $delete_before_index = $i;
+                        break;
+                    }
+                }
+
+                $data_array = array_slice($data_array, $delete_before_index); // remove before index
+                $save_output= FlashLog::exportData($data_array, $csv_file_name, true, ',', true, true, $min_unix_ts); // Research data is also exported with , as separator
+
+                if (isset($save_output['link']))
+                {
+                    $dummy_flashlog            = new FlashLog;
+                    $meta_data                 = $dummy_flashlog->addMetaData($data_array, true, true);
+                    $device_log->log_file_info = array_merge(['csv_url'=>$save_output['link'], 'created_date'=>date('Y-m-d H:i:s'), 'note'=>$log_device_note, 'valid'=>true], $meta_data);
+                    $device_log->save();
+                }
+            }
+        }
+        if ($device_log)
+            $devices_all->merge($device_log); // add for display of newly added log values
+
+
+        return view('research.data', compact('research', 'devices_all', 'devices_show', 'data_days', 'dates', 'totals', 'data_completeness', 'data_completeness_count', 'consent_users_select', 'consent_users_selected', 'devices_select', 'device_ids', 'date_start', 'date_until', 'add_flashlogs', 'until_last_fl', 'invalid_log_prognose'));
+    }
+
+
+
     /**
      * Show the form for editing the specified resource.
      *
@@ -1293,21 +1900,35 @@ class ResearchController extends Controller
 
     private function getFlashlogs($user_id, $flashlogs, $date_start=null, $date_until=null)
     {
-        return $flashlogs->where('created_at', '<=', $date_until)->sortByDesc('created_at')->sortBy('device_id')->map(function($item) use ($user_id)
+        return $flashlogs->where('created_at', '<=', $date_until)->sortBy('device_id')->sortByDesc('created_at')->map(function($item) use ($user_id)
         {
+            $meta_data = isset($item->meta_data) ? CalculationModel::arrayToString($item->meta_data, '|', '', ['valid_data_points']) : null;
+            
             return [
                 $user_id,
                 $item->device_id, 
+                $item->created_at,
                 $item->hive_id,
                 $item->log_messages,
                 $item->log_saved,
                 $item->log_parsed,
+                $item->log_erased,
                 $item->log_has_timestamps,
+                $item->time_percentage,
                 $item->bytes_received,
+                $item->persisted_days,
+                $item->persisted_measurements,
+                $item->persisted_block_ids,
+                $item->log_date_start,
+                $item->log_date_end,
+                $item->logs_per_day,
+                $item->getTimeLogPercentage(),
+                $item->validLog(),
+                $meta_data,
+                $item->csv_url,
                 $item->log_file,
                 $item->log_file_stripped,
                 $item->log_file_parsed,
-                $item->created_at,
                 $item->deleted_at
             ];
         });

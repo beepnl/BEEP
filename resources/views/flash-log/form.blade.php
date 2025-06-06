@@ -18,7 +18,7 @@
 	<div class="form-group {{ $errors->has('hive_id') ? 'has-error' : ''}}">
 	    <label for="hive_id" control-label>{{ 'Hive Id' }}</label>
 	    <div>
-	        {!! Form::select('hive_id', App\Hive::selectList(), isset($flashlog->hive_id) ? $flashlog->hive_id : null, array('id'=>'hive_id', 'class' => 'form-control select2')) !!}
+	        <input class="form-control" name="hive_id" value="{{ isset($flashlog->hive_id) ? $flashlog->hive_id : '' }}" id="hive_id">
 	        {!! $errors->first('hive_id', '<p class="help-block">:message</p>') !!}
 	    </div>
 	</div>
@@ -34,12 +34,12 @@
 	<div class="form-group {{ $errors->has('log_saved') ? 'has-error' : ''}}">
 	    <label for="log_saved" control-label>{{ 'Log Saved' }}</label>
 	    <div>
-	        <div class="radio">
-    <label><input name="log_saved" type="radio" value="1" {{ (isset($flashlog) && 1 == $flashlog->log_saved) ? 'checked' : '' }}> Yes</label>
-</div>
-<div class="radio">
-    <label><input name="log_saved" type="radio" value="0" @if (isset($flashlog)) {{ (0 == $flashlog->log_saved) ? 'checked' : '' }} @else {{ 'checked' }} @endif> No</label>
-</div>
+	       	<div class="radio">
+			    <label><input name="log_saved" type="radio" value="1" {{ (isset($flashlog) && 1 == $flashlog->log_saved) ? 'checked' : '' }}> Yes</label>
+			</div>
+			<div class="radio">
+			    <label><input name="log_saved" type="radio" value="0" @if (isset($flashlog)) {{ (0 == $flashlog->log_saved) ? 'checked' : '' }} @else {{ 'checked' }} @endif> No</label>
+			</div>
 	        {!! $errors->first('log_saved', '<p class="help-block">:message</p>') !!}
 	    </div>
 	</div>

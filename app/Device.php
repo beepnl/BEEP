@@ -18,15 +18,15 @@ class Device extends Model
 {
     use SoftDeletes, CascadeSoftDeletes;
 
-    protected $table    = 'sensors';
-
+    protected $table          = 'sensors';
     protected $cascadeDeletes = ['sensorDefinitions'];
-    protected $fillable = ['user_id', 'hive_id', 'category_id', 'name', 'key', 'last_message_received', 'hardware_id', 'firmware_version', 'hardware_version', 'boot_count', 'measurement_interval_min', 'measurement_transmission_ratio', 'ble_pin', 'battery_voltage', 'next_downlink_message', 'last_downlink_result', 'datetime', 'datetime_offset_sec', 'former_key_list', 'rtc'];
-	protected $guarded 	= ['id'];
-    protected $hidden   = ['user_id', 'category_id', 'deleted_at', 'hive', 'former_key_list'];
-    protected $appends  = ['type','hive_name', 'location_name', 'owner', 'online'];
+    protected $fillable       = ['user_id', 'hive_id', 'category_id', 'name', 'key', 'last_message_received', 'hardware_id', 'firmware_version', 'hardware_version', 'boot_count', 'measurement_interval_min', 'measurement_transmission_ratio', 'ble_pin', 'battery_voltage', 'next_downlink_message', 'last_downlink_result', 'datetime', 'datetime_offset_sec', 'former_key_list', 'rtc', 'log_file_info'];
+	protected $guarded 	      = ['id'];
+    protected $hidden         = ['user_id', 'category_id', 'deleted_at', 'hive', 'former_key_list'];
+    protected $appends        = ['type','hive_name', 'location_name', 'owner', 'online'];
+    protected $casts          = ['log_file_info'=>'array'];
 
-    public $timestamps  = false;
+    public $timestamps        = false;
 
     public static function boot()
     {
@@ -120,6 +120,14 @@ class Device extends Model
             return $this->hive->name;
 
         return '';
+    }
+
+    public function getLocationIdAttribute()
+    {
+        if (isset($this->hive))
+            return $this->hive->location_id;
+
+        return null;
     }
 
     public function getLocationNameAttribute()
@@ -295,6 +303,37 @@ class Device extends Model
     {
         return $this->hasMany(FlashLog::class);
     }
+
+    public function getMeasurementsPerDay()
+    {
+        $device_interval_min = isset($this->measurement_interval_min) && $this->measurement_interval_min > 0 ? $this->measurement_interval_min : 15;
+        return round(1440 / $device_interval_min);
+    }
+
+    public function getFlashLogsHtml($start_date='2019-01-01')
+    {
+        $flogs  = $this->flashlogs()->where('created_at', '>', $start_date)->orderByDesc('created_at')->get(); // get files after start, because can only be filled with data about start date
+        $html = '<div style="height: 100%; overflow-x: hidden; overflow-y: scroll;"><ul style="padding:0; margin:0;">';
+
+        $meas_per_day = isset($this->interval_min) && $this->interval_min > 0 ? round(1440/$this->interval_min) : 96;
+        foreach ($flogs as $fl)
+        {
+            $logpd = $fl->logs_per_day;
+            $logperc = min(100, round(100 * $logpd / $meas_per_day));
+            $days  = $fl->getLogDays();
+            $logd  = $days ? round($days).' days x '.$logperc.'%' : '';
+            $pers  = $fl->persisted_days ? ', '.round($fl->persisted_days).' days persisted' : '';
+            $post  = $pers || $logd ? ' ('.$logd.$pers.')' : ''; 
+            $name  = $fl->id.'. '.substr($fl->created_at, 0, 10).$post;
+            $color = $fl->validLog() ? 'style="color: green;" title="Flash log id:'.$fl->id.' has '.$logd.' valid weight/time data"' : 'title="Flash log '.$fl->id.' should be checked for valid data: has '.$logd.' of data, but end date might not be within 1 hour of the upload date."';
+            $html .= '<li style="padding:0; margin:0;"><a href="/flash-log/'.$fl->id.'" '.$color.'>'.$name.'</a></li>';
+        }
+
+        $html .= '</ul></div>';
+
+        return $html;
+    }
+
 
     public function getRefreshMin()
     {

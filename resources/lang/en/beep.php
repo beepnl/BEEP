@@ -66,4 +66,5 @@ return [
     'abs_dif'           => 'change',
 
     'Flash_logs'        => 'Flash log files',
+    'FlashLog'          => 'Flash log file',
 ];

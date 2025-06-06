@@ -26,9 +26,14 @@ class SensorDefinitionController extends Controller
         $search_user = $request->get('user');
         $search_dev  = $request->get('device');
         $search_mid  = $request->get('measurement_id');
+        $device_id   = $request->get('device_id');
         $perPage     = 50;
         $defs        = SensorDefinition::where('id', '!=', null);
 
+        if (!empty($device_id)) 
+        {
+            $defs = $defs->where('device_id', $device_id);
+        }
         if (!empty($search_mid)) 
         {
             $defs = $defs->where('input_measurement_id', $search_mid)->orWhere('output_measurement_id', $search_mid);
@@ -108,10 +113,11 @@ class SensorDefinitionController extends Controller
             'input_measurement_id' => 'integer|exists:measurements,id',
         ]);
         $requestData = $request->all();
-        
-        $requestData['updated_at'] = str_replace('T', ' ', $requestData['updated_at']).':00';
-
-        SensorDefinition::create($requestData);
+        $updated_at  = str_replace('T', ' ', $requestData['updated_at']).':00';
+        $requestData['updated_at'] = $updated_at;
+        $sensordefinition = SensorDefinition::create($requestData);
+        $sensordefinition->updated_at = $updated_at;
+        $sensordefinition->save(['timestamps' => false]); // then set new updated_at
 
         return redirect('sensordefinition')->with('flash_message', 'SensorDefinition added!');
     }
@@ -161,9 +167,12 @@ class SensorDefinitionController extends Controller
         ]);
         $sensordefinition = SensorDefinition::findOrFail($id);
         $requestData = $request->all();
-        $requestData['updated_at'] = str_replace('T', ' ', $requestData['updated_at']).':00';
-        //Log::debug($requestData);
-        $sensordefinition->update($requestData);
+        $updated_at  = str_replace('T', ' ', $requestData['updated_at']).':00';
+        $requestData['updated_at'] = $updated_at;
+        // prevent updated_at from updating by the update action
+        $sensordefinition->update($requestData); // first change updated_at
+        $sensordefinition->updated_at = $updated_at;
+        $sensordefinition->save(['timestamps' => false]); // then set new updated_at
 
         return redirect('sensordefinition')->with('flash_message', 'SensorDefinition updated!');
     }

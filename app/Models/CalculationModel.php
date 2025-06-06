@@ -348,6 +348,103 @@ class CalculationModel extends Model
         }
         return $out;
     }
+
+    // Boxplot from data array
+    public static function calculateBoxplot(array $data): array 
+    {
+        sort($data);
+        $count = count($data);
+
+        $median = function($arr) {
+            $n = count($arr);
+            $mid = floor($n / 2);
+            if ($n % 2) {
+                return $arr[$mid];
+            } else {
+                return ($arr[$mid - 1] + $arr[$mid]) / 2;
+            }
+        };
+
+        $min = min($data);
+        $max = max($data);
+        $q2 = $median($data);
+
+        $lowerHalf = array_slice($data, 0, floor($count / 2));
+        $upperHalf = array_slice($data, ceil($count / 2));
+
+        $q1 = $median($lowerHalf);
+        $q3 = $median($upperHalf);
+
+
+        // Calculate bit resolution
+        $bitResolution = null;
+        $minDiff = null;
+
+        for ($i = 1; $i < $count; $i++) {
+            $diff = abs($data[$i] - $data[$i - 1]);
+            if ($diff > 0 && ($minDiff === null || $diff < $minDiff)) {
+                $minDiff = $diff;
+            }
+        }
+
+        if (isset($minDiff) && $minDiff > 0)
+        {
+           
+            // Calculate range
+            $range = $max - $min;
+
+            if ($range == 0) {
+                $bitResolution = 1; // All values same; technically 1 distinguishable value = 1 bit
+            }
+
+            // Calculate the number of distinguishable values
+            $distinctValues = $range / $minDiff;
+
+            // Bit resolution = ceil(log2(distinctValues))
+            $bitResolution = (int) ceil(log($distinctValues, 2));
+        }
+
+        return [
+            'min' => $min,
+            'p25' => $q1,
+            'median' => $q2,
+            'p75' => $q3,
+            'max' => $max,
+            'count' => $count,
+            'bitResolution' => $bitResolution
+        ];
+    }
+
+    public static function arrayToString($array, string $separator = ', ', string $prefix = '', $not_keys=[]): string {
+
+        if (is_array($array))
+        {
+            $result = [];
+            foreach ($array as $key => $value)
+            {
+                if (is_array($not_keys) && in_array($key, $not_keys))
+                    continue;
+
+                $compositeKey = $prefix === '' ? $key : "$prefix.$key";
+
+                if (is_array($value))
+                {
+                    $result[] = self::arrayToString($value, $separator, $compositeKey, $not_keys);
+                } else {
+                
+                    $rounded_value = $value;
+                    if (is_numeric($rounded_value))
+                        $rounded_value = round($rounded_value, 2);
+
+                    $result[] = "$compositeKey: $rounded_value";
+                }
+            }
+
+            return implode($separator, $result);
+        }
+
+        return ''; 
+    }
 }
 
 

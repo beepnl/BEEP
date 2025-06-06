@@ -53,6 +53,7 @@
                                 <th>Hive</th>
                                 <th>Messages</th>
                                 <th>Time %</th>
+                                <th>Persisted days</th>
                                 <th>Log erased</th>
                                 <th>Log size</th>
                                 <th>Actions</th>
@@ -66,7 +67,8 @@
                                 <td>{{ $fl->updated_at }}</td>
                                 <td>{{ isset($fl->hive) ? $fl->hive->name : '' }}</td>
                                 <td>{{ $fl->log_messages }}</td>
-                                <td>{{ $fl->time_percentage}}</td>
+                                <td>{{ round($fl->time_percentage) }}</td>
+                                <td>{{ $fl->persisted_days}}</td>
                                 <td>{{ $fl->log_erased}}</td>
                                 <td>{{ round($fl->bytes_received/1024/1024,3) }}MB @if(isset($fl->log_size_bytes) && $fl->log_size_bytes > 0) ({{ round(100*($fl->bytes_received / $fl->log_size_bytes),1) }}%) @endif </td>
                                 <td col-sm-1>
@@ -91,29 +93,36 @@
 
                 @slot('body')
                     {!! Form::open(['method' => 'GET','route' => ['devices.flashlog', $item->id, $flashlog->id]]) !!}
-                    <div class="col-xs-12 col-sm-4 col-md-3">
+                    <div class="col-xs-12 col-sm-4 col-md-2">
                         <div class="form-group">
                             <label>Min # of DB matches:</label>
                             {!! Form::number('matches_min', $matches_min, array('class' => 'form-control')) !!}
                         </div>
                     </div>
-                    <div class="col-xs-12 col-sm-4 col-md-3">
+                    <div class="col-xs-12 col-sm-4 col-md-2">
                         <div class="form-group">
                             <label>Min # of match properties:</label>
                             {!! Form::number('match_props', $match_props, array('class' => 'form-control')) !!}
                         </div>
                     </div>
-                    <div class="col-xs-12 col-sm-4 col-md-3">
+                    <div class="col-xs-12 col-sm-4 col-md-2">
                         <div class="form-group">
                             <label>Number of DB records to query:</label>
                             {!! Form::number('db_records', $db_records, array('class' => 'form-control')) !!}
                         </div>
                     </div>
-                    <div class="col-xs-12 col-sm-4 col-md-3">
+                    <div class="col-xs-12 col-sm-4 col-md-2">
                         <div class="form-group">
                             <label>Save Flashlog result after parsing</label>
                             <br>
                             {!! Form::checkbox('save_result', 1, $save_result) !!}
+                        </div>
+                    </div>
+                    <div class="col-xs-12 col-sm-4 col-md-2">
+                        <div class="form-group">
+                            <label>Force NOT using RTC</label>
+                            <br>
+                            {!! Form::checkbox('dont_use_rtc', 1, $dont_use_rtc) !!}
                         </div>
                     </div>
                     <div class="col-xs-12">
@@ -194,7 +203,7 @@
                                 @endphp
                                 <tr>
                                     <td {!! $td_attr !!}>{{ $bl['block'] }}</td>
-                                    <td {!! $td_attr !!}>{{ $bl['fw_version'] }}</td>
+                                    <td {!! $td_attr !!}>{{ isset($bl['fw_version']) ? $bl['fw_version'] : '' }}</td>
                                     <td {!! $td_attr !!}>{{ $bl['start_i'] }}->{{ $bl['end_i'] }}<br>={{ $data_rows }} rows</td>
                                     <td {!! $td_attr !!}>{{ $db_row_cnt }}<br><span style="font-weight: bold;">={{ $db_row_perc }}% in DB</span></td>
                                     <td {!! $td_attr !!}>{{ isset($bl['db_time']) ? $bl['db_time'] : '-' }}</td>

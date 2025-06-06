@@ -1556,7 +1556,11 @@ class ResearchController extends Controller
                 {
                     $flashlog_parsed_text = $flashlog->getFileContent('log_file_parsed');
                     if (!empty($flashlog_parsed_text))
-                        $data_array = array_merge($data_array, json_decode($flashlog_parsed_text, true));
+                    {
+                        $flashlog_data_array = json_decode($flashlog_parsed_text, true);
+                        $flashlog->addMetaData($flashlog_data_array, true);
+                        $data_array = array_merge($data_array, $flashlog_data_array);
+                    }
                 }
             }
             if (count($data_array) > 0)

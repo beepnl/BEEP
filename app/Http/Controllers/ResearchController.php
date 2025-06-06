@@ -1025,6 +1025,8 @@ class ResearchController extends Controller
             'invalid_log_prognose'  => 'nullable|boolean',
             'log_device_id'         => 'nullable|exists:sensors,id',
             'log_device_note'       => 'nullable|string',
+            'only_change'           => 'nullable|string',
+            'only_change_value'     => 'nullable|string',
         ]);
 
         $demo = $request->filled('demo') && boolval($request->input('demo')) ? true : false;
@@ -1036,15 +1038,17 @@ class ResearchController extends Controller
         else
             $research = $request->user()->allResearches()->find($id);
 
-        $device_ids      = $request->input('device_ids');
-        $log_device_id   = intval($request->input('log_device_id'));
-        $log_device_note = $request->input('log_device_note');
-        $add_flashlogs   = boolval($request->input('add_flashlogs', 1));
-        $until_last_fl   = boolval($request->input('until_last_fl', 1));
+        $device_ids       = $request->input('device_ids');
+        $log_device_id    = intval($request->input('log_device_id'));
+        $log_device_note  = $request->input('log_device_note');
+        $log_device_change= $request->input('only_change');
+        $log_device_value = $request->input('only_change_value');
+        $add_flashlogs    = boolval($request->input('add_flashlogs', 1));
+        $until_last_fl    = boolval($request->input('until_last_fl', 1));
         $invalid_log_prognose = boolval($request->input('invalid_log_prognose', 0));
-        $devices_all     = collect();
-        $devices_show    = collect();
-        $initial_days    = 30;
+        $devices_all      = collect();
+        $devices_show     = collect();
+        $initial_days     = 30;
 
         // Make dates table:
         /* [date] => [
@@ -1548,56 +1552,73 @@ class ResearchController extends Controller
         {
             //dd($log_device_id);
             $device_log= $devices_all->where('id', '=', $log_device_id)->first();
-            $flashlogs = $device_log->flashlogs()->where('log_date_end', '>=', $date_start)->where('log_date_start', '<', $date_until)->orderBy('log_date_start')->get();
-            $data_array= [];
-            foreach ($flashlogs as $flashlog)
+            
+            // Only change 1 log_file_info value
+            if (isset($log_device_change) && isset($log_device_value))
             {
-                if (isset($flashlog->log_parsed) && ($invalid_log_prognose || $flashlog->validLog()))
-                {
-                    $flashlog_parsed_text = $flashlog->getFileContent('log_file_parsed');
-                    if (!empty($flashlog_parsed_text))
-                    {
-                        $flashlog_data_array = json_decode($flashlog_parsed_text, true);
-                        $flashlog->addMetaData($flashlog_data_array, true);
-                        $data_array = array_merge($data_array, $flashlog_data_array);
-                    }
-                }
+                $log_file_info = $device_log->log_file_info;
+
+                if (empty($log_file_info))
+                    $log_file_info = [];
+
+                $log_file_info["$log_device_change"] = "$log_device_value";
+
+                $device_log->log_file_info = $log_file_info;
+                $device_log->save();
             }
-            if (count($data_array) > 0)
+            else // Export CSV and update all log_file_info
             {
-                $min_unix_ts = strtotime($date_start);
-                $max_unix_ts = strtotime($date_until);
-
-                // filter time: remove first values < min time, or > max time
-                $delete_until_index = 0;
-                foreach ($data_array as $i => $value_array)
+                $flashlogs = $device_log->flashlogs()->where('log_date_end', '>=', $date_start)->where('log_date_start', '<', $date_until)->orderBy('log_date_start')->get();
+                $data_array= [];
+                foreach ($flashlogs as $flashlog)
                 {
-                    if (isset($value_array['time']))
+                    if (isset($flashlog->log_parsed) && ($invalid_log_prognose || $flashlog->validLog()))
                     {
-                        $data_ts = strtotime($value_array['time']);
-                        if ($data_ts < $min_unix_ts || $data_ts > $max_unix_ts)
-                            $delete_until_index = $i;
-                        else
-                            break;
+                        $flashlog_parsed_text = $flashlog->getFileContent('log_file_parsed');
+                        if (!empty($flashlog_parsed_text))
+                        {
+                            $flashlog_data_array = json_decode($flashlog_parsed_text, true);
+                            $flashlog->addMetaData($flashlog_data_array, true);
+                            $data_array = array_merge($data_array, $flashlog_data_array);
+                        }
                     }
                 }
-                if ($delete_until_index > 0)
-                    $data_array = array_slice($data_array, $delete_until_index+1); // remove before index
-
                 if (count($data_array) > 0)
                 {
-                    $csv_file_name  = "device-$log_device_id-flashlog-data";
-                    $save_output    = FlashLog::exportData($data_array, $csv_file_name, true, ',', true, true, $min_unix_ts); // Research data is also exported with , as separator
+                    $min_unix_ts = strtotime($date_start);
+                    $max_unix_ts = strtotime($date_until);
 
-                    if (isset($save_output['link']))
+                    // filter time: remove first values < min time, or > max time
+                    $delete_until_index = 0;
+                    foreach ($data_array as $i => $value_array)
                     {
-                        // Get meta of complete (concatenated) dataset
-                        $dummy_flashlog = new FlashLog; // required for addMetaData
-                        $meta_data      = $dummy_flashlog->addMetaData($data_array, true, true);
-                        
-                        $device_log->log_file_info = array_merge(['note'=>$log_device_note, 'valid'=>true, 'created_date'=>date('Y-m-d H:i:s'), 'csv_url'=>$save_output['link']], $meta_data);
+                        if (isset($value_array['time']))
+                        {
+                            $data_ts = strtotime($value_array['time']);
+                            if ($data_ts < $min_unix_ts || $data_ts > $max_unix_ts)
+                                $delete_until_index = $i;
+                            else
+                                break;
+                        }
+                    }
+                    if ($delete_until_index > 0)
+                        $data_array = array_slice($data_array, $delete_until_index+1); // remove before index
 
-                        $device_log->save();
+                    if (count($data_array) > 0)
+                    {
+                        $csv_file_name  = "device-$log_device_id-flashlog-data";
+                        $save_output    = FlashLog::exportData($data_array, $csv_file_name, true, ',', true, true, $min_unix_ts); // Research data is also exported with , as separator
+
+                        if (isset($save_output['link']))
+                        {
+                            // Get meta of complete (concatenated) dataset
+                            $dummy_flashlog = new FlashLog; // required for addMetaData
+                            $meta_data      = $dummy_flashlog->addMetaData($data_array, true, true);
+                            
+                            $device_log->log_file_info = array_merge(['note'=>$log_device_note, 'created_date'=>date('Y-m-d H:i:s'), 'csv_url'=>$save_output['link']], $meta_data);
+
+                            $device_log->save();
+                        }
                     }
                 }
             }

@@ -491,10 +491,11 @@ class ResearchController extends Controller
                             'next_downlink_message',
                             'last_downlink_result',
                             'rtc_installed',
-                            'log_file_validated',
-                            'log_file_note',
-                            'log_file_csv',
-                            'log_file_info',
+                            'log_data_valid',
+                            'log_data_state',
+                            'log_data_note',
+                            'log_data_csv',
+                            'log_data_info',
                             'last_message_received',
                             'device_datetime_last_received',
                             'device_datetime_offset_sec',
@@ -1892,10 +1893,13 @@ class ResearchController extends Controller
 
     private function getDevice($user_id, $item)
     {
-        $log_file_validated = isset($item->log_file_info['created_date']) && isset($item->log_file_info['valid']) && boolval($item->log_file_info['valid']) ? $item->log_file_info['created_date'] : null;
-        $log_file_note      = isset($item->log_file_info['note']) ? $item->log_file_info['note'] : null;
-        $log_file_csv       = isset($item->log_file_info['csv_url']) ? $item->log_file_info['csv_url'] : null;
-        $log_file_info      = isset($item->log_file_info) ? CalculationModel::arrayToString($item->log_file_info, ' | ', '', ['csv_url','valid_data_points','note']) : null;
+        $log_data_valid     = isset($item->log_file_info['valid']) && boolval($item->log_file_info['valid']) ? true : false;
+        $log_data_state     = $log_data_valid && isset($item->log_file_info['end_date']) ? "Validated until: ".$item->log_file_info['end_date'] : ($item->flashlogs()->count() == 0 ? "No flashlogs uploaded yet" : "Validation ongoing");
+        $log_data_note      = isset($item->log_file_info['note']) ? $item->log_file_info['note'] : null;
+        $log_data_csv       = isset($item->log_file_info['csv_url']) ? $item->log_file_info['csv_url'] : null;
+        $log_data_info      = isset($item->log_file_info) ? CalculationModel::arrayToString($item->log_file_info, ' | ', '', ['csv_url','valid_data_points','note']) : null;
+
+        isset($item->log_file_info['note']) ? $item->log_file_info['note'] : null;
         return [
             $user_id,
             $item->id, 
@@ -1914,10 +1918,11 @@ class ResearchController extends Controller
             $item->next_downlink_message,
             $item->last_downlink_result,
             $item->rtc,
-            $log_file_note,
-            $log_file_validated,
-            $log_file_csv,
-            $log_file_info,
+            $log_data_valid,
+            $log_data_state,
+            $log_data_csv,
+            $log_data_note,
+            $log_data_info,
             $item->last_message_received,
             $item->datetime,
             $item->datetime_offset_sec,

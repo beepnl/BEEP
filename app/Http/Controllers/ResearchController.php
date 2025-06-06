@@ -491,6 +491,9 @@ class ResearchController extends Controller
                             'next_downlink_message',
                             'last_downlink_result',
                             'rtc_installed',
+                            'log_file_info',
+                            'log_file_validated',
+                            'log_file_csv',
                             'last_message_received',
                             'device_datetime_last_received',
                             'device_datetime_offset_sec',
@@ -1859,6 +1862,9 @@ class ResearchController extends Controller
 
     private function getDevice($user_id, $item)
     {
+        $log_file_info      = isset($item->log_file_info) ? CalculationModel::arrayToString($device->log_file_info, ' | ', '', ['csv_url','valid_data_points']) : null;
+        $log_file_validated = isset($item->log_file_info['created_date']) && isset($item->log_file_info['valid']) && boolval($item->log_file_info['valid']) ? $item->log_file_info['created_date'] : null;
+        $log_file_csv       = isset($item->log_file_info['csv_url']) ? $item->log_file_info['csv_url'] : null;
         return [
             $user_id,
             $item->id, 
@@ -1877,6 +1883,9 @@ class ResearchController extends Controller
             $item->next_downlink_message,
             $item->last_downlink_result,
             $item->rtc,
+            $log_file_info,
+            $log_file_validated,
+            $log_file_csv,
             $item->last_message_received,
             $item->datetime,
             $item->datetime_offset_sec,
@@ -1908,7 +1917,7 @@ class ResearchController extends Controller
     {
         return $flashlogs->where('created_at', '<=', $date_until)->sortBy('device_id')->sortByDesc('created_at')->map(function($item) use ($user_id)
         {
-            $meta_data = isset($item->meta_data) ? CalculationModel::arrayToString($item->meta_data, '|', '', ['valid_data_points']) : null;
+            $meta_data = isset($item->meta_data) ? CalculationModel::arrayToString($item->meta_data, ' | ', '', ['valid_data_points']) : null;
             
             return [
                 $user_id,

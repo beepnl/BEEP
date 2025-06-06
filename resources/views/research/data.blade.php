@@ -257,9 +257,14 @@
                         continue;
 
                     if (is_array($qv))
-                        $query_add_arr[] = $qp."[]=".implode(',',$qv);
+                    {
+                        foreach($qv as $v)
+                            $query_add_arr[] = $qp."[]=".$v;
+                    }
                     else
+                    {
                         $query_add_arr[] = "$qp=$qv";
+                    }
 
                 }
                 $query_add_js = implode('&', $query_add_arr);

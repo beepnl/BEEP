@@ -1560,21 +1560,25 @@ class ResearchController extends Controller
                 // Get meta of complete (concatenated) dataset
                 $csv_file_name   = "device-$log_device_id-flashlog-data";
                 $min_unix_ts     = strtotime($date_start);
+                $max_unix_ts     = strtotime($date_until);
 
                 // filter time
-                $delete_before_index = 0;
+                $delete_until_index = 0;
                 foreach ($data_array as $i => $value_array)
                 {
-                    if (isset($value_array['time']) && strtotime($value_array['time']) >= $min_unix_ts)
+                    if (isset($value_array['time']))
                     {
-                        $delete_before_index = $i;
-                        break;
+                        $data_ts = strtotime($value_array['time']);
+                        if ($data_ts < $min_unix_ts || $data_ts > $max_unix_ts) // remove first values < min time, or > max time
+                            $delete_until_index = $i;
+                        else
+                            break;
                     }
                 }
 
-                if ($delete_before_index > 0)
-                    $data_array = array_slice($data_array, $delete_before_index); // remove before index
-                
+                if ($delete_until_index > 0)
+                    $data_array = array_slice($data_array, $delete_until_index+1); // remove before index
+
                 $save_output= FlashLog::exportData($data_array, $csv_file_name, true, ',', true, true, $min_unix_ts); // Research data is also exported with , as separator
 
                 if (isset($save_output['link']))

@@ -248,6 +248,17 @@
 
         <script>
             
+            @php
+                $query_add_arr = [];
+                $not_arr       = ['log_device_id', 'only_change_value', 'only_change', 'log_device_note'];
+                foreach(request()->query() as $qp => $qv)
+                {
+                   if (!in_array($qp,$not_arr))
+                    $query_add_arr[] = "$qp=$qv";
+                }
+                $query_add_js = implode('&', $query_add_arr);
+            @endphp
+
             function handleKey(event) {
                 if ((event.type === "keydown" && event.key === "Enter") || event.type === "click") {
                   event.preventDefault(); // Prevent default form submission
@@ -255,10 +266,11 @@
                   const change_value   = typeof event.target.dataset.changeValue != 'undefined' ? event.target.dataset.changeValue : event.target.value;
                   const device_id      = event.target.dataset.deviceId;
                   const only_change    = event.target.dataset.onlyChange;
+
                   console.log(`New ${only_change} for device ${device_id}: ${change_value}`);
 
                   if (typeof device_id != 'undefined' && typeof only_change != 'undefined' && typeof change_value != 'undefined')
-                    window.location.href = "{{ route('research.data', $research->id) }}?log_device_id="+device_id+"&only_change_value="+change_value+"&only_change="+only_change;
+                    window.location.href = "{{ route('research.data', $research->id) }}?log_device_id="+device_id+"&only_change_value="+change_value+"&only_change="+only_change+"&{!! $query_add_js !!}";
                 }
             }
 

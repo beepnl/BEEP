@@ -137,10 +137,16 @@ class FlashLogController extends Controller
         $fill_sdef= $request->filled('no_sensor_def') && $request->input('no_sensor_def') == 1 ? false : true;
         $fill_csv = $request->filled('csv') && $request->input('csv') == 1 ? true : false;
         $fill_meta= $request->filled('add_meta') && $request->input('add_meta') == 1 ? true : false;
+        $load_show= $request->filled('load_show') && $request->input('load_show') == 1 ? true : false;
         $flashlog = FlashLog::findOrFail($id);
         $out      = [];
         
-        $query_par= array_diff_key($request->query(), ['no_fill'=>0,'no_sensor_def'=>0,'csv'=>0, 'add_meta'=>0]); // do not copy the command to the url params to prevent pressing wrong button
+        $query_par= array_diff_key($request->query(), ['no_fill'=>0,'no_sensor_def'=>0,'csv'=>0, 'add_meta'=>0,'load_show'=>0]); // do not copy the command to the url params to prevent pressing wrong button
+        if ($load_show)
+            $query_par = $id;
+
+        $route    = $load_show ? 'flash-log.show' : 'flash-log.index';
+        
         //dd($query_par);
         if(isset($flashlog->log_file))
         {
@@ -155,7 +161,7 @@ class FlashLogController extends Controller
             {
                 $flashlog_parsed_text = $flashlog->getFileContent('log_file_parsed');
                 if (empty($flashlog_parsed_text))
-                    return redirect()->route('flash-log.index', $query_par)->with('error', "FlashLog $id log_file_parsed is empty");
+                    return redirect()->route($route, $query_par)->with('error', "FlashLog $id log_file_parsed is empty");
 
                 $flashlog_parsed_json = json_decode($flashlog_parsed_text, true);
 
@@ -169,10 +175,10 @@ class FlashLogController extends Controller
                 if ($fl_saved)
                 {
                     $meta_str = CalculationModel::arrayToString($flashlog->meta_data, ', ', '', ['valid_data_points']);
-                    return redirect()->route('flash-log.index', $query_par)->with('success', "FlashLog $id $type set: $flashlog->csv_url, Meta data: ".$meta_str);
+                    return redirect()->route($route, $query_par)->with('success', "FlashLog $id $type set, Meta data: ".$meta_str);
                 }
 
-                return redirect()->route('flash-log.index', $query_par)->with('error', "FlashLog $id $type save error");
+                return redirect()->route($route, $query_par)->with('error', "FlashLog $id $type save error");
 
             }
             else
@@ -190,15 +196,15 @@ class FlashLogController extends Controller
                 }
                 else
                 {
-                    return redirect()->route('flash-log.index', $query_par)->with('error', "FlashLog $id file '$flashlog->log_file' not found");
+                    return redirect()->route($route, $query_par)->with('error', "FlashLog $id file '$flashlog->log_file' not found");
                 }
             }
         }
         else
         {
-            return redirect()->route('flash-log.index', $query_par)->with('error', "FlashLog $id No flashlog file present, nothing to parse");
+            return redirect()->route($route, $query_par)->with('error', "FlashLog $id No flashlog file present, nothing to parse");
         }
-        return redirect()->route('flash-log.index', $query_par)->with('success', "FlashLog $id parsed again: ".implode(', ',$out));
+        return redirect()->route($route, $query_par)->with('success', "FlashLog $id parsed again: ".implode(', ',$out));
     }
 
     /**

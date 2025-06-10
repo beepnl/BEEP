@@ -1162,7 +1162,7 @@ class FlashLog extends Model
             $first_date = null;
             $last_date  = null;
             $data_count = count($data);
-            $date_times = []; // check which date times
+            $date_times = []; // check which date times (rounded on minute) are already set
             
             if ($csv)
             {
@@ -1170,7 +1170,8 @@ class FlashLog extends Model
                 $header_item  = null;
                 $header_count = 0;
 
-                for ($i=0; $i < $data_count; $i++) 
+                // Run backwards through the data, because time can be adjusted backwards, then the new (and correct) data if in the lower end of the file 
+                for ($i=$data_count-1; $i >= 0; $i--) 
                 { 
                     $data_item = $data[$i];
                     if (isset($data_item['port'])) 
@@ -1193,16 +1194,18 @@ class FlashLog extends Model
                                 // Add data point to date_arr and set frist/last data date
                                 if (!isset($data_item['time_device']) || ($data_item['time_device'] >= $time_min && $data_item['time_device'] < $time_max)) // time is set (also allow previously parsed Flashlogs without RTC), or time_device should be correctly set
                                 {
-                                    if ($first_date === null)
-                                        $first_date = $data_time;
+                                    if ($last_date === null)
+                                        $last_date = $data_time; // update until last item with date
 
-                                    $last_date = $data_time; // update until last item with date
+                                    $first_date = $data_time;
                                 }
                             }
                             
                             if ($validate_time == false || (isset($data_ts) && $data_ts >= $time_min && $data_ts < $time_max))
                             {
-                                if (!in_array($data_ts, $date_times))
+                                $date_time_round_min = substr($data_time, 0, 15); // Round to minute, to store only 1 value per minute: YYYY-MM-DD HH:mm (leave :ss)
+
+                                if (!in_array($date_time_round_min, $date_times))
                                 {
                                     $data_item       = array_merge(['time'=>$data_time_utc], $data_item); // Time in first column
                                     $data_item_clean = self::cleanFlashlogItem($data_item, true);
@@ -1223,7 +1226,7 @@ class FlashLog extends Model
                                     }
                                     
                                     // Register data_ts in date_times to not overwrite
-                                    $date_times[] = $data_ts;
+                                    $date_times[] = $date_time_round_min;
                                 }
                             }
                         }
@@ -1303,9 +1306,9 @@ class FlashLog extends Model
             $port3_msg  = 0;
             $weight_arr = []; // array of weight measurements
             $date_arr   = []; // array with date (YYYY-MM-DD) as key and amount of valid data points (timestamps) as value
-
+            $date_times = []; // check which date times (rounded on minute) are already set
         
-            for ($i=0; $i < $data_count; $i++) 
+            for ($i=$data_count-1; $i >= 0; $i--) 
             { 
                 $data_item = $data[$i];
 
@@ -1330,30 +1333,38 @@ class FlashLog extends Model
                         
                         if ( $validate_time == false || (isset($data_ts) && $data_ts >= $time_min && $data_ts < $time_max))
                         {
-                            $weight_set = false;
-                            
-                            if (isset($data_item['weight_kg']))
-                            {
-                                $weight_arr[] = $data_item['weight_kg'];
-                                $weight_set   = true; // for counting valid data points
-                            }
+                            $date_time_round_min = substr($data_time, 0, 15); // Round to minute, to store only 1 value per minute: YYYY-MM-DD HH:mm (leave :ss)
 
-                            // Add data point to date_arr and set frist/last data date
-                            if (isset($data_time))
+                            if (!in_array($date_time_round_min, $date_times))
                             {
-                                if (!isset($data_item['time_device']) || ($data_item['time_device'] >= $time_min && $data_item['time_device'] < $time_max)) // time is set (also allow previously parsed Flashlogs without RTC), or time_device should be correctly set
+                                $weight_set = false;
+                                
+                                if (isset($data_item['weight_kg']))
                                 {
-                                    if ($first_date === null)
-                                        $first_date = $data_time;
-
-                                    $last_date = $data_time; // update until last item with date
+                                    $weight_arr[] = $data_item['weight_kg'];
+                                    $weight_set   = true; // for counting valid data points
                                 }
 
-                                $data_date = substr($data_time, 0, 10);
-                                if (!isset($date_arr[$data_date]))
-                                    $date_arr[$data_date] = 0;
-                                
-                                $date_arr[$data_date] += intval($weight_set); // count 1 data point if weight AND time are set
+                                // Add data point to date_arr and set last/first data date
+                                if (isset($data_time))
+                                {
+                                    if (!isset($data_item['time_device']) || ($data_item['time_device'] >= $time_min && $data_item['time_device'] < $time_max)) // time is set (also allow previously parsed Flashlogs without RTC), or time_device should be correctly set
+                                    {
+                                        if ($last_date === null)
+                                            $last_date = $data_time; // update until last item with date
+                                        
+                                        $first_date = $data_time;
+                                    }
+
+                                    $data_date = substr($data_time, 0, 10);
+                                    if (!isset($date_arr[$data_date]))
+                                        $date_arr[$data_date] = 0;
+                                    
+                                    $date_arr[$data_date] += intval($weight_set); // count 1 data point if weight AND time are set
+                                }
+
+                                // Register data_ts in date_times to not overwrite
+                                $date_times[] = $date_time_round_min;
                             }
                         }
                     }

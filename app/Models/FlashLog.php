@@ -339,7 +339,9 @@ class FlashLog extends Model
             $data  = preg_replace('/03([A-Fa-f0-9]{90,120})0A([A-Fa-f0-9]{0,4})03([A-Fa-f0-9]{90,120})0A/', "03\${1}0A\${2}\n03\${3}0A", $data);
             $data  = preg_replace('/03([A-Fa-f0-9]{90,120})0A1B([A-Fa-f0-9]{90,120})0A/', "03\${1}0A\n031E1B\${2}0A", $data); // missing 031E
             $data  = preg_replace('/03([A-Fa-f0-9]{2})1B0D1B0D([A-Fa-f0-9]{90,120})0A/', "03\${1}1B0D\${2}0A", $data); // Double 1B0D (fw 1.4.2)
-            $data  = preg_replace('/02([A-Fa-f0-9]{76})0A03([A-Fa-f0-9]{90,120})0A/', "02\${1}0A\n03\${2}0A", $data);
+            $data  = preg_replace('/02([A-Fa-f0-9]{76})0A03([A-Fa-f0-9]{90,120})0A/', "02\${1}0A\n03\${2}0A", $data); // port 2 data
+            $data  = preg_replace('/([A-Fa-f0-9]{12,14})0A01([A-Fa-f0-9]{6})([A-Fa-f0-9]{1})040([A-Fa-f0-9]{70,90})0A/', "\${1}0A01\${2}040\${4}0A", $data); // 2025-06-10 PGe: fw 1.5.15: remove extra character after weight 24 bit string
+
             // remove empty rows
             $data  = preg_replace('/^\h*\v+/m', '', $data);
 

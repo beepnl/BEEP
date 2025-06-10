@@ -347,14 +347,14 @@ trait MeasurementLoRaDecoderTrait
                         if (strlen($p) == 86) 
                         {
                             $time_id        = substr($pu, 74, 2); 
-                            $time_available = $time_id == '25' || $time_id == '26' || $time_id == '2D' ? true : false;
+                            $time_available = $time_id == '25' || $time_id == '26' || $time_id == '2D' || $time_id == '2E' ? true : false;
 
                             if ($time_available)
                             {
                                 $unixts = hexdec(substr($p, 76, 8));
                                 if ($unixts)
                                 {
-                                    $out['time_clock']  = $time_id == '26' || $time_id == '2D' ? 'rtc' : 'mcu'; // 2023-08-16 added to FW 1.5.14+: 25 == PCB clock. 26/2D == RTC clock
+                                    $out['time_clock']  = $time_id == '26' || $time_id == '2D' || $time_id == '2E' ? 'rtc' : 'mcu'; // 2023-08-16 added to FW 1.5.14+: 25 == PCB clock. 26/2D == RTC clock
                                     $out['time_device'] = $unixts; // This sets $device->datetime and $device->datetime_offset_sec in MeasurementController::addDeviceMeta();
                                 }
                             }
@@ -384,9 +384,11 @@ trait MeasurementLoRaDecoderTrait
 
                     // LoRa:        1B 0C 1B 0C 0E 64     0A 01 FF F6 98  04 02 0A D7 0A DD  0C 0A 00 FF 00 58 00 12 00 10 00 0C 00 0D 00 0A 00 0A 00 09 00 08 00 07  07 00 00 00 00 00 00
                     // pl incl fft: 1B 0D 15 0D 0A 64     0A 01 00 00 93  04 00              0C 0A 00 FF 00 20 00 05 00 0C 00 03 00 05 00 09 00 04 00 11 00 06 00 02  07 00 00 00 00 00 00
-                    // Payload      1B 0C 4B 0C 44 64     0A 01 01 2D 2D  04 01 07D6
+                    // Payload      1B 0C 4B 0C 44 64     0A 01 01 2D 2D  04 01 07 D6
 
                     // Errors
+                    // FL 1.5.15    1B 0C F4 0C 43 64     0A 01 0A 0D 44A 04 01 06 6B        0C 0A 00 FF 00 24 00 20 00 10 00 0D 00 0D 00 0B 00 0B 00 09 00 15 00 07  07 00 00 00 00 00 00  2E 7C 9B 5A 8C 0A
+                    // FL 1.5.15    1B 0D 36 0C 38 64     0A 01 0A 0F 267 04 01 06 40        0C 0A 00 FF 00 22 00 2B 00 0E 00 0C 00 0B 00 0A 00 0A 00 09 00 1E 00 09  07 00 00 00 00 00 00  2E 7C 9B 92 CD 0A
                     // FL 1.3.4     1B 0D 1B 0D 9C0D9264  0A 01 0B A5 09  04 00              0C 0A 09 46 00 01 00 01 00 00 00 00 00 01 00 00 00 00 00 00 00 00 00 00  07 00 00 00 00 00 00 0A
                     // FL 1.3.4     1B 0D 1B 0D 780D6364  0A 01 0E E1 7F  04 00              0C 0A 09 46 00 01 00 00 00 00 00 01 00 00 00 00 00 00 00 00 00 00 00 00  07 00 00 00 00 00 00 0A
 
@@ -517,16 +519,17 @@ trait MeasurementLoRaDecoderTrait
                     if (strlen($pu) > $sb)
                     {
                         $time_id        = substr($pu, $sb, 2);
-                        $time_available = $time_id == '25' || $time_id == '26' || $time_id == '2D' ? true : false;
+                        $time_available = $time_id == '25' || $time_id == '26' || $time_id == '2D' || $time_id == '2E' ? true : false;
 
                         if ($time_available)
                         {
                             $time_start = $sb+2;
+                            $max_time   = time();
                             $unixts     = hexdec(substr($p, $time_start, 8));
-                            
-                            if ($unixts && $unixts > 1546300800) // unix timestamp > Tue Jan 01 2019 00:00:00 GMT+0000
+                           
+                            if ($unixts && $unixts > 1546300800 && $unixts < $max_time) // unix timestamp > Tue Jan 01 2019 00:00:00 GMT+0000
                             {
-                                $out['time_clock']  = $time_id == '26' || $time_id == '2D' ? 'rtc' : 'mcu'; // 2023-08-16 added to FW 1.5.14+: 25 == PCB clock. 26/2D == RTC clock
+                                $out['time_clock']  = $time_id == '26' || $time_id == '2D' || $time_id == '2E' ? 'rtc' : 'mcu'; // 2023-08-16 added to FW 1.5.14+: 25 == PCB clock. 26/2D == RTC clock
                                 $out['time_device'] = $unixts; // This sets $device->datetime and $device->datetime_offset_sec in MeasurementController::addDeviceMeta();
                             }
                         }

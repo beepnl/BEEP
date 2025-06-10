@@ -48,16 +48,16 @@
                         <td> {{ $flashlog->logs_per_day }} </td>
                     </tr>
                     <tr>
-                        <th> User Id </th>
-                        <td> {{ $flashlog->user_id }} </td>
+                        <th> User </th>
+                        <td> @isset($flashlog->user_id) {{ $flashlog->user_name }} ({{ $flashlog->user_id }}) @endisset </td>
                     </tr>
                     <tr>
                         <th> Device </th>
-                        <td> <a href="/devices/{{ $flashlog->device_id }}">{{ $flashlog->device_id }}</a> <a href="/sensordefinition?device_id={{ $flashlog->device_id }}">(Sensor definitions)</a></td>
+                        <td> @isset($flashlog->device_id)<a href="/devices/{{ $flashlog->device_id }}">{{ isset($flashlog->device_name) ? $flashlog->device_name : 'NAME?' }}</a>. Go to <a href="/sensordefinition?device_id={{ $flashlog->device_id }}"> Sensor definitions</a>@endisset </td>
                     </tr>
                     <tr>
-                        <th> Hive Id </th>
-                        <td> {{ $flashlog->hive_id }} </td>
+                        <th> Apiary - Hive </th>
+                        <td> @isset($flashlog->hive_id) {{ $flashlog->hive->location }} ({{ $flashlog->hive->location_id }}) - {{ $flashlog->hive_name }} ({{ $flashlog->hive_id }}) @endisset </td>
                     </tr>
                     <tr>
                         <th> Log Messages </th>

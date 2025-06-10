@@ -459,14 +459,15 @@ class DeviceController extends Controller
                 }
                 else // reset device and assign to user
                 {
-                    $device->key = $key;
+                    $device->restore(); // is required in stead of directly save, to prevent PDO error Duplicate entry sensors.sensors_key_unique
+                    $device->log_file_info = null;
                     $device->former_key_list = null;
                     $device->hive_id = null;
                     $device->user_id = $user_id;
-                    $device->deleted_at = null;
+                    $device->name = 'DEVICE '.strtoupper(substr($key, -4));
                     $device->save();
                     $can_claim = 1;
-                    Log::info("UserID=$user_id can claim deleted Device with: ID=$id, HWI=$hwi, KEY=$key (from: $from)");
+                    Log::info("UserID=$user_id claimed deleted Device with: ID=$id, HWI=$hwi, KEY=$key (from: $from)");
                 }
             }
             // else if $can_claim == 0 device exists, but is bound to another user   

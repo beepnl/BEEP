@@ -383,12 +383,16 @@ class FlashLog extends Model
                 if (!isset($data_array['time']) && isset($data_array['time_device']))
                 {
                     $logtm++;
-                    $ts = intval($data_array['time_device']);
 
-                    if ($ts > self::$minUnixTime && $ts < $max_time) // > 2019-01-01 00:00:00 < now
+                    if (!isset($data_array['time_error'])) // don't set time from time_device if too low/high
                     {
-                        $time_device = new Moment($ts);
-                        $data_array['time'] = $time_device->format($this->timeFormat);
+                        $ts = intval($data_array['time_device']);
+
+                        if ($ts > self::$minUnixTime && $ts < $max_time) // > 2019-01-01 00:00:00 < now
+                        {
+                            $time_device = new Moment($ts);
+                            $data_array['time'] = $time_device->format($this->timeFormat);
+                        }
                     }
                 }
 
@@ -780,7 +784,7 @@ class FlashLog extends Model
                     $fl_time = null;
                     if ($use_device_time)
                     {
-                        if (isset($fl['time_device']))
+                        if (isset($fl['time_device']) && !isset($fl['time_error']))
                         {
                             $indexMoment= new Moment(intval($fl['time_device']));
                             $fl_time    = $indexMoment->format($this->timeFormat);
@@ -881,7 +885,7 @@ class FlashLog extends Model
         {
             for ($i=$start_index; $i <= $end_index; $i++) 
             {
-                if (isset($flashlog[$i]['time_device']))
+                if (isset($flashlog[$i]['time_device']) && !isset($flashlog[$i]['time_error']))
                 {
                     $time_device = intval($flashlog[$i]['time_device']);
                     if ($time_device_start === null && $time_device > self::$minUnixTime && $time_device < $max_timestamp)
@@ -1187,7 +1191,7 @@ class FlashLog extends Model
                             $data_ts   = null;
                             $data_time_utc = '';
                             
-                            if (isset($data_item['time']))
+                            if (isset($data_item['time']) && !isset($data_item['time_error']))
                             {
                                 $data_time = $data_item['time'];
                                 $data_ts   = strtotime($data_time);
@@ -1196,7 +1200,7 @@ class FlashLog extends Model
                                 $data_time_utc = str_replace(' ', 'T', $data_time).'Z'; // Format as Influx time + UTC timezone
 
                                 // Add data point to date_arr and set frist/last data date
-                                if (!isset($data_item['time_device']) || ($data_item['time_device'] >= $time_min && $data_item['time_device'] < $time_max && !isset($data_item['time_error']))) // time is set (also allow previously parsed Flashlogs without RTC), or time_device should be correctly set
+                                if (!isset($data_item['time_device']) || ($data_item['time_device'] >= $time_min && $data_item['time_device'] < $time_max)) // time is set (also allow previously parsed Flashlogs without RTC), or time_device should be correctly set
                                 {
                                     if ($last_date === null)
                                         $last_date = $data_time; // update until last item with date
@@ -1328,7 +1332,7 @@ class FlashLog extends Model
                         $data_time = null;
                         $data_ts   = null;
                         
-                        if (isset($data_item['time']))
+                        if (isset($data_item['time']) && !isset($data_item['time_error']))
                         {
                             $data_time = $data_item['time'];
                             $data_ts   = strtotime($data_time);
@@ -1351,7 +1355,7 @@ class FlashLog extends Model
                                 // Add data point to date_arr and set last/first data date
                                 if (isset($data_time))
                                 {
-                                    if (!isset($data_item['time_device']) || ($data_item['time_device'] >= $time_min && $data_item['time_device'] < $time_max && !isset($data_item['time_error']))) // time is set (also allow previously parsed Flashlogs without RTC), or time_device should be correctly set
+                                    if (!isset($data_item['time_device']) || ($data_item['time_device'] >= $time_min && $data_item['time_device'] < $time_max)) // time is set (also allow previously parsed Flashlogs without RTC), or time_device should be correctly set
                                     {
                                         if ($last_date === null)
                                             $last_date = $data_time; // update until last item with date

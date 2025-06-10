@@ -1608,7 +1608,7 @@ class ResearchController extends Controller
                     if (count($data_array) > 0)
                     {
                         $csv_file_name  = "device-$log_device_id-flashlog-data";
-                        $save_output    = FlashLog::exportData($data_array, $csv_file_name, true, ',', true, true, $min_unix_ts); // Research data is also exported with , as separator
+                        $save_output    = FlashLog::exportData($data_array, $csv_file_name, true, ',', true, true, $min_unix_ts, $max_unix_ts); // Research data is also exported with , as separator
 
                         if (isset($save_output['link']))
                         {

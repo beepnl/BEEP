@@ -1138,7 +1138,8 @@ class FlashLog extends Model
                 $data_array['minute_interval'],
                 $data_array['minute'],
                 $data_array['time_clock'],
-                $data_array['time_device']
+                $data_array['time_device'],
+                $data_array['time_error']
             );
 
         return $data_array;
@@ -1194,7 +1195,7 @@ class FlashLog extends Model
                                 $data_time_utc = str_replace(' ', 'T', $data_time).'Z'; // Format as Influx time + UTC timezone
 
                                 // Add data point to date_arr and set frist/last data date
-                                if (!isset($data_item['time_device']) || ($data_item['time_device'] >= $time_min && $data_item['time_device'] < $time_max)) // time is set (also allow previously parsed Flashlogs without RTC), or time_device should be correctly set
+                                if (!isset($data_item['time_device']) || ($data_item['time_device'] >= $time_min && $data_item['time_device'] < $time_max && !isset($data_item['time_error']))) // time is set (also allow previously parsed Flashlogs without RTC), or time_device should be correctly set
                                 {
                                     if ($last_date === null)
                                         $last_date = $data_time; // update until last item with date
@@ -1205,7 +1206,7 @@ class FlashLog extends Model
                             
                             if ($validate_time == false || (isset($data_ts) && $data_ts >= $time_min && $data_ts < $time_max))
                             {
-                                $date_time_round_min = substr($data_time, 0, 15); // Round to minute, to store only 1 value per minute: YYYY-MM-DD HH:mm (leave :ss)
+                                $date_time_round_min = round($data_ts/60); // Round to minute, to store only 1 value per minute: YYYY-MM-DD HH:mm (leave :ss)
 
                                 if (!in_array($date_time_round_min, $date_times))
                                 {
@@ -1216,8 +1217,7 @@ class FlashLog extends Model
                                     if (!isset($data_item_clean['t_i']))
                                         $data_item_clean = self::insertAt($data_item_clean, 3, 't_i', null); // after w_v
 
-                                    
-                                    $csv_body[] = implode($separator, $data_item_clean);
+                                    array_unshift($csv_body, implode($separator, $data_item_clean)); // because of walking backwards through data, prepend to array to have the final array time ascending again
                                     
                                     // get biggest headers
                                     $param_count = count($data_item_clean);
@@ -1335,7 +1335,7 @@ class FlashLog extends Model
                         
                         if ( $validate_time == false || (isset($data_ts) && $data_ts >= $time_min && $data_ts < $time_max))
                         {
-                            $date_time_round_min = substr($data_time, 0, 15); // Round to minute, to store only 1 value per minute: YYYY-MM-DD HH:mm (leave :ss)
+                            $date_time_round_min = round($data_ts/60); // Round to minute, to store only 1 value per minute: YYYY-MM-DD HH:mm (leave :ss)
 
                             if (!in_array($date_time_round_min, $date_times))
                             {
@@ -1350,7 +1350,7 @@ class FlashLog extends Model
                                 // Add data point to date_arr and set last/first data date
                                 if (isset($data_time))
                                 {
-                                    if (!isset($data_item['time_device']) || ($data_item['time_device'] >= $time_min && $data_item['time_device'] < $time_max)) // time is set (also allow previously parsed Flashlogs without RTC), or time_device should be correctly set
+                                    if (!isset($data_item['time_device']) || ($data_item['time_device'] >= $time_min && $data_item['time_device'] < $time_max && !isset($data_item['time_error']))) // time is set (also allow previously parsed Flashlogs without RTC), or time_device should be correctly set
                                     {
                                         if ($last_date === null)
                                             $last_date = $data_time; // update until last item with date
@@ -1374,6 +1374,9 @@ class FlashLog extends Model
             }
             if (isset($date_arr) && count($date_arr) > 0)
             {
+                // sort because keys are in reverse order by running backwards through $data
+                ksort($date_arr);
+
                 // count percentage of max data per day
                 $max_data_per_day = 96;
                 $data_days        = 0;

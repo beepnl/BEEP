@@ -527,11 +527,14 @@ trait MeasurementLoRaDecoderTrait
                             $max_time   = time();
                             $unixts     = hexdec(substr($p, $time_start, 8));
                            
-                            if ($unixts && $unixts > 1546300800) // unix timestamp > Tue Jan 01 2019 00:00:00 GMT+0000
+                            if ($unixts) // unix timestamp > Tue Jan 01 2019 00:00:00 GMT+0000
                             {
                                 $out['time_clock']  = $time_id == '26' || $time_id == '2D' || $time_id == '2E' ? 'rtc' : 'mcu'; // 2023-08-16 added to FW 1.5.14+: 25 == PCB clock. 26/2D == RTC clock
                                 $out['time_device'] = $unixts; // This sets $device->datetime and $device->datetime_offset_sec in MeasurementController::addDeviceMeta();
-                                if ($unixts > $max_time)
+                                
+                                if ($unixts < 1546300800)
+                                    $out['time_error'] = 'too_low';
+                                else if ($unixts > $max_time)
                                     $out['time_error'] = 'too_high';
                             }
                         }

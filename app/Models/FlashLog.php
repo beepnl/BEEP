@@ -1172,6 +1172,7 @@ class FlashLog extends Model
                 // format CSV header row: time, sensor1 (unit2), sensor2 (unit2), etc. Exclude the 'sensor' and 'key' columns
                 $header_item  = null;
                 $header_count = 0;
+                $csv_body     = [];
 
                 // Run backwards through the data, because time can be adjusted backwards, then the new (and correct) data if in the lower end of the file 
                 for ($i=$data_count-1; $i >= 0; $i--) 
@@ -1206,7 +1207,7 @@ class FlashLog extends Model
                             
                             if ($validate_time == false || (isset($data_ts) && $data_ts >= $time_min && $data_ts < $time_max))
                             {
-                                $date_time_round_min = round($data_ts/60); // Round to minute, to store only 1 value per minute: YYYY-MM-DD HH:mm (leave :ss)
+                                $date_time_round_min = $data_ts; // Round to minute, to store only 1 value per minute: YYYY-MM-DD HH:mm (leave :ss)
 
                                 if (!in_array($date_time_round_min, $date_times))
                                 {
@@ -1335,7 +1336,7 @@ class FlashLog extends Model
                         
                         if ( $validate_time == false || (isset($data_ts) && $data_ts >= $time_min && $data_ts < $time_max))
                         {
-                            $date_time_round_min = round($data_ts/60); // Round to minute, to store only 1 value per minute: YYYY-MM-DD HH:mm (leave :ss)
+                            $date_time_round_min = $data_ts; // Round to minute, to store only 1 value per minute: YYYY-MM-DD HH:mm (leave :ss)
 
                             if (!in_array($date_time_round_min, $date_times))
                             {

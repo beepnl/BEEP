@@ -152,7 +152,11 @@ class FlashLog extends Model
 
     public function getLogDays($data_only=true) // only logs with set time
     {
-        if ($data_only && isset($this->meta_data['valid_data_points']))
+        if ($data_only && isset($this->meta_data['data_days']))
+        {
+            return round($this->meta_data['data_days'], 2);
+        }
+        else if ($data_only && isset($this->meta_data['valid_data_points']))
         {
             return count($this->meta_data['valid_data_points']);
         }
@@ -1158,6 +1162,7 @@ class FlashLog extends Model
             $first_date = null;
             $last_date  = null;
             $data_count = count($data);
+            $date_times = []; // check which date times
             
             if ($csv)
             {
@@ -1197,21 +1202,28 @@ class FlashLog extends Model
                             
                             if ($validate_time == false || (isset($data_ts) && $data_ts >= $time_min && $data_ts < $time_max))
                             {
-                                $data_item       = array_merge(['time'=>$data_time_utc], $data_item); // Time in first column
-                                $data_item_clean = self::cleanFlashlogItem($data_item, true);
-
-                                // Add missing temperature column (for for combined flashlogs having no t_i at first but afterwards added)
-                                if (!isset($data_item_clean['t_i']))
-                                    $data_item_clean = self::insertAt($data_item_clean, 3, 't_i', null); // after w_v
-
-                                $csv_body[]      = implode($separator, $data_item_clean);
-                                
-                                // get biggest headers
-                                $param_count = count($data_item_clean);
-                                if ($param_count > $header_count)
+                                if (!in_array($data_ts, $date_times))
                                 {
-                                    $header_count = $param_count;
-                                    $header_item  = $data_item_clean;
+                                    $data_item       = array_merge(['time'=>$data_time_utc], $data_item); // Time in first column
+                                    $data_item_clean = self::cleanFlashlogItem($data_item, true);
+
+                                    // Add missing temperature column (for for combined flashlogs having no t_i at first but afterwards added)
+                                    if (!isset($data_item_clean['t_i']))
+                                        $data_item_clean = self::insertAt($data_item_clean, 3, 't_i', null); // after w_v
+
+                                    
+                                    $csv_body[] = implode($separator, $data_item_clean);
+                                    
+                                    // get biggest headers
+                                    $param_count = count($data_item_clean);
+                                    if ($param_count > $header_count)
+                                    {
+                                        $header_count = $param_count;
+                                        $header_item  = $data_item_clean;
+                                    }
+                                    
+                                    // Register data_ts in date_times to not overwrite
+                                    $date_times[] = $data_ts;
                                 }
                             }
                         }
@@ -1249,6 +1261,7 @@ class FlashLog extends Model
                 $fileBody = $data; // return json as body
             }
             //dd($name, $first_date, $last_date);
+            unset($date_times);
 
             if ($link)
             {
@@ -1284,6 +1297,7 @@ class FlashLog extends Model
         {
             $first_date = null; 
             $last_date  = null; 
+            $data_days  = null;
             $data_count = count($data);
             $port2_msg  = 0;
             $port3_msg  = 0;
@@ -1345,9 +1359,21 @@ class FlashLog extends Model
                     }
                 }
             }
+            if (isset($date_arr) && count($date_arr) > 0)
+            {
+                // count percentage of max data per day
+                $max_data_per_day = 96;
+                $data_days        = 0;
+
+                foreach ($date_arr as $measurement_cnt)
+                {
+                    $day_fraction = $measurement_cnt > $max_data_per_day ? 1 : $measurement_cnt / $max_data_per_day; // 0-1
+                    $data_days   += $day_fraction;
+                }
+            }
         }
 
-        $meta_data  = ['port2_msg'=>$port2_msg, 'port3_msg'=>$port3_msg];
+        $meta_data  = ['port2_msg'=>$port2_msg, 'port3_msg'=>$port3_msg, 'data_days'=>$data_days];
 
         if (count($weight_arr) > 0)
             $meta_data['weight_kg'] = CalculationModel::calculateBoxplot($weight_arr);

@@ -53,7 +53,12 @@
                     </tr>
                     <tr>
                         <th> Device </th>
-                        <td> @isset($flashlog->device_id)<a href="/devices/{{ $flashlog->device_id }}">{{ isset($flashlog->device_name) ? $flashlog->device_name : 'NAME?' }}</a>. Go to <a href="/sensordefinition?device_id={{ $flashlog->device_id }}"> Sensor definitions</a>@endisset </td>
+                        <td> 
+                            @isset($flashlog->device_id)
+                            <a href="/devices/{{ $flashlog->device_id }}">{{ isset($flashlog->device_name) ? $flashlog->device_name : 'NAME?' }}</a>.
+                            Go to <a href="/sensordefinition?device_id={{ $flashlog->device_id }}"> Sensor definitions</a>
+                            @endisset 
+                        </td>
                     </tr>
                     <tr>
                         <th> Apiary - Hive </th>
@@ -97,8 +102,10 @@
                     </tr>
                     <tr>
                         <th> Log file parsed </th>
-                        <td> <a target="_blank" href="{{ $flashlog->log_file_parsed }}">{{ $flashlog->log_file_parsed }}</a> 
-                            <a href="{{ route('flash-log.parse', ['id'=>$flashlog->id, 'add_meta'=>1, 'load_show'=>1] ) }}" title="{{ __('crud.parse') }}"><button title="Add meta data" class="btn btn-sm btn-default loading-spinner" data-loading-text="<i class='fa fa-refresh fa-spin'></i>"><i class="fa fa-refresh" aria-hidden="true"></i></button></a>
+                        <td>
+                            <a target="_blank" href="{{ $flashlog->log_file_parsed }}">{{ $flashlog->log_file_parsed }}</a> 
+                            <a href="{{ route('flash-log.parse', ['id'=>$flashlog->id, 'load_show'=>1]) }}" title="{{ __('crud.parse') }}"><button title="Parse Flashlog with time fill and adding Sensordefinitions (slow)" class="btn btn-info loading-spinner" data-loading-text="<i class='fa fa-refresh fa-spin'></i>"><i class="fa fa-refresh" aria-hidden="true"></i></button></a>
+                            <a href="{{ route('flash-log.parse', ['id'=>$flashlog->id, 'add_meta'=>1, 'load_show'=>1] ) }}" title="{{ __('crud.parse') }}"><button title="Add meta data" class="btn btn-sm btn-warning loading-spinner" data-loading-text="<i class='fa fa-refresh fa-spin'></i>"><i class="fa fa-refresh" aria-hidden="true"></i></button></a>
                             <a href="{{ route('flash-log.parse', ['id'=>$flashlog->id, 'csv'=>1, 'load_show'=>1] ) }}" title="{{ __('crud.parse') }}"><button title="Create new CSV" class="btn btn-sm btn-success loading-spinner" data-loading-text="<i class='fa fa-refresh fa-spin'></i>"><i class="fa fa-table" aria-hidden="true"></i></button></a>
                         </td>
                     </tr>

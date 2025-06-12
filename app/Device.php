@@ -245,6 +245,11 @@ class Device extends Model
         $sd_ids = [];
         $io_sds = $this->sensorDefinitions()->where('input_measurement_id', $input_measurement_id)->where('output_measurement_id', $output_measurement_id)->get();
 
+        // If empty collection, or only one, return sensor_defs collection for all data
+        if ($io_sds->count() < 2)
+            return $io_sds;
+
+        // 
         $sd_during = $io_sds->whereBetween('updated_at', [$start, $end])->sortByDesc('updated_at')->unique('input_measurement_id', 'output_measurement_id');
 
         if ($sd_during->count() > 0)

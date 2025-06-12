@@ -249,7 +249,7 @@ class Device extends Model
         if ($io_sds->count() < 2)
             return $io_sds;
 
-        // 
+        // If more than 1, chech which one to use
         $sd_during = $io_sds->whereBetween('updated_at', [$start, $end])->sortByDesc('updated_at')->unique('input_measurement_id', 'output_measurement_id');
 
         if ($sd_during->count() > 0)

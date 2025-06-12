@@ -339,14 +339,17 @@
                             $form_q_html = "";
                             foreach(array_merge(request()->query(), ['log_device_id'=>$device->id]) as $key => $value)
                             {
-                                if (is_array($value))
+                                if ($key == 'log_device_id' || !in_array($key, $not_arr))
                                 {
-                                    foreach($value as $v)
-                                        $form_q_html .= '<input type="hidden" name="'.$key.'[]" value="'.$v.'">';
-                                }
-                                else if ($key != 'log_device_note')
-                                {
-                                    $form_q_html .= '<input type="hidden" name="'.$key.'" value="'.$value.'">';
+                                    if (is_array($value))
+                                    {
+                                        foreach($value as $v)
+                                            $form_q_html .= '<input type="hidden" name="'.$key.'[]" value="'.$v.'">';
+                                    }
+                                    else
+                                    {
+                                        $form_q_html .= '<input type="hidden" name="'.$key.'" value="'.$value.'">';
+                                    }
                                 }
                             }
                             $log_status = !isset($device->log_file_info['valid']) ? 'fa-question' : (boolval($device->log_file_info['valid']) ? 'fa-check' : 'fa-times');
@@ -373,10 +376,10 @@
 
                                     {!! $form_q_html !!}
                                     
-                                    <button class="btn btn-default btn-sm" title="Create total CSV" type="submit"><i class="fa fa-upload" aria-hidden="true"></i></button>
+                                    <button class="btn btn-warning btn-sm" title="Create total CSV" type="submit"><i class="fa fa-upload" aria-hidden="true"></i></button>
                                     
                                     @if(isset($device->log_file_info['csv_url']))
-                                        <a href="{{ $device->log_file_info['csv_url'] }}" target="_blank" download><button class="btn btn-success btn-sm" title="Download total CSV: {{ App\Models\CalculationModel::arrayToString($device->log_file_info, ' ', '', ['csv_url','valid_data_points']) }}"><i class="fa fa-download" aria-hidden="true"></i></button></a>
+                                        <a href="{{ $device->log_file_info['csv_url'] }}" target="_blank" class="btn btn-success btn-sm" title="Download total CSV: {{ App\Models\CalculationModel::arrayToString($device->log_file_info, ' ', '', ['csv_url','valid_data_points']) }}"><i class="fa fa-download" aria-hidden="true"></i></a>
                                     @endif
                                     
                                 </form>

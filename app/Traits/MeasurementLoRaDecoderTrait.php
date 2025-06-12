@@ -542,7 +542,7 @@ trait MeasurementLoRaDecoderTrait
                 }
             }
         }
-        else // BEEP base v2 firmware
+        else // BEEP base v2 firmware (fport == 1)
         {
             $beep_sensors = [
                 't'  , // 0

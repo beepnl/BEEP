@@ -531,6 +531,7 @@ class FlashLog extends Model
         $last_p3_mes = null;
         $p3_mes_count= 0;
         $p2_mes_count= 0;
+        $block_count = 0;
 
         for ($i=$fl_index; $i < $fl_index_end; $i++) 
         {
@@ -543,11 +544,14 @@ class FlashLog extends Model
                 {
                     if ($f_port == 2)
                     {
-                        if ($i < $fl_index_end && $flashlog[$i+1]['port'] == 3) // check for a measurement message after this port 2 to be valid
+                        $p2_mes_count++;
+                        if ($i < $fl_index_end && $flashlog[$i+1]['port'] == 3) // count a new block if the message after this port 2 is a port 3 (measurement)
                         {
-                            $p2_mes_count++;
+                            $block_count++;
                             $onoffs[$i] = $f;
                             $onoffs[$i]['block_count'] = 1;
+
+                            // check if previous message is a block start 
                             if (!$device->rtc && isset($onoffs[$i-1]))
                             {
                                 $onoffs[$i]['block_count'] = $onoffs[$i-1]['block_count'] + 1; // count amount of messages in a row
@@ -555,19 +559,33 @@ class FlashLog extends Model
                             }
                         }
                     }
-                    else if ($p2_mes_count == 0 && $f_port == 3)
+                    else if ($f_port == 3)
                     {
-                        if (!isset($first_p3_mes))
-                            $first_p3_mes = $f;
-
-                        $last_p3_mes = $f;
                         $p3_mes_count++;
+
+                        // If no blocks have been found yet
+                        if ($block_count == 0)
+                        {
+                            if ($device->rtc) // if device has RTC, then use first port 3 message as first block ID
+                            {
+                                $block_count++;
+                                $onoffs[$i] = $f;
+                                $onoffs[$i]['block_count'] = 1;
+                            }
+                            else // for devices without RTC, use time
+                            { 
+                                if (!isset($first_p3_mes))
+                                    $first_p3_mes = $f;
+
+                                $last_p3_mes = $f;
+                            }
+                        }
                     }
                 }
             }
         }
         // For FlashLogs with RTC, and no blocks: check if there are port3 messages
-        if ($device->rtc && count($onoffs) == 0 && $p3_mes_count > 10)
+        if ($device->rtc == false && $block_count == 0 && $p3_mes_count > 10)
         {
             // if a port 2 message is missing take the firt port 3 message 
             $first_p3_mes['port'] = 2;
@@ -583,7 +601,9 @@ class FlashLog extends Model
             
             $onoffs[0] = $first_p3_mes;
         }
+
         Log::debug(['getFlashLogOnOffs', 'device_id'=>$device->id, 'fl_length'=>$fl_length, 'p2'=>$p2_mes_count, 'p3'=>$p3_mes_count, 'fl_index'=>$fl_index, 'fl_index_end'=>$fl_index_end, 'onoffs'=>$onoffs]);
+
         return array_values($onoffs);
     }
 

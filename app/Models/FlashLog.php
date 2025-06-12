@@ -583,7 +583,7 @@ class FlashLog extends Model
             
             $onoffs[0] = $first_p3_mes;
         }
-        Log::debug(['fl_length'=>$fl_length, 'p2'=>$p2_mes_count, 'p3'=>$p3_mes_count, 'fl_index'=>$fl_index, 'fl_index_end'=>$fl_index_end, 'onoffs'=>$onoffs]);
+        Log::debug(['getFlashLogOnOffs', 'device_id'=>$device->id, 'fl_length'=>$fl_length, 'p2'=>$p2_mes_count, 'p3'=>$p3_mes_count, 'fl_index'=>$fl_index, 'fl_index_end'=>$fl_index_end, 'onoffs'=>$onoffs]);
         return array_values($onoffs);
     }
 
@@ -1086,6 +1086,7 @@ class FlashLog extends Model
             // if ($show)
             //     $log[] = ['block'=> $i, 'block_i'=>$block_index, 'start_i'=>$start_index, 'end_i'=>$end_index, 'duration_hours'=>$duration_hrs, 'fl_i'=>$fl_index, 'db_time'=>$db_time, 'fw_version'=>$on['firmware_version'], 'interval_min'=>$on['measurement_interval_min'], 'transmission_ratio'=>$on['measurement_transmission_ratio'], 'no_matches'=>'start_index < fl_index'];
             // }
+            Log::debug(['fillTimeFromInflux', 'device_id'=>$device->id, 'use_rtc'=>$use_rtc, 'matches'=>$matches, 'log'=>$log]);
         }
 
         $records_flashlog = 0;

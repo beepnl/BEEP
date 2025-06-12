@@ -549,7 +549,7 @@ class FlashLog extends Model
                         {
                             $block_count++;
                             $onoffs[$i] = $f;
-                            $onoffs[$i]['block_count'] = 1;
+                            $onoffs[$i]['block_count'] = $block_count;
 
                             // check if previous message is a block start 
                             if (!$device->rtc && isset($onoffs[$i-1]))
@@ -585,7 +585,7 @@ class FlashLog extends Model
             }
         }
         // For FlashLogs with RTC, and no blocks: check if there are port3 messages
-        if ($device->rtc == false && $block_count == 0 && $p3_mes_count > 10)
+        if (!$device->rtc && $block_count == 0 && $p3_mes_count > 10)
         {
             // if a port 2 message is missing take the firt port 3 message 
             $first_p3_mes['port'] = 2;
@@ -602,7 +602,7 @@ class FlashLog extends Model
             $onoffs[0] = $first_p3_mes;
         }
 
-        Log::debug(['getFlashLogOnOffs', 'device_id'=>$device->id, 'fl_length'=>$fl_length, 'p2'=>$p2_mes_count, 'p3'=>$p3_mes_count, 'fl_index'=>$fl_index, 'fl_index_end'=>$fl_index_end, 'onoffs'=>$onoffs]);
+        //Log::debug(['getFlashLogOnOffs', 'device_id'=>$device->id, 'fl_length'=>$fl_length, 'p2'=>$p2_mes_count, 'p3'=>$p3_mes_count, 'fl_index'=>$fl_index, 'fl_index_end'=>$fl_index_end, 'onoffs'=>$onoffs]);
 
         return array_values($onoffs);
     }
@@ -868,7 +868,7 @@ class FlashLog extends Model
                 //     // add request for database values per day
                 //     $log = ['setFlashBlockTimes', 'block_i'=>$blockInd, 'time0'=>$flashlog[$startInd]['time'], 'time1'=>$flashlog[$endInd]['time'], 'bl_start_i'=>$startInd, 'bl_end_i'=>$endInd, 'match_time'=>$matchTime, 'mi'=>$matchInd, 'min_int'=>$matchMinInt, 'msg'=>$messages, 'bso'=>$blockStaOff, 'bsd'=>$blockStaDate, 'beo'=>$blockEndOff, 'bed'=>$blockEndDate,'setCount'=>$setCount];
                 // }
-                Log::debug(['setFlashBlockTimes', 'device_id'=>$device->id, 'bl_start_i'=>$startInd, 'bl_end_i'=>$endInd, 'match_time'=>$matchTime, 'mi'=>$matchInd, 'msg'=>$messages, 'block_i'=>$blockInd, 'sensor_def'=>$sensor_def->toArray(), 'bsd'=>$blockStaDate, 'bed'=>$blockEndDate, 'setCount'=>$setCount]);
+                //Log::debug(['setFlashBlockTimes', 'device_id'=>$device->id, 'bl_start_i'=>$startInd, 'bl_end_i'=>$endInd, 'match_time'=>$matchTime, 'mi'=>$matchInd, 'msg'=>$messages, 'block_i'=>$blockInd, 'sensor_def'=>$sensor_def->toArray(), 'bsd'=>$blockStaDate, 'bed'=>$blockEndDate, 'setCount'=>$setCount]);
                 
                 $dbCount = $device->getMeasurementCount($blockStaDate, $blockEndDate);
                 // TODO: Add check for every timestamp in DB with matching Flashlog (for bv, w_v, (t_0, t_1, or t_i))
@@ -939,7 +939,7 @@ class FlashLog extends Model
             }
         }
         
-        Log::debug(['matchFlashLogBlock', 'use_device_time'=>$use_device_time, 'use_rtc'=>$use_rtc, 'db_time'=>$db_time, 'time_device_start'=>$time_device_start, 'time_device_end'=>$time_device_end]);
+        //Log::debug(['matchFlashLogBlock', 'use_device_time'=>$use_device_time, 'use_rtc'=>$use_rtc, 'db_time'=>$db_time, 'time_device_start'=>$time_device_start, 'time_device_end'=>$time_device_end]);
 
         // // If the device has an RTC, assume that all times match (if valid times)
         if ($use_rtc && $device->rtc && $use_device_time)

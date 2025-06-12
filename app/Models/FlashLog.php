@@ -583,7 +583,7 @@ class FlashLog extends Model
             
             $onoffs[0] = $first_p3_mes;
         }
-        Log::debug(['fl_id'=>$flashlog->id, 'fl_index'=>$fl_index, 'fl_index_end'=>$fl_index_end, 'onoffs'=>$onoffs]);
+        Log::debug(['fl_length'=>$fl_length, 'p2'=>$p2_mes_count, 'p3'=>$p3_mes_count, 'fl_index'=>$fl_index, 'fl_index_end'=>$fl_index_end, 'onoffs'=>$onoffs]);
         return array_values($onoffs);
     }
 

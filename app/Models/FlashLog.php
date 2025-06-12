@@ -566,8 +566,8 @@ class FlashLog extends Model
                 }
             }
         }
-        // For FlashLogs without port 2 messaged: check if there are port3 messages
-        if ($device->rtc && count($onoffs) == 0 && $p2_mes_count == 0 && $p3_mes_count > 10)
+        // For FlashLogs with RTC, and no blocks: check if there are port3 messages
+        if ($device->rtc && count($onoffs) == 0 && $p3_mes_count > 10)
         {
             // if a port 2 message is missing take the firt port 3 message 
             $first_p3_mes['port'] = 2;
@@ -583,7 +583,7 @@ class FlashLog extends Model
             
             $onoffs[0] = $first_p3_mes;
         }
-        //die(print_r([$fl_index, $fl_index_end, $onoffs]));
+        Log::debug(['fl_id'=>$flashlog->id, 'fl_index'=>$fl_index, 'fl_index_end'=>$fl_index_end, 'onoffs'=>$onoffs]);
         return array_values($onoffs);
     }
 

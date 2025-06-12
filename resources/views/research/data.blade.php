@@ -368,7 +368,7 @@
                             <th class="tb-row-normal row-header" style="padding-top: 0; padding-bottom: 0;">
                                 <form id="create-csv-device-{{ $device->id }}" method="GET" action="{{ route('research.data', $research->id) }}" accept-charset="UTF-8" class="form-horizontal">
                                     
-                                    <button style="width: 34px;" id="device-log-valid-{{ $device->id }}" data-device-id="{{ $device->id }}" data-only-change="valid" data-change-value="{{ isset($device->log_file_info['valid']) && boolval($device->log_file_info['valid']) ? 0 : 1 }}" onclick="handleKey(event)" class="btn btn-default btn-sm {{$log_color}}" title="Change valid"><i class="fa {{$log_status}}" aria-hidden="true"></i></button>
+                                    <button style="width: 34px;" id="device-log-valid-{{ $device->id }}" data-device-id="{{ $device->id }}" data-only-change="valid" data-change-value="{{ isset($device->log_file_info['valid']) && boolval($device->log_file_info['valid']) ? 0 : 1 }}" onclick="handleKey(event)" class="btn btn-default btn-sm {{$log_color}} loading-spinner" title="Change valid" data-loading-text="<i class='fa fa-circle-o-notch fa-spin'></i>"><i class="fa {{$log_status}}" aria-hidden="true"></i></button>
                                     
                                     
                                     
@@ -376,7 +376,7 @@
 
                                     {!! $form_q_html !!}
                                     
-                                    <button class="btn btn-warning btn-sm" title="Create total CSV" type="submit" data-loading-text="<i class='fa fa-circle-o-notch fa-spin'></i>"><i class="fa fa-upload" aria-hidden="true"></i></button>
+                                    <button class="btn btn-warning btn-sm loading-spinner" title="Create total CSV" type="submit" data-loading-text="<i class='fa fa-circle-o-notch fa-spin'></i>"><i class="fa fa-upload" aria-hidden="true"></i></button>
                                     
                                     @if(isset($device->log_file_info['csv_url']))
                                         <a href="{{ $device->log_file_info['csv_url'] }}" target="_blank" class="btn btn-success btn-sm" title="Download total CSV: {{ App\Models\CalculationModel::arrayToString($device->log_file_info, ' ', '', ['csv_url','valid_data_points']) }}"><i class="fa fa-download" aria-hidden="true"></i></a>

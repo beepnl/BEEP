@@ -919,8 +919,10 @@ class FlashLog extends Model
             }
         }
         
+        Log::debug(['matchFlashLogBlock', 'use_device_time'=>$use_device_time, 'use_rtc'=>$use_rtc, 'db_time'=>$db_time, 'time_device_start'=>$time_device_start, 'time_device_end'=>$time_device_end]);
+
         // // If the device has an RTC, assume that all times match (if valid times)
-        if ($use_rtc && $device->rtc && isset($use_device_time))
+        if ($use_rtc && $device->rtc && $use_device_time)
         {
             $end_moment  = new Moment($time_device_end);
             $time_end    = $end_moment->format($this->timeFormat);
@@ -1086,7 +1088,7 @@ class FlashLog extends Model
             // if ($show)
             //     $log[] = ['block'=> $i, 'block_i'=>$block_index, 'start_i'=>$start_index, 'end_i'=>$end_index, 'duration_hours'=>$duration_hrs, 'fl_i'=>$fl_index, 'db_time'=>$db_time, 'fw_version'=>$on['firmware_version'], 'interval_min'=>$on['measurement_interval_min'], 'transmission_ratio'=>$on['measurement_transmission_ratio'], 'no_matches'=>'start_index < fl_index'];
             // }
-            Log::debug(['fillTimeFromInflux', 'device_id'=>$device->id, 'use_rtc'=>$use_rtc, 'matches'=>$matches, 'log'=>$log]);
+            Log::debug(['fillTimeFromInflux', 'device_id'=>$device->id, 'use_rtc'=>$use_rtc, 'matches'=>$matches, 'db_time'=>$db_time, 'log'=>$log]);
         }
 
         $records_flashlog = 0;

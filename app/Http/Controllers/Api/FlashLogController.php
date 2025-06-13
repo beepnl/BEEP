@@ -369,7 +369,7 @@ class FlashLogController extends Controller
                         $out_log = $out['log'];
                         foreach ($out_log as $out_log_block)
                         {
-                            $log_blocks[$out_log_block->block] = $out_log_block;
+                            $log_blocks[$out_log_block['block']] = $out_log_block;
                         }
                     }
 

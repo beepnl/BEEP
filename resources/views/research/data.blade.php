@@ -268,6 +268,7 @@
 
                 }
                 $query_add_js = implode('&', $query_add_arr);
+                $i = 0;
             @endphp
 
             function handleKey(event) {
@@ -319,6 +320,7 @@
                 <table class="table table-responsive table-striped table-header-rotated">
                     <thead>
                         <tr>
+                            <th class="rotate">#</th>
                             <th class="rotate">Device</th>
                             <th class="rotate">Current Apiary</th>
                             <th class="rotate">Current hive</th>
@@ -354,8 +356,10 @@
                             }
                             $log_status = !isset($device->log_file_info['valid']) ? 'fa-question' : (boolval($device->log_file_info['valid']) ? 'fa-check' : 'fa-times');
                             $log_color  = !isset($device->log_file_info['valid']) ? '' : (boolval($device->log_file_info['valid']) ? 'gr' : 'rd');
+                            $i++;
                         @endphp
                         <tr class="tb-row-small" @if (isset($device->deleted_at)) style="color: #AAA;" title="Device has been deleted at {{$device->deleted_at}}" @else title="{{ $device->name }}" @endif>
+                            <th>{{$i}}</th> 
                             <th @isset($device)title="{{ $device->name }} (id: {{ $device->id }} created: {{ $device->created_at }})"@endisset)" class="tb-row-very-small row-header">{{ $device->name }} ({{ $device->id }})</th> 
 
                             <th @if(null !== $device->location()) title="{{ $device->location_name }} (id: {{ $loc_id }} created: {{ $device->location()->created_at }})"@endif class="tb-row-very-small row-header">{{ $device->location_name }} ({{ $loc_id }})</th> 

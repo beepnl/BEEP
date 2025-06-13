@@ -424,7 +424,7 @@
                                     if (isset($d['devices'][$key]['bv']))
                                     {
                                         $title_arr[] = 'Bat V='.$d['devices'][$key]['bv'];
-                                        if ($d['devices'][$key]['bv'] < 2.8)
+                                        if ($d['devices'][$key]['bv'] < 2.9)
                                             $class_arr[] = 'lowbat';
                                     }
                                     

@@ -903,7 +903,7 @@ class FlashLog extends Model
         $time_start_index  = $start_index;
         $time_end_index    = $end_index;
 
-        // Try to fill time from device
+        // Try to fill by device time
         if ($use_rtc)
         {
             for ($i=$start_index; $i <= $end_index; $i++) 
@@ -1099,7 +1099,7 @@ class FlashLog extends Model
             $matchBlockResult = $this->matchFlashLogBlock($i, $fl_index, $end_index, $on, $flashlog, $setCount, $device, $log, $db_time, $matches_min, $match_props, $db_records, $show, $add_sensordefinitions, $use_rtc);
             $flashlog         = $matchBlockResult['flashlog'];
             $db_time          = $matchBlockResult['db_time'];
-            $log["$i"]        = $matchBlockResult['log'];
+            $log              = $matchBlockResult['log'];
             $setCount         = $matchBlockResult['setCount'];
             $fl_index         = $matchBlockResult['fl_index'];
             $matches         += $matchBlockResult['has_matches'] ? 1 : 0;

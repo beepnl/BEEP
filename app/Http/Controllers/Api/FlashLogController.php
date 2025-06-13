@@ -349,6 +349,7 @@ class FlashLogController extends Controller
             {
                 $device_id   = $flashlog->device_id;
                 $device_name = $flashlog->device_name;
+                $device_intm = $device->measurement_interval_min;
                 $hive_id     = $flashlog->hive_id;
                 $hive_name   = $flashlog->hive_name;
                 $user_id     = $flashlog->user_id;
@@ -361,22 +362,30 @@ class FlashLogController extends Controller
                     $out = $flashlog->log(null, null, $save_result, true, true, $matches_min, $match_props, $db_records, $save_result, $from_cache, 0, $add_weight); // $data='', $log_bytes=null, $save=true, $fill=false, $show=false, $matches_min_override=null, $match_props_override=null, $db_records_override=null, $save_override=false, $from_cache=true, $match_days_offset=0, $add_sensordefinitions=true
                     //die(print_r($out));
 
+                    $log_blocks = [];
+
                     if (isset($out['log']))
+                    {
                         $out_log = $out['log'];
+                        foreach ($out_log as $out_log_block)
+                        {
+                            $log_blocks[$out_log_block->block] = $out_log_block;
+                        }
+                    }
 
                     Log::debug("FlashLogController parse id: $id, block_id: $block_id, block_data_i: $block_data_i");
-                    Log::debug($out_log);
+                    Log::debug($log_blocks);
 
                     // get the data from a single Flashlog block
-                    if ($block_id > -1 && isset($out_log[$block_id]))
+                    if ($block_id > -1 && isset($log_blocks[$block_id]))
                     {
-                        $block        = $out_log[$block_id];
-                        $interval_min = $block['interval_min'];
+                        $block        = $log_blocks[$block_id];
+                        $interval_min = isset($block['interval_min']) ? $block['interval_min'] : $device_intm;
                         $block_data   = json_decode($flashlog->getFileContent('log_file_parsed'), true);
                         $block_start_i= $block['start_i'];
                         $block_end_i  = $block['end_i'];
                         $block_length = $block_end_i - $block_start_i;
-                        $has_matches  = isset($out_log[$block_id]['matches']) ? true : false;
+                        $has_matches  = isset($log_blocks[$block_id]['matches']) ? true : false;
 
                         $interval_db  = 15; // db request minute interval
                         $fl_per_db_int= $interval_db / $interval_min; // amount of flashlog items in 1 database interval

@@ -670,8 +670,12 @@ class FlashLogController extends Controller
                                 for ($i=$start_index; $i<$end_index; $i++) 
                                 { 
                                     $block_data_item = FlashLog::cleanFlashlogItem($block_data[$i]);
-                                    $block_data_item['time'] .= 'Z'; // display as UTC
-                                    $fl_data_cln[] = $block_data_item;
+                                    
+                                    if (isset($block_data_item['time']))
+                                    {
+                                        $block_data_item['time'] .= 'Z'; // display as UTC
+                                        $fl_data_cln[] = $block_data_item;
+                                    }
                                 }
                                 $data_val_count = count($fl_data_cln);
                                 

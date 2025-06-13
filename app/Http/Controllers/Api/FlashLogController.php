@@ -360,11 +360,12 @@ class FlashLogController extends Controller
                 {
                     $out = $flashlog->log(null, null, $save_result, true, true, $matches_min, $match_props, $db_records, $save_result, $from_cache, 0, $add_weight); // $data='', $log_bytes=null, $save=true, $fill=false, $show=false, $matches_min_override=null, $match_props_override=null, $db_records_override=null, $save_override=false, $from_cache=true, $match_days_offset=0, $add_sensordefinitions=true
                     //die(print_r($out));
-                    Log::debug("FlashLogController parse id: $id, block_id: $block_id, block_data_i: $block_data_i");
-                    Log::debug($out);
 
                     if (isset($out['log']))
                         $out_log = $out['log'];
+
+                    Log::debug("FlashLogController parse id: $id, block_id: $block_id, block_data_i: $block_data_i");
+                    Log::debug($out_log);
 
                     // get the data from a single Flashlog block
                     if ($block_id > -1 && isset($out_log[$block_id]))

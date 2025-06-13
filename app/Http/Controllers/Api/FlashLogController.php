@@ -391,6 +391,9 @@ class FlashLogController extends Controller
                             return FlashLog::exportData(array_slice($block_data, $block_start_i, $block_length), "user-$user_id-$device_name-log-file-$id-block-$block_id-matches-$has_matches", $export_csv);
 
                         // Check if there are matches (NB: Bug: persisted measurements now can only be deleted in a block with matches)
+                        Log::debug("FlashLogController parse id: $id, matches: $has_matches, interval_multi: $interval_multi");
+                        Log::debug($out_log);
+
                         if ($has_matches)
                         {
                             $block_start_t= $block['time_start'];
@@ -650,9 +653,6 @@ class FlashLogController extends Controller
                                 $end_index     = min($block_end_i, $block_start_i + ($index_amount * ($block_data_i+1)));
                                     
                                 $out = ['interval_min'=>$interval_min*$interval_multi, 'data_point_modulo'=>$fl_i_modulo, 'block_start_i'=>$block_start_i, 'block_end_i'=>$block_end_i, 'match_index'=>$match_index, 'block_data_index'=>$block_data_i, 'block_data_index_max'=>$data_i_max, 'block_data_index_amount'=>$index_amount, 'block_data_start'=>$start_index, 'block_data_end'=>$end_index, 'flashlog'=>[], 'database'=>[]];
-
-                                Log::debug('FlashLogController parse id: '.$id);
-                                Log::debug($out);
 
                                 // Add flashlog measurement data
                                 $fl_data_cln    = [];

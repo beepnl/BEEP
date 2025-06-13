@@ -373,8 +373,8 @@ class FlashLogController extends Controller
                         }
                     }
 
-                    Log::debug("FlashLogController parse id: $id, block_id: $block_id, block_data_i: $block_data_i");
-                    Log::debug($log_blocks);
+                    // Log::debug("FlashLogController parse id: $id, block_id: $block_id, block_data_i: $block_data_i");
+                    // Log::debug($log_blocks);
 
                     // get the data from a single Flashlog block
                     if ($block_id > -1 && isset($log_blocks[$block_id]))

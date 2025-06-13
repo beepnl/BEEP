@@ -360,7 +360,7 @@
                         @endphp
                         <tr class="tb-row-small" @if (isset($device->deleted_at)) style="color: #AAA;" title="Device has been deleted at {{$device->deleted_at}}" @else title="{{ $device->name }}" @endif>
                             <th>{{$i}}</th> 
-                            <th @isset($device)title="{{ $device->name }} (id: {{ $device->id }} created: {{ $device->created_at }})"@endisset)" class="tb-row-very-small row-header">{{ $device->name }} ({{ $device->id }})</th> 
+                            <th @isset($device) title="{{ $device->name }} (id: {{ $device->id }} created: {{ $device->created_at }})" @endisset class="tb-row-very-small row-header">{{ $device->name }} ({{ $device->id }})</th> 
 
                             <th @if(null !== $device->location()) title="{{ $device->location_name }} (id: {{ $loc_id }} created: {{ $device->location()->created_at }})"@endif class="tb-row-very-small row-header">{{ $device->location_name }} ({{ $loc_id }})</th> 
 

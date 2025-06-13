@@ -903,6 +903,7 @@ class FlashLog extends Model
         $time_start_index  = $start_index;
         $time_end_index    = $end_index;
 
+        // Try to fill time from device
         if ($use_rtc)
         {
             for ($i=$start_index; $i <= $end_index; $i++) 
@@ -1108,7 +1109,7 @@ class FlashLog extends Model
             // if ($show)
             //     $log[] = ['block'=> $i, 'block_i'=>$block_index, 'start_i'=>$start_index, 'end_i'=>$end_index, 'duration_hours'=>$duration_hrs, 'fl_i'=>$fl_index, 'db_time'=>$db_time, 'fw_version'=>$on['firmware_version'], 'interval_min'=>$on['measurement_interval_min'], 'transmission_ratio'=>$on['measurement_transmission_ratio'], 'no_matches'=>'start_index < fl_index'];
             // }
-            Log::debug(['fillTimeFromInflux', 'device_id'=>$device->id, 'use_rtc'=>$use_rtc, 'matches'=>$matches, 'db_time'=>$db_time, 'log'=>$log]);
+            //Log::debug(['fillTimeFromInflux', 'device_id'=>$device->id, 'use_rtc'=>$use_rtc, 'matches'=>$matches, 'db_time'=>$db_time, 'log'=>$log]);
         }
 
         $records_flashlog = 0;

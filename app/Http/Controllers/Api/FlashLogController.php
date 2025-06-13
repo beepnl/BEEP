@@ -339,6 +339,10 @@ class FlashLogController extends Controller
         $out_log     = [];
 
         $flashlog = $this->getUserFlashlogs($id);
+
+        Log::debug("FlashLogController parse id: $id, block_id: $block_id, block_data_i: $block_data_i");
+        Log::debug($flashlog->toArray());
+        
         if ($flashlog)
         {
             $device = $flashlog->device;
@@ -391,9 +395,6 @@ class FlashLogController extends Controller
                             return FlashLog::exportData(array_slice($block_data, $block_start_i, $block_length), "user-$user_id-$device_name-log-file-$id-block-$block_id-matches-$has_matches", $export_csv);
 
                         // Check if there are matches (NB: Bug: persisted measurements now can only be deleted in a block with matches)
-                        Log::debug("FlashLogController parse id: $id, matches: $has_matches, interval_multi: $interval_multi");
-                        Log::debug($out_log);
-
                         if ($has_matches)
                         {
                             $block_start_t= $block['time_start'];

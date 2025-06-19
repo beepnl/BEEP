@@ -387,6 +387,7 @@ trait MeasurementLoRaDecoderTrait
                     // Payload      1B 0C 4B 0C 44 64     0A 01 01 2D 2D  04 01 07 D6
 
                     // Errors
+                    // FL 1.6.0     1B 0D 0A       64     0A 00115 CA 73  04 01 0D A5        0C 0A 06 46 00 0A 00 07 00 07 00 05 00 06 00 02 00 01 00 01 00 01 00 01  07 00 00 00 00 00 00  2D 68 30 42 F8 0A
                     // FL 1.5.15    1B 0C F4 0C 43 64     0A 01 0A 0D 44A 04 01 06 6B        0C 0A 00 FF 00 24 00 20 00 10 00 0D 00 0D 00 0B 00 0B 00 09 00 15 00 07  07 00 00 00 00 00 00  2E 7C 9B 5A 8C 0A
                     // FL 1.5.15    1B 0D 36 0C 38 64     0A 01 0A 0F 267 04 01 06 40        0C 0A 00 FF 00 22 00 2B 00 0E 00 0C 00 0B 00 0A 00 0A 00 09 00 1E 00 09  07 00 00 00 00 00 00  2E 7C 9B 92 CD 0A
                     // FL 1.3.4     1B 0D 1B 0D 9C0D9264  0A 01 0B A5 09  04 00              0C 0A 09 46 00 01 00 01 00 00 00 00 00 01 00 00 00 00 00 00 00 00 00 00  07 00 00 00 00 00 00 0A
@@ -395,16 +396,28 @@ trait MeasurementLoRaDecoderTrait
                     $sb = $port == 4 ? 2 : 0; // start byte
 
                     // Battery: 0x1B
-                    $out['vcc']      = hexdec(substr($p, $sb+2, 4))/1000;
-                    $out['bv']       = hexdec(substr($p, $sb+6, 4))/1000;
-                    $out['bat_perc'] = hexdec(substr($p, $sb+10, 2));
+                    if (substr($pu, $sb+6, 4) == '640A') // missing bv
+                    {
+                        $out['vcc']      = hexdec(substr($p, $sb+2, 4))/1000;
+                        $out['bv']       = $out['vcc'];
+                        $out['bat_perc'] = hexdec(substr($p, $sb+6, 2));
 
-                    // Weight (0 - 2): 0x0A
-                    if (substr($pu, $sb+12, 2) == '0A')
-                        $sb = $sb+12; // normal payload
-                    elseif (substr($pu, $sb+16, 2) == '0A')
-                        $sb = $sb+16; // fw 1.3.4 flashlog payload
-                    
+                        $sb = $sb+8;
+                    }
+                    else
+                    {
+                        $out['vcc']      = hexdec(substr($p, $sb+2, 4))/1000;
+                        $out['bv']       = hexdec(substr($p, $sb+6, 4))/1000;
+                        $out['bat_perc'] = hexdec(substr($p, $sb+10, 2));
+                        
+                        // Weight (0 - 2): 0x0A
+                        if (substr($pu, $sb+12, 2) == '0A')
+                            $sb = $sb+12; // normal payload
+                        elseif (substr($pu, $sb+16, 2) == '0A')
+                            $sb = $sb+16; // fw 1.3.4 flashlog payload
+                    }
+
+                    // Weight: 0x0A
                     $weight_amount   = hexdec(substr($p, $sb+2, 2));
                     $out['weight_sensor_amount'] = $weight_amount;
                     $weight_val_len  = $weight_amount * 6;

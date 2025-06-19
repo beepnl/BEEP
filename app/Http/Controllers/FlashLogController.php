@@ -187,8 +187,9 @@ class FlashLogController extends Controller
                 $data = $flashlog->getFileContent('log_file');
                 if (isset($data))
                 {
-                    // log($data='', $log_bytes=null, $save=true, $fill=false, $show=false, $matches_min_override=null, $match_props_override=null, $db_records_override=null, $save_override=false, $from_cache=true, $match_days_offset=0, $add_sensordefinitions=true)
-                    $res  = $flashlog->log($data, null, true, $fill_time, false, null, null, null, false, false, $fill_sdef);
+                    // log($data='', $log_bytes=null, $save=true, $fill=?, $show=false, $matches_min_override=null, $match_props_override=null, $db_records_override=null, $save_override=false, $from_cache=false, $match_days_offset=0, $add_sensordefinitions=?)
+                    $res  = $flashlog->log($data, null, true, $fill_time, false, null, null, null, false, false, 0, $fill_sdef);
+
                     foreach ($res as $key => $value) {
                         $out[] = "$key=$value"; 
                     }

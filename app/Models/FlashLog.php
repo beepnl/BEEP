@@ -542,7 +542,7 @@ class FlashLog extends Model
 
                 if ($f_port > 0 && isset($f['beep_base']))
                 {
-                    if ($f_port == 2)
+                    if ($f_port == 2 && isset($f['firmware_version']))
                     {
                         $p2_mes_count++;
                         if ($i < $fl_index_end && $flashlog[$i+1]['port'] == 3) // count a new block if the message after this port 2 is a port 3 (measurement)

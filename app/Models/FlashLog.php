@@ -566,26 +566,18 @@ class FlashLog extends Model
                         // If no blocks have been found yet
                         if ($block_count == 0)
                         {
-                            if ($device->rtc) // if device has RTC, then use first port 3 message as first block ID
-                            {
-                                $block_count++;
-                                $onoffs[$i] = $f;
-                                $onoffs[$i]['block_count'] = 1;
-                            }
-                            else // for devices without RTC, use time
-                            { 
-                                if (!isset($first_p3_mes))
-                                    $first_p3_mes = $f;
+                            // if device has RTC, then use first port 3 message as first block ID
+                            if (!isset($first_p3_mes))
+                                $first_p3_mes = $f;
 
-                                $last_p3_mes = $f;
-                            }
+                            $last_p3_mes = $f;
                         }
                     }
                 }
             }
         }
         // For FlashLogs with RTC, and no blocks: check if there are port3 messages
-        if (!$device->rtc && $block_count == 0 && $p3_mes_count > 10)
+        if (isset($first_p3_mes) && $block_count == 0 && $p3_mes_count > 10)
         {
             // if a port 2 message is missing take the firt port 3 message 
             $first_p3_mes['port'] = 2;

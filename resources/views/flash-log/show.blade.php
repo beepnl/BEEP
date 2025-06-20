@@ -35,13 +35,13 @@
                         <th> Log date start </th>
                         <td> {{ $flashlog->log_date_start }}</td>
                     </tr>
-                    <tr>
+                    <tr @if($flashlog->validLog()) style="background-color: lightgreen;"@endif>
                         <th> Log date end </th>
-                        <td @if($flashlog->validLog()) style="background-color: green;"@endif>{{ $flashlog->log_date_end }}</td>
+                        <td >{{ $flashlog->log_date_end }}</td>
                     </tr>
-                    <tr>
+                    <tr @if($flashlog->validLog()) style="background-color: lightgreen;"@endif>
                         <th> Log data per day </th>
-                        <td @if($flashlog->validLog()) style="background-color: green;"@endif >{{ $flashlog->logs_per_day }}</td>
+                        <td>{{ $flashlog->logs_per_day }}</td>
                     </tr>
                     <tr>
                         <th> Log days </th>

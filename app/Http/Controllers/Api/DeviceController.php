@@ -955,7 +955,7 @@ class DeviceController extends Controller
         // Send the downlink via TTN
         try {
             $guzzle = new Client();
-            $url = env('TTN_API_URL') . '/as/applications/' . env('TTN_APP_NAME') . '/webhooks/beep-test-api/devices/' . $device->hardware_id . '/down/push';
+            $url = env('TTN_API_URL') . '/as/applications/' . env('TTN_APP_NAME') . '/webhooks/' . env('TTN_APP_NAME') . '/devices/' . $device->hardware_id . '/down/push';
             
             $response = $guzzle->request('POST', $url, [
                 'headers' => [
@@ -1051,7 +1051,7 @@ class DeviceController extends Controller
         // Send the downlink via TTN
         try {
             $guzzle = new Client();
-            $url = env('TTN_API_URL') . '/as/applications/' . env('TTN_APP_NAME') . '/webhooks/beep-test-api/devices/' . $device->hardware_id . '/down/push';
+            $url = env('TTN_API_URL') . '/as/applications/' . env('TTN_APP_NAME') . '/webhooks/' . env('TTN_APP_NAME') . '/devices/' . $device->hardware_id . '/down/push';
             
             $response = $guzzle->request('POST', $url, [
                 'headers' => [
@@ -1151,7 +1151,7 @@ class DeviceController extends Controller
         // Send the downlink via TTN
         try {
             $guzzle = new Client();
-            $url = env('TTN_API_URL') . '/as/applications/' . env('TTN_APP_NAME') . '/webhooks/beep-test-api/devices/' . $device->hardware_id . '/down/push';
+            $url = env('TTN_API_URL') . '/as/applications/' . env('TTN_APP_NAME') . '/webhooks/' . env('TTN_APP_NAME') . '/devices/' . $device->hardware_id . '/down/push';
             
             $response = $guzzle->request('POST', $url, [
                 'headers' => [

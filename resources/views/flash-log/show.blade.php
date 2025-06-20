@@ -37,15 +37,15 @@
                     </tr>
                     <tr>
                         <th> Log date end </th>
-                        <td> {{ $flashlog->log_date_end }}  @if($flashlog->validLog()) <span style="color: green;">VALID</span>@endif</td>
-                    </tr>
-                    <tr>
-                        <th> Log days </th>
-                        <td> {{ $flashlog->getLogDays() }}  @if($flashlog->validLog()) <span style="color: green;">VALID</span>@endif</td>
+                        <td @if($flashlog->validLog()) style="background-color: green;"@endif>{{ $flashlog->log_date_end }}</td>
                     </tr>
                     <tr>
                         <th> Log data per day </th>
-                        <td> {{ $flashlog->logs_per_day }} </td>
+                        <td @if($flashlog->validLog()) style="background-color: green;"@endif >{{ $flashlog->logs_per_day }}</td>
+                    </tr>
+                    <tr>
+                        <th> Log days </th>
+                        <td> {{ $flashlog->getLogDays() }}</td>
                     </tr>
                     <tr>
                         <th> User </th>

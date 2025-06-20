@@ -171,18 +171,6 @@ class FlashLog extends Model
     public function getLogPerDay()
     {
         $log_days = $this->getLogDays();
-        if (isset($this->meta_data['valid_data_points']))
-        {
-            $valid_data_day_arr = $this->meta_data['valid_data_points'];
-            $valid_data_day_cnt = count($valid_data_day_arr);
-            if ($valid_data_day_cnt > 2)
-            {
-                // remove first and last item
-                array_shift($valid_data_day_arr); 
-                array_pop($valid_data_day_arr);
-                return round(array_sum($valid_data_day_arr) / $valid_data_day_cnt-2);
-            }
-        }
         if (isset($log_days) && $log_days > 0 && isset($this->log_messages))
         {
             return round($this->log_messages * (min(100, $this->time_percentage)/100) / $log_days);
@@ -198,7 +186,7 @@ class FlashLog extends Model
         if (isset($logs_per_day)) // means that $this->log_date_end is set
         {
             $logs_per_day_full = isset($this->device) ? $this->device->getMeasurementsPerDay() : 96;
-            $logs_per_day_perc = round(100 * $logs_per_day / $logs_per_day_full, 1);
+            $logs_per_day_perc = max(0, min(100, round(100 * $logs_per_day / $logs_per_day_full, 1)));
             return $logs_per_day_perc;
         }
         return 0;
@@ -216,7 +204,7 @@ class FlashLog extends Model
         {
             $created_u  = strtotime($this->created_at);
             $last_log_u = strtotime($this->log_date_end);
-            if ($last_log_u >= $created_u - env('FLASHLOG_VALID_UPLOAD_DIFF_SEC', 3600))
+            if ($last_log_u >= $created_u - env('FLASHLOG_VALID_UPLOAD_DIFF_SEC', 7200))
             {
                 $logs_per_day_perc = $this->getTimeLogPercentage();
                 if ($logs_per_day_perc >= env('FLASHLOG_VALID_TIME_LOG_PERC', 90))

@@ -33,15 +33,15 @@
                     </tr>
                     <tr>
                         <th> Log date start </th>
-                        <td> {{ $flashlog->log_date_start }} </td>
+                        <td> {{ $flashlog->log_date_start }}</td>
                     </tr>
                     <tr>
                         <th> Log date end </th>
-                        <td> {{ $flashlog->log_date_end }} </td>
+                        <td> {{ $flashlog->log_date_end }}  @if($flashlog->validLog()) <span style="color: green;">VALID</span>@endif</td>
                     </tr>
                     <tr>
                         <th> Log days </th>
-                        <td> {{ $flashlog->getLogDays() }} </td>
+                        <td> {{ $flashlog->getLogDays() }}  @if($flashlog->validLog()) <span style="color: green;">VALID</span>@endif</td>
                     </tr>
                     <tr>
                         <th> Log data per day </th>
@@ -69,20 +69,8 @@
                         <td> {{ $flashlog->log_messages }} </td>
                     </tr>
                     <tr>
-                        <th> Log Saved </th>
-                        <td> {{ $flashlog->log_saved }} </td>
-                    </tr>
-                    <tr>
-                        <th> Log erased </th>
-                        <td> {{ $flashlog->log_erased }} </td>
-                    </tr>
-                    <tr>
-                        <th> Log Parsed </th>
-                        <td> {{ $flashlog->log_parsed }} </td>
-                    </tr>
-                    <tr>
-                        <th> Log Has Timestamps </th>
-                        <td> {{ $flashlog->log_has_timestamps }} </td>
+                        <th> Log Saved / Erased / Parsed / Has time</th>
+                        <td> {{ $flashlog->log_saved }} / {{ $flashlog->log_erased }} / {{ $flashlog->log_parsed }} / {{ $flashlog->log_has_timestamps }} </td>
                     </tr>
                     <tr>
                         <th> Bytes Received </th>

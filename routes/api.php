@@ -103,6 +103,10 @@ Route::group([], function()
 		Route::patch('user', 				'Api\UserController@edit');
 		Route::patch('userlocale', 			'Api\UserController@userlocale');
 		
+		// Device specific routes (must be before resource route)
+		Route::post('devices/clocksync',    'Api\DeviceController@clocksync');
+		Route::post('devices/lora_reset',   'Api\DeviceController@lora_reset');
+		Route::post('devices/interval',     'Api\DeviceController@interval');
 
 		// Control resources 
 		Route::resource('devices', 			'Api\DeviceController',		 			['except'=>['create','edit']]);

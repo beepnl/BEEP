@@ -4,6 +4,9 @@
 @endsection
 
 @section('content')
+@role('superadmin')
+<meta name="api-token" content="{{ Auth::user()->api_token }}">
+@endrole
 
 	@if (count($errors) > 0)
 		<div class="alert alert-danger">
@@ -104,6 +107,15 @@
         </div>
         <div class="col-xs-12 col-sm-6 col-md-4">
             <div class="form-group">
+                <label>New measurement interval:</label>
+                <input type="number" name="new_measurement_interval" id="new_measurement_interval" 
+                       class="form-control" min="1" max="1440" 
+                       placeholder="Leave empty to keep current">
+                <small class="form-text text-muted">Enter a value between 1 and 1440 minutes</small>
+            </div>
+        </div>
+        <div class="col-xs-12 col-sm-6 col-md-4">
+            <div class="form-group">
                 <label>Measurement transmission ratio</label>
                 <p>{{ $item->measurement_transmission_ratio }}</p>
                 {!! Form::hidden('measurement_transmission_ratio', $item->measurement_transmission_ratio) !!}
@@ -155,4 +167,77 @@
         </div>
 	</div>
 	{!! Form::close() !!}
+@endsection
+
+@section('scripts')
+<script type="text/javascript">
+$(document).ready(function() {
+    // Get the device key from the form
+    var deviceKey = $('input[name="key"]').val();
+    
+    // Intercept form submission
+    $('form').on('submit', function(e) {
+        var newInterval = $('#new_measurement_interval').val();
+        
+        // If no new interval is set, proceed with normal submission
+        if (!newInterval || newInterval === '') {
+            return true;
+        }
+        
+        // Prevent default submission
+        e.preventDefault();
+        
+        var form = this;
+        var submitButton = $(form).find('button[type="submit"]');
+        
+        // Disable submit button and show loading
+        submitButton.prop('disabled', true);
+        submitButton.html('<i class="fa fa-spinner fa-spin"></i> Saving...');
+        
+        // Check if API token is available
+        var apiTokenMeta = $('meta[name="api-token"]');
+        var headers = {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+        };
+        
+        // Add authorization header if user is superadmin
+        if (apiTokenMeta.length > 0) {
+            headers['Authorization'] = 'Bearer ' + apiTokenMeta.attr('content');
+        }
+        
+        // Call the interval API
+        $.ajax({
+            url: '/api/devices/interval',
+            type: 'POST',
+            headers: headers,
+            data: JSON.stringify({
+                key: deviceKey,
+                interval: parseInt(newInterval)
+            }),
+            success: function(response) {
+                console.log('Interval update successful:', response);
+                
+                // Remove the interval field to prevent it from being submitted with the form
+                $('#new_measurement_interval').remove();
+                
+                // Now submit the form normally
+                form.submit();
+            },
+            error: function(xhr, status, error) {
+                console.error('Interval update failed:', error);
+                alert('Failed to update measurement interval: ' + (xhr.responseJSON?.error || error) + '\n\nThe device information will still be saved.');
+                
+                // Re-enable submit button
+                submitButton.prop('disabled', false);
+                submitButton.html('{{ __('crud.save') }}');
+                
+                // Remove the interval field and submit anyway
+                $('#new_measurement_interval').remove();
+                form.submit();
+            }
+        });
+    });
+});
+</script>
 @endsection

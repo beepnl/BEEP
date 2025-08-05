@@ -546,7 +546,7 @@ class MeasurementController extends Controller
 
                 if (isset($item['n']))
                 {
-                    if ($item['n'] == 'payload' && isset($item['vs']))
+                    if (($item['n'] == 'payload' || $item['n'] == 'payload_hex') && isset($item['vs']))
                         $payload = true;
 
                     if ($item['n'] == 'port' && isset($item['v']))
@@ -568,9 +568,9 @@ class MeasurementController extends Controller
             "vs":"1b0c6e0c6a640a01ffcd7304000c0a0946000300020002000200010001000100010001000007000000000000"
         },
         {
-            "n": "payload",
+            "n": "payload" ** or "payload_hex" since 10-06-2025 update to SenML **,
             "vs": "1b0c6e0c6a640a01ffcd7304000c0a0946000300020002000200010001000100010001000007000000000000"
-        },
+        }, 
         {
             "n": "port",
             "v": 3.0
@@ -599,6 +599,9 @@ class MeasurementController extends Controller
                 if (isset($item['n']))
                 {
                     if ($item['n'] == 'payload' && isset($item['vs']))
+                        $data_array['payload'] = $item['vs'];
+
+                    if ($item['n'] == 'payload_hex' && isset($item['vs']))
                         $data_array['payload'] = $item['vs'];
 
                     if ($item['n'] == 'port' && isset($item['v']))

@@ -14,7 +14,7 @@
 Auth::routes(['verify' => true]);
 
 Route::get('/',function(){
-	return redirect('webapp');
+	return redirect()->away('https://app.beep.nl');
 });
 
 Route::get('home', function(){
@@ -26,7 +26,7 @@ Route::get('admin', function(){
 });
 
 Route::get('webapp', function(){
-	return view('app/index');
+	return redirect()->away('https://app.beep.nl');
 });
 
 Route::get('code', 	 	 ['as'=>'sample-code.code','uses'=>'SampleCodeController@code']);

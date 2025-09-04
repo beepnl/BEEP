@@ -57,7 +57,7 @@ class InspectionsController extends Controller
                 $inspections = $inspections->where('created_at', '<=', $request->input('end'));
         }
         
-        $inspections = $inspections->limit(100)->get(); // convert query to collection
+        $inspections = $inspections->limit(1000)->get(); // convert query to collection
 
         // Add filters on items with appends
         if ($request->filled('hive_ids')) {

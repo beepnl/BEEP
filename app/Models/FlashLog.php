@@ -195,7 +195,7 @@ class FlashLog extends Model
     public function validLog()
     {
         /* validate log if: 
-           1. created_at is within 1 hour from last timestamp
+           1. created_at (upload date) is within 1 hour from last timestamp
            2. log % > 90%: interval 15 min should have 96 msg/day (>86msg = >90%)
         */
         $logs_per_day = $this->getLogPerDay();
@@ -204,7 +204,7 @@ class FlashLog extends Model
         {
             $created_u  = strtotime($this->created_at);
             $last_log_u = strtotime($this->log_date_end);
-            if ($last_log_u >= $created_u - env('FLASHLOG_VALID_UPLOAD_DIFF_SEC', 7200))
+            if (abs($last_log_u - $created_u) < env('FLASHLOG_VALID_UPLOAD_DIFF_SEC', 7200)) // make sure last available containing data is not more than max time away from upload date
             {
                 $logs_per_day_perc = $this->getTimeLogPercentage();
                 if ($logs_per_day_perc >= env('FLASHLOG_VALID_TIME_LOG_PERC', 90))

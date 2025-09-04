@@ -73,11 +73,11 @@ class Inspection extends Model
         Cache::forget('inspection-'.$this->id.'-item-count');
         Cache::forget('inspection-'.$this->id.'-searchable-array');
         
-        Log::debug("inspection ID $this->id cache emptied (clear users: $clear_users");
+        Log::debug("inspection ID $this->id cache emptied (clear_users=$clear_users)");
 
         foreach ($this->hives as $hive)
         {
-            Log::debug("inspection ID $this->id try to empty hive $hive->id cache");
+            //Log::debug("inspection ID $this->id try to empty hive $hive->id cache");
             $hive->empty_cache(false);
         }
 
@@ -85,7 +85,7 @@ class Inspection extends Model
         {
             $user_ids = $this->users()->pluck('id')->toArray();
             foreach ($user_ids as $uid) {
-                Log::debug("inspection ID $this->id try to empty user $uid cache");
+                //Log::debug("inspection ID $this->id try to empty user $uid cache");
                 User::emptyIdCache($uid, 'inspection');
             }
         }
@@ -222,6 +222,9 @@ class Inspection extends Model
 
         if (isset($location_ids))
             $inspection->locations()->sync($location_ids);
+
+        // To make sure the user cache is updated after syncs, bust the cache
+        $inspection->empty_cache();
 
         return $inspection;
     }

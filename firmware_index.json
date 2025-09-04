@@ -1,8 +1,16 @@
 [
     {
+        "version": "1.7.1",
+        "release_date": "2025-08-18T13:20:00Z",
+        "release_notes": "BEEP base 1.7.1 (same as 1.6.1) critical bug fix for occasional high energy consumption if temperature sensor (DS18b20) enters busy state.",
+        "stability": "stable",
+        "size": 187282,
+        "download_url": "https://assets.beep.nl/firmware/basev3/1.7.1/Beepbase_app_1.7.1.zip"
+    },
+    {
         "version": "1.7.0",
         "release_date": "2025-03-25T12:00:00Z",
-        "release_notes": "BEEP base 1.7.0 (same as 1.6.1) should fix occasional high energy consumption when a real time clock (RTC DS3231) is installed inside the BEEP base.",
+        "release_notes": "BEEP base 1.7.0 BEEP base v3.7 release version.",
         "stability": "stable",
         "size": 185554,
         "download_url": "https://assets.beep.nl/firmware/basev3/1.7.0/Beepbase_app_1.70.zip"
@@ -10,7 +18,7 @@
     {
         "version": "1.6.1",
         "release_date": "2025-02-07T14:50:00Z",
-        "release_notes": "BEEP base 1.6.1 should fix occasional high energy consumption when a real time clock (RTC DS3231) is installed inside the BEEP base.",
+        "release_notes": "BEEP base 1.6.1 critical bug fix for occasional high energy consumption if temperature sensor (DS18b20) enters busy state.",
         "stability": "stable",
         "size": 185554,
         "download_url": "https://assets.beep.nl/firmware/basev3/1.6.1/Beepbase_app_1.61.zip"

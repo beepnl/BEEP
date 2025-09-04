@@ -35,7 +35,7 @@ class InspectionsController extends Controller
     **/
     public function index(Request $request)
     {
-        $inspections = $request->user()->allInspections()->orderBy('created_at', 'desc')->limit(1000);
+        $inspections = $request->user()->allInspections()->orderBy('created_at', 'desc');
         
         if ($request->filled('id'))
         {
@@ -57,7 +57,7 @@ class InspectionsController extends Controller
                 $inspections = $inspections->where('created_at', '<=', $request->input('end'));
         }
         
-        $inspections = $inspections->get(); // convert query to collection
+        $inspections = $inspections->limit(1000)->get(); // convert query to collection
 
         // Add filters on items with appends
         if ($request->filled('hive_ids')) {

@@ -73,15 +73,19 @@ class Inspection extends Model
         Cache::forget('inspection-'.$this->id.'-item-count');
         Cache::forget('inspection-'.$this->id.'-searchable-array');
         
-        Log::debug("inspection ID $this->id cache emptied");
+        Log::debug("inspection ID $this->id cache emptied (clear users: $clear_users");
 
         foreach ($this->hives as $hive)
+        {
+            Log::debug("inspection ID $this->id try to empty hive $hive->id cache");
             $hive->empty_cache(false);
+        }
 
         if ($clear_users)
         {
             $user_ids = $this->users()->pluck('id')->toArray();
             foreach ($user_ids as $uid) {
+                Log::debug("inspection ID $this->id try to empty user $uid cache");
                 User::emptyIdCache($uid, 'inspection');
             }
         }

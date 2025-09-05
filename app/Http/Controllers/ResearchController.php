@@ -1408,66 +1408,77 @@ class ResearchController extends Controller
                         $fl_dev_key = $fl->getDeviceKeyAttribute();
                         $key        = isset($device_key_looup[$fl_dev_key]) ? $device_key_looup[$fl_dev_key] : null;
 
-                        if ($key && ($fl->validLog() || $invalid_log_prognose))
+                        if ($key)
                         {
-                            $valid_data_p = null;
-                            $use_data_days= false;
+                            $valid      = $fl->validLog();
+                            $days_log   = $fl->getLogDays();
 
-                            if (isset($fl->meta_data['valid_data_points']))
+                            if ($valid || $invalid_log_prognose)
                             {
-                                $valid_data_p = $fl->meta_data['valid_data_points'];
-                                $use_data_days= true;
-                            }
+                                $valid_data_p = null;
+                                $use_data_days= false;
 
-                            $meas_per_day = isset($fl->device) ? $fl->device->getMeasurementsPerDay() : 96;
-                            $start_u      = strtotime($fl->log_date_start);
-                            $days_total   = $fl->getLogDays(false); // full period
-                            $days_log     = $fl->getLogDays();
-                            $logpd        = $fl->getLogPerDay();
-                            $logperc      = $fl->getTimeLogPercentage($logpd);
-                            $logperc_arr  = [];
-
-                            // Walk through data days in Flashlog
-                            for ($d=0; $d < $days_total; $d++)
-                            { 
-                                $date = date('Y-m-d', $start_u + $d * 24 * 3600);
-                                
-                                if (!$use_data_days || isset($valid_data_p[$date]))
+                                if (isset($fl->meta_data['valid_data_points']))
                                 {
-                                    $logpd_date    = isset($valid_data_p[$date]) ? $valid_data_p[$date] : $logpd; // specific day count, or general count
-                                    $logperc       = $fl->getTimeLogPercentage($logpd_date);
-                                    $logperc_arr[] = $logperc;
-                                    $logp_id       = $fl->id.': '.$logperc;
-
-                                    // Only add logs that have weight and time data
-                                    if ($logpd_date > 0 && isset($dates[$date]))
-                                    {
-                                        if (!isset($dates[$date]['devices'][$key]))
-                                        {
-                                            $dates[$date]['devices'][$key] = ['points'=>$logpd, 'from_flashlog'=>$logpd, 'flashlog_prognose'=>$logp_id, 'total'=>$logpd, 'perc'=>$logperc, 'first_date'=>$date];
-                                        }
-                                        else if (isset($dates[$date]['devices'][$key]['total']) && $logpd >= $dates[$date]['devices'][$key]['total']) // replace total with prognose, because Flashlog should contain all
-                                        {
-                                            $dates[$date]['devices'][$key]['flashlog_prognose'] = $logp_id; // id: %
-                                            $dates[$date]['devices'][$key]['total'] = $logpd;
-                                            // Calculate new perc
-                                            $dates[$date]['devices'][$key]['perc'] = $logperc;
-                                        }
-                                    }
-                                    // Indicate the flashlogs in already available data
-                                    if (isset($dates[$date]['devices'][$key]))
-                                        $dates[$date]['devices'][$key]['flashlog'] = $fl->id;
+                                    $valid_data_p = $fl->meta_data['valid_data_points'];
+                                    $use_data_days= true;
                                 }
+
+                                $meas_per_day = isset($fl->device) ? $fl->device->getMeasurementsPerDay() : 96;
+                                $start_u      = strtotime($fl->log_date_start);
+                                $days_total   = $fl->getLogDays(false); // full period
+                                $logpd        = $fl->getLogPerDay();
+                                $logperc      = $fl->getTimeLogPercentage($logpd);
+                                $logperc_arr  = [];
+
+                                // Walk through data days in Flashlog
+                                for ($d=0; $d < $days_total; $d++)
+                                { 
+                                    $date = date('Y-m-d', $start_u + $d * 24 * 3600);
+                                    
+                                    if (!$use_data_days || isset($valid_data_p[$date]))
+                                    {
+                                        $logpd_date    = isset($valid_data_p[$date]) ? $valid_data_p[$date] : $logpd; // specific day count, or general count
+                                        $logperc       = $fl->getTimeLogPercentage($logpd_date);
+                                        $logperc_arr[] = $logperc;
+                                        $logp_id       = $fl->id.': '.$logperc;
+
+                                        // Only add logs that have weight and time data
+                                        if ($logpd_date > 0 && isset($dates[$date]))
+                                        {
+                                            if (!isset($dates[$date]['devices'][$key]))
+                                            {
+                                                $dates[$date]['devices'][$key] = ['points'=>$logpd, 'from_flashlog'=>$logpd, 'flashlog_prognose'=>$logp_id, 'total'=>$logpd, 'perc'=>$logperc, 'first_date'=>$date];
+                                            }
+                                            else if (isset($dates[$date]['devices'][$key]['total']) && $logpd >= $dates[$date]['devices'][$key]['total']) // replace total with prognose, because Flashlog should contain all
+                                            {
+                                                $dates[$date]['devices'][$key]['flashlog_prognose'] = $logp_id; // id: %
+                                                $dates[$date]['devices'][$key]['total'] = $logpd;
+                                                // Calculate new perc
+                                                $dates[$date]['devices'][$key]['perc'] = $logperc;
+                                            }
+                                        }
+                                        // Indicate the flashlogs in already available data
+                                        if (isset($dates[$date]['devices'][$key]))
+                                            $dates[$date]['devices'][$key]['flashlog'] = $fl->id;
+                                    }
+                                }
+
+                                if (count($logperc_arr) > 0)
+                                    $logperc = min(100, round(array_sum($logperc_arr) / count($logperc_arr)));
+
+                                // Indicate upload date with arrow in table
+                                $created_date = substr($fl->created_at, 0, 10);
+                                if (isset($dates[$created_date]['devices'][$key]))
+                                    $dates[$created_date]['devices'][$key]['flashlog_created'] = "$fl->id uploaded at $fl->created_at, containing $days_log days ($fl->log_date_start - $fl->log_date_end) of $logperc% ".($valid?'':'NOT YET')." validated weight/time data";
+                            } 
+                            else if ($invalid_log_prognose) // show uploaded but not yet validated FLs
+                            {
+                                // Indicate upload date with arrow in table
+                                $created_date = substr($fl->created_at, 0, 10);
+                                if (isset($dates[$created_date]['devices'][$key]))
+                                    $dates[$created_date]['devices'][$key]['flashlog_created'] = "$fl->id uploaded at $fl->created_at, containing $days_log days ($fl->log_date_start - $fl->log_date_end) ".($valid?'':'NOT YET')." validated weight/time data";
                             }
-
-                            if (count($logperc_arr) > 0)
-                                $logperc = min(100, round(array_sum($logperc_arr) / count($logperc_arr)));
-
-                            // Indicate upload date with arrow in table
-                            $created_date = substr($fl->created_at, 0, 10);
-                            if (isset($dates[$created_date]['devices'][$key]))
-                                $dates[$created_date]['devices'][$key]['flashlog_created'] = "$fl->id uploaded at $fl->created_at, containing $days_log days ($fl->log_date_start - $fl->log_date_end) of $logperc% ".($fl->validLog()?'':'NOT YET')." validated weight/time data";
-
                         }
                         //dd($fl, $dates);
                     }

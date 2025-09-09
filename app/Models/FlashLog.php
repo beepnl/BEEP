@@ -883,28 +883,56 @@ class FlashLog extends Model
         $time_start_index  = $start_index;
         $time_end_index    = $end_index;
         $device_time_offset= null;
+        $time_device_last  = 0;
+        $upload_time_sec   = 120; // offset seconds from last timestamp to upload 
 
-        if ($use_rtc && $last_onoff) // correct device time in last onoff block if it goes beyond the $max_timestamp
+        // correct device time in last onoff block if it goes beyond the $max_timestamp
+        if ($use_rtc && $last_onoff) 
         {
             for ($i=$end_index; $i >= $start_index; $i--) // look backwards for last port 3 time_device without error
             {
-                if (!isset($device_time_offset) && isset($flashlog[$i]['port']) && $flashlog[$i]['port'] == 3 && isset($flashlog[$i]['time_device']) && !isset($flashlog[$i]['time_error'])){
-                    $time_device_end = intval($flashlog[$i]['time_device']);
-                    $time_end_index  = $i;
-                    $end_index       = $i; // reset faulty $end_index from fillTimeFromInflux: count($flashlog)-1;
-                    
-                    if ($time_device_end > $max_timestamp)
+                if (!isset($device_time_offset) && isset($flashlog[$i]['port']) && $flashlog[$i]['port'] == 3 && isset($flashlog[$i]['time_device']))
+                {
+                    $time_device_i = intval($flashlog[$i]['time_device']);
+
+                    if ($time_device_i > $time_device_last)
+                        $time_device_last = $time_device_i; // log for checking if whole block time is too_low
+
+                    if (!isset($flashlog[$i]['time_error']))
                     {
-                        $device_time_offset = $max_timestamp - $time_device_end - 120; // offset negative number, minus 120 sec for upload time
-                        $time_device_end    = $time_device_end + $device_time_offset;
+                        $time_device_end = $time_device_i;
+                        $time_end_index  = $i;
+                        $end_index       = $i; // reset faulty $end_index from fillTimeFromInflux: count($flashlog)-1;
+                        
+                        if ($time_device_end > $max_timestamp)
+                        {
+                            $device_time_offset = $max_timestamp - $time_device_end - $upload_time_sec; // offset negative number, minus 120 sec for upload time
+                            $time_device_end    = $time_device_end + $device_time_offset;
+                        }
                     }
                 }
 
-                if (isset($device_time_offset)) // Correct time by interval
+                // Correct too_high complete block offset time by interval
+                if (isset($device_time_offset)) 
                 {
                     $i_diff      = $time_end_index - $i; // 0 - pos number
                     $time_device = $time_device_end - $i_diff * $interval_sec;
                     $flashlog[$i]['time_device'] = $time_device; // correct time by $device_time_offset
+                }
+            }
+
+            // Correct too_low complete block offset time by interval
+            if ($time_device_last < 1546300800)
+            {
+                $time_device_end = $max_timestamp;
+
+                for ($i=$end_index; $i >= $start_index; $i--) // look backwards for last port 3 time_device without error
+                {
+                    $i_diff      = $time_end_index - $i; // 0 - pos number
+                    $time_device = $time_device_end - $upload_time_sec - $i_diff * $interval_sec;
+                    $flashlog[$i]['time_device'] = $time_device; // correct time by $device_time_offset
+                    $flashlog[$i]['time_clock'] = 'corrected'; // correct time by $device_time_offset
+                    unset($flashlog[$i]['time_error']);
                 }
             }
         }

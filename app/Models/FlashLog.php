@@ -1359,6 +1359,7 @@ class FlashLog extends Model
             $data_count = count($data);
             $port2_msg  = 0;
             $port3_msg  = 0;
+            $time_errs  = [];
             $weight_arr = []; // array of weight measurements
             $date_arr   = []; // array with date (YYYY-MM-DD) as key and amount of valid data points (timestamps) as value
             $date_times = []; // check which date times (rounded on minute) are already set
@@ -1380,10 +1381,21 @@ class FlashLog extends Model
                         $data_time = null;
                         $data_ts   = null;
                         
-                        if (isset($data_item['time']) && !isset($data_item['time_error']))
+                        if (isset($data_item['time']))
                         {
-                            $data_time = $data_item['time'];
-                            $data_ts   = strtotime($data_time);
+                            if (isset($data_item['time_error']))
+                            {
+                                $time_error_msg = $data_item['time_error'];
+                                if (!isset($time_errs[$time_error_msg]))
+                                    $time_errs[$time_error_msg] = 0;
+
+                                $time_errs[$time_error_msg]++;
+                            }
+                            else
+                            {
+                                $data_time = $data_item['time'];
+                                $data_ts   = strtotime($data_time);
+                            }
                         }
                         
                         if ( $validate_time == false || (isset($data_ts) && $data_ts >= $time_min && $data_ts < $time_max))
@@ -1443,6 +1455,12 @@ class FlashLog extends Model
         }
 
         $meta_data  = ['port2_msg'=>$port2_msg, 'port3_msg'=>$port3_msg, 'data_days'=>$data_days];
+
+        if (count($time_errs) > 0)
+        {
+            foreach($time_errs as $err => $err_cnt)
+                $meta_data["time_err_$err"] = $err_cnt;
+        }
 
         if (count($weight_arr) > 0)
             $meta_data['weight_kg'] = CalculationModel::calculateBoxplot($weight_arr);

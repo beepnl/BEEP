@@ -22,6 +22,12 @@
                 $error = $flashlog->log_date_end > $flashlog->created_at ? true : false;
                 $color = $error ? 'red' : ($valid ? 'darkgreen' : null);
                 $msg   = $error ? 'End date after upload date' : ($valid ? 'Validated log' : null);
+
+                $logs_per_day      = $flashlog->getLogPerDay();
+                $logs_per_day_full = isset($flashlog->device) ? $flashlog->device->getMeasurementsPerDay() : 96;
+                $logs_per_day_perc = max(0, min(100, round(100 * $logs_per_day / $logs_per_day_full, 1)));
+                $time_percentage   = $flashlog->getTimeLogPercentage();
+                $time_color        = $logs_per_day_perc >= env('FLASHLOG_VALID_TIME_LOG_PERC', 90) ? 'darkgreen' : 'red';
             @endphp
 
             <table class="table table-responsive table-striped">
@@ -42,21 +48,25 @@
                         <th style="text-align: right;"> Log date start </th>
                         <td> {{ $flashlog->log_date_start }}</td>
                     </tr>
-                    <tr>
+                    <tr @if($color) style="color: {{$color}}; font-weight: bold;" title="{{$msg}}" @endif>
                         <th style="text-align: right;"> Log date end </th>
-                        <td @if($color) style="color: {{$color}}; font-weight: bold;"@endif>{{ $flashlog->log_date_end }}</td>
-                    </tr>
-                    <tr >
-                        <th style="text-align: right;"> Log data per day </th>
-                        <td @if($flashlog->logs_per_day == 96) style="color: darkgreen; font-weight: bold;"@endif>{{ $flashlog->logs_per_day }}</td>
+                        <td>{{ $flashlog->log_date_end }}</td>
                     </tr>
                     <tr>
                         <th style="text-align: right;"> Log days </th>
                         <td> {{ $flashlog->getLogDays() }}</td>
                     </tr>
-                    <tr>
+                    <tr @if($logs_per_day == 96) style="color: darkgreen; font-weight: bold;"@endif>
+                        <th style="text-align: right;"> Log data per day </th>
+                        <td >{{ $logs_per_day }}</td>
+                    </tr>
+                    <tr style="color: {{$time_color}}; font-weight: bold;">
+                        <th style="text-align: right;"> Time log percentage </th>
+                        <td >{{$time_percentage}}% = 100 * Logs per day ({{ $logs_per_day }}) / logs_per_day_full ({{ $logs_per_day_full }})</td>
+                    </tr>
+                    <tr style="color: @if($valid) darkgreen @else red @endif; font-weight: bold;" >
                         <th style="text-align: right;"> Validated </th>
-                        <td>@if($valid)<span style="color: darkgreen; font-weight: bold;">Yes</span> @else <span style="color: red; font-weight: bold;">No</span>@endif</td>
+                        <td>@if($valid) Yes @else No @endif</td>
                     </tr>
                     <tr>
                         <th style="text-align: right;"> User </th>

@@ -6,7 +6,8 @@
 	        {!! $errors->first('user_id', '<p class="help-block">:message</p>') !!}
 	    </div>
 	</div>
-</div><div class="col-xs-12">
+</div>
+<div class="col-xs-12">
 	<div class="form-group {{ $errors->has('device_id') ? 'has-error' : ''}}">
 	    <label for="device_id" control-label>{{ 'Device Id' }}</label>
 	    <div>
@@ -14,7 +15,8 @@
 	        {!! $errors->first('device_id', '<p class="help-block">:message</p>') !!}
 	    </div>
 	</div>
-</div><div class="col-xs-12">
+</div>
+<div class="col-xs-12">
 	<div class="form-group {{ $errors->has('hive_id') ? 'has-error' : ''}}">
 	    <label for="hive_id" control-label>{{ 'Hive Id' }}</label>
 	    <div>
@@ -22,7 +24,8 @@
 	        {!! $errors->first('hive_id', '<p class="help-block">:message</p>') !!}
 	    </div>
 	</div>
-</div><div class="col-xs-12">
+</div>
+<div class="col-xs-12">
 	<div class="form-group {{ $errors->has('log_messages') ? 'has-error' : ''}}">
 	    <label for="log_messages" control-label>{{ 'Log Messages' }}</label>
 	    <div>
@@ -30,7 +33,8 @@
 	        {!! $errors->first('log_messages', '<p class="help-block">:message</p>') !!}
 	    </div>
 	</div>
-</div><div class="col-xs-12">
+</div>
+<div class="col-xs-12 col-md-4">
 	<div class="form-group {{ $errors->has('log_saved') ? 'has-error' : ''}}">
 	    <label for="log_saved" control-label>{{ 'Log Saved' }}</label>
 	    <div>
@@ -43,7 +47,8 @@
 	        {!! $errors->first('log_saved', '<p class="help-block">:message</p>') !!}
 	    </div>
 	</div>
-</div><div class="col-xs-12">
+</div>
+<div class="col-xs-12 col-md-4">
 	<div class="form-group {{ $errors->has('log_parsed') ? 'has-error' : ''}}">
 	    <label for="log_parsed" control-label>{{ 'Log Parsed' }}</label>
 	    <div>
@@ -56,7 +61,8 @@
 	        {!! $errors->first('log_parsed', '<p class="help-block">:message</p>') !!}
 	    </div>
 	</div>
-</div><div class="col-xs-12">
+</div>
+<div class="col-xs-12 col-md-4">
 	<div class="form-group {{ $errors->has('log_has_timestamps') ? 'has-error' : ''}}">
 	    <label for="log_has_timestamps" control-label>{{ 'Log Has Timestamps' }}</label>
 	    <div>
@@ -69,7 +75,20 @@
 	        {!! $errors->first('log_has_timestamps', '<p class="help-block">:message</p>') !!}
 	    </div>
 	</div>
-</div><div class="col-xs-12">
+</div>
+<div class="col-xs-12">
+	<div class="form-group {{ $errors->has('created_at') ? 'has-error' : ''}}">
+	    <label for="created_at" control-label>{{ 'Upload date (created_at)' }}</label>
+	    <div>
+	        <input class="form-control" type="datetime-local" 
+           id="created_at" 
+           name="created_at"
+           value="{{ $flashlog->created_at->format('Y-m-d\TH:i') ?? ''}}">
+	        {!! $errors->first('created_at', '<p class="help-block">:message</p>') !!}
+	    </div>
+	</div>
+</div>
+<div class="col-xs-12">
 	<div class="form-group {{ $errors->has('bytes_received') ? 'has-error' : ''}}">
 	    <label for="bytes_received" control-label>{{ 'Bytes Received' }}</label>
 	    <div>
@@ -77,7 +96,8 @@
 	        {!! $errors->first('bytes_received', '<p class="help-block">:message</p>') !!}
 	    </div>
 	</div>
-</div><div class="col-xs-12">
+</div>
+<div class="col-xs-12">
 	<div class="form-group {{ $errors->has('log_file') ? 'has-error' : ''}}">
 	    <label for="log_file" control-label>{{ 'Log File' }}</label>
 	    <div>
@@ -85,7 +105,8 @@
 	        {!! $errors->first('log_file', '<p class="help-block">:message</p>') !!}
 	    </div>
 	</div>
-</div><div class="col-xs-12">
+</div>
+<div class="col-xs-12">
 	<div class="form-group {{ $errors->has('log_file_stripped') ? 'has-error' : ''}}">
 	    <label for="log_file_stripped" control-label>{{ 'Log File Stripped' }}</label>
 	    <div>
@@ -93,7 +114,8 @@
 	        {!! $errors->first('log_file_stripped', '<p class="help-block">:message</p>') !!}
 	    </div>
 	</div>
-</div><div class="col-xs-12">
+</div>
+<div class="col-xs-12">
 	<div class="form-group {{ $errors->has('log_file_parsed') ? 'has-error' : ''}}">
 	    <label for="log_file_parsed" control-label>{{ 'Log File Parsed' }}</label>
 	    <div>

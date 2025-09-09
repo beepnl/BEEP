@@ -862,7 +862,7 @@ class FlashLog extends Model
     {
         $has_matches     = false;
         $block_index     = $on['i'];
-        $start_index     = $block_index+1;
+        $start_index     = $block_index + 1;
         $interval        = isset($on['measurement_interval_min']) ? intval($on['measurement_interval_min']) : $device->measurement_interval_min; // transmission ratio is not of importance here, because log contains all measurements
         $interval_sec    = $interval * 60; // transmission ratio is not of importance here, because log contains all measurements
 
@@ -882,19 +882,31 @@ class FlashLog extends Model
         $time_device_end   = null;
         $time_start_index  = $start_index;
         $time_end_index    = $end_index;
-        $device_time_offset= 0;
+        $device_time_offset= null;
 
         if ($use_rtc && $last_onoff) // correct device time in last onoff block if it goes beyond the $max_timestamp
         {
-            for ($i=$end_index; $i > $start_index; $i--) 
+            for ($i=$end_index; $i >= $start_index; $i--) // look backwards for last port 3 time_device without error
             {
-                if (isset($flashlog[$i]['time_device']) && !isset($flashlog[$i]['time_error'])){
+                if (!isset($device_time_offset) && isset($flashlog[$i]['port']) && $flashlog[$i]['port'] == 3 && isset($flashlog[$i]['time_device']) && !isset($flashlog[$i]['time_error'])){
                     $time_device_end = intval($flashlog[$i]['time_device']);
-                    break;
+                    $time_end_index  = $i;
+                    $end_index       = $i; // reset faulty $end_index from fillTimeFromInflux: count($flashlog)-1;
+                    
+                    if ($time_device_end > $max_timestamp)
+                    {
+                        $device_time_offset = $max_timestamp - $time_device_end - 120; // offset negative number, minus 120 sec for upload time
+                        $time_device_end    = $time_device_end + $device_time_offset;
+                    }
+                }
+
+                if (isset($device_time_offset)) // Correct time by interval
+                {
+                    $i_diff      = $time_end_index - $i; // 0 - pos number
+                    $time_device = $time_device_end - $i_diff * $interval_sec;
+                    $flashlog[$i]['time_device'] = $time_device; // correct time by $device_time_offset
                 }
             }
-            if (isset($time_device_end) && $time_device_end > $max_timestamp)
-                $device_time_offset = $max_timestamp - $time_device_end; // negative number
         }
 
 
@@ -908,11 +920,8 @@ class FlashLog extends Model
             {
                 if (isset($flashlog[$i]['time_device']) && !isset($flashlog[$i]['time_error']))
                 {
-                    $time_device = intval($flashlog[$i]['time_device']) + $device_time_offset;
-
-                    if ($device_time_offset !== 0)
-                        $flashlog[$i]['time_device'] = $time_device; // correct time by $device_time_offset
-                                    
+                    $time_device = intval($flashlog[$i]['time_device']);
+                                
                     // cap start index
                     if ($time_device_start === null && $time_device > self::$minUnixTime && $time_device < $max_timestamp)
                     {
@@ -1097,7 +1106,6 @@ class FlashLog extends Model
         $setCount = 0;
         $log      = [];
         $on_offs  = $this->getFlashLogOnOffs($device, $flashlog, $fl_index);
-        //die(print_r($on_offs));
         $device_id= $device->id;
         $matches  = 0;
 
@@ -1107,6 +1115,9 @@ class FlashLog extends Model
             $last_onoff   = $i == count($on_offs)-1 ? true : false;
             // if ($start_index >= $fl_index)
             // {
+            // if ($last_onoff)
+            //     dd($on_offs);
+
             $matchBlockResult = $this->matchFlashLogBlock($i, $fl_index, $end_index, $on, $flashlog, $setCount, $device, $log, $db_time, $matches_min, $match_props, $db_records, $show, $add_sensordefinitions, $use_rtc, $last_onoff);
             $flashlog         = $matchBlockResult['flashlog'];
             $db_time          = $matchBlockResult['db_time'];

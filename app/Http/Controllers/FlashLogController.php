@@ -11,6 +11,7 @@ use App\Models\CalculationModel;
 use App\User;
 use App\Device;
 use Storage;
+use Carbon\Carbon;
 
 class FlashLogController extends Controller
 {
@@ -232,11 +233,16 @@ class FlashLogController extends Controller
      */
     public function update(Request $request, $id)
     {
-        
+        $request->validate([
+            'created_at' => 'required|date',
+        ]);
+
         $requestData = $request->all();
         
         $flashlog = FlashLog::findOrFail($id);
         $flashlog->update($requestData);
+        $flashlog->created_at = Carbon::parse($request->created_at);
+        $flashlog->save();
 
         return redirect('flash-log')->with('flash_message', 'FlashLog updated!');
     }

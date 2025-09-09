@@ -1360,6 +1360,7 @@ class FlashLog extends Model
             $port2_msg  = 0;
             $port3_msg  = 0;
             $time_errs  = [];
+            $time_clock = [];
             $weight_arr = []; // array of weight measurements
             $date_arr   = []; // array with date (YYYY-MM-DD) as key and amount of valid data points (timestamps) as value
             $date_times = []; // check which date times (rounded on minute) are already set
@@ -1381,21 +1382,27 @@ class FlashLog extends Model
                         $data_time = null;
                         $data_ts   = null;
                         
-                        if (isset($data_item['time']))
+                        if (isset($data_item['time_clock']))
                         {
-                            if (isset($data_item['time_error']))
-                            {
-                                $time_error_msg = $data_item['time_error'];
-                                if (!isset($time_errs[$time_error_msg]))
-                                    $time_errs[$time_error_msg] = 0;
+                            $time_clock_msg = $data_item['time_clock'];
+                            if (!isset($time_clock[$time_clock_msg]))
+                                $time_clock[$time_clock_msg] = 0;
 
-                                $time_errs[$time_error_msg]++;
-                            }
-                            else
-                            {
-                                $data_time = $data_item['time'];
-                                $data_ts   = strtotime($data_time);
-                            }
+                            $time_clock[$time_clock_msg]++;
+                        }
+
+                        if (isset($data_item['time_error']))
+                        {
+                            $time_error_msg = $data_item['time_error'];
+                            if (!isset($time_errs[$time_error_msg]))
+                                $time_errs[$time_error_msg] = 0;
+
+                            $time_errs[$time_error_msg]++;
+                        }
+                        else if (isset($data_item['time'])) // no error and time set
+                        {
+                            $data_time = $data_item['time'];
+                            $data_ts   = strtotime($data_time);
                         }
                         
                         if ( $validate_time == false || (isset($data_ts) && $data_ts >= $time_min && $data_ts < $time_max))
@@ -1455,6 +1462,12 @@ class FlashLog extends Model
         }
 
         $meta_data  = ['port2_msg'=>$port2_msg, 'port3_msg'=>$port3_msg, 'data_days'=>$data_days];
+
+        if (count($time_clock) > 0)
+        {
+            foreach($time_clock as $msg => $msg_cnt)
+                $meta_data["time_clock_$msg"] = $msg_cnt;
+        }
 
         if (count($time_errs) > 0)
         {

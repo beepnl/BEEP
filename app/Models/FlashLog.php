@@ -1371,6 +1371,26 @@ class FlashLog extends Model
 
                 if (isset($data_item['port'])) 
                 {
+                    // Log clock types
+                    if (isset($data_item['time_clock']))
+                    {
+                        $time_clock_msg = $data_item['time_clock'];
+                        if (!isset($time_clock[$time_clock_msg]))
+                            $time_clock[$time_clock_msg] = 0;
+
+                        $time_clock[$time_clock_msg]++;
+                    }
+
+                    // Log time errors
+                    if (isset($data_item['time_error']))
+                    {
+                        $time_error_msg = $data_item['time_error'];
+                        if (!isset($time_errs[$time_error_msg]))
+                            $time_errs[$time_error_msg] = 0;
+
+                        $time_errs[$time_error_msg]++;
+                    }
+
                     if ($data_item['port'] == 2)
                     {
                         $port2_msg+= 1;
@@ -1382,24 +1402,7 @@ class FlashLog extends Model
                         $data_time = null;
                         $data_ts   = null;
                         
-                        if (isset($data_item['time_clock']))
-                        {
-                            $time_clock_msg = $data_item['time_clock'];
-                            if (!isset($time_clock[$time_clock_msg]))
-                                $time_clock[$time_clock_msg] = 0;
-
-                            $time_clock[$time_clock_msg]++;
-                        }
-
-                        if (isset($data_item['time_error']))
-                        {
-                            $time_error_msg = $data_item['time_error'];
-                            if (!isset($time_errs[$time_error_msg]))
-                                $time_errs[$time_error_msg] = 0;
-
-                            $time_errs[$time_error_msg]++;
-                        }
-                        else if (isset($data_item['time'])) // no error and time set
+                        if (!isset($data_item['time_error']) && isset($data_item['time'])) // no error and time set
                         {
                             $data_time = $data_item['time'];
                             $data_ts   = strtotime($data_time);

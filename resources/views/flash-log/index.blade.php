@@ -115,7 +115,15 @@
             </thead>
             <tbody>
             @foreach($flashlog as $item)
-                <tr @if($item->validLog()) style="background: lightgreen;" @endif>
+
+                @php
+                    $valid = $item->validLog();
+                    $error = $item->log_date_end > $item->created_at ? true : false;
+                    $color = $error ? '#FFDDDD' : ($valid ? 'lightgreen' : null);
+                    $msg   = $error ? 'End date after upload date' : ($valid ? 'Validated log' : null);
+                @endphp
+
+                <tr @if($color) style="background: {{$color}};" title="{{$msg}}" @endif>
                     <td>{{ $item->id }}</td>
                     <td>{{ $item->created_at }}</td>
                     <td>{{ $item->updated_at }}</td>

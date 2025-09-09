@@ -352,13 +352,17 @@ class CalculationModel extends Model
     // Boxplot from data array
     public static function calculateBoxplot(array $data): array 
     {
-        sort($data);
         $count = count($data);
+        
+        if ($count === 0)
+            return null;
 
-        $median = function($arr) {
-            $n = count($arr);
-            $mid = floor($n / 2);
-            if ($n % 2) {
+        sort($data, SORT_NUMERIC);
+
+        $median = function($arr) use ($count)
+        {
+            $mid = intdiv($count, 2);
+            if ($count % 2 === 1) {
                 return $arr[$mid];
             } else {
                 return ($arr[$mid - 1] + $arr[$mid]) / 2;

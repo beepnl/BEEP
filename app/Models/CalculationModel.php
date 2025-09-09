@@ -350,40 +350,56 @@ class CalculationModel extends Model
     }
 
     // Boxplot from data array
-    public static function calculateBoxplot(array $data): array 
+   public static function calculateBoxplot(array $data): array
     {
         $count = count($data);
-        
-        if ($count === 0)
-            return null;
+
+        // Return a well-formed array even for empty input (signature requires array)
+        if ($count === 0) {
+            return [
+                'count' => 0,
+            ];
+        }
 
         sort($data, SORT_NUMERIC);
 
-        $median = function($arr) use ($count)
-        {
-            $mid = intdiv($count, 2);
-            if ($count % 2 === 1) {
-                return $arr[$mid];
-            } else {
-                return ($arr[$mid - 1] + $arr[$mid]) / 2;
+        // Safe median: returns null for empty array
+        $median = function (array $arr) {
+            $n = count($arr);
+            if ($n === 0) {
+                return null;
             }
+            $mid = intdiv($n, 2);
+            if ($n % 2 === 1) {
+                return $arr[$mid];
+            }
+            return ($arr[$mid - 1] + $arr[$mid]) / 2;
         };
 
-        $min = min($data);
-        $max = max($data);
-        $q2 = $median($data);
+        $min = $data[0];
+        $max = $data[$count - 1];
+        $q2  = $median($data);
 
-        $lowerHalf = array_slice($data, 0, floor($count / 2));
-        $upperHalf = array_slice($data, ceil($count / 2));
+        // Build halves in a way that excludes the median when count is odd
+        if ($count === 1) {
+            // If only one value, all quartiles are that value
+            $q1 = $q2;
+            $q3 = $q2;
+        } else {
+            $lowerHalf = array_slice($data, 0, intdiv($count, 2));
+            // For upper half: skip the median if odd; start at intdiv($count,2) for even,
+            // or intdiv($count,2)+1 for odd.
+            $upperStart = ($count % 2 === 0) ? intdiv($count, 2) : intdiv($count, 2) + 1;
+            $upperHalf  = array_slice($data, $upperStart);
 
-        $q1 = $median($lowerHalf);
-        $q3 = $median($upperHalf);
+            // median() can return null for empty slices; fallback to overall median $q2
+            $q1 = $median($lowerHalf) ?? $q2;
+            $q3 = $median($upperHalf) ?? $q2;
+        }
 
-
-        // Calculate bit resolution
+        // Calculate bit resolution more defensively
         $bitResolution = null;
         $minDiff = null;
-
         for ($i = 1; $i < $count; $i++) {
             $diff = abs($data[$i] - $data[$i - 1]);
             if ($diff > 0 && ($minDiff === null || $diff < $minDiff)) {
@@ -391,21 +407,17 @@ class CalculationModel extends Model
             }
         }
 
-        if (isset($minDiff) && $minDiff > 0)
-        {
-           
-            // Calculate range
+        if (isset($minDiff) && $minDiff > 0) {
             $range = $max - $min;
 
             if ($range == 0) {
-                $bitResolution = 1; // All values same; technically 1 distinguishable value = 1 bit
+                $bitResolution = 1;
+            } else {
+                // number of distinct representable values = floor(range/minDiff) + 1
+                $distinctValues = (int) floor($range / $minDiff) + 1;
+                $distinctValues = max(1, $distinctValues); // ensure >=1
+                $bitResolution = (int) ceil(log($distinctValues, 2));
             }
-
-            // Calculate the number of distinguishable values
-            $distinctValues = $range / $minDiff;
-
-            // Bit resolution = ceil(log2(distinctValues))
-            $bitResolution = (int) ceil(log($distinctValues, 2));
         }
 
         return [
@@ -415,9 +427,10 @@ class CalculationModel extends Model
             'p75' => $q3,
             'max' => $max,
             'count' => $count,
-            'bitResolution' => $bitResolution
+            'bitResolution' => $bitResolution,
         ];
     }
+
 
     public static function arrayToString($array, string $separator = ', ', string $prefix = '', $not_keys=[]): string {
 

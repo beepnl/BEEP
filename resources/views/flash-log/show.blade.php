@@ -17,42 +17,53 @@
 
         @slot('body')
 
+            @php
+                $valid = $flashlog->validLog();
+                $error = $flashlog->log_date_end > $flashlog->created_at ? true : false;
+                $color = $error ? 'red' : ($valid ? 'darkgreen' : null);
+                $msg   = $error ? 'End date after upload date' : ($valid ? 'Validated log' : null);
+            @endphp
+
             <table class="table table-responsive table-striped">
                 <tbody>
                     <tr>
-                        <th>ID</th>
+                        <th style="text-align: right;">ID</th>
                         <td>{{ $flashlog->id }}</td>
                     </tr>
                     <tr>
-                        <th> Created at </th>
+                        <th style="text-align: right;"> Created at </th>
                         <td> {{ $flashlog->created_at }} </td>
                     </tr>
                     <tr>
-                        <th> Updated at </th>
+                        <th style="text-align: right;"> Updated at </th>
                         <td> {{ $flashlog->updated_at }} </td>
                     </tr>
                     <tr>
-                        <th> Log date start </th>
+                        <th style="text-align: right;"> Log date start </th>
                         <td> {{ $flashlog->log_date_start }}</td>
                     </tr>
-                    <tr @if($flashlog->validLog()) style="background-color: lightgreen;"@endif>
-                        <th> Log date end </th>
-                        <td >{{ $flashlog->log_date_end }}</td>
+                    <tr>
+                        <th style="text-align: right;"> Log date end </th>
+                        <td @if($color) style="color: {{$color}}; font-weight: bold;"@endif>{{ $flashlog->log_date_end }}</td>
                     </tr>
-                    <tr @if($flashlog->validLog()) style="background-color: lightgreen;"@endif>
-                        <th> Log data per day </th>
-                        <td>{{ $flashlog->logs_per_day }}</td>
+                    <tr >
+                        <th style="text-align: right;"> Log data per day </th>
+                        <td @if($flashlog->logs_per_day == 96) style="color: darkgreen; font-weight: bold;"@endif>{{ $flashlog->logs_per_day }}</td>
                     </tr>
                     <tr>
-                        <th> Log days </th>
+                        <th style="text-align: right;"> Log days </th>
                         <td> {{ $flashlog->getLogDays() }}</td>
                     </tr>
                     <tr>
-                        <th> User </th>
+                        <th style="text-align: right;"> Validated </th>
+                        <td>@if($valid)<span style="color: darkgreen; font-weight: bold;">Yes</span> @else <span style="color: red; font-weight: bold;">No</span>@endif</td>
+                    </tr>
+                    <tr>
+                        <th style="text-align: right;"> User </th>
                         <td> @isset($flashlog->user_id) {{ $flashlog->user_name }} ({{ $flashlog->user_id }}) @endisset </td>
                     </tr>
                     <tr>
-                        <th> Device </th>
+                        <th style="text-align: right;"> Device </th>
                         <td> 
                             @isset($flashlog->device_id)
                             <a href="/devices/{{ $flashlog->device_id }}">{{ isset($flashlog->device_name) ? $flashlog->device_name : 'NAME?' }}</a>.
@@ -61,35 +72,35 @@
                         </td>
                     </tr>
                     <tr>
-                        <th> Apiary - Hive </th>
+                        <th style="text-align: right;"> Apiary - Hive </th>
                         <td> @isset($flashlog->hive_id) {{ $flashlog->hive->location }} ({{ $flashlog->hive->location_id }}) - {{ $flashlog->hive_name }} ({{ $flashlog->hive_id }}) @endisset </td>
                     </tr>
                     <tr>
-                        <th> Log Messages </th>
+                        <th style="text-align: right;"> Log Messages </th>
                         <td> {{ $flashlog->log_messages }} </td>
                     </tr>
                     <tr>
-                        <th> Log Saved / Erased / Parsed / Has time</th>
+                        <th style="text-align: right;"> Log Saved / Erased / Parsed / Has time</th>
                         <td> {{ $flashlog->log_saved }} / {{ $flashlog->log_erased }} / {{ $flashlog->log_parsed }} / {{ $flashlog->log_has_timestamps }} </td>
                     </tr>
                     <tr>
-                        <th> Bytes Received </th>
+                        <th style="text-align: right;"> Bytes Received </th>
                         <td> {{ $flashlog->bytes_received }} </td>
                     </tr>
                     <tr>
-                        <th> Bytes at BEEP base </th>
+                        <th style="text-align: right;"> Bytes at BEEP base </th>
                         <td> {{ $flashlog->log_size_bytes }} </td>
                     </tr>
                     <tr>
-                        <th> Log file raw </th>
+                        <th style="text-align: right;"> Log file raw </th>
                         <td> <a target="_blank" href="{{ $flashlog->log_file }}">{{ $flashlog->log_file }}</a> </td>
                     </tr>
                     <tr>
-                        <th> Log file stripped </th>
+                        <th style="text-align: right;"> Log file stripped </th>
                         <td> <a target="_blank" href="{{ $flashlog->log_file_stripped }}">{{ $flashlog->log_file_stripped }}</a> </td>
                     </tr>
                     <tr>
-                        <th> Log file parsed </th>
+                        <th style="text-align: right;"> Log file parsed </th>
                         <td>
                             <a target="_blank" href="{{ $flashlog->log_file_parsed }}">{{ $flashlog->log_file_parsed }}</a> 
                             <a href="{{ route('flash-log.parse', ['id'=>$flashlog->id, 'load_show'=>1]) }}" title="{{ __('crud.parse') }}"><button title="Parse Flashlog with time fill and adding Sensordefinitions (slow)" class="btn btn-info loading-spinner" data-loading-text="<i class='fa fa-refresh fa-spin'></i>"><i class="fa fa-refresh" aria-hidden="true"></i></button></a>
@@ -98,12 +109,12 @@
                         </td>
                     </tr>
                     <tr>
-                        <th> Log file CSV </th>
+                        <th style="text-align: right;"> Log file CSV </th>
                         <td> <a target="_blank" href="{{ $flashlog->csv_url }}">{{ $flashlog->csv_url }}</a> </td>
                     </tr>
 
                     <tr>
-                        <th> Log meta </th>
+                        <th style="text-align: right;"> Log meta </th>
                         <td>
 <textarea rows="10" style="width: 100%">
 {!! json_encode($flashlog->meta_data, JSON_PRETTY_PRINT) !!}

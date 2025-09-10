@@ -786,7 +786,7 @@ class FlashLog extends Model
                     $fl_time = null;
                     if ($use_device_time)
                     {
-                        if (isset($fl['time_device']) && !isset($fl['time_error']) && isset($fl['time_device']) > self::$minUnixTime)
+                        if (isset($fl['time_device']) && !isset($fl['time_error']) && $fl['time_device'] > self::$minUnixTime)
                         {
                             $indexMoment= new Moment(intval($fl['time_device']));
                             $fl_time    = $indexMoment->format($this->timeFormat);
@@ -996,9 +996,15 @@ class FlashLog extends Model
             {
                 $match_feedback_arr = ['time'=>'RTC'];
 
-                if ($device_time_offset !== 0){
-                    $match_feedback_arr['offset_sec'] = $device_time_offset;
-                    $match_feedback_arr['corrected'] = 'to upload_date';
+                if ($last_onoff)
+                {
+                    if (isset($flashlog[$end_index]['time_clock']))
+                        $match_feedback_arr['time_clock'] = $flashlog[$end_index]['time_clock'];
+
+                    if ($device_time_offset !== null){
+                        $match_feedback_arr['offset_sec'] = $device_time_offset;
+                        $match_feedback_arr['corrected'] = 'to upload_date';
+                    }
                 }
 
                 $log_block = ['block'=>$i, 'block_i'=>$block_index, 'start_i'=>$start_index, 'end_i'=>$end_index, 'duration_hours'=>$duration_hrs, 'fl_i'=>$start_index, 'db_time'=>$db_time, 'interval_min'=>$interval, 'interval_sec'=>$interval_sec, 'index_start'=>$block['index_start'], 'index_end'=>$block['index_end'], 'time_start'=>$block['time_start'], 'time_end'=>$time_end, 'setCount'=>$block['setCount'], 'matches'=>['matches'=>array_fill(0, $matches_min, $match_feedback_arr)]];
@@ -1387,6 +1393,12 @@ class FlashLog extends Model
             $data_days  = null;
             $data_count = count($data);
             $port2_msg  = 0;
+            $port2_dts_mn= null;
+            $port2_dts_mx= null;
+            $port3_dts_mn= null;
+            $port3_dts_mx= null;
+            $port3_ts_mn= null;
+            $port3_ts_mx= null;
             $port3_msg  = 0;
             $time_errs  = [];
             $time_clock = [];
@@ -1396,7 +1408,8 @@ class FlashLog extends Model
         
             for ($i=$data_count-1; $i >= 0; $i--) 
             { 
-                $data_item = $data[$i];
+                $data_item   = $data[$i];
+                $time_device = isset($data_item['time_device']) ? intval($data_item['time_device']) : null;
 
                 if (isset($data_item['port'])) 
                 {
@@ -1423,6 +1436,25 @@ class FlashLog extends Model
                     if ($data_item['port'] == 2)
                     {
                         $port2_msg+= 1;
+
+                        // Log min time
+                        if (isset($time_device)){
+                            if ($port2_dts_mn === null)
+                                $port2_dts_mn = $time_device;
+
+                            if ($time_device < $port2_dts_mn)
+                                $port2_dts_mn = $time_device;
+                        }
+
+                        // Log max time
+                        if (isset($time_device)){
+                            if ($port2_dts_mx === null)
+                                $port2_dts_mx = $time_device;
+
+                            if ($time_device > $port2_dts_mx)
+                                $port2_dts_mx = $time_device;
+                        }
+
                     }
                     else if ($data_item['port'] == 3)
                     {
@@ -1436,7 +1468,43 @@ class FlashLog extends Model
                             $data_time = $data_item['time'];
                             $data_ts   = strtotime($data_time);
                         }
+
+                        // Log min time
+                        if (isset($data_ts)){
+                            if ($port3_ts_mn === null)
+                                $port3_ts_mn = $data_ts;
+
+                            if ($data_ts < $port3_ts_mn)
+                                $port3_ts_mn = $data_ts;
+                        }
+
+                        // Log max time
+                        if (isset($data_ts)){
+                            if ($port3_ts_mx === null)
+                                $port3_ts_mx = $data_ts;
+
+                            if ($data_ts > $port3_ts_mx)
+                                $port3_ts_mx = $data_ts;
+                        }
                         
+                        // Log min device time
+                        if (isset($time_device)){
+                            if ($port3_dts_mn === null)
+                                $port3_dts_mn = $time_device;
+
+                            if ($time_device < $port3_dts_mn)
+                                $port3_dts_mn = $time_device;
+                        }
+
+                        // Log max device  time
+                        if (isset($time_device)){
+                            if ($port3_dts_mx === null)
+                                $port3_dts_mx = $time_device;
+
+                            if ($time_device > $port3_dts_mx)
+                                $port3_dts_mx = $time_device;
+                        }
+
                         if ( $validate_time == false || (isset($data_ts) && $data_ts >= $time_min && $data_ts < $time_max))
                         {
                             $date_time_round_min = $data_ts; // Round to minute, to store only 1 value per minute: YYYY-MM-DD HH:mm (leave :ss)
@@ -1454,7 +1522,7 @@ class FlashLog extends Model
                                 // Add data point to date_arr and set last/first data date
                                 if (isset($data_time))
                                 {
-                                    if (!isset($data_item['time_device']) || ($data_item['time_device'] >= $time_min && $data_item['time_device'] < $time_max)) // time is set (also allow previously parsed Flashlogs without RTC), or time_device should be correctly set
+                                    if (!isset($time_device) || ($time_device >= $time_min && $time_device < $time_max)) // time is set (also allow previously parsed Flashlogs without RTC), or time_device should be correctly set
                                     {
                                         if ($last_date === null)
                                             $last_date = $data_time; // update until last item with date
@@ -1494,6 +1562,24 @@ class FlashLog extends Model
         }
 
         $meta_data  = ['port2_msg'=>$port2_msg, 'port3_msg'=>$port3_msg, 'data_days'=>$data_days];
+
+        if (isset($port2_dts_mn))
+            $meta_data["port2_device_time_first"] = date('Y-m-d H:i:s', $port2_dts_mn);
+
+        if (isset($port2_dts_mx))
+            $meta_data["port2_device_time_last"] = date('Y-m-d H:i:s', $port2_dts_mx);
+
+        if (isset($port3_dts_mn))
+            $meta_data["port3_device_time_first"] = date('Y-m-d H:i:s', $port3_dts_mn);
+
+        if (isset($port3_dts_mx))
+            $meta_data["port3_device_time_last"] = date('Y-m-d H:i:s', $port3_dts_mx);
+
+        if (isset($port3_ts_mn))
+            $meta_data["port3_time_first"] = date('Y-m-d H:i:s', $port3_ts_mn);
+
+        if (isset($port3_ts_mx))
+            $meta_data["port3_time_last"] = date('Y-m-d H:i:s', $port3_ts_mx);
 
         if (count($time_clock) > 0)
         {

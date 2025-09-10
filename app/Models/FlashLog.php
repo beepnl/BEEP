@@ -788,11 +788,8 @@ class FlashLog extends Model
                     {
                         if (isset($fl['time_device']) && !isset($fl['time_error']))
                         {
-                            try{
-                                $indexMoment= new Moment(intval($fl['time_device']));
-                            } catch (Exception $e) {
-                                Log::error("setFlashBlockTimes new Moment(".$fl['time_device'].") error: $e");
-                            }
+                            Log::debug("setFlashBlockTimes new Moment(".$fl['time_device'].")");
+                            $indexMoment= new Moment(intval($fl['time_device']));
                             $fl_time    = $indexMoment->format($this->timeFormat);
                             $fl['time'] = $fl_time;
                             if ($blockDeviceStaDate === null)

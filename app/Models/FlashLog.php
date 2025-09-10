@@ -786,9 +786,8 @@ class FlashLog extends Model
                     $fl_time = null;
                     if ($use_device_time)
                     {
-                        if (isset($fl['time_device']) && !isset($fl['time_error']))
+                        if (isset($fl['time_device']) && !isset($fl['time_error']) && isset($fl['time_device']) > self::$minUnixTime)
                         {
-                            Log::debug("setFlashBlockTimes new Moment(".$fl['time_device'].")");
                             $indexMoment= new Moment(intval($fl['time_device']));
                             $fl_time    = $indexMoment->format($this->timeFormat);
                             $fl['time'] = $fl_time;
@@ -924,7 +923,7 @@ class FlashLog extends Model
             }
 
             // Correct too_low complete block offset time by interval
-            if ($time_device_last < 1546300800)
+            if ($time_device_last < self::$minUnixTime)
             {
                 $time_device_end = $max_timestamp;
 

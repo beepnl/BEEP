@@ -742,6 +742,7 @@ class FlashLog extends Model
         return $ave != 0 ? min(100, max(0, round(100 * $diff / $ave, 1))) : 0;
     }
 
+    // Set time and add weight_kg by calibration 
     private function setFlashBlockTimes($match, $blockInd, $startInd, $endInd, $flashlog, $device, $show=false, $sec_diff_per_index=null, $add_sensordefinitions=true, $use_device_time=false)
     {
         if (isset($match) && isset($match['flashlog_index']) && isset($match['minute_interval']) && isset($match['time'])) // set times for current block
@@ -787,7 +788,11 @@ class FlashLog extends Model
                     {
                         if (isset($fl['time_device']) && !isset($fl['time_error']))
                         {
-                            $indexMoment= new Moment(intval($fl['time_device']));
+                            try{
+                                $indexMoment= new Moment(intval($fl['time_device']));
+                            } catch (Exception $e) {
+                                Log::error("setFlashBlockTimes new Moment(".$fl['time_device'].") error: $e");
+                            }
                             $fl_time    = $indexMoment->format($this->timeFormat);
                             $fl['time'] = $fl_time;
                             if ($blockDeviceStaDate === null)

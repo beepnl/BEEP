@@ -1391,6 +1391,7 @@ class FlashLog extends Model
             $first_date = null; 
             $last_date  = null; 
             $data_days  = null;
+            $data_days_w= null;
             $data_count = count($data);
             $port2_msg  = 0;
             $port2_dts_mn= null;
@@ -1555,17 +1556,22 @@ class FlashLog extends Model
                 // count percentage of max data per day
                 $max_data_per_day = 96;
                 $data_days        = 0;
+                $data_days_w      = 0;
 
-                foreach ($date_arr as $date_totals)
+                foreach ($date_arr as $d => $date_totals)
                 {
-                    $measurement_cnt = $date_totals['w']; // weight AND time set
-                    $day_fraction    = $measurement_cnt > $max_data_per_day ? 1 : $measurement_cnt / $max_data_per_day; // 0-1
+                    $cnt_time_only   = $date_totals['t']; // weight AND time set
+                    $cnt_time_weight = $date_totals['w']; // weight AND time set
+                    $date_arr[$d]    = $cnt_time_weight;
+                    $day_fraction    = $cnt_time_only > $max_data_per_day ? 1 : $cnt_time_only / $max_data_per_day; // 0-1
+                    $day_fraction_w  = $cnt_time_weight > $max_data_per_day ? 1 : $cnt_time_weight / $max_data_per_day; // 0-1
                     $data_days      += $day_fraction;
+                    $data_days_w    += $day_fraction_w;
                 }
             }
         }
 
-        $meta_data  = ['port2_msg'=>$port2_msg, 'port3_msg'=>$port3_msg, 'data_days'=>$data_days];
+        $meta_data  = ['port2_msg'=>$port2_msg, 'port3_msg'=>$port3_msg, 'data_days'=>$data_days, 'data_days_weight'=>$data_days_w];
 
         if (isset($port2_dts_mn))
             $meta_data["port2_device_time_first"] = date('Y-m-d H:i:s', $port2_dts_mn);
@@ -1600,7 +1606,7 @@ class FlashLog extends Model
         if (count($weight_arr) > 0)
             $meta_data['weight_kg'] = CalculationModel::calculateBoxplot($weight_arr);
 
-        if (count($date_arr) > 0)
+        if (count($date_arr) > 0 && array_sum($date_arr) > 0)
             $meta_data['valid_data_points'] = $date_arr;
 
         if ($only_return_meta_data)

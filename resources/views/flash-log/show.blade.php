@@ -27,7 +27,7 @@
                 $logs_per_day_full = isset($flashlog->device) ? $flashlog->device->getMeasurementsPerDay() : 96;
                 $logs_per_day_perc = max(0, min(100, round(100 * $logs_per_day / $logs_per_day_full, 1)));
                 $time_percentage   = $flashlog->getTimeLogPercentage();
-                $time_color        = $logs_per_day_perc >= env('FLASHLOG_VALID_TIME_LOG_PERC', 90) ? 'darkgreen' : 'red';
+                $time_color        = $logs_per_day_perc >= env('FLASHLOG_VALID_TIME_LOG_PERC', 90) && $logs_per_day_perc <= 101 ? 'darkgreen' : 'red';
             @endphp
 
             <table class="table table-responsive table-striped">

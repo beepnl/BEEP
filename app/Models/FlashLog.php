@@ -186,7 +186,7 @@ class FlashLog extends Model
         if (isset($logs_per_day)) // means that $this->log_date_end is set
         {
             $logs_per_day_full = isset($this->device) ? $this->device->getMeasurementsPerDay() : 96;
-            $logs_per_day_perc = max(0, min(100, round(100 * $logs_per_day / $logs_per_day_full, 1)));
+            $logs_per_day_perc = max(0, round(100 * $logs_per_day / $logs_per_day_full, 1));
             return $logs_per_day_perc;
         }
         return 0;
@@ -207,7 +207,7 @@ class FlashLog extends Model
             if (abs($last_log_u - $created_u) < env('FLASHLOG_VALID_UPLOAD_DIFF_SEC', 7200)) // make sure last available containing data is not more than max time away from upload date
             {
                 $logs_per_day_perc = $this->getTimeLogPercentage();
-                if ($logs_per_day_perc >= env('FLASHLOG_VALID_TIME_LOG_PERC', 90))
+                if ($logs_per_day_perc >= env('FLASHLOG_VALID_TIME_LOG_PERC', 90) && $logs_per_day_perc <= 101)
                     return true;
             }
         }
@@ -1532,9 +1532,12 @@ class FlashLog extends Model
 
                                     $data_date = substr($data_time, 0, 10);
                                     if (!isset($date_arr[$data_date]))
-                                        $date_arr[$data_date] = 0;
+                                        $date_arr[$data_date] = ['t'=>0, 'w'=>0];
+
+                                    $date_arr[$data_date]['t']++;
                                     
-                                    $date_arr[$data_date] += intval($weight_set); // count 1 data point if weight AND time are set
+                                    if ($weight_set)
+                                        $date_arr[$data_date]['w']++; // count 1 data point if weight AND time are set
                                 }
 
                                 // Register data_ts in date_times to not overwrite
@@ -1553,10 +1556,11 @@ class FlashLog extends Model
                 $max_data_per_day = 96;
                 $data_days        = 0;
 
-                foreach ($date_arr as $measurement_cnt)
+                foreach ($date_arr as $date_totals)
                 {
-                    $day_fraction = $measurement_cnt > $max_data_per_day ? 1 : $measurement_cnt / $max_data_per_day; // 0-1
-                    $data_days   += $day_fraction;
+                    $measurement_cnt = $date_totals['w']; // weight AND time set
+                    $day_fraction    = $measurement_cnt > $max_data_per_day ? 1 : $measurement_cnt / $max_data_per_day; // 0-1
+                    $data_days      += $day_fraction;
                 }
             }
         }
@@ -1596,7 +1600,7 @@ class FlashLog extends Model
         if (count($weight_arr) > 0)
             $meta_data['weight_kg'] = CalculationModel::calculateBoxplot($weight_arr);
 
-        if (count($date_arr) > 0 && array_sum($date_arr) > 0)
+        if (count($date_arr) > 0)
             $meta_data['valid_data_points'] = $date_arr;
 
         if ($only_return_meta_data)

@@ -923,14 +923,14 @@ class FlashLog extends Model
             }
 
             // Correct too_low complete block offset time by interval
-            if ($time_device_last < self::$minUnixTime)
+            if ($time_device_last < $max_timestamp - 3600)
             {
-                $time_device_end = $max_timestamp;
+                $time_device_end = $max_timestamp - $upload_time_sec;
 
                 for ($i=$end_index; $i >= $start_index; $i--) // look backwards for last port 3 time_device without error
                 {
                     $i_diff      = $time_end_index - $i; // 0 - pos number
-                    $time_device = $time_device_end - $upload_time_sec - $i_diff * $interval_sec;
+                    $time_device = $time_device_end - $i_diff * $interval_sec;
                     $flashlog[$i]['time_device'] = $time_device; // correct time by $device_time_offset
                     $flashlog[$i]['time_clock'] = 'corrected'; // correct time by $device_time_offset
                     unset($flashlog[$i]['time_error']);

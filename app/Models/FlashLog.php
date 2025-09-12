@@ -496,7 +496,7 @@ class FlashLog extends Model
                 $csv_saved = $this->addCsvToFlashlog($flashlog_filled['flashlog']);
                 //dd($csv_saved, $this->meta_data);
                 if ($csv_saved)
-                    $result["Meta data"] = CalculationModel::arrayToString($this->meta_data, ', ', '', ['valid_data_points']);
+                    $result["Meta data"] = CalculationModel::arrayToString($this->meta_data, ', ', '', ['valid_data_points','port2_times_device']);
             }
         }
 
@@ -1394,6 +1394,7 @@ class FlashLog extends Model
             $data_days_w= null;
             $data_count = count($data);
             $port2_msg  = 0;
+            $port2_dates= [];
             $port2_dts_mn= null;
             $port2_dts_mx= null;
             $port3_dts_mn= null;
@@ -1414,6 +1415,19 @@ class FlashLog extends Model
 
                 if (isset($data_item['port'])) 
                 {
+                    $data_time = null;
+                    $data_ts   = null;
+                        
+                    if (!isset($data_item['time_error']) && isset($data_item['time'])) // no error and time set
+                    {
+                        $data_time = $data_item['time'];
+                        $data_ts   = strtotime($data_time);
+                        $data_date = substr($data_time, 0, 10);
+                        if (!isset($date_arr[$data_date]))
+                            $date_arr[$data_date] = ['t'=>0, 'w'=>0, 'port2'=>0, 'port2_times_device'=>[]];
+
+                    }
+
                     // Log clock types
                     if (isset($data_item['time_clock']))
                     {
@@ -1456,19 +1470,18 @@ class FlashLog extends Model
                                 $port2_dts_mx = $time_device;
                         }
 
+                        if (isset($data_date))
+                        {
+                            $date_arr[$data_date]['port2']++;
+                            $date_arr[$data_date]['port2_times_device'][] = "$time_device: ".date('Y-m-d H:i:s', $time_device);
+                        }
+
                     }
                     else if ($data_item['port'] == 3)
                     {
                         //change order of time
                         $port3_msg+= 1;
-                        $data_time = null;
-                        $data_ts   = null;
                         
-                        if (!isset($data_item['time_error']) && isset($data_item['time'])) // no error and time set
-                        {
-                            $data_time = $data_item['time'];
-                            $data_ts   = strtotime($data_time);
-                        }
 
                         // Log min time
                         if (isset($data_ts)){
@@ -1531,10 +1544,6 @@ class FlashLog extends Model
                                         $first_date = $data_time;
                                     }
 
-                                    $data_date = substr($data_time, 0, 10);
-                                    if (!isset($date_arr[$data_date]))
-                                        $date_arr[$data_date] = ['t'=>0, 'w'=>0];
-
                                     $date_arr[$data_date]['t']++;
                                     
                                     if ($weight_set)
@@ -1567,11 +1576,17 @@ class FlashLog extends Model
                     $day_fraction_w  = $cnt_time_weight > $max_data_per_day ? 1 : $cnt_time_weight / $max_data_per_day; // 0-1
                     $data_days      += $day_fraction;
                     $data_days_w    += $day_fraction_w;
+
+                    if ($date_totals['port2'] > 0)
+                        $port2_dates[$d] = $date_totals['port2_times_device'];
                 }
             }
         }
 
         $meta_data  = ['port2_msg'=>$port2_msg, 'port3_msg'=>$port3_msg, 'data_days'=>$data_days, 'data_days_weight'=>$data_days_w];
+
+        if (count($port2_dates) > 0)
+            $meta_data['port2_times_device'] = $port2_dates;
 
         if (isset($port2_dts_mn))
             $meta_data["port2_device_time_first"] = date('Y-m-d H:i:s', $port2_dts_mn);

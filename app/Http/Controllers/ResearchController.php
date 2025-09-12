@@ -1908,7 +1908,7 @@ class ResearchController extends Controller
         $log_data_state     = $log_data_valid && isset($item->log_file_info['log_date_end']) ? "Validated until: ".$item->log_file_info['log_date_end'] : ($item->flashlogs()->count() == 0 ? "No flashlogs uploaded yet" : "Validation ongoing");
         $log_data_note      = isset($item->log_file_info['note']) ? $item->log_file_info['note'] : null;
         $log_data_csv       = isset($item->log_file_info['csv_url']) ? $item->log_file_info['csv_url'] : null;
-        $log_data_info      = isset($item->log_file_info) ? CalculationModel::arrayToString($item->log_file_info, ' | ', '', ['csv_url','valid_data_points','note']) : null;
+        $log_data_info      = isset($item->log_file_info) ? CalculationModel::arrayToString($item->log_file_info, ' | ', '', ['csv_url','valid_data_points','note','port2_times_device']) : null;
 
         isset($item->log_file_info['note']) ? $item->log_file_info['note'] : null;
         return [
@@ -1965,7 +1965,7 @@ class ResearchController extends Controller
     {
         return $flashlogs->where('created_at', '<=', $date_until)->sortBy('device_id')->sortByDesc('created_at')->map(function($item) use ($user_id)
         {
-            $meta_data = isset($item->meta_data) ? CalculationModel::arrayToString($item->meta_data, ' | ', '', ['valid_data_points']) : null;
+            $meta_data = isset($item->meta_data) ? CalculationModel::arrayToString($item->meta_data, ' | ', '', ['valid_data_points','port2_times_device']) : null;
             
             return [
                 $user_id,

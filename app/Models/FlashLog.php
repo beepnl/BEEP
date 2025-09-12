@@ -170,6 +170,32 @@ class FlashLog extends Model
 
     public function getLogPerDay()
     {
+        // first check if meta data contains the exact value
+        if (isset($this->meta_data['valid_data_points']))
+        {
+            $data_points_sum = 0;
+            $data_points_cnt = 0;
+            $data_points_arr = array_values($this->meta_data['valid_data_points']); // keys are dates, make integer
+            $data_points_len = count($data_points_arr);
+
+            for ($i=0; $i < $data_points_len; $i++)
+            { 
+                $v   = $data_points_arr[$i];
+                $v_p = $i > 0 ? $data_points_arr[$i-1] : null;
+                $v_n = $i < $data_points_len - 1 ? $data_points_arr[$i+1] : null;
+                {
+                    if ($v > 0 && $v_p != 0 && $v_n != 0) // only count full day values, no days at start and end, that are half
+                    {
+                        $data_points_sum += $v;
+                        $data_points_cnt ++;
+                    }
+                }
+            }
+
+            $logs_per_day = $data_points_cnt == 0 ? 0 : round($data_points_sum/$data_points_cnt);
+            return $logs_per_day;
+        }
+        // else base on log_messages and log_days
         $log_days = $this->getLogDays();
         if (isset($log_days) && $log_days > 0 && isset($this->log_messages))
         {
@@ -581,7 +607,7 @@ class FlashLog extends Model
         }
 
         //Log::debug(['getFlashLogOnOffs', 'device_id'=>$device->id, 'fl_length'=>$fl_length, 'p2'=>$p2_mes_count, 'p3'=>$p3_mes_count, 'fl_index'=>$fl_index, 'fl_index_end'=>$fl_index_end, 'onoffs'=>$onoffs]);
-        
+
         return array_values($onoffs);
     }
 

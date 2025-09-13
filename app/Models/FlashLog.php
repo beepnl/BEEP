@@ -181,13 +181,16 @@ class FlashLog extends Model
             for ($i=0; $i < $data_points_len; $i++)
             { 
                 $v   = $data_points_arr[$i];
-                $v_p = $i > 0 ? $data_points_arr[$i-1] : null;
-                $v_n = $i < $data_points_len - 1 ? $data_points_arr[$i+1] : null;
+                if (is_numeric($v))
                 {
-                    if ($v > 0 && $v_p != 0 && $v_n != 0) // only count full day values, no days at start and end, that are half
+                    $v_p = $i > 0 ? $data_points_arr[$i-1] : null;
+                    $v_n = $i < $data_points_len - 1 ? $data_points_arr[$i+1] : null;
                     {
-                        $data_points_sum += $v;
-                        $data_points_cnt ++;
+                        if ($v > 0 && $v_p != 0 && $v_n != 0) // only count full day values, no days at start and end, that are half
+                        {
+                            $data_points_sum += $v;
+                            $data_points_cnt ++;
+                        }
                     }
                 }
             }
@@ -547,7 +550,7 @@ class FlashLog extends Model
         $p2_mes_count= 0;
         $block_count = 0;
 
-        for ($i=$fl_index; $i < $fl_index_end; $i++) 
+        for ($i=$fl_index; $i <= $fl_index_end; $i++) 
         {
             $f = $flashlog[$i];
             if (isset($f['port'])) // check for port 2 messages (switch on/off) in between 'before' and 'after' matches
@@ -581,7 +584,7 @@ class FlashLog extends Model
                         }
                         else // set last index of the current port 2 block 
                         {
-                            $onoffs[$block_count]['end_index'] = $f['i']-1; // index of the flashlog item is 1 lower than the i inside the flashlog
+                            $onoffs[$block_count]['end_index'] = $i; // index of the flashlog item is 1 lower than the i inside the flashlog
                         }
                     }
                 }
@@ -911,59 +914,97 @@ class FlashLog extends Model
         $time_device_last  = 0;
         $upload_time_sec   = 120; // offset seconds from last timestamp to upload 
 
-        // correct device time in last onoff block if it goes beyond the $max_timestamp
+        // Correct device time in same block, it the time goes back by 24 hours (caused by the RTC?)
+        if ($use_rtc)
+        {
+            $block_time_offset = 0;
+
+            for ($index=$start_index; $index <= $end_index; $index++) 
+            {
+                if (isset($flashlog[$index]['time_device']) && $flashlog[$index]['port'] == 3 && !isset($flashlog[$index]['time_error']))
+                {
+                    $time_device      = intval($flashlog[$index]['time_device']);
+                    $time_device_prev = $index > 0 ? intval($flashlog[$index-1]['time_device']) : $time_device;
+                                
+                    if ($time_device < $time_device_prev && $time_device < $max_timestamp && $time_device > self::$minUnixTime)
+                        $block_time_offset = $time_device_prev - $time_device + $interval_sec; // increase time offset with every step back in time
+
+                    if ($block_time_offset > 0)
+                    {
+                        $time_device += $block_time_offset;
+                        $flashlog[$index]['time_device'] = $time_device;
+                        $flashlog[$index]['time_corr']   = 'corrected_step'; // correct time by $block_time_offset
+                        $flashlog[$index]['time_offset'] = $block_time_offset;
+                        
+                        if ($time_device < $max_timestamp)
+                            $flashlog[$index]['time'] = date('Y-m-d H:i:s', $time_device); // correct time by $device_time
+                        else
+                            $flashlog[$index]['time_error'] = 'beyond max';
+                    }
+                }
+            }
+        }
+        
+        // correct device time in last onoff block if it is not close to upload date, or goes beyond the $max_timestamp
         if ($use_rtc && $last_onoff) 
         {
-            //dd($i, $on, $start_index, $end_index, $flashlog[$start_index], $flashlog[$end_index]);
             for ($index=$end_index; $index >= $start_index; $index--) // look backwards for last port 3 time_device without error
             {
-                if (!isset($device_time_offset) && isset($flashlog[$index]['port']) && $flashlog[$index]['port'] == 3 && isset($flashlog[$index]['time_device']))
+                if (isset($flashlog[$index]['port']) && $flashlog[$index]['port'] == 3 && isset($flashlog[$index]['time_device']))
                 {
-
+                    $time_device = intval($flashlog[$index]['time_device']);
+                    
                     if (!isset($flashlog[$index]['time_error']))
                     {
-                        $time_device_i = intval($flashlog[$index]['time_device']);
-                        
-                        if ($time_device_i > $time_device_last)
-                            $time_device_last = $time_device_i; // log for checking if whole block time is too_low
+                        if ($time_device > $time_device_last)
+                            $time_device_last = $time_device; // log for checking if whole block time is too_low
 
                         if (!isset($time_device_end))
                         {
-                            $time_device_end = $time_device_i;
+                            $time_device_end = $time_device;
                             $time_end_index  = $index;
                             
-                            if ($time_device_end > $max_timestamp)
+                            if (!isset($device_time_offset) && $time_device_end > $max_timestamp)
                             {
                                 $device_time_offset = $max_timestamp - $time_device_end - $upload_time_sec; // offset negative number, minus 120 sec for upload time
                                 $time_device_end    = $time_device_end + $device_time_offset;
+
+                                //dd($block_index, $on, $start_index, $end_index, $flashlog[$start_index-1], $flashlog[$end_index-1], $device_time_offset);
                             }
                         }
                     }
-                }
 
-                // Correct too_high complete block offset time by interval
-                if (isset($device_time_offset)) 
-                {
-                    $index_diff  = $time_end_index - $index; // 0 - pos number
-                    $time_device = $time_device_end - $index_diff * $interval_sec;
-                    $flashlog[$index]['time_device'] = $time_device; // correct time by $device_time_offset
+                    // Correct too_high complete block offset time by interval
+                    if (isset($device_time_offset)) 
+                    {
+                        //$time_device_new = $time_device + $device_time_offset;
+                        $time_device_new = $max_timestamp - (($time_end_index - $index) * $interval_sec) - $upload_time_sec;
+                        $flashlog[$index]['time_device'] = $time_device_new; // correct time by $device_time_offset
+                        $flashlog[$index]['time']        = date('Y-m-d H:i:s', $time_device_new); // correct time by $device_time
+                        $flashlog[$index]['time_corr']   = 'corrected_down'; // correct time by $device_time_offset
+                        $flashlog[$index]['time_offset'] = $time_device_new - $time_device; 
+                        // $flashlog[$index]['time_offset'] = $device_time_offset; 
+                        unset($flashlog[$index]['time_error']);
+                        //dd($block_index, $start_index, $end_index, $time_device-$device_time_offset, $device_time_offset, $device_time_offset, $index, $flashlog[$index]);
+                    }
                 }
             }
 
             // Correct too_low complete block offset time by interval
             if ($time_device_last < $max_timestamp - 3600)
             {
-                $time_device_end = $max_timestamp - $upload_time_sec;
+                $device_time_offset = $max_timestamp - $time_device_last - $upload_time_sec;
                 //dd($on, $start_index, $end_index, $time_device_last, date('Y-m-d H:i:s', $time_device_last), $time_device_end, date('Y-m-d H:i:s', $time_device_end));
 
                 for ($index=$end_index; $index >= $start_index; $index--)  // correct time backwards from last index
                 {
-                    if (isset($flashlog[$index]['port']) && $flashlog[$index]['port'] == 3)
+                    if (isset($flashlog[$index]['port']) && $flashlog[$index]['port'] == 3 && isset($flashlog[$index]['time_device']))
                     {
-                        $index_diff  = $time_end_index - $index; // 0 - pos number
-                        $time_device = $time_device_end - $index_diff * $interval_sec;
-                        $flashlog[$index]['time_device'] = $time_device; // correct time by $device_time_offset
-                        $flashlog[$index]['time_clock'] = 'corrected'; // correct time by $device_time_offset
+                        $time_device_new = intval($flashlog[$index]['time_device']) + $device_time_offset;
+                        $flashlog[$index]['time_device'] = $time_device_new; // correct time by $device_time_offset
+                        $flashlog[$index]['time']        = date('Y-m-d H:i:s', $time_device_new); // correct time by $device_time
+                        $flashlog[$index]['time_corr']   = 'corrected_up'; // correct time by $device_time_offset
+                        $flashlog[$index]['time_offset'] = $device_time_offset; 
                         unset($flashlog[$index]['time_error']);
                     }
                 }
@@ -975,15 +1016,15 @@ class FlashLog extends Model
         $firmware_version  = isset($on['firmware_version']) ? $on['firmware_version'] : null;
         $transmission_ratio= isset($on['measurement_transmission_ratio']) ? $on['measurement_transmission_ratio'] : null;
 
-        // Try to fill by (corrected) device time
+        // Cap start and end index by (corrected) device time
         if ($use_rtc && (!isset($time_device_start) || !isset($time_device_end)))
         {
             for ($index=$start_index; $index <= $end_index; $index++) 
             {
-                if (isset($flashlog[$index]['time_device']) && !isset($flashlog[$index]['time_error']))
+                if (isset($flashlog[$index]['time_device']) && !isset($flashlog[$index]['time_error']) && $flashlog[$index]['port'] == 3)
                 {
                     $time_device = intval($flashlog[$index]['time_device']);
-                                
+
                     // cap start index
                     if ($time_device_start === null && $time_device > self::$minUnixTime && $time_device < $max_timestamp)
                     {
@@ -1035,10 +1076,11 @@ class FlashLog extends Model
                     if (isset($flashlog[$end_index]['time_clock']))
                         $match_feedback_arr['time_clock'] = $flashlog[$end_index]['time_clock'];
 
-                    if ($device_time_offset !== null){
+                    if (isset($flashlog[$end_index]['time_corr']))
+                        $match_feedback_arr['time_corr'] = $flashlog[$end_index]['time_corr'];
+
+                    if ($device_time_offset !== null)
                         $match_feedback_arr['offset_sec'] = $device_time_offset;
-                        $match_feedback_arr['corrected'] = 'to upload_date';
-                    }
                 }
 
                 $log_block = ['block'=>$block_index, 'block_i'=>$block_i, 'start_i'=>$start_index, 'end_i'=>$end_index, 'duration_hours'=>$duration_hrs, 'fl_i'=>$start_index, 'db_time'=>$db_time, 'interval_min'=>$interval, 'interval_sec'=>$interval_sec, 'index_start'=>$block['index_start'], 'index_end'=>$block['index_end'], 'time_start'=>$block['time_start'], 'time_end'=>$time_end, 'setCount'=>$block['setCount'], 'matches'=>['matches'=>array_fill(0, $matches_min, $match_feedback_arr)]];

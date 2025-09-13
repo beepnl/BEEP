@@ -23,11 +23,25 @@
                 $color = $error ? 'red' : ($valid ? 'darkgreen' : null);
                 $msg   = $error ? 'End date after upload date' : ($valid ? 'Validated log' : null);
 
+                $invalid_meta_data = [];
+                if (isset($flashlog->meta_data['valid_data_points']))
+                {
+                    foreach($flashlog->meta_data['valid_data_points'] as $d => $logs_day)
+                    {
+                        if ($logs_day > 0 && $logs_day != 96)
+                            $invalid_meta_data[$d] = "$d: $logs_day";
+                    }
+                }
+
                 $logs_per_day      = $flashlog->getLogPerDay();
                 $logs_per_day_full = isset($flashlog->device) ? $flashlog->device->getMeasurementsPerDay() : 96;
                 $logs_per_day_perc = max(0, min(100, round(100 * $logs_per_day / $logs_per_day_full, 1)));
                 $time_percentage   = $flashlog->getTimeLogPercentage();
                 $time_color        = $logs_per_day_perc >= env('FLASHLOG_VALID_TIME_LOG_PERC', 90) && $logs_per_day_perc <= 101 ? 'darkgreen' : 'red';
+
+                $weight_kg_perc    = 0; 
+                if (isset($flashlog->meta_data['data_days_weight']) && isset($flashlog->meta_data['data_days']) && $flashlog->meta_data['data_days'] > 0)
+                    $weight_kg_perc = round(100 * $flashlog->meta_data['data_days_weight'] / $flashlog->meta_data['data_days']);
             @endphp
 
             <table class="table table-responsive table-striped">
@@ -54,7 +68,7 @@
                     </tr>
                     <tr>
                         <th style="text-align: right;"> Log days </th>
-                        <td> {{ $flashlog->getLogDays() }}</td>
+                        <td> {{ $flashlog->getLogDays() }} (of which {{ $weight_kg_perc }}% weight)</td>
                     </tr>
                     <tr @if($logs_per_day == 96) style="color: darkgreen; font-weight: bold;"@endif>
                         <th style="text-align: right;"> Log data per day </th>
@@ -131,6 +145,37 @@
 </textarea>
                         </td>
                     </tr>
+                    <tr>
+                        <form action="{{ route('flash-log.show', $flashlog->id) }}" method="GET">
+                            <th style="text-align: right;"> Analyse date </th>
+                            <td>
+                                <select name="date" class="form-control">
+                                    <option value="">Select an invalid log date to analyse</option>
+                                    @foreach($invalid_meta_data as $d => $label)
+                                        <option value="{{ $d }}" {{ $date == $d ? 'selected' : '' }}>
+                                            {{ $label }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                                <label for="show_payload">Show payload?</label>
+                                <select name="show_payload" id="show_payload" class="form-control">
+                                    <option value="0" {{ old('show_payload') == '0' ? 'selected' : '' }}>No</option>
+                                    <option value="1" {{ old('show_payload') == '1' ? 'selected' : '' }}>Yes</option>
+                                </select>
+                                <button type="submit">Analyse</button>
+                            </td>
+                        </form>
+                    </tr>
+                    <tr>
+                        <th style="text-align: right;"> Analysis {{ $date }} </th>
+                        <td>
+                    @isset($date_analysis)
+<textarea rows="50" style="width: 100%">
+{!! json_encode($date_analysis, JSON_PRETTY_PRINT) !!}
+</textarea>
+                        </td>
+                    </tr>
+                    @endisset
                 </tbody>
             </table>
 

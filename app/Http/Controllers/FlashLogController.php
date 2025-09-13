@@ -118,11 +118,61 @@ class FlashLogController extends Controller
      *
      * @return \Illuminate\View\View
      */
-    public function show($id)
+    public function show(Request $request, $id)
     {
         $flashlog = FlashLog::findOrFail($id);
 
-        return view('flash-log.show', compact('flashlog'));
+        // Analyse one day
+        $date          = $request->filled('date') ? $request->input('date') : null;
+        $show_payload  = $request->filled('show_payload') && $request->input('show_payload') === '1' ? true : false;
+        $date_analysis = null;
+        if (isset($date))
+        {
+            $date_analysis = [];
+            $data = json_decode($flashlog->getFileContent('log_file_parsed'), true);
+            foreach ($data as $i => $line)
+            {
+                if (isset($line['time']))
+                {
+                    if (substr($line['time'], 0, 10) == $date)
+                    {
+                        
+                        if (substr($line['time'], 11, 4) == '00:0')
+                            $date_analysis[] = '------------------------------- NEW DAY ------------------------------------';
+
+                        if ($line['port'] == 2)
+                            $date_analysis[] = '------------------------------ NEW BLOCK -----------------------------------';
+
+                        $data_line = 'P='.$line['port'].' | i='.$line['i'].' | time='.$line['time'].' | time_clock='.$line['time_clock'].' | time_device='.$line['time_device'];
+
+                        if (isset($line['time_error']))
+                            $data_line .= ' | time_error='.$line['time_error'];
+
+                        if (isset($line['time_corr']))
+                            $data_line .= ' | time_corr='.$line['time_corr'];
+
+                        if (isset($line['time_offset']))
+                            $data_line .= ' | time_offset='.$line['time_offset'];
+
+                        if (isset($line['w_v']))
+                            $data_line .= ' | w_v='.$line['w_v'];
+
+                        if (isset($line['weight_kg']))
+                            $data_line .= ' | weight_kg='.$line['weight_kg'];
+                        
+                        if (isset($line['t_i']))
+                            $data_line .= ' | t='.$line['t_i'];
+
+                        if ($show_payload && isset($line['payload_hex']))
+                            $data_line .= ' | payload_hex='.$line['payload_hex'];
+
+                        $date_analysis[] = $data_line;
+                    }
+                }
+            }
+        }
+
+        return view('flash-log.show', compact('flashlog','date','date_analysis'));
     }
 
     /**

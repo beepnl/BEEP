@@ -124,6 +124,7 @@ class FlashLogController extends Controller
 
         // Analyse one day
         $date          = $request->filled('date') ? $request->input('date') : null;
+        $correct_data  = $request->filled('correct_data') && $request->input('correct_data') === '1' ? true : false;
         $show_payload  = $request->filled('show_payload') && $request->input('show_payload') === '1' ? true : false;
         $date_analysis = null;
         if (isset($date))
@@ -172,7 +173,7 @@ class FlashLogController extends Controller
             }
         }
 
-        return view('flash-log.show', compact('flashlog','date','date_analysis'));
+        return view('flash-log.show', compact('flashlog','date','date_analysis','correct_data'));
     }
 
     /**
@@ -189,6 +190,7 @@ class FlashLogController extends Controller
         $fill_csv = $request->filled('csv') && $request->input('csv') == 1 ? true : false;
         $fill_meta= $request->filled('add_meta') && $request->input('add_meta') == 1 ? true : false;
         $load_show= $request->filled('load_show') && $request->input('load_show') == 1 ? true : false;
+        $correct_data = $request->filled('correct_data') && $request->input('correct_data') === '1' ? true : false;
         $flashlog = FlashLog::findOrFail($id);
         $out      = [];
         
@@ -239,7 +241,7 @@ class FlashLogController extends Controller
                 if (isset($data))
                 {
                     // log($data='', $log_bytes=null, $save=true, $fill=?, $show=false, $matches_min_override=null, $match_props_override=null, $db_records_override=null, $save_override=false, $from_cache=false, $match_days_offset=0, $add_sensordefinitions=?)
-                    $res  = $flashlog->log($data, null, true, $fill_time, false, null, null, null, false, false, 0, $fill_sdef);
+                    $res  = $flashlog->log($data, null, true, $fill_time, false, null, null, null, false, false, 0, $fill_sdef, true, $correct_data);
 
                     foreach ($res as $key => $value) {
                         $out[] = "$key=$value"; 

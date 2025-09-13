@@ -130,6 +130,14 @@
                             <a href="{{ route('flash-log.parse', ['id'=>$flashlog->id, 'load_show'=>1]) }}" title="{{ __('crud.parse') }}"><button title="Parse Flashlog with time fill and adding Sensordefinitions (slow)" class="btn btn-info loading-spinner" data-loading-text="<i class='fa fa-refresh fa-spin'></i>"><i class="fa fa-refresh" aria-hidden="true"></i></button></a>
                             <a href="{{ route('flash-log.parse', ['id'=>$flashlog->id, 'add_meta'=>1, 'load_show'=>1] ) }}" title="{{ __('crud.parse') }}"><button title="Add meta data" class="btn btn-sm btn-warning loading-spinner" data-loading-text="<i class='fa fa-refresh fa-spin'></i>"><i class="fa fa-refresh" aria-hidden="true"></i></button></a>
                             <a href="{{ route('flash-log.parse', ['id'=>$flashlog->id, 'csv'=>1, 'load_show'=>1] ) }}" title="{{ __('crud.parse') }}"><button title="Create new CSV" class="btn btn-sm btn-success loading-spinner" data-loading-text="<i class='fa fa-refresh fa-spin'></i>"><i class="fa fa-table" aria-hidden="true"></i></button></a>
+
+                            <form action="{{ route('flash-log.show', $flashlog->id) }}" method="GET">
+                                <label for="correct_data">Correct data?</label>
+                                <select name="correct_data" onchange="this.form.submit()" id="correct_data" class="form-control">
+                                    <option value="0" {{ $correct_data == '0' ? 'selected' : '' }}>No</option>
+                                    <option value="1" {{ $correct_data == '1' ? 'selected' : '' }}>Yes</option>
+                                </select>
+                            </form>
                         </td>
                     </tr>
                     <tr>
@@ -146,7 +154,7 @@
                         </td>
                     </tr>
                     <tr>
-                        <form action="{{ route('flash-log.show', $flashlog->id) }}" method="GET">
+                        <form id="flash-log-analysis" action="{{ route('flash-log.show', $flashlog->id) }}" method="GET">
                             <th style="text-align: right;"> Analyse date </th>
                             <td>
                                 <select name="date" class="form-control">
@@ -158,7 +166,7 @@
                                     @endforeach
                                 </select>
                                 <label for="show_payload">Show payload?</label>
-                                <select name="show_payload" id="show_payload" class="form-control">
+                                <select name="show_payload" id="show_payload" class="form-control" onchange="this.form.submit()" >
                                     <option value="0" {{ old('show_payload') == '0' ? 'selected' : '' }}>No</option>
                                     <option value="1" {{ old('show_payload') == '1' ? 'selected' : '' }}>Yes</option>
                                 </select>

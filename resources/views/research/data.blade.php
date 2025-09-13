@@ -209,7 +209,7 @@
             .gr{
                 background-color: #B5E989;
             }
-            th.smalltext{
+            .table > tbody > tr > th.smalltext{
                 font-size: 12px;
                 line-height: 10px;
                 padding-top: 0;

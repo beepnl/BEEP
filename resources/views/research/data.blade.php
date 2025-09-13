@@ -304,9 +304,9 @@
                                 <td class="tb-row-small explain flashlog">Flashlog<br>available</td>
                                 <td style="border-top: 2px dashed green;" class="tb-row-small flashlog prognose">Flashlog data<br>prognose %</td>
                                 <td class="tb-row-small lowbat">Low<br>battery</td>
-                                <td class="tb-row-small explain gr">>80% db<br>data</td>
-                                <td class="tb-row-small explain or">>40% db<br>data</td>
-                                <td class="tb-row-small explain rd">=<40% db<br>data</td>
+                                <td class="tb-row-small explain gr">>80%<br>data</td>
+                                <td class="tb-row-small explain or">>40%<br>data</td>
+                                <td class="tb-row-small explain rd">=<40% || >= 101%<br>data</td>
                             </tr>
                         </tbody>
                     </table>
@@ -321,9 +321,7 @@
                     <thead>
                         <tr>
                             <th class="rotate">#</th>
-                            <th class="rotate">Device</th>
-                            <th class="rotate">Current Apiary</th>
-                            <th class="rotate">Current hive</th>
+                            <th class="rotate">Device / Apiary / Hive</th>
                             <th class="rotate" title="Average data completeness of the {{ $data_completeness_count }} selected devices and dates"><span style="color:grey;">{{ empty($data_completeness) ?  '' : $data_completeness.'%' }}</span><br><br>Data</th>
                             @if($add_flashlogs)
                             <th class="rotate">CSV export</th>
@@ -360,11 +358,11 @@
                         @endphp
                         <tr class="tb-row-small" @if (isset($device->deleted_at)) style="color: #AAA;" title="Device has been deleted at {{$device->deleted_at}}" @else title="{{ $device->name }}" @endif>
                             <th>{{$i}}</th> 
-                            <th @isset($device) title="{{ $device->name }} (id: {{ $device->id }} created: {{ $device->created_at }})" @endisset class="tb-row-very-small row-header">{{ $device->name }} ({{ $device->id }})</th> 
-
-                            <th @if(null !== $device->location()) title="{{ $device->location_name }} (id: {{ $loc_id }} created: {{ $device->location()->created_at }})"@endif class="tb-row-very-small row-header">{{ $device->location_name }} ({{ $loc_id }})</th> 
-
-                            <th @isset($device->hive) title="{{ $device->hive_name }} (id: {{ $device->hive_id }} created: {{ $device->hive->created_at }})"@endisset class="tb-row-very-small row-header">{{ $device->hive_name }} ({{ $device->hive_id }})</th> 
+                            <th title="@isset($device) {{ $device->name }} (id: {{ $device->id }} created: {{ $device->created_at }}) @endisset @if(null !== $device->location()), {{ $device->location_name }} (id: {{ $loc_id }} created: {{ $device->location()->created_at }}) @endif, @isset($device->hive) {{ $device->hive_name }} (id: {{ $device->hive_id }} created: {{ $device->hive->created_at }}) @endisset" class="tb-row-very-small row-header" style="font-size: 8px;">
+                                {{ $device->name }} ({{ $device->id }})<br>
+                                {{ $device->location_name }} ({{ $loc_id }})<br>
+                                {{ $device->hive_name }} ({{ $device->hive_id }})
+                            </th> 
 
                             <th class="tb-row-very-small row-header" title="Average data completeness: {{$data_comp}} ({{ $data_points }} over {{$data_days_dev}} data days)">{{ $data_comp }}</th> 
 
@@ -456,7 +454,9 @@
                                     if (isset($d['devices'][$key]['perc']))
                                     {
                                         $perc      = $d['devices'][$key]['perc'];
-                                        if ($perc >= 80)
+                                        if ($perc >= 101)
+                                            $class_arr[] = 'rd';
+                                        else if ($perc >= 80)
                                             $class_arr[] = 'gr';
                                         else if ($perc >= 40)
                                             $class_arr[] = 'or';

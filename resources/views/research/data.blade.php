@@ -209,6 +209,12 @@
             .gr{
                 background-color: #B5E989;
             }
+            th.smalltext{
+                font-size: 12px;
+                line-height: 10px;
+                padding-top: 0;
+                padding-bottom: 0;
+            }
             td.prognose{
                 border: 2px dashed green;
             }
@@ -358,7 +364,7 @@
                         @endphp
                         <tr class="tb-row-small" @if (isset($device->deleted_at)) style="color: #AAA;" title="Device has been deleted at {{$device->deleted_at}}" @else title="{{ $device->name }}" @endif>
                             <th>{{$i}}</th> 
-                            <th title="@isset($device) {{ $device->name }} (id: {{ $device->id }} created: {{ $device->created_at }}) @endisset @if(null !== $device->location()), {{ $device->location_name }} (id: {{ $loc_id }} created: {{ $device->location()->created_at }}) @endif, @isset($device->hive) {{ $device->hive_name }} (id: {{ $device->hive_id }} created: {{ $device->hive->created_at }}) @endisset" class="tb-row-very-small row-header" style="font-size: 8px;">
+                            <th title="@isset($device) {{ $device->name }} (id: {{ $device->id }} created: {{ $device->created_at }}) @endisset @if(null !== $device->location()), {{ $device->location_name }} (id: {{ $loc_id }} created: {{ $device->location()->created_at }}) @endif, @isset($device->hive) {{ $device->hive_name }} (id: {{ $device->hive_id }} created: {{ $device->hive->created_at }}) @endisset" class="tb-row-very-small row-header smalltext">
                                 {{ $device->name }} ({{ $device->id }})<br>
                                 {{ $device->location_name }} ({{ $loc_id }})<br>
                                 {{ $device->hive_name }} ({{ $device->hive_id }})

@@ -841,6 +841,9 @@ class FlashLog extends Model
                     // Add sensor definition measurement if not yet present (or if input_measurement_id == output_measurement_id) 
                     if ($fl['port'] == 3)
                     {
+                        // if (isset($fl['time_corr']) && $fl['time_corr'] == 'corrected_down')
+                        //     dd($fl);
+
                         if ($add_sensordefinitions && $sensor_defs_c > 0 && isset($fl_time) && isset($fl['w_v']) && !isset($fl['weight_kg']) )
                         {
                             if ($sensor_defs_c > 1) // select appropriate $sensor_def for multiple sensor_defs
@@ -935,6 +938,7 @@ class FlashLog extends Model
                         $flashlog[$index]['time_device'] = $time_device;
                         $flashlog[$index]['time_corr']   = 'corrected_step'; // correct time by $block_time_offset
                         $flashlog[$index]['time_offset'] = $block_time_offset;
+                        $use_device_time                 = true;
                         
                         if ($time_device < $max_timestamp)
                             $flashlog[$index]['time'] = date('Y-m-d H:i:s', $time_device); // correct time by $device_time
@@ -983,6 +987,7 @@ class FlashLog extends Model
                         $flashlog[$index]['time']        = date('Y-m-d H:i:s', $time_device_new); // correct time by $device_time
                         $flashlog[$index]['time_corr']   = 'corrected_down'; // correct time by $device_time_offset
                         $flashlog[$index]['time_offset'] = $time_device_new - $time_device; 
+                        $use_device_time                 = true;
                         // $flashlog[$index]['time_offset'] = $device_time_offset; 
                         unset($flashlog[$index]['time_error']);
                         //dd($block_index, $start_index, $end_index, $time_device-$device_time_offset, $device_time_offset, $device_time_offset, $index, $flashlog[$index]);
@@ -1005,6 +1010,7 @@ class FlashLog extends Model
                         $flashlog[$index]['time']        = date('Y-m-d H:i:s', $time_device_new); // correct time by $device_time
                         $flashlog[$index]['time_corr']   = 'corrected_up'; // correct time by $device_time_offset
                         $flashlog[$index]['time_offset'] = $device_time_offset; 
+                        $use_device_time                 = true;
                         unset($flashlog[$index]['time_error']);
                     }
                 }

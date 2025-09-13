@@ -1308,7 +1308,9 @@ class FlashLog extends Model
                 $data_array['minute'],
                 $data_array['time_clock'],
                 $data_array['time_device'],
-                $data_array['time_error']
+                $data_array['time_error'],
+                $data_array['time_corr'],
+                $data_array['time_offset'],
             );
 
         return $data_array;
@@ -1383,7 +1385,7 @@ class FlashLog extends Model
                                     $data_item       = array_merge(['time'=>$data_time_utc], $data_item); // Time in first column
                                     $data_item_clean = self::cleanFlashlogItem($data_item, true);
 
-                                    // Add missing temperature column (for for combined flashlogs having no t_i at first but afterwards added)
+                                    // Add missing temperature column (for combined flashlogs having no t_i at first but afterwards added)
                                     if (!isset($data_item_clean['t_i']))
                                         $data_item_clean = self::insertAt($data_item_clean, 3, 't_i', null); // after w_v
 

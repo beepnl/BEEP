@@ -889,7 +889,7 @@ class FlashLog extends Model
         return ['flashlog'=>$flashlog];
     }
 
-    private function matchFlashLogBlock($block_index, $fl_index, $end_index, $on, $flashlog, $setCount, $device, $log, $db_time, $matches_min, $match_props, $db_records, $show=false, $add_sensordefinitions=true, $use_rtc=true, $last_onoff=false, $correct_data=false)
+    private function matchFlashLogBlock($block_index, $fl_index, $end_index, $on, $flashlog, $setCount, $device, $log, $db_time, $matches_min, $match_props, $db_records, $show=false, $add_sensordefinitions=true, $use_rtc=true, $last_onoff=false, $correct_data=false, $previous_offset=0)
     {
         $has_matches     = false;
         $block_i         = $on['i'];
@@ -913,7 +913,7 @@ class FlashLog extends Model
         $time_device_end   = null;
         $time_start_index  = $start_index;
         $time_end_index    = $end_index;
-        $device_time_offset= null;
+        $device_time_offset= $previous_offset !== 0 ? $previous_offset : null;
         $time_device_last  = 0;
         $upload_time_sec   = 120; // offset seconds from last timestamp to upload 
 
@@ -1104,7 +1104,7 @@ class FlashLog extends Model
                 $db_time  = $time_end;
             }
 
-            return ['has_matches'=>true, 'flashlog'=>$flashlog, 'db_time'=>$db_time, 'log'=>$log, 'fl_index'=>$fl_index, 'setCount'=>$setCount];
+            return ['has_matches'=>true, 'flashlog'=>$flashlog, 'db_time'=>$db_time, 'log'=>$log, 'fl_index'=>$fl_index, 'setCount'=>$setCount, 'device_time_offset'=>$device_time_offset];
         }        
 
         // Disable half time checking, because will be solved in matchFlashLogTime
@@ -1189,7 +1189,7 @@ class FlashLog extends Model
 
             $db_time = $db_moment->addMinutes($duration_min)->format($this->timeFormat);
         }
-        return ['has_matches'=>$has_matches, 'flashlog'=>$flashlog, 'db_time'=>$db_time, 'log'=>$log, 'fl_index'=>$fl_index, 'setCount'=>$setCount];
+        return ['has_matches'=>$has_matches, 'flashlog'=>$flashlog, 'db_time'=>$db_time, 'log'=>$log, 'fl_index'=>$fl_index, 'setCount'=>$setCount, 'device_time_offset'=>$device_time_offset];
     }
 
 
@@ -1226,6 +1226,7 @@ class FlashLog extends Model
         $device_id= $device->id;
         $matches  = 0;
         $onoff_cnt= count($on_offs); 
+        $offset_s = 0; 
 
         foreach ($on_offs as $block_index => $on)
         {
@@ -1235,8 +1236,9 @@ class FlashLog extends Model
             // if ($start_index >= $fl_index)
             // {
             
-            $matchBlockResult = $this->matchFlashLogBlock($block_index, $fl_index, $end_index, $on, $flashlog, $setCount, $device, $log, $db_time, $matches_min, $match_props, $db_records, $show, $add_sensordefinitions, $use_rtc, $last_onoff, $correct_data);
+            $matchBlockResult = $this->matchFlashLogBlock($block_index, $fl_index, $end_index, $on, $flashlog, $setCount, $device, $log, $db_time, $matches_min, $match_props, $db_records, $show, $add_sensordefinitions, $use_rtc, $last_onoff, $correct_data, $offset_s);
             $flashlog         = $matchBlockResult['flashlog'];
+            $offset_s         = $matchBlockResult['device_time_offset'];
             $db_time          = $matchBlockResult['db_time'];
             $log              = $matchBlockResult['log'];
             $setCount         = $matchBlockResult['setCount'];

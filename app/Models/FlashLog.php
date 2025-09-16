@@ -994,7 +994,7 @@ class FlashLog extends Model
                     }
 
                     // Detect jumps in time: if step in time it the wrong direction (down in stead of up), correct backwards for this jump
-                    if ($time_device_prev > $time_device && $time_device < $max_timestamp && $time_device > self::$minUnixTime)
+                    if (abs($time_device_prev - $time_device) > 2 * $interval_sec && $time_device < $max_timestamp && $time_device > self::$minUnixTime)
                         $block_time_offset = $time_device - $time_device_prev - $interval_sec;
                 }
             }

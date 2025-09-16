@@ -1467,6 +1467,9 @@ class MeasurementController extends Controller
         $names         = $request->input('names', $this->output_sensors);
         $names_w       = $this->output_weather;
 
+        if (is_string($names))
+            $names = explode(',', $names);
+
         if (count($names) == 0)
             return Response::json('sensor-no-measurements-error', 500);
 

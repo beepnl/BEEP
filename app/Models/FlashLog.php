@@ -811,6 +811,7 @@ class FlashLog extends Model
                 { 
                     $fl      = $flashlog[$i];
                     $fl_time = null;
+                    
                     if ($use_device_time)
                     {
                         if (isset($fl['time_device']) && !isset($fl['time_error']) && $fl['time_device'] > self::$minUnixTime)
@@ -841,7 +842,7 @@ class FlashLog extends Model
                     // Add sensor definition measurement if not yet present (or if input_measurement_id == output_measurement_id) 
                     if ($fl['port'] == 3)
                     {
-                        // if (isset($fl['time_corr']) && $fl['time_corr'] == 'corrected_down')
+                        // if (isset($fl['time_corr']) && $fl['time_corr'] == 'prev')
                         //     dd($fl);
 
                         if ($add_sensordefinitions && $sensor_defs_c > 0 && isset($fl_time) && isset($fl['w_v']) && !isset($fl['weight_kg']) )
@@ -917,27 +918,73 @@ class FlashLog extends Model
         $time_device_last  = 0;
         $upload_time_sec   = 120; // offset seconds from last timestamp to upload 
 
-        // Correct device time in same block, it the time goes back by 24 hours (caused by the RTC?)
-        if ($use_rtc && $correct_data)
+        // correct device time in last onoff block if it is not close to upload date, or goes beyond the $max_timestamp
+        if ($use_rtc) 
         {
             $block_time_offset = 0;
 
-            for ($index=$start_index; $index <= $end_index; $index++) 
+            for ($index=$end_index; $index >= $start_index; $index--) // look backwards for last port 3 time_device without error
             {
-                if (isset($flashlog[$index]['time_device']) && $flashlog[$index]['port'] == 3 && !isset($flashlog[$index]['time_error']))
+                if (isset($flashlog[$index]['port']) && $flashlog[$index]['port'] == 3 && isset($flashlog[$index]['time_device']))
                 {
-                    $time_device      = intval($flashlog[$index]['time_device']);
-                    $time_device_prev = $index > 0 ? intval($flashlog[$index-1]['time_device']) : $time_device;
-                                
-                    if ($time_device < $time_device_prev && $time_device < $max_timestamp && $time_device > self::$minUnixTime)
-                        $block_time_offset = $time_device_prev - $time_device + $interval_sec; // increase time offset with every step back in time
+                    $time_device      = intval($flashlog[$index]['time_device']) + $previous_offset;
+                    $time_device_prev = $index > 0 ? intval($flashlog[$index-1]['time_device']) + $previous_offset : $time_device;
 
-                    if ($block_time_offset > 0)
+                    if ($previous_offset)
+                    {
+                        $flashlog[$index]['time_device'] = $time_device; // correct time by $device_time_offset
+                        $flashlog[$index]['time']        = date('Y-m-d H:i:s', $time_device); // correct time by $device_time
+                        $flashlog[$index]['time_offset'] = $previous_offset;
+                        $flashlog[$index]['time_corr']   = isset($flashlog[$index]['time_corr']) ? $flashlog[$index]['time_corr'].' + prev' : 'prev';
+                        $use_device_time                 = true;
+                    }
+                    
+                    // In last block, correct for difference with last time value and upload date ($max_timestamp)
+                    if ($last_onoff)
+                    {
+                        if (!isset($flashlog[$index]['time_error']))
+                        {
+                            if ($time_device > $time_device_last)
+                                $time_device_last = $time_device; // log for checking if whole block time is too_low
+
+                            if (!isset($time_device_end))
+                            {
+                                $time_device_end = $time_device;
+                                $time_end_index  = $index;
+                                
+                                if (!isset($device_time_offset) && $time_device_end > $max_timestamp)
+                                {
+                                    $device_time_offset = $max_timestamp - $time_device_end - $upload_time_sec; // offset negative number, minus 120 sec for upload time
+                                    $time_device_end    = $time_device_end + $device_time_offset;
+
+                                    //dd($block_index, $on, $start_index, $end_index, $flashlog[$start_index-1], $flashlog[$end_index-1], $device_time_offset);
+                                }
+                            }
+                        }
+
+                        // Correct too_high complete block offset time by interval
+                        if (isset($device_time_offset)) 
+                        {
+                            //$time_device_new = $time_device + $device_time_offset;
+                            $time_device_new = $max_timestamp - (($time_end_index - $index) * $interval_sec) - $upload_time_sec;
+                            $flashlog[$index]['time_device'] = $time_device_new; // correct time by $device_time_offset
+                            $flashlog[$index]['time']        = date('Y-m-d H:i:s', $time_device_new); // correct time by $device_time
+                            $flashlog[$index]['time_offset'] = $time_device_new - $time_device; 
+                            $flashlog[$index]['time_corr']   = isset($flashlog[$index]['time_corr']) ? $flashlog[$index]['time_corr'].' + down' : 'down';
+                            $use_device_time                 = true;
+                            // $flashlog[$index]['time_offset'] = $device_time_offset; 
+                            unset($flashlog[$index]['time_error']);
+                            //dd($block_index, $start_index, $end_index, $time_device-$device_time_offset, $device_time_offset, $device_time_offset, $index, $flashlog[$index]);
+                        }
+                    }
+
+                    // Correct device time in same block, it the time goes back by 24 hours (caused by the RTC jump?)
+                    if ($block_time_offset !== 0)
                     {
                         $time_device += $block_time_offset;
                         $flashlog[$index]['time_device'] = $time_device;
-                        $flashlog[$index]['time_corr']   = 'corrected_step'; // correct time by $block_time_offset
                         $flashlog[$index]['time_offset'] = $block_time_offset;
+                        $flashlog[$index]['time_corr']   = isset($flashlog[$index]['time_corr']) ? $flashlog[$index]['time_corr'].' + step' : 'step';
                         $use_device_time                 = true;
                         
                         if ($time_device < $max_timestamp)
@@ -945,58 +992,15 @@ class FlashLog extends Model
                         else
                             $flashlog[$index]['time_error'] = 'beyond max';
                     }
-                }
-            }
-        }
-        
-        // correct device time in last onoff block if it is not close to upload date, or goes beyond the $max_timestamp
-        if ($use_rtc && $last_onoff) 
-        {
-            for ($index=$end_index; $index >= $start_index; $index--) // look backwards for last port 3 time_device without error
-            {
-                if (isset($flashlog[$index]['port']) && $flashlog[$index]['port'] == 3 && isset($flashlog[$index]['time_device']))
-                {
-                    $time_device = intval($flashlog[$index]['time_device']);
-                    
-                    if (!isset($flashlog[$index]['time_error']))
-                    {
-                        if ($time_device > $time_device_last)
-                            $time_device_last = $time_device; // log for checking if whole block time is too_low
 
-                        if (!isset($time_device_end))
-                        {
-                            $time_device_end = $time_device;
-                            $time_end_index  = $index;
-                            
-                            if (!isset($device_time_offset) && $time_device_end > $max_timestamp)
-                            {
-                                $device_time_offset = $max_timestamp - $time_device_end - $upload_time_sec; // offset negative number, minus 120 sec for upload time
-                                $time_device_end    = $time_device_end + $device_time_offset;
-
-                                //dd($block_index, $on, $start_index, $end_index, $flashlog[$start_index-1], $flashlog[$end_index-1], $device_time_offset);
-                            }
-                        }
-                    }
-
-                    // Correct too_high complete block offset time by interval
-                    if (isset($device_time_offset)) 
-                    {
-                        //$time_device_new = $time_device + $device_time_offset;
-                        $time_device_new = $max_timestamp - (($time_end_index - $index) * $interval_sec) - $upload_time_sec;
-                        $flashlog[$index]['time_device'] = $time_device_new; // correct time by $device_time_offset
-                        $flashlog[$index]['time']        = date('Y-m-d H:i:s', $time_device_new); // correct time by $device_time
-                        $flashlog[$index]['time_corr']   = 'corrected_down'; // correct time by $device_time_offset
-                        $flashlog[$index]['time_offset'] = $time_device_new - $time_device; 
-                        $use_device_time                 = true;
-                        // $flashlog[$index]['time_offset'] = $device_time_offset; 
-                        unset($flashlog[$index]['time_error']);
-                        //dd($block_index, $start_index, $end_index, $time_device-$device_time_offset, $device_time_offset, $device_time_offset, $index, $flashlog[$index]);
-                    }
+                    // Detect jumps in time: if step in time it the wrong direction (down in stead of up), correct backwards for this jump
+                    if ($time_device_prev > $time_device && $time_device < $max_timestamp && $time_device > self::$minUnixTime)
+                        $block_time_offset = $time_device - $time_device_prev - $interval_sec;
                 }
             }
 
             // Correct too_low complete block offset time by interval
-            if ($correct_data && $time_device_last < $max_timestamp - 3600)
+            if ($last_onoff && $correct_data && $time_device_last < $max_timestamp - 3600)
             {
                 $device_time_offset = $max_timestamp - $time_device_last - $upload_time_sec;
                 //dd($on, $start_index, $end_index, $time_device_last, date('Y-m-d H:i:s', $time_device_last), $time_device_end, date('Y-m-d H:i:s', $time_device_end));
@@ -1008,8 +1012,8 @@ class FlashLog extends Model
                         $time_device_new = intval($flashlog[$index]['time_device']) + $device_time_offset;
                         $flashlog[$index]['time_device'] = $time_device_new; // correct time by $device_time_offset
                         $flashlog[$index]['time']        = date('Y-m-d H:i:s', $time_device_new); // correct time by $device_time
-                        $flashlog[$index]['time_corr']   = 'corrected_up'; // correct time by $device_time_offset
                         $flashlog[$index]['time_offset'] = $device_time_offset; 
+                        $flashlog[$index]['time_corr']   = isset($flashlog[$index]['time_corr']) ? $flashlog[$index]['time_corr'].' + up' : 'up';
                         $use_device_time                 = true;
                         unset($flashlog[$index]['time_error']);
                     }
@@ -1023,7 +1027,7 @@ class FlashLog extends Model
         $transmission_ratio= isset($on['measurement_transmission_ratio']) ? $on['measurement_transmission_ratio'] : null;
 
         // Cap start and end index by (corrected) device time
-        if ($use_rtc && (!isset($time_device_start) || !isset($time_device_end)))
+        if (!isset($time_device_start) || !isset($time_device_end))
         {
             for ($index=$start_index; $index <= $end_index; $index++) 
             {
@@ -1070,6 +1074,7 @@ class FlashLog extends Model
             $end_moment  = new Moment($time_device_end);
             $time_end    = $end_moment->format($this->timeFormat);
             $match_first = ['flashlog_index'=>$start_index, 'minute_interval'=>$interval, 'time'=>$db_time];
+            // Set time and add weight_kg by calibration 
             $block       = $this->setFlashBlockTimes($match_first, $block_i, $start_index, $end_index, $flashlog, $device, $show, $interval_sec, $add_sensordefinitions, $use_device_time);
             $flashlog    = $block['flashlog'];
 
@@ -1121,6 +1126,7 @@ class FlashLog extends Model
         // }
 
         // matchFlashLogTime returns: ['fl_index'=>$fl_index, 'fl_index_end'=>$fl_index_end, 'fl_match_tries'=>$tries, 'db_start_time'=>$start_time, 'db_data'=>$db_data, 'db_data_count'=>count($db_data), 'matches'=>$matches];
+
         $matches = $this->matchFlashLogTime($device, $flashlog, $matches_min, $match_props, $start_index, $end_index, $duration_hrs, $interval, $db_q_time, $db_max, $show);
         
         if (isset($matches['matches']))
@@ -1228,8 +1234,10 @@ class FlashLog extends Model
         $onoff_cnt= count($on_offs); 
         $offset_s = 0; 
 
-        foreach ($on_offs as $block_index => $on)
+        for ($on_i=$onoff_cnt-1 ; $on_i >= 0 ; $on_i--) // analyse blocks backwards, to be able to project $offset_s to earlier blocks
         {
+            $block_index  = $on_i;
+            $on           = $on_offs[$on_i];
             $last_onoff   = $block_index == $onoff_cnt-1 ? true : false;
             $end_index    = $on['end_index'];
 

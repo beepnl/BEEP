@@ -134,8 +134,8 @@
                             <form action="{{ route('flash-log.show', $flashlog->id) }}" method="GET">
                                 <label for="correct_data">Correct data?</label>
                                 <select name="correct_data" onchange="this.form.submit()" id="correct_data" class="form-control">
-                                    <option value="0" {{ $correct_data == '0' ? 'selected' : '' }}>No</option>
                                     <option value="1" {{ $correct_data == '1' ? 'selected' : '' }}>Yes</option>
+                                    <option value="0" {{ $correct_data == '0' ? 'selected' : '' }}>No</option>
                                 </select>
                             </form>
                         </td>

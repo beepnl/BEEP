@@ -1234,7 +1234,7 @@ class FlashLog extends Model
         $onoff_cnt= count($on_offs); 
         $offset_s = 0; 
 
-        for ($on_i=$onoff_cnt-1 ; $on_i >= 0 ; $on_i--) // analyse blocks backwards, to be able to project $offset_s to earlier blocks
+        for ($on_i=0 ; $on_i <= $onoff_cnt-1 ; $on_i++) // analyse blocks forwards, to be able to match with db
         {
             $block_index  = $on_i;
             $on           = $on_offs[$on_i];

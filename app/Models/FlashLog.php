@@ -921,14 +921,11 @@ class FlashLog extends Model
         // correct device time in last onoff block if it is not close to upload date, or goes beyond the $max_timestamp
         if ($use_rtc) 
         {
-            $block_time_offset = 0;
-
             for ($index=$end_index; $index >= $start_index; $index--) // look backwards for last port 3 time_device without error
             {
                 if (isset($flashlog[$index]['port']) && $flashlog[$index]['port'] == 3 && isset($flashlog[$index]['time_device']))
                 {
-                    $time_device      = intval($flashlog[$index]['time_device']) + $previous_offset;
-                    $time_device_prev = $index > 0 ? intval($flashlog[$index-1]['time_device']) + $previous_offset : $time_device;
+                    $time_device = intval($flashlog[$index]['time_device']) + $previous_offset;
 
                     if ($previous_offset)
                     {
@@ -978,24 +975,7 @@ class FlashLog extends Model
                         }
                     }
 
-                    // Correct device time in same block, it the time goes back by 24 hours (caused by the RTC jump?)
-                    if ($block_time_offset !== 0)
-                    {
-                        $time_device += $block_time_offset;
-                        $flashlog[$index]['time_device'] = $time_device;
-                        $flashlog[$index]['time_offset'] = $block_time_offset;
-                        $flashlog[$index]['time_corr']   = isset($flashlog[$index]['time_corr']) ? $flashlog[$index]['time_corr'].' + step' : 'step';
-                        $use_device_time                 = true;
-                        
-                        if ($time_device < $max_timestamp)
-                            $flashlog[$index]['time'] = date('Y-m-d H:i:s', $time_device); // correct time by $device_time
-                        else
-                            $flashlog[$index]['time_error'] = 'beyond max';
-                    }
-
-                    // Detect jumps in time: if step in time it the wrong direction (down in stead of up), correct backwards for this jump
-                    if ($time_device_prev > $time_device && $time_device < $max_timestamp && $time_device > self::$minUnixTime)
-                        $block_time_offset = $time_device - $time_device_prev - $interval_sec;
+                    
                 }
             }
 
@@ -1019,6 +999,35 @@ class FlashLog extends Model
                     }
                 }
                 //dd($time_end_index, date('Y-m-d H:i:s', $time_device_end), $on, $start_index, $end_index, $time_device_last, date('Y-m-d H:i:s', $time_device_last), $time_device_end, date('Y-m-d H:i:s', $time_device_end));
+            }
+
+            // Correct device time in same block, it the time goes back by 24 hours (caused by the RTC jump?)
+            $block_time_offset = 0;
+            for ($index=$start_index; $index <= $end_index; $index++) 
+            {
+                if (isset($flashlog[$index]['time_device']) && !isset($flashlog[$index]['time_error']) && $flashlog[$index]['port'] == 3)
+                {
+                    $time_device      = intval($flashlog[$index]['time_device']) + $previous_offset;
+                    $time_device_next = $index < $end_index ? intval($flashlog[$index+1]['time_device']) + $previous_offset : $time_device;
+                    
+                    if ($block_time_offset !== 0)
+                    {
+                        $time_device += $block_time_offset;
+                        $flashlog[$index]['time_device'] = $time_device;
+                        $flashlog[$index]['time_offset'] = $block_time_offset;
+                        $flashlog[$index]['time_corr']   = isset($flashlog[$index]['time_corr']) ? $flashlog[$index]['time_corr'].' + step' : 'step';
+                        $use_device_time                 = true;
+                        
+                        if ($time_device < $max_timestamp)
+                            $flashlog[$index]['time'] = date('Y-m-d H:i:s', $time_device); // correct time by $device_time
+                        else
+                            $flashlog[$index]['time_error'] = 'beyond max';
+                    }
+
+                    // Detect jumps in time: if step in time it the wrong direction (down in stead of up), correct forwards for this jump
+                    if ($time_device_next < $time_device && $time_device < $max_timestamp && $time_device > self::$minUnixTime)
+                        $block_time_offset = $time_device - $time_device_next + $interval_sec;
+                }
             }
         }
 

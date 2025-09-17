@@ -124,7 +124,7 @@ class FlashLogController extends Controller
 
         // Analyse one day
         $date          = $request->filled('date') ? $request->input('date') : null;
-        $correct_data  = $request->filled('correct_data') && $request->input('correct_data') === '0' ? false : true;
+        $correct_data  = $request->filled('correct_data') && $request->input('correct_data') === '1' ? true : false;
         $show_payload  = $request->filled('show_payload') && $request->input('show_payload') === '1' ? true : false;
         $date_analysis = null;
         if (isset($date))

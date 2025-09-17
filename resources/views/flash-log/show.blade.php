@@ -127,15 +127,39 @@
                         <th style="text-align: right;"> Log file parsed </th>
                         <td>
                             <a target="_blank" href="{{ $flashlog->log_file_parsed }}">{{ $flashlog->log_file_parsed }}</a> 
-                            <a href="{{ route('flash-log.parse', ['id'=>$flashlog->id, 'load_show'=>1, 'correct_data'=>$correct_data]) }}" title="{{ __('crud.parse') }}"><button title="Parse Flashlog with time fill and adding Sensordefinitions (slow)" class="btn btn-info loading-spinner" data-loading-text="<i class='fa fa-refresh fa-spin'></i>"><i class="fa fa-refresh" aria-hidden="true"></i></button></a>
-                            <a href="{{ route('flash-log.parse', ['id'=>$flashlog->id, 'add_meta'=>1, 'load_show'=>1, 'correct_data'=>$correct_data] ) }}" title="{{ __('crud.parse') }}"><button title="Add meta data" class="btn btn-sm btn-warning loading-spinner" data-loading-text="<i class='fa fa-refresh fa-spin'></i>"><i class="fa fa-refresh" aria-hidden="true"></i></button></a>
-                            <a href="{{ route('flash-log.parse', ['id'=>$flashlog->id, 'csv'=>1, 'load_show'=>1, 'correct_data'=>$correct_data] ) }}" title="{{ __('crud.parse') }}"><button title="Create new CSV" class="btn btn-sm btn-success loading-spinner" data-loading-text="<i class='fa fa-refresh fa-spin'></i>"><i class="fa fa-table" aria-hidden="true"></i></button></a>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th style="text-align: right;"> Log file re-parse options </th>
+                        <td>
+                            <a href="{{ route('flash-log.parse', ['id'=>$flashlog->id, 'load_show'=>1, 'correct_data'=>$correct_data]) }}">
+                                <button title="Parse Flashlog with time fill and adding Sensordefinitions (slow)" class="btn btn-info loading-spinner" data-loading-text="<i class='fa fa-refresh fa-spin'></i>"><i class="fa fa-refresh" aria-hidden="true"></i>
+                                </button>
+                            </a>
+                            <a href="{{ route('flash-log.parse', ['id'=>$flashlog->id, 'add_meta'=>1, 'load_show'=>1, 'correct_data'=>$correct_data] ) }}">
+                                <button title="Add meta data" class="btn btn-sm btn-warning loading-spinner" data-loading-text="<i class='fa fa-refresh fa-spin'></i>"><i class="fa fa-refresh" aria-hidden="true"></i>
+                                </button>
+                            </a>
+                            <a href="{{ route('flash-log.parse', ['id'=>$flashlog->id, 'csv'=>1, 'load_show'=>1, 'correct_data'=>$correct_data] ) }}">
+                                <button title="Create new CSV" class="btn btn-sm btn-success loading-spinner" data-loading-text="<i class='fa fa-refresh fa-spin'></i>"><i class="fa fa-table" aria-hidden="true"></i>
+                                </button>
+                            </a>
 
+                            <a href="{{ route('devices.flashlog', ['id'=>$flashlog->device_id, 'fl_id'=>$flashlog->id, 'dont_use_rtc'=>1] ) }}">
+                                <button title="Parse Flashlog without RTC" class="btn btn-sm btn-danger loading-spinner" data-loading-text="<i class='fa fa-clock fa-spin'></i>">
+                                    <i class="fa fa-clock" aria-hidden="true"></i>
+                                </button>
+                            </a>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th style="text-align: right;"> Log file analysis </th>
+                        <td>
                             <form action="{{ route('flash-log.show', $flashlog->id) }}" method="GET">
-                                <label for="correct_data">Correct data?</label>
+                                <label for="correct_data">Correct data? (time changes)</label>
                                 <select name="correct_data" onchange="this.form.submit()" id="correct_data" class="form-control">
-                                    <option value="1" {{ $correct_data == '1' ? 'selected' : '' }}>Yes</option>
                                     <option value="0" {{ $correct_data == '0' ? 'selected' : '' }}>No</option>
+                                    <option value="1" {{ $correct_data == '1' ? 'selected' : '' }}>Yes</option>
                                 </select>
                             </form>
                         </td>
@@ -145,14 +169,16 @@
                         <td> <a target="_blank" href="{{ $flashlog->csv_url }}">{{ $flashlog->csv_url }}</a> </td>
                     </tr>
 
+                    @isset($flashlog->time_corrections)
                     <tr>
                         <th style="text-align: right;"> Time corrections </th>
                         <td>
 <textarea name="time_corrections" rows="10" style="width: 100%">
-@json(isset($flashlog->time_corrections) ? $flashlog->time_corrections : [], JSON_PRETTY_PRINT)
+@json($flashlog->time_corrections, JSON_PRETTY_PRINT)
 </textarea>
                         </td>
                     </tr>
+                    @endisset
 
                     <tr>
                         <th style="text-align: right;"> Log meta </th>

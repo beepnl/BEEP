@@ -290,6 +290,11 @@ class FlashLogController extends Controller
         ]);
 
         $requestData = $request->all();
+
+        if ($request->filled('time_corrections')) {
+            $time_corrections = json_decode($request->input('time_corrections'));
+            $requestData['time_corrections'] = $time_corrections;
+        }
         
         $flashlog = FlashLog::findOrFail($id);
         $flashlog->update($requestData);

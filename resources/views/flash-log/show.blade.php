@@ -146,10 +146,19 @@
                     </tr>
 
                     <tr>
+                        <th style="text-align: right;"> Time corrections </th>
+                        <td>
+<textarea name="time_corrections" rows="10" style="width: 100%">
+@json(isset($flashlog->time_corrections) ? $flashlog->time_corrections : [], JSON_PRETTY_PRINT)
+</textarea>
+                        </td>
+                    </tr>
+
+                    <tr>
                         <th style="text-align: right;"> Log meta </th>
                         <td>
-<textarea rows="10" style="width: 100%">
-{!! json_encode($flashlog->meta_data, JSON_PRETTY_PRINT) !!}
+<textarea name="meta_data" rows="10" style="width: 100%">
+@json(isset($flashlog->meta_data) ? $flashlog->meta_data : [], JSON_PRETTY_PRINT)
 </textarea>
                         </td>
                     </tr>

@@ -44,11 +44,11 @@ class FlashLog extends Model
      *
      * @var array
      */
-    protected $fillable = ['user_id', 'device_id', 'hive_id', 'log_messages', 'log_saved', 'log_parsed', 'log_has_timestamps', 'bytes_received', 'log_file', 'log_file_stripped', 'log_file_parsed', 'log_size_bytes', 'log_erased', 'time_percentage', 'persisted_days', 'persisted_measurements', 'persisted_block_ids', 'log_date_start', 'log_date_end', 'logs_per_day', 'csv_url', 'meta_data'];
+    protected $fillable = ['user_id', 'device_id', 'hive_id', 'log_messages', 'log_saved', 'log_parsed', 'log_has_timestamps', 'bytes_received', 'log_file', 'log_file_stripped', 'log_file_parsed', 'log_size_bytes', 'log_erased', 'time_percentage', 'persisted_days', 'persisted_measurements', 'persisted_block_ids', 'log_date_start', 'log_date_end', 'logs_per_day', 'csv_url', 'meta_data', 'time_corrections'];
     protected $hidden   = ['device', 'hive', 'user', 'persisted_block_ids'];
 
     protected $appends  = ['device_name', 'hive_name', 'user_name'];
-    protected $casts    = ['meta_data' => 'array'];
+    protected $casts    = ['meta_data' => 'array', 'time_corrections'=>'array'];
 
 
     public function hive()
@@ -248,6 +248,22 @@ class FlashLog extends Model
         return 'flashlog-'.$this->id.'-fill-'.$fill.'-show-'.$show.'-matches-'.$matches_min_override.'-dbrecs-'.$db_records_override; // removed -props-'.$match_props_override.'
     }
 
+    private function getTimeCorrections()
+    {
+        $time_corrections_array = [];
+
+        foreach ($this->time_corrections as $date_sec_arr)
+        {
+            $datetime   = array_key_first($date_sec_arr);
+            $timestamp  = strtotime($datetime);
+            $sec_offset = $date_sec_arr[$datetime];
+            $time_corrections_array[$timestamp] = $sec_offset;
+        }
+        krsort($time_corrections_array, SORT_NUMERIC);
+        return $time_corrections_array;
+    }
+
+    // Main function that creates the array from the string FlashLog files
     public function log($data='', $log_bytes=null, $save=true, $fill=false, $show=false, $matches_min_override=null, $match_props_override=null, $db_records_override=null, $save_override=false, $from_cache=true, $match_days_offset=0, $add_sensordefinitions=true, $use_rtc=true, $correct_data=false)
     {
         if (!isset($this->device_id) || !isset($this->device))
@@ -650,7 +666,7 @@ class FlashLog extends Model
             }
         }
         
-        //die(print_r([$start_time, $end_time, $duration_hrs, count($data_count), $db_data_cnt]));
+        //dd($start_time, $end_time, $duration_hrs, count($data_count), $db_data_cnt);
 
         // get data from the day with max amount of measurements
         $query       = 'SELECT * FROM "sensors" WHERE '.$device->influxWhereKeys().' AND from_flashlog != \'1\' AND time >= \''.$start_time.'\' ORDER BY time ASC LIMIT '.min(1000, max($matches_min, $db_records));
@@ -918,6 +934,10 @@ class FlashLog extends Model
         $time_device_last  = 0;
         $upload_time_sec   = 120; // offset seconds from last timestamp to upload 
 
+        $time_corrections  = $this->getTimeCorrections(); // array with unix timestamps as keys and time correction seconds as values to correct flashlog data
+        $time_correct_set  = count($time_corrections) > 0 ? true : false;
+        //dd($time_corrections);
+
         // correct device time in last onoff block if it is not close to upload date, or goes beyond the $max_timestamp
         if ($use_rtc) 
         {
@@ -1010,12 +1030,28 @@ class FlashLog extends Model
                     $time_device      = intval($flashlog[$index]['time_device']) + $previous_offset;
                     $time_device_next = $index < $end_index ? intval($flashlog[$index+1]['time_device']) + $previous_offset : $time_device;
                     
+                    // Apply manual time corrections
+                    $correction_manual = false;
+                    if ($time_correct_set)
+                    {
+                        foreach ($time_corrections as $timestamp => $correct_sec)
+                        {
+                            if ($timestamp <= $time_device)
+                            {
+                                $block_time_offset = $correct_sec;
+                                $correction_manual = true;
+                                break;
+                            }
+                        }
+                    }
+
                     if ($block_time_offset !== 0)
                     {
+                        $corr_msg = $correction_manual ? 'corr' : 'step';
                         $time_device += $block_time_offset;
                         $flashlog[$index]['time_device'] = $time_device;
                         $flashlog[$index]['time_offset'] = $block_time_offset;
-                        $flashlog[$index]['time_corr']   = isset($flashlog[$index]['time_corr']) ? $flashlog[$index]['time_corr'].' + step' : 'step';
+                        $flashlog[$index]['time_corr']   = isset($flashlog[$index]['time_corr']) ? $flashlog[$index]['time_corr']." + $corr_msg" : $corr_msg;
                         $use_device_time                 = true;
                         
                         if ($time_device < $max_timestamp)
@@ -1025,7 +1061,7 @@ class FlashLog extends Model
                     }
 
                     // Detect jumps in time: if step in time it the wrong direction (down in stead of up), correct forwards for this jump
-                    if ($time_device_next < $time_device && $time_device < $max_timestamp && $time_device > self::$minUnixTime)
+                    if ($time_correct_set == false && $time_device_next < $time_device && $time_device < $max_timestamp && $time_device > self::$minUnixTime)
                         $block_time_offset = $time_device - $time_device_next + $interval_sec;
                 }
             }
@@ -1157,14 +1193,17 @@ class FlashLog extends Model
                 $max_sec_deviation  = round($interval_sec / 10); // max 90 sec for 900 sec interval
 
                 // Set the difference per time index based on the deviation in the matches found (if smaller than $max_sec_deviation), or set it on the set interval
-                if (abs($sec_diff_per_match - $interval_sec) < $max_sec_deviation) // deviation is within $max_sec_deviation (10%), so take $sec_diff_per_match
+                if ($device->rtc) // assume that the timing is good
+                    $sec_diff_per_index = $interval_sec;
+                else if (abs($sec_diff_per_match - $interval_sec) < $max_sec_deviation) // deviation is within $max_sec_deviation (10%), so take $sec_diff_per_match
                     $sec_diff_per_index = $sec_diff_per_match;
                 else
                     $sec_diff_per_index = $interval_sec;
 
                 $matches_display    = array_slice($matches_arr, 0, $matches_min);
                 $matches['matches'] = $matches_display;
-                //die(print_r([$match_first_time, $match_last_time, $sec_diff_per_index, $match_first, $match_last]));
+                
+                //dd([$match_first_time, $match_last_time, $sec_diff_per_index, $match_first, $match_last]);
 
                 $block    = $this->setFlashBlockTimes($match_first, $block_i, $start_index, $end_index, $flashlog, $device, $show, $sec_diff_per_index, $add_sensordefinitions);
                 $flashlog = $block['flashlog'];

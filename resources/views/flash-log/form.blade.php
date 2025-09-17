@@ -125,6 +125,18 @@
 	</div>
 </div>
 
+<div class="col-xs-12">
+	<div class="form-group {{ $errors->has('time_corrections') ? 'has-error' : ''}}">
+	    <label for="time_corrections" control-label>Time corrections: enter {"{{date('Y-m-d')}} 00:00:00": "-86400"}</label>
+	    <div>
+<textarea name="time_corrections" rows="10" style="width: 100%">
+@json(isset($flashlog->time_corrections) ? $flashlog->time_corrections : [], JSON_PRETTY_PRINT)
+</textarea>
+	        {!! $errors->first('time_corrections', '<p class="help-block">:message</p>') !!}
+	    </div>
+	</div>
+</div>
+
 
 <div class="col-xs-12" style="margin-top: 20px;">
 	<div class="form-group">

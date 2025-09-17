@@ -251,16 +251,19 @@ class FlashLog extends Model
     private function getTimeCorrections()
     {
         $time_corrections_array = [];
-
-        foreach ($this->time_corrections as $date_sec_arr)
+        if (isset($this->time_corrections) && is_array($this->time_corrections))
         {
-            $datetime   = array_key_first($date_sec_arr);
-            $timestamp  = strtotime($datetime);
-            $sec_offset = $date_sec_arr[$datetime];
-            $time_corrections_array[$timestamp] = $sec_offset;
+            foreach ($this->time_corrections as $date_sec_arr)
+            {
+                $datetime   = array_key_first($date_sec_arr);
+                $timestamp  = strtotime($datetime);
+                $sec_offset = $date_sec_arr[$datetime];
+                $time_corrections_array[$timestamp] = $sec_offset;
+            }
+            krsort($time_corrections_array, SORT_NUMERIC);
+            return $time_corrections_array;
         }
-        krsort($time_corrections_array, SORT_NUMERIC);
-        return $time_corrections_array;
+        return [];
     }
 
     // Main function that creates the array from the string FlashLog files

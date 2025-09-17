@@ -137,16 +137,16 @@
                                 </button>
                             </a>
                             <a href="{{ route('flash-log.parse', ['id'=>$flashlog->id, 'add_meta'=>1, 'load_show'=>1, 'correct_data'=>$correct_data] ) }}">
-                                <button title="Add meta data" class="btn btn-sm btn-warning loading-spinner" data-loading-text="<i class='fa fa-refresh fa-spin'></i>"><i class="fa fa-refresh" aria-hidden="true"></i>
+                                <button title="Add meta data" class="btn btn-warning loading-spinner" data-loading-text="<i class='fa fa-refresh fa-spin'></i>"><i class="fa fa-refresh" aria-hidden="true"></i>
                                 </button>
                             </a>
                             <a href="{{ route('flash-log.parse', ['id'=>$flashlog->id, 'csv'=>1, 'load_show'=>1, 'correct_data'=>$correct_data] ) }}">
-                                <button title="Create new CSV" class="btn btn-sm btn-success loading-spinner" data-loading-text="<i class='fa fa-refresh fa-spin'></i>"><i class="fa fa-table" aria-hidden="true"></i>
+                                <button title="Create new CSV" class="btn btn-success loading-spinner" data-loading-text="<i class='fa fa-refresh fa-spin'></i>"><i class="fa fa-table" aria-hidden="true"></i>
                                 </button>
                             </a>
 
                             <a href="{{ route('devices.flashlog', ['id'=>$flashlog->device_id, 'fl_id'=>$flashlog->id, 'dont_use_rtc'=>1] ) }}">
-                                <button title="Parse Flashlog without RTC" class="btn btn-sm btn-danger loading-spinner" data-loading-text="<i class='fa fa-clock fa-spin'></i>">
+                                <button title="Parse Flashlog without RTC" class="btn btn-danger loading-spinner" data-loading-text="<i class='fa fa-clock fa-spin'></i>">
                                     <i class="fa fa-clock-o" aria-hidden="true"></i>
                                 </button>
                             </a>

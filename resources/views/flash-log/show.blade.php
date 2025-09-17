@@ -147,14 +147,10 @@
 
                             <a href="{{ route('devices.flashlog', ['id'=>$flashlog->device_id, 'fl_id'=>$flashlog->id, 'dont_use_rtc'=>1] ) }}">
                                 <button title="Parse Flashlog without RTC" class="btn btn-sm btn-danger loading-spinner" data-loading-text="<i class='fa fa-clock fa-spin'></i>">
-                                    <i class="fa fa-clock" aria-hidden="true"></i>
+                                    <i class="fa fa-clock-o" aria-hidden="true"></i>
                                 </button>
                             </a>
-                        </td>
-                    </tr>
-                    <tr>
-                        <th style="text-align: right;"> Log file analysis </th>
-                        <td>
+
                             <form action="{{ route('flash-log.show', $flashlog->id) }}" method="GET">
                                 <label for="correct_data">Correct data? (time changes)</label>
                                 <select name="correct_data" onchange="this.form.submit()" id="correct_data" class="form-control">

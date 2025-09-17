@@ -1031,7 +1031,7 @@ class FlashLog extends Model
                 if (isset($flashlog[$index]['time_device']) && !isset($flashlog[$index]['time_error']) && $flashlog[$index]['port'] == 3)
                 {
                     $time_device      = intval($flashlog[$index]['time_device']) + $previous_offset;
-                    $time_device_next = $index < $end_index ? intval($flashlog[$index+1]['time_device']) + $previous_offset : $time_device;
+                    $time_device_next = $index < $end_index && isset($flashlog[$index+1]['time_device']) ? intval($flashlog[$index+1]['time_device']) + $previous_offset : $time_device;
                     
                     // Apply manual time corrections
                     $correction_manual = false;

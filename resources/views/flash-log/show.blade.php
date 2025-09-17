@@ -47,10 +47,6 @@
             <table class="table table-responsive table-striped">
                 <tbody>
                     <tr>
-                        <th style="text-align: right;">ID</th>
-                        <td>{{ $flashlog->id }}</td>
-                    </tr>
-                    <tr>
                         <th style="text-align: right;"> Created at </th>
                         <td> {{ $flashlog->created_at }} </td>
                     </tr>
@@ -109,26 +105,10 @@
                     </tr>
                     <tr>
                         <th style="text-align: right;"> Bytes Received </th>
-                        <td> {{ $flashlog->bytes_received }} </td>
-                    </tr>
-                    <tr>
-                        <th style="text-align: right;"> Bytes at BEEP base </th>
-                        <td> {{ $flashlog->log_size_bytes }} </td>
-                    </tr>
-                    <tr>
-                        <th style="text-align: right;"> Log file raw </th>
-                        <td> <a target="_blank" href="{{ $flashlog->log_file }}">{{ $flashlog->log_file }}</a> </td>
-                    </tr>
-                    <tr>
-                        <th style="text-align: right;"> Log file stripped </th>
-                        <td> <a target="_blank" href="{{ $flashlog->log_file_stripped }}">{{ $flashlog->log_file_stripped }}</a> </td>
-                    </tr>
-                    <tr>
-                        <th style="text-align: right;"> Log file parsed </th>
-                        <td>
-                            <a target="_blank" href="{{ $flashlog->log_file_parsed }}">{{ $flashlog->log_file_parsed }}</a> 
+                        <td> {{ $flashlog->bytes_received }} vs Bytes at BEEP base: {{ $flashlog->log_size_bytes }}
                         </td>
                     </tr>
+                   
                     <tr>
                         <th style="text-align: right;"> Log file re-parse options </th>
                         <td>
@@ -160,11 +140,7 @@
                             </form>
                         </td>
                     </tr>
-                    <tr>
-                        <th style="text-align: right;"> Log file CSV </th>
-                        <td> <a target="_blank" href="{{ $flashlog->csv_url }}">{{ $flashlog->csv_url }}</a> </td>
-                    </tr>
-
+                    
                     @isset($flashlog->time_corrections)
                     <tr>
                         <th style="text-align: right;"> Time corrections </th>
@@ -215,6 +191,27 @@
                         </td>
                     </tr>
                     @endisset
+
+                     <tr>
+                        <th style="text-align: right;"> Log file raw </th>
+                        <td> <a target="_blank" href="{{ $flashlog->log_file }}">{{ $flashlog->log_file }}</a> </td>
+                    </tr>
+                    <tr>
+                        <th style="text-align: right;"> Log file stripped </th>
+                        <td> <a target="_blank" href="{{ $flashlog->log_file_stripped }}">{{ $flashlog->log_file_stripped }}</a> </td>
+                    </tr>
+                    <tr>
+                        <th style="text-align: right;"> Log file parsed </th>
+                        <td>
+                            <a target="_blank" href="{{ $flashlog->log_file_parsed }}">{{ $flashlog->log_file_parsed }}</a> 
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <th style="text-align: right;"> Log file CSV </th>
+                        <td> <a target="_blank" href="{{ $flashlog->csv_url }}">{{ $flashlog->csv_url }}</a> </td>
+                    </tr>
+
                 </tbody>
             </table>
 

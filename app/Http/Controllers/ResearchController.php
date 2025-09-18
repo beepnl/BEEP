@@ -1595,7 +1595,7 @@ class ResearchController extends Controller
                     $log_date_start_ts      = max($date_start_ts, strtotime($log_date_start));
                     $log_date_until         = $flashlog->log_date_end;
                     $log_date_until_ts      = min($date_until_ts, strtotime($log_date_until));
-                    $log_date_start_next    = $flashlog_i < $flashlog_count-1 ? $flashlogs->get($flashlog_i + 1)->log_date_start : $date_until;
+                    $log_date_start_next    = $flashlog_i < $flashlog_count-1 ? $flashlogs->get($flashlog_i + 1)->log_date_start : $date_until.' 00:00:00';
                     $log_date_start_next_ts = isset($log_date_start_next) ? min($date_until_ts, strtotime($log_date_start_next)) : $date_until_ts;
 
                     // Add log data to data_array
@@ -1621,6 +1621,7 @@ class ResearchController extends Controller
                             {
                                 $d = FlashLog::cleanDbDataItem($d);
                                 $data_array[] = $d;
+                                //dd($d, $query, $log_date_until, $log_date_start_next);
                             }
                         }
                     }
@@ -1636,6 +1637,7 @@ class ResearchController extends Controller
                             {
                                 $d = FlashLog::cleanDbDataItem($d);
                                 $data_array[] = $d;
+
                             }
                         }
                     }

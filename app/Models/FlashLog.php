@@ -822,6 +822,9 @@ class FlashLog extends Model
 
                 for ($i=$startInd; $i <= $endInd; $i++) 
                 { 
+                    if (!isset($flashlog[$i]))
+                        continue;
+                    
                     $fl      = $flashlog[$i];
                     $fl_time = null;
                     

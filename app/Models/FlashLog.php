@@ -1024,6 +1024,7 @@ class FlashLog extends Model
             // Correct device time in same block, it the time goes back by 24 hours (caused by the RTC jump?)
             $block_time_offset = 0;
             $block_manual_offset = 0;
+            $apply_time_shift_offset = false;
             for ($index=$start_index; $index <= $end_index; $index++) 
             {
                 if (isset($flashlog[$index]['time_device']) && !isset($flashlog[$index]['time_error']) && $flashlog[$index]['port'] == 3)
@@ -1044,9 +1045,9 @@ class FlashLog extends Model
                         }
                     }
 
-                    if ($block_time_offset !== 0)
+                    if ($block_time_offset !== 0 || $block_manual_offset !== 0)
                     {
-                        $corr_msg                        = $block_manual_offset > 0 ? 'corr + step' : 'step';
+                        $corr_msg                        = $block_time_offset !== 0 && $block_manual_offset !== 0 ? 'corr + step' : ($block_manual_offset !== 0 ? 'corr' : 'step');
                         $time_device                    += $block_time_offset + $block_manual_offset;
                         $flashlog[$index]['time_device'] = $time_device;
                         $flashlog[$index]['time_offset'] = $block_time_offset;
@@ -1060,7 +1061,7 @@ class FlashLog extends Model
                     }
 
                     // Detect jumps in time: if step in time it the wrong direction (down in stead of up), correct forwards for this jump
-                    if ($correct_data && $time_device_next < $time_device && $time_device < $max_timestamp && $time_device > self::$minUnixTime)
+                    if ($apply_time_shift_offset && $correct_data && $time_device_next < $time_device && $time_device < $max_timestamp && $time_device > self::$minUnixTime)
                         $block_time_offset = $time_device - $time_device_next + $interval_sec;
                 }
             }

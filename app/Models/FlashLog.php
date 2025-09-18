@@ -1023,6 +1023,7 @@ class FlashLog extends Model
 
             // Correct device time in same block, it the time goes back by 24 hours (caused by the RTC jump?)
             $block_time_offset = 0;
+            $block_manual_offset = 0;
             for ($index=$start_index; $index <= $end_index; $index++) 
             {
                 if (isset($flashlog[$index]['time_device']) && !isset($flashlog[$index]['time_error']) && $flashlog[$index]['port'] == 3)
@@ -1031,15 +1032,13 @@ class FlashLog extends Model
                     $time_device_next = $index < $end_index && isset($flashlog[$index+1]['time_device']) ? intval($flashlog[$index+1]['time_device']) + $previous_offset : $time_device;
                     
                     // Apply manual time corrections
-                    $correction_manual = false;
                     if ($time_correct_set)
                     {
                         foreach ($time_corrections as $timestamp => $correct_sec)
                         {
                             if ($timestamp <= $time_device)
                             {
-                                $block_time_offset = $correct_sec;
-                                $correction_manual = true;
+                                $block_manual_offset = $correct_sec;
                                 break;
                             }
                         }
@@ -1047,8 +1046,8 @@ class FlashLog extends Model
 
                     if ($block_time_offset !== 0)
                     {
-                        $corr_msg = $correction_manual ? 'corr' : 'step';
-                        $time_device += $block_time_offset;
+                        $corr_msg                        = $block_manual_offset > 0 ? 'corr + step' : 'step';
+                        $time_device                    += $block_time_offset + $block_manual_offset;
                         $flashlog[$index]['time_device'] = $time_device;
                         $flashlog[$index]['time_offset'] = $block_time_offset;
                         $flashlog[$index]['time_corr']   = isset($flashlog[$index]['time_corr']) ? $flashlog[$index]['time_corr']." + $corr_msg" : $corr_msg;

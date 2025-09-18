@@ -824,7 +824,7 @@ class FlashLog extends Model
                 { 
                     if (!isset($flashlog[$i]))
                         continue;
-                    
+
                     $fl      = $flashlog[$i];
                     $fl_time = null;
                     
@@ -939,7 +939,7 @@ class FlashLog extends Model
         //dd($time_corrections);
 
         // correct device time in last onoff block if it is not close to upload date, or goes beyond the $max_timestamp
-        if ($use_rtc) 
+        if ($correct_data && $use_rtc) 
         {
             for ($index=$end_index; $index >= $start_index; $index--) // look backwards for last port 3 time_device without error
             {
@@ -1000,7 +1000,7 @@ class FlashLog extends Model
             }
 
             // Correct too_low complete block offset time by interval
-            if ($last_onoff && $correct_data && $time_device_last < $max_timestamp - 3600)
+            if ($last_onoff && $time_device_last < $max_timestamp - 3600)
             {
                 $device_time_offset = $max_timestamp - $time_device_last - $upload_time_sec;
                 //dd($on, $start_index, $end_index, $time_device_last, date('Y-m-d H:i:s', $time_device_last), $time_device_end, date('Y-m-d H:i:s', $time_device_end));

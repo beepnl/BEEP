@@ -939,7 +939,7 @@ class FlashLog extends Model
         //dd($time_corrections);
 
         // correct device time in last onoff block if it is not close to upload date, or goes beyond the $max_timestamp
-        if ($correct_data && $use_rtc) 
+        if (($correct_data || $time_correct_set) && $use_rtc) 
         {
             for ($index=$end_index; $index >= $start_index; $index--) // look backwards for last port 3 time_device without error
             {
@@ -947,7 +947,7 @@ class FlashLog extends Model
                 {
                     $time_device = intval($flashlog[$index]['time_device']) + $previous_offset;
 
-                    if ($previous_offset)
+                    if ($correct_data && $previous_offset)
                     {
                         $flashlog[$index]['time_device'] = $time_device; // correct time by $device_time_offset
                         $flashlog[$index]['time']        = date('Y-m-d H:i:s', $time_device); // correct time by $device_time
@@ -957,7 +957,7 @@ class FlashLog extends Model
                     }
                     
                     // In last block, correct for difference with last time value and upload date ($max_timestamp)
-                    if ($last_onoff)
+                    if ($correct_data && $last_onoff)
                     {
                         if (!isset($flashlog[$index]['time_error']))
                         {
@@ -1000,7 +1000,7 @@ class FlashLog extends Model
             }
 
             // Correct too_low complete block offset time by interval
-            if ($last_onoff && $time_device_last < $max_timestamp - 3600)
+            if ($correct_data && $last_onoff && $time_device_last < $max_timestamp - 3600)
             {
                 $device_time_offset = $max_timestamp - $time_device_last - $upload_time_sec;
                 //dd($on, $start_index, $end_index, $time_device_last, date('Y-m-d H:i:s', $time_device_last), $time_device_end, date('Y-m-d H:i:s', $time_device_end));
@@ -1061,7 +1061,7 @@ class FlashLog extends Model
                     }
 
                     // Detect jumps in time: if step in time it the wrong direction (down in stead of up), correct forwards for this jump
-                    if ($time_correct_set == false && $time_device_next < $time_device && $time_device < $max_timestamp && $time_device > self::$minUnixTime)
+                    if ($correct_data && $time_device_next < $time_device && $time_device < $max_timestamp && $time_device > self::$minUnixTime)
                         $block_time_offset = $time_device - $time_device_next + $interval_sec;
                 }
             }

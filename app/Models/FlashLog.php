@@ -209,7 +209,7 @@ class FlashLog extends Model
 
     public function getTimeLogPercentage($logs_per_day = null)
     {
-        if ($logs_per_day === null)
+        if ($logs_per_day === null || !is_numeric($logs_per_day))
             $logs_per_day = $this->getLogPerDay();
 
         if (isset($logs_per_day)) // means that $this->log_date_end is set
@@ -681,13 +681,7 @@ class FlashLog extends Model
         $db_first_unix = 0;
         foreach ($db_data as $d)
         {
-            $clean_d = array_filter($d);
-            unset($clean_d['hardware_id']);
-            unset($clean_d['device_name']);
-            unset($clean_d['key']);
-            unset($clean_d['user_id']);
-            unset($clean_d['rssi']);
-            unset($clean_d['snr']);
+            $clean_d = self::cleanDbDataItem($d);
 
             if (count($clean_d) > $match_props && array_sum(array_values($clean_d)) != 0)
             {
@@ -1377,6 +1371,23 @@ class FlashLog extends Model
         return $data_array;
     }
 
+    public static function cleanDbDataItem($data_array)
+    {
+        $clean_d = array_filter($data_array);
+        unset(
+            $clean_d['hardware_id'],
+            $clean_d['device_name'],
+            $clean_d['apiary_id'],
+            $clean_d['hive_id'],
+            $clean_d['user_id'],
+            $clean_d['rssi'],
+            $clean_d['key'],
+            $clean_d['snr'],
+        );
+        
+        return $clean_d;
+    }
+
     public static function insertAt(array $array, int $position, $key, $value): array {
         return array_slice($array, 0, $position, true)
              + [$key => $value]
@@ -1409,60 +1420,58 @@ class FlashLog extends Model
                 // Run backwards through the data, because time can be adjusted backwards, then the new (and correct) data if in the lower end of the file 
                 for ($i=$data_count-1; $i >= 0; $i--) 
                 { 
-                    $data_item = $data[$i];
-                    if (isset($data_item['port'])) 
+                    $data_item       = $data[$i];
+                    $data_item_count = count($data_item);
+                    if ($data_item_count > 2 && (!isset($data_item['port']) || $data_item['port'] == 3)) // min 2 data items + time, and is port defined, should be port 3
                     {
-                        if ($data_item['port'] == 3)
+                        //change order of time
+                        $data_time = null;
+                        $data_ts   = null;
+                        $data_time_utc = '';
+                        
+                        if (isset($data_item['time']) && !isset($data_item['time_error']))
                         {
-                            //change order of time
-                            $data_time = null;
-                            $data_ts   = null;
-                            $data_time_utc = '';
+                            $data_time = $data_item['time'];
+                            $data_ts   = strtotime($data_time);
+                            unset($data_item['time']);
                             
-                            if (isset($data_item['time']) && !isset($data_item['time_error']))
+                            $data_time_utc = str_replace(' ', 'T', $data_time).'Z'; // Format as Influx time + UTC timezone
+
+                            // Add data point to date_arr and set frist/last data date
+                            if ($data_ts >= $time_min && $data_ts < $time_max) // time is set (also allow previously parsed Flashlogs without RTC), or time_device should be correctly set
                             {
-                                $data_time = $data_item['time'];
-                                $data_ts   = strtotime($data_time);
-                                unset($data_item['time']);
-                                
-                                $data_time_utc = str_replace(' ', 'T', $data_time).'Z'; // Format as Influx time + UTC timezone
+                                if ($last_date === null)
+                                    $last_date = $data_time; // update until last item with date
 
-                                // Add data point to date_arr and set frist/last data date
-                                if (!isset($data_item['time_device']) || ($data_item['time_device'] >= $time_min && $data_item['time_device'] < $time_max)) // time is set (also allow previously parsed Flashlogs without RTC), or time_device should be correctly set
-                                {
-                                    if ($last_date === null)
-                                        $last_date = $data_time; // update until last item with date
-
-                                    $first_date = $data_time;
-                                }
+                                $first_date = $data_time;
                             }
-                            
-                            if ($validate_time == false || (isset($data_ts) && $data_ts >= $time_min && $data_ts < $time_max))
+                        }
+                        
+                        if ($validate_time == false || (isset($data_ts) && $data_ts >= $time_min && $data_ts < $time_max))
+                        {
+                            $date_time_round_min = $data_ts; // Round to minute, to store only 1 value per minute: YYYY-MM-DD HH:mm (leave :ss)
+
+                            if (!in_array($date_time_round_min, $date_times))
                             {
-                                $date_time_round_min = $data_ts; // Round to minute, to store only 1 value per minute: YYYY-MM-DD HH:mm (leave :ss)
+                                $data_item       = array_merge(['time'=>$data_time_utc], $data_item); // Time in first column
+                                $data_item_clean = self::cleanFlashlogItem($data_item, true);
 
-                                if (!in_array($date_time_round_min, $date_times))
+                                // Add missing temperature column (for combined flashlogs having no t_i at first but afterwards added)
+                                if (!isset($data_item_clean['t_i']))
+                                    $data_item_clean = self::insertAt($data_item_clean, 3, 't_i', null); // after w_v
+
+                                array_unshift($csv_body, implode($separator, $data_item_clean)); // because of walking backwards through data, prepend to array to have the final array time ascending again
+                                
+                                // get biggest headers
+                                $param_count = count($data_item_clean);
+                                if ($param_count > $header_count)
                                 {
-                                    $data_item       = array_merge(['time'=>$data_time_utc], $data_item); // Time in first column
-                                    $data_item_clean = self::cleanFlashlogItem($data_item, true);
-
-                                    // Add missing temperature column (for combined flashlogs having no t_i at first but afterwards added)
-                                    if (!isset($data_item_clean['t_i']))
-                                        $data_item_clean = self::insertAt($data_item_clean, 3, 't_i', null); // after w_v
-
-                                    array_unshift($csv_body, implode($separator, $data_item_clean)); // because of walking backwards through data, prepend to array to have the final array time ascending again
-                                    
-                                    // get biggest headers
-                                    $param_count = count($data_item_clean);
-                                    if ($param_count > $header_count)
-                                    {
-                                        $header_count = $param_count;
-                                        $header_item  = $data_item_clean;
-                                    }
-                                    
-                                    // Register data_ts in date_times to not overwrite
-                                    $date_times[] = $date_time_round_min;
+                                    $header_count = $param_count;
+                                    $header_item  = $data_item_clean;
                                 }
+                                
+                                // Register data_ts in date_times to not overwrite
+                                $date_times[] = $date_time_round_min;
                             }
                         }
                     }

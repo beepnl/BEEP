@@ -1024,6 +1024,7 @@ class ResearchController extends Controller
             'add_flashlogs'         => 'nullable|boolean',
             'until_last_fl'         => 'nullable|boolean',
             'invalid_log_prognose'  => 'nullable|boolean',
+            'add_db_data'           => 'nullable|boolean',
             'log_device_id'         => 'nullable|exists:sensors,id',
             'log_device_note'       => 'nullable|string',
             'only_change'           => 'nullable|string',
@@ -1047,6 +1048,7 @@ class ResearchController extends Controller
         $add_flashlogs    = boolval($request->input('add_flashlogs', 1));
         $until_last_fl    = boolval($request->input('until_last_fl', 1));
         $invalid_log_prognose = boolval($request->input('invalid_log_prognose', 0));
+        $add_db_data      = boolval($request->input('add_db_data', 0));
         $devices_all      = collect();
         $devices_show     = collect();
         $initial_days     = 30;
@@ -1580,12 +1582,26 @@ class ResearchController extends Controller
             }
             else // Export CSV and update all log_file_info
             {
-                $flashlogs = $device_log->flashlogs()->where('log_date_end', '>=', $date_start)->where('log_date_start', '<', $date_until)->orderBy('log_date_start')->get();
-                $data_array= [];
+                $flashlogs      = $device_log->flashlogs()->where('log_date_end', '>=', $date_start)->where('log_date_start', '<', $date_until)->orderBy('log_date_start')->get();
+                $date_start_ts  = strtotime("$date_start 00:00:00");
+                $date_until_ts  = strtotime("$date_until 00:00:00");
+                $flashlog_count = $flashlogs->count();
+                $flashlog_i     = 0;
+                $data_array     = [];
+
                 foreach ($flashlogs as $flashlog)
                 {
+                    $log_date_start         = $flashlog->log_date_start;
+                    $log_date_start_ts      = max($date_start_ts, strtotime($log_date_start));
+                    $log_date_until         = $flashlog->log_date_end;
+                    $log_date_until_ts      = min($date_until_ts, strtotime($log_date_until));
+                    $log_date_start_next    = $flashlog_i < $flashlog_count-1 ? $flashlogs->get($flashlog_i + 1)->log_date_start : $date_until;
+                    $log_date_start_next_ts = isset($log_date_start_next) ? min($date_until_ts, strtotime($log_date_start_next)) : $date_until_ts;
+
+                    // Add log data to data_array
                     if (isset($flashlog->log_parsed) && ($invalid_log_prognose || $flashlog->validLog()))
                     {
+                        // Add flashlog data to data_array
                         $flashlog_parsed_text = $flashlog->getFileContent('log_file_parsed');
                         if (!empty($flashlog_parsed_text))
                         {
@@ -1593,44 +1609,56 @@ class ResearchController extends Controller
                             $flashlog->addMetaData($flashlog_data_array, true);
                             $data_array = array_merge($data_array, $flashlog_data_array);
                         }
+                        // Add flashlog data up to next start from DB
+                        if ($add_db_data && isset($log_date_until) && isset($log_date_start_next) && $log_date_start_next_ts - $log_date_until_ts > 84600) // more than a day of data in between
+                        {
+                            //dd($add_db_data, $date_start, $date_until, $log_date_start, $log_date_until, $log_date_start_next, $log_date_start_next_ts, $log_date_until_ts, $log_date_start_next_ts-$log_date_until_ts);
+
+                            $query = 'SELECT * FROM "sensors" WHERE '.$device_log->influxWhereKeys().' AND from_flashlog != \'1\' AND time >= \''.$log_date_until.'\' AND time < \''.$log_date_start_next.'\' ORDER BY time ASC LIMIT 5000'; // from end of fl to start of next
+                            $db_data = Device::getInfluxQuery($query, 'flashlog');
+
+                            foreach ($db_data as $d)
+                            {
+                                $d = FlashLog::cleanDbDataItem($d);
+                                $data_array[] = $d;
+                            }
+                        }
                     }
+                    else 
+                    {
+                        if ($add_db_data && isset($log_date_start) && isset($log_date_start_next) && $log_date_start_next_ts - $log_date_start_ts > 84600) // more than a day of data in between
+                        {
+                            // get data from DB instead of from Flashlog for this time block
+                            $query = 'SELECT * FROM "sensors" WHERE '.$device_log->influxWhereKeys().' AND from_flashlog != \'1\' AND time >= \''.$log_date_start.'\' AND time < \''.$log_date_start_next.'\' ORDER BY time ASC LIMIT 5000'; // from start of (invalid) fl to start of next
+                            $db_data = Device::getInfluxQuery($query, 'flashlog');
+
+                            foreach ($db_data as $d)
+                            {
+                                $d = FlashLog::cleanDbDataItem($d);
+                                $data_array[] = $d;
+                            }
+                        }
+                    }
+
+                    $flashlog_i++;
                 }
+
+                $data_count = count($data_array);
+
                 if (count($data_array) > 0)
                 {
-                    $min_unix_ts = strtotime($date_start);
-                    $max_unix_ts = strtotime($date_until);
+                    $csv_file_name  = "device-$log_device_id-flashlog-data";
+                    $save_output    = FlashLog::exportData($data_array, $csv_file_name, true, ',', true, true, $date_start_ts, $date_until_ts); // Research data is also exported with , as separator
 
-                    // filter time: remove first values < min time, or > max time
-                    $delete_until_index = 0;
-                    foreach ($data_array as $i => $value_array)
+                    if (isset($save_output['link']))
                     {
-                        if (isset($value_array['time']))
-                        {
-                            $data_ts = strtotime($value_array['time']);
-                            if ($data_ts < $min_unix_ts || $data_ts > $max_unix_ts)
-                                $delete_until_index = $i;
-                            else
-                                break;
-                        }
-                    }
-                    if ($delete_until_index > 0)
-                        $data_array = array_slice($data_array, $delete_until_index+1); // remove before index
+                        // Get meta of complete (concatenated) dataset
+                        $dummy_flashlog = new FlashLog; // required for addMetaData
+                        $meta_data      = $dummy_flashlog->addMetaData($data_array, true, true);
+                        
+                        $device_log->log_file_info = array_merge(['note'=>$log_device_note, 'created_date'=>date('Y-m-d H:i:s'), 'csv_url'=>$save_output['link']], $meta_data);
 
-                    if (count($data_array) > 0)
-                    {
-                        $csv_file_name  = "device-$log_device_id-flashlog-data";
-                        $save_output    = FlashLog::exportData($data_array, $csv_file_name, true, ',', true, true, $min_unix_ts, $max_unix_ts); // Research data is also exported with , as separator
-
-                        if (isset($save_output['link']))
-                        {
-                            // Get meta of complete (concatenated) dataset
-                            $dummy_flashlog = new FlashLog; // required for addMetaData
-                            $meta_data      = $dummy_flashlog->addMetaData($data_array, true, true);
-                            
-                            $device_log->log_file_info = array_merge(['note'=>$log_device_note, 'created_date'=>date('Y-m-d H:i:s'), 'csv_url'=>$save_output['link']], $meta_data);
-
-                            $device_log->save();
-                        }
+                        $device_log->save();
                     }
                 }
             }
@@ -1639,7 +1667,7 @@ class ResearchController extends Controller
             $devices_all->merge($device_log); // add for display of newly added log values
 
 
-        return view('research.data', compact('research', 'devices_all', 'devices_show', 'data_days', 'dates', 'totals', 'data_completeness', 'data_completeness_count', 'consent_users_select', 'consent_users_selected', 'devices_select', 'device_ids', 'date_start', 'date_until', 'add_flashlogs', 'until_last_fl', 'invalid_log_prognose'));
+        return view('research.data', compact('research', 'devices_all', 'devices_show', 'data_days', 'dates', 'totals', 'data_completeness', 'data_completeness_count', 'consent_users_select', 'consent_users_selected', 'devices_select', 'device_ids', 'date_start', 'date_until', 'add_flashlogs', 'until_last_fl', 'invalid_log_prognose','add_db_data'));
     }
 
 

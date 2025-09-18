@@ -126,7 +126,7 @@
                             </a>
 
                             <a href="{{ route('devices.flashlog', ['id'=>$flashlog->device_id, 'fl_id'=>$flashlog->id, 'dont_use_rtc'=>1] ) }}">
-                                <button title="Parse Flashlog without RTC" class="btn btn-danger loading-spinner" data-loading-text="<i class='fa fa-clock fa-spin'></i>">
+                                <button title="Parse Flashlog without RTC" class="btn btn-danger loading-spinner" data-loading-text="<i class='fa fa-clock-o fa-spin'></i>">
                                     <i class="fa fa-clock-o" aria-hidden="true"></i>
                                 </button>
                             </a>

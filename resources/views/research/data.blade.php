@@ -66,7 +66,21 @@
 
                     <div class="row">
                         
-                        <div class="col-xs-12 col-md-4">
+                        <div class="col-xs-12 col-md-3">
+                            <div class="form-group {{ $errors->has('add_db_data') ? 'has-error' : ''}}">
+                                <label for="add_db_data" control-label>{{ 'Add DB data to export' }}</label>
+                                <div>
+                                    <div class="radio" style="display: inline-block;">
+                                        <label><input onchange="this.form.submit()" name="add_db_data" type="radio" value="1" @if (isset($add_db_data)) {{ (isset($add_db_data) && $add_db_data == 1) ? 'checked' : '' }} @else {{ 'checked' }} @endif> Yes</label>
+                                    </div>
+                                    <div class="radio" style="display: inline-block;">
+                                        <label><input onchange="this.form.submit()" name="add_db_data" type="radio" value="0" @if (isset($add_db_data)) {{ ($add_db_data == 0) ? 'checked' : '' }} @endif> No</label>
+                                    </div>
+                                    {!! $errors->first('add_db_data', '<p class="help-block">:message</p>') !!}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xs-12 col-md-3">
                             <div class="form-group {{ $errors->has('add_flashlogs') ? 'has-error' : ''}}">
                                 <label for="add_flashlogs" control-label>{{ 'Show flashlogs' }}</label>
                                 <div>
@@ -81,7 +95,7 @@
                             </div>
                         </div>
                         @if($add_flashlogs)
-                        <div class="col-xs-12 col-md-4">
+                        <div class="col-xs-12 col-md-3">
                             <div class="form-group {{ $errors->has('until_last_fl') ? 'has-error' : ''}}">
                                 <label for="until_last_fl" control-label>{{ 'Show complete until' }}</label>
                                 <div>
@@ -95,7 +109,7 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="col-xs-12 col-md-4">
+                        <div class="col-xs-12 col-md-3">
                             <div class="form-group {{ $errors->has('invalid_log_prognose') ? 'has-error' : ''}}">
                                 <label for="invalid_log_prognose" control-label>{{ 'Show flashlog type' }}</label>
                                 <div>

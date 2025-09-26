@@ -144,16 +144,16 @@ class FlashLogController extends Controller
                         if ($line['port'] == 2)
                             $date_analysis[] = '------------------------------ NEW BLOCK -----------------------------------';
 
-                        $data_line = 'P='.$line['port'].' | i='.$line['i'].' | time='.$line['time'].' | time_clock='.$line['time_clock'].' | time_device='.$line['time_device'];
+                        $data_line = 'P='.$line['port'].' | i='.$line['i'].' | time='.$line['time'].' | t_clock='.$line['time_clock'].' | t_device='.$line['time_device'];
 
                         if (isset($line['time_error']))
-                            $data_line .= ' | time_error='.$line['time_error'];
+                            $data_line .= ' | t_error='.$line['time_error'];
 
                         if (isset($line['time_corr']))
-                            $data_line .= ' | time_corr='.$line['time_corr'];
+                            $data_line .= ' | t_corr='.$line['time_corr'];
 
                         if (isset($line['time_offset']))
-                            $data_line .= ' | time_offset='.$line['time_offset'];
+                            $data_line .= ' | t_offset='.$line['time_offset'];
 
                         if (isset($line['w_v']))
                             $data_line .= ' | w_v='.$line['w_v'];
@@ -164,8 +164,14 @@ class FlashLogController extends Controller
                         if (isset($line['t_i']))
                             $data_line .= ' | t='.$line['t_i'];
 
+                        if (isset($line['bv']))
+                            $data_line .= ' | bv='.$line['bv'];
+
+                        if (isset($line['firmware_version']))
+                            $data_line .= ' | fw='.$line['firmware_version'];
+
                         if ($show_payload && isset($line['payload_hex']))
-                            $data_line .= ' | payload_hex='.$line['payload_hex'];
+                            $data_line .= ' | pl='.$line['payload_hex'];
 
                         $date_analysis[] = $data_line;
                     }

@@ -601,7 +601,7 @@ class Device extends Model
         $output = null;
         try
         {
-            $query  = 'SELECT '.$fields.' from "sensors" WHERE '.$this->influxWhereKeys().' AND time > now() - 365d '.$groupby.' ORDER BY time DESC LIMIT '.$limit;
+            $query  = 'SELECT '.$fields.' from "sensors" WHERE '.$this->influxWhereKeys().' AND time > now() - 365d AND time <= now() '.$groupby.' ORDER BY time DESC LIMIT '.$limit;
             //die(print_r($query));
             $values = Device::getInfluxQuery($query, 'last');
             //die(print_r($values));

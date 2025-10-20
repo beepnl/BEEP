@@ -207,6 +207,10 @@
                 margin: 0px;
                 padding: 0px;
             }
+            .table-header-rotated thead th.rotate .year {
+                border-right: 3px solid #000;
+                font-weight: bold;
+            }
             .table-header-rotated > tbody > tr > th{
                 border-left: 1px solid #AAA;
             }
@@ -419,7 +423,7 @@
                     <thead>
                         <tr>
                             @foreach($dates as $date => $d)
-                                <th class="rotate"><div><div>{{ $date }}</div></div></th>
+                                <th class="rotate @if(substr($date,5,5)=='01-01') year @endif"><div><div>{{ $date }}</div></div></th>
                             @endforeach
                         </tr>
                     </thead>

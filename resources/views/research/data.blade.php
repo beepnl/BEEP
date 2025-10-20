@@ -207,9 +207,8 @@
                 margin: 0px;
                 padding: 0px;
             }
-            .table-header-rotated thead th.rotate .year {
-                border-right: 3px solid #000;
-                font-weight: bold;
+            .table-header-rotated thead th.rotate.year {
+                border-right: 6px solid #000;
             }
             .table-header-rotated > tbody > tr > th{
                 border-left: 1px solid #AAA;

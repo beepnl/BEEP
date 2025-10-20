@@ -239,7 +239,7 @@
                 border-bottom: 3px solid black;
             }
             td.lowbat{
-                border-top: 3px solid red !important;
+                border-bottom: 6px solid red !important;
             }
             td.arrow-left {
               position: relative;

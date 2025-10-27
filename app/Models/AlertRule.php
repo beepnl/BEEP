@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\App;
 use App\Measurement;
 use App\User;
 use App\Device;
@@ -11,8 +12,10 @@ use App\Models\Alert;
 use Moment\Moment;
 use Mail;
 use Cache;
+use Translation;
 use App\Mail\AlertMail;
 use App\Models\AlertRuleFormula;
+use LaravelLocalization;
 
 class AlertRule extends Model
 {
@@ -35,16 +38,18 @@ class AlertRule extends Model
      *
      * @var array
      */
-    protected $fillable           = ['name', 'description', 'measurement_id', 'calculation', 'calculation_minutes', 'comparator', 'comparison', 'threshold_value', 'exclude_months', 'exclude_hours', 'exclude_hive_ids', 'alert_via_email', 'webhook_url', 'active', 'user_id', 'default_rule', 'timezone', 'alert_on_occurences', 'last_calculated_at', 'last_evaluated_at', 'formulas'];
-    protected $hidden             = ['last_calculated_at'];
-    protected $appends            = ['formulas'];
+    protected $fillable           = ['name', 'description', 'measurement_id', 'calculation', 'calculation_minutes', 'comparator', 'comparison', 'threshold_value', 'exclude_months', 'exclude_hours', 'exclude_hive_ids', 'alert_via_email', 'webhook_url', 'active', 'user_id', 'default_rule', 'timezone', 'alert_on_occurences', 'last_calculated_at', 'last_evaluated_at'];
+    protected $hidden             = ['last_calculated_at','alert_rule_formulas'];
+    protected $appends            = ['formulas','no_value'];
 
     public static $calculations   = ["min"=>"Minimum", "max"=>"Maximum", "ave"=>"Average", "cnt"=>"Count"]; // exclude "der"=>"Derivative" for the moment (because of user interpretation complexity)
     public static $influx_calc    = ["min"=>"MIN", "max"=>"MAX", "ave"=>"MEAN", "der"=>"DERIVATIVE", "cnt"=>"COUNT"];
+    
     public static $comparators    = ["="=>"equal_to", "<"=>"less_than", ">"=>"greater_than", "<="=>"less_than_or_equal", ">="=>"greater_than_or_equal"];
     public static $comparisons    = ["val"=>"Value", "inc"=>"Increase", "dec"=>"Decrease", "abs_dif"=>"Absolute_value_of_dif"]; // excluse "abs"=>"Absolute_value","dif"=>"Difference" because it has no usecase
     public static $exclude_months = [1=>"Jan",2=>"Feb",3=>"Mar",4=>"Apr",5=>"May",6=>"Jun",7=>"Jul",8=>"Aug",9=>"Sep",10=>"Oct",11=>"Nov",12=>"Dec"];
     public static $exclude_hours  = [0=>"0:00 - 0:59",1=>"1:00 - 1:59",2=>"2:00 - 2:59",3=>"3:00 - 3:59",4=>"4:00 - 4:59",5=>"5:00 - 5:59",6=>"6:00 - 6:59",7=>"7:00 - 7:59",8=>"8:00 - 8:59",9=>"9:00 - 9:59",10=>"10:00 - 10:59",11=>"11:00 - 11:59",12=>"12:00 - 12:59",13=>"13:00 - 13:59",14=>"14:00 - 14:59",15=>"15:00 - 15:59",16=>"16:00 - 16:59",17=>"17:00 - 17:59",18=>"18:00 - 18:59",19=>"19:00 - 19:59",20=>"20:00 - 20:59",21=>"21:00 - 21:59",22=>"22:00 - 22:59",23=>"23:00 - 23:59"];
+
     public static $calc_minutes   = [0, 60, 180, 360, 720, 1440, 2880, 10080];
 
     public static function boot()
@@ -88,14 +93,55 @@ class AlertRule extends Model
         return !empty($this->attributes['exclude_hive_ids']) ? array_map(function($value){ return intval($value); }, explode(",", $this->attributes['exclude_hive_ids'])) : [];
     }
 
+    public function getNoValueAttribute()
+    {
+        if ($this->threshold_value == 0 && !empty($this->attributes['calculation']) && $this->attributes['calculation'] == 'cnt')
+        {
+            return true;
+        }
+        else if ($this->formulas->count() > 0)
+        {
+            $f = $this->formulas->first();
+            if ($f->threshold_value == 0 && $f->calculation == 'cnt')
+                return true;
+        }
+        return false;
+    }
+
     public function getFormulasAttribute()
     {
-        return $this->formulas()->get();
+        return $this->alert_rule_formulas;
     }
 
     public function getUnit()
     {
         return $this->calculation == 'cnt' || $this->calculation == 'der' || $this->measurement->unit == '-' ? '' : ''.$this->measurement->unit;
+    }
+
+    public function getPq($abbr=false)
+    {
+        $pq = null;
+        
+        if (isset($this->measurement_id) && isset($this->measurement->physical_quantity))
+            $pq = $abbr ? $this->measurement->physical_quantity->abbreviation : $this->measurement->pq;
+
+        if ($pq)
+        {
+            $loc = LaravelLocalization::getCurrentLocale();
+            return Cache::remember('ar-'.$this->id.'-pq-name-'.$loc.'-'.$pq, env('CACHE_TIMEOUT_LONG'), function () use ($loc, $pq) 
+                {
+                    if ($this->calculation == 'der' || !isset($pq))
+                        return '';
+                    elseif (isset($pq))
+                        return $pq;
+
+                    return '';
+                });
+            }
+        else
+        {
+            return '';
+        }
     }
 
     public function measurement()
@@ -106,15 +152,18 @@ class AlertRule extends Model
     {
         return $this->belongsTo(User::class);
     }
-    public function formulas()
+    public function alert_rule_formulas()
     {
         return $this->hasMany(AlertRuleFormula::class);
     }
-
+    public function alerts()
+    {
+        return $this->hasMany(Alert::class);
+    }
     
     public static function selectList()
     {
-        return AlertRule::orderBy('name')->pluck('name','id');
+        return self::orderBy('name')->pluck('name','id');
     }
 
     public function remove_hive_id_from_exclude_hive_ids($hive_id)
@@ -151,18 +200,36 @@ class AlertRule extends Model
     public function readableFunction($short=false, $value=null)
     {
         $rule       = $this;
+        
+        $locales    = config('laravellocalization.supportedLocales');
+        $locale     = isset($locales[$rule->user->locale]) ? $rule->user->locale : LaravelLocalization::getCurrentLocale();
+        $pq_name    = isset($m_abbr) ? Translation::get($locale, $m_abbr, 'measurement') : $rule->getPq();
         $unit       = $rule->getUnit();
-        $calc       = $rule->calculation_minutes == 0 ? '' : ''.$rule->calculation.' ';
-        $calc_trans = $rule->calculation_minutes == 0 ? '' : __('beep.'.$rule->calculation).' ';
+        $direct     = $rule->calculation_minutes == 0 ? true : false;
+        $calc       = $direct ? '' : ''.__('beep.'.$rule->calculation).' ';                             // min / max / average / count
+        $comparison = $rule->comparison == 'val' ? '' : ' '.__('beep.'.$rule->comparison);  // value (not shown) / increase / difference
+        $cnt_zero   = $rule->calculation == 'cnt' && ($value === 0 || $rule->threshold_value == 0) ? true : false;
+        $text_zero  = ucfirst(__('beep.cnt_zero')).' ';                                     // Absence of
+        $calc_trans = $direct ? '' : ($cnt_zero ? $text_zero : $calc.$comparison);          // Absence of / average value
 
+        // alert function with value
+        if ($value != null) 
+        {
+            if ($cnt_zero)
+                return ucfirst($calc_trans).$pq_name.__('beep.values');
+            else
+                return ucfirst($calc_trans).' '.$pq_name.' = '.$value.$unit."\n(".$rule->comparator.' '.$rule->threshold_value.$unit.')'; // value Temperature average value = 10.3°C
+        }
 
-        if ($value != null) // alert function
-            return ucfirst($calc_trans).__('beep.'.$rule->comparison).' '.$rule->measurement->pq.' = '.$value.$unit."\n(".$rule->comparator.' '.$rule->threshold_value.$unit.')';
-
+        // alert function for logging
         if ($short)
-            return $rule->measurement->abbreviation.' '.$calc.$rule->comparison.' '.$rule->comparator.' '.$rule->threshold_value.$unit;
+            return $rule->getPq(true).' '.$calc.$rule->comparison.' '.$rule->comparator.' '.$rule->threshold_value.$unit;
 
-        return $rule->measurement->pq.' '.$calc_trans.__('beep.'.$rule->comparison).' '.$rule->comparator.' '.$rule->threshold_value.$unit;
+        // alert function without value (for alert rule display)
+        if ($cnt_zero)
+            return ucfirst($calc_trans).$pq_name.__('beep.values'); // Absence of Temperature values
+        else
+            return $pq_name.' '.$calc_trans.__('beep.'.$rule->comparison).' '.$rule->comparator.' '.$rule->threshold_value.$unit; // Temperature average value = 10.3°C
     }
 
     public function evaluateDeviceRuleAlerts($device, $user, $alert_rule_calc_date, $data_array=null, $log_on=false)
@@ -181,15 +248,16 @@ class AlertRule extends Model
             return 0;
         }
 
-        if (!isset(AlertRule::$influx_calc[$r->calculation]))
+        if (!isset(self::$influx_calc[$r->calculation]))
         {
             if($log_on)
                 Log::debug($debug_start.' Undefined calculation: '.$r->calculation);
             return 0;
         }
         $diff_comp   = $r->comparison == 'dif' || $r->comparison == 'abs_dif' || $r->comparison == 'inc' || $r->comparison == 'dec' ? true : false;
+        $round_decim = $diff_comp ? 2 : 1;    // round to 2 decimals for difference comparison, because difference can be 0 too sooon for 1 decimal (temperature sensor of e.g. brood), otherwise to 1 decimal
         $m_abbr      = $r->measurement->abbreviation;
-        $influx_func = AlertRule::$influx_calc[$r->calculation];
+        $influx_func = self::$influx_calc[$r->calculation];
         $limit       = $diff_comp ? $r->alert_on_occurences + 1 : $r->alert_on_occurences; // one extra for diff calculation
         $direct_data = isset($data_array) && count($data_array) > 0 && isset($data_array[0][$m_abbr]) ? true : false;
 
@@ -198,12 +266,6 @@ class AlertRule extends Model
         else
             $last_val_inf= $d->getAlertSensorValues($m_abbr, $influx_func, $r->calculation_minutes, $limit); // provides: ['values'=>$values,'query'=>$query, 'from'=>'cache', 'min_ago'=>$val_min_ago]
 
-        if ($last_val_inf['min_ago'] > $r->calculation_minutes)
-        {
-            if($log_on)
-                Log::debug($debug_start.' Not evaluating, data from '.$last_val_inf['min_ago'].'m ago is longer ago than '.$r->calculation_minutes.'m (calc min)');
-            return 0;
-        }
 
         $last_values      = $last_val_inf['values'];
         $alert_count      = 0;
@@ -213,6 +275,13 @@ class AlertRule extends Model
         $last_values_data = [];
         $last_value_count = $diff_comp ? count($last_values) - 1 : min($r->alert_on_occurences, count($last_values));
         $alert_on_no_vals = $r->calculation == 'cnt' && $r->threshold_value == 0 ? true : false;
+        
+        if ($last_val_inf['min_ago'] > $r->calculation_minutes && $alert_on_no_vals == false)
+        {
+            if($log_on)
+                Log::debug($debug_start.' Not evaluating, data from '.$last_val_inf['min_ago'].'m ago is longer ago than '.$r->calculation_minutes.'m (calc min)');
+            return 0;
+        }
 
         if ($last_value_count > 0 || $alert_on_no_vals)
         {
@@ -287,8 +356,9 @@ class AlertRule extends Model
                     if (is_nan($calc))
                         continue;
 
-                    $calc  = round($calc, 1); // round to 1 decimal, just like the threshold_value
-                    $thres = round($r->threshold_value, 1);
+                    
+                    $calc  = round($calc, $round_decim); // round, just like the threshold_value
+                    $thres = round($r->threshold_value, $round_decim);
                     
                     $evaluation = false;
                     switch($r->comparator)
@@ -439,7 +509,7 @@ class AlertRule extends Model
                         $last_values_array= [];
                         foreach ($last_values_data as $key => $value) 
                         {
-                            $last_values_array[] = round($value, 1);
+                            $last_values_array[] = round($value, $round_decim);
                         }
                         $last_values_string = implode(' -> ',$last_values_array).$r->getUnit();
                     }
@@ -551,6 +621,11 @@ class AlertRule extends Model
                 $r->delete();
             }
             return ['eval'=>0,'calc'=>0,'msg'=>'no_user'];
+        } 
+        else
+        {
+            if (isset($user->locale))
+                App::setLocale($user->locale); // make sure all (blade)translations are in users language
         }
 
         // Evaluate rule
@@ -608,7 +683,7 @@ class AlertRule extends Model
         $parse_min  = min(60, env('PARSE_ALERT_RULES_EVERY_X_MIN', 15));
         $log_on     = env('LOG_ALERT_RULE_PARSING', false);
 
-        $alertRules = AlertRule::whereIn('id', $rule_ids)
+        $alertRules = self::whereIn('id', $rule_ids)
                         ->where('active', 1)
                         ->where('default_rule', 0)
                         ->where('alert_on_occurences', '=', 1)
@@ -663,7 +738,7 @@ class AlertRule extends Model
             $evalCount  = 0;
             $min_ago_e  = date('Y-m-d H:i:s', time()-(59*$parse_min)); // a bit less than 15 min ago
 
-            $alertRules = AlertRule::where('active', 1)
+            $alertRules = self::where('active', 1)
                             ->where('default_rule', 0)
                             ->where('user_id', '!=', null)
                             ->where('calculation_minutes', '>=', $parse_min) // do not parse alerts that are set to parsing 'at time of device data' (i.e. calculation_minutes == 0)
@@ -687,7 +762,7 @@ class AlertRule extends Model
             // if ($alertCount > 0)
             //     Log::debug('|=> Evaluated rules='.$evalCount.', created/updated alerts='.$alertCount);
         }
-        AlertRule::cacheRequestRate('alert-timed', $alertCount);
+        self::cacheRequestRate('alert-timed', $alertCount);
         return $alertCount;
     }
 }

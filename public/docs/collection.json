@@ -10,7 +10,7 @@
     ],
     "info": {
         "name": "BEEP",
-        "_postman_id": "cc2d7d7a-0717-41d3-9254-c957e14891fc",
+        "_postman_id": "a7c2ddd1-f4ab-4d3c-b8cd-54603a0997f8",
         "description": "BEEP API specification",
         "schema": "https:\/\/schema.getpostman.com\/json\/collection\/v2.1.0\/collection.json"
     },
@@ -94,7 +94,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"alert_rule_id\":18,\"measurement_id\":4,\"alert_value\":\"incidunt\",\"show\":false}"
+                            "raw": "{\"alert_rule_id\":20,\"measurement_id\":3,\"alert_value\":\"mollitia\",\"show\":false}"
                         },
                         "description": ""
                     },
@@ -191,7 +191,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"show\":true}"
+                            "raw": "{\"show\":false}"
                         },
                         "description": ""
                     },
@@ -315,7 +315,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"name\":\"quia\",\"description\":\"facilis\",\"measurement_id\":12,\"calculation\":\"officiis\",\"comparator\":\"est\",\"comparison\":\"labore\",\"threshold_value\":29472.5653379,\"calculation_minutes\":19,\"alert_on_occurrences\":7,\"alert_via_email\":false,\"webhook_url\":\"iste\",\"active\":true,\"exclude_months\":[1,2,3,11,12],\"exclude_hours\":[0,1,2,3,22,23],\"exclude_hive_ids\":[\"ea\"]}"
+                            "raw": "{\"name\":\"repellendus\",\"description\":\"nihil\",\"measurement_id\":12,\"threshold_value\":3527054.7321377,\"formulas\":[{\"alert_rule_id\":2,\"measurement_id\":1,\"calculation\":\"mollitia\",\"comparator\":\"commodi\",\"comparison\":\"fuga\",\"period_minutes\":0,\"threshold_value\":323.6134619,\"future\":false}],\"calculation_minutes\":\"totam\",\"alert_on_occurrences\":19,\"alert_via_email\":false,\"webhook_url\":\"voluptas\",\"active\":true,\"exclude_months\":[1,2,3,11,12],\"exclude_hours\":[0,1,2,3,22,23],\"exclude_hive_ids\":[\"corporis\"]}"
                         },
                         "description": ""
                     },
@@ -412,7 +412,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"name\":\"nostrum\",\"description\":\"rem\",\"measurement_id\":5,\"calculation\":\"quia\",\"comparator\":\"id\",\"comparison\":\"impedit\",\"threshold_value\":0.761193917,\"calculation_minutes\":7,\"alert_on_occurrences\":12,\"alert_via_email\":true,\"webhook_url\":\"sed\",\"active\":true,\"exclude_months\":[1,2,3,11,12],\"exclude_hours\":[0,1,2,3,22,23],\"exclude_hive_ids\":[\"saepe\"]}"
+                            "raw": "{\"name\":\"dignissimos\",\"description\":\"id\",\"measurement_id\":18,\"calculation\":\"dolorem\",\"comparator\":\"voluptas\",\"comparison\":\"qui\",\"threshold_value\":0.39,\"formulas\":[{\"measurement_id\":12,\"calculation\":\"molestiae\",\"comparator\":\"dicta\",\"comparison\":\"recusandae\",\"period_minutes\":0,\"threshold_value\":708013.2,\"future\":true}],\"calculation_minutes\":7,\"alert_on_occurrences\":16,\"alert_via_email\":true,\"webhook_url\":\"et\",\"active\":false,\"exclude_months\":[1,2,3,11,12],\"exclude_hours\":[0,1,2,3,22,23],\"exclude_hive_ids\":[\"et\"]}"
                         },
                         "description": ""
                     },
@@ -935,7 +935,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"checklist_id\":14,\"svg\":\"assumenda\",\"pages\":19,\"name\":\"ut\",\"last_print\":\"illo\"}"
+                            "raw": "{\"checklist_id\":9,\"svg\":\"excepturi\",\"pages\":11,\"name\":\"dignissimos\",\"last_print\":\"nihil\"}"
                         },
                         "description": ""
                     },
@@ -953,7 +953,7 @@
                                 {
                                     "id": "id",
                                     "key": "id",
-                                    "value": "2",
+                                    "value": "10",
                                     "description": "The ID of the checklist svg."
                                 }
                             ]
@@ -1010,7 +1010,7 @@
                                 {
                                     "id": "id",
                                     "key": "id",
-                                    "value": "18",
+                                    "value": "5",
                                     "description": "The ID of the checklist svg."
                                 }
                             ]
@@ -1047,7 +1047,7 @@
                                 {
                                     "id": "id",
                                     "key": "id",
-                                    "value": "12",
+                                    "value": "2",
                                     "description": "The ID of the checklist svg."
                                 }
                             ]
@@ -1090,13 +1090,13 @@
                                 {
                                     "id": "code",
                                     "key": "code",
-                                    "value": "consequuntur",
+                                    "value": "sequi",
                                     "description": ""
                                 },
                                 {
                                     "id": "hive_id",
                                     "key": "hive_id",
-                                    "value": "20",
+                                    "value": "1",
                                     "description": "Hive ID of which the data should be loaded"
                                 }
                             ]
@@ -1118,7 +1118,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"code\":\"oxey\",\"hive_id\":18}"
+                            "raw": "{\"code\":\"gcvl\",\"hive_id\":14}"
                         },
                         "description": ""
                     },
@@ -1134,20 +1134,12 @@
                                     "value": "application\/json"
                                 },
                                 {
-                                    "key": "x-ratelimit-limit",
-                                    "value": "60"
-                                },
-                                {
-                                    "key": "x-ratelimit-remaining",
-                                    "value": "59"
-                                },
-                                {
                                     "key": "access-control-allow-origin",
                                     "value": "*"
                                 }
                             ],
-                            "code": 422,
-                            "body": "{\"errors\":{\"code\":[\"Het geselecteerde code is ongeldig.\"]}}",
+                            "code": 500,
+                            "body": "{\n    \"message\": \"Server Error\"\n}",
                             "name": ""
                         }
                     ]
@@ -1227,7 +1219,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"interval\":\"quis\",\"speed\":78834,\"name\":\"necessitatibus\",\"description\":\"eum\",\"logo_url\":\"https:\\\/\\\/ullrich.com\\\/voluptatem-laborum-eveniet-iste-quis-nihil-delectus-aut.html\",\"show_inspections\":false,\"show_all\":false,\"hide_measurements\":false,\"hive_ids\":[\"eveniet\"]}"
+                            "raw": "{\"interval\":\"nulla\",\"speed\":60488,\"name\":\"rerum\",\"description\":\"doloremque\",\"logo_url\":\"http:\\\/\\\/www.mertz.com\\\/incidunt-perspiciatis-tempore-voluptas-et-ducimus\",\"show_inspections\":true,\"show_all\":true,\"hide_measurements\":false,\"hive_ids\":[\"expedita\"]}"
                         },
                         "description": ""
                     },
@@ -1324,7 +1316,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"interval\":\"nesciunt\",\"speed\":18277,\"name\":\"repellat\",\"description\":\"expedita\",\"logo_url\":\"http:\\\/\\\/lebsack.org\\\/iure-sapiente-quam-neque-aut-omnis-voluptatibus-libero-sequi\",\"show_inspections\":true,\"show_all\":false,\"hide_measurements\":true,\"hive_ids\":[\"odio\"]}"
+                            "raw": "{\"interval\":\"doloribus\",\"speed\":39048,\"name\":\"et\",\"description\":\"illo\",\"logo_url\":\"http:\\\/\\\/sipes.info\\\/consequatur-cupiditate-laboriosam-voluptatem-aut-sit-repudiandae-illum\",\"show_inspections\":true,\"show_all\":false,\"hide_measurements\":false,\"hive_ids\":[\"dignissimos\"]}"
                         },
                         "description": ""
                     },
@@ -1399,7 +1391,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"id\":5,\"key\":\"ducimus\",\"hardware_id\":\"enim\",\"name\":\"voluptas\",\"hive_id\":18,\"type\":\"eius\",\"last_message_received\":\"est\",\"firmware_version\":\"eum\",\"hardware_version\":\"consectetur\",\"boot_count\":20,\"measurement_interval_min\":22739441.663326,\"measurement_transmission_ratio\":19991.51,\"ble_pin\":\"et\",\"battery_voltage\":9085067.8631,\"next_downlink_message\":\"alias\",\"last_downlink_result\":\"et\"}"
+                            "raw": "{\"id\":19,\"key\":\"aut\",\"hardware_id\":\"iusto\",\"name\":\"repellendus\",\"hive_id\":14,\"type\":\"atque\",\"last_message_received\":\"aspernatur\",\"firmware_version\":\"nesciunt\",\"hardware_version\":\"autem\",\"boot_count\":14,\"measurement_interval_min\":125.74838,\"measurement_transmission_ratio\":109,\"ble_pin\":\"aliquid\",\"battery_voltage\":322602517.931274,\"next_downlink_message\":\"dolore\",\"last_downlink_result\":\"ut\"}"
                         },
                         "description": ""
                     },
@@ -1417,7 +1409,7 @@
                                 {
                                     "id": "dev_id",
                                     "key": "dev_id",
-                                    "value": "sit",
+                                    "value": "laboriosam",
                                     "description": "The ID of the dev."
                                 }
                             ]
@@ -1474,7 +1466,7 @@
                                 {
                                     "id": "dev_id",
                                     "key": "dev_id",
-                                    "value": "quis",
+                                    "value": "saepe",
                                     "description": "The ID of the dev."
                                 }
                             ]
@@ -1496,7 +1488,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"lorawan_device\":{\"dev_eui\":\"jjqjnuhxzbqkhuqb\",\"app_key\":\"acflslcfwnocjpkvygqydhofueergsjn\"}}"
+                            "raw": "{\"lorawan_device\":{\"dev_eui\":\"lxiiadxuokzhlfsi\",\"app_key\":\"ueijmdpnaqyrulhwzoqnivzrgmnjuoyh\"}}"
                         },
                         "description": ""
                     },
@@ -1528,7 +1520,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"hardware_id\":\"incidunt\"}"
+                            "raw": "{\"hardware_id\":\"et\"}"
                         },
                         "description": ""
                     },
@@ -1567,7 +1559,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"id\":11,\"key\":\"est\",\"hardware_id\":\"iusto\",\"name\":\"tempore\",\"hive_id\":3,\"type\":\"animi\",\"last_message_received\":\"rerum\",\"firmware_version\":\"in\",\"hardware_version\":\"quidem\",\"boot_count\":11,\"measurement_interval_min\":2,\"measurement_transmission_ratio\":668.864,\"ble_pin\":\"voluptatum\",\"battery_voltage\":8234560.8164983,\"next_downlink_message\":\"et\",\"last_downlink_result\":\"quas\",\"create_ttn_device\":true,\"app_key\":\"aut\"}"
+                            "raw": "{\"id\":13,\"key\":\"voluptates\",\"hardware_id\":\"quia\",\"name\":\"occaecati\",\"hive_id\":6,\"type\":\"dolorum\",\"last_message_received\":\"quod\",\"firmware_version\":\"aliquam\",\"hardware_version\":\"eos\",\"boot_count\":3,\"measurement_interval_min\":5696055.393,\"measurement_transmission_ratio\":3800,\"ble_pin\":\"rerum\",\"battery_voltage\":1502985.31,\"next_downlink_message\":\"illo\",\"last_downlink_result\":\"dignissimos\",\"create_ttn_device\":true,\"app_key\":\"fuga\"}"
                         },
                         "description": ""
                     },
@@ -1664,7 +1656,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"id\":16,\"key\":\"sed\",\"hardware_id\":\"architecto\",\"name\":\"inventore\",\"hive_id\":6,\"type\":\"id\",\"delete\":false,\"last_message_received\":\"ipsa\",\"firmware_version\":\"id\",\"hardware_version\":\"omnis\",\"boot_count\":4,\"measurement_interval_min\":40496.281392,\"measurement_transmission_ratio\":50349,\"ble_pin\":\"natus\",\"battery_voltage\":552.141202533,\"next_downlink_message\":\"natus\",\"last_downlink_result\":\"commodi\"}"
+                            "raw": "{\"id\":12,\"key\":\"quis\",\"hardware_id\":\"ea\",\"name\":\"tenetur\",\"hive_id\":2,\"type\":\"veritatis\",\"delete\":false,\"last_message_received\":\"nihil\",\"firmware_version\":\"porro\",\"hardware_version\":\"fugit\",\"boot_count\":7,\"measurement_interval_min\":66723158.67244781,\"measurement_transmission_ratio\":222015999.57199,\"ble_pin\":\"distinctio\",\"battery_voltage\":64171328.7,\"next_downlink_message\":\"voluptas\",\"last_downlink_result\":\"incidunt\"}"
                         },
                         "description": ""
                     },
@@ -1702,7 +1694,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"device_id\":\"cupiditate\",\"start\":\"2020-05-27 16:16\",\"end\":\"2020-05-30 00:00\",\"separator\":\";\",\"measurements\":\"'am2315_t,am2315_h,mhz_co2'\",\"link\":false}"
+                            "raw": "{\"device_id\":\"non\",\"start\":\"2020-05-27 16:16\",\"end\":\"2020-05-30 00:00\",\"separator\":\";\",\"measurements\":\"'am2315_t,am2315_h,mhz_co2'\",\"link\":true}"
                         },
                         "description": ""
                     },
@@ -1754,8 +1746,8 @@
                                     "value": "*"
                                 }
                             ],
-                            "code": 401,
-                            "body": "{\"message\":\"Unauthenticated.\"}",
+                            "code": 500,
+                            "body": "{\n    \"message\": \"Server Error\"\n}",
                             "name": ""
                         }
                     ]
@@ -1809,8 +1801,8 @@
                                     "value": "*"
                                 }
                             ],
-                            "code": 401,
-                            "body": "{\"message\":\"Unauthenticated.\"}",
+                            "code": 500,
+                            "body": "{\n    \"message\": \"Server Error\"\n}",
                             "name": ""
                         }
                     ]
@@ -1824,12 +1816,12 @@
                             "query": [
                                 {
                                     "key": "id",
-                                    "value": "12",
+                                    "value": "16",
                                     "description": "Flashlog ID to parse",
                                     "disabled": false
                                 }
                             ],
-                            "raw": "{{baseUrl}}\/api\/flashlogs\/:id?id=12",
+                            "raw": "{{baseUrl}}\/api\/flashlogs\/:id?id=16",
                             "variable": [
                                 {
                                     "id": "id",
@@ -1876,8 +1868,8 @@
                                     "value": "*"
                                 }
                             ],
-                            "code": 401,
-                            "body": "{\"message\":\"Unauthenticated.\"}",
+                            "code": 500,
+                            "body": "{\n    \"message\": \"Server Error\"\n}",
                             "name": ""
                         }
                     ]
@@ -1891,12 +1883,12 @@
                             "query": [
                                 {
                                     "key": "id",
-                                    "value": "16",
+                                    "value": "5",
                                     "description": "Flashlog ID to parse",
                                     "disabled": false
                                 }
                             ],
-                            "raw": "{{baseUrl}}\/api\/flashlogs\/:id?id=16",
+                            "raw": "{{baseUrl}}\/api\/flashlogs\/:id?id=5",
                             "variable": [
                                 {
                                     "id": "id",
@@ -1938,12 +1930,12 @@
                             "query": [
                                 {
                                     "key": "id",
-                                    "value": "14",
+                                    "value": "7",
                                     "description": "Flashlog ID to delete the complete Flashlog file",
                                     "disabled": false
                                 }
                             ],
-                            "raw": "{{baseUrl}}\/api\/flashlogs\/:id?id=14",
+                            "raw": "{{baseUrl}}\/api\/flashlogs\/:id?id=7",
                             "variable": [
                                 {
                                     "id": "id",
@@ -1970,7 +1962,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"block_id\":12}"
+                            "raw": "{\"block_id\":20}"
                         },
                         "description": ""
                     },
@@ -2008,7 +2000,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"token\":\"aspernatur\",\"group_id\":\"architecto\",\"decline\":true}"
+                            "raw": "{\"token\":\"non\",\"group_id\":\"esse\",\"decline\":true}"
                         },
                         "description": ""
                     },
@@ -2235,7 +2227,7 @@
                                 {
                                     "id": "id",
                                     "key": "id",
-                                    "value": "aut",
+                                    "value": "et",
                                     "description": "The ID of the detach."
                                 }
                             ]
@@ -2328,7 +2320,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"name\":\"id\",\"location_id\":12,\"brood_layers\":0,\"honey_layers\":0,\"frames\":0,\"order\":2,\"layers\":[\"consectetur\"],\"color\":\"thzcn\",\"hive_type_id\":17,\"bb_width_cm\":0,\"bb_depth_cm\":0,\"bb_height_cm\":0,\"fr_width_cm\":0,\"fr_height_cm\":0,\"queen\":{\"race_id\":12,\"birth_date\":\"2023-08-16T15:37:54\",\"name\":\"eaque\",\"description\":\"nihil\",\"line\":\"quia\",\"tree\":\"molestiae\",\"color\":\"i\",\"clipped\":20,\"fertilized\":16},\"timezone\":\"America\\\/Manaus\"}"
+                            "raw": "{\"name\":\"optio\",\"location_id\":7,\"brood_layers\":0,\"honey_layers\":0,\"frames\":0,\"order\":2,\"layers\":[\"aut\"],\"color\":\"kbljro\",\"hive_type_id\":20,\"bb_width_cm\":0,\"bb_depth_cm\":0,\"bb_height_cm\":0,\"fr_width_cm\":0,\"fr_height_cm\":0,\"queen\":{\"race_id\":17,\"birth_date\":\"2025-02-17T13:45:54\",\"name\":\"laborum\",\"description\":\"iste\",\"line\":\"neque\",\"tree\":\"sed\",\"color\":\"s\",\"clipped\":12,\"fertilized\":4},\"timezone\":\"America\\\/Chihuahua\"}"
                         },
                         "description": ""
                     },
@@ -2425,7 +2417,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"name\":\"quisquam\",\"location_id\":7,\"brood_layers\":0,\"honey_layers\":0,\"frames\":0,\"order\":10,\"layers\":[\"voluptatibus\"],\"color\":\"lpodwfrgb\",\"hive_type_id\":9,\"bb_width_cm\":0,\"bb_depth_cm\":0,\"bb_height_cm\":0,\"fr_width_cm\":0,\"fr_height_cm\":0,\"queen\":{\"race_id\":16,\"birth_date\":\"2023-08-16T15:37:54\",\"name\":\"ut\",\"description\":\"nisi\",\"line\":\"a\",\"tree\":\"voluptas\",\"color\":\"l\",\"clipped\":14,\"fertilized\":20},\"timezone\":\"Europe\\\/Guernsey\"}"
+                            "raw": "{\"name\":\"alias\",\"location_id\":13,\"brood_layers\":0,\"honey_layers\":0,\"frames\":0,\"order\":6,\"layers\":[\"unde\"],\"color\":\"fiwrj\",\"hive_type_id\":20,\"bb_width_cm\":0,\"bb_depth_cm\":0,\"bb_height_cm\":0,\"fr_width_cm\":0,\"fr_height_cm\":0,\"queen\":{\"race_id\":7,\"birth_date\":\"2025-02-17T13:45:54\",\"name\":\"ratione\",\"description\":\"nam\",\"line\":\"consectetur\",\"tree\":\"illo\",\"color\":\"yjz\",\"clipped\":16,\"fertilized\":3},\"timezone\":\"America\\\/Edmonton\"}"
                         },
                         "description": ""
                     },
@@ -2705,7 +2697,10 @@
                                 "value": "en"
                             }
                         ],
-                        "body": null,
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\"hive_ids\":[\"neque\"],\"search\":\"test\",\"id\":23,\"start\":\"2024-02-14 00:00:00\",\"end\":\"2024-02-18 00:00:00\"}"
+                        },
                         "description": ""
                     },
                     "response": [
@@ -2756,7 +2751,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"id\":6}"
+                            "raw": "{\"id\":20}"
                         },
                         "description": ""
                     },
@@ -2781,7 +2776,7 @@
                                 {
                                     "id": "id",
                                     "key": "id",
-                                    "value": "officiis",
+                                    "value": "ratione",
                                     "description": "The id of the inspection."
                                 }
                             ]
@@ -2838,7 +2833,7 @@
                                 {
                                     "id": "hive_id",
                                     "key": "hive_id",
-                                    "value": "velit",
+                                    "value": "alias",
                                     "description": "The hive to request inspections from."
                                 }
                             ]
@@ -2858,7 +2853,10 @@
                                 "value": "en"
                             }
                         ],
-                        "body": null,
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\"search\":\"15\",\"impression\":\"2,3\",\"attention\":true,\"reminder\":true,\"start\":\"2024-02-14 00:00:00\",\"end\":\"2024-02-18 00:00:00\"}"
+                        },
                         "description": ""
                     },
                     "response": [
@@ -2896,7 +2894,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"date\":\"2020-05-18 16:16\",\"items\":{\"547\":0,\"595\":1,\"845\":\"814\"},\"hive_id\":16,\"hive_ids\":42,\"location_id\":\"2\",\"id\":15,\"impression\":-1,\"attention\":1,\"reminder\":\"This is an inspection reminder\",\"reminder_date\":\"2020-05-27 16:16\",\"notes\":\"This is an inspection note\",\"checklist_id\":829}"
+                            "raw": "{\"date\":\"2020-05-18 16:16\",\"items\":{\"547\":0,\"595\":1,\"845\":\"814\"},\"hive_id\":11,\"hive_ids\":42,\"location_id\":\"2\",\"id\":15,\"impression\":-1,\"attention\":1,\"reminder\":\"This is an inspection reminder\",\"reminder_date\":\"2020-05-27 16:16\",\"notes\":\"This is an inspection note\",\"checklist_id\":829}"
                         },
                         "description": ""
                     },
@@ -3020,7 +3018,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"name\":\"vero\",\"hive_type_id\":15}"
+                            "raw": "{\"name\":\"nulla\",\"hive_type_id\":1}"
                         },
                         "description": ""
                     },
@@ -3117,7 +3115,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"name\":\"quos\",\"hive_type_id\":13}"
+                            "raw": "{\"name\":\"est\",\"hive_type_id\":1}"
                         },
                         "description": ""
                     },
@@ -3175,12 +3173,12 @@
                             "query": [
                                 {
                                     "key": "key%2Fdata",
-                                    "value": "ut",
+                                    "value": "sed",
                                     "description": "Measurement formatted as URL query: key=your_beep_device_key&t=18.4&t_i=34.5&weight_kg=57.348&h=58&bv=3.54",
                                     "disabled": false
                                 }
                             ],
-                            "raw": "{{baseUrl}}\/api\/sensors?key%2Fdata=ut"
+                            "raw": "{{baseUrl}}\/api\/sensors?key%2Fdata=sed"
                         },
                         "method": "POST",
                         "header": [
@@ -3199,7 +3197,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"key\\\/data\":\"dicta\"}"
+                            "raw": "{\"key\\\/data\":\"voluptas\"}"
                         },
                         "description": "",
                         "auth": {
@@ -3234,7 +3232,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"key\":\"suscipit\",\"payload_raw\":\"harum\",\"payload_fields\":\"ipsam\",\"DevEUI_uplink\":\"dolores\"}"
+                            "raw": "{\"key\":\"id\",\"payload_raw\":\"officiis\",\"payload_fields\":\"in\",\"DevEUI_uplink\":\"in\"}"
                         },
                         "description": "",
                         "auth": {
@@ -3292,20 +3290,12 @@
                                     "value": "application\/json"
                                 },
                                 {
-                                    "key": "x-ratelimit-limit",
-                                    "value": "3"
-                                },
-                                {
-                                    "key": "x-ratelimit-remaining",
-                                    "value": "2"
-                                },
-                                {
                                     "key": "access-control-allow-origin",
                                     "value": "*"
                                 }
                             ],
-                            "code": 200,
-                            "body": "{\"t\":\"Temperatuur\",\"h\":\"Luchtvochtigheid\",\"p\":\"Luchtdruk\",\"w\":\"Weight\",\"l\":\"Licht\",\"bv\":\"Batterijvoltage\",\"w_v\":\"W v\",\"w_fl\":\"W fl\",\"w_fr\":\"W fr\",\"w_bl\":\"W bl\",\"w_br\":\"W br\",\"s_fan_4\":\"S fan 4\",\"s_fan_6\":\"S fan 6\",\"s_fan_9\":\"S fan 9\",\"s_fly_a\":\"S fly a\",\"s_tot\":\"S tot\",\"t_i\":\"Temperatuur intern\",\"bc_i\":\"Bijen in\",\"bc_o\":\"Bijen uit\",\"weight_kg\":\"Gewicht\",\"weight_kg_corrected\":\"Gewicht gecorrigeerd\",\"rssi\":\"Signaalsterkte\",\"snr\":\"Signaal-ruisverhouding\",\"lat\":\"Breedtegraad\",\"lon\":\"Lengtegraad\",\"s_bin098_146Hz\":\"S bin098 146Hz\",\"s_bin146_195Hz\":\"S bin146 195Hz\",\"s_bin195_244Hz\":\"S bin195 244Hz\",\"s_bin244_293Hz\":\"S bin244 293Hz\",\"s_bin293_342Hz\":\"S bin293 342Hz\",\"s_bin342_391Hz\":\"S bin342 391Hz\",\"s_bin391_439Hz\":\"S bin391 439Hz\",\"s_bin439_488Hz\":\"S bin439 488Hz\",\"s_bin488_537Hz\":\"S bin488 537Hz\",\"s_bin537_586Hz\":\"S bin537 586Hz\",\"calibrating_weight\":\"Calibrating weight\",\"w_fl_kg_per_val\":\"W fl kg per val\",\"w_fr_kg_per_val\":\"W fr kg per val\",\"w_bl_kg_per_val\":\"W bl kg per val\",\"w_br_kg_per_val\":\"W br kg per val\",\"w_fl_offset\":\"W fl offset\",\"w_fr_offset\":\"W fr offset\",\"w_bl_offset\":\"W bl offset\",\"w_br_offset\":\"W br offset\",\"bc_tot\":\"Bijen totaal\",\"s_spl\":\"S spl\",\"h_i\":\"H i\",\"w_v_offset\":\"W v offset\",\"w_v_kg_per_val\":\"W v kg per val\",\"s_bin_0_201\":\"S bin 0 201\",\"s_bin_201_402\":\"S bin 201 402\",\"s_bin_402_602\":\"S bin 402 602\",\"s_bin_602_803\":\"S bin 602 803\",\"s_bin_803_1004\":\"S bin 803 1004\",\"s_bin_1004_1205\":\"S bin 1004 1205\",\"s_bin_1205_1406\":\"S bin 1205 1406\",\"s_bin_1406_1607\":\"S bin 1406 1607\",\"s_bin_1607_1807\":\"S bin 1607 1807\",\"s_bin_1807_2008\":\"S bin 1807 2008\",\"t_0\":\"T 0\",\"t_1\":\"T 1\",\"t_2\":\"T 2\",\"t_3\":\"T 3\",\"t_4\":\"T 4\",\"t_5\":\"T 5\",\"t_6\":\"T 6\",\"t_7\":\"T 7\",\"t_8\":\"T 8\",\"t_9\":\"T 9\",\"s_bin_122_173\":\"S bin 122 173\",\"s_bin_71_122\":\"S bin 71 122\",\"s_bin_173_224\":\"S bin 173 224\",\"s_bin_224_276\":\"S bin 224 276\",\"s_bin_276_327\":\"S bin 276 327\",\"s_bin_327_378\":\"S bin 327 378\",\"s_bin_378_429\":\"S bin 378 429\",\"s_bin_429_480\":\"S bin 429 480\",\"s_bin_480_532\":\"S bin 480 532\",\"s_bin_532_583\":\"S bin 532 583\"}",
+                            "code": 500,
+                            "body": "{\n    \"message\": \"Server Error\"\n}",
                             "name": ""
                         }
                     ]
@@ -3319,12 +3309,12 @@
                             "query": [
                                 {
                                     "key": "key%2Fdata",
-                                    "value": "qui",
+                                    "value": "mollitia",
                                     "description": "Measurement formatted as URL query: key=your_beep_device_key&t=18.4&t_i=34.5&weight_kg=57.348&h=58&bv=3.54",
                                     "disabled": false
                                 }
                             ],
-                            "raw": "{{baseUrl}}\/api\/sensors_auth?key%2Fdata=qui"
+                            "raw": "{{baseUrl}}\/api\/sensors_auth?key%2Fdata=mollitia"
                         },
                         "method": "POST",
                         "header": [
@@ -3343,7 +3333,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"key\\\/data\":\"delectus\"}"
+                            "raw": "{\"key\\\/data\":\"eum\"}"
                         },
                         "description": "",
                         "auth": {
@@ -3378,7 +3368,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"key\":\"dolorem\",\"payload_raw\":\"voluptatem\",\"payload_fields\":\"est\",\"DevEUI_uplink\":\"sunt\"}"
+                            "raw": "{\"key\":\"aperiam\",\"payload_raw\":\"sed\",\"payload_fields\":\"totam\",\"DevEUI_uplink\":\"praesentium\"}"
                         },
                         "description": "",
                         "auth": {
@@ -3413,7 +3403,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"id\":12,\"key\":\"harum\",\"hive_id\":14,\"start\":\"2020-05-27 16:16\",\"end\":\"2020-05-30 00:00\",\"index\":3,\"interval\":\"sed\",\"timeGroup\":\"voluptatem\",\"names\":\"dolorem\",\"weather\":1,\"clean_weight\":16,\"timezone\":\"Europe\\\/Amsterdam\",\"relative_interval\":14}"
+                            "raw": "{\"id\":2,\"key\":\"omnis\",\"hive_id\":6,\"start\":\"2020-05-27 16:16\",\"end\":\"2020-05-30 00:00\",\"index\":8,\"interval\":\"dolores\",\"timeGroup\":\"et\",\"names\":\"omnis\",\"weather\":1,\"clean_weight\":8,\"timezone\":\"Europe\\\/Amsterdam\",\"relative_interval\":14}"
                         },
                         "description": ""
                     },
@@ -3433,8 +3423,8 @@
                                     "value": "*"
                                 }
                             ],
-                            "code": 401,
-                            "body": "{\"message\":\"Unauthenticated.\"}",
+                            "code": 500,
+                            "body": "{\n    \"message\": \"Server Error\"\n}",
                             "name": ""
                         }
                     ]
@@ -3465,7 +3455,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"key\":\"sunt\",\"id\":9,\"hive_id\":18}"
+                            "raw": "{\"key\":\"omnis\",\"id\":19,\"hive_id\":20}"
                         },
                         "description": ""
                     },
@@ -3485,8 +3475,8 @@
                                     "value": "*"
                                 }
                             ],
-                            "code": 401,
-                            "body": "{\"message\":\"Unauthenticated.\"}",
+                            "code": 500,
+                            "body": "{\n    \"message\": \"Server Error\"\n}",
                             "name": ""
                         }
                     ]
@@ -3517,7 +3507,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"key\":\"non\",\"id\":3,\"hive_id\":12}"
+                            "raw": "{\"key\":\"accusantium\",\"id\":15,\"hive_id\":20}"
                         },
                         "description": ""
                     },
@@ -3537,8 +3527,8 @@
                                     "value": "*"
                                 }
                             ],
-                            "code": 401,
-                            "body": "{\"message\":\"Unauthenticated.\"}",
+                            "code": 500,
+                            "body": "{\n    \"message\": \"Server Error\"\n}",
                             "name": ""
                         }
                     ]
@@ -3569,7 +3559,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"next_measurement\":true,\"weight_kg\":516327.7943}"
+                            "raw": "{\"next_measurement\":true,\"weight_kg\":142125817.9803}"
                         },
                         "description": "At the next measurement coming in, calibrate each weight sensor with it's part of a given weight.\nBecause the measurements can come in only each hour\/ 3hrs, set a value to trigger the calculation on next measurement\n\n1. If $next_measurement == true: save 'calibrating' = true in Influx with the sensor key\n2. If $next_measurement == false: save 'calibrating' = false in Influx with the sensor key and...\n3.   Get the last measured weight values for this sensor key,\n     Divide the given weight (in kg) with the amount of sensor values > 1.0 (assuming the weight is evenly distributed)\n     Calculate the multiplier per sensor by dividing the multiplier = weight_part \/ (value - offset)\n     Save the multiplier as $device_name.'_kg_per_val' in Influx",
                         "auth": {
@@ -3656,8 +3646,8 @@
                                     "value": "*"
                                 }
                             ],
-                            "code": 401,
-                            "body": "{\"message\":\"Unauthenticated.\"}",
+                            "code": 500,
+                            "body": "{\n    \"message\": \"Server Error\"\n}",
                             "name": ""
                         }
                     ]
@@ -3671,30 +3661,30 @@
                             "query": [
                                 {
                                     "key": "show",
-                                    "value": "20",
+                                    "value": "3",
                                     "description": "1 for displaying info in result JSON, 0 for not displaying (default).",
                                     "disabled": false
                                 },
                                 {
                                     "key": "save",
-                                    "value": "12",
+                                    "value": "1",
                                     "description": "1 for saving the data to a file (default), 0 for not save log file.",
                                     "disabled": false
                                 },
                                 {
                                     "key": "fill",
-                                    "value": "15",
+                                    "value": "17",
                                     "description": "1 for filling data gaps in the database, 0 for not filling gaps (default).",
                                     "disabled": false
                                 },
                                 {
                                     "key": "log_size_bytes",
-                                    "value": "1",
+                                    "value": "19",
                                     "description": "0x22 decimal result of log size requested from BEEP base.",
                                     "disabled": false
                                 }
                             ],
-                            "raw": "{{baseUrl}}\/api\/sensors\/flashlog?show=20&save=12&fill=15&log_size_bytes=1"
+                            "raw": "{{baseUrl}}\/api\/sensors\/flashlog?show=3&save=1&fill=17&log_size_bytes=19"
                         },
                         "method": "POST",
                         "header": [
@@ -3713,7 +3703,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"id\":2,\"hardware_id\":\"recusandae\",\"key\":\"eos\",\"data\":\"voluptatem\",\"file\":\"corporis\",\"show\":true,\"save\":false,\"fill\":true,\"log_size_bytes\":8}"
+                            "raw": "{\"id\":6,\"hardware_id\":\"exercitationem\",\"key\":\"et\",\"data\":\"fugit\",\"file\":\"qui\",\"show\":false,\"save\":true,\"fill\":false,\"log_size_bytes\":8}"
                         },
                         "description": ""
                     },
@@ -3738,13 +3728,13 @@
                                 {
                                     "id": "port",
                                     "key": "port",
-                                    "value": "sequi",
+                                    "value": "delectus",
                                     "description": ""
                                 },
                                 {
                                     "id": "payload",
                                     "key": "payload",
-                                    "value": "ut",
+                                    "value": "odit",
                                     "description": ""
                                 }
                             ]
@@ -3786,8 +3776,8 @@
                                     "value": "*"
                                 }
                             ],
-                            "code": 401,
-                            "body": "{\"message\":\"Unauthenticated.\"}",
+                            "code": 500,
+                            "body": "{\n    \"message\": \"Server Error\"\n}",
                             "name": ""
                         }
                     ]
@@ -3818,7 +3808,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"id\":7,\"key\":\"molestiae\",\"hive_id\":16,\"start\":\"2020-05-27 16:16\",\"end\":\"2020-05-30 00:00\",\"index\":17,\"interval\":\"eaque\",\"timeGroup\":\"autem\",\"names\":\"quam\",\"weather\":1,\"timezone\":\"Europe\\\/Amsterdam\",\"relative_interval\":11}"
+                            "raw": "{\"id\":2,\"key\":\"saepe\",\"hive_id\":4,\"start\":\"2020-05-27 16:16\",\"end\":\"2020-05-30 00:00\",\"index\":15,\"interval\":\"beatae\",\"timeGroup\":\"placeat\",\"names\":\"ut\",\"weather\":1,\"timezone\":\"Europe\\\/Amsterdam\",\"relative_interval\":2}"
                         },
                         "description": ""
                     },
@@ -3838,8 +3828,8 @@
                                     "value": "*"
                                 }
                             ],
-                            "code": 401,
-                            "body": "{\"message\":\"Unauthenticated.\"}",
+                            "code": 500,
+                            "body": "{\n    \"message\": \"Server Error\"\n}",
                             "name": ""
                         }
                     ]
@@ -3911,7 +3901,7 @@
                                 {
                                     "id": "id",
                                     "key": "id",
-                                    "value": "9",
+                                    "value": "14",
                                     "description": "Research ID"
                                 }
                             ]
@@ -3933,7 +3923,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"location_ids\":[\"occaecati\"],\"hive_ids\":[\"qui\"],\"device_ids\":[\"nostrum\"]}"
+                            "raw": "{\"location_ids\":[\"debitis\"],\"hive_ids\":[\"quae\"],\"device_ids\":[\"harum\"]}"
                         },
                         "description": ""
                     },
@@ -3994,7 +3984,7 @@
                                 {
                                     "id": "consent_id",
                                     "key": "consent_id",
-                                    "value": "similique",
+                                    "value": "beatae",
                                     "description": "The ID of the consent."
                                 }
                             ]
@@ -4037,7 +4027,7 @@
                                 {
                                     "id": "consent_id",
                                     "key": "consent_id",
-                                    "value": "eligendi",
+                                    "value": "ut",
                                     "description": "The ID of the consent."
                                 }
                             ]
@@ -4116,7 +4106,7 @@
                                 {
                                     "id": "id",
                                     "key": "id",
-                                    "value": "vel",
+                                    "value": "placeat",
                                     "description": "The research ID to request data from."
                                 }
                             ]
@@ -4194,7 +4184,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"date_start\":\"2020-01-01 00:00:00\",\"date_until\":\"2020-09-29 23:59:59\",\"device_id\":1,\"location_id\":2,\"measurements\":\"dolorum\",\"decimals\":1,\"interval\":\"5m\",\"calculation\":\"MEAN\",\"calculation_prop\":\"DERIVATIVE\",\"limit\":10,\"precision\":\"rfc3339\",\"index\":0,\"timezone\":\"Asia\\\/Yangon\"}"
+                            "raw": "{\"date_start\":\"2020-01-01 00:00:00\",\"date_until\":\"2020-09-29 23:59:59\",\"device_id\":1,\"location_id\":2,\"measurements\":\"non\",\"decimals\":1,\"interval\":\"5m\",\"calculation\":\"MEAN\",\"calculation_prop\":\"DERIVATIVE\",\"limit\":10,\"precision\":\"rfc3339\",\"index\":0,\"timezone\":\"Asia\\\/Almaty\"}"
                         },
                         "description": ""
                     },
@@ -4247,7 +4237,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"date_start\":\"2020-01-01 00:00:00\",\"date_until\":\"2020-09-29 23:59:59\",\"year_months\":\"2020-01,2021-02\",\"device_ids\":\"1,3,6\",\"device_id\":1,\"location_ids\":\"1,3,6\",\"location_id\":2,\"measurements\":\"at\",\"decimals\":1,\"interval\":\"5m\",\"calculation\":\"MAX\",\"calculation_prop\":\"5\",\"limit\":500,\"precision\":\"rfc3339\",\"index\":0,\"timezone\":\"Europe\\\/Amsterdam\"}"
+                            "raw": "{\"date_start\":\"2020-01-01 00:00:00\",\"date_until\":\"2020-09-29 23:59:59\",\"year_months\":\"2020-01,2021-02\",\"device_ids\":\"1,3,6\",\"device_id\":1,\"location_ids\":\"1,3,6\",\"location_id\":2,\"measurements\":\"dolorem\",\"decimals\":1,\"interval\":\"5m\",\"calculation\":\"MAX\",\"calculation_prop\":\"5\",\"limit\":500,\"precision\":\"rfc3339\",\"index\":0,\"timezone\":\"Europe\\\/Amsterdam\",\"output_csv_links\":true}"
                         },
                         "description": ""
                     },
@@ -4267,8 +4257,8 @@
                                     "value": "*"
                                 }
                             ],
-                            "code": 401,
-                            "body": "{\"message\":\"Unauthenticated.\"}",
+                            "code": 500,
+                            "body": "{\n    \"message\": \"Server Error\"\n}",
                             "name": ""
                         }
                     ]
@@ -4512,7 +4502,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"device_id\":15,\"hardware_id\":\"dolorem\",\"device_hardware_id\":\"labore\",\"input_measurement_abbreviation\":\"animi\",\"limit\":18}"
+                            "raw": "{\"device_id\":5,\"hardware_id\":\"labore\",\"device_hardware_id\":\"architecto\",\"input_measurement_abbreviation\":\"et\",\"limit\":3}"
                         },
                         "description": ""
                     },
@@ -4564,7 +4554,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"name\":\"tenetur\",\"inside\":false,\"offset\":15.66,\"multiplier\":109.4,\"input_measurement_id\":5,\"input_measurement_abbreviation\":\"w_v\",\"output_measurement_id\":6,\"output_measurement_abbreviation\":\"t_i\",\"device_id\":2,\"hardware_id\":\"neque\",\"device_hardware_id\":\"dolore\"}"
+                            "raw": "{\"name\":\"nihil\",\"inside\":false,\"offset\":4.8005514,\"multiplier\":77.910918,\"input_measurement_id\":5,\"input_measurement_abbreviation\":\"w_v\",\"output_measurement_id\":6,\"output_measurement_abbreviation\":\"t_i\",\"device_id\":9,\"hardware_id\":\"deleniti\",\"device_hardware_id\":\"eius\"}"
                         },
                         "description": ""
                     },
@@ -4582,7 +4572,7 @@
                                 {
                                     "id": "id",
                                     "key": "id",
-                                    "value": "suscipit",
+                                    "value": "est",
                                     "description": "Sensordefinition ID"
                                 }
                             ]
@@ -4604,7 +4594,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"device_id\":20,\"hardware_id\":\"sit\",\"device_hardware_id\":\"dolore\"}"
+                            "raw": "{\"device_id\":6,\"hardware_id\":\"consequuntur\",\"device_hardware_id\":\"alias\"}"
                         },
                         "description": ""
                     },
@@ -4642,7 +4632,7 @@
                                 {
                                     "id": "id",
                                     "key": "id",
-                                    "value": "totam",
+                                    "value": "eveniet",
                                     "description": "Sensordefinition ID"
                                 }
                             ]
@@ -4664,7 +4654,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"device_id\":5,\"hardware_id\":\"quidem\",\"device_hardware_id\":\"iste\"}"
+                            "raw": "{\"device_id\":3,\"hardware_id\":\"ea\",\"device_hardware_id\":\"libero\"}"
                         },
                         "description": ""
                     },
@@ -4682,7 +4672,7 @@
                                 {
                                     "id": "id",
                                     "key": "id",
-                                    "value": "ipsa",
+                                    "value": "eligendi",
                                     "description": "Sensordefinition ID"
                                 }
                             ]
@@ -4704,7 +4694,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"device_id\":2,\"hardware_id\":\"ut\",\"device_hardware_id\":\"velit\"}"
+                            "raw": "{\"device_id\":3,\"hardware_id\":\"asperiores\",\"device_hardware_id\":\"nulla\"}"
                         },
                         "description": ""
                     },
@@ -4774,15 +4764,15 @@
                             "query": [
                                 {
                                     "key": "locale",
-                                    "value": "quas",
+                                    "value": "magni",
                                     "description": "Two character language code to translate taxonomy",
                                     "disabled": false
                                 },
                                 {
                                     "key": "flat",
-                                    "value": "",
+                                    "value": "1",
                                     "description": "In hierachy (default: true)",
-                                    "disabled": true
+                                    "disabled": false
                                 },
                                 {
                                     "key": "order",
@@ -4791,7 +4781,7 @@
                                     "disabled": true
                                 }
                             ],
-                            "raw": "{{baseUrl}}\/api\/taxonomy\/taxonomy?locale=quas&flat=&order="
+                            "raw": "{{baseUrl}}\/api\/taxonomy\/taxonomy?locale=magni&flat=1&order="
                         },
                         "method": "GET",
                         "header": [
@@ -4943,7 +4933,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"locale\":\"consequuntur\"}"
+                            "raw": "{\"locale\":\"eaque\"}"
                         },
                         "description": ""
                     },
@@ -5033,7 +5023,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"tag\":\"autem\",\"router_link\":\"voluptates\",\"hive_id\":3,\"action_id\":8}"
+                            "raw": "{\"tag\":\"voluptas\",\"router_link\":\"voluptatem\",\"hive_id\":12,\"action_id\":11}"
                         },
                         "description": "",
                         "auth": {
@@ -5054,7 +5044,7 @@
                                 {
                                     "id": "id",
                                     "key": "id",
-                                    "value": "9",
+                                    "value": "18",
                                     "description": "The ID of the hive tag."
                                 }
                             ]
@@ -5114,7 +5104,7 @@
                                 {
                                     "id": "id",
                                     "key": "id",
-                                    "value": "8",
+                                    "value": "4",
                                     "description": "The ID of the hive tag."
                                 }
                             ]
@@ -5136,7 +5126,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"tag\":\"repellendus\",\"router_link\":\"reiciendis\",\"hive_id\":16,\"action_id\":14}"
+                            "raw": "{\"tag\":\"est\",\"router_link\":\"delectus\",\"hive_id\":7,\"action_id\":4}"
                         },
                         "description": "",
                         "auth": {
@@ -5157,7 +5147,7 @@
                                 {
                                     "id": "id",
                                     "key": "id",
-                                    "value": "2",
+                                    "value": "8",
                                     "description": "The ID of the hive tag."
                                 }
                             ]

@@ -26,11 +26,16 @@ class InspectionsController extends Controller
     /**
     api/inspections GET
     Show the 'inspections' list with objects reflecting only the general inspection data.
+    @bodyParam hive_ids array Only show inspections connected to hive_ids.
+    @bodyParam search string Filter on text inside notes, reminder, created_at, reminder_date, inspection item names/values. Example: test
+    @bodyParam id integer Filter on one specific inspection id if filled. Example: 23
+    @bodyParam start string Date >= (YYYY-MM-DD HH:mm:ss) to filter inspections from. Example: 2024-02-14 00:00:00
+    @bodyParam end string Date <= (YYYY-MM-DD HH:mm:ss) to filter inspections to. Example: 2024-02-18 00:00:00
     @authenticated
     **/
     public function index(Request $request)
     {
-        $inspections = $request->user()->allInspections()->orderBy('created_at', 'desc')->limit(1000);
+        $inspections = $request->user()->allInspections()->orderBy('created_at', 'desc');
         
         if ($request->filled('id'))
         {
@@ -44,12 +49,43 @@ class InspectionsController extends Controller
                                         ->orWhere('created_at', 'LIKE', '%'.$search.'%')
                                         ->orWhere('reminder', 'LIKE', '%'.$search.'%')
                                         ->orWhere('id', intval($search));
+
+            if ($request->filled('start'))
+                $inspections = $inspections->where('created_at', '>=', $request->input('start'));
+
+            if ($request->filled('end'))
+                $inspections = $inspections->where('created_at', '<=', $request->input('end'));
         }
         
+        $inspections = $inspections->limit(1000)->get(); // convert query to collection
+
+        // Add filters on items with appends
+        if ($request->filled('hive_ids')) {
+            $hive_ids_in = $request->input('hive_ids');
+            $hive_ids    = gettype($hive_ids_in) == 'array' ? $hive_ids_in : explode(',', $hive_ids_in);
+            // filter by occurence in hive_ids array 
+            $inspections = $inspections->reject(function (Inspection $ins, int $key) use ($hive_ids){
+                return in_array($ins->hive_id, $hive_ids) === false;
+            });
+        }
+
+        if ($request->filled('location_ids')) {
+            $location_ids_in = $request->input('location_ids');
+            $location_ids    = gettype($location_ids_in) == 'array' ? $location_ids_in : explode(',', $location_ids_in);
+            // filter by occurence in location_ids array 
+            $inspections = $inspections->reject(function (Inspection $ins, int $key) use ($location_ids){
+                return in_array($ins->location_id, $location_ids) === false;
+            });
+        }
+
+        if (empty($inspections)) {
+            return response()->json(null, 404);
+        }
+
         if ($inspections->count() == 0)
             return response()->json(null, 404);
 
-        return response()->json($inspections->get());
+        return response()->json($inspections);
     }
 
 
@@ -112,6 +148,13 @@ class InspectionsController extends Controller
     List all inspections linked to Hive id. The 'inspections' object contains a descending date ordered list of general inspection data. The 'items_by_date' object contains a list of (rows of) inspection items that can be placed (in columns) under the inspections by created_at date (table format). NB: Use 'Accept-Language' Header (default nl_NL) to provide localized category names (anc, name) in items_by_date. 
     @authenticated
     @urlParam hive_id required The hive to request inspections from. 
+    @bodyParam search string Filter inspections on text inside notes, reminder, created_at, reminder_date, inspection item names/values. Example: test
+    bodyParam id integer If provided, select single inspection. Example: 15
+    @bodyParam impression string Filter by one or more impression values 1-3 (smileys). Default: null. Example: 2,3
+    @bodyParam attention boolean Filter by having attention set (0-1). Default: null. Example: null
+    @bodyParam reminder boolean Filter by having a reminder set (0-1). Default: null. Example: This is an inspection reminder
+    @bodyParam start string Date >= (YYYY-MM-DD HH:mm:ss) to filter inspections from. Default: null. Example: 2024-02-14 00:00:00
+    @bodyParam end string Date <= (YYYY-MM-DD HH:mm:ss) to filter inspections to. Default: null. Example: 2024-02-18 00:00:00
     @response {
     "inspections": [
         {
@@ -260,6 +303,7 @@ class InspectionsController extends Controller
         if ($validator->fails())
             return response()->json(['errors'=>$validator->errors()], 422);
 
+        $user = Auth::user();
         if ($request->filled('date') && ( $request->filled('items') || ($request->filled('item_ids') && $request->filled('item_vals')) ) )
         {
             $moment               = new Moment($request->input('date'));
@@ -297,7 +341,6 @@ class InspectionsController extends Controller
                 $items = $request->input('items');  
             }
 
-            $user         = Auth::user();
             $location     = $user->allLocations(true)->find($request->input('location_id'));
 
             $hive_ids     = [];
@@ -353,6 +396,9 @@ class InspectionsController extends Controller
                         $category = Category::find($cat_id);
                         if (isset($category) && isset($value))
                         {
+                            if (is_array($value))
+                                $value = implode(',',$value); // convert value to string
+
                             $itemData = 
                             [
                                 'category_id'   => $category->id,
@@ -378,7 +424,11 @@ class InspectionsController extends Controller
         }
 
         if (isset($inspection))
+        {
+            // Empty user cache, because the inspection if synced 
+            $user->emptyCache('inspection');
             return response()->json($inspection->id, 201);
+        }
 
         return response()->json('error', 500);
 

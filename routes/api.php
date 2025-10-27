@@ -102,6 +102,11 @@ Route::group([], function()
 		Route::delete('user', 				'Api\UserController@destroy');
 		Route::patch('user', 				'Api\UserController@edit');
 		Route::patch('userlocale', 			'Api\UserController@userlocale');
+		
+		// Device specific routes (must be before resource route)
+		Route::post('devices/clocksync',    'Api\DeviceController@clocksync');
+		Route::post('devices/lora_reset',   'Api\DeviceController@lora_reset');
+		Route::post('devices/interval',     'Api\DeviceController@interval');
 
 		// Control resources 
 		Route::resource('devices', 			'Api\DeviceController',		 			['except'=>['create','edit']]);
@@ -119,9 +124,8 @@ Route::group([], function()
 		Route::resource('alert-rules', 		'Api\AlertRuleController', 				['except'=>['create','edit']]);
 		Route::resource('dashboardgroups', 	'Api\DashboardGroupController', 		['except'=>['create','edit']]);
 		Route::resource('checklist-svg', 	'Api\ChecklistSvgController', 			['except'=>['create','edit']]);
-
-
-		Route::get('alert-rules-default', 	'Api\AlertRuleController@default');
+		
+		Route::get('alert-rules-default', 	'Api\AlertRuleController@default_rules');
 		
 		Route::delete('samplecode', 		'Api\SampleCodeController@destroy');
 		Route::delete('images', 			'Api\ImageController@destroyByUrl');

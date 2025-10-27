@@ -79,3 +79,12 @@ php artisan crud:api-controller Api\\DashboardGroupController --crud-name=dgroup
 # ChecklistSvg
 php artisan crud:generate ChecklistSvg --fields="user_id#integer#unsigned; checklist_id#integer#unsigned; name#string#nullable; svg#mediumtext#nullable; pages#integer#unsigned#nullable; last_print#datetime#nullable" --relationships='checklist_id#belongsTo#Checklist::class; user#belongsTo#User::class;' --form-helper=html --validations="user_id#required; checklist_id#required"
 php artisan crud:api-controller Api\\ChecklistSvgController --crud-name=checklist_svg --model-name=Models\\ChecklistSvg
+
+# AlertRuleFormula
+php artisan crud:generate AlertRuleFormula --fields="alert_rule_id#integer#unsigned; measurement_id#integer#unsigned; calculation#string; comparator#string; comparison#string; logical#string#nullable; period_minutes#integer#nullable; threshold_value#float" --relationships='alert_rule_id#belongsTo#AlertRule::class; measurement_id#belongsTo#Measurement::class' --form-helper=html --validations="alert_rule_id#required; measurement_id#required; calculation#required; comparator#required; comparison#required; threshold_value#required"
+php artisan crud:api-controller Api\\AlertRuleFormulaController --crud-name=alert_rule_formula --model-name=Models\\AlertRuleFormula
+
+# CalculationModel
+php artisan crud:generate CalculationModel --fields="name#string; measurement_id#integer#unsigned; data_measurement_id#integer#unsigned; data_interval#string#nullable; data_relative_interval#boolean#true; data_interval_index#integer#0;  "
+
+

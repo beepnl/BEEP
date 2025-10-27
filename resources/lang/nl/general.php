@@ -73,7 +73,7 @@ return [
     'Language'      => 'Taal',
     'languages'     => 'talen',
     'language'      => 'taal',
-    'switch_language'=>'Wissen van taal',
+    'switch_language'=>'Andere taal',
     'Translations'  => 'Vertalingen',
     'Physical_quantity' => 'Grootheid',
     'unit'          => 'eenheid',

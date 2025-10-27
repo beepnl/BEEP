@@ -26,7 +26,7 @@
                     </span>
                 </div>
                 <div class="input-group" style="display: inline-block;">
-                    <input type="text" class="form-control" style="max-width: 160px;" name="search" placeholder="Sensor def prop..." value="{{ request('search') }}">
+                    <input type="text" class="form-control" style="max-width: 100px;" name="search" placeholder="Sensor def prop..." value="{{ request('search') }}">
                     <span class="input-group-btn">
                         <button type="submit" class="btn btn-deafult"><i class="fa fa-search"></i></button>
                     </span>
@@ -72,13 +72,14 @@
             <thead>
                 <tr>
                     <th>#</th>
-                    <th>Created</th>
+                    <th>Created / Updated</th>
                     <th>Name</th>
                     <th>Inside</th>
                     <th>Zero Value</th>
                     <th>Unit Per Value</th>
                     <th>Measurement in</th>
                     <th>Measurement out</th>
+                    <th>Recalculate</th>
                     <th>Device</th>
                     <th>Actions</th>
                 </tr>
@@ -87,13 +88,14 @@
             @foreach($sensordefinition as $item)
                 <tr>
                     <td>{{ $item->id }}</td>
-                    <td>{{ $item->created_at }}</td>
+                    <td>{{ $item->created_at }}<br>{{ $item->updated_at }}</td>
                     <td>{{ $item->name }}</td>
                     <td>{{ $item->inside }}</td>
                     <td>{{ $item->offset }}</td>
                     <td>{{ $item->multiplier }}</td>
                     <td>{{ isset($item->input_measurement) ? $item->input_measurement->abbreviation : '-' }}</td>
                     <td>{{ isset($item->output_measurement) ? $item->output_measurement->abbreviation : '-'  }}</td>
+                    <td>{{ $item->recalculate }}</td>
                     <td>{{ isset($item->device) ? $item->device->name : '-'  }}</td>
                     <td col-sm-1>
                         <a href="{{ route('sensordefinition.show', $item->id) }}" title="{{ __('crud.show') }}"><button class="btn btn-default"><i class="fa fa-eye" aria-hidden="true"></i></button></a>

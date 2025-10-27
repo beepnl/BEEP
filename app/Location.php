@@ -5,7 +5,8 @@ namespace App;
 use Iatstuti\Database\Support\CascadeSoftDeletes;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
-
+use Illuminate\Support\Facades\Log;
+use Cache;
 use Auth;
 
 class Location extends Model
@@ -21,15 +22,48 @@ class Location extends Model
 
     public $timestamps = false;
 
+    // Caching
+    public static function boot()
+    {
+        parent::boot();
+
+        static::created(function ($l) {
+            $l->empty_cache();
+        });
+
+        static::updated(function ($l) {
+            if ($l->wasChanged('last_weather_time') == false) // do not empty cache by only weather time change
+                $l->empty_cache();
+        });
+
+        static::deleted(function ($l) {
+            $l->empty_cache();
+        });
+    }
+
+    // Cache functions
+    public function empty_cache($clear_user=true)
+    {
+        Log::debug("Location ID $this->id cache emptied");
+
+        if ($clear_user)
+            User::emptyIdCache($this->user_id, 'apiary');
+    }
+
+
     // Relations
     public function getTypeAttribute()
     {
-        return Category::find($this->category_id)->name;
+        return Cache::rememberForever("location-type-$this->category_id-name", function () {
+            return Category::find($this->category_id)->name;
+        });
     }
 
     public function getContinentAttribute()
     {
-        return Continent::find($this->continent_id)->name;
+        return Cache::rememberForever("continent-$this->continent_id-name", function () {
+            return Continent::find($this->continent_id)->name;
+        });
     }
 
     public function getOwnerAttribute()
@@ -65,9 +99,9 @@ class Location extends Model
         return $this->belongsTo(Category::class);
     }
 
-    public function devices()
+    public function device_count()
     {
-        return $this->hasManyThrough(Device::class, Hive::class);
+        return $this->hasManyThrough(Device::class, Hive::class)->count();
     }
 
     public function continent()

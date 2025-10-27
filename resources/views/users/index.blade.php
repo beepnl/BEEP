@@ -11,7 +11,7 @@
 			{{ __('crud.overview', ['item'=>__('general.users')]) }}
 			{!! Form::open(['method' => 'GET', 'route' => 'users.index', 'class' => 'form-inline', 'role' => 'search'])  !!}
             <div class="input-group" style="display: inline-block;">
-                <input type="text" class="form-control" style="max-width: 160px;" name="search" placeholder="Search User..." value="{{ request('search') }}">
+                <input type="text" class="form-control" style="max-width: 100px;" name="search" placeholder="Search User..." value="{{ request('search') }}">
                 <span class="input-group-btn">
                     <button type="submit" class="btn btn-deafult"><i class="fa fa-search"></i></button>
                 </span>

@@ -14,7 +14,7 @@
 Auth::routes(['verify' => true]);
 
 Route::get('/',function(){
-	return redirect('webapp');
+	return redirect()->away('https://app.beep.nl');
 });
 
 Route::get('home', function(){
@@ -26,7 +26,7 @@ Route::get('admin', function(){
 });
 
 Route::get('webapp', function(){
-	return view('app/index');
+	return redirect()->away('https://app.beep.nl');
 });
 
 Route::get('code', 	 	 ['as'=>'sample-code.code','uses'=>'SampleCodeController@code']);
@@ -141,6 +141,7 @@ Route::group(
 				Route::get('roles/{id}/edit',	['as'=>'roles.edit','uses'=>'RoleController@edit','middleware' => ['permission:role-edit']]);
 				Route::patch('roles/{id}',		['as'=>'roles.update','uses'=>'RoleController@update','middleware' => ['permission:role-edit']]);
 				Route::delete('roles/{id}',		['as'=>'roles.destroy','uses'=>'RoleController@destroy','middleware' => ['permission:role-delete']]);
+				Route::get('alert-rule/{id}/parse',['as'=>'alert-rule.parse','uses'=>'AlertRuleController@parse']);
 
 				// Resource controllers 
 				Route::resource('permissions', 		'PermissionController');
@@ -149,6 +150,9 @@ Route::group(
 				Route::resource('alert', 			'AlertController');
 				Route::resource('alert-rule', 		'AlertRuleController');
 				Route::resource('alert-rule-formula','AlertRuleFormulaController');
+				Route::resource('calculation-model', 'CalculationModelController');
+
+				Route::get('calculation-model/{id}/run',['as'=>'calculation-model.run','uses'=>'CalculationModelController@run']);
 
 				Route::delete('checklists/destroy/copies',	['as'=>'checklists.copies','uses'=>'ChecklistController@destroyCopies']);
 				
@@ -165,6 +169,12 @@ Route::group(
 		
 		Route::get('research', 				['as'=>'research.index','uses'=>'ResearchController@index']);
 		Route::get('research/{id}', 		['as'=>'research.show','uses'=>'ResearchController@show']);
+		Route::get('research/{id}/data',    ['as'=>'research.data','uses'=>'ResearchController@data']);
+		Route::get('research/{id}/consent', ['as'=>'research.consent','uses'=>'ResearchController@consent']);
+		Route::get('research/{id}/consent/{c_id}', ['as'=>'research.consent_edit','uses'=>'ResearchController@consent_edit']);
+		Route::patch('research/{id}/consent/{c_id}', ['as'=>'research.consent_edit','uses'=>'ResearchController@consent_edit']);
+		Route::delete('research/{id}/consent/{c_id}', ['as'=>'research.consent_edit','uses'=>'ResearchController@consent_edit']);
+		Route::get('research/{id}/consent/{c_id}', ['as'=>'research.consent_edit','uses'=>'ResearchController@consent_edit']);
 		Route::get('research/{id}/edit',	['as'=>'research.edit','uses'=>'ResearchController@edit']);
 		Route::patch('research/{id}',		['as'=>'research.update','uses'=>'ResearchController@update']);
 		Route::delete('research/{id}',		['as'=>'research.destroy','uses'=>'ResearchController@destroy']);

@@ -6,7 +6,8 @@
 	        {!! $errors->first('user_id', '<p class="help-block">:message</p>') !!}
 	    </div>
 	</div>
-</div><div class="col-xs-12">
+</div>
+<div class="col-xs-12">
 	<div class="form-group {{ $errors->has('device_id') ? 'has-error' : ''}}">
 	    <label for="device_id" control-label>{{ 'Device Id' }}</label>
 	    <div>
@@ -14,15 +15,17 @@
 	        {!! $errors->first('device_id', '<p class="help-block">:message</p>') !!}
 	    </div>
 	</div>
-</div><div class="col-xs-12">
+</div>
+<div class="col-xs-12">
 	<div class="form-group {{ $errors->has('hive_id') ? 'has-error' : ''}}">
 	    <label for="hive_id" control-label>{{ 'Hive Id' }}</label>
 	    <div>
-	        {!! Form::select('hive_id', App\Hive::selectList(), isset($flashlog->hive_id) ? $flashlog->hive_id : null, array('id'=>'hive_id', 'class' => 'form-control select2')) !!}
+	        <input class="form-control" name="hive_id" value="{{ isset($flashlog->hive_id) ? $flashlog->hive_id : '' }}" id="hive_id">
 	        {!! $errors->first('hive_id', '<p class="help-block">:message</p>') !!}
 	    </div>
 	</div>
-</div><div class="col-xs-12">
+</div>
+<div class="col-xs-12">
 	<div class="form-group {{ $errors->has('log_messages') ? 'has-error' : ''}}">
 	    <label for="log_messages" control-label>{{ 'Log Messages' }}</label>
 	    <div>
@@ -30,20 +33,22 @@
 	        {!! $errors->first('log_messages', '<p class="help-block">:message</p>') !!}
 	    </div>
 	</div>
-</div><div class="col-xs-12">
+</div>
+<div class="col-xs-12 col-md-4">
 	<div class="form-group {{ $errors->has('log_saved') ? 'has-error' : ''}}">
 	    <label for="log_saved" control-label>{{ 'Log Saved' }}</label>
 	    <div>
-	        <div class="radio">
-    <label><input name="log_saved" type="radio" value="1" {{ (isset($flashlog) && 1 == $flashlog->log_saved) ? 'checked' : '' }}> Yes</label>
-</div>
-<div class="radio">
-    <label><input name="log_saved" type="radio" value="0" @if (isset($flashlog)) {{ (0 == $flashlog->log_saved) ? 'checked' : '' }} @else {{ 'checked' }} @endif> No</label>
-</div>
+	       	<div class="radio">
+			    <label><input name="log_saved" type="radio" value="1" {{ (isset($flashlog) && 1 == $flashlog->log_saved) ? 'checked' : '' }}> Yes</label>
+			</div>
+			<div class="radio">
+			    <label><input name="log_saved" type="radio" value="0" @if (isset($flashlog)) {{ (0 == $flashlog->log_saved) ? 'checked' : '' }} @else {{ 'checked' }} @endif> No</label>
+			</div>
 	        {!! $errors->first('log_saved', '<p class="help-block">:message</p>') !!}
 	    </div>
 	</div>
-</div><div class="col-xs-12">
+</div>
+<div class="col-xs-12 col-md-4">
 	<div class="form-group {{ $errors->has('log_parsed') ? 'has-error' : ''}}">
 	    <label for="log_parsed" control-label>{{ 'Log Parsed' }}</label>
 	    <div>
@@ -56,7 +61,8 @@
 	        {!! $errors->first('log_parsed', '<p class="help-block">:message</p>') !!}
 	    </div>
 	</div>
-</div><div class="col-xs-12">
+</div>
+<div class="col-xs-12 col-md-4">
 	<div class="form-group {{ $errors->has('log_has_timestamps') ? 'has-error' : ''}}">
 	    <label for="log_has_timestamps" control-label>{{ 'Log Has Timestamps' }}</label>
 	    <div>
@@ -69,7 +75,20 @@
 	        {!! $errors->first('log_has_timestamps', '<p class="help-block">:message</p>') !!}
 	    </div>
 	</div>
-</div><div class="col-xs-12">
+</div>
+<div class="col-xs-12">
+	<div class="form-group {{ $errors->has('created_at') ? 'has-error' : ''}}">
+	    <label for="created_at" control-label>{{ 'Upload date (created_at)' }}</label>
+	    <div>
+	        <input class="form-control" type="datetime-local" 
+           id="created_at" 
+           name="created_at"
+           value="{{ $flashlog->created_at->format('Y-m-d\TH:i') ?? ''}}">
+	        {!! $errors->first('created_at', '<p class="help-block">:message</p>') !!}
+	    </div>
+	</div>
+</div>
+<div class="col-xs-12">
 	<div class="form-group {{ $errors->has('bytes_received') ? 'has-error' : ''}}">
 	    <label for="bytes_received" control-label>{{ 'Bytes Received' }}</label>
 	    <div>
@@ -77,7 +96,8 @@
 	        {!! $errors->first('bytes_received', '<p class="help-block">:message</p>') !!}
 	    </div>
 	</div>
-</div><div class="col-xs-12">
+</div>
+<div class="col-xs-12">
 	<div class="form-group {{ $errors->has('log_file') ? 'has-error' : ''}}">
 	    <label for="log_file" control-label>{{ 'Log File' }}</label>
 	    <div>
@@ -85,7 +105,8 @@
 	        {!! $errors->first('log_file', '<p class="help-block">:message</p>') !!}
 	    </div>
 	</div>
-</div><div class="col-xs-12">
+</div>
+<div class="col-xs-12">
 	<div class="form-group {{ $errors->has('log_file_stripped') ? 'has-error' : ''}}">
 	    <label for="log_file_stripped" control-label>{{ 'Log File Stripped' }}</label>
 	    <div>
@@ -93,12 +114,25 @@
 	        {!! $errors->first('log_file_stripped', '<p class="help-block">:message</p>') !!}
 	    </div>
 	</div>
-</div><div class="col-xs-12">
+</div>
+<div class="col-xs-12">
 	<div class="form-group {{ $errors->has('log_file_parsed') ? 'has-error' : ''}}">
 	    <label for="log_file_parsed" control-label>{{ 'Log File Parsed' }}</label>
 	    <div>
 	        <input class="form-control" name="log_file_parsed" type="text" id="log_file_parsed" value="{{ $flashlog->log_file_parsed ?? ''}}" >
 	        {!! $errors->first('log_file_parsed', '<p class="help-block">:message</p>') !!}
+	    </div>
+	</div>
+</div>
+
+<div class="col-xs-12">
+	<div class="form-group {{ $errors->has('time_corrections') ? 'has-error' : ''}}">
+	    <label for="time_corrections" control-label>Time corrections: enter {"{{date('Y-m-d')}} 00:00:00": "-86400"}</label>
+	    <div>
+<textarea name="time_corrections" rows="10" style="width: 100%">
+@json(isset($flashlog->time_corrections) ? $flashlog->time_corrections : [], JSON_PRETTY_PRINT)
+</textarea>
+	        {!! $errors->first('time_corrections', '<p class="help-block">:message</p>') !!}
 	    </div>
 	</div>
 </div>

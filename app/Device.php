@@ -5,6 +5,7 @@ namespace App;
 use Iatstuti\Database\Support\CascadeSoftDeletes;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\Log;
 use DB;
 use Cache;
 use Auth;
@@ -17,15 +18,80 @@ class Device extends Model
 {
     use SoftDeletes, CascadeSoftDeletes;
 
-    protected $table    = 'sensors';
-
+    protected $table          = 'sensors';
     protected $cascadeDeletes = ['sensorDefinitions'];
-    protected $fillable = ['user_id', 'hive_id', 'category_id', 'name', 'key', 'last_message_received', 'hardware_id', 'firmware_version', 'hardware_version', 'boot_count', 'measurement_interval_min', 'measurement_transmission_ratio', 'ble_pin', 'battery_voltage', 'next_downlink_message', 'last_downlink_result', 'datetime', 'datetime_offset_sec', 'former_key_list'];
-	protected $guarded 	= ['id'];
-    protected $hidden   = ['user_id', 'category_id', 'deleted_at', 'hive', 'former_key_list'];
-    protected $appends  = ['type','hive_name', 'location_name', 'owner', 'online'];
+    protected $fillable       = ['user_id', 'hive_id', 'category_id', 'name', 'key', 'last_message_received', 'hardware_id', 'firmware_version', 'hardware_version', 'boot_count', 'measurement_interval_min', 'measurement_transmission_ratio', 'ble_pin', 'battery_voltage', 'next_downlink_message', 'last_downlink_result', 'datetime', 'datetime_offset_sec', 'former_key_list', 'rtc', 'log_file_info'];
+	protected $guarded 	      = ['id'];
+    protected $hidden         = ['user_id', 'category_id', 'deleted_at', 'hive', 'former_key_list'];
+    protected $appends        = ['type','hive_name', 'location_name', 'owner', 'online'];
+    protected $casts          = ['log_file_info'=>'array'];
 
-    public $timestamps  = false;
+    public $timestamps        = false;
+
+    public static function boot()
+    {
+        parent::boot();
+
+        static::created(function ($d) {
+            //Log::info("Created Device $d->id $d->name");
+            $d->empty_cache();
+        });
+
+        static::updated(function ($d) {
+            $empty_cache = false;
+            if ($d->wasChanged('deleted_at'))
+            {
+                Log::info("Updated Device id=$d->id deleted_at to $d->deleted_at");
+                $empty_cache = true;
+            }
+            if ($d->wasChanged('user_id'))
+            {
+                Log::info("Updated Device id=$d->id user_id to $d->user_id");
+                $empty_cache = true;
+            }
+            if ($d->wasChanged('firmware_version'))
+            {
+                Log::info("Updated Device id=$d->id firmware_version to $d->firmware_version");
+                $empty_cache = true;
+            }
+            if ($d->wasChanged('hive_id'))
+            {
+                Log::info("Updated Device id=$d->id hive_id to $d->hive_id");
+                $empty_cache = true;
+            }
+            if ($d->wasChanged('key'))
+            {
+                Log::info("Updated Device id=$d->id key to $d->key");
+                $empty_cache = true;
+            }
+            if ($d->wasChanged('name'))
+            {
+                Log::info("Updated Device id=$d->id name to $d->name");
+                $empty_cache = true;
+            }
+            if ($empty_cache)
+                $d->empty_cache();
+        });
+
+        static::deleted(function ($d) {
+            //Log::info("Deleted Device $d->id $d->name");
+            $d->empty_cache();
+        });
+    }
+
+    public function empty_cache($clear_users=true)
+    {
+        Cache::forget('device-'.$this->id.'-hive-'.$this->hive_id.'-user-ids');
+        Cache::forget('device-'.$this->id.'-hive-'.$this->hive_id.'-rule-ids');
+        Cache::forget('device-'.$this->id.'-calibrations-measurement-types');
+        
+        Log::debug("Device ID $this->id cache emptied");
+
+        if ($clear_users)
+            User::emptyIdCache($this->user_id, 'device');
+
+    }
+
 
     public static function cacheRequestRate($name, $retention_sec=86400)
     {
@@ -54,6 +120,14 @@ class Device extends Model
             return $this->hive->name;
 
         return '';
+    }
+
+    public function getLocationIdAttribute()
+    {
+        if (isset($this->hive))
+            return $this->hive->location_id;
+
+        return null;
     }
 
     public function getLocationNameAttribute()
@@ -159,7 +233,9 @@ class Device extends Model
 
     public function activeSensorDefinitions()
     {
-        return $this->sensorDefinitions()->orderBy('updated_at', 'desc')->get()->unique('input_measurement_id', 'output_measurement_id');
+        return Cache::rememberForever('device-'.$this->id.'-active-calibrations', function () {
+            return $this->sensorDefinitions()->orderBy('updated_at', 'desc')->get()->unique('input_measurement_id', 'output_measurement_id');
+        });
     }
 
     // provide sensorfdefinitions in descending in order
@@ -169,6 +245,11 @@ class Device extends Model
         $sd_ids = [];
         $io_sds = $this->sensorDefinitions()->where('input_measurement_id', $input_measurement_id)->where('output_measurement_id', $output_measurement_id)->get();
 
+        // If empty collection, or only one, return sensor_defs collection for all data
+        if ($io_sds->count() < 2)
+            return $io_sds;
+
+        // If more than 1, chech which one to use
         $sd_during = $io_sds->whereBetween('updated_at', [$start, $end])->sortByDesc('updated_at')->unique('input_measurement_id', 'output_measurement_id');
 
         if ($sd_during->count() > 0)
@@ -202,8 +283,8 @@ class Device extends Model
 
     public function location()
     {
-        if (Auth::check() && isset($this->hive))
-            return Auth::user()->allLocations()->find($this->hive->location_id);
+        if (isset($this->hive))
+            return $this->hive->location()->first();
 
         return null;
     }
@@ -227,6 +308,45 @@ class Device extends Model
     {
         return $this->hasMany(FlashLog::class);
     }
+
+    public function getMeasurementsPerDay()
+    {
+        $device_interval_min = isset($this->measurement_interval_min) && $this->measurement_interval_min > 0 ? $this->measurement_interval_min : 15;
+        return round(1440 / $device_interval_min);
+    }
+
+    public function getFlashLogsHtml($start_date='2019-01-01')
+    {
+        $flogs       = $this->flashlogs()->where('created_at', '>', $start_date)->orderByDesc('created_at')->get(); // get files after start, because can only be filled with data about start date
+        $flogs_count = $flogs->count();
+        $flogs_valid = 0;
+
+        $html        = '<div style="display: inline-block; max-height: 45px; overflow-x: hidden; overflow-y: scroll;"><ul style="padding:0; margin:0;">';
+
+        $meas_per_day = isset($this->interval_min) && $this->interval_min > 0 ? round(1440/$this->interval_min) : 96;
+        foreach ($flogs as $fl)
+        {
+            $logpd = $fl->logs_per_day;
+            $logperc = min(100, round(100 * $logpd / $meas_per_day));
+            $days  = $fl->getLogDays();
+            $logd  = $days ? round($days).' days x '.$logperc.'%' : '';
+            $pers  = $fl->persisted_days ? ', '.round($fl->persisted_days).' days persisted' : '';
+            $post  = $pers || $logd ? ' ('.$logd.$pers.')' : ''; 
+            $name  = $fl->id.'. '.substr($fl->created_at, 0, 10).$post;
+            $valid = $fl->validLog();
+            $flogs_valid += $valid;
+            $color = $valid ? 'style="color: green;" title="Flash log id:'.$fl->id.' has '.$logd.' valid weight/time data"' : 'title="Flash log '.$fl->id.' should be checked for valid data: has '.$logd.' of data, but end date might not be within 1 hour of the upload date."';
+            $html .= '<li style="padding:0; margin:0;"><a href="/flash-log/'.$fl->id.'" '.$color.'>'.$name.'</a></li>';
+        }
+
+        $html .= '</ul></div>';
+
+        $all_valid   = $flogs_count > 0 && $flogs_count == $flogs_valid ? true : false;
+        $html_valid  = '<div style="display: inline-block; vertical-align:top; height: 30px; margin:0; margin-top:7px; padding: 5px; border-radius: 5px; border: 1px solid grey; background-color: '.($all_valid ? 'green' : 'red').';">'.$flogs_valid.'/'.$flogs_count.'</div>';
+
+        return "<div style=\"max-height: 42px;\">$html_valid $html</div>";
+    }
+
 
     public function getRefreshMin()
     {
@@ -779,6 +899,27 @@ class Device extends Model
         //die(print_r($out_arr));
 
         return $out_arr;
+    }
+
+    public function calibrationsMeasurementAbbreviations()
+    {
+        return Cache::rememberForever('device-'.$this->id.'-calibrations-measurement-types', function () {
+            $out = [];
+            $cals = $this->sensorDefinitions()->where('recalculate', '=', true)->whereColumn('input_measurement_id', '!=', 'output_measurement_id')->orderBy('updated_at', 'asc')->get();
+            foreach ($cals as $cal) {
+                if (isset($cal->input_abbr)) {
+                    $m_abbr = $cal->input_abbr;
+                    $c_unix = strtotime($cal->updated_at);
+                    if (isset($out[$m_abbr])) {
+                        $out[$m_abbr][$c_unix] = ['id' => $cal->id, 'output_abbr' => $cal->output_abbr, 'multiplier' => $cal->multiplier, 'offset' => $cal->offset];
+                    } else {
+                        $out[$m_abbr] = [$c_unix => ['id' => $cal->id, 'output_abbr' => $cal->output_abbr, 'multiplier' => $cal->multiplier, 'offset' => $cal->offset]];
+                    }
+                }
+            }
+
+            return $out;
+        });
     }
 
 }

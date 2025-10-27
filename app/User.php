@@ -5,6 +5,7 @@ namespace App;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Auth\MustVerifyEmail;
 use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Support\Facades\Log;
 use Laratrust\Traits\LaratrustUserTrait;
 
 use App\Notifications\VerifyEmail;
@@ -19,6 +20,7 @@ use App\Models\ChecklistSvg;
 
 use DB;
 use Auth;
+use Cache;
 
 class User extends Authenticatable
 {
@@ -42,6 +44,57 @@ class User extends Authenticatable
     //     return $this->cans(explode('|', $permission), true);
     // }
 
+    public function emptyCache($type=null)
+    {
+        self::emptyIdCache($this->id, $type);
+    }
+
+    public static function emptyIdCache($user_id, $type=null)
+    {
+        //Log::debug("empty_cache user $user_id");
+
+        Cache::forget('user-'.$user_id.'-is-admin');
+        Cache::forget('user-'.$user_id.'-permissions');
+
+        if ($type == null || $type == 'device')
+        {
+            Cache::forget('user-'.$user_id.'-all-device-ids');
+            Cache::forget('user-'.$user_id.'-all-device-ids-editable');
+        }
+        // Cache::forget('user-'.$user_id.'-historic-device-ids');
+        // Cache::forget('user-'.$user_id.'-all-device-objects');
+        // Cache::forget('user-'.$user_id.'-all-active-device-objects');
+        // Cache::forget('user-'.$user_id.'-all-devices-with-rentals-and-researches');
+        // Cache::forget('user-'.$user_id.'-all-location-research-daysago');
+        // Cache::forget('user-'.$user_id.'-all-location-research-ids');
+        // Cache::forget('user-'.$user_id.'-all-location-area-ids');
+
+        if ($type == null || $type == 'inspection')
+        {
+            Cache::forget('user-'.$user_id.'-all-inspection-ids');
+            Cache::forget('user-'.$user_id.'-all-editable-inspection-ids');
+            Cache::forget('user-'.$user_id.'-apiaries'); // clear cached apiaries, for last inspection on hive
+        }
+
+        if ($type == null || $type == 'apiary')
+        {
+            Cache::forget('user-'.$user_id.'-all-location-ids');
+            Cache::forget('user-'.$user_id.'-all-my-location-ids');
+            Cache::forget('user-'.$user_id.'-all-hive-ids');
+            Cache::forget('user-'.$user_id.'-all-hive-ids-editable');
+            Cache::forget('user-'.$user_id.'-apiaries');
+            Cache::forget('locations-user-'.$user_id);
+        }
+
+        if ($type == null || $type == 'group')
+        {
+            Cache::forget('user-'.$user_id.'-group-hive-ids');
+            Cache::forget('user-'.$user_id.'-group-hive-ids-editable');
+            Cache::forget('user-'.$user_id.'-groups-and-invites');
+        }
+
+        Log::debug("User ID $user_id $type cache emptied");
+    }
 
     public function getAvatarAttribute()
     {
@@ -64,20 +117,25 @@ class User extends Authenticatable
 
     public function getAdminAttribute()
     {
-        return $this->hasRole('superadmin');
+        return Cache::remember('user-'.$this->id.'-is-admin', env('CACHE_TIMEOUT_LONG'), function () {
+            return $this->hasRole(['superadmin', 'admin']);
+        });
     }
 
     public function getPermissionsAttribute()
     {
-        $permissions = null;
-        $specialRoles= $this->roles()->whereNotIn('name', ['superadmin','admin']);
-        if ($specialRoles->count() > 0)
-        {
-            $permissions = [];
-            foreach ($specialRoles->get() as $r) 
-                $permissions = array_merge($permissions, $r->permissions()->pluck('name')->toArray());
-        }
-        return $permissions;
+        return Cache::remember('user-'.$this->id.'-permissions', env('CACHE_TIMEOUT_LONG'), function () {
+            $permissions = null;
+            $specialRoles = $this->roles()->whereNotIn('name', ['superadmin', 'admin']);
+            if ($specialRoles->count() > 0) {
+                $permissions = [];
+                foreach ($specialRoles->get() as $r) {
+                    $permissions = array_merge($permissions, $r->permissions()->pluck('name')->toArray());
+                }
+            }
+
+            return $permissions;
+        });
     }
 
 
@@ -92,24 +150,37 @@ class User extends Authenticatable
         return $this->hasMany(Hive::class);
     }
 
+    public function groupHiveIds($editable = false)
+    {
+        $cache_name = 'user-'.$this->id.'-group-hive-ids'.($editable ? '-editable' : '');
+        $hive_ids   = Cache::remember($cache_name, env('CACHE_TIMEOUT_LONG'), function () use ($editable){
+            
+            $group_ids = $this->groups->pluck('id')->toArray();
+            $hive_ids  = [];
+            if ($editable)
+                $hive_ids  = DB::table('group_hive')->where('edit_hive', 1)->whereIn('group_id',$group_ids)->distinct('hive_id')->pluck('hive_id')->toArray();
+            else
+                $hive_ids  = DB::table('group_hive')->whereIn('group_id',$group_ids)->distinct('hive_id')->pluck('hive_id')->toArray();
+            //die(print_r(['group_ids'=>$group_ids,'hive_ids'=>$hive_ids]));
+            return $hive_ids;
+        });
+        return $hive_ids;
+    }
+
     public function groupHives($editable = false)
     {
-        $group_ids = $this->groups->pluck('id')->toArray();
-
-        $hive_ids  = [];
-        if ($editable)
-            $hive_ids  = DB::table('group_hive')->where('edit_hive', 1)->whereIn('group_id',$group_ids)->distinct('hive_id')->pluck('hive_id')->toArray();
-        else
-            $hive_ids  = DB::table('group_hive')->whereIn('group_id',$group_ids)->distinct('hive_id')->pluck('hive_id')->toArray();
-        //die(print_r(['group_ids'=>$group_ids,'hive_ids'=>$hive_ids]));
-        return Hive::whereIn('id',$hive_ids);
+        return Hive::whereIn('id',$this->groupHiveIds($editable));
     }
 
     public function allHives($editable = false) // Including Group hives
     {
-        $own_ids = $this->hives()->pluck('id');
-        $hiv_ids = $this->groupHives($editable)->pluck('id');
-        $all_ids = $own_ids->merge($hiv_ids);
+        $cache_name = 'user-'.$this->id.'-all-hive-ids'.($editable ? '-editable' : '');
+        $all_ids = Cache::remember($cache_name, env('CACHE_TIMEOUT_LONG'), function () use ($editable) {
+            $own_ids = $this->hives()->pluck('id');
+            $hiv_ids = $this->groupHiveIds($editable);
+            $all_ids = $own_ids->merge($hiv_ids);
+            return $all_ids;
+        });
         return Hive::whereIn('id',$all_ids);
     }
 
@@ -131,10 +202,14 @@ class User extends Authenticatable
 
     public function allInspections($editable = false) // Including Group hive locations
     {
-        $own_ids = $this->inspections()->pluck('id');
-        $hiv_ids = $this->groupHives($editable)->pluck('id');
-        $ins_ids = DB::table('inspection_hive')->whereIn('hive_id',$hiv_ids)->distinct('inspection_id')->pluck('inspection_id')->toArray();
-        $all_ids = $own_ids->merge($ins_ids);
+        $cache_name = 'user-'.$this->id.'-all'.($editable?'-editable':'').'-inspection-ids';
+        $all_ids = Cache::remember($cache_name, env('CACHE_TIMEOUT_LONG'), function () use ($editable){
+            $own_ids = $this->inspections()->pluck('id');
+            $hiv_ids = $this->groupHiveIds($editable);
+            $ins_ids = DB::table('inspection_hive')->whereIn('hive_id',$hiv_ids)->distinct('inspection_id')->pluck('inspection_id')->toArray();
+            $all_ids = $own_ids->merge($ins_ids);
+            return $all_ids;
+        });
         return Inspection::whereIn('id',$all_ids);
     }
 
@@ -197,10 +272,14 @@ class User extends Authenticatable
 
     public function allDevices($editable = false) // Including Group hive locations
     {
-        $own_ids = $this->devices()->pluck('id');
-        $hiv_ids = $this->groupHives($editable)->pluck('id');
-        $sen_ids = DB::table('sensors')->whereIn('hive_id',$hiv_ids)->distinct('hive_id')->pluck('id')->toArray();
-        $all_ids = $own_ids->merge($sen_ids);
+        $cache_name = 'user-'.$this->id.'-all-device-ids'.($editable ? '-editable' : '');
+        $all_ids    = Cache::remember($cache_name, env('CACHE_TIMEOUT_LONG'), function () use ($editable) {
+            $own_ids = $this->devices()->pluck('id');
+            $hiv_ids = $this->groupHiveIds($editable);
+            $sen_ids = DB::table('sensors')->whereIn('hive_id',$hiv_ids)->distinct('hive_id')->pluck('id')->toArray();
+            $all_ids = $own_ids->merge($sen_ids);
+            return $all_ids;
+        });
         return Device::whereIn('id',$all_ids);
     }
 
@@ -258,16 +337,29 @@ class User extends Authenticatable
         return $this->hasMany(Location::class);
     }
 
-    public function allLocations($editable = false) // Including Group hive locations
+    public function all_location_ids($mine = false) // Including rental locations
     {
-        $own_ids = $this->locations()->pluck('id');
-        $hiv_ids = $this->groupHives($editable)->pluck('id');
-        $loc_ids = DB::table('hives')->whereIn('id',$hiv_ids)->distinct('hive_id')->pluck('location_id')->toArray();
-        $all_ids = $own_ids->merge($loc_ids);
-        return Location::whereIn('id',$all_ids);
+        $cache_name = 'user-'.$this->id.'-all'.($mine?'-my':'').'-location-ids';
+        return Cache::remember($cache_name, env('CACHE_TIMEOUT_LONG'), function () use ($mine){
+            $own_ids = $this->locations()->pluck('id');
+            $hiv_ids = $this->groupHives($mine)->pluck('id');
+            $loc_ids = DB::table('hives')->whereIn('id',$hiv_ids)->distinct('hive_id')->pluck('location_id')->toArray();
+            $all_ids = $own_ids->merge($loc_ids);
+            return $all_ids;
+        });
     }
 
-    
+    public function allLocations($mine = false) // Including rental locations
+    {
+        $all_ids = $this->all_location_ids($mine);
+        return Location::whereIn('id', $all_ids);
+    }
+
+    public function allApiaries(){
+        return Cache::remember('user-'.$this->id.'-apiaries', env('CACHE_TIMEOUT_LONG'), function () {
+            return $this->locations()->with(['hives.layers', 'hives.queen'])->get();
+        });
+    }
 
     public function groupInvitations()
     {
@@ -276,11 +368,21 @@ class User extends Authenticatable
         {
             $invite              = $item->only(['id','name','description','color']);
             $groupUserArray      = $item->users->firstWhere('id',$user_id);
-            $invite['invited']   = (isset($groupUserArray['invited'])) ? $item->users->firstWhere('id',$user_id)['invited'] : null;
-            $invite['token']     = (isset($groupUserArray['token'])) ? $item->users->firstWhere('id',$user_id)['token'] : null;
+            $invite['invited']   = (isset($groupUserArray['invited'])) ? $groupUserArray['invited'] : null;
+            $invite['token']     = (isset($groupUserArray['token'])) && $user_id == Auth::user()->id ? $groupUserArray['token'] : null; // only if yourself, add tokens to accept group invites
             $invite['hivecount'] = $item->hives->count();
             $invite['usercount'] = $item->users->whereNotNull('accepted')->count();
             return $invite; 
+        });
+    }
+
+    public function groupsAndInvites()
+    {
+        return Cache::remember('user-'.$this->id.'-groups-and-invites', env('CACHE_TIMEOUT_LONG'), function () {
+            $groups = $this->groups()->orderBy('name')->get();
+            $invite = $this->groupInvitations();
+            $date   = date('Y-m-d H:i:s');
+            return ['invitations'=>$invite, 'groups'=>$groups, 'cache_date'=>$date];
         });
     }
 

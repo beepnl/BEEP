@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Log;
 use App\Http\Resources\InspectionCollection;
 use Auth;
+use Cache;
 
 class Hive extends Model
 {
@@ -16,7 +17,7 @@ class Hive extends Model
     protected $cascadeDeletes = ['queen','inspections','layers','frames'];
     protected $fillable = ['user_id', 'location_id', 'hive_type_id', 'color', 'name', 'bb_width_cm', 'bb_depth_cm', 'bb_height_cm', 'fr_width_cm', 'fr_height_cm', 'order'];
     protected $guarded  = ['id'];
-	protected $hidden 	= ['user_id','deleted_at'];
+	protected $hidden 	= ['user_id','deleted_at','pivot'];
     protected $appends  = ['type','location','attention','impression','notes','reminder','reminder_date','inspection_count','sensors','owner','editable','group_ids','last_inspection_date'];
 
     public $timestamps = false;
@@ -24,6 +25,16 @@ class Hive extends Model
     public static function boot()
     {
         parent::boot();
+
+        static::created(function($h)
+        {   
+            $h->empty_cache();
+        });
+
+        static::updated(function($h)
+        {   
+            $h->empty_cache();
+        });
 
         static::deleting(function($h)
         {
@@ -40,21 +51,50 @@ class Hive extends Model
                 foreach ($ars as $a)
                     $a->remove_hive_id_from_exclude_hive_ids($h->id);
             }
-            
+            $h->empty_cache();
         });
     }
 
+    public function empty_cache($clear_user=true)
+    {
+        Cache::forget("hive-$this->id-layer-count-honey");
+        Cache::forget("hive-$this->id-layer-count-brood");
+        Cache::forget("hive-$this->id-layer-count-feeding_box");
+        Cache::forget("hive-$this->id-layer-count-queen_excluder");
+        Cache::forget("hive-$this->id-location-name");
+        Cache::forget("hive-$this->id-last-inspection-item");
+
+        Log::debug("Hive ID $this->id cache emptied");
+
+        foreach($this->groups as $group)
+            $group->empty_cache(true);
+
+        if ($clear_user)
+            User::emptyIdCache($this->user_id, 'apiary');
+    }
 
 	// Relations
 	public function getTypeAttribute()
     {
-        return Category::find($this->hive_type_id)->name;
+        return Cache::rememberForever("hive-type-$this->hive_type_id-name", function () {
+            return Category::find($this->hive_type_id)->name;
+        });
     }
 
     public function getLocationAttribute()
     {
-        $loc = Location::find($this->location_id);
-        return isset($loc) ? $loc->name : '';
+        $loc_name = '';
+        if (isset($this->location_id))
+        {
+            $cache_name = "hive-$this->id-location-name";
+            $location   = Location::find($this->location_id);
+            $loc_name   = Cache::rememberForever($cache_name, function () use ($location) {
+                return isset($location->name) ? $location->name : '';
+            });
+            if ($loc_name == '')
+                Cache::forget($cache_name);
+        }
+        return $loc_name;
     }
 
     public function getLastInspectionDateAttribute()
@@ -94,22 +134,42 @@ class Hive extends Model
 
     public function getHoneylayersAttribute()
     {
-        return $this->layers()->where('category_id', Category::findCategoryIdByParentAndName('hive_layer','honey'))->count();
+        $cat_id = Cache::rememberForever('hive-layer-type-id-honey', function () {
+            return Category::findCategoryIdByParentAndName('hive_layer','honey');
+        });
+        return  Cache::rememberForever("hive-$this->id-layer-count-honey", function () use ($cat_id) {
+            return $this->layers()->where('category_id', $cat_id)->count();
+        });
     }
 
     public function getBroodlayersAttribute()
     {
-        return $this->layers()->where('category_id', Category::findCategoryIdByParentAndName('hive_layer','brood'))->count();
+        $cat_id = Cache::rememberForever('hive-layer-type-id-brood', function () {
+            return Category::findCategoryIdByParentAndName('hive_layer','brood');
+        });
+        return  Cache::rememberForever("hive-$this->id-layer-count-brood", function () use ($cat_id) {
+            return $this->layers()->where('category_id', $cat_id)->count();
+        });
     }
 
     public function getFeedingBoxAttribute()
     {
-        return $this->layers()->where('category_id', Category::findCategoryIdByParentAndName('hive_layer','feeding_box'))->count();
+        $cat_id = Cache::rememberForever('hive-layer-type-id-feeding_box', function () {
+            return Category::findCategoryIdByParentAndName('hive_layer','feeding_box');
+        });
+        return  Cache::rememberForever("hive-$this->id-layer-count-feeding_box", function () use ($cat_id) {
+            return $this->layers()->where('category_id', $cat_id)->count();
+        });
     }
 
     public function getQueenExcluderAttribute()
     {
-        return $this->layers()->where('category_id', Category::findCategoryIdByParentAndName('hive_layer','queen_excluder'))->count();
+        $cat_id = Cache::rememberForever('hive-layer-type-id-queen_excluder', function () {
+            return Category::findCategoryIdByParentAndName('hive_layer','queen_excluder');
+        });
+        return  Cache::rememberForever("hive-$this->id-layer-count-queen_excluder", function () use ($cat_id) {
+            return $this->layers()->where('category_id', $cat_id)->count();
+        });
     }
 
     public function getSensorsAttribute()
@@ -131,11 +191,11 @@ class Hive extends Model
 
     private function getLastInspectionItem($name)
     {
-        $item = $this->inspections()->orderBy('created_at','desc')->first();
-        if (isset($item[$name]))
-            return $item[$name];
-
-        return null;
+        $inspection = Cache::remember("hive-$this->id-last-inspection-item", 5, function () {
+            return $this->inspections()->orderBy('created_at','desc')->first();
+        });
+        if (isset($inspection->{$name}))
+            return $inspection->{$name};
     }
 
     public function getAllInspectionDates()
@@ -241,6 +301,12 @@ class Hive extends Model
         }
         else
         {
+            if ($request->filled('start'))
+                $inspections = $inspections->where('created_at', '>=', $request->input('start'));
+
+            if ($request->filled('end'))
+                $inspections = $inspections->where('created_at', '<=', $request->input('end'));
+
             if (!empty($search)) {
                 $inspections = $inspections->filter(function($item) use ($search){
                     $match = 0;

@@ -1,6 +1,8 @@
 <?php
 namespace App\Traits;
 
+use Illuminate\Support\Facades\Log;
+
 use App\Measurement;
 use Cache;
 
@@ -25,6 +27,8 @@ trait MeasurementLoRaDecoderTrait
             $data_array['port'] = $port;
             if (isset($data['hardware_serial']) && !isset($data_array['key']))
                 $data_array['key'] = $data['hardware_serial']; // LoRa WAN == Device EUI
+            if (isset($data['device_id']) && !isset($data_array['key']))
+                $data_array['key'] = $data['device_id']; // hardware ID is "device_id" in TTN v3 downlink 
             if (isset($data['metadata']['gateways'][0]['rssi']))
                 $data_array['rssi'] = $data['metadata']['gateways'][0]['rssi'];
             if (isset($data['metadata']['gateways'][0]['snr']))
@@ -38,6 +42,23 @@ trait MeasurementLoRaDecoderTrait
 
 
         }
+        else if(isset($data['f_port']) && ($data['f_port'] == 6)) // TTN v3 downlink
+            {
+                Log::info('TTN downlink received:', $data);
+
+                $payload = bin2hex(base64_decode($data['frm_payload'])); 
+                Log::info('$payload from downlink:', $payload);
+
+                // $data_array = $this->decode_beep_payload($payload, $port);
+
+                $data_array['port']   = $data['f_port'];
+                $data_array['key']    = $data['end_device_ids']['dev_eui'];
+
+                Log::info('full $data_array from downlink:', $data_array);
+                Log::info('dev_eui:', $data['end_device_ids']['dev_eui']);
+
+                return $data_array;
+            }
         else if (isset($data['end_device_ids']['dev_eui']) && isset($data['end_device_ids']['device_id']) && isset($data['join_accept']['received_at'])) // TTN v3 Join accept
         {
             $data_array['hardware_id'] = $data['end_device_ids']['device_id'];
@@ -47,20 +68,27 @@ trait MeasurementLoRaDecoderTrait
                 $data_array['beep_base'] = true;
 
         }
-        else if (isset($data['end_device_ids']['dev_eui']) && isset($data['uplink_message']['frm_payload']) && isset($data['uplink_message']['f_port'])) // ttn v3 Uplink
+
+        else if (isset($data['end_device_ids']['dev_eui']) && isset($data['uplink_message']['frm_payload']) || isset($data['downlink_message']['frm_payload']) && isset($data['uplink_message']['f_port']) || isset($data['downlink_message']['f_port']) ) // ttn v3 uplink or downlink
         {
-            $port = $data['uplink_message']['f_port'];
+            if(isset($data['uplink_message']))    
+                    $port = $data['uplink_message']['f_port'];
+
+            if(isset($data['downlink_message']))  
+                    $port = $data['downlink_message']['f_port'];
             
-            if (isset($data['uplink_message']['decoded_payload']) && (isset($data['uplink_message']['decoded_payload']['payload_fields']) || count($data['uplink_message']['decoded_payload']) > 2)) // at least has payload fields, or 3 decoded payload fields (not only ['bytes'])
+            if(isset($data['uplink_message']['decoded_payload']) && (isset($data['uplink_message']['decoded_payload']['payload_fields']) || count($data['uplink_message']['decoded_payload']) > 2)) // uplink: at least has payload fields, or 3 decoded payload fields (not only ['bytes'])
             {
                 if (isset($data['uplink_message']['decoded_payload']['payload_fields']))
                     $data_array = $data['uplink_message']['decoded_payload']['payload_fields']; // TTN v3 with defined payload_fields (using decoder)
                 else
                     $data_array = $data['uplink_message']['decoded_payload'];
             }
+
+            
             else
             {
-                $payload    = bin2hex(base64_decode($data['uplink_message']['frm_payload'])); // TTN v3 with BEEP base payload 
+                $payload    = bin2hex(base64_decode($data['uplink_message']['frm_payload'])); // TTN v3 uplink with BEEP base payload 
                 $data_array = $this->decode_beep_payload($payload, $port);
             }
 
@@ -192,7 +220,7 @@ trait MeasurementLoRaDecoderTrait
         return $parsed;
     }
 
-
+    // Calculte 2's complement signed integer from hex value
     private function hexdecs($hex)
     {
         // ignore non hex characters
@@ -287,14 +315,15 @@ trait MeasurementLoRaDecoderTrait
                         if (strlen($p) == 70)
                         {
                             $time_id        = substr($pu, 60, 2); 
-                            $time_available = $time_id == '25' || $time_id == '26' || $time_id == '2E' ? true : false;
+                            $time_available = $time_id == '25' || $time_id == '26' || $time_id == '2D' ? true : false;
 
                             if ($time_available)
                             {
                                 $unixts = hexdec(substr($p, 62, 8));
                                 if ($unixts)
                                 {
-                                    $out['time_clock']  = $time_id == '26' || $time_id == '2E' ? 'rtc' : 'mcu'; // 2023-08-16 added to FW 1.5.14+: 25 == PCB clock. 26/2E == RTC clock
+
+                                    $out['time_clock']  = $time_id == '26' || $time_id == '2D' ? 'rtc' : 'mcu'; // 2023-08-16 added to FW 1.5.14+: 25 == PCB clock. 26/2D == RTC clock
                                     $out['time_device'] = $unixts;
                                 }
                             }
@@ -318,15 +347,15 @@ trait MeasurementLoRaDecoderTrait
                         if (strlen($p) == 86) 
                         {
                             $time_id        = substr($pu, 74, 2); 
-                            $time_available = $time_id == '25' || $time_id == '26' || $time_id == '2E' ? true : false;
+                            $time_available = $time_id == '25' || $time_id == '26' || $time_id == '2D' || $time_id == '2E' ? true : false;
 
                             if ($time_available)
                             {
                                 $unixts = hexdec(substr($p, 76, 8));
                                 if ($unixts)
                                 {
-                                    $out['time_clock']  = $time_id == '26' || $time_id == '2E' ? 'rtc' : 'mcu'; // 2023-08-16 added to FW 1.5.14+: 25 == PCB clock. 26/2E == RTC clock
-                                    $out['time_device'] = $unixts;
+                                    $out['time_clock']  = $time_id == '26' || $time_id == '2D' || $time_id == '2E' ? 'rtc' : 'mcu'; // 2023-08-16 added to FW 1.5.14+: 25 == PCB clock. 26/2D == RTC clock
+                                    $out['time_device'] = $unixts; // This sets $device->datetime and $device->datetime_offset_sec in MeasurementController::addDeviceMeta();
                                 }
                             }
                         }
@@ -355,25 +384,40 @@ trait MeasurementLoRaDecoderTrait
 
                     // LoRa:        1B 0C 1B 0C 0E 64     0A 01 FF F6 98  04 02 0A D7 0A DD  0C 0A 00 FF 00 58 00 12 00 10 00 0C 00 0D 00 0A 00 0A 00 09 00 08 00 07  07 00 00 00 00 00 00
                     // pl incl fft: 1B 0D 15 0D 0A 64     0A 01 00 00 93  04 00              0C 0A 00 FF 00 20 00 05 00 0C 00 03 00 05 00 09 00 04 00 11 00 06 00 02  07 00 00 00 00 00 00
-                    // Payload      1B 0C 4B 0C 44 64     0A 01 01 2D 2D  04 01 07D6
+                    // Payload      1B 0C 4B 0C 44 64     0A 01 01 2D 2D  04 01 07 D6
 
                     // Errors
+                    // FL 1.6.0     1B 0D 0A       64     0A 00115 CA 73  04 01 0D A5        0C 0A 06 46 00 0A 00 07 00 07 00 05 00 06 00 02 00 01 00 01 00 01 00 01  07 00 00 00 00 00 00  2D 68 30 42 F8 0A
+                    // FL 1.5.15    1B 0C F4 0C 43 64     0A 01 0A 0D 44A 04 01 06 6B        0C 0A 00 FF 00 24 00 20 00 10 00 0D 00 0D 00 0B 00 0B 00 09 00 15 00 07  07 00 00 00 00 00 00  2E 7C 9B 5A 8C 0A
+                    // FL 1.5.15    1B 0D 36 0C 38 64     0A 01 0A 0F 267 04 01 06 40        0C 0A 00 FF 00 22 00 2B 00 0E 00 0C 00 0B 00 0A 00 0A 00 09 00 1E 00 09  07 00 00 00 00 00 00  2E 7C 9B 92 CD 0A
                     // FL 1.3.4     1B 0D 1B 0D 9C0D9264  0A 01 0B A5 09  04 00              0C 0A 09 46 00 01 00 01 00 00 00 00 00 01 00 00 00 00 00 00 00 00 00 00  07 00 00 00 00 00 00 0A
                     // FL 1.3.4     1B 0D 1B 0D 780D6364  0A 01 0E E1 7F  04 00              0C 0A 09 46 00 01 00 00 00 00 00 01 00 00 00 00 00 00 00 00 00 00 00 00  07 00 00 00 00 00 00 0A
 
                     $sb = $port == 4 ? 2 : 0; // start byte
 
                     // Battery: 0x1B
-                    $out['vcc']      = hexdec(substr($p, $sb+2, 4))/1000;
-                    $out['bv']       = hexdec(substr($p, $sb+6, 4))/1000;
-                    $out['bat_perc'] = hexdec(substr($p, $sb+10, 2));
+                    if (substr($pu, $sb+6, 4) == '640A') // missing bv
+                    {
+                        $out['vcc']      = hexdec(substr($p, $sb+2, 4))/1000;
+                        $out['bv']       = $out['vcc'];
+                        $out['bat_perc'] = hexdec(substr($p, $sb+6, 2));
 
-                    // Weight (0 - 2): 0x0A
-                    if (substr($pu, $sb+12, 2) == '0A')
-                        $sb = $sb+12; // normal payload
-                    elseif (substr($pu, $sb+16, 2) == '0A')
-                        $sb = $sb+16; // fw 1.3.4 flashlog payload
-                    
+                        $sb = $sb+8;
+                    }
+                    else
+                    {
+                        $out['vcc']      = hexdec(substr($p, $sb+2, 4))/1000;
+                        $out['bv']       = hexdec(substr($p, $sb+6, 4))/1000;
+                        $out['bat_perc'] = hexdec(substr($p, $sb+10, 2));
+                        
+                        // Weight (0 - 2): 0x0A
+                        if (substr($pu, $sb+12, 2) == '0A')
+                            $sb = $sb+12; // normal payload
+                        elseif (substr($pu, $sb+16, 2) == '0A')
+                            $sb = $sb+16; // fw 1.3.4 flashlog payload
+                    }
+
+                    // Weight: 0x0A
                     $weight_amount   = hexdec(substr($p, $sb+2, 2));
                     $out['weight_sensor_amount'] = $weight_amount;
                     $weight_val_len  = $weight_amount * 6;
@@ -398,13 +442,13 @@ trait MeasurementLoRaDecoderTrait
                         {
                             if ($weight_amount == 1)
                             {
-                                $out['w_v'] = hexdec(substr($p, $sb+4, 6));
+                                $out['w_v'] = self::hexdecs(substr($p, $sb+4, 6));
                             }
                             else if ($weight_amount > 1)
                             {
                                 for ($i=0; $i < $weight_amount; $i++)
                                 { 
-                                    $out['w_v_'.$i] = hexdec(substr($p, $sb+4+($i*6), 6));
+                                    $out['w_v_'.$i+1] = self::hexdecs(substr($p, $sb+4+($i*6), 6)); // w_v_1, w_v_2, etc
                                 }
                             }
                         }
@@ -423,13 +467,13 @@ trait MeasurementLoRaDecoderTrait
                     {
                         if ($temp_amount == 1)
                         {
-                            $out['t_i'] = $this->hexdecs(substr($p, $sb+4, 4))/100;
+                            $out['t_i'] = self::hexdecs(substr($p, $sb+4, 4))/100;
                         }
                         else if ($temp_amount > 1 && $temp_amount < 11)
                         {
                             for ($i=0; $i < $temp_amount; $i++)
                             { 
-                                $out['t_'.$i] = $this->hexdecs(substr($p, $sb+4+($i*4), 4))/100;
+                                $out['t_'.$i] = self::hexdecs(substr($p, $sb+4+($i*4), 4))/100;
                             }
                         }
                     }
@@ -470,7 +514,7 @@ trait MeasurementLoRaDecoderTrait
 
                     if (strlen($pu) > $sb && substr($pu, $sb, 2) == '07')
                     {
-                      $bme280_t = hexdec(substr($p, $bme_start, 4));
+                      $bme280_t = self::hexdecs(substr($p, $bme_start, 4)); // signed int
                       $bme280_h = hexdec(substr($p, $bme_start+4, 4));
                       $bme280_p = hexdec(substr($p, $bme_start+8, 4));
                       if (($bme280_t + $bme280_h + $bme280_p) != 0)
@@ -488,24 +532,30 @@ trait MeasurementLoRaDecoderTrait
                     if (strlen($pu) > $sb)
                     {
                         $time_id        = substr($pu, $sb, 2);
-                        $time_available = $time_id == '25' || $time_id == '26' || $time_id == '2E' ? true : false;
+                        $time_available = $time_id == '25' || $time_id == '26' || $time_id == '2D' || $time_id == '2E' ? true : false;
 
                         if ($time_available)
                         {
                             $time_start = $sb+2;
+                            $max_time   = time();
                             $unixts     = hexdec(substr($p, $time_start, 8));
-                            
-                            if ($unixts && $unixts > 1546300800) // unix timestamp > Tue Jan 01 2019 00:00:00 GMT+0000
+                           
+                            if ($unixts) // unix timestamp > Tue Jan 01 2019 00:00:00 GMT+0000
                             {
-                                $out['time_clock']  = $time_id == '26' || $time_id == '2E' ? 'rtc' : 'mcu'; // 2023-08-16 added to FW 1.5.14+: 25 == PCB clock. 26/2E == RTC clock
-                                $out['time_device'] = $unixts;
+                                $out['time_clock']  = $time_id == '26' || $time_id == '2D' || $time_id == '2E' ? 'rtc' : 'mcu'; // 2023-08-16 added to FW 1.5.14+: 25 == PCB clock. 26/2D == RTC clock
+                                $out['time_device'] = $unixts; // This sets $device->datetime and $device->datetime_offset_sec in MeasurementController::addDeviceMeta();
+                                
+                                if ($unixts < 1546300800)
+                                    $out['time_error'] = 'too_low';
+                                else if ($unixts > $max_time)
+                                    $out['time_error'] = 'too_high';
                             }
                         }
                     }
                 }
             }
         }
-        else // BEEP base v2 firmware
+        else // BEEP base v2 firmware (fport == 1)
         {
             $beep_sensors = [
                 't'  , // 0

@@ -56,7 +56,9 @@ return [
     'ave'               => 'gemiddelde',
     'der'               => 'afgeleide',
     'cnt'               => 'aantal x voorkomen van',
+    'cnt_zero'          => 'geen',
     'val'               => 'waarde',
+    'values'            => 'waarden',
     'dif'               => 'verschil met vorige waarde',
     'dec'               => 'daling',
     'inc'               => 'stijging',
@@ -64,4 +66,5 @@ return [
     'abs_dif'           => 'verandering',
 
     'Flash_logs'        => 'Flash log bestanden',
+    'FlashLog'          => 'Flash log file',
 ];

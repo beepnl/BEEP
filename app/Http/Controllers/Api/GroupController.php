@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
 use Auth;
 use Mail;
@@ -24,12 +25,35 @@ use Validator;
  */
 class GroupController extends Controller
 {
-
+    /**
+     * api/groups GET
+     * List all groups, or by ids
+     * @authenticated
+     * @urlParam ids string P
+     */
     public function index(Request $request, $code=200, $message=null, $error=null)
     {
-        $groups = $request->user()->groups()->orderBy('name')->get();
-        $invite = $request->user()->groupInvitations();
-        return response()->json(['invitations'=>$invite, 'groups'=>$groups, 'message'=>$message, 'error'=>$error], $code);
+        if ($request->filled('ids'))
+        {
+            $group_ids = $request->input('ids');
+            if (gettype($group_ids) == 'string')
+                $group_ids = explode(',', $group_ids);
+        }
+
+        if (isset($group_ids) && gettype($group_ids) == 'array')
+        {
+            $groupsAndInvites = [];
+            $groupsAndInvites['invitations'] = $request->user()->groupInvitations();
+            $groupsAndInvites['groups']      = $request->user()->groups()->whereIn('id', $group_ids)->orderBy('name')->get();
+        }
+        else
+        {
+            $groupsAndInvites = $request->user()->groupsAndInvites();
+        }
+        
+        $groupsAndInvites['message'] = $message;
+        $groupsAndInvites['error']   = $error;
+        return response()->json($groupsAndInvites, $code);
     }
 
     /**
@@ -54,21 +78,30 @@ class GroupController extends Controller
         else
         {
             $valid_data     = $validator->validated();
-            $group_user_id  = DB::table('group_user')->where('token',$valid_data['token'])->where('group_id',$valid_data['group_id'])->value('user_id');
-            $user_name      = User::where('id',$group_user_id)->value('name');
+            $group_id       = $valid_data['group_id'];
+            $token          = $valid_data['token'];
             $decline        = (isset($valid_data['decline']) && boolval($valid_data['decline']) === true) ? true : false;
+            $group_user_id  = DB::table('group_user')->where('token',$token)->where('group_id',$group_id)->value('user_id');
+            $user_name      = User::where('id',$group_user_id)->value('name');
 
             if ($decline)
-                $res = DB::table('group_user')->where('token',$valid_data['token'])->where('group_id',$valid_data['group_id'])->update(['invited'=>null,'accepted'=>null,'declined'=>now(),'token'=>null]);
+                $res = DB::table('group_user')->where('token',$token)->where('group_id',$group_id)->update(['invited'=>null,'accepted'=>null,'declined'=>now(),'token'=>null]);
             else
-                $res = DB::table('group_user')->where('token',$valid_data['token'])->where('group_id',$valid_data['group_id'])->update(['invited'=>null,'accepted'=>now(),'declined'=>null,'token'=>null]);
+                $res = DB::table('group_user')->where('token',$token)->where('group_id',$group_id)->update(['invited'=>null,'accepted'=>now(),'declined'=>null,'token'=>null]);
 
             if ($res)
             {
-                $this->sendAcceptMailToGroupAdmins($valid_data['group_id'], $user_name, $group_user_id, $decline);
+                $this->sendAcceptMailToGroupAdmins($group_id, $user_name, $group_user_id, $decline);
                 $msg = $decline ? 'group_declined' : 'group_activated'; 
+                // Empty group cache upon new member
+                $group = Group::where('id', $group_id)->first();
+                if ($group)
+                    $group->empty_cache();
+                
                 return response()->json(['message'=>$msg]);
             }
+
+
         }
         return response()->json('token_error',500);
     }
@@ -101,7 +134,6 @@ class GroupController extends Controller
         $requestData = $request->only(['name','description','hex_color']);
         $group       = Group::create($requestData);
         $request->user()->groups()->attach($group, ['creator'=>true,'admin'=>true,'accepted'=>now()]);
-        
         $this->syncHives($request, $group);
         
         $msg = $this->syncUsers($request, $group);
@@ -143,6 +175,7 @@ class GroupController extends Controller
         if ($group)
         {
             $this->syncHives($request, $group);
+            $group->empty_cache();
             
             if ($group->getAdminAttribute())
             {
@@ -164,9 +197,13 @@ class GroupController extends Controller
 
     public function detach(Request $request, $id)
     {
-        $res = $this->detachFromGroup($request->user(), $request->user()->groups()->findOrFail($id));
-        if ($res)
-            return response()->json(['message'=>'group_detached'], 200);
+        $group = $request->user()->groups()->findOrFail($id);
+        if ($group)
+        {
+            $res   = $this->detachFromGroup($request->user(), $group);
+            if ($res)
+                return response()->json(['message'=>'group_detached'], 200);
+        }
 
         return response()->json(['error'=>'no_group_detached'], 404);
     }
@@ -174,14 +211,15 @@ class GroupController extends Controller
     private function detachFromGroup($user, $group)
     {
         $user_hive_ids       = $user->hives()->pluck('hives.id')->toArray();
-        $group_hive_ids      = $group->hives()->pluck('hives.id')->toArray();
+        $group_hive_ids      = $group->group_hives()->pluck('hives.id')->toArray();
         $user_group_hive_ids = array_intersect($group_hive_ids, $user_hive_ids);
         
         //die(print_r(['user_hives'=>$user_hive_ids,'hives'=>$group_hive_ids, 'match'=>$user_group_hive_ids]));
         
-        $group->hives()->detach($user_group_hive_ids);
+        $group->group_hives()->detach($user_group_hive_ids);
         $user->groups()->detach($group->id);
         
+        $group->empty_cache();
         // ToDo make next admin in group owner
         return true;
     }
@@ -215,7 +253,7 @@ class GroupController extends Controller
             if (in_array($hive_id, $edit_ids))
                 $sync_ids[$hive_id] = ['edit_hive'=>true];
         }
-        return $group->hives()->sync($sync_ids);
+        return $group->group_hives()->sync($sync_ids);
     }
 
 
@@ -314,6 +352,7 @@ class GroupController extends Controller
                     $validUser->groups()->attach($group->id, ['creator'=>false,'admin'=>$admin,'invited'=>now(),'token'=>$token]);
                     $invite_grp[$validUser->email] = ['name'=>$name, 'admin'=>$admin, 'token'=>$token];
                 }
+                $validUser->emptyCache('group');
             }
             else
             {
@@ -348,7 +387,8 @@ class GroupController extends Controller
         {
             return ['error'=>implode(', ', $error_msg)];
         }
-        return $group->users();
+        $group->empty_cache();
+        return $group->group_users();
     }
 
 

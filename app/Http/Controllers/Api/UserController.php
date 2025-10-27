@@ -15,6 +15,7 @@ use Auth;
 use Password;
 use Login;
 use Storage;
+use Illuminate\Support\Facades\App;
 
 /**
  * @group Api\UserController
@@ -47,6 +48,10 @@ class UserController extends Controller
         if ($request->user())
         {
             event( new ApiTokenLogin('api', $request->user(), false) );
+            
+            if (isset($request->user()->locale))
+                App::setlocale($request->user()->locale);
+            
             return $this->returnToken($request);
         }
         return $this->notAuthenticated($request);
@@ -82,6 +87,9 @@ class UserController extends Controller
         {
             if ($request->user()->hasVerifiedEmail())
             {
+                if (isset($request->user()->locale))
+                    App::setlocale($request->user()->locale);
+                
                 return $this->returnToken($request);
             }
             else

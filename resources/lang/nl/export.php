@@ -16,7 +16,7 @@ return [
     'hive'          => 'Kast',
     'hive_name'     => 'Kastnaam',
     'hives'         => 'Kasten',
-    'devices'       => 'Meetapparaten',
+    'devices'       => 'Meetapparaten (online)',
     'location'      => 'Bijenstand',
     'locations'     => 'Bijenstanden',
     'attention'     => 'Aandacht nodig',

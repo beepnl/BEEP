@@ -3,6 +3,7 @@
 namespace App;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Log;
 use App\Location;
 use App\Controllers\Api\MeasurementController;
 use Storage;
@@ -142,17 +143,23 @@ class Weather extends Model
         $locations = Location::where('coordinate_lat', '!=', null)->where('coordinate_lon', '!=', null)->get();
 
         $count = 0;
+        $time  = time();
+        Log::info('Weather::updateLocations()');
 
         foreach ($locations as $loc) 
         {
-            if ($loc->devices()->count() > 0)
+            if ($loc->device_count() > 0)
             {
                 $result = Weather::callApi($loc);
-                if (gettype($result) == 'string')
+                if (gettype($result) == 'string') // array is error
                     $count++;
             }
         }
-        return 'updated_'.$count.'_locations';
+        $secs = time() - $time;
+        $msg  = "Weather::updateLocations() updated $count locations in $secs sec";
+
+        Log::info($msg);
+        return $msg;
     }
 
     /*
@@ -305,6 +312,7 @@ class Weather extends Model
             catch(\Exception $e)
             {
                 // gracefully do nothing
+                Log::error($e);
             }
         }
         return $stored;

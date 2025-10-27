@@ -1,7 +1,7 @@
 <?php
 
 return [
-    'host' => env('INFLUXDB_HOST', 'localhost'),
+    'host' => env('INFLUXDB_HOST', 'influxdb'),
     'port' => env('INFLUXDB_PORT', 8086),
     'username' => env('INFLUXDB_USER', ''),
     'password' => env('INFLUXDB_PASSWORD', ''),

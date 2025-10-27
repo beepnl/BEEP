@@ -38,14 +38,26 @@ class LocationController extends Controller
      */
     public function index(Request $request)
     {
+        if ($request->filled('ids'))
+        {
+            if (gettype($request->input('ids')) == 'array')
+                $location_ids = $request->input('ids');
+            else
+                $location_ids = explode(',', $request->input('ids'));
+        }
+
         if ($request->filled('root') && $request->input('root'))
-            return response()->json(['locations'=>$request->user()->locations()->get()]);
+        {
+            if (isset($location_ids))
+                return response()->json(['locations'=>$request->user()->locations()->whereIn('id', $location_ids)->get()]);
+            else
+                return response()->json(['locations'=>$request->user()->locations()->get()]);
+        }
 
-        // $locations = Cache::remember('locations', 15, function() use ($request) {
-        //     return $request->user()->locations()->with(['hives.layers', 'hives.queen'])->get();
-        // });
-
-        $locations = $request->user()->locations()->with(['hives.layers', 'hives.queen'])->get();
+        if (isset($location_ids) && gettype($location_ids) == 'array')
+            $locations = $request->user()->locations()->whereIn('id', $location_ids)->with(['hives.layers', 'hives.queen'])->get();
+        else
+            $locations = $request->user()->allApiaries();
 
         return response()->json(['locations'=>$locations]); // removed with(['hives.layers.frames', 'hives.queen'])
     }
@@ -109,6 +121,7 @@ class LocationController extends Controller
         
         // print_r($location);
         // die();
+        $request->user()->emptyCache();
         
         return $this->show($request, $location);
     }
@@ -149,6 +162,7 @@ class LocationController extends Controller
         $location->hex_color     = $request->input('hex_color');
 
         $request->user()->locations()->save($location);
+        $request->user()->emptyCache();
     }
 
     /**
@@ -161,5 +175,6 @@ class LocationController extends Controller
     {
         $location = $request->user()->locations()->findOrFail($location->id);
         $location->delete();
+        $request->user()->emptyCache();
     }
 }

@@ -1,6 +1,27 @@
 @extends('layouts.app')
 
 @section('page-title') {{ __('crud.management', ['item'=>__('beep.Alert')]) }}
+    {!! Form::open(['method' => 'GET', 'route' => 'alert.index', 'class' => 'form-inline', 'role' => 'search', 'style'=>'display: inline-block;'])  !!}
+    <div class="input-group" style="display: inline-block;">
+        <input type="text" class="form-control" style="max-width: 100px;" name="rule_id" placeholder="Alert Rule ID" value="{{ $rule_id }}">
+        <span class="input-group-btn">
+            <button type="submit" class="btn btn-deafult"><i class="fa fa-search"></i></button>
+        </span>
+    </div>
+    <div class="input-group" style="display: inline-block;">
+        <input type="text" class="form-control" style="max-width: 100px;" name="device_id" placeholder="Device ID" value="{{ $device_id }}">
+        <span class="input-group-btn">
+            <button type="submit" class="btn btn-deafult"><i class="fa fa-search"></i></button>
+        </span>
+    </div>
+    <div class="input-group" style="display: inline-block; font-size:16px;">
+        {!! Form::select('user_id', $users, $user_id, array('class' => 'form-control select2', 'placeholder'=>'Select user...', 'onchange'=>'this.form.submit()')) !!}
+        {!! $errors->first('user_id', '<p class="help-block">:message</p>') !!}
+    </div>
+    <div style="display: inline-block;">
+        <input type="checkbox" style="min-width: 10px;" name="no_measurements" value="1" onchange="this.form.submit();" @if($no_meas) checked @endif> <span style="font-size:16px;">No measurements</span></input>
+    </div>
+    {!! Form::close() !!}
 @endsection
 
 @section('content')
@@ -64,7 +85,7 @@
                     <td>{{ $item->id }}</td>
                     <td>{{ $item->created_at }}</td>
                     <td>{{ $item->updated_at }}</td>
-                    <td>{{ $item->getAlertRuleNameAttribute() }} ({{ $item->alert_rule_id }})</td>
+                    <td><a href="{{ route('alert-rule.show', $item->alert_rule_id) }}" title="{{ __('crud.show') }} Alert Rule">{{ $item->getAlertRuleNameAttribute() }} ({{ $item->alert_rule_id }})</a></td>
                     <td>{{ $item->alert_function }}</td>
                     <td>{{ $item->alert_value }}</td>
                     <td>{{ $item->measurement->pq_name_unit }} ({{ $item->measurement->id }})</td>

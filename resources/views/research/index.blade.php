@@ -54,7 +54,7 @@
                     <th col-xs-1>Timespan</th>
                     <th col-xs-1>Checklists</th>
                     <th col-xs-1>User consent</th>
-                    <th style="min-width: 80px;">Actions</th>
+                    <th style="min-width: 160px;">Actions</th>
                 </tr>
             </thead>
             <tbody>
@@ -73,6 +73,7 @@
                     <td>{{ $item->users->count() }}</td>
                     <td>
                         <a href="{{ route('research.show', $item->id) }}" title="{{ __('crud.view') }}"><button class="btn btn-default"><i class="fa fa-eye" aria-hidden="true"></i></button></a>
+                        <a href="{{ route('research.consent', $item->id) }}" title="User consents"><button class="btn btn-default"><i class="fa fa-user" aria-hidden="true"></i></button></a>
                         
                         @if (Auth::user()->hasRole('superadmin') || Auth::user()->researchesOwned()->where('id', $item->id)->count() == 1)
                         <a href="{{ route('research.edit', $item->id) }}" title="{{ __('crud.edit') }}"><button class="btn btn-primary"><i class="fa fa-pencil" aria-hidden="true"></i></button></a>

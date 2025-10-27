@@ -96,6 +96,7 @@ class DeviceController extends Controller
         $keyword     = $request->get('search');
         $search_user = $request->get('user');
         $search_res  = $request->get('research');
+        $high_weight = boolval($request->get('high_weight', false));
         $perPage     = 10;
         $devices     = Device::withTrashed()->where('id', '!=', null);
 
@@ -242,6 +243,7 @@ class DeviceController extends Controller
             'key' => 'required',
             'user_id' => 'required',
             'category_id' => 'required',
+            'rtc' => 'nullable|boolean',
         ]);
 
         $data = $request->all();
@@ -287,6 +289,8 @@ class DeviceController extends Controller
         $match_props = $request->input('match_props', env('FLASHLOG_MATCH_PROPS', 7)); // minimum amount of measurement properties that should match 
         $db_records  = $request->input('db_records', env('FLASHLOG_DB_RECORDS', 15));// amount of DB records to fetch to match each block
         $save_result = boolval($request->input('save_result', false));
+        $dont_use_rtc= boolval($request->input('dont_use_rtc', false));
+        $use_rtc     = !$dont_use_rtc;
 
         $item     = Device::find($id);
         $flashlog = FlashLog::find($fl_id);
@@ -298,7 +302,7 @@ class DeviceController extends Controller
             {
                 $data = $flashlog->getFileContent('log_file');
                 if (isset($data))
-                    $log = $flashlog->log($data, null, $save_result, true, true, $matches_min, $match_props, $db_records, $save_result); // $data, $log_bytes=null, $save=true, $fill=false, $show=false
+                    $log = $flashlog->log($data, null, $save_result, true, true, $matches_min, $match_props, $db_records, $save_result, false, 3, true, $use_rtc); // $data, $log_bytes=null, $save=true, $fill=false, $show=false
                 else
                     return redirect()->route('devices.show', $id)->with('error', 'Flashlog file \''.$flashlog->log_file.'\' not found');
             }
@@ -308,7 +312,7 @@ class DeviceController extends Controller
             }
         }
 
-        return view('devices.show',compact('item','flashlog','log', 'matches_min', 'match_props', 'db_records', 'save_result'));
+        return view('devices.show',compact('item','flashlog','log', 'matches_min', 'match_props', 'db_records', 'save_result', 'dont_use_rtc'));
     }
 
     /**
@@ -350,6 +354,7 @@ class DeviceController extends Controller
             'user_id' => 'required',
             'category_id' => 'required',
             'hive_id' => 'nullable|integer',
+            'rtc' => 'nullable|boolean',
         ]);
 
         $data   = $request->all();

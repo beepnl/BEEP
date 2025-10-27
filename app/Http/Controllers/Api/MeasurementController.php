@@ -8,9 +8,11 @@ use App\User;
 use App\Device;
 use App\Category;
 use App\Measurement;
+use App\SensorDefinition;
 use App\Models\FlashLog;
 use App\Models\Webhook;
 use App\Models\AlertRule;
+use App\Models\Calculation;
 // use App\Transformer\SensorTransformer;
 use Validator;
 use InfluxDB;
@@ -147,7 +149,7 @@ class MeasurementController extends Controller
                 );
             }
         }
-        //die(print_r($points));
+        // die(print_r($points));
         $stored = false;
         if (count($points) > 0)
         {
@@ -158,6 +160,8 @@ class MeasurementController extends Controller
             }
             catch(\Exception $e)
             {
+                // enable for DEBUG
+                // die(print_r($e->getMessage()));
                 // gracefully do nothing
             }
         }
@@ -239,7 +243,10 @@ class MeasurementController extends Controller
                 if (isset($data_array['time_device']))
                     $device = $this->addDeviceMeta($device, 'time_device', $data_array['time_device']);
                 if (isset($data_array['time_clock']) && $data_array['time_clock'] == 'rtc')
-                    $device = $this->addDeviceMeta($device, 'last_downlink_result', 'RTC installed');
+                {
+                    $device = $this->addDeviceMeta($device, 'last_downlink_result', 'RTC detected');
+                    $device = $this->addDeviceMeta($device, 'rtc', true);
+                }
             }
             // store metadata from sensor
             $device->last_message_received = date('Y-m-d H:i:s');
@@ -278,7 +285,7 @@ class MeasurementController extends Controller
 
         $time = time();
         if (isset($data_array['time']))
-            $time = intVal($data_array['time']);
+            $time = intval($data_array['time']);
 
 
         // Add senaor data based on available device sensorDefinitions
@@ -288,8 +295,14 @@ class MeasurementController extends Controller
         foreach ($sensor_defs as $sd)
         {
             if (isset($sd->output_abbr) && isset($data_array[$sd->input_abbr]))
+            {
                 $data_array = $device->addSensorDefinitionMeasurements($data_array, $data_array[$sd->input_abbr], $sd->input_measurement_id, $date, $sensor_defs_all);
+                
+            }
         }
+        if (isset($data_array['debug']) && $data_array['debug'] == 1)
+            return Response::json($data_array);
+
         // store battery voltage after applying sensor defs
         if (isset($data_array['bv']))
         {
@@ -533,7 +546,7 @@ class MeasurementController extends Controller
 
                 if (isset($item['n']))
                 {
-                    if ($item['n'] == 'payload' && isset($item['vs']))
+                    if (($item['n'] == 'payload' || $item['n'] == 'payload_hex') && isset($item['vs']))
                         $payload = true;
 
                     if ($item['n'] == 'port' && isset($item['v']))
@@ -555,9 +568,9 @@ class MeasurementController extends Controller
             "vs":"1b0c6e0c6a640a01ffcd7304000c0a0946000300020002000200010001000100010001000007000000000000"
         },
         {
-            "n": "payload",
+            "n": "payload" ** or "payload_hex" since 10-06-2025 update to SenML **,
             "vs": "1b0c6e0c6a640a01ffcd7304000c0a0946000300020002000200010001000100010001000007000000000000"
-        },
+        }, 
         {
             "n": "port",
             "v": 3.0
@@ -586,6 +599,9 @@ class MeasurementController extends Controller
                 if (isset($item['n']))
                 {
                     if ($item['n'] == 'payload' && isset($item['vs']))
+                        $data_array['payload'] = $item['vs'];
+
+                    if ($item['n'] == 'payload_hex' && isset($item['vs']))
                         $data_array['payload'] = $item['vs'];
 
                     if ($item['n'] == 'port' && isset($item['v']))
@@ -989,7 +1005,7 @@ class MeasurementController extends Controller
     api/sensors/flashlog
     POST data from BEEP base fw 1.5.0+ FLASH log (with timestamp), interpret data and store in InlfuxDB (overwriting existing data). BEEP base BLE cmd: when the response is 200 OK and erase_mx_flash > -1, provide the ERASE_MX_FLASH BLE command (0x21) to the BEEP base with the last byte being the HEX value of the erase_mx_flash value (0 = 0x00, 1 = 0x01, i.e.0x2100, or 0x2101, i.e. erase_type:"fatfs", or erase_type:"full")
     @authenticated
-    @bodyParam id integer Device id to update. (Required without key and hardware_id)
+    @bodyParam id integer Device id to target. (Required without key and hardware_id)
     @bodyParam key string DEV EUI of the sensor to enable storing sensor data incoming on the api/sensors or api/lora_sensors endpoint. (Required without id and hardware_id)
     @bodyParam hardware_id string Hardware id of the device as device name in TTN. (Required without id and key)
     @bodyParam data string MX_FLASH_LOG Hexadecimal string lines (new line) separated, with many rows of log data, or text file binary with all data inside.
@@ -1448,9 +1464,11 @@ class MeasurementController extends Controller
         if (!isset($device))
             return Response::json('sensor-none-error', 500);
 
-        $location      = $device->location();
         $names         = $request->input('names', $this->output_sensors);
         $names_w       = $this->output_weather;
+
+        if (is_string($names))
+            $names = explode(',', $names);
 
         if (count($names) == 0)
             return Response::json('sensor-no-measurements-error', 500);
@@ -1462,7 +1480,7 @@ class MeasurementController extends Controller
             $measurement_id   = Measurement::getIdByAbbreviation($name);
             $sensordefinition = $device->sensorDefinitions->where('output_measurement_id', $measurement_id)->sortByDesc('updated_at')->first();
             if ($sensordefinition)
-                $sensorDefinitions["$name"] = ['name'=>$sensordefinition->name, 'inside'=>$sensordefinition->inside];
+                $sensorDefinitions["$name"] = $sensordefinition->toArray();
         }
 
         //Get the data interval
@@ -1487,6 +1505,9 @@ class MeasurementController extends Controller
         $timeZone             = $intervalArr['timeZone'];
         $whereKeyAndTime      = $device->influxWhereKeys().' AND time >= \''.$start_date.'\' AND time <= \''.$end_date.'\'';
 
+        $calibration_m_abbr   = $device->calibrationsMeasurementAbbreviations();
+        $add_calibrations     = count($calibration_m_abbr) > 0 ? true : false;
+
         if($resolution != null)
         {
             if ($device)
@@ -1494,6 +1515,14 @@ class MeasurementController extends Controller
                 $fill              = env('INFLUX_FILL') !== null ? env('INFLUX_FILL') : 'null';
                 $groupByResolution = 'GROUP BY time('.$resolution.') fill('.$fill.')';
                 $queryList         = Device::getAvailableSensorNamesFromData($device->id, $names, $whereKeyAndTime, 'sensors', true, $cache_sensor_names);
+
+                // Add calibration input measurements for recalculation
+                if ($add_calibrations)
+                {
+                    $m_abbr_calibrations = array_keys($calibration_m_abbr);
+                    foreach ($m_abbr_calibrations as $m)
+                        $queryList[] = $m; // 'w_v', etc.
+                }
 
                 foreach ($queryList as $i => $name)
                     $queryList[$i] = 'MEAN("'.$name.'") AS "'.$name.'"';
@@ -1504,13 +1533,12 @@ class MeasurementController extends Controller
             }
 
             // Add weather
-            if ($location && isset($location->coordinate_lat) && isset($location->coordinate_lon))
-            {
-                $whereLoc = '"lat" = \''.$location->coordinate_lat.'\' AND "lon" = \''.$location->coordinate_lon.'\' AND time >= \''.$start_date.'\' AND time <= \''.$end_date.'\'';
-                $queryListWeather   = Device::getAvailableSensorNamesFromData('loc'.$location->id, $names_w, $whereLoc, 'weather', true, $cache_sensor_names);
+            if ($loadWeather){
 
-                foreach ($queryListWeather as $i => $name)
-                    $queryListWeather[$i] = 'MEAN("'.$name.'") AS "'.$name.'"';
+                $queryListWeather = [];
+
+                foreach ($names_w as $name)
+                    $queryListWeather[] = 'MEAN("'.$name.'") AS "'.$name.'"';
 
                 $groupBySelectWeather = implode(', ', $queryListWeather);
             }
@@ -1523,44 +1551,56 @@ class MeasurementController extends Controller
         {
             $sensorQuery = 'SELECT '.$groupBySelect.' FROM "sensors" WHERE '.$whereKeyAndTime.' '.$groupByResolution.' LIMIT '.$limit;
             $sensors_out = Device::getInfluxQuery($sensorQuery, 'data');
+            
+            // Apply SensorDefinitions that have 'recalculate' set to true
+            if ($add_calibrations)
+            {
+                foreach ($sensors_out as $i => $data_array)
+                    $sensors_out[$i] = SensorDefinition::addDeviceMeasurementCalibrations($device, $data_array, $calibration_m_abbr);
+            }
         }
 
         // Add weather data
-        if ($loadWeather && $groupBySelectWeather != null && $location && isset($location->coordinate_lat) && isset($location->coordinate_lon))
+        if ($loadWeather && $groupBySelectWeather != null)
         {
-            $weatherQuery = 'SELECT '.$groupBySelectWeather.' FROM "weather" WHERE "lat" = \''.$location->coordinate_lat.'\' AND "lon" = \''.$location->coordinate_lon.'\' AND time >= \''.$start_date.'\' AND time <= \''.$end_date.'\' '.$groupByResolution.' LIMIT '.$limit;
-            $weather_out  = Device::getInfluxQuery($weatherQuery, 'weather');
-
-            if (count($sensors_out) == 0)
+            $location = $device->location();
+        
+            if (isset($location->coordinate_lat) && isset($location->coordinate_lon))
             {
-                $sensors_out = $weather_out;
-            }
-            else if (count($weather_out) > 0)
-            {
-                // Add weather data to existing sensor data
-                $data_time_key_arr = [];
+                $weatherQuery = 'SELECT '.$groupBySelectWeather.' FROM "weather" WHERE "lat" = \''.$location->coordinate_lat.'\' AND "lon" = \''.$location->coordinate_lon.'\' AND time >= \''.$start_date.'\' AND time <= \''.$end_date.'\' '.$groupByResolution.' LIMIT '.$limit;
+                $weather_out  = Device::getInfluxQuery($weatherQuery, 'weather');
 
-                foreach ($weather_out as $values)
+                if (count($sensors_out) == 0)
                 {
-                    $time = $values['time'];
-                    $data_time_key_arr[$time] = $values;
+                    $sensors_out = $weather_out;
                 }
-                // add clean_weight values to sensor time keys where the clean_weight values also exist
-                if (count($data_time_key_arr) > 0)
+                else if (count($weather_out) > 0)
                 {
-                    foreach ($sensors_out as $i => $values)
+                    // Add weather data to existing sensor data
+                    $data_time_key_arr = [];
+
+                    foreach ($weather_out as $values)
                     {
                         $time = $values['time'];
-                        if (isset($data_time_key_arr[$time])) // add clean_weight data to already available datetime
+                        $data_time_key_arr[$time] = $values;
+                    }
+                    // add clean_weight values to sensor time keys where the clean_weight values also exist
+                    if (count($data_time_key_arr) > 0)
+                    {
+                        foreach ($sensors_out as $i => $values)
                         {
-                            $sensors_out[$i] = array_merge($sensors_out[$i], $data_time_key_arr[$time]);
-                            unset($data_time_key_arr[$time]); // to retain missing values and add then later
+                            $time = $values['time'];
+                            if (isset($data_time_key_arr[$time])) // add clean_weight data to already available datetime
+                            {
+                                $sensors_out[$i] = array_merge($sensors_out[$i], $data_time_key_arr[$time]);
+                                unset($data_time_key_arr[$time]); // to retain missing values and add then later
+                            }
                         }
                     }
+                    // add missing time values to sensors
+                    if (count($data_time_key_arr) > 0)
+                        $sensors_out = array_merge($sensors_out, array_values($data_time_key_arr));
                 }
-                // add missing time values to sensors
-                if (count($data_time_key_arr) > 0)
-                    $sensors_out = array_merge($sensors_out, array_values($data_time_key_arr));
             }
         }
 

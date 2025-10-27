@@ -56,7 +56,9 @@ return [
     'ave'               => 'average',
     'der'               => 'derivative',
     'cnt'               => 'count of',
+    'cnt_zero'          => 'no',
     'val'               => 'value',
+    'values'            => ' values',
     'dif'               => 'difference',
     'dec'               => 'decrease',
     'inc'               => 'increase',
@@ -64,4 +66,5 @@ return [
     'abs_dif'           => 'change',
 
     'Flash_logs'        => 'Flash log files',
+    'FlashLog'          => 'Flash log file',
 ];

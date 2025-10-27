@@ -99,6 +99,15 @@ class SensorDefinitionController extends Controller
                 $request_data['name'] = $measurement_in->pq_name().' '.__('beep.calibrated');
         }
 
+        if ($request->filled('updated_at')) {
+            $updated_date_utc = $request->input('updated_at');
+            $updated_date_db  = substr($updated_date_utc, 0, 10).' '.substr($updated_date_utc, 11, 8); // strip timezone
+            $request_data['updated_at'] = date('Y-m-d H:i:s', strtotime($updated_date_db));
+            //Log::debug("CalibrationController makeRequestDataArray updated_date_utc: $updated_date_utc, updated_date_db: $updated_date_db");
+        } elseif (isset($calibration['updated_at'])) {
+            $request_data['updated_at'] = $calibration->updated_at; // do NOT update the calibration date, by setting the 'updated_at' to the available date
+        }
+
         return $request_data;
     }
 
@@ -180,7 +189,7 @@ class SensorDefinitionController extends Controller
             return response()->json($sensordefinition, 201);
         }
 
-        Log::error('sensordefinition_storage_error: '.json_encode($request->input()->toArray()));
+        Log::error('sensordefinition_storage_error: '.json_encode($request->input()));
 
         return response()->json('no_device_found', 404);
     }
@@ -230,8 +239,17 @@ class SensorDefinitionController extends Controller
             //     else
             //         $request_data['inside'] = $request_data['inside'] === "true" || $request_data['inside'] === true || $request_data['inside'] == 1 ? 1 : 0;
             // }
+            if (isset($request_data['updated_at']))
+                $updated_at = $request_data['updated_at'];
 
             $sensordefinition->update($request_data);
+            
+            if (isset($request_data['updated_at']))
+            {
+                $sensordefinition->updated_at = $updated_at;
+                $sensordefinition->save(['timestamps' => false]);
+            }
+
             return response()->json($sensordefinition, 200);
         }
         return response()->json('no_device_found', 404);

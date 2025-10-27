@@ -144,21 +144,112 @@ e. You should see the back-end dashboard, looking like this:
 ![BEEP Management interface](https://github.com/beepnl/BEEP/raw/master/BEEP-management-interface.png)
 
 
+
 # Installation using docker compose
 
-A simple setup for small installations can be achived with [docker-compose](https://docs.docker.com/compose/). The tool will spinn up a mysqldb, influx, a webserver and initialize the beep database.
+A simple setup for small installations can be achived with [docker-compose](https://docs.docker.com/compose/). The tool will spin up a webserver and initialize the beep mysql and influxdb database.
 
 1. [Install docker-compose](https://docs.docker.com/compose/install/)
 2. Checkout BEEP and switch into the code repository
-3. Adjust `docker-compose.yaml`(set suitable environment variables).
-4. Run `docker-compose up`. During the first start, you might see some database connectivity issues. Docker compose will restart the BEEP Server component untill a database connection is available. So don't worry.
-5. Register as a new user: [http://localhost:8000/webapp](http://localhost:8000/webapp).
-6. Grant user administrator rights: `docker-compose exec  mysql mysql -h localhost -P 3306 -ppass -u user -D bee_data -Bse "INSERT INTO role_user (user_id,role_id) VALUES(1,1);"`
-7. Login to mamagement interface: [http://localhost:8000/admin](http://localhost:8000/admin)
+3. Make your own .env file: run `cp .env.example .env`
+4. [Create a free mailtrap.io account](https://mailtrap.io/register/signup)
+5. Fill in your mailtrap username & password in your .env file for `MAIL_USERNAME` and `MAIL_PASSWORD` (find it in your mailtrap account via Email Testing -> My inbox -> Integration)
+6. Run 
+```bash
+`php artisan key:generate`
+`composer install && sudo chmod -R 777 storage && sudo chmod -R 777 bootstrap/cache`
+`docker-compose up -d --build`
+`docker-compose run --rm artisan migrate --seed`
+```
+7. Optional: verify whether the docker containers are running: run `docker ps`
+8. [Check whether backend login page is working](http://localhost:8087/login)
+9. If everything is running smoothly, create a login via the frontend webapp [BEEP VUE (v3) app](https://github.com/beepnl/beep-vue-app).
+To connect the BEEP VUE app with the BEEP backend, make sure to specify the following .env variables in your local BEEP VUE app installation:
+VUE_APP_API_URL = http://localhost:8087/api/
+VUE_APP_BASE_API_URL = http://localhost:8087/
+(Psssst there is a shortcut for creating a login: just use the old [BEEP Angular JS (v2) app](https://github.com/beepnl/BEEP/tree/master/resources/assets) app directly, via http://localhost:8087/webapp#!/login/create
+but beware to only use it to create your login, as the rest of the app is deprecated! (The v3 app replaced the v2 app in 2021))
+10. With your newly created login, [login to the backend](http://localhost:8087/login). N.B. verification email from the previous step will be send to your mailtrap inbox
+11. Give your newly created user the superadmin role, via [phpmyadmin](http://localhost:8088/index.php) (server: mysql, user: root, password: secret):
+Go to bee_data db, users table, check your user id. Then in the role_user table, edit the role_id for that user_id to '1 - superadmin' and save. 
+12. Now setup Influxdb for the measurements data. [Create a login via the Influxdb onboarding UI](http://localhost:8086/) (choose your username and password, organization: beep, database: bee_data). Then copy and store the API token.
+13. Add your Influxdb credentials to your .env file for `INFLUXDB_USER` and `INFLUXDB_PASSWORD` and the influx-configs file at storage/influxdb2/config like so:
+[yourusername]
+  url = "http://localhost:8086"
+  token = "your API token from step 15"
+  org = "beep"
+  active = true
+14. Run `docker-compose run --rm artisan config:clear` to clear the config cache
+15. Make your bee_data database writable inside the influxdb docker container
+```bash
+docker exec -t influxdb bash
+influx bucket list (-> copy bee_data bucket id (or obtain it via the UI at http://localhost:8086 instead))
+influx v1 dbrp create --db bee_data --rp autogen --bucket-id [your bucket id]  --default
+```
+16. Optional: test write to your influxdb via the docker container:
+```bash
+docker exec -t influxdb bash (skip if moving on from previous step directly)
+influx write --bucket bee_data --host http://localhost:8086 "m,host=host1 field1=1.2"
+```
+Check the data you posted via the Influxdb UI at http://localhost:8086
+17. Test posting a measurement via your dockerized BEEP backend: 
+    - Create a new device in the BEEP VUE app (see step 9) in the /devices page, copy the 'Device unique identifier', this is your 'key'. (Hive is not required, but also possible to first create an apiary and hive to attach to your device)
+    - Create at least 1 measurement type at http://localhost:8087/en/measurement, with 'Influx Database' as the Data Source type. For example Abbreviation 't_i', Physical Quantity Id: Temperature (C)
+    - Post a measurement via Postman or curl, see [API documentation](https://api.beep.nl/docs/#apimeasurementcontroller-POSTapi-sensors). For example:
+      POST http://localhost:8087/api/sensors?key=[your device key]&t_i=34.5 (where 't_i' is your newly created measurement abbreviation from above, the value can be anything).
+    - Response should be ‘saved’. Datapoint should be visible in the Influxdb bee_data.
+    - In order to view your datapoint in the BEEP VUE app /data tab, first run `docker-compose run --rm artisan cache:clear` to clear the cache. Then hard refresh the app in order to load your newly created measurement type, otherwise the datapoint will not be visible in the frontend.
 
-To upgrade beep to the latest version, simply stop and start docker-compose.
 
-As the setup is based on docker containers, code changes inside the repository will not have an effeact till the underlying docker image is updated. 
+As the setup is based on docker containers, code changes inside the repository will not have an effect until the underlying docker image is updated. 
+
+### Start/Stop the project
+
+```sh
+docker-compose stop
+`docker-compose start` OR `docker-compose up -d`
+```
+
+
+### Clear/Clean the project
+
+```sh
+docker-compose stop
+docker-compose down -v
+docker-compose up -d --build
+
+docker-compose run --rm artisan clear:data
+docker-compose run --rm artisan cache:clear
+docker-compose run --rm artisan config:clear
+docker-compose run --rm artisan view:clear
+docker-compose run --rm artisan route:clear
+docker-compose run --rm artisan clear-compiled
+docker-compose run --rm artisan config:cache
+docker-compose run --rm artisan storage:link
+docker-compose run --rm artisan migrate
+```
+
+### View logs
+
+```sh
+docker logs [CONTAINER-NAME]
+```
+
+## Ports
+
+Ports used in the project:
+| Software        | Port |
+|---------------- | ---- |
+| **nginx**       | 8087 |
+| **phpmyadmin**  | 8088 |
+| **mysql**       | 3306 |
+| **influxdb**    | 8086 |
+| **php**         | 9000 |
+| **redis**       | 6379 |
+
+## Phpmyadmin
+
+In case you need to, login via http://localhost:8088/index.php -> Server: mysql, username: root, password: secret
 
 
 # Get your BEEP base measurement data into the BEEP app

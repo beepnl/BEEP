@@ -45,6 +45,20 @@
             <br>
 			<button type="submit" class="btn btn-primary btn-block">{{ __('crud.save') }}</button>
         </div>
+        <div class="col-xs-12 col-md-4">
+            <div class="form-group {{ $errors->has('rtc') ? 'has-error' : ''}}">
+                <label for="rtc" control-label>{{ 'RTC' }}</label>
+                <div>
+                    <div class="radio">
+                        <label><input name="rtc" type="radio" value="1"> Yes</label>
+                    </div>
+                    <div class="radio">
+                        <label><input name="rtc" type="radio" value="0" checked> No</label>
+                    </div>
+                    {!! $errors->first('rtc', '<p class="help-block">:message</p>') !!}
+                </div>
+            </div>
+        </div>
 	</div>
 	{!! Form::close() !!}
 @endsection

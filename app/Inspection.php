@@ -5,6 +5,7 @@ namespace App;
 use Iatstuti\Database\Support\CascadeSoftDeletes;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\Log;
 use LaravelLocalization;
 
 use Auth;
@@ -37,9 +38,9 @@ class Inspection extends Model
      */
     protected $fillable = ['notes', 'created_at', 'impression', 'attention', 'reminder', 'reminder_date', 'checklist_id', 'image_id'];
 
-    protected $hidden   = ['pivot','deleted_at', 'hives', 'items'];
+    protected $hidden   = ['pivot','deleted_at', 'hives', 'locations', 'items'];
 
-    protected $appends  = ['owner', 'thumb_url', 'hive_id', 'item_count', 'searchable'];
+    protected $appends  = ['owner', 'thumb_url', 'hive_id', 'location_id', 'item_count', 'searchable'];
 
     public $timestamps = false;
 
@@ -48,9 +49,14 @@ class Inspection extends Model
     {
         parent::boot();
 
+        static::created(function ($i) {
+            //Log::info("Created Inspection $i->id");
+            $i->empty_cache();
+        });
+
         static::updated(function($i)
         {
-            $i->empty_cache();
+            $i->empty_cache(false);
         });
 
         static::deleted(function($i)
@@ -60,9 +66,30 @@ class Inspection extends Model
     }
 
     // Cache functions
-    public function empty_cache()
+    public function empty_cache($clear_users=true)
     {
+        Cache::forget('inspection-'.$this->id.'-hive-ids');
+        Cache::forget('inspection-'.$this->id.'-location-ids');
+        Cache::forget('inspection-'.$this->id.'-item-count');
         Cache::forget('inspection-'.$this->id.'-searchable-array');
+        
+        Log::debug("inspection ID $this->id cache emptied (clear_users=$clear_users)");
+
+        foreach ($this->hives as $hive)
+        {
+            //Log::debug("inspection ID $this->id try to empty hive $hive->id cache");
+            $hive->empty_cache(false);
+        }
+
+        if ($clear_users)
+        {
+            $user_ids = $this->users()->pluck('id')->toArray();
+            foreach ($user_ids as $uid) {
+                //Log::debug("inspection ID $this->id try to empty user $uid cache");
+                User::emptyIdCache($uid, 'inspection');
+            }
+        }
+
     }
 
 
@@ -83,17 +110,40 @@ class Inspection extends Model
         return null;
     }
 
+    public function getHiveIdsAttribute()
+    {
+        return Cache::rememberForever('inspection-'.$this->id.'-hive-ids', function ()
+        {
+            return $this->hives()->pluck('id')->toArray();
+        });
+    }
+
     public function getHiveIdAttribute()
     {
-        if ($this->hives()->count() > 0)
-            return $this->hives()->first()->id;
+        $hive_ids = $this->getHiveIdsAttribute();
+        return count($hive_ids) > 0 ? $hive_ids[0] : null;
+    }
 
-        return null;
+    public function getLocationIdsAttribute()
+    {
+        return Cache::rememberForever('inspection-'.$this->id.'-location-ids', function ()
+        {
+            return $this->locations()->pluck('id')->toArray();
+        });
+    }
+
+    public function getLocationIdAttribute()
+    {
+        $loc_ids = $this->getLocationIdsAttribute();
+        return count($loc_ids) > 0 ? $loc_ids[0] : null;
     }
 
     public function getItemCountAttribute()
     {
-        return $this->items()->count();
+        return Cache::rememberForever('inspection-'.$this->id.'-item-count', function ()
+        {
+            return $this->items()->count();
+        });
     }
 
     public function getSearchableAttribute()
@@ -172,6 +222,9 @@ class Inspection extends Model
 
         if (isset($location_ids))
             $inspection->locations()->sync($location_ids);
+
+        // To make sure the user cache is updated after syncs, bust the cache
+        $inspection->empty_cache();
 
         return $inspection;
     }

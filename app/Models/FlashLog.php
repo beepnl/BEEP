@@ -906,6 +906,69 @@ class FlashLog extends Model
         return ['flashlog'=>$flashlog];
     }
 
+    // Fix RTC month index rollover bug in fw 1.5.13 where the key dates are to be replaced by the value dates to reverse the RTC bug 
+    // Only replace if the current date if it occurs twice and the target date does not yet exist
+    private function fixBugRtcMonthIndex($flashlog, $start_index=null, $end_index=null)
+    {
+        $dates_to_replace = [
+        // flashlog_date => actual date (1 2, or 3 days earlier)
+            "2023-06-01" => "2023-05-31", // after 2023-05-30, 2023-06-01 will be written as FL date, so 2023-05-31 will not exist, and 2023-06-01 will have double data
+            "2023-08-01" => "2023-07-31",
+            "2023-11-01" => "2023-10-31",
+            "2024-01-01" => "2023-12-31",
+            "2024-04-01" => "2024-03-30",
+            "2024-04-02" => "2024-03-31",
+            "2024-06-01" => "2024-05-31",
+            "2024-08-01" => "2024-07-31",
+            "2024-11-01" => "2024-10-31",
+            "2025-01-01" => "2024-12-31",
+            "2025-04-01" => "2025-03-29",
+            "2025-04-02" => "2025-03-30",
+            "2025-04-03" => "2025-03-31",
+            "2025-06-01" => "2025-05-31",
+            "2025-08-01" => "2025-07-31",
+        ];
+
+        if (!isset($start_index))
+            $start_index = 0;
+
+        if (!isset($end_index))
+            $end_index = count($flashlog)-1;
+
+        $time_memory = 0;
+        $skip_date   = null; // memory to skip date 
+
+        for ($index = $start_index; $index <= $end_index; $index++) // look forwards to replace the first occurence in the flashlog, because it replaces with a date for last port 3 time_device without error
+        {
+            if (isset($flashlog[$index]['time_device']))
+            {
+                $time_device                     = intval($flashlog[$index]['time_device']);
+                $dtime_device                    = date('Y-m-d H:i:s', $time_device);
+                $date_device                     = substr($dtime_device, 0, 10); // YYYY-MM-DD                                         
+                $time_increase                   = $time_device > $time_memory ? true : false; // indicate that time increases, because at moment of decrease, replace should stop
+                
+                // replace date for incorrect RTC dates (only first encountered block)
+                if (isset($dates_to_replace[$date_device]) && $skip_date != $date_device)
+                {
+                    if ($time_increase)
+                    {
+                        $correct_date                    = $dates_to_replace[$date_device];
+                        $dtime_device                    = $correct_date . substr($dtime_device, 10); // corrected date + original time
+                        $flashlog[$index]['time_device'] = strtotime($dtime_device); // correct time by $device_time
+                        $flashlog[$index]['time']        = $dtime_device ; // correct time by $device_time
+                        $flashlog[$index]['time_corr']   = isset($flashlog[$index]['time_corr']) ? $flashlog[$index]['time_corr'].' + rtc-replace' : 'rtc-replace';
+                    }
+                    else
+                    {
+                        $skip_date = $date_device; // skip the next block of this date, because this is the actual correct read out date that should be remained
+                    }
+                }
+            }
+        }
+        
+        return $flashlog;
+    }
+
     private function matchFlashLogBlock($block_index, $fl_index, $end_index, $on, $flashlog, $setCount, $device, $log, $db_time, $matches_min, $match_props, $db_records, $show=false, $add_sensordefinitions=true, $use_rtc=true, $last_onoff=false, $correct_data=false, $previous_offset=0)
     {
         $has_matches     = false;
@@ -1021,7 +1084,7 @@ class FlashLog extends Model
                 //dd($time_end_index, date('Y-m-d H:i:s', $time_device_end), $on, $start_index, $end_index, $time_device_last, date('Y-m-d H:i:s', $time_device_last), $time_device_end, date('Y-m-d H:i:s', $time_device_end));
             }
 
-            // Correct device time in same block, it the time goes back by 24 hours (caused by the RTC jump?)
+            // Correct device time in same block, if the time goes back by 24 hours (caused by the RTC jump?)
             $block_time_offset = 0;
             $block_manual_offset = 0;
             $apply_time_shift_offset = false;
@@ -1061,8 +1124,21 @@ class FlashLog extends Model
                     }
 
                     // Detect jumps in time: if step in time it the wrong direction (down in stead of up), correct forwards for this jump
-                    if ($apply_time_shift_offset && $correct_data && $time_device_next < $time_device && $time_device < $max_timestamp && $time_device > self::$minUnixTime)
-                        $block_time_offset = $time_device - $time_device_next + $interval_sec;
+                    if ($apply_time_shift_offset && $correct_data)
+                    {
+                        $next_time_offset = $time_device - $time_device_next;
+
+                        if (abs($next_time_offset) > 85000 && abs($next_time_offset) < 87400 && $time_device < $max_timestamp && $time_device > self::$minUnixTime) // only detect jumps of 24h back/forward in time (fw 1.5.13 RTC readout bug)
+                        {
+                            $block_time_offset = $next_time_offset + $interval_sec - $previous_offset;
+                            Log::debug("matchFlashLogBlock block_i=$block_index, fl_i=$fl_index, i=$index, previous_offset=$previous_offset, next_time_offset=$next_time_offset, block_time_offset=$block_time_offset");
+                            $device_time_offset= $block_time_offset; // make sure step time offset is pushed to the next block
+                        }
+                    }
+                }
+                else
+                {
+                    Log::debug("matchFlashLogBlock NOT CORR block_i=$block_index, fl_i=$fl_index, i=$index, previous_offset=$previous_offset, block_time_offset=$block_time_offset");
                 }
             }
         }
@@ -1559,6 +1635,7 @@ class FlashLog extends Model
             $port3_ts_mn= null;
             $port3_ts_mx= null;
             $port3_msg  = 0;
+            $firmwares  = [];
             $time_errs  = [];
             $time_clock = [];
             $weight_arr = []; // array of weight measurements
@@ -1629,8 +1706,15 @@ class FlashLog extends Model
 
                         if (isset($data_date))
                         {
+                            $dtime_device = date('Y-m-d H:i:s', $time_device);
                             $date_arr[$data_date]['port2']++;
-                            array_unshift($date_arr[$data_date]['port2_times_device'], "[".$data_item['i']."] $time_device: ".date('Y-m-d H:i:s', $time_device)); // push to front of array, so it in ascending order again
+                            array_unshift($date_arr[$data_date]['port2_times_device'], "[".$data_item['i']."] $time_device: $dtime_device"); // push to front of array, so it in ascending order again
+                        }
+
+                        if (isset($data_item['firmware_version']))
+                        {
+                            $dtime_device = date('Y-m-d H:i:s', $time_device);
+                            $firmwares[$i] = $data_item['firmware_version'] . " @ $dtime_device";
                         }
 
                     }
@@ -1741,6 +1825,9 @@ class FlashLog extends Model
         }
 
         $meta_data  = ['port2_msg'=>$port2_msg, 'port3_msg'=>$port3_msg, 'data_days'=>$data_days, 'data_days_weight'=>$data_days_w];
+
+        if (count($firmwares) > 0)
+            $meta_data['firmwares'] = $firmwares;
 
         if (count($port2_dates) > 0)
             $meta_data['port2_times_device'] = $port2_dates;

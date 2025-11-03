@@ -959,9 +959,15 @@ class FlashLog extends Model
             // Check primary dates
             foreach ($primary_dates_to_replace as $date => $corrected_date)
             {
+                // Only apply replacement if:
+                // 1. The incorrect date has sufficient data points (> min_data_points)
+                // 2. The corrected date doesn't already have data (to prevent overwriting valid data)
                 if (isset($valid_data_points[$date]) && $valid_data_points[$date] > $min_data_points)
                 {
-                    $dates_to_replace[$date] = $corrected_date;
+                    if (!isset($valid_data_points[$corrected_date]) || $valid_data_points[$corrected_date] == 0)
+                    {
+                        $dates_to_replace[$date] = $corrected_date;
+                    }
                 }
             }
             
@@ -970,7 +976,10 @@ class FlashLog extends Model
             {
                 if (isset($valid_data_points[$date]) && $valid_data_points[$date] > $min_data_points)
                 {
-                    $dates_to_replace[$date] = $corrected_date;
+                    if (!isset($valid_data_points[$corrected_date]) || $valid_data_points[$corrected_date] == 0)
+                    {
+                        $dates_to_replace[$date] = $corrected_date;
+                    }
                 }
             }
         }

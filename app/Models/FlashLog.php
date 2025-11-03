@@ -929,6 +929,39 @@ class FlashLog extends Model
             "2025-08-01" => "2025-07-31",
         ];
 
+        // It might be possible that the RTC wasn't updated during firmware updates, in which case the date will be 1 month out of date
+        // To check if this is the case, only apply these replacements if there are sufficient valid data points for these dates
+        $conditional_dates_to_replace = [
+        // flashlog_date => actual date
+            "2023-10-01" => "2023-09-30",
+            "2023-12-01" => "2023-11-30",
+            "2024-03-01" => "2024-02-28",
+            "2024-03-02" => "2024-02-29",
+            "2024-05-01" => "2024-04-30",
+            "2024-07-01" => "2024-06-30",
+            "2024-10-01" => "2024-09-30",
+            "2024-12-01" => "2024-11-30",
+            "2025-03-01" => "2025-02-26",
+            "2025-03-02" => "2025-02-27",
+            "2025-03-03" => "2025-02-28",
+            "2025-05-01" => "2025-04-30",
+            "2025-07-01" => "2025-06-30",
+        ];
+
+        // Determine which conditional dates should be added based on valid_data_points
+        $min_data_points = 120;
+        if (isset($this->meta_data['valid_data_points']) && is_array($this->meta_data['valid_data_points']))
+        {
+            $valid_data_points = $this->meta_data['valid_data_points'];
+            foreach ($conditional_dates_to_replace as $date => $corrected_date)
+            {
+                if (isset($valid_data_points[$date]) && $valid_data_points[$date] > $min_data_points)
+                {
+                    $dates_to_replace[$date] = $corrected_date;
+                }
+            }
+        }
+
         if (!isset($start_index))
             $start_index = 0;
 

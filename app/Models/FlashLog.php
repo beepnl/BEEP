@@ -910,7 +910,7 @@ class FlashLog extends Model
     // Only replace if the current date if it occurs twice and the target date does not yet exist
     private function fixBugRtcMonthIndex($flashlog, $start_index=null, $end_index=null)
     {
-        $dates_to_replace = [
+        $primary_dates_to_replace = [
         // flashlog_date => actual date (1 2, or 3 days earlier)
             "2023-06-01" => "2023-05-31", // after 2023-05-30, 2023-06-01 will be written as FL date, so 2023-05-31 will not exist, and 2023-06-01 will have double data
             "2023-08-01" => "2023-07-31",
@@ -928,6 +928,61 @@ class FlashLog extends Model
             "2025-06-01" => "2025-05-31",
             "2025-08-01" => "2025-07-31",
         ];
+
+        // It might be possible that the RTC wasn't updated during firmware updates, in which case the date will be 1 month out of date
+        // To check if this is the case, only apply these replacements if there are sufficient valid data points for these dates
+        $secondary_dates_to_replace = [
+        // flashlog_date => actual date
+            "2023-10-01" => "2023-09-30",
+            "2023-12-01" => "2023-11-30",
+            "2024-03-01" => "2024-02-28",
+            "2024-03-02" => "2024-02-29",
+            "2024-05-01" => "2024-04-30",
+            "2024-07-01" => "2024-06-30",
+            "2024-10-01" => "2024-09-30",
+            "2024-12-01" => "2024-11-30",
+            "2025-03-01" => "2025-02-26",
+            "2025-03-02" => "2025-02-27",
+            "2025-03-03" => "2025-02-28",
+            "2025-05-01" => "2025-04-30",
+            "2025-07-01" => "2025-06-30",
+        ];
+
+        // Build final dates_to_replace array based on valid_data_points
+        $dates_to_replace = [];
+        $min_data_points = 110;
+        
+        if (isset($this->meta_data['valid_data_points']) && is_array($this->meta_data['valid_data_points']))
+        {
+            $valid_data_points = $this->meta_data['valid_data_points'];
+            
+            // Check primary dates
+            foreach ($primary_dates_to_replace as $date => $corrected_date)
+            {
+                // Only apply replacement if:
+                // 1. The incorrect date has sufficient data points (> min_data_points)
+                // 2. The corrected date doesn't already have data (to prevent overwriting valid data)
+                if (isset($valid_data_points[$date]) && $valid_data_points[$date] > $min_data_points)
+                {
+                    if (!isset($valid_data_points[$corrected_date]) || $valid_data_points[$corrected_date] == 0)
+                    {
+                        $dates_to_replace[$date] = $corrected_date;
+                    }
+                }
+            }
+            
+            // Check secondary dates
+            foreach ($secondary_dates_to_replace as $date => $corrected_date)
+            {
+                if (isset($valid_data_points[$date]) && $valid_data_points[$date] > $min_data_points)
+                {
+                    if (!isset($valid_data_points[$corrected_date]) || $valid_data_points[$corrected_date] == 0)
+                    {
+                        $dates_to_replace[$date] = $corrected_date;
+                    }
+                }
+            }
+        }
 
         if (!isset($start_index))
             $start_index = 0;

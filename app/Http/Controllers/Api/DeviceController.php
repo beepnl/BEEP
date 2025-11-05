@@ -895,12 +895,17 @@ class DeviceController extends Controller
         }
 
         $key = strtolower($request->input('key'));
-        
+
         // Find the device by key (DEV EUI)
-        $device = Auth::user()->devices()->where('key', $key)->first();
-        
+        // Use admin permissions, in case device does not belong to user logged in to dashboard
+        if (Auth::user()->hasRole('admin')) {
+            $device = Device::where('key', $key)->first();
+        } else {
+            $device = Auth::user()->allDevices()->where('key', $key)->first();
+        }
+
         if (!$device) {
-            return Response::json(['error' => 'Device not found'], 404);
+            return Response::json(['error' => 'Device not found or access denied'], 404);
         }
 
         // Check if device has hardware_id (required for TTN)
@@ -1021,12 +1026,17 @@ class DeviceController extends Controller
         }
 
         $key = strtolower($request->input('key'));
-        
+
         // Find the device by key (DEV EUI)
-        $device = Auth::user()->devices()->where('key', $key)->first();
-        
+        // Use admin permissions, in case device does not belong to user logged in to dashboard
+        if (Auth::user()->hasRole('admin')) {
+            $device = Device::where('key', $key)->first();
+        } else {
+            $device = Auth::user()->allDevices()->where('key', $key)->first();
+        }
+
         if (!$device) {
-            return Response::json(['error' => 'Device not found'], 404);
+            return Response::json(['error' => 'Device not found or access denied'], 404);
         }
 
         // Check if device has hardware_id (required for TTN)
@@ -1119,12 +1129,17 @@ class DeviceController extends Controller
 
         $key = strtolower($request->input('key'));
         $interval = $request->input('interval');
-        
+
         // Find the device by key (DEV EUI)
-        $device = Auth::user()->devices()->where('key', $key)->first();
-        
+        // Use admin permissions, in case device does not belong to user logged in to dashboard
+        if (Auth::user()->hasRole('admin')) {
+            $device = Device::where('key', $key)->first();
+        } else {
+            $device = Auth::user()->allDevices()->where('key', $key)->first();
+        }
+
         if (!$device) {
-            return Response::json(['error' => 'Device not found'], 404);
+            return Response::json(['error' => 'Device not found or access denied'], 404);
         }
 
         // Check if device has hardware_id (required for TTN)

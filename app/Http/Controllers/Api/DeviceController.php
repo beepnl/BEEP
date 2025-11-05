@@ -897,8 +897,8 @@ class DeviceController extends Controller
         $key = strtolower($request->input('key'));
 
         // Find the device by key (DEV EUI)
-        // Use admin permissions, in case device does not belong to user logged in to dashboard
-        if (Auth::user()->hasRole('admin')) {
+        // Also include superadmin role in downlink permission checks
+        if (Auth::user()->hasRole(['superadmin', 'admin'])) {
             $device = Device::where('key', $key)->first();
         } else {
             $device = Auth::user()->allDevices()->where('key', $key)->first();
@@ -1028,8 +1028,8 @@ class DeviceController extends Controller
         $key = strtolower($request->input('key'));
 
         // Find the device by key (DEV EUI)
-        // Use admin permissions, in case device does not belong to user logged in to dashboard
-        if (Auth::user()->hasRole('admin')) {
+        // Also include superadmin role in downlink permission checks
+        if (Auth::user()->hasRole(['superadmin', 'admin'])) {
             $device = Device::where('key', $key)->first();
         } else {
             $device = Auth::user()->allDevices()->where('key', $key)->first();
@@ -1131,8 +1131,8 @@ class DeviceController extends Controller
         $interval = $request->input('interval');
 
         // Find the device by key (DEV EUI)
-        // Use admin permissions, in case device does not belong to user logged in to dashboard
-        if (Auth::user()->hasRole('admin')) {
+        // Also include superadmin role in downlink permission checks
+        if (Auth::user()->hasRole(['superadmin', 'admin'])) {
             $device = Device::where('key', $key)->first();
         } else {
             $device = Auth::user()->allDevices()->where('key', $key)->first();

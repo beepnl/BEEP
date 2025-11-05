@@ -64,76 +64,7 @@
             });
         </script>
 
-        <script type="text/javascript">
-            $(document).on('click', '.device-sync-btn', function(e) {
-                e.preventDefault();
-                var button = $(this);
-                var deviceKey = button.data('device-key');
-                
-                // Check if API token is available (user is superadmin)
-                var apiTokenMeta = $('meta[name="api-token"]');
-                if (apiTokenMeta.length === 0) {
-                    alert('This feature requires superadmin privileges.');
-                    return;
-                }
-                
-                var apiToken = apiTokenMeta.attr('content');
-                
-                if (!confirm('This will sync the device clock and then reset the device. Continue?')) {
-                    return;
-                }
-                
-                button.prop('disabled', true);
-                button.html('<i class="fa fa-spinner fa-spin"></i>');
-                
-                // First call clocksync
-                $.ajax({
-                    url: '/api/devices/clocksync',
-                    type: 'POST',
-                    headers: {
-                        'Authorization': 'Bearer ' + apiToken,
-                        'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                    },
-                    data: JSON.stringify({key: deviceKey}),
-                    success: function(response) {
-                        console.log('Clock sync successful:', response);
-                        
-                        // Then call lora_reset
-                        $.ajax({
-                            url: '/api/devices/lora_reset',
-                            type: 'POST',
-                            headers: {
-                                'Authorization': 'Bearer ' + apiToken,
-                                'Content-Type': 'application/json',
-                                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                            },
-                            data: JSON.stringify({key: deviceKey}),
-                            success: function(response) {
-                                console.log('LoRa reset successful:', response);
-                                alert('Device sync and reset commands sent successfully!');
-                                button.prop('disabled', false);
-                                button.html('<i class="fa fa-refresh"></i>');
-                            },
-                            error: function(xhr, status, error) {
-                                console.error('LoRa reset failed:', error);
-                                alert('Failed to send reset command: ' + (xhr.responseJSON?.error || error));
-                                button.prop('disabled', false);
-                                button.html('<i class="fa fa-refresh"></i>');
-                            }
-                        });
-                    },
-                    error: function(xhr, status, error) {
-                        console.error('Clock sync failed:', error);
-                        alert('Failed to sync clock: ' + (xhr.responseJSON?.error || error));
-                        button.prop('disabled', false);
-                        button.html('<i class="fa fa-refresh"></i>');
-                    }
-                });
-            });
-        </script>
-
-			<table id="table-sensors" class="table table-striped">
+        	<table id="table-sensors" class="table table-striped">
 				<thead>
 					<tr>
 						<th>{{ __('crud.id') }}</th>
@@ -180,7 +111,7 @@
 								<a class="btn btn-primary" href="{{ route('devices.edit',$device->id) }}" title="{{ __('crud.edit') }}"><i class="fa fa-pencil"></i></a>
 								@endpermission
 								@permission('sensor-edit')
-								<button class="btn btn-warning device-sync-btn" data-device-key="{{ $device->key }}" title="Sync device clock and reset"><i class="fa fa-refresh"></i></button>
+								<a class="btn btn-warning" href="{{ route('devices.sync',$device->id) }}" title="Sync device clock and reset"><i class="fa fa-refresh"></i></a>
 								@endpermission
 								@permission('sensor-delete')
 								{!! Form::open(['method' => 'DELETE','route' => ['devices.destroy', $device->id], 'style'=>'display:inline', 'onsubmit'=>'return confirm("'.__('crud.sure',['item'=>__('general.sensor'),'name'=>'\''.$device->name.'\'']).'")']) !!}

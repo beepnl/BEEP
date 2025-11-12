@@ -1616,6 +1616,7 @@ class ResearchController extends Controller
 
                 foreach ($flashlogs as $flashlog)
                 {
+                    $valid_log              = $flashlog->validLog();
                     $log_date_start         = $flashlog->log_date_start;
                     $log_date_start_ts      = max($date_start_ts, strtotime($log_date_start));
                     $log_date_until         = $flashlog->log_date_end;
@@ -1624,14 +1625,15 @@ class ResearchController extends Controller
                     $log_date_start_next_ts = isset($log_date_start_next) ? min($date_until_ts, strtotime($log_date_start_next)) : $date_until_ts;
 
                     // Add log data to data_array
-                    if (isset($flashlog->log_parsed) && ($invalid_log_prognose || $flashlog->validLog()))
+                    if (isset($flashlog->log_parsed) && ($invalid_log_prognose || $valid_log))
                     {
+                        Log::debug("CSV device=$log_device_id fl=$flashlog->id valid=$valid_log FL DATA from=$log_date_start until=$log_date_until next_start=$log_date_start_next");
                         // Add flashlog data to data_array
                         $flashlog_parsed_text = $flashlog->getFileContent('log_file_parsed');
                         if (!empty($flashlog_parsed_text))
                         {
                             $flashlog_data_array = json_decode($flashlog_parsed_text, true);
-                            $flashlog->addMetaData($flashlog_data_array, true);
+                            //$flashlog->addMetaData($flashlog_data_array, true);
                             $data_array = array_merge($data_array, $flashlog_data_array);
                         }
                         // Add flashlog data up to next start from DB
@@ -1641,7 +1643,10 @@ class ResearchController extends Controller
 
                             $query = 'SELECT * FROM "sensors" WHERE '.$device_log->influxWhereKeys().' AND from_flashlog != \'1\' AND time >= \''.$log_date_until.'\' AND time < \''.$log_date_start_next.'\' ORDER BY time ASC LIMIT 5000'; // from end of fl to start of next
                             $db_data = Device::getInfluxQuery($query, 'flashlog');
+                            $db_count= count($db_data);
 
+                            Log::debug("CSV device=$log_device_id fl=$flashlog->id valid=$valid_log DB DATA from=$log_date_until until=$log_date_start_next count=$db_count");
+                            
                             foreach ($db_data as $d)
                             {
                                 $d = FlashLog::cleanDbDataItem($d);
@@ -1657,6 +1662,9 @@ class ResearchController extends Controller
                             // get data from DB instead of from Flashlog for this time block
                             $query = 'SELECT * FROM "sensors" WHERE '.$device_log->influxWhereKeys().' AND from_flashlog != \'1\' AND time >= \''.$log_date_start.'\' AND time < \''.$log_date_start_next.'\' ORDER BY time ASC LIMIT 5000'; // from start of (invalid) fl to start of next
                             $db_data = Device::getInfluxQuery($query, 'flashlog');
+                            $db_count= count($db_data);
+
+                            Log::debug("CSV device=$log_device_id fl=$flashlog->id valid=$valid_log DB ONLY DATA from=$log_date_start until=$log_date_start_next count=$db_count");
 
                             foreach ($db_data as $d)
                             {
@@ -1672,8 +1680,10 @@ class ResearchController extends Controller
 
                 $data_count = count($data_array);
 
-                if (count($data_array) > 0)
+                if ($data_count > 0)
                 {
+                    Log::debug("CSV device=$log_device_id fl=$flashlog->id valid=$valid_log RESULT DATA count=$data_count");
+
                     $csv_file_name  = "device-$log_device_id-flashlog-data";
                     $save_output    = FlashLog::exportData($data_array, $csv_file_name, true, ',', true, true, $date_start_ts, $date_until_ts); // Research data is also exported with , as separator
 

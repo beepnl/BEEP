@@ -1418,6 +1418,7 @@ class ResearchController extends Controller
                             if ($valid || $invalid_log_prognose)
                             {
                                 $valid_data_p = null;
+                                $lowest_bv    = null;
                                 $use_data_days= false;
 
                                 if (isset($fl->meta_data['valid_data_points']))
@@ -1425,6 +1426,9 @@ class ResearchController extends Controller
                                     $valid_data_p = $fl->meta_data['valid_data_points'];
                                     $use_data_days= true;
                                 }
+
+                                if (isset($fl->meta_data['lowest_bv']))
+                                    $lowest_bv = $fl->meta_data['lowest_bv'];
 
                                 $meas_per_day = isset($fl->device) ? $fl->device->getMeasurementsPerDay() : 96;
                                 $start_u      = strtotime($fl->log_date_start);
@@ -1436,7 +1440,7 @@ class ResearchController extends Controller
                                 // Walk through data days in Flashlog
                                 for ($d=0; $d < $days_total; $d++)
                                 { 
-                                    $date = date('Y-m-d', $start_u + $d * 24 * 3600);
+                                    $date           = date('Y-m-d', $start_u + $d * 24 * 3600);
                                     
                                     if (!$use_data_days || isset($valid_data_p[$date]))
                                     {
@@ -1464,6 +1468,10 @@ class ResearchController extends Controller
                                         if (isset($dates[$date]['devices'][$key]))
                                             $dates[$date]['devices'][$key]['flashlog'] = $fl->id;
                                     }
+
+                                    // Add lowest bv from Flashlog
+                                    if(isset($lowest_bv[$date]) && isset($dates[$date]['devices'][$key]))
+                                        $dates[$date]['devices'][$key]['bv'] = $lowest_bv[$date];
                                 }
 
                                 if (count($logperc_arr) > 0)

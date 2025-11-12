@@ -1783,9 +1783,10 @@ class FlashLog extends Model
             $time_e_cnt = 0;
             $time_clock = [];
             $weight_arr = []; // array of weight measurements
-            $date_arr   = []; // array with date (YYYY-MM-DD) as key and amount of valid data points (timestamps) as value
+            $date_arr   = []; // array with date (YYYY-MM-DD) as key and amount of valid data points (timestamps with weight and time set) as value
+            $date_arr_bv= []; // array with date (YYYY-MM-DD) as key and minimum battery voltage of valid data points (timestamps) as value
             $date_times = []; // check which date times (rounded on minute) are already set
-            $batVoltage = 99; // higher than 
+            $batVoltage = null;  
             $batLowCount= 0;
             $batLowBlock= 0;
             $batLowFlag = false;
@@ -1806,7 +1807,7 @@ class FlashLog extends Model
                         $data_ts   = strtotime($data_time);
                         $data_date = substr($data_time, 0, 10);
                         if (!isset($date_arr[$data_date]))
-                            $date_arr[$data_date] = ['t'=>0, 'w'=>0, 'port2'=>0, 'port2_times_device'=>[]];
+                            $date_arr[$data_date] = ['t'=>0, 'w'=>0, 'bv'=>null, 'port2'=>0, 'port2_times_device'=>[]];
 
                     }
 
@@ -1958,7 +1959,10 @@ class FlashLog extends Model
                                     
                                     if ($weight_set)
                                         $date_arr[$data_date]['w']++; // count 1 data point if weight AND time are set
-                                }
+
+                                    if ($date_arr[$data_date]['bv'] === null || ($batVoltage !== null && $batVoltage < $date_arr[$data_date]['bv']))
+                                        $date_arr[$data_date]['bv'] = $batVoltage; // register lowest battery voltage of the day
+                                }       
 
                                 // Register data_ts in date_times to not overwrite
                                 $date_times[] = $date_time_round_min;
@@ -1979,9 +1983,14 @@ class FlashLog extends Model
 
                 foreach ($date_arr as $d => $date_totals)
                 {
-                    $cnt_time_only   = $date_totals['t']; // weight AND time set
-                    $cnt_time_weight = $date_totals['w']; // weight AND time set
-                    $date_arr[$d]    = $cnt_time_weight;
+                    $cnt_time_only   = $date_totals['t']; 
+                    $cnt_time_weight = $date_totals['w'];  // weight AND time set
+                    $lowest_bv       = $date_totals['bv']; // lowest day battery voltage
+
+                    if ($lowest_bv !== null)
+                        $date_arr_bv[$d] = $lowest_bv;
+
+                    $date_arr[$d]    = $cnt_time_weight;   // replace date array with valid values
                     $day_fraction    = $cnt_time_only > $max_data_per_day ? 1 : $cnt_time_only / $max_data_per_day; // 0-1
                     $day_fraction_w  = $cnt_time_weight > $max_data_per_day ? 1 : $cnt_time_weight / $max_data_per_day; // 0-1
                     $data_days      += $day_fraction;
@@ -2050,6 +2059,9 @@ class FlashLog extends Model
 
         if (count($date_arr) > 0 && array_sum($date_arr) > 0)
             $meta_data['valid_data_points'] = $date_arr;
+
+        if (count($date_arr_bv) > 0)
+            $meta_data['lowest_bv'] = $date_arr_bv;
 
         if (is_array($add_items))
         {

@@ -221,6 +221,16 @@ class FlashLog extends Model
         return 0;
     }
 
+    public function getWeightLogPercentage()
+    {
+        $weight_kg_perc = 0; 
+        if (isset($this->meta_data['data_days_weight']) && isset($this->meta_data['data_days']) && $this->meta_data['data_days'] > 0)
+        {
+            $weight_kg_perc = round(100 * $this->meta_data['data_days_weight'] / $this->meta_data['data_days']);
+        }
+        return $weight_kg_perc;
+    }
+
     public function validLog()
     {
         /* validate log if: 

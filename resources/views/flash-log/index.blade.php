@@ -124,6 +124,7 @@
                     $date_s= isset($item->log_date_start)? substr($item->log_date_start, 0, 10) : '';
                     $date_e= isset($item->log_date_end)? substr($item->log_date_end, 0, 10) : '';
                     $errors= [];
+                    $fixes = [];
 
                     if ($item->hasRtcBug())
                         $errors[] = 'RTC bug';
@@ -153,6 +154,10 @@
 
                         $errors[] = $bat_low_err;
                     }
+
+                    if (isset($item->meta_data['fixBugRtcMonthIndex']) && $item->meta_data['fixBugRtcMonthIndex'] > 0)
+                        $fixes[] = "RTC bug fixes: ".$item->meta_data['fixBugRtcMonthIndex'];
+
                 @endphp
 
                 <tr @if($color) style="background: {{$color}};" title="{{$msg}}" @endif>
@@ -176,6 +181,9 @@
                     <td>
                         @foreach($errors as $err)
                         <span class="label label-danger">{{ $err }}</span>
+                        @endforeach
+                        @foreach($fixes as $fix)
+                        <span class="label label-success">{{ $fix }}</span>
                         @endforeach
                     </td>
                     </td>

@@ -257,6 +257,24 @@ class FlashLog extends Model
         return false;
     }
 
+    public function hasNoWeightData()
+    {
+        // has no weight data if data_days_weight < 1 
+        if (isset($this->meta_data['data_days_weight']))
+            return ($this->meta_data['data_days_weight'] < 1);
+
+        return false;
+    }
+
+    public function hasHighDataDays()
+    {
+        // has high data days if a day has more than 97 log indices: 
+        if (isset($this->meta_data['valid_data_points']) && is_array($this->meta_data['valid_data_points']) && count($this->meta_data['valid_data_points']) > 0)
+            return (max($this->meta_data['valid_data_points']) > 97);
+
+        return false;
+    }
+
     public function hasTimeErr()
     {
         /* has RTC time error if: 

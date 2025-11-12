@@ -155,6 +155,16 @@
                         $errors[] = $bat_low_err;
                     }
 
+                    if ($item->hasHighDataDays())
+                        $errors[] = 'High data days';
+
+                    $weight_kg_perc = $item->getWeightLogPercentage();
+                    if ($item->hasNoWeightData())
+                        $errors[] = 'No weight data';
+                    else if ($weight_kg_perc < 90)
+                        $errors[] = "Weight data: $weight_kg_perc %";
+
+                    // Fixes
                     if (isset($item->meta_data['fixBugRtcMonthIndex']) && $item->meta_data['fixBugRtcMonthIndex'] > 0)
                         $fixes[] = "RTC bug fixes: ".$item->meta_data['fixBugRtcMonthIndex'];
 

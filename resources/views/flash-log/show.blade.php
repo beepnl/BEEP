@@ -39,9 +39,7 @@
                 $time_percentage   = $flashlog->getTimeLogPercentage();
                 $time_color        = $logs_per_day_perc >= env('FLASHLOG_VALID_TIME_LOG_PERC', 90) && $logs_per_day_perc <= 101 ? 'darkgreen' : 'red';
 
-                $weight_kg_perc    = 0; 
-                if (isset($flashlog->meta_data['data_days_weight']) && isset($flashlog->meta_data['data_days']) && $flashlog->meta_data['data_days'] > 0)
-                    $weight_kg_perc = round(100 * $flashlog->meta_data['data_days_weight'] / $flashlog->meta_data['data_days']);
+                $weight_kg_perc    = $flashlog->getWeightLogPercentage();
 
                 $errors= [];
                 $fixes = [];
@@ -74,6 +72,14 @@
 
                     $errors[] = $bat_low_err;
                 }
+
+                if ($flashlog->hasHighDataDays())
+                    $errors[] = 'High data days';
+
+                if ($flashlog->hasNoWeightData())
+                    $errors[] = 'No weight data';
+                else if ($weight_kg_perc < 90)
+                    $errors[] = "Weight data: $weight_kg_perc %";
 
                 if (isset($flashlog->meta_data['fixBugRtcMonthIndex']) && $flashlog->meta_data['fixBugRtcMonthIndex'] > 0)
                     $fixes[] = "RTC bug fixes: ".$flashlog->meta_data['fixBugRtcMonthIndex'];

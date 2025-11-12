@@ -583,7 +583,7 @@ class FlashLog extends Model
                 $csv_saved = $this->addCsvToFlashlog($flashlog_filled['flashlog']);
                 //dd($csv_saved, $this->meta_data);
                 if ($csv_saved)
-                    $result["Meta data"] = CalculationModel::arrayToString($this->meta_data, ', ', '', ['valid_data_points','port2_times_device','firmwares']);
+                    $result["Meta data"] = CalculationModel::arrayToString($this->meta_data, ', ', '', ['valid_data_points','port2_times_device','firmwares','lowest_bv']);
             }
         }
 

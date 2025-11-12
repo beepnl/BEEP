@@ -42,47 +42,86 @@
                 $weight_kg_perc    = 0; 
                 if (isset($flashlog->meta_data['data_days_weight']) && isset($flashlog->meta_data['data_days']) && $flashlog->meta_data['data_days'] > 0)
                     $weight_kg_perc = round(100 * $flashlog->meta_data['data_days_weight'] / $flashlog->meta_data['data_days']);
+
+                $errors= [];
+                $fixes = [];
+
+                if ($flashlog->hasRtcBug())
+                    $errors[] = 'RTC bug';
+
+                if ($flashlog->hasTimeErr())
+                {
+                    $time_err = 'Time err';
+
+                    if (isset($flashlog->meta_data['time_err_perc']))
+                        $time_err .= ': '.$flashlog->meta_data['time_err_perc'].'%';
+
+                    $errors[] = $time_err;
+                }
+
+                if ($flashlog->hasBatErr())
+                {
+                    $bat_low_err = '';
+
+                    if (isset($flashlog->meta_data['bat_low_blocks']))
+                        $bat_low_err .= $flashlog->meta_data['bat_low_blocks'].'x ';
+
+                    $bat_low_err .= 'Bat low';
+                    
+                    if (isset($flashlog->meta_data['bat_low_perc']))
+                        $bat_low_err .= ': '.$flashlog->meta_data['bat_low_perc'].'%';
+
+
+                    $errors[] = $bat_low_err;
+                }
+
+                if (isset($flashlog->meta_data['fixBugRtcMonthIndex']) && $flashlog->meta_data['fixBugRtcMonthIndex'] > 0)
+                    $fixes[] = "RTC bug fixes: ".$flashlog->meta_data['fixBugRtcMonthIndex'];
             @endphp
 
             <table class="table table-responsive table-striped">
                 <tbody>
                     <tr>
-                        <th style="text-align: right;"> Created at </th>
-                        <td> {{ $flashlog->created_at }} </td>
-                    </tr>
-                    <tr>
                         <th style="text-align: right;"> Updated at </th>
                         <td> {{ $flashlog->updated_at }} </td>
+                        <th style="text-align: right;"> Created at (upload date)</th>
+                        <td> {{ $flashlog->created_at }} </td>
                     </tr>
                     <tr>
                         <th style="text-align: right;"> Log date start </th>
                         <td> {{ $flashlog->log_date_start }}</td>
-                    </tr>
-                    <tr @if($color) style="color: {{$color}}; font-weight: bold;" title="{{$msg}}" @endif>
-                        <th style="text-align: right;"> Log date end </th>
-                        <td>{{ $flashlog->log_date_end }}</td>
+                        <th style="text-align: right; @isset($color) color: {{$color}}; font-weight: bold; @endisset" title="{{$msg}}"> Log date end </th>
+                        <td style="@isset($color) color: {{$color}}; font-weight: bold; @endisset">{{ $flashlog->log_date_end }}</td>
                     </tr>
                     <tr>
                         <th style="text-align: right;"> Log days </th>
                         <td> {{ $flashlog->getLogDays() }} (of which {{ $weight_kg_perc }}% weight)</td>
-                    </tr>
-                    <tr @if($logs_per_day == 96) style="color: darkgreen; font-weight: bold;"@endif>
-                        <th style="text-align: right;"> Log data per day </th>
+                        <th style="text-align: right; @if($logs_per_day == 96) color: darkgreen; font-weight: bold; @endif"> Log data per day </th>
                         <td >{{ $logs_per_day }}</td>
                     </tr>
                     <tr style="color: {{$time_color}}; font-weight: bold;">
                         <th style="text-align: right;"> Time log percentage </th>
                         <td >{{$time_percentage}}% = 100 * Logs per day ({{ $logs_per_day }}) / logs_per_day_full ({{ $logs_per_day_full }})</td>
+                        <th style="color: @if($valid) darkgreen @else red @endif; font-weight: bold; text-align: right;" > Validated </th>
+                        <td style="color: @if($valid) darkgreen @else red @endif;">@if($valid) Yes @else No @endif</td>
                     </tr>
-                    <tr style="color: @if($valid) darkgreen @else red @endif; font-weight: bold;" >
-                        <th style="text-align: right;"> Validated </th>
-                        <td>@if($valid) Yes @else No @endif</td>
+                    <tr>
+                        <th style="text-align: right;"> Errors </th>
+                        <td>
+                            @foreach($errors as $err)
+                            <span class="label label-danger">{{ $err }}</span>
+                            @endforeach
+                        </td>
+                        <th style="text-align: right;"> Fixes </th>
+                        <td>
+                            @foreach($fixes as $fix)
+                            <span class="label label-success">{{ $fix }}</span>
+                            @endforeach
+                        </td>
                     </tr>
                     <tr>
                         <th style="text-align: right;"> User </th>
                         <td> @isset($flashlog->user_id) {{ $flashlog->user_name }} ({{ $flashlog->user_id }}) @endisset </td>
-                    </tr>
-                    <tr>
                         <th style="text-align: right;"> Device </th>
                         <td> 
                             @isset($flashlog->device_id)
@@ -94,16 +133,12 @@
                     <tr>
                         <th style="text-align: right;"> Apiary - Hive </th>
                         <td> @isset($flashlog->hive_id) {{ $flashlog->hive->location }} ({{ $flashlog->hive->location_id }}) - {{ $flashlog->hive_name }} ({{ $flashlog->hive_id }}) @endisset </td>
-                    </tr>
-                    <tr>
                         <th style="text-align: right;"> Log Messages </th>
                         <td> {{ $flashlog->log_messages }} </td>
                     </tr>
                     <tr>
                         <th style="text-align: right;"> Log Saved / Erased / Parsed / Has time</th>
                         <td> {{ $flashlog->log_saved }} / {{ $flashlog->log_erased }} / {{ $flashlog->log_parsed }} / {{ $flashlog->log_has_timestamps }} </td>
-                    </tr>
-                    <tr>
                         <th style="text-align: right;"> Bytes Received </th>
                         <td> {{ $flashlog->bytes_received }} vs Bytes at BEEP base: {{ $flashlog->log_size_bytes }}
                         </td>
@@ -130,28 +165,20 @@
                                     <i class="fa fa-clock-o" aria-hidden="true"></i>
                                 </button>
                             </a>
-
-                            <form action="{{ route('flash-log.show', $flashlog->id) }}" method="GET">
+                        
+                        <form action="{{ route('flash-log.show', $flashlog->id) }}" method="GET">
+                            <th style="text-align: right;">
                                 <label for="correct_data">Correct data? (time changes)</label>
+                            </th>
+                            <td>
                                 <select name="correct_data" onchange="this.form.submit()" id="correct_data" class="form-control">
                                     <option value="0" {{ $correct_data == '0' ? 'selected' : '' }}>No</option>
                                     <option value="1" {{ $correct_data == '1' ? 'selected' : '' }}>Yes</option>
                                 </select>
-                            </form>
-                        </td>
+                            </td>
+                        </form>
                     </tr>
                     
-                    @isset($flashlog->time_corrections)
-                    <tr>
-                        <th style="text-align: right;"> Time corrections </th>
-                        <td>
-<textarea name="time_corrections" rows="10" style="width: 100%">
-@json($flashlog->time_corrections, JSON_PRETTY_PRINT)
-</textarea>
-                        </td>
-                    </tr>
-                    @endisset
-
                     <tr>
                         <th style="text-align: right;"> Log meta </th>
                         <td>
@@ -159,31 +186,54 @@
 @json(isset($flashlog->meta_data) ? $flashlog->meta_data : [], JSON_PRETTY_PRINT)
 </textarea>
                         </td>
-                    </tr>
-                    <tr>
-                        <form id="flash-log-analysis" action="{{ route('flash-log.show', $flashlog->id) }}" method="GET">
-                            <th style="text-align: right;"> Analyse date </th>
-                            <td>
-                                <select name="date" class="form-control">
-                                    <option value="">Select an invalid log date to analyse</option>
-                                    @foreach($invalid_meta_data as $d => $label)
-                                        <option value="{{ $d }}" {{ $date == $d ? 'selected' : '' }}>
-                                            {{ $label }}
-                                        </option>
-                                    @endforeach
-                                </select>
-                                <label for="show_payload">Show payload?</label>
-                                <select name="show_payload" id="show_payload" class="form-control" onchange="this.form.submit()" >
-                                    <option value="0" {{ old('show_payload') == '0' ? 'selected' : '' }}>No</option>
-                                    <option value="1" {{ old('show_payload') == '1' ? 'selected' : '' }}>Yes</option>
-                                </select>
-                                <button type="submit">Analyse</button>
-                            </td>
-                        </form>
-                    </tr>
-                    <tr>
-                        <th style="text-align: right;"> Analysis {{ $date }} </th>
+
+                    @isset($flashlog->time_corrections)
+                        <th style="text-align: right;"> Time corrections </th>
                         <td>
+<textarea name="time_corrections" rows="10" style="width: 100%">
+@json($flashlog->time_corrections, JSON_PRETTY_PRINT)
+</textarea>
+                        </td>
+                    @else
+                        <th colspan="2">
+                    @endisset
+
+                    </tr>
+
+                    <form id="flash-log-analysis" action="{{ route('flash-log.show', $flashlog->id) }}" method="GET">
+                    <tr>
+                        <th style="text-align: right;"> Analyse date </th>
+                        <td>
+                            <select name="date" class="form-control">
+                                <option value="">Select an invalid log date to analyse</option>
+                                @foreach($invalid_meta_data as $d => $label)
+                                    <option value="{{ $d }}" {{ $date == $d ? 'selected' : '' }}>
+                                        {{ $label }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </td>
+                        <th style="text-align: right;"> 
+                            <label for="show_payload">Show payload?</label>
+                        </th>
+                        <td>
+                            <select name="show_payload" id="show_payload" class="form-control" onchange="this.form.submit()" >
+                                <option value="0" {{ old('show_payload') == '0' ? 'selected' : '' }}>No</option>
+                                <option value="1" {{ old('show_payload') == '1' ? 'selected' : '' }}>Yes</option>
+                            </select>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th></th>
+                        <td colspan="3">
+                            <button type="submit" style="width: 100%;">Analyse</button>
+                        </td>
+                    </tr>
+                    </form>
+
+                    <tr> 
+                        <th style="text-align: right;"> Analysis {{ $date }} </th>
+                        <td colspan="3">
                     @isset($date_analysis)
 <textarea rows="50" style="width: 100%">
 {!! json_encode($date_analysis, JSON_PRETTY_PRINT) !!}
@@ -194,22 +244,22 @@
 
                      <tr>
                         <th style="text-align: right;"> Log file raw </th>
-                        <td> <a target="_blank" href="{{ $flashlog->log_file }}">{{ $flashlog->log_file }}</a> </td>
+                        <td colspan="3"> <a target="_blank" href="{{ $flashlog->log_file }}">{{ $flashlog->log_file }}</a> </td>
                     </tr>
                     <tr>
                         <th style="text-align: right;"> Log file stripped </th>
-                        <td> <a target="_blank" href="{{ $flashlog->log_file_stripped }}">{{ $flashlog->log_file_stripped }}</a> </td>
+                        <td colspan="3"> <a target="_blank" href="{{ $flashlog->log_file_stripped }}">{{ $flashlog->log_file_stripped }}</a> </td>
                     </tr>
                     <tr>
                         <th style="text-align: right;"> Log file parsed </th>
-                        <td>
+                        <td colspan="3">
                             <a target="_blank" href="{{ $flashlog->log_file_parsed }}">{{ $flashlog->log_file_parsed }}</a> 
                         </td>
                     </tr>
 
                     <tr>
                         <th style="text-align: right;"> Log file CSV </th>
-                        <td> <a target="_blank" href="{{ $flashlog->csv_url }}">{{ $flashlog->csv_url }}</a> </td>
+                        <td colspan="3"> <a target="_blank" href="{{ $flashlog->csv_url }}">{{ $flashlog->csv_url }}</a> </td>
                     </tr>
 
                 </tbody>

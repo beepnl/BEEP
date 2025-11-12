@@ -159,6 +159,9 @@
         </script>
 
         <style type="text/css">
+            .table > tbody > tr > td, .table > tbody > tr > th, .table > thead > tr > td, .table > thead > tr > th{
+                padding: 4px;
+            }
             .tb-row-normal{
                 height: 45px; 
                 max-height: 45px; 
@@ -336,10 +339,11 @@
                 </div>
             </div>
             <small>Data completeness = Percentage of maximum available weight data points per day per device (for the set mesurement interval, which defaults to 15 min = 96 data points per day). {{ $add_flashlogs ? 'Taking' : 'Not taking' }} into account prognose for available validated Flashlogs</small>
+            
             <!-- Data table -->
-
             <div style="display: block;">
-            <div style="display: inline-block; width: 750px; overflow-y: hidden; overflow-x: scroll;">
+            <div style="display: inline-block; width: 750px; overflow-y: hidden; overflow-x: scroll; vertical-align: top;">
+                <!-- Data fixed header cols -->
                 <table class="table table-responsive table-striped table-header-rotated">
                     <thead>
                         <tr>
@@ -417,7 +421,7 @@
                     </tbody>
                 </table>
             </div>
-            <div style="display: inline-block; width: calc( 100% - 760px); overflow-y: hidden; overflow-x: scroll;">
+            <div style="display: inline-block; width: calc( 100% - 760px); overflow-y: hidden; overflow-x: scroll; vertical-align: top;">
                 <table class="table table-responsive table-striped table-header-rotated">
                     <thead>
                         <tr>
@@ -476,7 +480,7 @@
 
                                     if (isset($d['devices'][$key]['perc']))
                                     {
-                                        $perc      = $d['devices'][$key]['perc'];
+                                        $perc      = round($d['devices'][$key]['perc']);
                                         if ($perc >= 101)
                                             $class_arr[] = 'rd';
                                         else if ($perc >= 80)

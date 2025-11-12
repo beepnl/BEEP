@@ -233,7 +233,7 @@ class FlashLogController extends Controller
                 
                 if ($fl_saved)
                 {
-                    $meta_str = CalculationModel::arrayToString($flashlog->meta_data, ', ', '', ['valid_data_points','port2_times_device','firmwares']);
+                    $meta_str = CalculationModel::arrayToString($flashlog->meta_data, ', ', '', ['valid_data_points','port2_times_device','firmwares','lowest_bv']);
                     return redirect()->route($route, $query_par)->with('success', "FlashLog $id $type set, Meta data: ".$meta_str);
                 }
 

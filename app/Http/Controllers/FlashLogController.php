@@ -191,14 +191,14 @@ class FlashLogController extends Controller
      */
     public function parse(Request $request, $id)
     {
-        $fill_time= $request->filled('no_fill') && $request->input('no_fill') == 1 ? false : true;
-        $fill_sdef= $request->filled('no_sensor_def') && $request->input('no_sensor_def') == 1 ? false : true;
-        $fill_csv = $request->filled('csv') && $request->input('csv') == 1 ? true : false;
-        $fill_meta= $request->filled('add_meta') && $request->input('add_meta') == 1 ? true : false;
-        $load_show= $request->filled('load_show') && $request->input('load_show') == 1 ? true : false;
-        $correct_data = $request->filled('correct_data') && $request->input('correct_data') === '1' ? true : false;
-        $flashlog = FlashLog::findOrFail($id);
-        $out      = [];
+        $fill_time    = $request->filled('no_fill') && $request->input('no_fill') == 1 ? false : true;
+        $fill_sdef    = $request->filled('no_sensor_def') && $request->input('no_sensor_def') == 1 ? false : true;
+        $fill_csv     = $request->filled('csv') && $request->input('csv') == 1 ? true : false;
+        $fill_meta    = $request->filled('add_meta') && $request->input('add_meta') == 1 ? true : false;
+        $load_show    = $request->filled('load_show') && $request->input('load_show') == 1 ? true : false;
+        $correct_data = $request->filled('correct_data') && $request->input('correct_data') === '0' ? false : true;
+        $flashlog     = FlashLog::findOrFail($id);
+        $out          = [];
         
         $query_par= array_diff_key($request->query(), ['no_fill'=>0,'no_sensor_def'=>0,'csv'=>0, 'add_meta'=>0,'load_show'=>0]); // do not copy the command to the url params to prevent pressing wrong button
         if ($load_show)
@@ -216,7 +216,7 @@ class FlashLogController extends Controller
                 $flashlog->save();
             }
 
-            if (($fill_csv || $fill_meta) && isset($flashlog->log_parsed)) // use parsed log file to generate CSV
+            if ($correct_data == false && ($fill_csv || $fill_meta) && isset($flashlog->log_parsed)) // use parsed log file to generate CSV
             {
                 $flashlog_parsed_text = $flashlog->getFileContent('log_file_parsed');
                 if (empty($flashlog_parsed_text))
@@ -233,7 +233,7 @@ class FlashLogController extends Controller
                 
                 if ($fl_saved)
                 {
-                    $meta_str = CalculationModel::arrayToString($flashlog->meta_data, ', ', '', ['valid_data_points','port2_times_device']);
+                    $meta_str = CalculationModel::arrayToString($flashlog->meta_data, ', ', '', ['valid_data_points','port2_times_device','firmwares']);
                     return redirect()->route($route, $query_par)->with('success', "FlashLog $id $type set, Meta data: ".$meta_str);
                 }
 
@@ -242,6 +242,7 @@ class FlashLogController extends Controller
             }
             else
             {
+                $correct_data = false; // do not use correction, only RTC correction
 
                 $data = $flashlog->getFileContent('log_file');
                 if (isset($data))

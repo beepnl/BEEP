@@ -243,6 +243,42 @@ class FlashLog extends Model
         return false;
     }
 
+    public function hasRtcBug()
+    {
+        /* has RTC bug if: 
+           meta data shows more than the set interval data items (96) on a RTC month index error date
+        */
+        if (isset($this->meta_data['rtc_bug']))
+            return $this->meta_data['rtc_bug'];
+
+        else if (isset($this->meta_data['valid_data_points']))
+            return $this->fixBugRtcMonthIndex(null, true); // indicate bug
+
+        return false;
+    }
+
+    public function hasTimeErr()
+    {
+        /* has RTC time error if: 
+           last port 2 message time is > now
+        */
+        if (isset($this->meta_data['time_err_perc']))
+            return ($this->meta_data['time_err_perc'] > 0); 
+
+        return false;
+    }
+
+    public function hasBatErr()
+    {
+        /* has Battery voltage issue: 
+           if voltage dropped below 2.7V
+        */
+        if (isset($this->meta_data['bat_low_blocks']))
+            return ($this->meta_data['bat_low_blocks'] > 0); 
+
+        return false;
+    }
+
     public function getLogCacheName($fill=false, $show=false, $matches_min_override=null, $match_props_override=null, $db_records_override=null)
     {
         return 'flashlog-'.$this->id.'-fill-'.$fill.'-show-'.$show.'-matches-'.$matches_min_override.'-dbrecs-'.$db_records_override; // removed -props-'.$match_props_override.'
@@ -436,11 +472,14 @@ class FlashLog extends Model
                 $out[] = $data_array;
             }
 
+            // Save parsed flashlog
             if ($messages > 0)
             {
                 $parsed = true;
+                
                 if ($save)
                 {
+                    // Save
                     $logFileName = $f_dir."/sensor_".$sid."_flash_parsed_$time.json";
                     $saved = Storage::disk($disk)->put($logFileName, json_encode($out), $mime_j);
                     $f_par = Storage::disk($disk)->url($logFileName);
@@ -544,7 +583,7 @@ class FlashLog extends Model
                 $csv_saved = $this->addCsvToFlashlog($flashlog_filled['flashlog']);
                 //dd($csv_saved, $this->meta_data);
                 if ($csv_saved)
-                    $result["Meta data"] = CalculationModel::arrayToString($this->meta_data, ', ', '', ['valid_data_points','port2_times_device']);
+                    $result["Meta data"] = CalculationModel::arrayToString($this->meta_data, ', ', '', ['valid_data_points','port2_times_device','firmwares']);
             }
         }
 
@@ -908,53 +947,51 @@ class FlashLog extends Model
 
     // Fix RTC month index rollover bug in fw 1.5.13 where the key dates are to be replaced by the value dates to reverse the RTC bug 
     // Only replace if the current date if it occurs twice and the target date does not yet exist
-    private function fixBugRtcMonthIndex($flashlog, $start_index=null, $end_index=null)
+    private function fixBugRtcMonthIndex($data_array, $return_bug_detected=false, $start_index=null, $end_index=null)
     {
         $primary_dates_to_replace = [
-        // flashlog_date => actual date (1 2, or 3 days earlier)
+        // flashlog_date => actual date (1 2, or 3 days earlier), this includes dates where It might be possible that the RTC wasn't updated during firmware updates, in which case the date will be 1 month out of date
+            "2023-05-01" => "2023-05-31",
             "2023-06-01" => "2023-05-31", // after 2023-05-30, 2023-06-01 will be written as FL date, so 2023-05-31 will not exist, and 2023-06-01 will have double data
+            "2023-07-01" => "2023-07-31",
             "2023-08-01" => "2023-07-31",
+            "2023-10-01" => "2023-10-31",
             "2023-11-01" => "2023-10-31",
+            "2023-12-01" => "2023-12-31",
             "2024-01-01" => "2023-12-31",
+            "2024-03-01" => "2024-03-30",
+            "2024-03-02" => "2024-03-31",
             "2024-04-01" => "2024-03-30",
             "2024-04-02" => "2024-03-31",
+            "2024-05-01" => "2024-05-31",
             "2024-06-01" => "2024-05-31",
+            "2024-07-01" => "2024-07-31",
             "2024-08-01" => "2024-07-31",
+            "2024-10-01" => "2024-10-31",
             "2024-11-01" => "2024-10-31",
+            "2024-12-01" => "2024-12-31",
             "2025-01-01" => "2024-12-31",
+            "2025-03-01" => "2025-03-29",
+            "2025-03-02" => "2025-03-30",
+            "2025-03-03" => "2025-03-31",
             "2025-04-01" => "2025-03-29",
             "2025-04-02" => "2025-03-30",
             "2025-04-03" => "2025-03-31",
+            "2025-05-01" => "2025-05-31",
             "2025-06-01" => "2025-05-31",
+            "2025-07-01" => "2025-07-31",
             "2025-08-01" => "2025-07-31",
         ];
 
-        // It might be possible that the RTC wasn't updated during firmware updates, in which case the date will be 1 month out of date
-        // To check if this is the case, only apply these replacements if there are sufficient valid data points for these dates
-        $secondary_dates_to_replace = [
-        // flashlog_date => actual date
-            "2023-10-01" => "2023-09-30",
-            "2023-12-01" => "2023-11-30",
-            "2024-03-01" => "2024-02-28",
-            "2024-03-02" => "2024-02-29",
-            "2024-05-01" => "2024-04-30",
-            "2024-07-01" => "2024-06-30",
-            "2024-10-01" => "2024-09-30",
-            "2024-12-01" => "2024-11-30",
-            "2025-03-01" => "2025-02-26",
-            "2025-03-02" => "2025-02-27",
-            "2025-03-03" => "2025-02-28",
-            "2025-05-01" => "2025-04-30",
-            "2025-07-01" => "2025-06-30",
-        ];
-
         // Build final dates_to_replace array based on valid_data_points
-        $dates_to_replace = [];
-        $min_data_points = 110;
-        
-        if (isset($this->meta_data['valid_data_points']) && is_array($this->meta_data['valid_data_points']))
+        $dates_to_replace   = [];
+        $min_data_points    = 110;
+        $saved              = false;
+        $meta_data          = $this->meta_data;
+                    
+        if (isset($meta_data['valid_data_points']) && is_array($meta_data['valid_data_points']))
         {
-            $valid_data_points = $this->meta_data['valid_data_points'];
+            $vdp = $meta_data['valid_data_points'];
             
             // Check primary dates
             foreach ($primary_dates_to_replace as $date => $corrected_date)
@@ -962,66 +999,115 @@ class FlashLog extends Model
                 // Only apply replacement if:
                 // 1. The incorrect date has sufficient data points (> min_data_points)
                 // 2. The corrected date doesn't already have data (to prevent overwriting valid data)
-                if (isset($valid_data_points[$date]) && $valid_data_points[$date] > $min_data_points)
+                
+                if (isset($vdp[$date]) && is_numeric($vdp[$date]) && $vdp[$date] > $min_data_points)
                 {
-                    if (!isset($valid_data_points[$corrected_date]) || $valid_data_points[$corrected_date] == 0)
+                    if (!isset($vdp[$corrected_date]) || $vdp[$corrected_date] < $vdp[$date] - 96)
                     {
                         $dates_to_replace[$date] = $corrected_date;
+                        
+                        if (!$return_bug_detected)
+                            Log::debug("fixBugRtcMonthIndex fl=$this->id, found date to replace: $date -> $corrected_date has ".$vdp[$date]." data points"); 
+                    }
+                }
+            }
+        }
+
+        if (count($dates_to_replace) > 0)
+        {
+            if ($return_bug_detected)
+                return true;
+
+            if (!isset($start_index))
+                $start_index = 0;
+
+            if (!isset($end_index))
+                $end_index = count($data_array)-1;
+
+            $replace_count = 0;
+            $time_memory   = 0;
+            $date_memory   = null; // memory for next date 
+            $date_replaces = 0;
+            $date_changed  = false;
+            $dates_replaced= [];
+            
+            for ($index = $start_index; $index <= $end_index; $index++) // look forwards to replace the first occurence in the flashlog, because it replaces with a date for last port 3 time_device without error
+            {
+                if (isset($data_array[$index]['time_device']))
+                {
+                    $time_device   = intval($data_array[$index]['time_device']);
+                    $dtime_device  = date('Y-m-d H:i:s', $time_device);
+                    $date_device   = substr($dtime_device, 0, 10); // YYYY-MM-DD        
+                    
+                    if (isset($dates_to_replace[$date_device]))
+                    {
+                        if (!in_array($date_device, $dates_replaced)) // first entry of new date, allow this whole block until date change, or time decrease
+                        {
+                            Log::debug("fixBugRtcMonthIndex $index fl=$this->id, found new date $date_device to replace");
+                            $dates_replaced[] = $date_device;
+                            $date_replaces = 0;
+                            $date_changed  = false; 
+                            $time_decrease = false;
+                            $date_memory   = $date_device;
+                        }
+                        else
+                        {
+                            $time_decrease = $time_device < $time_memory ? true : false; // indicate that time increases, because at moment of decrease, replace should stop
+                            $time_memory   = $time_device;                          
+                            $date_changed  = $date_memory !== null && $date_memory != $date_device ? true : false; // true is new date
+                            $date_memory   = $date_device;
+                        }
+
+                        // replace date for incorrect RTC dates (only first encountered block)
+                        if ($time_decrease || $date_changed || $date_replaces == 96)
+                        {
+                            Log::debug("fixBugRtcMonthIndex $index fl=$this->id, date_device=$date_device, time_decrease=$time_decrease, date_changed=$date_changed, date_replaces=$date_replaces so do not replace anymore");
+                            unset($dates_to_replace[$date_memory]); // skip the next block of this date, because this is the actual correct read out date that should be remained
+                        }
+                        else
+                        {
+                            $correct_date                      = $dates_to_replace[$date_device];
+                            $dtime_device                      = $correct_date . substr($dtime_device, 10); // corrected date + original time
+                            $data_array[$index]['time_device'] = strtotime($dtime_device); // correct time by $device_time
+                            $data_array[$index]['time']        = $dtime_device ; // correct time by $device_time
+                            $data_array[$index]['time_corr']   = isset($data_array[$index]['time_corr']) ? $data_array[$index]['time_corr'].' + rtc-replace' : 'rtc-replace';
+                            
+                            $replace_count++;
+                            $date_replaces++;
+
+                            Log::debug("fixBugRtcMonthIndex $index fl=$this->id, replaced $date_device with $correct_date => $dtime_device");
+                        }
                     }
                 }
             }
             
-            // Check secondary dates
-            foreach ($secondary_dates_to_replace as $date => $corrected_date)
+            Log::debug("fixBugRtcMonthIndex fl=$this->id, $replace_count items replaced for fl_id=$this->id start_index=$start_index, end_index=$end_index"); 
+
+            if ($replace_count > 0)
             {
-                if (isset($valid_data_points[$date]) && $valid_data_points[$date] > $min_data_points)
-                {
-                    if (!isset($valid_data_points[$corrected_date]) || $valid_data_points[$corrected_date] == 0)
-                    {
-                        $dates_to_replace[$date] = $corrected_date;
-                    }
-                }
-            }
-        }
-
-        if (!isset($start_index))
-            $start_index = 0;
-
-        if (!isset($end_index))
-            $end_index = count($flashlog)-1;
-
-        $time_memory = 0;
-        $skip_date   = null; // memory to skip date 
-
-        for ($index = $start_index; $index <= $end_index; $index++) // look forwards to replace the first occurence in the flashlog, because it replaces with a date for last port 3 time_device without error
-        {
-            if (isset($flashlog[$index]['time_device']))
-            {
-                $time_device                     = intval($flashlog[$index]['time_device']);
-                $dtime_device                    = date('Y-m-d H:i:s', $time_device);
-                $date_device                     = substr($dtime_device, 0, 10); // YYYY-MM-DD                                         
-                $time_increase                   = $time_device > $time_memory ? true : false; // indicate that time increases, because at moment of decrease, replace should stop
+                $this->addMetaData($data_array, true, false, ['fixBugRtcMonthIndex'=>$replace_count], false); // Do NOT fixBugRtcMonthIndex again
                 
-                // replace date for incorrect RTC dates (only first encountered block)
-                if (isset($dates_to_replace[$date_device]) && $skip_date != $date_device)
-                {
-                    if ($time_increase)
-                    {
-                        $correct_date                    = $dates_to_replace[$date_device];
-                        $dtime_device                    = $correct_date . substr($dtime_device, 10); // corrected date + original time
-                        $flashlog[$index]['time_device'] = strtotime($dtime_device); // correct time by $device_time
-                        $flashlog[$index]['time']        = $dtime_device ; // correct time by $device_time
-                        $flashlog[$index]['time_corr']   = isset($flashlog[$index]['time_corr']) ? $flashlog[$index]['time_corr'].' + rtc-replace' : 'rtc-replace';
-                    }
-                    else
-                    {
-                        $skip_date = $date_device; // skip the next block of this date, because this is the actual correct read out date that should be remained
-                    }
-                }
+                // Store corrected data_array to log_file_parsed
+                $disk        = env('FLASHLOG_STORAGE', 'public');
+                $time        = date("YmdHis");
+                $logFileName = "flashlog/sensor_".$this->device_id."_flash_parsed_$time.json";
+                $saved       = Storage::disk($disk)->put($logFileName, json_encode($data_array), ['mimetype' => 'application/json']);
+                $file_url    = Storage::disk($disk)->url($logFileName);
+
+                $this->log_file_parsed = $file_url;
+                $this->save();
             }
+
+        } 
+        else
+        {
+            if ($return_bug_detected)
+                return false;
+
+            Log::debug("fixBugRtcMonthIndex fl=$this->id, no dates to replace for start_index=$start_index, end_index=$end_index"); 
         }
-        
-        return $flashlog;
+
+        return $saved;
     }
 
     private function matchFlashLogBlock($block_index, $fl_index, $end_index, $on, $flashlog, $setCount, $device, $log, $db_time, $matches_min, $match_props, $db_records, $show=false, $add_sensordefinitions=true, $use_rtc=true, $last_onoff=false, $correct_data=false, $previous_offset=0)
@@ -1667,8 +1753,10 @@ class FlashLog extends Model
         return ['error'=>'export_not_saved'];
     }
 
-    public function addMetaData($data, $validate_time=false, $only_return_meta_data=false)
+    public function addMetaData($data, $validate_time=false, $only_return_meta_data=false, $add_items=null, $fixBugRtcMonthIndex=true)
     {
+        Log::debug("addMetaData fl=$this->id, validate_time=$validate_time, only_return_meta_data=$only_return_meta_data, fixBugRtcMonthIndex=$fixBugRtcMonthIndex, add_items=".json_encode($add_items)); 
+
         $time_min = self::$minUnixTime;
         $time_max = time();
 
@@ -1692,11 +1780,16 @@ class FlashLog extends Model
             $port3_msg  = 0;
             $firmwares  = [];
             $time_errs  = [];
+            $time_e_cnt = 0;
             $time_clock = [];
             $weight_arr = []; // array of weight measurements
             $date_arr   = []; // array with date (YYYY-MM-DD) as key and amount of valid data points (timestamps) as value
             $date_times = []; // check which date times (rounded on minute) are already set
-        
+            $batVoltage = 99; // higher than 
+            $batLowCount= 0;
+            $batLowBlock= 0;
+            $batLowFlag = false;
+
             for ($i=$data_count-1; $i >= 0; $i--) 
             { 
                 $data_item   = $data[$i];
@@ -1739,7 +1832,7 @@ class FlashLog extends Model
 
                     if ($data_item['port'] == 2)
                     {
-                        $port2_msg+= 1;
+                        $port2_msg++;
 
                         // Log min time
                         if (isset($time_device)){
@@ -1776,9 +1869,8 @@ class FlashLog extends Model
                     else if ($data_item['port'] == 3)
                     {
                         //change order of time
-                        $port3_msg+= 1;
+                        $port3_msg++;
                         
-
                         // Log min time
                         if (isset($data_ts)){
                             if ($port3_ts_mn === null)
@@ -1813,6 +1905,28 @@ class FlashLog extends Model
 
                             if ($time_device > $port3_dts_mx)
                                 $port3_dts_mx = $time_device;
+                        }
+
+                        // Log port 3 time errors
+                        if (isset($data_ts) && ($data_ts < $time_min || $data_ts > $time_max))
+                            $time_e_cnt++;
+
+                        // Log battery voltage
+                        if (isset($data_item['bv']))
+                        {
+                            $batVoltage = $data_item['bv'];
+                            if ($batVoltage < 2.7)
+                            {
+                                if (!$batLowFlag)
+                                    $batLowBlock++; // change of flag
+
+                                $batLowFlag = true;
+                                $batLowCount++;
+                            } 
+                            else if ($batVoltage > 2.9) // 0.2V hysteresis to avoid counting too many blocks
+                            {
+                                $batLowFlag = false;
+                            }
                         }
 
                         if ( $validate_time == false || (isset($data_ts) && $data_ts >= $time_min && $data_ts < $time_max))
@@ -1879,7 +1993,17 @@ class FlashLog extends Model
             }
         }
 
-        $meta_data  = ['port2_msg'=>$port2_msg, 'port3_msg'=>$port3_msg, 'data_days'=>$data_days, 'data_days_weight'=>$data_days_w];
+        $batLowPerc  = $batLowCount > 0 && $port3_msg > 0 ? round(100 * $batLowCount / $port3_msg, 1) : 0;
+        $timeErrPerc = $time_e_cnt > 0  && $port3_msg > 0 ? round(100 * $time_e_cnt / $port3_msg, 1) : 0;
+        $meta_data   = [
+            'port2_msg'=>$port2_msg, 
+            'port3_msg'=>$port3_msg, 
+            'data_days'=>$data_days, 
+            'data_days_weight'=>$data_days_w,
+            'bat_low_perc'=>$batLowPerc,
+            'bat_low_blocks'=>$batLowBlock,
+            'time_err_perc'=>$timeErrPerc
+        ];
 
         if (count($firmwares) > 0)
             $meta_data['firmwares'] = $firmwares;
@@ -1891,7 +2015,11 @@ class FlashLog extends Model
             $meta_data["port2_device_time_first"] = date('Y-m-d H:i:s', $port2_dts_mn);
 
         if (isset($port2_dts_mx))
+        {
             $meta_data["port2_device_time_last"] = date('Y-m-d H:i:s', $port2_dts_mx);
+            if ($port2_dts_mx > $time_max)
+                $meta_data["time_off"] = true;
+        }
 
         if (isset($port3_dts_mn))
             $meta_data["port3_device_time_first"] = date('Y-m-d H:i:s', $port3_dts_mn);
@@ -1923,17 +2051,34 @@ class FlashLog extends Model
         if (count($date_arr) > 0 && array_sum($date_arr) > 0)
             $meta_data['valid_data_points'] = $date_arr;
 
+        if (is_array($add_items))
+        {
+            foreach ($add_items as $key => $value)
+                $meta_data[$key] = $value;
+        }
+
         if ($only_return_meta_data)
         {
             return array_merge(['log_date_start'=>$first_date, 'log_date_end'=>$last_date], $meta_data);
         }
 
         // Default, save meta to Flashlog
-        $this->log_date_start = $first_date;
-        $this->log_date_end   = $last_date;
-        $this->meta_data      = $meta_data;
-        $this->logs_per_day   = $this->getLogPerDay();
-        return $this->save();
+        $this->log_date_start       = $first_date;
+        $this->log_date_end         = $last_date;
+        $this->meta_data            = $meta_data; // first store meta data on flashlog to use in fixBugRtcMonthIndex
+        $meta_data['rtc_bug']       = $this->fixBugRtcMonthIndex(null, true); // indicate bug
+        $this->meta_data            = $meta_data;
+        $this->logs_per_day         = $this->getLogPerDay();
+        $saved = $this->save();
+
+
+        // Fix RTC error before saving
+        if ($fixBugRtcMonthIndex)
+            $this->fixBugRtcMonthIndex($data);
+
+
+
+        return $saved;
     }
 
     // from log_file_parsed property

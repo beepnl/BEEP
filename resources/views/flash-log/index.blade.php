@@ -105,11 +105,11 @@
                     <th>Messages</th>
                     <th>Time %</th>
                     <th>Erased/ Parsed/ Time</th>
-                    <th style="min-width: 60px;">Log start</th>
-                    <th style="min-width: 60px;">Log end</th>
+                    <th style="min-width: 60px;">Log start/ Log end</th>
                     <th style="min-width: 60px;">Time log %</th>
                     <th>Size</th>
                     <th>Persisted</th>
+                    <th style="min-width: 60px;">Error</th>
                     <th style="min-width: 280px;">Actions</th>
                 </tr>
             </thead>
@@ -121,6 +121,38 @@
                     $error = $item->log_date_end > $item->created_at ? true : false;
                     $color = $error ? '#FFDDDD' : ($valid ? 'lightgreen' : null);
                     $msg   = $error ? 'End date after upload date' : ($valid ? 'Validated log' : null);
+                    $date_s= isset($item->log_date_start)? substr($item->log_date_start, 0, 10) : '';
+                    $date_e= isset($item->log_date_end)? substr($item->log_date_end, 0, 10) : '';
+                    $errors= [];
+
+                    if ($item->hasRtcBug())
+                        $errors[] = 'RTC bug';
+
+                    if ($item->hasTimeErr())
+                    {
+                        $time_err = 'Time err';
+
+                        if (isset($item->meta_data['time_err_perc']))
+                            $time_err .= ': '.$item->meta_data['time_err_perc'].'%';
+
+                        $errors[] = $time_err;
+                    }
+
+                    if ($item->hasBatErr())
+                    {
+                        $bat_low_err = '';
+
+                        if (isset($item->meta_data['bat_low_blocks']))
+                            $bat_low_err .= $item->meta_data['bat_low_blocks'].'x ';
+
+                        $bat_low_err .= 'Bat low';
+                        
+                        if (isset($item->meta_data['bat_low_perc']))
+                            $bat_low_err .= ': '.$item->meta_data['bat_low_perc'].'%';
+
+
+                        $errors[] = $bat_low_err;
+                    }
                 @endphp
 
                 <tr @if($color) style="background: {{$color}};" title="{{$msg}}" @endif>
@@ -133,8 +165,7 @@
                     <td>{{ $item->log_messages }}</td>
                     <td>{{ $item->time_percentage }}%</td>
                     <td>{{ $item->log_erased }} / {{ $item->log_parsed }} / {{ $item->log_has_timestamps }}</td>
-                    <td>{{ $item->log_date_start }}</td>
-                    <td>{{ $item->log_date_end }}</td>
+                    <td>{{ $date_s }} / {{ $date_e }}</td>
                     <td>{{ $item->getTimeLogPercentage() }}% of<br>{{ $item->getLogDays() }} days</td>
                     <td>{{ round($item->bytes_received/1024/1024,3) }}MB @if(isset($item->log_size_bytes) && $item->log_size_bytes > 0) ({{ round(100*($item->bytes_received / $item->log_size_bytes),1) }}%) @endif </td>
                     <td>@if(isset($item->persisted_block_ids))
@@ -142,6 +173,11 @@
                         Blok: {{ $item->persisted_block_ids }}<br>
                         Meas: {{ $item->persisted_measurements }} (@if($item->log_messages > 0){{ round(100 * $item->persisted_measurements / $item->log_messages) }}%@else 0%@endif), 
                         @endif
+                    <td>
+                        @foreach($errors as $err)
+                        <span class="label label-danger">{{ $err }}</span>
+                        @endforeach
+                    </td>
                     </td>
                     <td col-sm-1>
                         <a href="{{ route('flash-log.show', $item->id) }}" title="{{ __('crud.show') }}"><button class="btn btn-default"><i class="fa fa-eye" aria-hidden="true"></i></button></a>

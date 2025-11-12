@@ -1029,6 +1029,7 @@ class ResearchController extends Controller
             'log_device_note'       => 'nullable|string',
             'only_change'           => 'nullable|string',
             'only_change_value'     => 'nullable|string',
+            'reparse_fl_ids'        => 'nullable|string',
         ]);
 
         $demo = $request->filled('demo') && boolval($request->input('demo')) ? true : false;
@@ -1052,6 +1053,18 @@ class ResearchController extends Controller
         $devices_all      = collect();
         $devices_show     = collect();
         $initial_days     = 30;
+        $reparse_fl_ids   = [];
+
+        if ($request->filled('reparse_fl_ids'))
+        {
+            $fl_ids = explode(',', $request->input('reparse_fl_ids'));
+            foreach ($fl_ids as $fl_id)
+            {
+                $fl = FlashLog::find($fl_id);
+                if ($fl)
+                    $fl->addMetaToFlashlog();
+            }
+        }
 
         // Make dates table:
         /* [date] => [
@@ -1313,7 +1326,7 @@ class ResearchController extends Controller
                     try{
                         $this->cacheRequestRate('influx-get');
                         $this->cacheRequestRate('influx-research');
-                        $query  = 'SELECT COUNT("w_v") as "count", MIN("bv") as "bv" FROM "sensors" WHERE '.$user_device_keys.' AND time >= \''.$date_curr_consent.'\' AND time <= \''.$moment_end->format('Y-m-d H:i:s').'\' GROUP BY "key",time(1d),from_flashlog';
+                        $query  = 'SELECT COUNT("w_v") as "count", MIN("bv") as "bv" FROM "sensors" WHERE '.$user_device_keys.' AND time >= \''.$date_curr_consent.'\' AND time < \''.$moment_end->format('Y-m-d').' 00:00:00\' GROUP BY "key",time(1d),from_flashlog';
                         //Log::debug($query);
                         $points = $this->client::query($query)->getPoints();
                         
@@ -1407,6 +1420,10 @@ class ResearchController extends Controller
                 {
                     foreach ($user_flashlogs as $fl)
                     {
+                        // Add id's to reparse list
+                        if (!isset($fl->meta_data['rtc_bug']))
+                            $reparse_fl_ids[] = $fl->id;
+
                         $fl_dev_key = $fl->getDeviceKeyAttribute();
                         $key        = isset($device_key_looup[$fl_dev_key]) ? $device_key_looup[$fl_dev_key] : null;
 
@@ -1677,7 +1694,7 @@ class ResearchController extends Controller
             $devices_all->merge($device_log); // add for display of newly added log values
 
 
-        return view('research.data', compact('research', 'devices_all', 'devices_show', 'data_days', 'dates', 'totals', 'data_completeness', 'data_completeness_count', 'consent_users_select', 'consent_users_selected', 'devices_select', 'device_ids', 'date_start', 'date_until', 'add_flashlogs', 'until_last_fl', 'invalid_log_prognose','add_db_data'));
+        return view('research.data', compact('research', 'devices_all', 'devices_show', 'data_days', 'dates', 'totals', 'data_completeness', 'data_completeness_count', 'consent_users_select', 'consent_users_selected', 'devices_select', 'device_ids', 'date_start', 'date_until', 'add_flashlogs', 'until_last_fl', 'invalid_log_prognose','add_db_data','reparse_fl_ids'));
     }
 
 

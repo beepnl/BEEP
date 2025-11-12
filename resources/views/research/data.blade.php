@@ -1,6 +1,38 @@
 @extends('layouts.app')
  
+@php
+    $query_add_arr = [];
+    $not_arr       = ['log_device_id', 'only_change_value', 'only_change', 'log_device_note','reparse_fl_ids'];
+
+    foreach(request()->query() as $qp => $qv)
+    {
+        if(in_array($qp, $not_arr))
+            continue;
+
+        if (is_array($qv))
+        {
+            foreach($qv as $v)
+                $query_add_arr[] = $qp."[]=".$v;
+        }
+        else
+        {
+            $query_add_arr[] = "$qp=$qv";
+        }
+
+    }
+    $query_add_js = implode('&', $query_add_arr);
+    $i = 0;
+
+    $reparse_url = route('research.data', $research->id)."?$query_add_js&reparse_fl_ids=".implode(',', $reparse_fl_ids);
+    $reparse_cnt = count($reparse_fl_ids);
+@endphp
+
+
 @section('page-title') {{ __('beep.Research').': '.(isset($research->name) ? $research->name : __('general.Item')).' (ID: '.$research->id.')' }} Device data completeness
+    
+    <span style="float:right;">
+        <a href="{!! $reparse_url !!}" id="reparse_fl_ids" class="btn btn-danger loading-spinner" title="Re-parse {{ $reparse_cnt }} flashlogs" data-loading-text="<i class='fa fa-circle-o-notch fa-spin'></i>"><i class="fa fa-refresh" aria-hidden="true"></i> Re-parse {{$reparse_cnt}} Flashlogs</a>
+    </span>
 @endsection
 
 @section('content')
@@ -274,29 +306,6 @@
 
         <script>
             
-            @php
-                $query_add_arr = [];
-                $not_arr       = ['log_device_id', 'only_change_value', 'only_change', 'log_device_note'];
-                foreach(request()->query() as $qp => $qv)
-                {
-                    if(in_array($qp, $not_arr))
-                        continue;
-
-                    if (is_array($qv))
-                    {
-                        foreach($qv as $v)
-                            $query_add_arr[] = $qp."[]=".$v;
-                    }
-                    else
-                    {
-                        $query_add_arr[] = "$qp=$qv";
-                    }
-
-                }
-                $query_add_js = implode('&', $query_add_arr);
-                $i = 0;
-            @endphp
-
             function handleKey(event) {
                 if ((event.type === "keydown" && event.key === "Enter") || event.type === "click") {
                   event.preventDefault(); // Prevent default form submission

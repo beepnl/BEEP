@@ -1757,13 +1757,12 @@ class FlashLog extends Model
     {
         Log::debug("addMetaData fl=$this->id, validate_time=$validate_time, only_return_meta_data=$only_return_meta_data, fixBugRtcMonthIndex=$fixBugRtcMonthIndex, add_items=".json_encode($add_items)); 
 
-        $time_min = self::$minUnixTime;
-        $time_max = time();
-
-        //dd($name, gettype($data));
+        $saved = false;
         
         if ($data && gettype($data) == 'array' && count($data) > 0)
         {
+            $time_min = self::$minUnixTime;
+            $time_max = time();
             $first_date = null; 
             $last_date  = null; 
             $data_days  = null;
@@ -2000,96 +1999,94 @@ class FlashLog extends Model
                         $port2_dates[$d] = $date_totals['port2_times_device'];
                 }
             }
+
+            $batLowPerc  = $batLowCount > 0 && $port3_msg > 0 ? round(100 * $batLowCount / $port3_msg, 1) : 0;
+            $timeErrPerc = $time_e_cnt > 0  && $port3_msg > 0 ? round(100 * $time_e_cnt / $port3_msg, 1) : 0;
+            $meta_data   = [
+                'port2_msg'=>$port2_msg, 
+                'port3_msg'=>$port3_msg, 
+                'data_days'=>$data_days, 
+                'data_days_weight'=>$data_days_w,
+                'bat_low_perc'=>$batLowPerc,
+                'bat_low_blocks'=>$batLowBlock,
+                'time_err_perc'=>$timeErrPerc
+            ];
+
+            if (count($firmwares) > 0)
+                $meta_data['firmwares'] = $firmwares;
+
+            if (count($port2_dates) > 0)
+                $meta_data['port2_times_device'] = $port2_dates;
+
+            if (isset($port2_dts_mn))
+                $meta_data["port2_device_time_first"] = date('Y-m-d H:i:s', $port2_dts_mn);
+
+            if (isset($port2_dts_mx))
+            {
+                $meta_data["port2_device_time_last"] = date('Y-m-d H:i:s', $port2_dts_mx);
+                if ($port2_dts_mx > $time_max)
+                    $meta_data["time_off"] = true;
+            }
+
+            if (isset($port3_dts_mn))
+                $meta_data["port3_device_time_first"] = date('Y-m-d H:i:s', $port3_dts_mn);
+
+            if (isset($port3_dts_mx))
+                $meta_data["port3_device_time_last"] = date('Y-m-d H:i:s', $port3_dts_mx);
+
+            if (isset($port3_ts_mn))
+                $meta_data["port3_time_first"] = date('Y-m-d H:i:s', $port3_ts_mn);
+
+            if (isset($port3_ts_mx))
+                $meta_data["port3_time_last"] = date('Y-m-d H:i:s', $port3_ts_mx);
+
+            if (count($time_clock) > 0)
+            {
+                foreach($time_clock as $msg => $msg_cnt)
+                    $meta_data["time_clock_$msg"] = $msg_cnt;
+            }
+
+            if (count($time_errs) > 0)
+            {
+                foreach($time_errs as $err => $err_cnt)
+                    $meta_data["time_err_$err"] = $err_cnt;
+            }
+
+            if (count($weight_arr) > 0)
+                $meta_data['weight_kg'] = CalculationModel::calculateBoxplot($weight_arr);
+
+            if (count($date_arr) > 0 && array_sum($date_arr) > 0)
+                $meta_data['valid_data_points'] = $date_arr;
+
+            if (count($date_arr_bv) > 0)
+                $meta_data['lowest_bv'] = $date_arr_bv;
+
+            if (is_array($add_items))
+            {
+                foreach ($add_items as $key => $value)
+                    $meta_data[$key] = $value;
+            }
+
+            if ($only_return_meta_data)
+            {
+                return array_merge(['log_date_start'=>$first_date, 'log_date_end'=>$last_date], $meta_data);
+            }
+
+            // Default, save meta to Flashlog
+            $this->log_date_start       = $first_date;
+            $this->log_date_end         = $last_date;
+            $this->meta_data            = $meta_data; // first store meta data on flashlog to use in fixBugRtcMonthIndex
+            $meta_data['rtc_bug']       = $this->fixBugRtcMonthIndex(null, true); // indicate bug
+            $this->meta_data            = $meta_data;
+            $this->logs_per_day         = $this->getLogPerDay();
+            $saved = $this->save();
+
+
+            // Fix RTC error before saving
+            if ($fixBugRtcMonthIndex)
+                $this->fixBugRtcMonthIndex($data);
+
         }
-
-        $batLowPerc  = $batLowCount > 0 && $port3_msg > 0 ? round(100 * $batLowCount / $port3_msg, 1) : 0;
-        $timeErrPerc = $time_e_cnt > 0  && $port3_msg > 0 ? round(100 * $time_e_cnt / $port3_msg, 1) : 0;
-        $meta_data   = [
-            'port2_msg'=>$port2_msg, 
-            'port3_msg'=>$port3_msg, 
-            'data_days'=>$data_days, 
-            'data_days_weight'=>$data_days_w,
-            'bat_low_perc'=>$batLowPerc,
-            'bat_low_blocks'=>$batLowBlock,
-            'time_err_perc'=>$timeErrPerc
-        ];
-
-        if (count($firmwares) > 0)
-            $meta_data['firmwares'] = $firmwares;
-
-        if (count($port2_dates) > 0)
-            $meta_data['port2_times_device'] = $port2_dates;
-
-        if (isset($port2_dts_mn))
-            $meta_data["port2_device_time_first"] = date('Y-m-d H:i:s', $port2_dts_mn);
-
-        if (isset($port2_dts_mx))
-        {
-            $meta_data["port2_device_time_last"] = date('Y-m-d H:i:s', $port2_dts_mx);
-            if ($port2_dts_mx > $time_max)
-                $meta_data["time_off"] = true;
-        }
-
-        if (isset($port3_dts_mn))
-            $meta_data["port3_device_time_first"] = date('Y-m-d H:i:s', $port3_dts_mn);
-
-        if (isset($port3_dts_mx))
-            $meta_data["port3_device_time_last"] = date('Y-m-d H:i:s', $port3_dts_mx);
-
-        if (isset($port3_ts_mn))
-            $meta_data["port3_time_first"] = date('Y-m-d H:i:s', $port3_ts_mn);
-
-        if (isset($port3_ts_mx))
-            $meta_data["port3_time_last"] = date('Y-m-d H:i:s', $port3_ts_mx);
-
-        if (count($time_clock) > 0)
-        {
-            foreach($time_clock as $msg => $msg_cnt)
-                $meta_data["time_clock_$msg"] = $msg_cnt;
-        }
-
-        if (count($time_errs) > 0)
-        {
-            foreach($time_errs as $err => $err_cnt)
-                $meta_data["time_err_$err"] = $err_cnt;
-        }
-
-        if (count($weight_arr) > 0)
-            $meta_data['weight_kg'] = CalculationModel::calculateBoxplot($weight_arr);
-
-        if (count($date_arr) > 0 && array_sum($date_arr) > 0)
-            $meta_data['valid_data_points'] = $date_arr;
-
-        if (count($date_arr_bv) > 0)
-            $meta_data['lowest_bv'] = $date_arr_bv;
-
-        if (is_array($add_items))
-        {
-            foreach ($add_items as $key => $value)
-                $meta_data[$key] = $value;
-        }
-
-        if ($only_return_meta_data)
-        {
-            return array_merge(['log_date_start'=>$first_date, 'log_date_end'=>$last_date], $meta_data);
-        }
-
-        // Default, save meta to Flashlog
-        $this->log_date_start       = $first_date;
-        $this->log_date_end         = $last_date;
-        $this->meta_data            = $meta_data; // first store meta data on flashlog to use in fixBugRtcMonthIndex
-        $meta_data['rtc_bug']       = $this->fixBugRtcMonthIndex(null, true); // indicate bug
-        $this->meta_data            = $meta_data;
-        $this->logs_per_day         = $this->getLogPerDay();
-        $saved = $this->save();
-
-
-        // Fix RTC error before saving
-        if ($fixBugRtcMonthIndex)
-            $this->fixBugRtcMonthIndex($data);
-
-
-
         return $saved;
     }
 
@@ -2102,7 +2099,7 @@ class FlashLog extends Model
             $data_array = $flashlog_array;
         }
 
-        if (!isset($data_array) && isset($this->log_parsed)) // use parsed log file to generate CSV
+        if (empty($data_array) && isset($this->log_parsed)) // use parsed log file to generate CSV
         {
             $flashlog_parsed_text = $this->getFileContent('log_file_parsed');
             if (!empty($flashlog_parsed_text))
@@ -2114,8 +2111,10 @@ class FlashLog extends Model
         if (!empty($data_array))
         {
             // Add metadata 
+            Log::debug("addMetaToFlashlog $this->id");
             return $this->addMetaData($data_array, true);
         }
+        Log::debug("addMetaToFlashlog $this->id Err: no data array");
         return false;
     }
 

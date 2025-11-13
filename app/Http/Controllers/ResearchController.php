@@ -1592,6 +1592,7 @@ class ResearchController extends Controller
             //dd($log_device_id);
             $device_log= $devices_all->where('id', '=', $log_device_id)->first();
             
+
             // Only change 1 log_file_info value
             if (isset($log_device_change) && isset($log_device_value))
             {
@@ -1614,6 +1615,8 @@ class ResearchController extends Controller
                 $flashlog_i     = 0;
                 $data_array     = [];
 
+                Log::debug("CSV device=$log_device_id add $flashlog_count FL DATA from=$date_start until=$date_until");
+                
                 foreach ($flashlogs as $flashlog)
                 {
                     $valid_log              = $flashlog->validLog();
@@ -1664,7 +1667,8 @@ class ResearchController extends Controller
                     Log::debug("CSV device=$log_device_id fl=$flashlog->id valid=$valid_log RESULT DATA count=$data_count");
 
                     $csv_file_name  = "device-$log_device_id-flashlog-data";
-                    $save_output    = FlashLog::exportData($data_array, $csv_file_name, true, ',', true, true, $date_start_ts, $date_until_ts); // Research data is also exported with , as separator
+                    $csv_columns    = ['time','bv','s_bin_71_122','s_bin_122_173','s_bin_173_224','s_bin_224_276','s_bin_276_327','s_bin_327_378','s_bin_378_429','s_bin_429_480','s_bin_480_532','s_bin_532_583','t_i','w_v','weight_kg'];
+                    $save_output    = FlashLog::exportData($data_array, $csv_file_name, true, ',', true, true, $date_start_ts, $date_until_ts, $csv_columns); // Research data is also exported with , as separator
 
                     if (isset($save_output['link']))
                     {

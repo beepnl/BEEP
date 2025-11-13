@@ -1642,13 +1642,14 @@ class FlashLog extends Model
              + array_slice($array, $position, null, true);
     }
 
-    public static function exportData($data, $name, $csv=true, $separator=',', $link_override=false, $validate_time=false, $min_unix_ts=null, $max_unix_ts=null)
+    public static function exportData($data, $name, $csv=true, $separator=',', $link_override=false, $validate_time=false, $min_unix_ts=null, $max_unix_ts=null, $csv_columns=null)
     {
         $link     = $link_override ? $link_override : env('FLASHLOG_EXPORT_LINK', true);
         $time_min = isset($min_unix_ts) ? $min_unix_ts : self::$minUnixTime;
         $time_max = isset($max_unix_ts) ? $max_unix_ts : time();
 
         //dd($name, gettype($data));
+        Log::debug("Export data $name csv=$csv");
         
         if ($data && gettype($data) == 'array' && count($data) > 0)
         {
@@ -1661,76 +1662,98 @@ class FlashLog extends Model
             if ($csv)
             {
                 // format CSV header row: time, sensor1 (unit2), sensor2 (unit2), etc. Exclude the 'sensor' and 'key' columns
-                $header_item  = null;
+                $header_arr   = null;
                 $header_count = 0;
                 $csv_body     = [];
 
-                // Run backwards through the data, because time can be adjusted backwards, then the new (and correct) data if in the lower end of the file 
-                for ($i=$data_count-1; $i >= 0; $i--) 
-                { 
-                    $data_item       = $data[$i];
-                    $data_item_count = count($data_item);
-                    if ($data_item_count > 2 && (!isset($data_item['port']) || $data_item['port'] == 3)) // min 2 data items + time, and is port defined, should be port 3
+                // create $header_arr
+                if (empty($csv_columns))
+                {
+                    foreach ($data as $key => $data_item)
                     {
-                        //change order of time
-                        $data_time = null;
-                        $data_ts   = null;
-                        $data_time_utc = '';
-                        
-                        if (isset($data_item['time']) && !isset($data_item['time_error']))
+                        $param_count = count($data_item);
+                        if ($param_count > $header_count)
                         {
-                            $data_time = $data_item['time'];
-                            $data_ts   = strtotime($data_time);
-                            unset($data_item['time']);
-                            
-                            $data_time_utc = str_replace(' ', 'T', $data_time).'Z'; // Format as Influx time + UTC timezone
-
-                            // Add data point to date_arr and set frist/last data date
-                            if ($data_ts >= $time_min && $data_ts < $time_max) // time is set (also allow previously parsed Flashlogs without RTC), or time_device should be correctly set
-                            {
-                                if ($last_date === null)
-                                    $last_date = $data_time; // update until last item with date
-
-                                $first_date = $data_time;
-                            }
+                            $header_count = $param_count;
+                            $header_arr   = self::cleanFlashlogItem(array_keys($data_item), true);
+                            unset($header_arr['time']);
+                            array_unshift($header_arr, 'time'); // put time first
                         }
-                        
-                        if ($validate_time == false || (isset($data_ts) && $data_ts >= $time_min && $data_ts < $time_max))
+                    }
+                } 
+                else
+                {
+                    $header_arr = $csv_columns;
+                }
+                Log::debug("Export CSV headers");
+                Log::debug($header_arr);
+
+                if (isset($header_arr) && gettype($header_arr) == 'array')
+                {
+                    // Run backwards through the data, because time can be adjusted backwards, then the new (and correct) data if in the lower end of the file 
+                    for ($i=$data_count-1; $i >= 0; $i--) 
+                    { 
+                        $data_item       = $data[$i];
+                        $data_item_count = count($data_item);
+                        if ($data_item_count > 2 && (!isset($data_item['port']) || $data_item['port'] == 3)) // min 2 data items + time, and is port defined, should be port 3
                         {
-                            $date_time_round_min = $data_ts; // Round to minute, to store only 1 value per minute: YYYY-MM-DD HH:mm (leave :ss)
-
-                            if (!in_array($date_time_round_min, $date_times))
+                            //change order of time
+                            $data_time = null;
+                            $data_ts   = null;
+                            $data_time_utc = '';
+                            
+                            if (isset($data_item['time']) && !isset($data_item['time_error']))
                             {
-                                $data_item       = array_merge(['time'=>$data_time_utc], $data_item); // Time in first column
-                                $data_item_clean = self::cleanFlashlogItem($data_item, true);
-
-                                // Add missing temperature column (for combined flashlogs having no t_i at first but afterwards added)
-                                if (!isset($data_item_clean['t_i']))
-                                    $data_item_clean = self::insertAt($data_item_clean, 3, 't_i', null); // after w_v
-
-                                array_unshift($csv_body, implode($separator, $data_item_clean)); // because of walking backwards through data, prepend to array to have the final array time ascending again
+                                $data_time = $data_item['time'];
+                                $data_ts   = strtotime($data_time);
+                                unset($data_item['time']);
                                 
-                                // get biggest headers
-                                $param_count = count($data_item_clean);
-                                if ($param_count > $header_count)
+                                $data_time_utc = str_replace(' ', 'T', $data_time).'Z'; // Format as Influx time + UTC timezone
+
+                                // Add data point to date_arr and set frist/last data date
+                                if ($data_ts >= $time_min && $data_ts < $time_max) // time is set (also allow previously parsed Flashlogs without RTC), or time_device should be correctly set
                                 {
-                                    $header_count = $param_count;
-                                    $header_item  = $data_item_clean;
+                                    if ($last_date === null)
+                                        $last_date = $data_time; // update until last item with date
+
+                                    $first_date = $data_time;
                                 }
-                                
-                                // Register data_ts in date_times to not overwrite
-                                $date_times[] = $date_time_round_min;
+                            }
+                            
+                            if ($validate_time == false || (isset($data_ts) && $data_ts >= $time_min && $data_ts < $time_max))
+                            {
+                                $date_time_round_min = $data_ts; // Round to minute, to store only 1 value per minute: YYYY-MM-DD HH:mm (leave :ss)
+
+                                if (!in_array($date_time_round_min, $date_times))
+                                {
+                                    $data_item_clean = self::cleanFlashlogItem($data_item, true);
+                                    $data_item_clean = array_merge(['time'=>$data_time_utc], $data_item_clean); // Time in first column
+                                    // Write each row, aligning to predefined columns
+                                    $row = [];
+                                    foreach ($header_arr as $m_abbr)
+                                    {
+                                        $row[] = isset($data_item_clean[$m_abbr]) ? $data_item_clean[$m_abbr] : ''; // fill missing with blank
+                                    }
+                                    
+                                    // Add item to $csv_body
+                                    array_unshift($csv_body, implode($separator, $row)); // because of walking backwards through data, prepend to array to have the final array time ascending again
+                                                                    
+                                    // Register data_ts in date_times to not overwrite
+                                    $date_times[] = $date_time_round_min;
+                                }
                             }
                         }
                     }
-                }
 
-                if (isset($header_item) && gettype($header_item) == 'array')
-                {
+                    $data_count = count($csv_body);
+                    Log::debug("Export data count=$data_count");
+
+                    
                     // format CSV
-                    $csv_sens = array_keys($header_item);
-                    $csv_head = [];
-                    foreach ($csv_sens as $header) 
+                    $csv_head_str = []; // Header names (incl. unit)
+                    $csv_head_row = "";
+
+                    foreach ($header_arr as $header) 
                     {
                         if ($header == 'time')
                         {
@@ -1743,12 +1766,12 @@ class FlashLog extends Model
                             $col_head  .= $meas ? " ($header)" : "";
                         }
 
-                        $csv_head[] = $col_head;
+                        $csv_head_str[] = $col_head;
                     }
-                    $csv_head = '"'.implode('"'.$separator.'"', $csv_head).'"'."\r\n";
+                    $csv_head_row = '"'.implode('"'.$separator.'"', $csv_head_str).'"'."\r\n";
 
                     // format CSV file body
-                    $fileBody = $csv_head.implode("\r\n", $csv_body);
+                    $fileBody = $csv_head_row.implode("\r\n", $csv_body);
                 }
             }
             else

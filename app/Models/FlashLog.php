@@ -1708,8 +1708,12 @@ class FlashLog extends Model
                                 $data_ts   = strtotime($data_time);
                                 unset($data_item['time']);
                                 
-                                $data_time_utc = str_replace(' ', 'T', $data_time).'Z'; // Format as Influx time + UTC timezone
+                                // Make time with timezone GMT (Z) and T for time
+                                $data_time_utc = str_replace(' ', 'T', $data_time);
 
+                                if (strlen($data_time_utc) == 19 && substr($data_time_utc, -1) != 'Z')
+                                    $data_time_utc .= 'Z'; // Format as Influx time + UTC timezone
+                                
                                 // Add data point to date_arr and set frist/last data date
                                 if ($data_ts >= $time_min && $data_ts < $time_max) // time is set (also allow previously parsed Flashlogs without RTC), or time_device should be correctly set
                                 {

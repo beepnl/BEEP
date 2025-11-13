@@ -417,7 +417,7 @@
                                     <button class="btn btn-warning btn-sm loading-spinner" title="Create total CSV" type="submit" data-loading-text="<i class='fa fa-circle-o-notch fa-spin'></i>"><i class="fa fa-upload" aria-hidden="true"></i></button>
                                     
                                     @if(isset($device->log_file_info['csv_url']))
-                                        <a href="{{ $device->log_file_info['csv_url'] }}" target="_blank" class="btn btn-success btn-sm" title="Download total CSV: {{ App\Models\CalculationModel::arrayToString($device->log_file_info, ' ', '', ['csv_url','valid_data_points','port2_times_device']) }}"><i class="fa fa-download" aria-hidden="true"></i></a>
+                                        <a href="{{ $device->log_file_info['csv_url'] }}" target="_blank" class="btn btn-success btn-sm" title="Download total CSV: {{ App\Models\CalculationModel::arrayToString($device->log_file_info, ' ', '', ['csv_url','valid_data_points','port2_times_device','firmwares','lowest_bv']) }}"><i class="fa fa-download" aria-hidden="true"></i></a>
                                     @endif
                                     
                                 </form>

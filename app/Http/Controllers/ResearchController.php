@@ -1640,19 +1640,8 @@ class ResearchController extends Controller
                         if ($add_db_data && isset($log_date_until) && isset($log_date_start_next) && $log_date_start_next_ts - $log_date_until_ts > 84600) // more than a day of data in between
                         {
                             //dd($add_db_data, $date_start, $date_until, $log_date_start, $log_date_until, $log_date_start_next, $log_date_start_next_ts, $log_date_until_ts, $log_date_start_next_ts-$log_date_until_ts);
-
-                            $query = 'SELECT * FROM "sensors" WHERE '.$device_log->influxWhereKeys().' AND from_flashlog != \'1\' AND time >= \''.$log_date_until.'\' AND time < \''.$log_date_start_next.'\' ORDER BY time ASC LIMIT 5000'; // from end of fl to start of next
-                            $db_data = Device::getInfluxQuery($query, 'flashlog');
-                            $db_count= count($db_data);
-
-                            Log::debug("CSV device=$log_device_id fl=$flashlog->id valid=$valid_log DB DATA from=$log_date_until until=$log_date_start_next count=$db_count");
-                            
-                            foreach ($db_data as $d)
-                            {
-                                $d = FlashLog::cleanDbDataItem($d);
-                                $data_array[] = $d;
-                                //dd($d, $query, $log_date_until, $log_date_start_next);
-                            }
+                            Log::debug("CSV device=$log_device_id fl=$flashlog->id valid=$valid_log DB DATA from=$log_date_until until=$log_date_start_next");
+                            $this->addDbDataToDataArray($data_array, $device_log, $log_date_until, $log_date_start_next);
                         }
                     }
                     else 
@@ -1660,18 +1649,8 @@ class ResearchController extends Controller
                         if ($add_db_data && isset($log_date_start) && isset($log_date_start_next) && $log_date_start_next_ts - $log_date_start_ts > 84600) // more than a day of data in between
                         {
                             // get data from DB instead of from Flashlog for this time block
-                            $query = 'SELECT * FROM "sensors" WHERE '.$device_log->influxWhereKeys().' AND from_flashlog != \'1\' AND time >= \''.$log_date_start.'\' AND time < \''.$log_date_start_next.'\' ORDER BY time ASC LIMIT 5000'; // from start of (invalid) fl to start of next
-                            $db_data = Device::getInfluxQuery($query, 'flashlog');
-                            $db_count= count($db_data);
-
-                            Log::debug("CSV device=$log_device_id fl=$flashlog->id valid=$valid_log DB ONLY DATA from=$log_date_start until=$log_date_start_next count=$db_count");
-
-                            foreach ($db_data as $d)
-                            {
-                                $d = FlashLog::cleanDbDataItem($d);
-                                $data_array[] = $d;
-
-                            }
+                            Log::debug("CSV device=$log_device_id fl=$flashlog->id valid=$valid_log DB ONLY DATA from=$log_date_start until=$log_date_start_next");
+                            $this->addDbDataToDataArray($data_array, $device_log, $log_date_start, $log_date_start_next);
                         }
                     }
 
@@ -1707,6 +1686,44 @@ class ResearchController extends Controller
         return view('research.data', compact('research', 'devices_all', 'devices_show', 'data_days', 'dates', 'totals', 'data_completeness', 'data_completeness_count', 'consent_users_select', 'consent_users_selected', 'devices_select', 'device_ids', 'date_start', 'date_until', 'add_flashlogs', 'until_last_fl', 'invalid_log_prognose','add_db_data','reparse_fl_ids'));
     }
 
+
+    private function addDbDataToDataArray(&$data_array, $device, $from_date, $until_date)
+    {    
+        // get data from DB instead of from Flashlog for this time block
+        $start_date_u = strtotime($from_date); 
+        $until_date_u = strtotime($until_date); 
+        $total_secs   = $until_date_u - $start_date_u;
+        $total_count  = 0;
+
+        if ($total_secs > 0)
+        {
+            // Divide in chunks of max 5000 data points (30 days = 30 * 24 * 4 = 2880)
+            $total_days = $total_secs / 86400;
+            $chunks     = ceil($total_days / 30);
+            $chunk_secs = round($total_secs / $chunks);
+            Log::debug("Add DB DATA device=$device->id from=$from_date until=$until_date => days=$total_days in chunks=$chunks");
+
+            for ($i=0; $i < $chunks; $i++)
+            { 
+                $start_date = date('Y-m-d H:m:i', $start_date_u + $i * $chunk_secs);
+                $end_date   = date('Y-m-d H:m:i', $start_date_u + ($i+1) * $chunk_secs);
+                
+                $query   = 'SELECT * FROM "sensors" WHERE '.$device->influxWhereKeys().' AND from_flashlog != \'1\' AND time >= \''.$start_date.'\' AND time < \''.$end_date.'\' ORDER BY time ASC LIMIT 5000'; // from start of (invalid) fl to start of next
+                $db_data = Device::getInfluxQuery($query, 'flashlog');
+                $db_count= count($db_data);
+
+                Log::debug("Add DB DATA device=$device->id from=$start_date to=$end_date count=$db_count");
+
+                foreach ($db_data as $d)
+                {
+                    $d = FlashLog::cleanDbDataItem($d);
+                    $data_array[] = $d;
+                }
+                $total_count += $db_count;
+            }
+        }
+        return $total_count;
+    }
 
 
     /**

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
 use App\Category;
 use App\Device;
@@ -346,6 +347,8 @@ class DeviceController extends Controller
             $guzzle = new Client();
             $url = env('TTN_API_URL') . '/as/applications/' . env('TTN_APP_NAME') . '/webhooks/' . env('TTN_APP_NAME') . '/devices/' . $device->hardware_id . '/down/push';
             
+            Log::info("Sync device_id=$id url=$url");
+
             $response = $guzzle->request('POST', $url, [
                 'headers' => [
                     'Authorization' => 'Bearer ' . env('TTN_API_KEY'),
@@ -368,6 +371,7 @@ class DeviceController extends Controller
         } catch (RequestException $e) {
             $error_response = $e->hasResponse() ? json_decode($e->getResponse()->getBody(), true) : null;
             $msg = "TTN downlink failed: ".json_encode($error_response) ?: $e->getMessage();
+            Log::error("Sync device_id=$id error=$msg");
         }
 
         return redirect()->route('devices.index')->with($err?'error':'success', $msg);

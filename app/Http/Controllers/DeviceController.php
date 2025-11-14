@@ -362,9 +362,10 @@ class DeviceController extends Controller
 
             if ($response->getStatusCode() == 202 || $response->getStatusCode() == 200) {
                 // Update the device with the scheduled downlink
-                $device->next_downlink_message = $payload_hex;
-                $device->save();
                 $msg = 'Clock sync downlink scheduled';
+                $device->next_downlink_message = $payload_hex;
+                $device->last_downlink_result = 'Clock sync downlink scheduled @ UTC: '.date('Y-m-d H:i:s', $scheduled_downlink_time);
+                $device->save();
                 $err = false;
             } else {
                 $msg = 'Failed to schedule downlink';

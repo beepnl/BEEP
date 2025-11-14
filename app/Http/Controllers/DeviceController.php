@@ -353,7 +353,7 @@ class DeviceController extends Controller
                 'headers' => [
                     'Authorization' => 'Bearer ' . env('TTN_API_KEY'),
                     'Content-Type' => 'application/json',
-                    'User-Agent' => 'beep-base-test'
+                    'User-Agent' => env('TTN_APP_NAME')
                 ],
                 'json' => $downlink_data
             ]);

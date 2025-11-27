@@ -334,9 +334,11 @@ class Device extends Model
             $post  = $pers || $logd ? ' ('.$logd.$pers.')' : ''; 
             $name  = $fl->id.'. '.substr($fl->created_at, 0, 10).$post;
             $valid = $fl->validLog();
+            $icon_h= $fl->getFixAndErrorHtmlIcons();
+            
             $flogs_valid += $valid;
             $color = $valid ? 'style="color: green;" title="Flash log id:'.$fl->id.' has '.$logd.' valid weight/time data"' : 'title="Flash log '.$fl->id.' should be checked for valid data: has '.$logd.' of data, but end date might not be within 1 hour of the upload date."';
-            $html .= '<li style="padding:0; margin:0;"><a href="/flash-log/'.$fl->id.'" '.$color.'>'.$name.'</a></li>';
+            $html .= '<li style="padding:0; margin:0;"><a href="/flash-log/'.$fl->id.'" '.$color.'>'.$icon_h.' '.$name.'</a></li>';
         }
 
         $html .= '</ul></div>';

@@ -307,6 +307,87 @@ class FlashLog extends Model
         return false;
     }
 
+    public function getFixesArray()
+    {
+        $fixes = [];
+
+        if (isset($this->meta_data['fixBugRtcMonthIndex']) && $this->meta_data['fixBugRtcMonthIndex'] > 0)
+            $fixes['fa-clock-o'] = "RTC bug fixes: ".$this->meta_data['fixBugRtcMonthIndex'];
+
+        return $fixes;
+    }
+
+    public function getErrorsArray()
+    {
+        $errors= [];
+        
+        if ($this->hasRtcBug())
+            $errors['fa-clock-o'] = 'RTC bug';
+
+        if ($this->hasTimeErr())
+        {
+            $time_err = 'Time err';
+
+            if (isset($this->meta_data['time_err_perc']))
+                $time_err .= ': '.$this->meta_data['time_err_perc'].'%';
+
+            $errors['fa-calendar'] = $time_err;
+        }
+
+        if ($this->hasBatErr())
+        {
+            $bat_low_err = '';
+
+            if (isset($this->meta_data['bat_low_blocks']))
+                $bat_low_err .= $this->meta_data['bat_low_blocks'].'x ';
+
+            $bat_low_err .= 'Bat low';
+            
+            if (isset($this->meta_data['bat_low_perc']))
+                $bat_low_err .= ': '.$this->meta_data['bat_low_perc'].'%';
+
+            $errors['fa-battery-quarter'] = $bat_low_err;
+        }
+
+        if ($this->hasHighDataDays())
+            $errors['fa-plus-square'] = 'High data on '.$this->hasHighDataDays().' days';
+
+        $weight_kg_perc = $this->getWeightLogPercentage();
+        if ($this->hasNoWeightData())
+        {
+            $errors['fa-balance-scale'] = 'No weight data';
+        }
+        else if ($weight_kg_perc < 90)
+        {
+            $errors['fa-balance-scale'] = "Weight data: $weight_kg_perc %";
+        }
+
+        return $errors;
+    }
+
+    public function getFixAndErrorHtmlIcons()
+    {
+        $html  = '';
+
+        $errs  = $this->getErrorsArray();
+        if (count($errs) > 0)
+        {
+            foreach ($errs as $e_icon => $e_text)
+            {
+                $html .= '<i class="fa fa-sm '.$e_icon.'" style="display: inline-block; height: 16px; width: 14px; margin:2px; color: red;" title="'.$e_text.'"></i>';
+            }
+        }
+        $fixes = $this->getFixesArray();
+        if (count($fixes) > 0)
+        {
+            foreach ($fixes as $f_icon => $f_text)
+            {
+                $html  .= '<i class="fa fa-sm '.$f_icon.'" style="display: inline-block; height: 16px; width: 14px; margin:2px; color: green;" title="'.$f_text.'"></i>';
+            }
+        }
+        return $html;
+    }
+
     public function getLogCacheName($fill=false, $show=false, $matches_min_override=null, $match_props_override=null, $db_records_override=null)
     {
         return 'flashlog-'.$this->id.'-fill-'.$fill.'-show-'.$show.'-matches-'.$matches_min_override.'-dbrecs-'.$db_records_override; // removed -props-'.$match_props_override.'

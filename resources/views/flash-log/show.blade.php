@@ -40,49 +40,9 @@
                 $time_color        = $logs_per_day_perc >= env('FLASHLOG_VALID_TIME_LOG_PERC', 90) && $logs_per_day_perc <= 101 ? 'darkgreen' : 'red';
 
                 $weight_kg_perc    = $flashlog->getWeightLogPercentage();
+                $errors            = $flashlog->getErrorsArray();
+                $fixes             = $flashlog->getFixesArray();
 
-                $errors= [];
-                $fixes = [];
-
-                if ($flashlog->hasRtcBug())
-                    $errors[] = 'RTC bug';
-
-                if ($flashlog->hasTimeErr())
-                {
-                    $time_err = 'Time err';
-
-                    if (isset($flashlog->meta_data['time_err_perc']))
-                        $time_err .= ': '.$flashlog->meta_data['time_err_perc'].'%';
-
-                    $errors[] = $time_err;
-                }
-
-                if ($flashlog->hasBatErr())
-                {
-                    $bat_low_err = '';
-
-                    if (isset($flashlog->meta_data['bat_low_blocks']))
-                        $bat_low_err .= $flashlog->meta_data['bat_low_blocks'].'x ';
-
-                    $bat_low_err .= 'Bat low';
-                    
-                    if (isset($flashlog->meta_data['bat_low_perc']))
-                        $bat_low_err .= ': '.$flashlog->meta_data['bat_low_perc'].'%';
-
-
-                    $errors[] = $bat_low_err;
-                }
-
-                if ($flashlog->hasHighDataDays())
-                    $errors[] = 'High data days';
-
-                if ($flashlog->hasNoWeightData())
-                    $errors[] = 'No weight data';
-                else if ($weight_kg_perc < 90)
-                    $errors[] = "Weight data: $weight_kg_perc %";
-
-                if (isset($flashlog->meta_data['fixBugRtcMonthIndex']) && $flashlog->meta_data['fixBugRtcMonthIndex'] > 0)
-                    $fixes[] = "RTC bug fixes: ".$flashlog->meta_data['fixBugRtcMonthIndex'];
             @endphp
 
             <table class="table table-responsive table-striped">
@@ -114,14 +74,14 @@
                     <tr>
                         <th style="text-align: right;"> Errors </th>
                         <td>
-                            @foreach($errors as $err)
-                            <span class="label label-danger">{{ $err }}</span>
+                            @foreach($errors as $icon => $err)
+                            <span class="label label-danger"><i class="fa fa-sm {{$icon}}"></i> {{ $err }}</span>
                             @endforeach
                         </td>
                         <th style="text-align: right;"> Fixes </th>
                         <td>
-                            @foreach($fixes as $fix)
-                            <span class="label label-success">{{ $fix }}</span>
+                            @foreach($fixes as $icon => $fix)
+                            <span class="label label-success"><i class="fa fa-sm {{$icon}}"></i> {{ $fix }}</span>
                             @endforeach
                         </td>
                     </tr>

@@ -123,51 +123,9 @@
                     $msg   = $error ? 'End date after upload date' : ($valid ? 'Validated log' : null);
                     $date_s= isset($item->log_date_start)? substr($item->log_date_start, 0, 10) : '';
                     $date_e= isset($item->log_date_end)? substr($item->log_date_end, 0, 10) : '';
-                    $errors= [];
-                    $fixes = [];
-
-                    if ($item->hasRtcBug())
-                        $errors[] = 'RTC bug';
-
-                    if ($item->hasTimeErr())
-                    {
-                        $time_err = 'Time err';
-
-                        if (isset($item->meta_data['time_err_perc']))
-                            $time_err .= ': '.$item->meta_data['time_err_perc'].'%';
-
-                        $errors[] = $time_err;
-                    }
-
-                    if ($item->hasBatErr())
-                    {
-                        $bat_low_err = '';
-
-                        if (isset($item->meta_data['bat_low_blocks']))
-                            $bat_low_err .= $item->meta_data['bat_low_blocks'].'x ';
-
-                        $bat_low_err .= 'Bat low';
-                        
-                        if (isset($item->meta_data['bat_low_perc']))
-                            $bat_low_err .= ': '.$item->meta_data['bat_low_perc'].'%';
-
-
-                        $errors[] = $bat_low_err;
-                    }
-
-                    if ($item->hasHighDataDays())
-                        $errors[] = 'High data days';
-
+                    $errors= $item->getErrorsArray();
+                    $icon_h= $item->getFixAndErrorHtmlIcons();
                     $weight_kg_perc = $item->getWeightLogPercentage();
-                    if ($item->hasNoWeightData())
-                        $errors[] = 'No weight data';
-                    else if ($weight_kg_perc < 90)
-                        $errors[] = "Weight data: $weight_kg_perc %";
-
-                    // Fixes
-                    if (isset($item->meta_data['fixBugRtcMonthIndex']) && $item->meta_data['fixBugRtcMonthIndex'] > 0)
-                        $fixes[] = "RTC bug fixes: ".$item->meta_data['fixBugRtcMonthIndex'];
-
                 @endphp
 
                 <tr @if($color) style="background: {{$color}};" title="{{$msg}}" @endif>
@@ -189,12 +147,7 @@
                         Meas: {{ $item->persisted_measurements }} (@if($item->log_messages > 0){{ round(100 * $item->persisted_measurements / $item->log_messages) }}%@else 0%@endif), 
                         @endif
                     <td>
-                        @foreach($errors as $err)
-                        <span class="label label-danger">{{ $err }}</span>
-                        @endforeach
-                        @foreach($fixes as $fix)
-                        <span class="label label-success">{{ $fix }}</span>
-                        @endforeach
+                        {!! $icon_h !!}
                     </td>
                     </td>
                     <td col-sm-1>

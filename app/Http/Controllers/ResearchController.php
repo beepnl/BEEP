@@ -1676,6 +1676,9 @@ class ResearchController extends Controller
                         $dummy_flashlog = new FlashLog; // required for addMetaData
                         $meta_data      = $dummy_flashlog->addMetaData($data_array, true, true);
                         
+                        if (isset($device_log->log_file_info['note']) && $device_log->log_file_info['note'] == $log_device_note)
+                            $log_device_note = ''; // empty note at new parse
+
                         $device_log->log_file_info = array_merge(['note'=>$log_device_note, 'created_date'=>date('Y-m-d H:i:s'), 'csv_url'=>$save_output['link']], $meta_data);
 
                         $device_log->save();

@@ -1608,13 +1608,15 @@ class ResearchController extends Controller
             }
             else // Export CSV and update all log_file_info
             {
-                $flashlogs      = $device_log->flashlogs()->where('log_date_end', '>=', $date_start)->where('log_date_start', '<', $date_until)->orderBy('log_date_start')->get();
+                $flashlogs      = $device_log->flashlogs()->where('log_date_end', '>=', $date_start)->where('log_date_start', '<', $date_until)->orderBy('log_date_start')->get(); // increasing start
                 $date_start_ts  = strtotime("$date_start 00:00:00");
                 $date_until_ts  = strtotime("$date_until 00:00:00");
                 $flashlog_count = $flashlogs->count();
                 $flashlog_i     = 0;
                 $data_array     = [];
+                $measurements   = ['time','bv','t_i','w_v','weight_kg']; // 's_bin_71_122','s_bin_122_173','s_bin_173_224','s_bin_224_276','s_bin_276_327','s_bin_327_378','s_bin_378_429','s_bin_429_480','s_bin_480_532','s_bin_532_583',
 
+                Log::debug("_______________________________");
                 Log::debug("CSV device=$log_device_id add $flashlog_count FL DATA from=$date_start until=$date_until");
                 
                 foreach ($flashlogs as $flashlog)
@@ -1636,6 +1638,28 @@ class ResearchController extends Controller
                         if (!empty($flashlog_parsed_text))
                         {
                             $flashlog_data_array = json_decode($flashlog_parsed_text, true);
+
+                            // Unset Flashlog high data days
+                            $highDataDays = array_keys($flashlog->getHighDataDates());
+                            $start_index  = count($flashlog_data_array)-1;
+                            for ($i=$start_index; $i >= 0; $i--) { 
+                                 // code...
+                                if (isset($flashlog_data_array[$i]['time']))
+                                {
+                                    $item_date_check = substr($flashlog_data_array[$i]['time'], 0, 10);
+                                    if ($item_date_check < $date_start || $item_date_check > $date_until || in_array($item_date_check, $highDataDays))
+                                    {
+                                        //dd($item_date_check, $highDataDays, $flashlog->meta_data, $flashlog_data_array[$i]);
+                                        unset($flashlog_data_array[$i]);
+                                    }
+                                } 
+                                else
+                                {
+                                    unset($flashlog_data_array[$i]);
+                                }
+                            }
+                            //dd($date_start, $date_until, $flashlog_data_array);
+
                             //$flashlog->addMetaData($flashlog_data_array, true);
                             $data_array = array_merge($data_array, $flashlog_data_array);
                         }
@@ -1644,7 +1668,7 @@ class ResearchController extends Controller
                         {
                             //dd($add_db_data, $date_start, $date_until, $log_date_start, $log_date_until, $log_date_start_next, $log_date_start_next_ts, $log_date_until_ts, $log_date_start_next_ts-$log_date_until_ts);
                             Log::debug("CSV device=$log_device_id fl=$flashlog->id valid=$valid_log DB DATA from=$log_date_until until=$log_date_start_next");
-                            $this->addDbDataToDataArray($data_array, $device_log, $log_date_until, $log_date_start_next);
+                            $this->addDbDataToDataArray($data_array, $device_log, $log_date_until, $log_date_start_next, $measurements);
                         }
                     }
                     else 
@@ -1653,7 +1677,7 @@ class ResearchController extends Controller
                         {
                             // get data from DB instead of from Flashlog for this time block
                             Log::debug("CSV device=$log_device_id fl=$flashlog->id valid=$valid_log DB ONLY DATA from=$log_date_start until=$log_date_start_next");
-                            $this->addDbDataToDataArray($data_array, $device_log, $log_date_start, $log_date_start_next);
+                            $this->addDbDataToDataArray($data_array, $device_log, $log_date_start, $log_date_start_next, $measurements);
                         }
                     }
 
@@ -1667,8 +1691,7 @@ class ResearchController extends Controller
                     Log::debug("CSV device=$log_device_id fl=$flashlog->id valid=$valid_log RESULT DATA count=$data_count");
 
                     $csv_file_name  = "device-$log_device_id-flashlog-data";
-                    $csv_columns    = ['time','bv','s_bin_71_122','s_bin_122_173','s_bin_173_224','s_bin_224_276','s_bin_276_327','s_bin_327_378','s_bin_378_429','s_bin_429_480','s_bin_480_532','s_bin_532_583','t_i','w_v','weight_kg'];
-                    $save_output    = FlashLog::exportData($data_array, $csv_file_name, true, ',', true, true, $date_start_ts, $date_until_ts, $csv_columns); // Research data is also exported with , as separator
+                    $save_output    = FlashLog::exportData($data_array, $csv_file_name, true, ',', true, true, $date_start_ts, $date_until_ts, $measurements); // Research data is also exported with , as separator
 
                     if (isset($save_output['link']))
                     {
@@ -1694,13 +1717,16 @@ class ResearchController extends Controller
     }
 
 
-    private function addDbDataToDataArray(&$data_array, $device, $from_date, $until_date)
+    private function addDbDataToDataArray(&$data_array, $device, $from_date, $until_date, $measurements='*')
     {    
         // get data from DB instead of from Flashlog for this time block
         $start_date_u = strtotime($from_date); 
         $until_date_u = strtotime($until_date); 
         $total_secs   = $until_date_u - $start_date_u;
         $total_count  = 0;
+
+        if (is_array($measurements) && count($measurements) > 0)
+            $measurements = '"'.implode('","', $measurements).'"';
 
         if ($total_secs > 0)
         {
@@ -1715,7 +1741,7 @@ class ResearchController extends Controller
                 $start_date = date('Y-m-d H:m:i', $start_date_u + $i * $chunk_secs);
                 $end_date   = date('Y-m-d H:m:i', $start_date_u + ($i+1) * $chunk_secs);
                 
-                $query   = 'SELECT * FROM "sensors" WHERE '.$device->influxWhereKeys().' AND from_flashlog != \'1\' AND time >= \''.$start_date.'\' AND time < \''.$end_date.'\' ORDER BY time ASC LIMIT 5000'; // from start of (invalid) fl to start of next
+                $query   = 'SELECT '.$measurements.' FROM "sensors" WHERE '.$device->influxWhereKeys().' AND from_flashlog != \'1\' AND time >= \''.$start_date.'\' AND time < \''.$end_date.'\' ORDER BY time ASC LIMIT 5000'; // from start of (invalid) fl to start of next
                 $db_data = Device::getInfluxQuery($query, 'flashlog');
                 $db_count= count($db_data);
 

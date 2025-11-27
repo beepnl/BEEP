@@ -276,13 +276,24 @@ class FlashLog extends Model
         return false;
     }
 
-    public function hasHighDataDays()
+    public function getHighDataDates()
     {
         // has high data days if a day has more than 97 log indices: 
-        if (isset($this->meta_data['valid_data_points']) && is_array($this->meta_data['valid_data_points']) && count($this->meta_data['valid_data_points']) > 0)
-            return (max($this->meta_data['valid_data_points']) > 97);
-
-        return false;
+        if (isset($this->meta_data['valid_data_points']))
+        {
+            $valid_data_points = $this->meta_data['valid_data_points'];
+            if (is_array($valid_data_points) && count($valid_data_points) > 0 && max($valid_data_points) > 97)
+            {
+                $dates = [];
+                foreach ($valid_data_points as $date => $value)
+                {
+                    if ($value > 97)
+                        $dates[$date] = $value;
+                }
+                return $dates;
+            }
+        }
+        return [];
     }
 
     public function hasTimeErr()
@@ -349,8 +360,22 @@ class FlashLog extends Model
             $errors['fa-battery-quarter'] = $bat_low_err;
         }
 
-        if ($this->hasHighDataDays())
-            $errors['fa-plus-square'] = 'High data on '.$this->hasHighDataDays().' days';
+        $highDataDates     = $this->getHighDataDates();
+        $highDataDateCount = count($highDataDates);
+        if ($highDataDateCount > 0)
+        {
+            
+            $errors['fa-plus-square'] = 'High data on '.$highDataDateCount.' days';
+            
+            if ($highDataDateCount <= 5)
+            {
+                $highDataDatesArr = [];
+                foreach ($highDataDates as $date => $value) {
+                    $highDataDatesArr[] = "$date: $value values";
+                }
+                $errors['fa-plus-square'] .= ': '.implode(', ', $highDataDatesArr);
+            }
+        }
 
         $weight_kg_perc = $this->getWeightLogPercentage();
         if ($this->hasNoWeightData())
@@ -1811,13 +1836,13 @@ class FlashLog extends Model
 
                                 if (!in_array($date_time_round_min, $date_times))
                                 {
-                                    $data_item_clean = self::cleanFlashlogItem($data_item, true);
-                                    $data_item_clean = array_merge(['time'=>$data_time_utc], $data_item_clean); // Time in first column
+                                    $data_item['time'] = $data_time_utc;
+
                                     // Write each row, aligning to predefined columns
                                     $row = [];
                                     foreach ($header_arr as $m_abbr)
                                     {
-                                        $row[] = isset($data_item_clean[$m_abbr]) ? $data_item_clean[$m_abbr] : ''; // fill missing with blank
+                                        $row[] = isset($data_item[$m_abbr]) ? $data_item[$m_abbr] : ''; // fill missing with blank
                                     }
                                     
                                     // Add item to $csv_body

@@ -28,7 +28,7 @@
                 {
                     foreach($flashlog->meta_data['valid_data_points'] as $d => $logs_day)
                     {
-                        if ($logs_day > 0 && $logs_day != 96)
+                        if (is_numeric($logs_day) && $logs_day > 0 && $logs_day != 96)
                             $invalid_meta_data[$d] = "$d: $logs_day";
                     }
                 }

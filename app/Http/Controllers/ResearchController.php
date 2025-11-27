@@ -1619,76 +1619,86 @@ class ResearchController extends Controller
                 Log::debug("_______________________________");
                 Log::debug("CSV device=$log_device_id add $flashlog_count FL DATA from=$date_start until=$date_until");
                 
-                foreach ($flashlogs as $flashlog)
+                if ($flashlog_count == 0 && $add_db_data && isset($date_start) && isset($date_until)) 
                 {
-                    $valid_log              = $flashlog->validLog();
-                    $log_date_start         = $flashlog->log_date_start;
-                    $log_date_start_ts      = max($date_start_ts, strtotime($log_date_start));
-                    $log_date_until         = $flashlog->log_date_end;
-                    $log_date_until_ts      = min($date_until_ts, strtotime($log_date_until));
-                    $log_date_start_next    = $flashlog_i < $flashlog_count-1 ? $flashlogs->get($flashlog_i + 1)->log_date_start : $date_until.' 00:00:00';
-                    $log_date_start_next_ts = isset($log_date_start_next) ? min($date_until_ts, strtotime($log_date_start_next)) : $date_until_ts;
+                    // get data from DB instead of from Flashlog for this time block
+                    Log::debug("CSV device=$log_device_id DB ONLY DATA from=$date_start until=$date_until");
+                    $this->addDbDataToDataArray($data_array, $device_log, $date_start, $date_until, $measurements);
+                }
+                else
+                {
 
-                    // Add log data to data_array
-                    if (isset($flashlog->log_parsed) && ($invalid_log_prognose || $valid_log))
+                    foreach ($flashlogs as $flashlog)
                     {
-                        Log::debug("CSV device=$log_device_id fl=$flashlog->id valid=$valid_log FL DATA from=$log_date_start until=$log_date_until next_start=$log_date_start_next");
-                        // Add flashlog data to data_array
-                        $flashlog_parsed_text = $flashlog->getFileContent('log_file_parsed');
-                        if (!empty($flashlog_parsed_text))
-                        {
-                            $flashlog_data_array = json_decode($flashlog_parsed_text, true);
+                        $valid_log              = $flashlog->validLog();
+                        $log_date_start         = $flashlog->log_date_start;
+                        $log_date_start_ts      = max($date_start_ts, strtotime($log_date_start));
+                        $log_date_until         = $flashlog->log_date_end;
+                        $log_date_until_ts      = min($date_until_ts, strtotime($log_date_until));
+                        $log_date_start_next    = $flashlog_i < $flashlog_count-1 ? $flashlogs->get($flashlog_i + 1)->log_date_start : $date_until.' 00:00:00';
+                        $log_date_start_next_ts = isset($log_date_start_next) ? min($date_until_ts, strtotime($log_date_start_next)) : $date_until_ts;
 
-                            // Unset Flashlog high data days
-                            $highDataDays = array_keys($flashlog->getHighDataDates());
-                            $start_index  = count($flashlog_data_array)-1;
-                            for ($i=$start_index; $i >= 0; $i--) { 
-                                 // code...
-                                if (isset($flashlog_data_array[$i]['time']))
-                                {
-                                    $item_date_check = substr($flashlog_data_array[$i]['time'], 0, 10);
-                                    if ($item_date_check < $date_start || $item_date_check > $date_until || in_array($item_date_check, $highDataDays))
+                        // Add log data to data_array
+                        if (isset($flashlog->log_parsed) && ($invalid_log_prognose || $valid_log))
+                        {
+                            Log::debug("CSV device=$log_device_id fl=$flashlog->id valid=$valid_log FL DATA from=$log_date_start until=$log_date_until next_start=$log_date_start_next");
+                            // Add flashlog data to data_array
+                            $flashlog_parsed_text = $flashlog->getFileContent('log_file_parsed');
+                            if (!empty($flashlog_parsed_text))
+                            {
+                                $flashlog_data_array = json_decode($flashlog_parsed_text, true);
+
+                                // Unset Flashlog high data days
+                                $highDataDays = array_keys($flashlog->getHighDataDates());
+                                $start_index  = count($flashlog_data_array)-1;
+                                for ($i=$start_index; $i >= 0; $i--) { 
+                                     // code...
+                                    if (isset($flashlog_data_array[$i]['time']))
                                     {
-                                        //dd($item_date_check, $highDataDays, $flashlog->meta_data, $flashlog_data_array[$i]);
+                                        $item_date_check = substr($flashlog_data_array[$i]['time'], 0, 10);
+                                        if ($item_date_check < $date_start || $item_date_check > $date_until || in_array($item_date_check, $highDataDays))
+                                        {
+                                            //dd($item_date_check, $highDataDays, $flashlog->meta_data, $flashlog_data_array[$i]);
+                                            unset($flashlog_data_array[$i]);
+                                        }
+                                    } 
+                                    else
+                                    {
                                         unset($flashlog_data_array[$i]);
                                     }
-                                } 
-                                else
-                                {
-                                    unset($flashlog_data_array[$i]);
                                 }
+                                //dd($date_start, $date_until, $flashlog_data_array);
+
+                                //$flashlog->addMetaData($flashlog_data_array, true);
+                                $data_array = array_merge($data_array, $flashlog_data_array);
                             }
-                            //dd($date_start, $date_until, $flashlog_data_array);
-
-                            //$flashlog->addMetaData($flashlog_data_array, true);
-                            $data_array = array_merge($data_array, $flashlog_data_array);
+                            // Add flashlog data up to next start from DB
+                            if ($add_db_data && isset($log_date_until) && isset($log_date_start_next) && $log_date_start_next_ts - $log_date_until_ts > 84600) // more than a day of data in between
+                            {
+                                //dd($add_db_data, $date_start, $date_until, $log_date_start, $log_date_until, $log_date_start_next, $log_date_start_next_ts, $log_date_until_ts, $log_date_start_next_ts-$log_date_until_ts);
+                                Log::debug("CSV device=$log_device_id fl=$flashlog->id valid=$valid_log DB DATA from=$log_date_until until=$log_date_start_next");
+                                $this->addDbDataToDataArray($data_array, $device_log, $log_date_until, $log_date_start_next, $measurements);
+                            }
                         }
-                        // Add flashlog data up to next start from DB
-                        if ($add_db_data && isset($log_date_until) && isset($log_date_start_next) && $log_date_start_next_ts - $log_date_until_ts > 84600) // more than a day of data in between
+                        else 
                         {
-                            //dd($add_db_data, $date_start, $date_until, $log_date_start, $log_date_until, $log_date_start_next, $log_date_start_next_ts, $log_date_until_ts, $log_date_start_next_ts-$log_date_until_ts);
-                            Log::debug("CSV device=$log_device_id fl=$flashlog->id valid=$valid_log DB DATA from=$log_date_until until=$log_date_start_next");
-                            $this->addDbDataToDataArray($data_array, $device_log, $log_date_until, $log_date_start_next, $measurements);
+                            if ($add_db_data && isset($log_date_start) && isset($log_date_start_next) && $log_date_start_next_ts - $log_date_start_ts > 84600) // more than a day of data in between
+                            {
+                                // get data from DB instead of from Flashlog for this time block
+                                Log::debug("CSV device=$log_device_id fl=$flashlog->id valid=$valid_log DB ONLY DATA from=$log_date_start until=$log_date_start_next");
+                                $this->addDbDataToDataArray($data_array, $device_log, $log_date_start, $log_date_start_next, $measurements);
+                            }
                         }
-                    }
-                    else 
-                    {
-                        if ($add_db_data && isset($log_date_start) && isset($log_date_start_next) && $log_date_start_next_ts - $log_date_start_ts > 84600) // more than a day of data in between
-                        {
-                            // get data from DB instead of from Flashlog for this time block
-                            Log::debug("CSV device=$log_device_id fl=$flashlog->id valid=$valid_log DB ONLY DATA from=$log_date_start until=$log_date_start_next");
-                            $this->addDbDataToDataArray($data_array, $device_log, $log_date_start, $log_date_start_next, $measurements);
-                        }
-                    }
 
-                    $flashlog_i++;
+                        $flashlog_i++;
+                    }
                 }
-
+                // Check result data set
                 $data_count = count($data_array);
 
                 if ($data_count > 0)
                 {
-                    Log::debug("CSV device=$log_device_id fl=$flashlog->id valid=$valid_log RESULT DATA count=$data_count");
+                    Log::debug("CSV device=$log_device_id RESULT DATA count=$data_count");
 
                     $csv_file_name  = "device-$log_device_id-flashlog-data";
                     $save_output    = FlashLog::exportData($data_array, $csv_file_name, true, ',', true, true, $date_start_ts, $date_until_ts, $measurements); // Research data is also exported with , as separator

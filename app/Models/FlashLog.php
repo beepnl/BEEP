@@ -1748,7 +1748,7 @@ class FlashLog extends Model
              + array_slice($array, $position, null, true);
     }
 
-    public static function exportData($data, $name, $csv=true, $separator=',', $link_override=false, $validate_time=false, $min_unix_ts=null, $max_unix_ts=null, $csv_columns=null)
+    public static function exportData(&$data, $name, $csv=true, $separator=',', $link_override=false, $validate_time=false, $min_unix_ts=null, $max_unix_ts=null, $csv_columns=null)
     {
         $link     = $link_override ? $link_override : env('FLASHLOG_EXPORT_LINK', true);
         $time_min = isset($min_unix_ts) ? $min_unix_ts : self::$minUnixTime;
@@ -1791,8 +1791,7 @@ class FlashLog extends Model
                 {
                     $header_arr = $csv_columns;
                 }
-                Log::debug("Export CSV headers");
-                Log::debug($header_arr);
+                Log::debug("Export CSV headers: ".implode(',', $header_arr));
 
                 if (isset($header_arr) && gettype($header_arr) == 'array')
                 {
@@ -1836,13 +1835,15 @@ class FlashLog extends Model
 
                                 if (!in_array($date_time_round_min, $date_times))
                                 {
-                                    $data_item['time'] = $data_time_utc;
+                                    $data_item_clean = self::cleanFlashlogItem($data_item, true);
+                                    $data_item_clean['time']   = $data_time_utc;
+                                    $data_item_clean['source'] = isset($data_item['db']) ? 'db' : 'fl';
 
                                     // Write each row, aligning to predefined columns
                                     $row = [];
                                     foreach ($header_arr as $m_abbr)
                                     {
-                                        $row[] = isset($data_item[$m_abbr]) ? $data_item[$m_abbr] : ''; // fill missing with blank
+                                        $row[] = isset($data_item_clean[$m_abbr]) ? $data_item_clean[$m_abbr] : ''; // fill missing with blank
                                     }
                                     
                                     // Add item to $csv_body
@@ -1867,13 +1868,21 @@ class FlashLog extends Model
                     {
                         if ($header == 'time')
                         {
-                            $col_head = 'time';
+                            $col_head = 'Time';
+                        }
+                        else if ($header == 'w_v')
+                        {
+                            $col_head = 'Raw weight measurement (w_v)';
+                        }
+                        else if ($header == 'source')
+                        {
+                            $col_head = 'Data source';
                         }
                         else
                         {
                             $meas       = Measurement::where('abbreviation', $header)->first();
-                            $col_head   = !$meas ? $header : $meas->pq_name_unit();
-                            $col_head  .= $meas ? " ($header)" : "";
+                            $pq_unit    = $meas ? $meas->pq_name_unit() : '-';
+                            $col_head   = $pq_unit == '-' ? $header : "$pq_unit ($header)";
                         }
 
                         $csv_head_str[] = $col_head;

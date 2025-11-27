@@ -1614,7 +1614,7 @@ class ResearchController extends Controller
                 $flashlog_count = $flashlogs->count();
                 $flashlog_i     = 0;
                 $data_array     = [];
-                $measurements   = ['time','bv','t_i','w_v','weight_kg']; // 's_bin_71_122','s_bin_122_173','s_bin_173_224','s_bin_224_276','s_bin_276_327','s_bin_327_378','s_bin_378_429','s_bin_429_480','s_bin_480_532','s_bin_532_583',
+                $measurements   = ['time','source','bv','t_i','w_v','weight_kg']; // 's_bin_71_122','s_bin_122_173','s_bin_173_224','s_bin_224_276','s_bin_276_327','s_bin_327_378','s_bin_378_429','s_bin_429_480','s_bin_480_532','s_bin_532_583',
 
                 Log::debug("_______________________________");
                 Log::debug("CSV device=$log_device_id add $flashlog_count FL DATA from=$date_start until=$date_until");
@@ -1750,6 +1750,7 @@ class ResearchController extends Controller
                 foreach ($db_data as $d)
                 {
                     $d = FlashLog::cleanDbDataItem($d);
+                    $d['db'] = 1;
                     $data_array[] = $d;
                 }
                 $total_count += $db_count;

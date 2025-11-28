@@ -1765,8 +1765,14 @@ class FlashLog extends Model
             $data_count = count($data);
             $date_times = []; // check which date times (rounded on minute) are already set
             
+                                 
             if ($csv)
             {
+                // Sort array by time ascending
+                usort($data, function($a, $b) {
+                    return $a['time'] <=> $b['time'];   // ascending
+                });
+
                 // format CSV header row: time, sensor1 (unit2), sensor2 (unit2), etc. Exclude the 'sensor' and 'key' columns
                 $header_arr   = null;
                 $header_count = 0;
@@ -1859,7 +1865,6 @@ class FlashLog extends Model
                     $data_count = count($csv_body);
                     Log::debug("Export data count=$data_count");
 
-                    
                     // format CSV
                     $csv_head_str = []; // Header names (incl. unit)
                     $csv_head_row = "";

@@ -1077,8 +1077,8 @@ class ResearchController extends Controller
 
         $date_today   = date('Y-m-d');
         $date_last    = isset($research->end_date) ? $research->end_date : $date_today;
-        $date_start   = max($research->start_date, $request->input('date_start', $research->start_date));
-        $date_until   = min($research->end_date, $request->input('date_until', $date_last));
+        $date_start   = max(substr($research->start_date, 0, 10), $request->input('date_start', $research->start_date));
+        $date_until   = min(substr($research->end_date, 0, 10), $request->input('date_until', $date_last));
 
         $moment_now   = new Moment();
         $moment_start = new Moment($date_start);
@@ -1129,10 +1129,10 @@ class ResearchController extends Controller
 
         // Cap to research
         if ($date_start < $research->start_date)
-            $date_start = $research->start_date;
+            $date_start = substr($research->start_date, 0, 10);
 
         if ($date_until > $research->end_date)
-            $date_until = $research->end_date;
+            $date_until = substr($research->end_date, 0, 10);
 
         $moment_start   = new Moment($date_start);
         $moment_end     = new Moment($date_until);
@@ -1201,7 +1201,7 @@ class ResearchController extends Controller
 
             $user_consent_obj  = $user_consents[0];
             $user_consent      = $user_consent_obj->consent;
-            $date_curr_consent = $date_start > $user_consent_obj->updated_at ? $date_start : $user_consent_obj->updated_at;
+            $date_curr_consent = $date_start > substr($user_consent_obj->updated_at, 0, 10) ? $date_start : $user_consent_obj->updated_at;
             $date_next_consent = $moment_end->format('Y-m-d H:i:s');
             $index             = 0;
 
@@ -1633,8 +1633,12 @@ class ResearchController extends Controller
                         $valid_log              = $flashlog->validLog();
                         $log_date_start         = $flashlog->log_date_start;
                         $log_date_start_ts      = max($date_start_ts, strtotime($log_date_start));
+                        $log_date_start         = date('Y-m-d', $log_date_start_ts); // replace actual date with max date
+
                         $log_date_until         = $flashlog->log_date_end;
                         $log_date_until_ts      = min($date_until_ts, strtotime($log_date_until));
+                        $log_date_until         = date('Y-m-d', $log_date_until_ts); // replace actual date with min date
+
                         $log_date_start_next    = $flashlog_i < $flashlog_count-1 ? $flashlogs->get($flashlog_i + 1)->log_date_start : $date_until.' 00:00:00';
                         $log_date_start_next_ts = isset($log_date_start_next) ? min($date_until_ts, strtotime($log_date_start_next)) : $date_until_ts;
 
@@ -1648,26 +1652,52 @@ class ResearchController extends Controller
                             {
                                 $flashlog_data_array = json_decode($flashlog_parsed_text, true);
 
-                                // Unset Flashlog high data days
-                                $highDataDays = array_keys($flashlog->getHighDataDates());
-                                $start_index  = count($flashlog_data_array)-1;
-                                for ($i=$start_index; $i >= 0; $i--) { 
-                                     // code...
-                                    if (isset($flashlog_data_array[$i]['time']))
+                                if (isset($flashlog->meta_data['valid_data_points']))
+                                {
+                                    $valid_data_points   = $flashlog->meta_data['valid_data_points'];
+                                    $invalid_data_dates  = [];
+                                    
+                                    foreach ($valid_data_points as $date => $datapoints)
                                     {
-                                        $item_date_check = substr($flashlog_data_array[$i]['time'], 0, 10);
-                                        if ($item_date_check < $date_start || $item_date_check > $date_until || in_array($item_date_check, $highDataDays))
+                                        $inside_target_period = $date >= $log_date_start && $date <= $log_date_until ? true : false;
+                                        if ($inside_target_period == false || $datapoints < 5 || $datapoints > 97)
+                                            $invalid_data_dates[$date] = $inside_target_period;
+                                    }
+
+                                    // Unset Flashlog high and low (time & weight) data days
+                                    $start_index             = count($flashlog_data_array)-1;
+                                    $invalid_data_date_array = array_keys($invalid_data_dates);
+
+                                    for ($i=$start_index; $i >= 0; $i--) { 
+                                         // code...
+                                        if (isset($flashlog_data_array[$i]['time']))
                                         {
-                                            //dd($item_date_check, $highDataDays, $flashlog->meta_data, $flashlog_data_array[$i]);
+                                            $item_date_check = substr($flashlog_data_array[$i]['time'], 0, 10);
+                                            if (in_array($item_date_check, $invalid_data_date_array))
+                                            {
+                                                //dd($item_date_check, $highDataDays, $flashlog->meta_data, $flashlog_data_array[$i]);
+                                                unset($flashlog_data_array[$i]);
+                                            }
+                                        } 
+                                        else
+                                        {
                                             unset($flashlog_data_array[$i]);
                                         }
-                                    } 
-                                    else
+                                    }
+                                    //dd($date_start, $log_date_start, $date_until, $log_date_until, $invalid_data_dates);
+                                    
+                                    // Replace high data days and zero data days with DB values if available
+                                    foreach ($invalid_data_dates as $date => $inside_target_period)
                                     {
-                                        unset($flashlog_data_array[$i]);
+                                        if ($inside_target_period === true)
+                                        {
+                                            $replace_date_start = "$date 00:00:00";
+                                            $replace_date_until = "$date 23:59:59";
+                                            $added_points = $this->addDbDataToDataArray($flashlog_data_array, $device_log, $replace_date_start, $replace_date_until, $measurements);
+                                            Log::debug("CSV device=$log_device_id fl=$flashlog->id valid=$valid_log REPLACED INVALID FL DATE $date WITH $added_points DB DATA POINTS");
+                                        }
                                     }
                                 }
-                                //dd($date_start, $date_until, $flashlog_data_array);
 
                                 //$flashlog->addMetaData($flashlog_data_array, true);
                                 $data_array = array_merge($data_array, $flashlog_data_array);
@@ -1676,8 +1706,8 @@ class ResearchController extends Controller
                             if ($add_db_data && isset($log_date_until) && isset($log_date_start_next) && $log_date_start_next_ts - $log_date_until_ts > 84600) // more than a day of data in between
                             {
                                 //dd($add_db_data, $date_start, $date_until, $log_date_start, $log_date_until, $log_date_start_next, $log_date_start_next_ts, $log_date_until_ts, $log_date_start_next_ts-$log_date_until_ts);
-                                Log::debug("CSV device=$log_device_id fl=$flashlog->id valid=$valid_log DB DATA from=$log_date_until until=$log_date_start_next");
-                                $this->addDbDataToDataArray($data_array, $device_log, $log_date_until, $log_date_start_next, $measurements);
+                                $added_points = $this->addDbDataToDataArray($data_array, $device_log, $log_date_until, $log_date_start_next, $measurements);
+                                Log::debug("CSV device=$log_device_id fl=$flashlog->id valid=$valid_log ADDED $added_points DB DATA POINTS from=$log_date_until until=$log_date_start_next");
                             }
                         }
                         else 
@@ -1685,8 +1715,8 @@ class ResearchController extends Controller
                             if ($add_db_data && isset($log_date_start) && isset($log_date_start_next) && $log_date_start_next_ts - $log_date_start_ts > 84600) // more than a day of data in between
                             {
                                 // get data from DB instead of from Flashlog for this time block
-                                Log::debug("CSV device=$log_device_id fl=$flashlog->id valid=$valid_log DB ONLY DATA from=$log_date_start until=$log_date_start_next");
-                                $this->addDbDataToDataArray($data_array, $device_log, $log_date_start, $log_date_start_next, $measurements);
+                                $added_points = $this->addDbDataToDataArray($data_array, $device_log, $log_date_start, $log_date_start_next, $measurements);
+                                Log::debug("CSV device=$log_device_id fl=$flashlog->id valid=$valid_log ADDED $added_points DB ONLY DATA POINTS from=$log_date_start until=$log_date_start_next");
                             }
                         }
 
@@ -1744,7 +1774,7 @@ class ResearchController extends Controller
             $total_days = $total_secs / 86400;
             $chunks     = ceil($total_days / 30);
             $chunk_secs = round($total_secs / $chunks);
-            Log::debug("Add DB DATA device=$device->id from=$from_date until=$until_date => days=$total_days in chunks=$chunks");
+            //Log::debug("Add DB DATA device=$device->id from=$from_date until=$until_date => days=$total_days in chunks=$chunks");
 
             for ($i=0; $i < $chunks; $i++)
             { 
@@ -1755,7 +1785,7 @@ class ResearchController extends Controller
                 $db_data = Device::getInfluxQuery($query, 'flashlog');
                 $db_count= count($db_data);
 
-                Log::debug("Add DB DATA device=$device->id from=$start_date to=$end_date count=$db_count");
+                //Log::debug("Add DB DATA device=$device->id from=$start_date to=$end_date count=$db_count");
 
                 foreach ($db_data as $d)
                 {

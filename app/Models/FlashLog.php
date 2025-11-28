@@ -44,7 +44,7 @@ class FlashLog extends Model
      *
      * @var array
      */
-    protected $fillable = ['user_id', 'device_id', 'hive_id', 'log_messages', 'log_saved', 'log_parsed', 'log_has_timestamps', 'bytes_received', 'log_file', 'log_file_stripped', 'log_file_parsed', 'log_size_bytes', 'log_erased', 'time_percentage', 'persisted_days', 'persisted_measurements', 'persisted_block_ids', 'log_date_start', 'log_date_end', 'logs_per_day', 'csv_url', 'meta_data', 'time_corrections'];
+    protected $fillable = ['user_id', 'device_id', 'hive_id', 'log_messages', 'log_saved', 'log_parsed', 'log_has_timestamps', 'bytes_received', 'log_file', 'log_file_stripped', 'log_file_parsed', 'log_size_bytes', 'log_erased', 'time_percentage', 'persisted_days', 'persisted_measurements', 'persisted_block_ids', 'log_date_start', 'log_date_end', 'logs_per_day', 'csv_url', 'meta_data', 'time_corrections', 'valid_override'];
     protected $hidden   = ['device', 'hive', 'user', 'persisted_block_ids'];
 
     protected $appends  = ['device_name', 'hive_name', 'user_name'];
@@ -234,20 +234,24 @@ class FlashLog extends Model
     public function validLog()
     {
         /* validate log if: 
-           1. created_at (upload date) is within 1 hour from last timestamp
-           2. log % > 90%: interval 15 min should have 96 msg/day (>86msg = >90%)
+           1. Manual validation, or
+           2. created_at (upload date) is within 1 hour from last timestamp
+           3. log % > 90%: interval 15 min should have 96 msg/day (>86msg = >90%)
         */
+        if (isset($this->valid_override) && $this->valid_override === 1)
+            return true; // 1.
+
         $logs_per_day = $this->getLogPerDay();
         
         if (isset($logs_per_day)) // means that $this->log_date_end is set
         {
             $created_u  = strtotime($this->created_at);
             $last_log_u = strtotime($this->log_date_end);
-            if (abs($last_log_u - $created_u) < env('FLASHLOG_VALID_UPLOAD_DIFF_SEC', 7200)) // make sure last available containing data is not more than max time away from upload date
+            if (abs($last_log_u - $created_u) < env('FLASHLOG_VALID_UPLOAD_DIFF_SEC', 7200)) // 2. make sure last available containing data is not more than max time away from upload date
             {
                 $logs_per_day_perc = $this->getTimeLogPercentage();
-                if ($logs_per_day_perc >= env('FLASHLOG_VALID_TIME_LOG_PERC', 90) && $logs_per_day_perc <= 101)
-                    return true;
+                if ($logs_per_day_perc >= env('FLASHLOG_VALID_TIME_LOG_PERC', 90) && $logs_per_day_perc <= 101) // 3.
+                    return true; 
             }
         }
         return false;
@@ -324,6 +328,9 @@ class FlashLog extends Model
 
         if (isset($this->meta_data['fixBugRtcMonthIndex']) && $this->meta_data['fixBugRtcMonthIndex'] > 0)
             $fixes['fa-clock-o'] = "RTC bug fixes: ".$this->meta_data['fixBugRtcMonthIndex'];
+
+        if ($this->valid_override === 1)
+            $fixes['fa-exclamation-triangle'] = "Manually validated";
 
         return $fixes;
     }

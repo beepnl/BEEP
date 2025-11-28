@@ -19,6 +19,7 @@
 
             @php
                 $valid = $flashlog->validLog();
+                $manual= $flashlog->valid_override === 1 ? '(<i class="fa fa-sm fa-exclamation-triangle"></i> manual override)' : '';
                 $error = $flashlog->log_date_end > $flashlog->created_at ? true : false;
                 $color = $error ? 'red' : ($valid ? 'darkgreen' : null);
                 $msg   = $error ? 'End date after upload date' : ($valid ? 'Validated log' : null);
@@ -68,8 +69,8 @@
                     <tr style="color: {{$time_color}}; font-weight: bold;">
                         <th style="text-align: right;"> Time log percentage </th>
                         <td >{{$time_percentage}}% = 100 * Logs per day ({{ $logs_per_day }}) / logs_per_day_full ({{ $logs_per_day_full }})</td>
-                        <th style="color: @if($valid) darkgreen @else red @endif; font-weight: bold; text-align: right;" > Validated </th>
-                        <td style="color: @if($valid) darkgreen @else red @endif;">@if($valid) Yes @else No @endif</td>
+                        <th style="color: @if($valid) darkgreen @else red @endif; font-weight: bold; text-align: right;" > Validated</th>
+                        <td style="color: @if($valid) darkgreen @else red @endif;">@if($valid) Yes @else No @endif {!! $manual !!}</td>
                     </tr>
                     <tr>
                         <th style="text-align: right;"> Errors </th>

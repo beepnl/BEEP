@@ -1421,7 +1421,7 @@ class ResearchController extends Controller
                     foreach ($user_flashlogs as $fl)
                     {
                         // Add id's to reparse list
-                        if (!isset($fl->meta_data['rtc_bug']))
+                        if (!isset($fl->meta_data) || !isset($fl->csv_url))
                             $reparse_fl_ids[] = $fl->id;
 
                         $fl_dev_key = $fl->getDeviceKeyAttribute();

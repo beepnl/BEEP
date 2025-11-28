@@ -1768,11 +1768,6 @@ class FlashLog extends Model
                                  
             if ($csv)
             {
-                // Sort array by time ascending
-                usort($data, function($a, $b) {
-                    return $a['time'] <=> $b['time'];   // ascending
-                });
-
                 // format CSV header row: time, sensor1 (unit2), sensor2 (unit2), etc. Exclude the 'sensor' and 'key' columns
                 $header_arr   = null;
                 $header_count = 0;
@@ -1865,7 +1860,9 @@ class FlashLog extends Model
                     $data_count = count($csv_body);
                     Log::debug("Export data count=$data_count");
 
-                    // format CSV
+
+
+                    // format CSV header
                     $csv_head_str = []; // Header names (incl. unit)
                     $csv_head_row = "";
 
@@ -1893,6 +1890,10 @@ class FlashLog extends Model
                         $csv_head_str[] = $col_head;
                     }
                     $csv_head_row = '"'.implode('"'.$separator.'"', $csv_head_str).'"'."\r\n";
+
+                    // Sort array by time ascending
+                    sort($csv_body); // since time column is first, use this to sort
+                    Log::debug("Export data sorted ascending");
 
                     // format CSV file body
                     $fileBody = $csv_head_row.implode("\r\n", $csv_body);

@@ -273,6 +273,10 @@ class Device extends Model
                 $sd_ids[] = $sd_next->id;
         }
 
+        // If none, add the only calibration
+        if (count($sd_ids) == 0&& $io_sds->count() == 1)
+            $sd_ids[] = $io_sds->first()->id;
+
         return $this->sensorDefinitions()->whereIn('id', $sd_ids)->orderBy('updated_at', 'desc')->get();
     }
 

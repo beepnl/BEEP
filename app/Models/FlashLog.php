@@ -406,7 +406,11 @@ class FlashLog extends Model
         {
             foreach ($errs as $e_icon => $e_text)
             {
-                $html .= '<i class="fa fa-sm '.$e_icon.'" style="display: inline-block; height: 16px; width: 14px; margin:2px; color: red;" title="'.$e_text.'"></i>';
+                $color = 'red';
+                if ($e_icon == 'fa-balance-scale' && intval(substr($weight_kg_perc, -4, 2)) > 0)
+                    $color = 'orange';
+
+                $html .= '<i class="fa fa-sm '.$e_icon.'" style="display: inline-block; height: 16px; width: 14px; margin:2px; color: '.$color.';" title="'.$e_text.'"></i>';
             }
         }
         $fixes = $this->getFixesArray();

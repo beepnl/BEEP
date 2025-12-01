@@ -330,6 +330,9 @@ class Device extends Model
         $meas_per_day = isset($this->interval_min) && $this->interval_min > 0 ? round(1440/$this->interval_min) : 96;
         foreach ($flogs as $fl)
         {
+            if ($fl->log_size_bytes < 100) // neglect small files
+                continue;
+
             $logpd = $fl->logs_per_day;
             $logperc = min(100, round(100 * $logpd / $meas_per_day));
             $days  = $fl->getLogDays();

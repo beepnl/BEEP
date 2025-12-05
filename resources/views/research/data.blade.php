@@ -390,6 +390,7 @@
                             }
                             $log_status = !isset($device->log_file_info['valid']) ? 'fa-question' : (boolval($device->log_file_info['valid']) ? 'fa-check' : 'fa-times');
                             $log_color  = !isset($device->log_file_info['valid']) ? '' : (boolval($device->log_file_info['valid']) ? 'gr' : 'rd');
+                            $outdated_csv = $device->checkLogOutdated();
                             $i++;
                         @endphp
                         <tr class="tb-row-small" @if (isset($device->deleted_at)) style="color: #AAA;" title="Device has been deleted at {{$device->deleted_at}}" @else title="{{ $device->name }}" @endif>
@@ -417,7 +418,7 @@
                                     <button class="btn btn-warning btn-sm loading-spinner" title="Create total CSV" type="submit" data-loading-text="<i class='fa fa-circle-o-notch fa-spin'></i>"><i class="fa fa-upload" aria-hidden="true"></i></button>
                                     
                                     @if(isset($device->log_file_info['csv_url']))
-                                        <a href="{{ $device->log_file_info['csv_url'] }}" target="_blank" class="btn @if($device->checkLogOutdated()) btn-error @else btn-success @endif btn-sm" title="Download total CSV {{$device->log_file_info['created_date']}}: {{ App\Models\CalculationModel::arrayToString($device->log_file_info, ' ', '', ['csv_url','valid_data_points','port2_times_device','firmwares','lowest_bv']) }}"><i class="fa fa-download" aria-hidden="true"></i></a>
+                                        <a href="{{ $device->log_file_info['csv_url'] }}" target="_blank" class="btn @if($outdated_csv) btn-danger @else btn-success @endif btn-sm" title="@if($outdated_csv) (Newer Flashlogs are available, Create total CSV to add data) @endif Download total CSV {{$device->log_file_info['created_date']}}: {{ App\Models\CalculationModel::arrayToString($device->log_file_info, ' ', '', ['csv_url','valid_data_points','port2_times_device','firmwares','lowest_bv']) }}"><i class="fa fa-download" aria-hidden="true"></i></a>
                                     @endif
                                     
                                 </form>

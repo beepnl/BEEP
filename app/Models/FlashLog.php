@@ -781,7 +781,12 @@ class FlashLog extends Model
                         {
                             // if device has RTC, then use first port 3 message as first block ID
                             if (!isset($first_p3_mes))
+                            {
                                 $first_p3_mes = $f;
+                                $block_count++;
+                                $onoffs[$block_count] = $f;
+                                $onoffs[$block_count]['block_count'] = $block_count;
+                            }
 
                             $last_p3_mes = $f;
                         }
@@ -812,6 +817,7 @@ class FlashLog extends Model
             $onoffs[0] = $first_p3_mes;
         }
 
+        //dd($onoffs);
         //Log::debug(['getFlashLogOnOffs', 'device_id'=>$device->id, 'fl_length'=>$fl_length, 'p2'=>$p2_mes_count, 'p3'=>$p3_mes_count, 'fl_index'=>$fl_index, 'fl_index_end'=>$fl_index_end, 'onoffs'=>$onoffs]);
 
         return array_values($onoffs);
@@ -969,7 +975,7 @@ class FlashLog extends Model
     // Set time and add weight_kg by calibration 
     private function setFlashBlockTimes($match, $block_i, $startInd, $endInd, $flashlog, $device, $show=false, $sec_diff_per_index=null, $add_sensordefinitions=true, $use_device_time=false)
     {
-        if (isset($match) && isset($match['flashlog_index']) && isset($match['minute_interval']) && isset($match['time'])) // set times for current block
+        if (isset($match) && isset($match['flashlog_index']) && (isset($match['minute_interval']) || $use_device_time) && isset($match['time'])) // set times for current block
         {
             $matchInd= $match['flashlog_index'];
             $messages= $endInd - $startInd;
@@ -979,7 +985,8 @@ class FlashLog extends Model
             {
                 $blockStaOff = $startInd - $matchInd;
                 $blockEndOff = $endInd - $matchInd;
-                $matchSecInt = isset($sec_diff_per_index) ? $sec_diff_per_index : $match['minute_interval']*60;
+                $second_intv = isset($match['minute_interval']) ? $match['minute_interval']*60 : $device->measurement_interval_min*60;
+                $matchSecInt = isset($sec_diff_per_index) ? $sec_diff_per_index : $second_intv;
                 
                 $matchTime   = $match['time'];
                 $matchMoment = new Moment($matchTime);

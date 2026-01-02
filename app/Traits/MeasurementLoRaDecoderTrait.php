@@ -279,7 +279,7 @@ trait MeasurementLoRaDecoderTrait
             
             if ($port == 2)
             {
-                if (substr($p, 0, 2) == '01' && (strlen($p) == 52 || strlen($p) == 60 || strlen($p) == 70 || strlen($p) == 76 || strlen($p) == 86)) // BEEP base fw 1.3.3+ start-up message)
+                if (substr($p, 0, 2) == '01' && (strlen($p) == 52 || strlen($p) == 60 || strlen($p) == 70 || strlen($p) == 76 || strlen($p) == 80 || strlen($p) == 86)) // BEEP base fw 1.3.3+ start-up message)
                 {
                     $out['beep_base'] = true;
                     // 0100010003000502935cbdd3ffff94540e0123af9aed3527beee1d000001 (60)
@@ -304,7 +304,7 @@ trait MeasurementLoRaDecoderTrait
                         $out['hardware_id'] = substr($p, 34, 18); // 34-51
                     
                     
-                    if (strlen($p) == 60 || strlen($p) == 70)
+                    if (strlen($p) == 60 || strlen($p) == 70 || strlen($p) == 80)
                     {
                         if (substr($p, 52, 2) == "1d")
                         {
@@ -312,7 +312,7 @@ trait MeasurementLoRaDecoderTrait
                             $out['measurement_interval_min']       = hexdec(substr($p, 56, 4)); 
                         }
                         // From 1.5.9 time is added to startup message
-                        if (strlen($p) == 70)
+                        if (strlen($p) == 70 || strlen($p) == 80)
                         {
                             $time_id        = substr($pu, 60, 2); 
                             $time_available = $time_id == '25' || $time_id == '26' || $time_id == '2D' ? true : false;
@@ -326,6 +326,13 @@ trait MeasurementLoRaDecoderTrait
                                     $out['time_clock']  = $time_id == '26' || $time_id == '2D' ? 'rtc' : 'mcu'; // 2023-08-16 added to FW 1.5.14+: 25 == PCB clock. 26/2D == RTC clock
                                     $out['time_device'] = $unixts;
                                 }
+                            }
+                        }
+                        if (strlen($p) == 80)
+                        {
+                            if (substr($p, 70, 2) == "2b")
+                            {
+                                $out['reset_reason'] = hexdec(substr($p, 72, 8));
                             }
                         }
                     }

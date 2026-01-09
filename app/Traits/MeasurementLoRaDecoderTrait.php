@@ -279,7 +279,7 @@ trait MeasurementLoRaDecoderTrait
             
             if ($port == 2)
             {
-                if (substr($p, 0, 2) == '01' && (strlen($p) == 52 || strlen($p) == 60 || strlen($p) == 70 || strlen($p) == 76 || strlen($p) == 80 || strlen($p) == 86)) // BEEP base fw 1.3.3+ start-up message)
+                if (substr($p, 0, 2) == '01' && (strlen($p) == 52 || strlen($p) == 60 || strlen($p) == 70 || strlen($p) == 76 || strlen($p) == 80 || strlen($p) == 86 || strlen($p) == 96)) // BEEP base fw 1.3.3+ start-up message)
                 {
                     $out['beep_base'] = true;
                     // 0100010003000502935cbdd3ffff94540e0123af9aed3527beee1d000001 (60)
@@ -287,7 +287,8 @@ trait MeasurementLoRaDecoderTrait
                     // 010001000300050293569434FFFF94540E012385039722D342EE1F0000000803091D0000010A (76 -> 74 + 0A) (or + time = 86)
                     // 0100010005000902C350B359FFFF60090E0123EEC27300DF41EE1D010005 25 607061A9 (70) (60 + time) // From 1.5.9 time is added to startup message
                     // 7ECDD9423C26E3237497841B5F12915F5CD681E554FC1C2B7466ACBBEDE44C8670162B (70)
-                    // 010001000800000200010000038a645c 0e0123450604a2feafee 1d0100 0f2d6957fc482b00000000 (80) fw 1.8.0+, incl. reset reason
+                    // 010001000800000200010000038a645c0e0123450604a2feafee1d01000f2d6957fc482b00000000 (80) fw 1.8.0+, incl. reset reason 0
+                    // 010001000800000200030004038a645c0e0123450e2bc68559ee1d01000f2d6960d7432b00000004 (80) fw 1.8.0+, incl. reset reason 4
 
                     //                                                 0e01236dada5c40a28ee
                     // 01 00 01 00 03 00 04 02 93 56 85 E6 FF FF 94 54 0E 01 23 7A 26 A6 7D 24 D8 EE 1D 00 00 01 25 60 70 61 A9 
@@ -333,7 +334,7 @@ trait MeasurementLoRaDecoderTrait
                               - 0x00000000 - UNKNOWN (always 0 in 1.8.0 due to register does not get cleared)
                               - 0x00000001 — RESETPIN (reset pin)
                               - 0x00000002 — DOG (watchdog)
-                              - 0x00000004 — SREQ (soft reset request)
+                              - 0x00000004 — SREQ (soft reset request, LoRa Stack reset)
                               - 0x00000008 — LOCKUP (CPU lockup)
                               - 0x00010000 — OFF (wake from System OFF)
                               - 0x00020000 — LPCOMP (low‑power comparator)
@@ -365,7 +366,7 @@ trait MeasurementLoRaDecoderTrait
                         }
 
                         // From fw 1.5.9 time is added to startup message
-                        if (strlen($p) == 86) 
+                        if (strlen($p) == 86 || strlen($p) == 96) 
                         {
                             $time_id        = substr($pu, 74, 2); 
                             $time_available = $time_id == '25' || $time_id == '26' || $time_id == '2D' || $time_id == '2E' ? true : false;
@@ -379,25 +380,26 @@ trait MeasurementLoRaDecoderTrait
                                     $out['time_device'] = $unixts; // This sets $device->datetime and $device->datetime_offset_sec in MeasurementController::addDeviceMeta();
                                 }
                             }
-                        }
-                        /*
-                        From fw 1.8.0 Add reset reason (2026-01-03):
-                          - 0x00000000 - UNKNOWN (always 0 in 1.8.0 due to register does not get cleared)
-                          - 0x00000001 — RESETPIN (reset pin)
-                          - 0x00000002 — DOG (watchdog)
-                          - 0x00000004 — SREQ (soft reset request)
-                          - 0x00000008 — LOCKUP (CPU lockup)
-                          - 0x00010000 — OFF (wake from System OFF)
-                          - 0x00020000 — LPCOMP (low‑power comparator)
-                          - 0x00040000 — DIF (debug interface)
-                          - 0x00080000 — NFC
-                          - 0x00100000 — VBUS (USB VBUS)
-                        */
-                        if (strlen($p) == 96)
-                        {
-                            if (substr($p, 86, 2) == "2b")
+
+                            /*
+                            From fw 1.8.0 Add reset reason (2026-01-03):
+                              - 0x00000000 - UNKNOWN (always 0 in 1.8.0 due to register does not get cleared)
+                              - 0x00000001 — RESETPIN (reset pin)
+                              - 0x00000002 — DOG (watchdog)
+                              - 0x00000004 — SREQ (soft reset request)
+                              - 0x00000008 — LOCKUP (CPU lockup)
+                              - 0x00010000 — OFF (wake from System OFF)
+                              - 0x00020000 — LPCOMP (low‑power comparator)
+                              - 0x00040000 — DIF (debug interface)
+                              - 0x00080000 — NFC
+                              - 0x00100000 — VBUS (USB VBUS)
+                            */
+                            if (strlen($p) == 96)
                             {
-                                $out['reset_reason'] = hexdec(substr($p, 88, 8));
+                                if (substr($p, 86, 2) == "2b")
+                                {
+                                    $out['reset_reason'] = hexdec(substr($p, 88, 8));
+                                }
                             }
                         }
                     }

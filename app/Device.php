@@ -156,6 +156,13 @@ class Device extends Model
         return false;
     }
 
+    public function checkLogOutdated()
+    {
+        if (isset($this->log_file_info['created_date']))
+            return ($this->flashlogs()->where('updated_at' , '>', $this->log_file_info['created_date'])->count() > 0);
+        
+        return false;
+    }
 
     public function researchNames()
     {

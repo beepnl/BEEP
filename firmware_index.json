@@ -1,5 +1,29 @@
 [
     {
+        "version": "1.8.0",
+        "release_date": "2026-01-02T11:50:00Z",
+        "release_notes": "Possible fix high energy consumption: changed I2C driver to non-blocking, add timeouts to all sensor busy-checks",
+        "stability": "test",
+        "size": 185693,
+        "download_url": "https://assets.beep.nl/firmware/basev3/1.8.0/Beepbase_app_v180.zip"
+    },
+    {
+        "version": "1.7.4",
+        "release_date": "2025-12-19T10:21:00Z",
+        "release_notes": "BEEP base 1.7.4 possible bug fix for occasional high energy consumption in I2C and LoRaWAN Semtec driver.",
+        "stability": "test",
+        "size": 185693,
+        "download_url": "https://assets.beep.nl/firmware/basev3/1.7.4/Beepbase_app_1.7.4_12-19.zip"
+    },
+    {
+        "version": "1.7.2",
+        "release_date": "2025-12-05T17:45:00Z",
+        "release_notes": "BEEP base 1.7.2 possible bug fix for occasional high energy consumption in LoRaWAN Semtec driver.",
+        "stability": "test",
+        "size": 187282,
+        "download_url": "https://assets.beep.nl/firmware/basev3/1.7.2/Beepbase_app_1.7.2.zip"
+    },
+    {
         "version": "1.7.1",
         "release_date": "2025-08-18T13:20:00Z",
         "release_notes": "BEEP base 1.7.1 (same as 1.6.1) critical bug fix for occasional high energy consumption if temperature sensor (DS18b20) enters busy state.",

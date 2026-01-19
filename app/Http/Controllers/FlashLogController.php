@@ -77,7 +77,7 @@ class FlashLogController extends Controller
 
         //dd($bytes, $log_parsed);
 
-        $flashlog = $flashlogs->orderByDesc('created_at')->paginate($perPage);
+        $flashlog = $flashlogs->orderByDesc('id')->paginate($perPage);
 
 
         return view('flash-log.index', compact('flashlog'));

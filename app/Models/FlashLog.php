@@ -1380,7 +1380,7 @@ class FlashLog extends Model
             // Correct device time in same block, if the time goes back by 24 hours (caused by the RTC jump?)
             $block_time_offset = 0;
             $block_manual_offset = 0;
-            $apply_time_shift_offset = false;
+            $apply_time_shift_offset = env('FLASHLOG_FIX_TIME_JUMP', true);
             for ($index=$start_index; $index <= $end_index; $index++) 
             {
                 if (isset($flashlog[$index]['time_device']) && !isset($flashlog[$index]['time_error']) && $flashlog[$index]['port'] == 3)
@@ -1656,26 +1656,30 @@ class FlashLog extends Model
             $block_index  = $on_i;
             $on           = $on_offs[$on_i];
             $last_onoff   = $block_index == $onoff_cnt-1 ? true : false;
-            $end_index    = $on['end_index'];
-
-            // if ($start_index >= $fl_index)
-            // {
             
-            $matchBlockResult = $this->matchFlashLogBlock($block_index, $fl_index, $end_index, $on, $flashlog, $setCount, $device, $log, $db_time, $matches_min, $match_props, $db_records, $show, $add_sensordefinitions, $use_rtc, $last_onoff, $correct_data, $offset_s);
-            $flashlog         = $matchBlockResult['flashlog'];
-            $offset_s         = $matchBlockResult['device_time_offset'];
-            $db_time          = $matchBlockResult['db_time'];
-            $log              = $matchBlockResult['log'];
-            $setCount         = $matchBlockResult['setCount'];
-            $fl_index         = $matchBlockResult['fl_index'];
-            $matches         += $matchBlockResult['has_matches'] ? 1 : 0;
-            // }
-            // else
-            // {
-            // if ($show)
-            //     $log[] = ['block'=> $block_index, 'block_i'=>$block_index, 'start_i'=>$start_index, 'end_i'=>$end_index, 'duration_hours'=>$duration_hrs, 'fl_i'=>$fl_index, 'db_time'=>$db_time, 'fw_version'=>$firmware_version, 'interval_min'=>$on['measurement_interval_min'], 'transmission_ratio'=>$on['measurement_transmission_ratio'], 'no_matches'=>'start_index < fl_index'];
-            // }
-            //Log::debug(['fillTimeFromInflux', 'device_id'=>$device->id, 'use_rtc'=>$use_rtc, 'matches'=>$matches, 'db_time'=>$db_time, 'log'=>$log]);
+            if (isset($on['end_index']))
+            {
+                $end_index    = $on['end_index'];
+
+                // if ($start_index >= $fl_index)
+                // {
+                
+                $matchBlockResult = $this->matchFlashLogBlock($block_index, $fl_index, $end_index, $on, $flashlog, $setCount, $device, $log, $db_time, $matches_min, $match_props, $db_records, $show, $add_sensordefinitions, $use_rtc, $last_onoff, $correct_data, $offset_s);
+                $flashlog         = $matchBlockResult['flashlog'];
+                $offset_s         = $matchBlockResult['device_time_offset'];
+                $db_time          = $matchBlockResult['db_time'];
+                $log              = $matchBlockResult['log'];
+                $setCount         = $matchBlockResult['setCount'];
+                $fl_index         = $matchBlockResult['fl_index'];
+                $matches         += $matchBlockResult['has_matches'] ? 1 : 0;
+                // }
+                // else
+                // {
+                // if ($show)
+                //     $log[] = ['block'=> $block_index, 'block_i'=>$block_index, 'start_i'=>$start_index, 'end_i'=>$end_index, 'duration_hours'=>$duration_hrs, 'fl_i'=>$fl_index, 'db_time'=>$db_time, 'fw_version'=>$firmware_version, 'interval_min'=>$on['measurement_interval_min'], 'transmission_ratio'=>$on['measurement_transmission_ratio'], 'no_matches'=>'start_index < fl_index'];
+                // }
+                //Log::debug(['fillTimeFromInflux', 'device_id'=>$device->id, 'use_rtc'=>$use_rtc, 'matches'=>$matches, 'db_time'=>$db_time, 'log'=>$log]);
+            }
         }
 
         $records_flashlog = 0;

@@ -491,7 +491,7 @@ trait MeasurementLoRaDecoderTrait
                             {
                                 for ($i=0; $i < $weight_amount; $i++)
                                 { 
-                                    $out['w_v_'.$i+1] = self::hexdecs(substr($p, $sb+4+($i*6), 6)); // w_v_1, w_v_2, etc
+                                    $out['w_v_'.($i+1)] = self::hexdecs(substr($p, $sb+4+($i*6), 6)); // w_v_1, w_v_2, etc
                                 }
                             }
                         }

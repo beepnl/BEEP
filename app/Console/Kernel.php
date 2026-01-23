@@ -6,6 +6,7 @@ use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
 
 use App\Weather;
+use App\Models\FlashLog;
 use App\Models\AlertRule;
 
 class Kernel extends ConsoleKernel
@@ -40,6 +41,13 @@ class Kernel extends ConsoleKernel
                 AlertRule::parseRules();
             }
         )->everyMinute();
+
+        $schedule->call(
+            function () 
+            {
+                FlashLog::parseUnparsedFlashlogs();
+            }
+        )->everyFiveMinutes();
     }
 
     /**

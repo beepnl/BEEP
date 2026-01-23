@@ -124,7 +124,7 @@ class FlashLogController extends Controller
 
         // Analyse one day
         $date          = $request->filled('date') ? $request->input('date') : null;
-        $correct_data  = $request->filled('correct_data') && $request->input('correct_data') === '1' ? true : false;
+        $correct_data  = $request->filled('correct_data') && $request->input('correct_data') === '0' ? false : true;
         $show_payload  = $request->filled('show_payload') && $request->input('show_payload') === '1' ? true : false;
         $date_analysis = null;
         if (isset($date))
@@ -242,12 +242,10 @@ class FlashLogController extends Controller
             }
             else
             {
-                $correct_data = false; // do not use correction, only RTC correction
-
                 $data = $flashlog->getFileContent('log_file');
                 if (isset($data))
                 {
-                    // log($data='', $log_bytes=null, $save=true, $fill=?, $show=false, $matches_min_override=null, $match_props_override=null, $db_records_override=null, $save_override=false, $from_cache=false, $match_days_offset=0, $add_sensordefinitions=?)
+                    // log($data='', $log_bytes=null, $save=true, $fill=?, $show=false, $matches_min_override=null, $match_props_override=null, $db_records_override=null, $save_override=false, $from_cache=false, $match_days_offset=0, $add_sensordefinitions=true, $use_rtc=true, $correct_data=false)
                     $res  = $flashlog->log($data, null, true, $fill_time, false, null, null, null, false, false, 0, $fill_sdef, true, $correct_data);
 
                     foreach ($res as $key => $value) {

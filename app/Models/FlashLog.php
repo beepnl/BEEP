@@ -680,12 +680,12 @@ class FlashLog extends Model
             {
                 $parsed = true;
                 
-                if ($save)
+                if ($save && $log_bytes)
                 {
                     // Save
                     try{
                         $logFileName = $f_dir."/sensor_".$sid."_flash_parsed_$time.json";
-                        $saved = Storage::disk($disk)->put($logFileName, json_encode($out), $mime_j);
+                        $saved = Storage::disk($disk)->put($logFileName, json_encode($out, JSON_THROW_ON_ERROR), $mime_j);
                         $f_par = Storage::disk($disk)->url($logFileName);
                     } catch (Exception $e) {
                         Log::error("Flashlog.log error: ".$e->getMessage());

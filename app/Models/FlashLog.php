@@ -176,7 +176,7 @@ class FlashLog extends Model
     {
         $parse_fl_sec   = env('FLASHLOG_PARSE_HISTORY_SEC', (24*7*3600)); // last week
         $last_week_date = date('Y-m-d', time()-$parse_fl_sec);
-        $fls            = self::where('created_at', '>' , $last_week_date)->whereNotNull('log_file')->whereBetween('log_messages', '>', 0)->where('log_messages', '<', 65000)->orderByDesc('created_at')->get(); // prevent memory issues by parsing only log files ~ < 3.5MB
+        $fls            = self::where('created_at', '>' , $last_week_date)->whereNotNull('log_file')->where('log_messages', '>', 0)->where('log_messages', '<', 65000)->orderByDesc('created_at')->get(); // prevent memory issues by parsing only log files ~ < 3.5MB
         $cnt            = $fls->count();
         Log::info("Auto parse check for $cnt Flashlogs since $last_week_date");
         

@@ -680,7 +680,7 @@ class FlashLog extends Model
             {
                 $parsed = true;
                 
-                if ($save && $log_bytes)
+                if ($save)
                 {
                     // Save
                     try{

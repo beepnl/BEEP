@@ -683,9 +683,13 @@ class FlashLog extends Model
                 if ($save)
                 {
                     // Save
-                    $logFileName = $f_dir."/sensor_".$sid."_flash_parsed_$time.json";
-                    $saved = Storage::disk($disk)->put($logFileName, json_encode($out), $mime_j);
-                    $f_par = Storage::disk($disk)->url($logFileName);
+                    try{
+                        $logFileName = $f_dir."/sensor_".$sid."_flash_parsed_$time.json";
+                        $saved = Storage::disk($disk)->put($logFileName, json_encode($out), $mime_j);
+                        $f_par = Storage::disk($disk)->url($logFileName);
+                    } catch (Exception $e) {
+                        Log::error("Flashlog.log error: ".$e->getMessage());
+                    }
                 }
             }
         }

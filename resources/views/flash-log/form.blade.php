@@ -143,7 +143,11 @@
 
 <div class="col-xs-12">
 	<div class="form-group {{ $errors->has('time_corrections') ? 'has-error' : ''}}">
-	    <label for="time_corrections" control-label>Time corrections: enter {"{{date('Y-m-d')}} 00:00:00": "-86400"}</label>
+		@php
+		$start_date = isset($flashlog->log_date_start) ? $flashlog->log_date_start : date('Y-m-d').' 00:00:00';
+		$corr_time  = isset($flashlog->log_date_start) ? 86400 : -86400;
+		@endphp
+	    <label for="time_corrections" control-label>Time corrections, enter: {"{{$start_date}}": "{{$corr_time}}"}</label>
 	    <div>
 <textarea name="time_corrections" rows="10" style="width: 100%">
 @json(isset($flashlog->time_corrections) ? $flashlog->time_corrections : [], JSON_PRETTY_PRINT)

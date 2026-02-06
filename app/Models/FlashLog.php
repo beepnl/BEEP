@@ -492,11 +492,9 @@ class FlashLog extends Model
         $time_corrections_array = [];
         if (isset($this->time_corrections) && is_array($this->time_corrections))
         {
-            foreach ($this->time_corrections as $date_sec_arr)
+            foreach ($this->time_corrections as $datetime => $sec_offset)
             {
-                $datetime   = array_key_first($date_sec_arr);
                 $timestamp  = strtotime($datetime);
-                $sec_offset = $date_sec_arr[$datetime];
                 $time_corrections_array[$timestamp] = $sec_offset;
             }
             krsort($time_corrections_array, SORT_NUMERIC);

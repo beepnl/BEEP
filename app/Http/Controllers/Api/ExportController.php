@@ -291,6 +291,7 @@ class ExportController extends Controller
                 
                 $keys_count       = count($user_device_keys);
                 $user_device_keys = '('.implode(' OR ', $user_device_keys).')';
+                Log::info("export all Influx bv count data $keys_count keys from $date_user_created to $date_until_today");
 
                 try{
                     $this->cacheRequestRate('influx-get');

@@ -884,7 +884,7 @@ class MeasurementController extends Controller
         $payload_type = '';
 
         // distinguish type of data
-        if ($request->filled('LrnDevEui') && $request->filled('DevEUI_uplink.payload_hex')) // KPN/Simpoint HTTPS POST
+        if (($request->filled('LrnDevEui') || $request->filled('DevEUI_uplink.DevEUI')) && $request->filled('DevEUI_uplink.payload_hex')) // KPN/Simpoint HTTPS POST
         {
             $data_array = $this->parse_kpn_payload($request_data);
             $payload_type = 'kpn';

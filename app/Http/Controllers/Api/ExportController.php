@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
 use Response;
 use Storage;
@@ -288,13 +289,15 @@ class ExportController extends Controller
                         $user_dloc_coords[] = '("lat" = \''.$loc->coordinate_lat.'\' AND "lon" = \''.$loc->coordinate_lon.'\')';
                 }
                 
+                $keys_count       = count($user_device_keys);
                 $user_device_keys = '('.implode(' OR ', $user_device_keys).')';
 
                 try{
                     $this->cacheRequestRate('influx-get');
                     $this->cacheRequestRate('influx-export');
-                    $points = $this->client::query('SELECT COUNT("bv") as "count" FROM "sensors" WHERE '.$user_device_keys.' AND time >= \''.$date_user_created.'\' AND time <= \''.$date_until_today.'\' GROUP BY time(1d)')->getPoints();
+                    $points = $this->client::query('SELECT COUNT("bv") as "count" FROM "sensors" WHERE '.$user_device_keys.' AND time >= \''.$date_user_created.'\' AND time <= \''.$date_until_today.'\' GROUP BY time(1d)')->limit(5000)->getPoints();
                 } catch (InfluxDB\Exception $e) {
+                    Log::error("export all Influx bv count data error, $keys_count keys from $date_user_created to $date_until_today: ".$e->getMessage());
                     // return Response::json('influx-group-by-query-error', 500);
                 }
                 if (count($points) > 0)
@@ -304,13 +307,15 @@ class ExportController extends Controller
                 }
 
                 // Add weather data
+                $dloc_count                = count($user_dloc_coords);
                 $user_location_coord_where = '('.implode(' OR ', $user_dloc_coords).')';
                 if (count($user_dloc_coords) > 0 && isset($date_user_created))
                 {
                     try{
-                        $weather = $this->client::query('SELECT COUNT("temperature") as "count" FROM "weather" WHERE '.$user_location_coord_where.' AND time >= \''.$date_user_created.'\' AND time <= \''.$date_until_today.'\' GROUP BY time(1d)')->getPoints(); // get first weather date
+                        $weather = $this->client::query('SELECT COUNT("temperature") as "count" FROM "weather" WHERE '.$user_location_coord_where.' AND time >= \''.$date_user_created.'\' AND time <= \''.$date_until_today.'\' GROUP BY time(1d)')->limit(5000)->getPoints(); // get first weather date
                     } catch (InfluxDB\Exception $e) {
                         // return Response::json('influx-group-by-query-error', 500);
+                        Log::error("export all Influx weather count error, $dloc_count dlocs from $date_user_created to $date_until_today: ".$e->getMessage());
                     }
                     if (count($weather) > 0)
                     {

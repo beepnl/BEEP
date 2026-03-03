@@ -91,7 +91,7 @@ class FlashLogController extends Controller
     public function create()
     {
         $flashlog = new FlashLog();
-        return view('flash-log.create');
+        return view('flash-log.create', compact('flashlog'));
     }
 
     /**

@@ -99,7 +99,7 @@
 	        <input class="form-control" type="datetime-local" 
            id="created_at" 
            name="created_at"
-           value="{{ $flashlog->created_at->format('Y-m-d\TH:i') ?? ''}}">
+           value="{{ isset($flashlog->created_at) ? $flashlog->created_at->format('Y-m-d\TH:i') : ''}}">
 	        {!! $errors->first('created_at', '<p class="help-block">:message</p>') !!}
 	    </div>
 	</div>

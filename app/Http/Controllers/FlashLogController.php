@@ -206,63 +206,60 @@ class FlashLogController extends Controller
 
         $route    = $load_show ? 'flash-log.show' : 'flash-log.index';
         
-        //dd($query_par);
-        if(isset($flashlog->log_file))
+        // Update bytes received if 0
+        if (isset($flashlog->log_file) && $flashlog->bytes_received == 0 && $flashlog->log_messages > 0)
         {
-            // Update bytes received if 0
-            if ($flashlog->bytes_received == 0 && $flashlog->log_messages > 0)
+            $flashlog->bytes_received = $flashlog->getFileSizeBytes('log_file');
+            $flashlog->save();
+        }
+
+        if ($correct_data == false && ($fill_csv || $fill_meta) && isset($flashlog->log_parsed)) // use parsed log file to generate CSV
+        {
+            $flashlog_parsed_text = $flashlog->getFileContent('log_file_parsed');
+            if (empty($flashlog_parsed_text))
+                return redirect()->route($route, $query_par)->with('error', "FlashLog $id log_file_parsed is empty");
+
+            $flashlog_parsed_json = json_decode($flashlog_parsed_text, true);
+
+            if ($fill_meta)
+                $fl_saved = $flashlog->addMetaToFlashlog($flashlog_parsed_json);
+            else
+                $fl_saved = $flashlog->addCsvToFlashlog($flashlog_parsed_json);
+
+            $type = $fill_meta ? 'Meta' : 'CSV';
+            
+            if ($fl_saved)
             {
-                $flashlog->bytes_received = $flashlog->getFileSizeBytes('log_file');
-                $flashlog->save();
+                $meta_str = CalculationModel::arrayToString($flashlog->meta_data, ', ', '', ['valid_data_points','port2_times_device','firmwares','lowest_bv']);
+                return redirect()->route($route, $query_par)->with('success', "FlashLog $id $type set, Meta data: ".$meta_str);
             }
 
-            if ($correct_data == false && ($fill_csv || $fill_meta) && isset($flashlog->log_parsed)) // use parsed log file to generate CSV
+            return redirect()->route($route, $query_par)->with('error', "FlashLog $id $type save error");
+
+        }
+        else if (isset($flashlog->log_file))
+        {
+            $data = $flashlog->getFileContent('log_file');
+            if (isset($data))
             {
-                $flashlog_parsed_text = $flashlog->getFileContent('log_file_parsed');
-                if (empty($flashlog_parsed_text))
-                    return redirect()->route($route, $query_par)->with('error', "FlashLog $id log_file_parsed is empty");
+                // log($data='', $log_bytes=null, $save=true, $fill=?, $show=false, $matches_min_override=null, $match_props_override=null, $db_records_override=null, $save_override=false, $from_cache=false, $match_days_offset=0, $add_sensordefinitions=true, $use_rtc=true, $correct_data=false)
+                $res  = $flashlog->log($data, null, true, $fill_time, false, null, null, null, false, false, 0, $fill_sdef, true, $correct_data);
 
-                $flashlog_parsed_json = json_decode($flashlog_parsed_text, true);
-
-                if ($fill_meta)
-                    $fl_saved = $flashlog->addMetaToFlashlog($flashlog_parsed_json);
-                else
-                    $fl_saved = $flashlog->addCsvToFlashlog($flashlog_parsed_json);
-
-                $type = $fill_meta ? 'Meta' : 'CSV';
-                
-                if ($fl_saved)
-                {
-                    $meta_str = CalculationModel::arrayToString($flashlog->meta_data, ', ', '', ['valid_data_points','port2_times_device','firmwares','lowest_bv']);
-                    return redirect()->route($route, $query_par)->with('success', "FlashLog $id $type set, Meta data: ".$meta_str);
+                foreach ($res as $key => $value) {
+                    $out[] = "$key=$value"; 
                 }
-
-                return redirect()->route($route, $query_par)->with('error', "FlashLog $id $type save error");
 
             }
             else
             {
-                $data = $flashlog->getFileContent('log_file');
-                if (isset($data))
-                {
-                    // log($data='', $log_bytes=null, $save=true, $fill=?, $show=false, $matches_min_override=null, $match_props_override=null, $db_records_override=null, $save_override=false, $from_cache=false, $match_days_offset=0, $add_sensordefinitions=true, $use_rtc=true, $correct_data=false)
-                    $res  = $flashlog->log($data, null, true, $fill_time, false, null, null, null, false, false, 0, $fill_sdef, true, $correct_data);
-
-                    foreach ($res as $key => $value) {
-                        $out[] = "$key=$value"; 
-                    }
-
-                }
-                else
-                {
-                    return redirect()->route($route, $query_par)->with('error', "FlashLog $id file '$flashlog->log_file' not found");
-                }
+                return redirect()->route($route, $query_par)->with('error', "FlashLog $id file '$flashlog->log_file' not found");
             }
         }
         else
         {
             return redirect()->route($route, $query_par)->with('error', "FlashLog $id No flashlog file present, nothing to parse");
         }
+        
         return redirect()->route($route, $query_par)->with('success', "FlashLog $id parsed again: ".implode(', ',$out));
     }
 

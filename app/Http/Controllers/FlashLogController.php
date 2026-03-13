@@ -213,7 +213,7 @@ class FlashLogController extends Controller
             $flashlog->save();
         }
 
-        if (($correct_data == false || $flashlog->valid_override) && ($fill_csv || $fill_meta) && isset($flashlog->log_parsed)) // use parsed log file to generate CSV, if valid_override == 1 'protect' the generated log_file_parsed.json by not overwriting with raw log
+        if (($correct_data == false || $flashlog->valid_override) && ($fill_csv || $fill_meta || $flashlog->valid_override) && isset($flashlog->log_parsed)) // use parsed log file to generate CSV, if valid_override == 1 'protect' the generated log_file_parsed.json by not overwriting with raw log
         {
             $flashlog_parsed_text = $flashlog->getFileContent('log_file_parsed');
             if (empty($flashlog_parsed_text))

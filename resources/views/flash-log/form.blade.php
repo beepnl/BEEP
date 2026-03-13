@@ -79,7 +79,7 @@
 
 <div class="col-xs-12 col-md-3">
 	<div class="form-group {{ $errors->has('valid_override') ? 'has-error' : ''}}">
-	    <label for="valid_override" control-label>{{ 'Manual validation' }}</label>
+	    <label title="Only use the log_file_parsed for CSV and meta generation" for="valid_override" control-label>{{ 'Manual validation (do not overwrite log_file_parsed)' }}</label>
 	    <div>
 	        <div class="radio">
     <label><input name="valid_override" type="radio" value="1" {{ (isset($flashlog) && 1 == $flashlog->valid_override) ? 'checked' : '' }}> Yes</label>

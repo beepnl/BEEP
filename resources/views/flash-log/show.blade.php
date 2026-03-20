@@ -219,8 +219,20 @@
                     </tr>
                     <tr>
                         <th style="text-align: right;"> Log file parsed </th>
-                        <td colspan="3">
+                        <td colspan="2">
                             <a target="_blank" href="{{ $flashlog->log_file_parsed }}">{{ $flashlog->log_file_parsed }}</a> 
+                        </td>
+                        <td>
+                            <form id="flashlog_parsed_log" action="{{ route('flash-log.update', $flashlog->id) }}" accept-charset="UTF-8"  method="POST" enctype="multipart/form-data">
+                                {{ method_field('PATCH') }}
+                                {{ csrf_field() }}
+                                <input type="hidden" name="created_at" value="{{ $flashlog->created_at }}">
+                                <input type="hidden" name="add_meta" value="1">
+                                <input type="hidden" name="load_show" value="1">
+                                <input type="hidden" name="correct_data" value="0">
+                                <input type="file" name="file" required>
+                                <button type="submit">Replace Log file parsed with ulpoaded JSON</button>
+                            </form>
                         </td>
                     </tr>
 

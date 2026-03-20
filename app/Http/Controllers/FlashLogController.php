@@ -289,21 +289,39 @@ class FlashLogController extends Controller
     {
         $request->validate([
             'created_at' => 'required|date',
+            'file' => 'nullable|file|max:20000', // max 20MB
         ]);
 
-        $requestData = $request->all();
+        $flashlog = FlashLog::findOrFail($id);
+    
 
+        if ($request->hasFile('file')) // Store file in S3 inside "uploads" folder
+        {
+            $disk = env('FLASHLOG_STORAGE', 'public');
+            $file = $request->file('file');
+            $name = $file->getClientOriginalName();
+            $path = $file->storeAs('flashlog/validated', $name, $disk);
+            $url  = Storage::disk($disk)->url($path);
+
+            $flashlog->log_file_parsed = $url;
+            $flashlog->valid_override  = 1;
+            $flashlog->save();
+
+            return self::parse($request, $id); // reparse flashlog
+        }
+
+        $requestData = $request->except('file');
+        
         if ($request->filled('time_corrections')) {
             $time_corrections = json_decode($request->input('time_corrections'));
             $requestData['time_corrections'] = $time_corrections;
         }
         
-        $flashlog = FlashLog::findOrFail($id);
         $flashlog->update($requestData);
         $flashlog->created_at = Carbon::parse($request->created_at);
         $flashlog->save();
 
-        return redirect('flash-log')->with('flash_message', 'FlashLog updated!');
+        return redirect()->route('flash-log.show', $id)->with('flash_message', 'FlashLog updated!');
     }
 
     /**

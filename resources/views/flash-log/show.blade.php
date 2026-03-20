@@ -231,7 +231,7 @@
                                 <input type="hidden" name="load_show" value="1">
                                 <input type="hidden" name="correct_data" value="0">
                                 <input type="file" name="file" required>
-                                <button type="submit">Replace Log file parsed with ulpoaded JSON</button>
+                                <button type="submit">Replace Log file parsed with uploaded JSON</button>
                             </form>
                         </td>
                     </tr>

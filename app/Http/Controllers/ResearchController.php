@@ -1679,6 +1679,13 @@ class ResearchController extends Controller
                                                 //dd($item_date_check, $highDataDays, $flashlog->meta_data, $flashlog_data_array[$i]);
                                                 unset($flashlog_data_array[$i]);
                                             }
+                                            else // valid
+                                            {
+                                                // add sensor definitions
+                                                if (isset($flashlog_data_array[$i]['w_v']) && (!isset($flashlog_data_array[$i]['weight_kg']) || $flashlog_data_array[$i]['w_v'] == $flashlog_data_array[$i]['weight_kg']))
+                                                    $flashlog_data_array[$i] = SensorDefinition::addDeviceMeasurementCalibrations($device_log, $flashlog_data_array[$i]);
+                    
+                                            }
                                         } 
                                         else
                                         {

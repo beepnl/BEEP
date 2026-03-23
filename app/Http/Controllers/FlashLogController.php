@@ -10,6 +10,7 @@ use App\Models\FlashLog;
 use App\Models\CalculationModel;
 use App\User;
 use App\Device;
+use App\SensorDefinition;
 use Storage;
 use Carbon\Carbon;
 

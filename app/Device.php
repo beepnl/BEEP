@@ -917,11 +917,17 @@ class Device extends Model
         return $out_arr;
     }
 
-    public function calibrationsMeasurementAbbreviations()
+    public function calibrationsMeasurementAbbreviations($recalculate=true)
     {
-        return Cache::rememberForever('device-'.$this->id.'-calibrations-measurement-types', function () {
+        $cache_name = 'device-'.$this->id.'-calibrations-measurement-types-'.$recalculate?'1':'0';
+        return Cache::rememberForever($cache_name, function () use ($recalculate){
             $out = [];
-            $cals = $this->sensorDefinitions()->where('recalculate', '=', true)->whereColumn('input_measurement_id', '!=', 'output_measurement_id')->orderBy('updated_at', 'asc')->get();
+
+            if ($recalculate)
+                $cals = $this->sensorDefinitions()->where('recalculate', '=', true)->whereColumn('input_measurement_id', '!=', 'output_measurement_id')->orderBy('updated_at', 'asc')->get();
+            else
+                $cals = $this->sensorDefinitions()->whereColumn('input_measurement_id', '!=', 'output_measurement_id')->orderBy('updated_at', 'asc')->get();
+
             foreach ($cals as $cal) {
                 if (isset($cal->input_abbr)) {
                     $m_abbr = $cal->input_abbr;

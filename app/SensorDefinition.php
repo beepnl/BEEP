@@ -158,7 +158,7 @@ class SensorDefinition extends Model
         **/
 
         if ($calibration_m_abbr === null)
-            $calibration_m_abbr = $device->calibrationsMeasurementAbbreviations();
+            $calibration_m_abbr = $device->calibrationsMeasurementAbbreviations(false);
 
         if (is_array($calibration_m_abbr) && count($calibration_m_abbr) > 0) {
             

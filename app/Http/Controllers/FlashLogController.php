@@ -301,7 +301,7 @@ class FlashLogController extends Controller
     {
         $request->validate([
             'created_at' => 'required|date',
-            'file' => 'nullable|file|max:20000', // max 20MB
+            'file' => 'nullable|file|max:50000', // max 50MB
         ]);
 
         $flashlog = FlashLog::findOrFail($id);

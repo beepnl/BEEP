@@ -219,7 +219,18 @@ class FlashLogController extends Controller
             if (empty($flashlog_parsed_text))
                 return redirect()->route($route, $query_par)->with('error', "FlashLog $id log_file_parsed is empty");
 
+
             $flashlog_parsed_json = json_decode($flashlog_parsed_text, true);
+            
+            // add sensor definitions
+            if (is_array($flashlog_parsed_json) && $correct_data)
+            {
+                foreach ($flashlog_parsed_json as $i => $data_array){
+
+                    if (isset($data_array['w_v']) && (!isset($data_array['weight_kg']) || $data_array['w_v'] == $data_array['weight_kg']))
+                        $flashlog_parsed_json[$i] = SensorDefinition::addDeviceMeasurementCalibrations($flashlog->device, $data_array);
+                }
+            }
 
             if ($fill_meta)
                 $fl_saved = $flashlog->addMetaToFlashlog($flashlog_parsed_json);

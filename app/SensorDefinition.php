@@ -140,7 +140,7 @@ class SensorDefinition extends Model
         return $outputValue;
     }
 
-    public static function addDeviceMeasurementCalibrations($device, $data_array, $calibration_m_abbr)
+    public static function addDeviceMeasurementCalibrations($device, $data_array, $calibration_m_abbr=null)
     {
         /** $calibration_m_abbr:
         ['w_v' => 
@@ -157,7 +157,10 @@ class SensorDefinition extends Model
         ordered in ascending updated order
         **/
 
-        if (count($calibration_m_abbr) > 0) {
+        if ($calibration_m_abbr === null)
+            $calibration_m_abbr = $device->calibrationsMeasurementAbbreviations();
+
+        if (is_array($calibration_m_abbr) && count($calibration_m_abbr) > 0) {
             
             //Log::debug($calibration_m_abbr);
             

@@ -99,7 +99,7 @@
                     </tr>
                     <tr>
                         <th style="text-align: right;"> Apiary - Hive </th>
-                        <td> @isset($flashlog->hive_id) {{ $flashlog->hive->location }} ({{ $flashlog->hive->location_id }}) - {{ $flashlog->hive_name }} ({{ $flashlog->hive_id }}) @endisset </td>
+                        <td> @isset($flashlog->hive) {{ $flashlog->hive->location }} ({{ $flashlog->hive->location_id }}) - {{ $flashlog->hive_name }} ({{ $flashlog->hive_id }}) @endisset </td>
                         <th style="text-align: right;"> Log Messages </th>
                         <td> {{ $flashlog->log_messages }} </td>
                     </tr>

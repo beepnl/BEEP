@@ -101,10 +101,9 @@ class FlashLog extends Model
     {
         if(isset($this->{$type}))
         {
-            $file = 'flashlog/'.last(explode('/',$this->{$type}));
-            //die(print_r($file));
+            $file = $this->getFlashlogStoragePath($this->{$type});
             $disk = env('FLASHLOG_STORAGE', 'public');
-            if (Storage::disk($disk)->exists($file))
+            if (isset($file) && Storage::disk($disk)->exists($file))
                 return Storage::disk($disk)->size($file);
         }
         return null;
@@ -114,13 +113,28 @@ class FlashLog extends Model
     {
         if(isset($this->{$type}))
         {
-            $file = 'flashlog/'.last(explode('/',$this->{$type}));
-            //die(print_r($file));
+            $file = $this->getFlashlogStoragePath($this->{$type});
             $disk = env('FLASHLOG_STORAGE', 'public');
-            if (Storage::disk($disk)->exists($file))
+            if (isset($file) && Storage::disk($disk)->exists($file))
                 return Storage::disk($disk)->get($file);
         }
         return null;
+    }
+
+    private function getFlashlogStoragePath($path)
+    {
+        if (!isset($path) || $path === '') {
+            return null;
+        }
+
+        $parsedPath = parse_url($path, PHP_URL_PATH);
+        $file = ltrim(isset($parsedPath) ? $parsedPath : $path, '/');
+
+        if (strpos($file, 'flashlog/') === 0) {
+            return $file;
+        }
+
+        return 'flashlog/'.last(explode('/', $path));
     }
 
     public function getPersistedBlockIdsArrayAttribute($value)

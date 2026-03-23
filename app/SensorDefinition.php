@@ -252,6 +252,10 @@ class SensorDefinition extends Model
                     }
                 }
             }
+            else
+            {
+                Log::debug(json_encode(['error'=>'no_match_or_time', 'data'=>$data_array, 'cali'=>$cali_meas, 'match'=>$cali_match]));
+            }
         }
 
         return $data_array;

@@ -15,6 +15,7 @@ use App\Hive;
 use App\Inspection;
 use App\Device;
 use App\Measurement;
+use App\SensorDefinition;
 use App\Models\FlashLog;
 use App\Models\CalculationModel;
 
@@ -1787,8 +1788,12 @@ class ResearchController extends Controller
 
                 //Log::debug("Add DB DATA device=$device->id from=$start_date to=$end_date count=$db_count");
 
-                foreach ($db_data as $d)
+                foreach ($db_data as $d_i => $d)
                 {
+                    // add sensor definitions
+                    if (isset($d['w_v']) && (!isset($d['weight_kg']) || $d['w_v'] == $d['weight_kg']))
+                        $d = SensorDefinition::addDeviceMeasurementCalibrations($device, $d);
+                    
                     $d = FlashLog::cleanDbDataItem($d);
                     $d['db'] = 1;
                     $data_array[] = $d;

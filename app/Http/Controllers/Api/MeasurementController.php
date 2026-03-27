@@ -1487,7 +1487,7 @@ class MeasurementController extends Controller
         $min_interval_min     = isset($device->measurement_interval_min) ? $device->measurement_interval_min : 1;
         $relative_interval    = boolval($request->input('relative_interval', 0));
         $loadWeather          = boolval($request->input('weather', 1));
-        $loadCleanWeight      = boolval($request->input('clean_weight', 0));
+        $loadCleanWeight      = boolval($request->input('clean_weight', 1));
         $intervalArr          = $this->interval($request, $relative_interval, false, $min_interval_min);
 
         $groupBySelect        = null;

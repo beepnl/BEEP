@@ -1487,7 +1487,7 @@ class MeasurementController extends Controller
         $min_interval_min     = isset($device->measurement_interval_min) ? $device->measurement_interval_min : 1;
         $relative_interval    = boolval($request->input('relative_interval', 0));
         $loadWeather          = boolval($request->input('weather', 1));
-        $loadCleanWeight      = boolval($request->input('clean_weight', 1));
+        $loadCleanWeight      = boolval($request->input('clean_weight', 0));
         $intervalArr          = $this->interval($request, $relative_interval, false, $min_interval_min);
 
         $groupBySelect        = null;
@@ -1634,14 +1634,14 @@ class MeasurementController extends Controller
                         $time = $values['time'];
                         if (isset($data_time_key_arr[$time])) // add clean_weight data to already available datetime
                         {
-                            $sensors_out[$i] = array_merge($data_time_key_arr[$time], $sensors_out[$i]);
+                            $sensors_out[$i] = array_merge($sensors_out[$i], $data_time_key_arr[$time]);
                             unset($data_time_key_arr[$time]); // to retain missing values and add then later
                         }
                     }
                 }
                 // add missing time values to sensors
                 if (count($data_time_key_arr) > 0)
-                    $sensors_out = array_merge(array_values($data_time_key_arr), $sensors_out);
+                    $sensors_out = array_merge($sensors_out, array_values($data_time_key_arr));
 
             }
             //return Response::json(['sensor_query' => $sensorQuery, 'cleanWeight_query' => $clean_weight_query, 'cleanWeight_out'=> $clean_weight_out, 'measurements' => $sensors_out]);

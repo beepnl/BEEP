@@ -1505,7 +1505,7 @@ class MeasurementController extends Controller
         $timeZone             = $intervalArr['timeZone'];
         $whereKeyAndTime      = $device->influxWhereKeys().' AND time >= \''.$start_date.'\' AND time <= \''.$end_date.'\'';
 
-        $calibration_m_abbr   = $device->calibrationsMeasurementAbbreviations();
+        $calibration_m_abbr   = $device->calibrationsMeasurementAbbreviations(false);
         $add_calibrations     = count($calibration_m_abbr) > 0 ? true : false;
 
         if($resolution != null)
@@ -1634,13 +1634,8 @@ class MeasurementController extends Controller
                         $time = $values['time'];
                         if (isset($data_time_key_arr[$time])) // add clean_weight data to already available datetime
                         {
-                            // TODO: if ($request->user()->hasRole('comparator')), merge complete array
-                            //$sensors_out[$i] = array_merge($sensors_out[$i], $data_time_key_arr[$time]);
-                            if (isset($data_time_key_arr[$time]['net_weight_kg']) )
-                            {
-                                $sensors_out[$i]['net_weight_kg'] = $data_time_key_arr[$time]['net_weight_kg'];
-                                unset($data_time_key_arr[$time]); // to retain missing values and add then later
-                            }
+                            $sensors_out[$i] = array_merge($sensors_out[$i], $data_time_key_arr[$time]); // merge all data incl. net weight
+                            unset($data_time_key_arr[$time]); // to retain missing values and add then later
                         }
                     }
                 }

@@ -84,6 +84,8 @@ class Device extends Model
         Cache::forget('device-'.$this->id.'-hive-'.$this->hive_id.'-user-ids');
         Cache::forget('device-'.$this->id.'-hive-'.$this->hive_id.'-rule-ids');
         Cache::forget('device-'.$this->id.'-calibrations-measurement-types');
+        Cache::forget('device-'.$this->id.'-calibrations-measurement-types-0');
+        Cache::forget('device-'.$this->id.'-calibrations-measurement-types-1');
         
         Log::debug("Device ID $this->id cache emptied");
 

@@ -3,6 +3,7 @@ namespace App\Http\Controllers\Api;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Log;
 use Auth;
 use App\User;
 use App\Device;
@@ -1556,7 +1557,13 @@ class MeasurementController extends Controller
             if ($add_calibrations)
             {
                 foreach ($sensors_out as $i => $data_array)
+                {
+                    if ($i==0)
+                    {
+                        Log::debug('measurements device '.$device->name.' ('.$device->id,'), values: '.json_encode($data_array).', calibr: '.json_encode($calibration_m_abbr));
+                    }
                     $sensors_out[$i] = SensorDefinition::addDeviceMeasurementCalibrations($device, $data_array, $calibration_m_abbr);
+                }
             }
         }
 

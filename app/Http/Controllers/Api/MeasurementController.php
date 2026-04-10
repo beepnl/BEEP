@@ -1487,7 +1487,7 @@ class MeasurementController extends Controller
         $min_interval_min     = isset($device->measurement_interval_min) ? $device->measurement_interval_min : 1;
         $relative_interval    = boolval($request->input('relative_interval', 0));
         $loadWeather          = boolval($request->input('weather', 1));
-        $loadCleanWeight      = boolval($request->input('clean_weight', 0));
+        $loadCleanWeight      = boolval($request->input('clean_weight', 1));
         $intervalArr          = $this->interval($request, $relative_interval, false, $min_interval_min);
 
         $groupBySelect        = null;
@@ -1634,8 +1634,13 @@ class MeasurementController extends Controller
                         $time = $values['time'];
                         if (isset($data_time_key_arr[$time])) // add clean_weight data to already available datetime
                         {
-                            $sensors_out[$i] = array_merge($sensors_out[$i], $data_time_key_arr[$time]);
-                            unset($data_time_key_arr[$time]); // to retain missing values and add then later
+                            // TODO: if ($request->user()->hasRole('comparator')), merge complete array
+                            //$sensors_out[$i] = array_merge($sensors_out[$i], $data_time_key_arr[$time]);
+                            if (isset($data_time_key_arr[$time]['net_weight_kg']) )
+                            {
+                                $sensors_out[$i]['net_weight_kg'] = $data_time_key_arr[$time]['net_weight_kg'];
+                                unset($data_time_key_arr[$time]); // to retain missing values and add then later
+                            }
                         }
                     }
                 }

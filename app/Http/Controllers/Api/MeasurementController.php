@@ -1634,14 +1634,14 @@ class MeasurementController extends Controller
                         $time = $values['time'];
                         if (isset($data_time_key_arr[$time])) // add clean_weight data to already available datetime
                         {
-                            $sensors_out[$i] = array_merge($sensors_out[$i], $data_time_key_arr[$time]);
+                            $sensors_out[$i] = array_merge($data_time_key_arr[$time], $sensors_out[$i]);
                             unset($data_time_key_arr[$time]); // to retain missing values and add then later
                         }
                     }
                 }
                 // add missing time values to sensors
                 if (count($data_time_key_arr) > 0)
-                    $sensors_out = array_merge($sensors_out, array_values($data_time_key_arr));
+                    $sensors_out = array_merge(array_values($data_time_key_arr), $sensors_out);
 
             }
             //return Response::json(['sensor_query' => $sensorQuery, 'cleanWeight_query' => $clean_weight_query, 'cleanWeight_out'=> $clean_weight_out, 'measurements' => $sensors_out]);

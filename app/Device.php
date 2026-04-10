@@ -917,6 +917,8 @@ class Device extends Model
         return $out_arr;
     }
 
+    // By default, only return the force recalculation calibrations,
+    // If recalculate is set to false, return all available calibrations.
     public function calibrationsMeasurementAbbreviations($recalculate=true)
     {
         $cache_name = 'device-'.$this->id.'-calibrations-measurement-types-'.$recalculate?'1':'0';

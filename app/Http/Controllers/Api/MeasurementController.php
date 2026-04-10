@@ -1505,7 +1505,7 @@ class MeasurementController extends Controller
         $timeZone             = $intervalArr['timeZone'];
         $whereKeyAndTime      = $device->influxWhereKeys().' AND time >= \''.$start_date.'\' AND time <= \''.$end_date.'\'';
 
-        $calibration_m_abbr   = $device->calibrationsMeasurementAbbreviations(false);
+        $calibration_m_abbr   = $device->calibrationsMeasurementAbbreviations(true);
         $add_calibrations     = count($calibration_m_abbr) > 0 ? true : false;
 
         if($resolution != null)

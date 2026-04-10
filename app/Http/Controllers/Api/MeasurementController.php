@@ -1556,11 +1556,13 @@ class MeasurementController extends Controller
             // Apply SensorDefinitions that have 'recalculate' set to true
             if ($add_calibrations)
             {
+                $log_set = false;
                 foreach ($sensors_out as $i => $data_array)
                 {
-                    if ($i==0)
+                    if ($log_set == false && isset($data_array['weight_kg']))
                     {
                         Log::debug('measurements device '.$device->name.' ('.$device->id.'), values: '.json_encode($data_array).', calibr: '.json_encode($calibration_m_abbr));
+                        $log_set = true;
                     }
                     $sensors_out[$i] = SensorDefinition::addDeviceMeasurementCalibrations($device, $data_array, $calibration_m_abbr);
                 }

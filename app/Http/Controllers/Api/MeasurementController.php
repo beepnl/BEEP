@@ -1560,7 +1560,7 @@ class MeasurementController extends Controller
                 {
                     if ($i==0)
                     {
-                        Log::debug('measurements device '.$device->name.' ('.$device->id,'), values: '.json_encode($data_array).', calibr: '.json_encode($calibration_m_abbr));
+                        Log::debug('measurements device '.$device->name.' ('.$device->id.'), values: '.json_encode($data_array).', calibr: '.json_encode($calibration_m_abbr));
                     }
                     $sensors_out[$i] = SensorDefinition::addDeviceMeasurementCalibrations($device, $data_array, $calibration_m_abbr);
                 }

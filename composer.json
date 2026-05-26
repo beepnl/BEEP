@@ -1,9 +1,16 @@
 {
     "name": "beepnl/beep",
-    "vendor":"BEEP Foundation",
+    "vendor": "BEEP Foundation",
     "version": "2.2.0",
     "description": "BEEP digital hive monitor",
-    "keywords": ["Beep", "Beekeeping", "apiary", "hive", "app", "measurement system"],
+    "keywords": [
+        "Beep",
+        "Beekeeping",
+        "apiary",
+        "hive",
+        "app",
+        "measurement system"
+    ],
     "license": "MIT",
     "type": "project",
     "require": {
@@ -27,7 +34,8 @@
         "phpoffice/phpspreadsheet": "^1.2",
         "predis/predis": "^2.2",
         "santigarcor/laratrust": "^6.3",
-        "tray-labs/laravel-influxdb": "*"
+        "tray-labs/laravel-influxdb": "*",
+        "laravel/ui": "^2.0"
     },
     "require-dev": {
         "appzcoder/crud-generator": "^3.0",
@@ -42,7 +50,9 @@
         "optimize-autoloader": true,
         "preferred-install": "dist",
         "sort-packages": true,
-        "platform":{"php": "7.4"},
+        "platform": {
+            "php": "7.4"
+        },
         "allow-plugins": {
             "kylekatarnls/update-helper": true
         }
@@ -80,4 +90,4 @@
             "@php artisan key:generate --ansi"
         ]
     }
-  }
+}

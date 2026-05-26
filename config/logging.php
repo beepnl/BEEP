@@ -1,5 +1,6 @@
 <?php
 
+use Monolog\Handler\NullHandler;
 use Monolog\Handler\StreamHandler;
 use Monolog\Handler\SyslogUdpHandler;
 
@@ -55,7 +56,7 @@ return [
 
         'slack' => [
             'driver' => 'slack',
-            'url' => env('WEBHOOK_URL'),
+            'url' => env('LOG_SLACK_WEBHOOK_URL'),
             'username' => env('APP_NAME'),
             'emoji' => ':boom:',
             'level' => 'critical',
@@ -88,6 +89,15 @@ return [
         'errorlog' => [
             'driver' => 'errorlog',
             'level' => 'debug',
+        ],
+
+        'null' => [
+            'driver' => 'monolog',
+            'handler' => NullHandler::class,
+        ],
+
+        'emergency' => [
+            'path' => storage_path('logs/laravel.log'),
         ],
     ],
 

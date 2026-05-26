@@ -12,7 +12,7 @@ return [
     | any other location as required by the application or its packages.
     */
 
-    'name' =>env('APP_NAME', 'Beep'),
+    'name' => env('APP_NAME', 'Beep'),
 
     /*
     |--------------------------------------------------------------------------
@@ -108,7 +108,7 @@ return [
     */
 
     'faker_locale' => 'en_GB',
-    
+
     /*
     |--------------------------------------------------------------------------
     | Encryption Key
@@ -119,7 +119,7 @@ return [
     | will not be safe. Please do this before deploying an application!
     |
     */
-    
+
     'key' => env('APP_KEY'),
     'cipher' => 'AES-256-CBC',
 
@@ -233,7 +233,7 @@ return [
         'Form' => Collective\Html\FormFacade::class,
         'Html' => Collective\Html\HtmlFacade::class,
         'InterventionImage' => Intervention\Image\Facades\Image::class,
-        'LaravelLocalization'   => Mcamara\LaravelLocalization\Facades\LaravelLocalization::class,
+        'LaravelLocalization' => Mcamara\LaravelLocalization\Facades\LaravelLocalization::class,
         'Influx' => TrayLabs\InfluxDB\Facades\InfluxDB::class,
         // 'Debugbar' => Barryvdh\Debugbar\Facade::class,
     ],

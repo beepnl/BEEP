@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class AddAlertRulesLastCalculated extends Migration
 {
@@ -13,10 +13,8 @@ class AddAlertRulesLastCalculated extends Migration
      */
     public function up()
     {
-        if (Schema::hasTable('alert_rules')) 
-        {
-            Schema::table('alert_rules', function (Blueprint $table) 
-            {
+        if (Schema::hasTable('alert_rules')) {
+            Schema::table('alert_rules', function (Blueprint $table) {
                 $table->timestamp('last_calculated_at')->nullable();
                 $table->string('timezone')->default('Europe/Amsterdam');
             });
@@ -30,10 +28,8 @@ class AddAlertRulesLastCalculated extends Migration
      */
     public function down()
     {
-        if (Schema::hasTable('alert_rules')) 
-        {
-            Schema::table('alert_rules', function (Blueprint $table) 
-            {
+        if (Schema::hasTable('alert_rules')) {
+            Schema::table('alert_rules', function (Blueprint $table) {
                 $table->dropColumn('last_calculated_at');
                 $table->dropColumn('timezone');
             });

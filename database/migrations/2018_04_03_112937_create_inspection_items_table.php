@@ -12,10 +12,8 @@ class CreateInspectionItemsTable extends Migration
      */
     public function up()
     {
-        if (!Schema::hasTable('inspection_items')) 
-        {
-            Schema::create('inspection_items', function (Blueprint $table) 
-            {
+        if (! Schema::hasTable('inspection_items')) {
+            Schema::create('inspection_items', function (Blueprint $table) {
                 $table->increments('id');
                 $table->string('value')->nullable();
                 $table->integer('inspection_id')->unsigned();
@@ -34,10 +32,8 @@ class CreateInspectionItemsTable extends Migration
      */
     public function down()
     {
-        if (Schema::hasTable('inspection_items')) 
-        {
-            Schema::table('inspection_items', function(Blueprint $table)
-            {
+        if (Schema::hasTable('inspection_items')) {
+            Schema::table('inspection_items', function (Blueprint $table) {
                 $table->dropForeign(['inspection_id']);
                 $table->dropForeign(['category_id']);
             });

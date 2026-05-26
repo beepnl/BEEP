@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class AddGroupUserAdmin extends Migration
 {
@@ -19,7 +19,7 @@ class AddGroupUserAdmin extends Migration
             $table->timestamp('invited')->nullable();
             $table->timestamp('accepted')->nullable();
             $table->timestamp('declined')->nullable();
-            $table->string('token',100)->nullable();
+            $table->string('token', 100)->nullable();
         });
     }
 

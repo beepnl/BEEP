@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class CreateGroupHive extends Migration
 {
@@ -13,8 +13,7 @@ class CreateGroupHive extends Migration
      */
     public function up()
     {
-        if (!Schema::hasTable('group_hive')) 
-        {
+        if (! Schema::hasTable('group_hive')) {
             Schema::create('group_hive', function (Blueprint $table) {
                 $table->increments('id');
                 $table->integer('hive_id')->unsigned();
@@ -39,10 +38,8 @@ class CreateGroupHive extends Migration
      */
     public function down()
     {
-        if (Schema::hasTable('group_hive')) 
-        {
-            Schema::table('group_hive', function(Blueprint $table)
-            {
+        if (Schema::hasTable('group_hive')) {
+            Schema::table('group_hive', function (Blueprint $table) {
                 $table->dropForeign(['hive_id']);
                 $table->dropForeign(['group_id']);
             });

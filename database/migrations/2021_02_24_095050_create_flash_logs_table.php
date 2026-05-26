@@ -12,8 +12,7 @@ class CreateFlashLogsTable extends Migration
      */
     public function up()
     {
-        if (!Schema::hasTable('flash_logs')) 
-        {
+        if (! Schema::hasTable('flash_logs')) {
             Schema::create('flash_logs', function (Blueprint $table) {
                 $table->increments('id');
                 $table->timestamps();
@@ -28,7 +27,7 @@ class CreateFlashLogsTable extends Migration
                 $table->string('log_file')->nullable();
                 $table->string('log_file_stripped')->nullable();
                 $table->string('log_file_parsed')->nullable();
-                });
+            });
         }
     }
 
@@ -39,8 +38,7 @@ class CreateFlashLogsTable extends Migration
      */
     public function down()
     {
-        if (Schema::hasTable('flash_logs')) 
-        {
+        if (Schema::hasTable('flash_logs')) {
             Schema::drop('flash_logs');
         }
     }

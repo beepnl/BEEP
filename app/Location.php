@@ -2,23 +2,26 @@
 
 namespace App;
 
+use Auth;
+use Cache;
 use Iatstuti\Database\Support\CascadeSoftDeletes;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Log;
-use Cache;
-use Auth;
 
 class Location extends Model
 {
-    use SoftDeletes, CascadeSoftDeletes;
+    use CascadeSoftDeletes, SoftDeletes;
 
     protected $cascadeDeletes = ['hives', 'inspections'];
 
     protected $fillable = ['user_id', 'continent_id', 'category_id', 'name', 'coordinate_lat', 'coordinate_lon', 'street', 'street_no', 'postal_code', 'country_code', 'city', 'roofed', 'last_weather_time', 'hex_color'];
-	protected $guarded 	= ['id'];
-    protected $hidden   = ['user_id', 'continent_id', 'category_id'];
-    protected $appends  = ['type', 'continent', 'owner'];
+
+    protected $guarded = ['id'];
+
+    protected $hidden = ['user_id', 'continent_id', 'category_id'];
+
+    protected $appends = ['type', 'continent', 'owner'];
 
     public $timestamps = false;
 
@@ -32,8 +35,9 @@ class Location extends Model
         });
 
         static::updated(function ($l) {
-            if ($l->wasChanged('last_weather_time') == false) // do not empty cache by only weather time change
+            if ($l->wasChanged('last_weather_time') == false) { // do not empty cache by only weather time change
                 $l->empty_cache();
+            }
         });
 
         static::deleted(function ($l) {
@@ -42,14 +46,14 @@ class Location extends Model
     }
 
     // Cache functions
-    public function empty_cache($clear_user=true)
+    public function empty_cache($clear_user = true)
     {
         Log::debug("Location ID $this->id cache emptied");
 
-        if ($clear_user)
+        if ($clear_user) {
             User::emptyIdCache($this->user_id, 'apiary');
+        }
     }
-
 
     // Relations
     public function getTypeAttribute()
@@ -68,13 +72,14 @@ class Location extends Model
 
     public function getOwnerAttribute()
     {
-        if ($this->user_id == Auth::user()->id)
+        if ($this->user_id == Auth::user()->id) {
             return true;
-        
+        }
+
         return false;
     }
 
-	public function hives()
+    public function hives()
     {
         return $this->hasMany(Hive::class);
     }
@@ -111,6 +116,6 @@ class Location extends Model
 
     public static function selectList()
     {
-        return Location::orderBy('name')->pluck('name','id');
+        return Location::orderBy('name')->pluck('name', 'id');
     }
 }

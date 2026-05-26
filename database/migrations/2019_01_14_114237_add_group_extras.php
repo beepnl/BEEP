@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class AddGroupExtras extends Migration
 {
@@ -16,7 +16,7 @@ class AddGroupExtras extends Migration
         Schema::table('groups', function (Blueprint $table) {
             $table->text('description')->nullable();
             $table->string('icon')->nullable();
-            $table->string('hex_color',7)->nullable();
+            $table->string('hex_color', 7)->nullable();
         });
     }
 

@@ -1,9 +1,9 @@
 <?php
 
+use App\Device;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
-use App\Device;
 
 class AddRtcToDevices extends Migration
 {
@@ -18,10 +18,8 @@ class AddRtcToDevices extends Migration
             $table->boolean('rtc')->nullable();
         });
 
-        foreach (Device::all() as $d)
-        {
-            if ($d->last_downlink_result == 'RTC installed')
-            {
+        foreach (Device::all() as $d) {
+            if ($d->last_downlink_result == 'RTC installed') {
                 $d->last_downlink_result = '';
                 $d->rtc = true;
                 $d->save();

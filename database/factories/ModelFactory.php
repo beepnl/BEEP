@@ -27,26 +27,26 @@ $factory->define(App\User::class, function (Faker\Generator $faker) {
 $factory->define(App\Location::class, function (Faker\Generator $faker) {
 
     return [
-    	'user_id' => 1, 
-    	'continent_id' => 4, // eu
-    	'category_id' => 36, // fixed
-    	'name' => $faker->name, 
-    	'coordinate_lat' => $faker->latitude, 
-    	'coordinate_lon' => $faker->longitude, 
-    	'street' => $faker->streetName, 
-    	'street_no' => $faker->numberBetween($min=1, $max=99), 
-    	'postal_code' => $faker->postcode, 
-    	'country_code' => $faker->country,
+        'user_id' => 1,
+        'continent_id' => 4, // eu
+        'category_id' => 36, // fixed
+        'name' => $faker->name,
+        'coordinate_lat' => $faker->latitude,
+        'coordinate_lon' => $faker->longitude,
+        'street' => $faker->streetName,
+        'street_no' => $faker->numberBetween($min = 1, $max = 99),
+        'postal_code' => $faker->postcode,
+        'country_code' => $faker->country,
     ];
 });
 
 $factory->define(App\Hive::class, function (Faker\Generator $faker) {
 
     return [
-        'user_id' => 1, 
-        'location_id' => 1, 
-        'hive_type_id' => 1, 
-        'color' => $faker->hexcolor, 
+        'user_id' => 1,
+        'location_id' => 1,
+        'hive_type_id' => 1,
+        'color' => $faker->hexcolor,
         'name' => $faker->name,
     ];
 });
@@ -54,10 +54,10 @@ $factory->define(App\Hive::class, function (Faker\Generator $faker) {
 $factory->define(App\HiveLayer::class, function (Faker\Generator $faker) {
 
     return [
-        'hive_id' => 1, 
-        'category_id' => 26, 
-        'order' => $faker->numberBetween($min=1, $max=99), 
-        'color' => $faker->hexcolor, 
+        'hive_id' => 1,
+        'category_id' => 26,
+        'order' => $faker->numberBetween($min = 1, $max = 99),
+        'color' => $faker->hexcolor,
     ];
 });
 
@@ -76,9 +76,9 @@ $factory->state(App\HiveLayer::class, 'honey', function ($faker) {
 $factory->define(App\HiveLayerFrame::class, function (Faker\Generator $faker) {
 
     return [
-        'layer_id' => 1, 
+        'layer_id' => 1,
         'category_id' => 29, // wax
-        'order' => $faker->numberBetween($min=1, $max=99), 
-        'present' => true, 
+        'order' => $faker->numberBetween($min = 1, $max = 99),
+        'present' => true,
     ];
 });

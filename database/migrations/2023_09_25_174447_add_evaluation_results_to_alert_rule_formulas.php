@@ -13,8 +13,7 @@ class AddEvaluationResultsToAlertRuleFormulas extends Migration
      */
     public function up()
     {
-        if (Schema::hasTable('alert_rule_formulas')) 
-        {
+        if (Schema::hasTable('alert_rule_formulas')) {
             Schema::table('alert_rule_formulas', function (Blueprint $table) {
                 $table->float('last_result_value')->nullable();
                 $table->boolean('last_evaluation_value')->default(false);

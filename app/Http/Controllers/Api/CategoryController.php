@@ -4,22 +4,24 @@ namespace App\Http\Controllers\Api;
 
 use App\Category;
 use App\CategoryInput;
-use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use Illuminate\Http\Request;
 
 /**
  * @group Api\CategoryController
  * All categories in the categorization tree used for hive inspections
  * Only used to get listing (index) or one category (show)
+ *
  * @authenticated
  */
 class CategoryController extends Controller
 {
-
     /**
      * api/categoryinputs
      * List of all available input types of the inspection categories
+     *
      * @authenticated
+     *
      * @response[
      {
         "id": 1,
@@ -49,28 +51,32 @@ class CategoryController extends Controller
      */
     public function inputs(Request $request)
     {
-        //die($category);
+        // die($category);
         return response()->json(CategoryInput::all());
     }
 
     /**
      * api/categories/{id}
      * Display the specified category.
+     *
      * @authenticated
-     * @param  \App\Category  $category
+     *
      * @return \Illuminate\Http\Response
      */
     public function show(Request $request, Category $category)
     {
-        //die($category);
+        // die($category);
         return response()->json($category);
     }
 
     /**
      * api/categories
      * Display a listing of the inspection categories.
+     *
      * @authenticated
+     *
      * @return \Illuminate\Http\Response
+     *
      * @response[
     {
         "id": 1,

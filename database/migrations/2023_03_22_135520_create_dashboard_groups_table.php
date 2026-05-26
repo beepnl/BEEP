@@ -39,10 +39,9 @@ class CreateDashboardGroupsTable extends Migration
      */
     public function down()
     {
-        Schema::table('dashboard_groups', function(Blueprint $table)
-            {
-                $table->dropForeign(['user_id']);
-            });
+        Schema::table('dashboard_groups', function (Blueprint $table) {
+            $table->dropForeign(['user_id']);
+        });
         Schema::dropIfExists('dashboard_groups');
     }
 }

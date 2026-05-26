@@ -12,8 +12,7 @@ class CreateAlertRuleFormulasTable extends Migration
      */
     public function up()
     {
-        if (!Schema::hasTable('alert_rule_formulas')) 
-        {
+        if (! Schema::hasTable('alert_rule_formulas')) {
 
             Schema::create('alert_rule_formulas', function (Blueprint $table) {
                 $table->increments('id');
@@ -47,7 +46,7 @@ class CreateAlertRuleFormulasTable extends Migration
             //     $arf->save();
             // }
 
-            // Remove formula fields from the AlertRule table 
+            // Remove formula fields from the AlertRule table
 
         }
     }

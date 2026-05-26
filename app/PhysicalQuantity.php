@@ -2,17 +2,18 @@
 
 namespace App;
 
-use Illuminate\Database\Eloquent\Model;
 use Cache;
 use DB;
+use Illuminate\Database\Eloquent\Model;
 use LaravelLocalization;
 
 class PhysicalQuantity extends Model
 {
-    protected $table    = 'physical_quantities';
-    protected $appends  = ['trans'];
+    protected $table = 'physical_quantities';
 
-    public $fillable    = ['name','unit','abbreviation','low_value','high_value'];
+    protected $appends = ['trans'];
+
+    public $fillable = ['name', 'unit', 'abbreviation', 'low_value', 'high_value'];
 
     public $timestamps = false;
 
@@ -20,22 +21,18 @@ class PhysicalQuantity extends Model
     {
         parent::boot();
 
-        static::created(function($p)
-        {
+        static::created(function ($p) {
             $p->forgetCache();
         });
 
-        static::updated(function($p)
-        {
+        static::updated(function ($p) {
             $p->forgetCache();
         });
 
-        static::deleted(function($p)
-        {
+        static::deleted(function ($p) {
             $p->forgetCache();
         });
     }
-
 
     public function forgetCache()
     {
@@ -45,8 +42,9 @@ class PhysicalQuantity extends Model
         Cache::forget('pq-'.$this->id.'-measurements-abbr-use-in-alerts-1');
 
         $locales = array_keys(config('laravellocalization.supportedLocales'));
-        foreach ($locales as $locale) 
+        foreach ($locales as $locale) {
             Cache::forget('pq-trans-'.$this->id.'-'.$locale.'-name');
+        }
 
         Category::forgetTaxonomyListCache();
     }
@@ -64,61 +62,64 @@ class PhysicalQuantity extends Model
 
     public function getUnitAttribute()
     {
-        return !empty($this->attributes['unit']) ? $this->attributes['unit'] : '';
+        return ! empty($this->attributes['unit']) ? $this->attributes['unit'] : '';
     }
 
     public function pq_name_unit()
     {
-        if (isset($this->unit))
+        if (isset($this->unit)) {
             return $this->name.' ('.$this->unit.')';
+        }
 
         return $this->name;
     }
 
     public function trans($locale = null)
     {
-        //$trans = Translation::where('name', $this->name)->with('language')->get()->pluck('translation','language.lang');
+        // $trans = Translation::where('name', $this->name)->with('language')->get()->pluck('translation','language.lang');
         $out = Cache::rememberForever('pq-'.$this->id.'-trans-'.$this->abbreviation, function () {
             $trans = DB::table('translations')
-                    ->join('languages', 'translations.language_id', '=', 'languages.id')
-                    ->where('translations.type', 'physical_quantity')
-                    ->where('translations.name', $this->abbreviation)
-                    ->select('translations.translation', 'languages.twochar')
-                    ->get();
-            
-            if ($trans)
-            {
+                ->join('languages', 'translations.language_id', '=', 'languages.id')
+                ->where('translations.type', 'physical_quantity')
+                ->where('translations.name', $this->abbreviation)
+                ->select('translations.translation', 'languages.twochar')
+                ->get();
+
+            if ($trans) {
 
                 $out = [];
-                foreach($trans as $item)
-                {
-                    if (isset($locale) && $item->twochar == $locale)
+                foreach ($trans as $item) {
+                    if (isset($locale) && $item->twochar == $locale) {
                         return $item->translation;
-                    
-                    $out[$item->twochar] = $item->translation; 
+                    }
+
+                    $out[$item->twochar] = $item->translation;
                 }
+
                 return $out;
             }
         });
 
-        if ($out)
+        if ($out) {
             return $out;
+        }
 
         return null;
     }
 
     public function transName($locale = null)
     {
-        if ($locale == null)
+        if ($locale == null) {
             $locale = LaravelLocalization::getCurrentLocale();
-        
-        return Cache::rememberForever('pq-trans-'.$this->id.'-'.$locale.'-name', function () use ($locale){
+        }
+
+        return Cache::rememberForever('pq-trans-'.$this->id.'-'.$locale.'-name', function () use ($locale) {
             $trans = $this->trans();
+
             return isset($trans[$locale]) ? $trans[$locale] : $this->name;
         });
 
     }
-
 
     public function getTransAttribute()
     {
@@ -127,19 +128,20 @@ class PhysicalQuantity extends Model
 
     public static function selectList()
     {
-    	$list = [];
-    	$list[''] = '-';
+        $list = [];
+        $list[''] = '-';
 
-    	foreach(PhysicalQuantity::orderBy('name')->get() as $q)
-		{
+        foreach (PhysicalQuantity::orderBy('name')->get() as $q) {
             $id = $q->id;
             $label = $q->name.' ('.$q->unit.')';
-			if (isset($q->abbreviation))
-				$label .= ' - '.$q->abbreviation;
+            if (isset($q->abbreviation)) {
+                $label .= ' - '.$q->abbreviation;
+            }
 
             $list[$id] = $label;
 
-		}
+        }
+
         return $list;
     }
 }

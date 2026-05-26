@@ -4,21 +4,20 @@ namespace App\Http\Controllers\Api;
 
 use App\Category;
 use App\Hive;
-use App\BeeRace;
+use App\Http\Controllers\Controller;
+use App\Image;
 use App\Inspection;
 use App\InspectionItem;
-use App\Image;
-use Illuminate\Http\Request;
-use App\Http\Controllers\Controller;
-use App\Http\Resources\InspectionCollection;
-use Moment\Moment;
 use Auth;
+use Illuminate\Http\Request;
 use LaravelLocalization;
+use Moment\Moment;
 use Validator;
 
 /**
  * @group Api\InspectionsController
  * Manage manual hive inspections
+ *
  * @authenticated
  */
 class InspectionsController extends Controller
@@ -32,48 +31,47 @@ class InspectionsController extends Controller
     @bodyParam start string Date >= (YYYY-MM-DD HH:mm:ss) to filter inspections from. Example: 2024-02-14 00:00:00
     @bodyParam end string Date <= (YYYY-MM-DD HH:mm:ss) to filter inspections to. Example: 2024-02-18 00:00:00
     @authenticated
-    **/
+     **/
     public function index(Request $request)
     {
         $inspections = $request->user()->allInspections()->orderBy('created_at', 'desc');
-        
-        if ($request->filled('id'))
-        {
+
+        if ($request->filled('id')) {
             $id = $request->input('id');
             $inspections = $inspections->where('id', $id);
-        }
-        else if ($request->filled('search'))
-        {
+        } elseif ($request->filled('search')) {
             $search = $request->input('search');
             $inspections = $inspections->where('note', 'LIKE', '%'.$search.'%')
-                                        ->orWhere('created_at', 'LIKE', '%'.$search.'%')
-                                        ->orWhere('reminder', 'LIKE', '%'.$search.'%')
-                                        ->orWhere('id', intval($search));
+                ->orWhere('created_at', 'LIKE', '%'.$search.'%')
+                ->orWhere('reminder', 'LIKE', '%'.$search.'%')
+                ->orWhere('id', intval($search));
 
-            if ($request->filled('start'))
+            if ($request->filled('start')) {
                 $inspections = $inspections->where('created_at', '>=', $request->input('start'));
+            }
 
-            if ($request->filled('end'))
+            if ($request->filled('end')) {
                 $inspections = $inspections->where('created_at', '<=', $request->input('end'));
+            }
         }
-        
+
         $inspections = $inspections->limit(1000)->get(); // convert query to collection
 
         // Add filters on items with appends
         if ($request->filled('hive_ids')) {
             $hive_ids_in = $request->input('hive_ids');
-            $hive_ids    = gettype($hive_ids_in) == 'array' ? $hive_ids_in : explode(',', $hive_ids_in);
-            // filter by occurence in hive_ids array 
-            $inspections = $inspections->reject(function (Inspection $ins, int $key) use ($hive_ids){
+            $hive_ids = gettype($hive_ids_in) == 'array' ? $hive_ids_in : explode(',', $hive_ids_in);
+            // filter by occurence in hive_ids array
+            $inspections = $inspections->reject(function (Inspection $ins, int $key) use ($hive_ids) {
                 return in_array($ins->hive_id, $hive_ids) === false;
             });
         }
 
         if ($request->filled('location_ids')) {
             $location_ids_in = $request->input('location_ids');
-            $location_ids    = gettype($location_ids_in) == 'array' ? $location_ids_in : explode(',', $location_ids_in);
-            // filter by occurence in location_ids array 
-            $inspections = $inspections->reject(function (Inspection $ins, int $key) use ($location_ids){
+            $location_ids = gettype($location_ids_in) == 'array' ? $location_ids_in : explode(',', $location_ids_in);
+            // filter by occurence in location_ids array
+            $inspections = $inspections->reject(function (Inspection $ins, int $key) use ($location_ids) {
                 return in_array($ins->location_id, $location_ids) === false;
             });
         }
@@ -82,18 +80,18 @@ class InspectionsController extends Controller
             return response()->json(null, 404);
         }
 
-        if ($inspections->count() == 0)
+        if ($inspections->count() == 0) {
             return response()->json(null, 404);
+        }
 
         return response()->json($inspections);
     }
 
-
     /**
     api/inspections/lists GET
-    List checklists and its  inspections linked to Hive id. The 'inspections' object contains a descending date ordered list of general inspection data. The 'items_by_date' object contains a list of (rows of) inspection items that can be placed (in columns) under the inspections by created_at date (table format). NB: Use 'Accept-Language' Header (default nl_NL) to provide localized category names (anc, name) in items_by_date. 
+    List checklists and its  inspections linked to Hive id. The 'inspections' object contains a descending date ordered list of general inspection data. The 'items_by_date' object contains a list of (rows of) inspection items that can be placed (in columns) under the inspections by created_at date (table format). NB: Use 'Accept-Language' Header (default nl_NL) to provide localized category names (anc, name) in items_by_date.
     @authenticated
-    @bodyParam id integer required The hive to request inspections from. 
+    @bodyParam id integer required The hive to request inspections from.
     @response {
     "checklists": [
         {
@@ -121,33 +119,35 @@ class InspectionsController extends Controller
         }
     ]
 }
-    **/
+     **/
     public function lists(Request $request)
     {
-        $out               = [];
-        $checklists        = $request->user()->allChecklists();
+        $out = [];
+        $checklists = $request->user()->allChecklists();
         $out['checklists'] = $checklists->orderBy('name')->get();
-        
-        $checklist    = null;
 
-        if ($checklists->where('id',intval($request->input('id')))->count() > 0)
-            $checklist = $checklists->where('id',intval($request->input('id')))->first();
-        else
+        $checklist = null;
+
+        if ($checklists->where('id', intval($request->input('id')))->count() > 0) {
+            $checklist = $checklists->where('id', intval($request->input('id')))->first();
+        } else {
             $checklist = $request->user()->allChecklists()->orderBy('created_at', 'desc')->first();
-    
-        if ($checklist && $checklist->categories()->count() > 0)
-            $checklist->categories = $checklist->categories()->get()->toTree();
+        }
 
-        $out['checklist']  = $checklist;
+        if ($checklist && $checklist->categories()->count() > 0) {
+            $checklist->categories = $checklist->categories()->get()->toTree();
+        }
+
+        $out['checklist'] = $checklist;
 
         return response()->json($out);
     }
 
     /**
     api/inspections/hive/{hive_id} GET
-    List all inspections linked to Hive id. The 'inspections' object contains a descending date ordered list of general inspection data. The 'items_by_date' object contains a list of (rows of) inspection items that can be placed (in columns) under the inspections by created_at date (table format). NB: Use 'Accept-Language' Header (default nl_NL) to provide localized category names (anc, name) in items_by_date. 
+    List all inspections linked to Hive id. The 'inspections' object contains a descending date ordered list of general inspection data. The 'items_by_date' object contains a list of (rows of) inspection items that can be placed (in columns) under the inspections by created_at date (table format). NB: Use 'Accept-Language' Header (default nl_NL) to provide localized category names (anc, name) in items_by_date.
     @authenticated
-    @urlParam hive_id required The hive to request inspections from. 
+    @urlParam hive_id required The hive to request inspections from.
     @bodyParam search string Filter inspections on text inside notes, reminder, created_at, reminder_date, inspection item names/values. Example: test
     bodyParam id integer If provided, select single inspection. Example: 15
     @bodyParam impression string Filter by one or more impression values 1-3 (smileys). Default: null. Example: 2,3
@@ -248,11 +248,12 @@ class InspectionsController extends Controller
         }
     ]
 }
-    */
+     */
     public function hive(Request $request, $hive_id)
     {
-        $hive   = $request->user()->allHives()->findOrFail($hive_id);
+        $hive = $request->user()->allHives()->findOrFail($hive_id);
         $locale = $request->filled('locale') ? $request->input('locale') : LaravelLocalization::getCurrentLocale();
+
         return response()->json($hive->inspection_items_by_date($request, $locale));
     }
 
@@ -260,17 +261,19 @@ class InspectionsController extends Controller
     api/inspections/{id} GET
     Show the 'inspection' object. The object reflects only the general inspection data.
     @authenticated
-    @urlParam id required The id of the inspection. 
-    **/
+    @urlParam id required The id of the inspection.
+     **/
     public function show(Request $request, $id)
     {
         $inspection = $request->user()->allInspections()->find($id);
-        if (isset($inspection) == false)
+        if (isset($inspection) == false) {
             return response()->json(null, 404);
+        }
 
         $inspection->makeVisible('items');
-        $inspection_items  = InspectionItem::where('inspection_id',$inspection->id)->groupBy('category_id')->get();
+        $inspection_items = InspectionItem::where('inspection_id', $inspection->id)->groupBy('category_id')->get();
         $inspection->items = $inspection_items;
+
         return response()->json($inspection);
     }
 
@@ -289,77 +292,71 @@ class InspectionsController extends Controller
     @bodyParam reminder_date date The (local time) date time for an optional reminder that can be fed to the users calender. Example: 2020-05-27 16:16
     @bodyParam notes string Textual value of the notes fields. Example: This is an inspection note
     @bodyParam checklist_id integer Id of the user checklist for generating this inspection. Example: 829
-    **/
+     **/
     public function store(Request $request)
     {
         $validator = Validator::make($request->input(),
-        [
-            'date'          => 'required|date',
-            'items'         => 'nullable',
-            'hive_ids.*'    => 'required_without:hive_id|integer|exists:hives,id',
-            'hive_id'       => 'required_without:hive_ids|integer|exists:hives,id',
-        ]);
+            [
+                'date' => 'required|date',
+                'items' => 'nullable',
+                'hive_ids.*' => 'required_without:hive_id|integer|exists:hives,id',
+                'hive_id' => 'required_without:hive_ids|integer|exists:hives,id',
+            ]);
 
-        if ($validator->fails())
-            return response()->json(['errors'=>$validator->errors()], 422);
+        if ($validator->fails()) {
+            return response()->json(['errors' => $validator->errors()], 422);
+        }
 
         $user = Auth::user();
-        if ($request->filled('date') && ( $request->filled('items') || ($request->filled('item_ids') && $request->filled('item_vals')) ) )
-        {
-            $moment               = new Moment($request->input('date'));
-            $date                 = $moment->format('Y-m-d H:i:s');
-            $data                 = $request->except(['hive_id','items','date']);
-            $data['created_at']   = $date;
+        if ($request->filled('date') && ($request->filled('items') || ($request->filled('item_ids') && $request->filled('item_vals')))) {
+            $moment = new Moment($request->input('date'));
+            $date = $moment->format('Y-m-d H:i:s');
+            $data = $request->except(['hive_id', 'items', 'date']);
+            $data['created_at'] = $date;
             $data['checklist_id'] = $request->filled('checklist_id') ? $request->input('checklist_id') : null;
 
-            if ($request->filled('reminder_date'))
-            {
+            if ($request->filled('reminder_date')) {
                 $reminder_moment = new Moment($request->input('reminder_date'));
                 $data['reminder_date'] = $reminder_moment->format('Y-m-d H:i:s');
             }
-            
+
             // filter -1 values for impression and attention
-            $data['impression']   = $request->filled('impression') && $request->input('impression') > -1 ? $request->input('impression') : null;
-            $data['attention']    = $request->filled('attention')  && $request->input('attention')  > -1 ? $request->input('attention')  : null;
+            $data['impression'] = $request->filled('impression') && $request->input('impression') > -1 ? $request->input('impression') : null;
+            $data['attention'] = $request->filled('attention') && $request->input('attention') > -1 ? $request->input('attention') : null;
 
             // combine item_ids and item_vals to items
-            if (!$request->filled('items') && $request->filled('item_ids') && $request->filled('item_vals'))
-            {
+            if (! $request->filled('items') && $request->filled('item_ids') && $request->filled('item_vals')) {
                 $items = [];
-                $item_ids  = explode(',', $request->input('item_ids'));
+                $item_ids = explode(',', $request->input('item_ids'));
                 $item_vals = explode(',', $request->input('item_vals'));
-                if (count($item_ids) == count($item_vals))
-                {
-                    for ($i=0; $i < count($item_ids); $i++) 
-                    { 
+                if (count($item_ids) == count($item_vals)) {
+                    for ($i = 0; $i < count($item_ids); $i++) {
                         $items[$item_ids[$i]] = $item_vals[$i];
                     }
                 }
-            }
-            else
-            {
-                $items = $request->input('items');  
+            } else {
+                $items = $request->input('items');
             }
 
-            $location     = $user->allLocations(true)->find($request->input('location_id'));
+            $location = $user->allLocations(true)->find($request->input('location_id'));
 
-            $hive_ids     = [];
-            if ($request->filled('hive_ids'))
+            $hive_ids = [];
+            if ($request->filled('hive_ids')) {
                 $hive_ids = $request->input('hive_ids');
-            else
+            } else {
                 $hive_ids = [$request->input('hive_id')];
-
+            }
 
             $inspection = $user->inspections()->find($request->input('id'));
 
-            foreach ($hive_ids as $hive_id) 
-            {
+            foreach ($hive_ids as $hive_id) {
                 $hive = $user->allHives(true)->find($hive_id);
 
-                if (!isset($hive))
+                if (! isset($hive)) {
                     continue;
-                
-                // if (!isset($inspection)) // if no inspection id 
+                }
+
+                // if (!isset($inspection)) // if no inspection id
                 // {
                 //     if ($hive)
                 //         $inspection = $hive->inspections()->orderBy('created_at','desc')->where('created_at', $date)->first();
@@ -370,49 +367,47 @@ class InspectionsController extends Controller
                 //         //$inspection = $user->inspections()->orderBy('created_at','desc')->where('created_at', $date)->first();
                 // }
 
-                if (isset($inspection) && $inspection->hive_id == $hive_id)
+                if (isset($inspection) && $inspection->hive_id == $hive_id) {
                     $inspection->update($data);
-                else
+                } else {
                     $inspection = Inspection::create($data);
-                
+                }
+
                 // link inspection
                 $inspection->users()->syncWithoutDetaching($user->id);
 
-                if (isset($location))
+                if (isset($location)) {
                     $inspection->locations()->syncWithoutDetaching($location->id);
+                }
 
-                if (isset($hive))
+                if (isset($hive)) {
                     $inspection->hives()->syncWithoutDetaching($hive->id);
-
+                }
 
                 // Set inspection items
                 // clear to remove items not in input
                 $inspection->items()->forceDelete();
-                
-                if (count($items) > 0)
-                {
-                    foreach ($items as $cat_id => $value) 
-                    {
-                        $category = Category::find($cat_id);
-                        if (isset($category) && isset($value))
-                        {
-                            if (is_array($value))
-                                $value = implode(',',$value); // convert value to string
 
-                            $itemData = 
+                if (count($items) > 0) {
+                    foreach ($items as $cat_id => $value) {
+                        $category = Category::find($cat_id);
+                        if (isset($category) && isset($value)) {
+                            if (is_array($value)) {
+                                $value = implode(',', $value);
+                            } // convert value to string
+
+                            $itemData =
                             [
-                                'category_id'   => $category->id,
+                                'category_id' => $category->id,
                                 'inspection_id' => $inspection->id,
-                                'value'         => $value,
+                                'value' => $value,
                             ];
                             InspectionItem::create($itemData);
 
                             // add inspection link to Image
-                            if ($category->inputTypeType() == 'image')
-                            {
+                            if ($category->inputTypeType() == 'image') {
                                 $image = Image::where('thumb_url', $value)->first();
-                                if ($image)
-                                {
+                                if ($image) {
                                     $image->inspection_id = $inspection->id;
                                     $image->save();
                                 }
@@ -423,17 +418,16 @@ class InspectionsController extends Controller
             }
         }
 
-        if (isset($inspection))
-        {
-            // Empty user cache, because the inspection if synced 
+        if (isset($inspection)) {
+            // Empty user cache, because the inspection if synced
             $user->emptyCache('inspection');
+
             return response()->json($inspection->id, 201);
         }
 
         return response()->json('error', 500);
 
     }
-
 
     /**
      * Remove the specified resource from storage.
@@ -445,5 +439,4 @@ class InspectionsController extends Controller
     {
         Auth::user()->inspections()->findOrFail($id)->delete();
     }
-
 }

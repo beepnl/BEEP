@@ -27,14 +27,14 @@ class CreateSampleCodesTable extends Migration
             $table->integer('queen_id')->unsigned()->nullable();
 
             $table->foreign('user_id')->references('id')->on('users')
-                    ->onUpdate('cascade')->onDelete('cascade');
+                ->onUpdate('cascade')->onDelete('cascade');
 
             $table->foreign('hive_id')->references('id')->on('hives')
-                    ->onUpdate('cascade')->onDelete('cascade');
+                ->onUpdate('cascade')->onDelete('cascade');
 
             $table->foreign('queen_id')->references('id')->on('queens')
-                    ->onUpdate('cascade');
-            }
+                ->onUpdate('cascade');
+        }
         );
     }
 
@@ -45,10 +45,8 @@ class CreateSampleCodesTable extends Migration
      */
     public function down()
     {
-        if (Schema::hasTable('sample_codes')) 
-        {
-            Schema::table('sample_codes', function (Blueprint $table) 
-            {
+        if (Schema::hasTable('sample_codes')) {
+            Schema::table('sample_codes', function (Blueprint $table) {
                 $table->dropForeign(['queen_id']);
                 $table->dropForeign(['hive_id']);
                 $table->dropForeign(['user_id']);

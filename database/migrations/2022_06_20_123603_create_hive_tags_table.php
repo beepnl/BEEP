@@ -20,7 +20,7 @@ class CreateHiveTagsTable extends Migration
             $table->integer('hive_id')->nullable()->unsigned();
             $table->integer('action_id')->nullable()->unsigned();
             $table->json('router_link')->nullable();
-            });
+        });
     }
 
     /**

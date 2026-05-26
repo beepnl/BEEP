@@ -14,10 +14,10 @@ class SampleCode extends Model
     protected $table = 'sample_codes';
 
     /**
-    * The database primary key value.
-    *
-    * @var string
-    */
+     * The database primary key value.
+     *
+     * @var string
+     */
     protected $primaryKey = 'id';
 
     /**
@@ -31,40 +31,42 @@ class SampleCode extends Model
     {
         return $this->belongsTo(Hive::class);
     }
+
     public function user()
     {
         return $this->belongsTo(User::class);
     }
+
     public function queen()
     {
         return $this->belongsTo(Queen::class);
     }
-    
+
     public static function generate_code()
     {
         $code = null;
-        while ($code == null || SampleCode::where('sample_code', $code)->count() > 0)
+        while ($code == null || SampleCode::where('sample_code', $code)->count() > 0) {
             $code = SampleCode::readable_random_string();
+        }
 
         return $code;
     }
 
-    public static  function readable_random_string($length = 8)
-    {  
-        $string  = '';
-        $letters = array(
-            'a', 'b', 'c', 'd', 'f', 'g', 'h', 'j', 'k', 'l', 'm', 
-            'n', 'p', 'r', 's', 't', 'u', 'x', 'y', 'z'
-        );  
+    public static function readable_random_string($length = 8)
+    {
+        $string = '';
+        $letters = [
+            'a', 'b', 'c', 'd', 'f', 'g', 'h', 'j', 'k', 'l', 'm',
+            'n', 'p', 'r', 's', 't', 'u', 'x', 'y', 'z',
+        ];
 
         // Seed it
-        srand((double) microtime() * 1000000);
+        srand((float) microtime() * 1000000);
 
         $cnt = count($letters);
 
-        for ($i = 0; $i < $length; $i++)
-        {
-            $string .= $letters[rand(0,$cnt-1)];
+        for ($i = 0; $i < $length; $i++) {
+            $string .= $letters[rand(0, $cnt - 1)];
         }
 
         return strtoupper($string);

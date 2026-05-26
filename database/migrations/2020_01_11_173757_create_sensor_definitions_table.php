@@ -22,15 +22,15 @@ class CreateSensorDefinitionsTable extends Migration
             $table->integer('input_measurement_id')->unsigned()->nullable();
             $table->integer('output_measurement_id')->unsigned()->nullable();
             $table->integer('device_id')->unsigned();
-            
+
             $table->foreign('input_measurement_id')->references('id')->on('measurements')
-                    ->onUpdate('cascade')->onDelete('cascade');
+                ->onUpdate('cascade')->onDelete('cascade');
 
             $table->foreign('output_measurement_id')->references('id')->on('measurements')
-                    ->onUpdate('cascade')->onDelete('cascade');
+                ->onUpdate('cascade')->onDelete('cascade');
 
             $table->foreign('device_id')->references('id')->on('sensors')
-                    ->onUpdate('cascade');
+                ->onUpdate('cascade');
         });
     }
 
@@ -41,10 +41,8 @@ class CreateSensorDefinitionsTable extends Migration
      */
     public function down()
     {
-        if (Schema::hasTable('sensor_definitions')) 
-        {
-            Schema::table('sensor_definitions', function (Blueprint $table) 
-            {
+        if (Schema::hasTable('sensor_definitions')) {
+            Schema::table('sensor_definitions', function (Blueprint $table) {
                 $table->dropForeign(['device_id']);
                 $table->dropForeign(['output_measurement_id']);
                 $table->dropForeign(['input_measurement_id']);

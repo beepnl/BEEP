@@ -21,7 +21,7 @@ class CreateChecklistSvgsTable extends Migration
             $table->mediumText('svg')->nullable();
             $table->integer('pages')->unsigned();
             $table->dateTime('last_print')->nullable();
-            });
+        });
     }
 
     /**

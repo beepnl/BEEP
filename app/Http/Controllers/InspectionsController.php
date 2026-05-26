@@ -2,11 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use Auth;
-use App\Http\Requests;
-use App\Http\Controllers\Controller;
-
 use App\Inspection;
+use Auth;
 use Illuminate\Http\Request;
 
 class InspectionsController extends Controller
@@ -21,7 +18,7 @@ class InspectionsController extends Controller
         // if (Auth::user()->hasRole('superadmin'))
         //     $inspections = Inspection::all();
         // else
-            $inspections = $this->getUserInspections()->get();
+        $inspections = $this->getUserInspections()->get();
 
         return view('inspections.index', compact('inspections'));
     }
@@ -39,15 +36,14 @@ class InspectionsController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param \Illuminate\Http\Request $request
      *
      * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
      */
     public function store(Request $request)
     {
-        
+
         $requestData = $request->all();
-        
+
         $this->getUserInspections()->create($requestData);
 
         return redirect('inspections')->with('flash_message', 'Inspection added!');
@@ -57,30 +53,30 @@ class InspectionsController extends Controller
      * Display the specified resource.
      *
      * @param  int  $id
-     *
      * @return \Illuminate\View\View
      */
     public function show($id)
     {
-        if (Auth::user()->hasRole(['admin','superadmin']))
+        if (Auth::user()->hasRole(['admin', 'superadmin'])) {
             $inspection = Inspection::find($id);
-        else
+        } else {
             $inspection = $this->getUserInspections()->find($id);
-        
-        if ($inspection)
-            $items = $inspection->items()->get();
-        else
-            return redirect('inspections')->with('error_message', "Inspection $id not found!");
-        //die(print_r($items->toArray()));
+        }
 
-        return view('inspections.show', compact('inspection','items'));
+        if ($inspection) {
+            $items = $inspection->items()->get();
+        } else {
+            return redirect('inspections')->with('error_message', "Inspection $id not found!");
+        }
+        // die(print_r($items->toArray()));
+
+        return view('inspections.show', compact('inspection', 'items'));
     }
 
     /**
      * Show the form for editing the specified resource.
      *
      * @param  int  $id
-     *
      * @return \Illuminate\View\View
      */
     public function edit($id)
@@ -93,16 +89,14 @@ class InspectionsController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param \Illuminate\Http\Request $request
      * @param  int  $id
-     *
      * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
      */
     public function update(Request $request, $id)
     {
-        
+
         $requestData = $request->all();
-        
+
         $inspection = $this->getUserInspections()->find($id);
         $inspection->update($requestData);
 
@@ -113,7 +107,6 @@ class InspectionsController extends Controller
      * Remove the specified resource from storage.
      *
      * @param  int  $id
-     *
      * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
      */
     public function destroy($id)

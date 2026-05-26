@@ -184,7 +184,7 @@ return [
              */
             'abort' => [
                 'code' => 403,
-                'message' => 'User does not have any of the necessary access rights.'
+                'message' => 'User does not have any of the necessary access rights.',
             ],
 
             /**
@@ -197,10 +197,10 @@ return [
                 'url' => '/home',
                 'message' => [
                     'key' => 'error',
-                    'content' => ''
-                ]
-            ]
-        ]
+                    'content' => '',
+                ],
+            ],
+        ],
     ],
 
     'teams' => [
@@ -340,5 +340,5 @@ return [
             // The user won't be able to delete the role.
             'not_deletable' => [],
         ],
-    ]
+    ],
 ];

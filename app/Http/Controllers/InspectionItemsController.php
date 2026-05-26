@@ -2,9 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests;
-use App\Http\Controllers\Controller;
-
 use App\InspectionItem;
 use Illuminate\Http\Request;
 
@@ -20,7 +17,7 @@ class InspectionItemsController extends Controller
         $keyword = $request->get('search');
         $perPage = 100;
 
-        if (!empty($keyword)) {
+        if (! empty($keyword)) {
             $inspectionitems = InspectionItem::where('value', 'LIKE', "%$keyword%")
                 ->orWhere('inspection_id', 'LIKE', "%$keyword%")
                 ->orWhere('category_id', 'LIKE', "%$keyword%")
@@ -45,15 +42,14 @@ class InspectionItemsController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param \Illuminate\Http\Request $request
      *
      * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
      */
     public function store(Request $request)
     {
-        
+
         $requestData = $request->all();
-        
+
         InspectionItem::create($requestData);
 
         return redirect('inspection-items')->with('flash_message', 'InspectionItem added!');
@@ -63,7 +59,6 @@ class InspectionItemsController extends Controller
      * Display the specified resource.
      *
      * @param  int  $id
-     *
      * @return \Illuminate\View\View
      */
     public function show($id)
@@ -77,7 +72,6 @@ class InspectionItemsController extends Controller
      * Show the form for editing the specified resource.
      *
      * @param  int  $id
-     *
      * @return \Illuminate\View\View
      */
     public function edit($id)
@@ -90,16 +84,14 @@ class InspectionItemsController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param \Illuminate\Http\Request $request
      * @param  int  $id
-     *
      * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
      */
     public function update(Request $request, $id)
     {
-        
+
         $requestData = $request->all();
-        
+
         $inspectionitem = InspectionItem::findOrFail($id);
         $inspectionitem->update($requestData);
 
@@ -110,7 +102,6 @@ class InspectionItemsController extends Controller
      * Remove the specified resource from storage.
      *
      * @param  int  $id
-     *
      * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
      */
     public function destroy($id)

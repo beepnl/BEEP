@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class ChangeSensorsOffsetFloatToDouble extends Migration
 {
@@ -13,8 +13,8 @@ class ChangeSensorsOffsetFloatToDouble extends Migration
      */
     public function up()
     {
-       Schema::table('sensors', function (Blueprint $table) {
-            DB::statement("ALTER TABLE `sensors` MODIFY COLUMN `datetime_offset_sec` DOUBLE NULL;");
+        Schema::table('sensors', function (Blueprint $table) {
+            DB::statement('ALTER TABLE `sensors` MODIFY COLUMN `datetime_offset_sec` DOUBLE NULL;');
         });
     }
 

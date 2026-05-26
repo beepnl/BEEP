@@ -6,10 +6,12 @@ use Illuminate\Database\Eloquent\Model;
 
 class Setting extends Model
 {
-	protected $fillable = ['user_id', 'category_id', 'name', 'value', 'number'];
-	protected $guarded 	= ['id'];
-	protected $hidden   = ['user_id', 'category_id', 'id', 'deleted_at'];
-    //protected $appends  = ['type'];
+    protected $fillable = ['user_id', 'category_id', 'name', 'value', 'number'];
+
+    protected $guarded = ['id'];
+
+    protected $hidden = ['user_id', 'category_id', 'id', 'deleted_at'];
+    // protected $appends  = ['type'];
 
     public $timestamps = false;
 
@@ -18,8 +20,8 @@ class Setting extends Model
     {
         return Category::find($this->category_id)->name;
     }
-    
-	public function user()
+
+    public function user()
     {
         return $this->belongsTo(User::class);
     }

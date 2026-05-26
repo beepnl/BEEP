@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Language extends Model
 {
-    protected $fillable = ['name','name_english','icon','abbreviation','twochar'];
+    protected $fillable = ['name', 'name_english', 'icon', 'abbreviation', 'twochar'];
 
     protected $appends = ['lang'];
 
@@ -14,7 +14,7 @@ class Language extends Model
 
     public function getLangAttribute()
     {
-    	return $this->twochar;
+        return $this->twochar;
     }
 
     // Relations
@@ -22,5 +22,4 @@ class Language extends Model
     {
         return $this->belongsToMany(Translation::class);
     }
-
 }

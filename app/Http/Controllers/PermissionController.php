@@ -2,9 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests;
-use App\Http\Controllers\Controller;
-
 use App\Permission;
 use Illuminate\Http\Request;
 
@@ -20,7 +17,7 @@ class PermissionController extends Controller
         $keyword = $request->get('search');
         $perPage = 1000;
 
-        if (!empty($keyword)) {
+        if (! empty($keyword)) {
             $permissions = Permission::paginate($perPage);
         } else {
             $permissions = Permission::paginate($perPage);
@@ -42,15 +39,14 @@ class PermissionController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param \Illuminate\Http\Request $request
      *
      * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
      */
     public function store(Request $request)
     {
-        
+
         $requestData = $request->all();
-        
+
         Permission::create($requestData);
 
         return redirect('permissions')->with('flash_message', 'Permission added!');
@@ -60,7 +56,6 @@ class PermissionController extends Controller
      * Display the specified resource.
      *
      * @param  int  $id
-     *
      * @return \Illuminate\View\View
      */
     public function show($id)
@@ -74,7 +69,6 @@ class PermissionController extends Controller
      * Show the form for editing the specified resource.
      *
      * @param  int  $id
-     *
      * @return \Illuminate\View\View
      */
     public function edit($id)
@@ -87,16 +81,14 @@ class PermissionController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param \Illuminate\Http\Request $request
      * @param  int  $id
-     *
      * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
      */
     public function update(Request $request, $id)
     {
-        
+
         $requestData = $request->all();
-        
+
         $permission = Permission::findOrFail($id);
         $permission->update($requestData);
 
@@ -107,7 +99,6 @@ class PermissionController extends Controller
      * Remove the specified resource from storage.
      *
      * @param  int  $id
-     *
      * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
      */
     public function destroy($id)

@@ -2,9 +2,9 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use App\Checklist;
 use App\User;
+use Illuminate\Database\Eloquent\Model;
 
 class ChecklistSvg extends Model
 {
@@ -16,10 +16,10 @@ class ChecklistSvg extends Model
     protected $table = 'checklist_svgs';
 
     /**
-    * The database primary key value.
-    *
-    * @var string
-    */
+     * The database primary key value.
+     *
+     * @var string
+     */
     protected $primaryKey = 'id';
 
     /**
@@ -33,9 +33,9 @@ class ChecklistSvg extends Model
     {
         return $this->belongsTo(Checklist::class);
     }
+
     public function user()
     {
         return $this->belongsTo(User::class);
     }
-    
 }

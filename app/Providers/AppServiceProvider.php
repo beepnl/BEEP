@@ -2,12 +2,11 @@
 
 namespace App\Providers;
 
-use Illuminate\Support\ServiceProvider;
-use Illuminate\Support\Collection;
-use Illuminate\Pagination\LengthAwarePaginator;
-
-use App\HiveFactory;
 use App\ChecklistFactory;
+use App\HiveFactory;
+use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Collection;
+use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -21,19 +20,20 @@ class AppServiceProvider extends ServiceProvider
         /**
          * Paginate a standard Laravel Collection.
          *
-         * @param int $perPage
-         * @param int $total
-         * @param int $page
-         * @param string $pageName
+         * @param  int  $perPage
+         * @param  int  $total
+         * @param  int  $page
+         * @param  string  $pageName
          * @return array
          */
-        Collection::macro('paginate', function($perPage, $page = null, $output_array=false, $total = null, $pageName = 'page') {
+        Collection::macro('paginate', function ($perPage, $page = null, $output_array = false, $total = null, $pageName = 'page') {
             $page = $page ?: LengthAwarePaginator::resolveCurrentPage($pageName);
 
-            $items = $this->forPage($page, $perPage); 
-            
-            if ($output_array) // make sure no start indexes > 0 are provided, so output is not rendered as object, but as array of objects
-                $items = Collection::make(array_values($items->toArray())); 
+            $items = $this->forPage($page, $perPage);
+
+            if ($output_array) { // make sure no start indexes > 0 are provided, so output is not rendered as object, but as array of objects
+                $items = Collection::make(array_values($items->toArray()));
+            }
 
             $paginator = new LengthAwarePaginator(
                 $items,
@@ -57,20 +57,16 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register()
     {
-        $this->app->singleton(HiveFactory::class, function() 
-        {
-            return new HiveFactory();  
+        $this->app->singleton(HiveFactory::class, function () {
+            return new HiveFactory;
         });
 
-        $this->app->singleton(ChecklistFactory::class, function() 
-        {
-            return new ChecklistFactory();  
+        $this->app->singleton(ChecklistFactory::class, function () {
+            return new ChecklistFactory;
         });
 
-        if ($this->app->environment() == 'local') 
-        {
+        if ($this->app->environment() == 'local') {
             $this->app->register('Appzcoder\CrudGenerator\CrudGeneratorServiceProvider');
         }
     }
-
 }

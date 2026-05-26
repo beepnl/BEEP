@@ -12,8 +12,7 @@ class CreateAlertRulesTable extends Migration
      */
     public function up()
     {
-        if (!Schema::hasTable('alert_rules')) 
-        {
+        if (! Schema::hasTable('alert_rules')) {
             Schema::create('alert_rules', function (Blueprint $table) {
                 $table->increments('id');
                 $table->timestamps();
@@ -43,8 +42,7 @@ class CreateAlertRulesTable extends Migration
      */
     public function down()
     {
-        if (Schema::hasTable('alert_rules')) 
-        {
+        if (Schema::hasTable('alert_rules')) {
             Schema::drop('alert_rules');
         }
     }

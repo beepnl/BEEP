@@ -17,6 +17,6 @@ return [
     'reset' => 'Uw wachtwoord is gereset!',
     'sent' => 'We hebben u een wachtwoord-reset-link gestuurd!',
     'token' => 'Het wachtwoord-reset-token is ongeldig.',
-    'user' => "We kunnen helaas geen gebruiker vinden met het ingevoerde e-mail adres.",
+    'user' => 'We kunnen helaas geen gebruiker vinden met het ingevoerde e-mail adres.',
 
 ];

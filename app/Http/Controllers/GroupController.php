@@ -2,9 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-use App\Http\Controllers\Controller;
 use App\Group;
+use Illuminate\Http\Request;
 
 class GroupController extends Controller
 {
@@ -15,8 +14,9 @@ class GroupController extends Controller
      */
     public function index(Request $request)
     {
-        $groups = Group::orderBy('id','DESC')->paginate(10);
-        return view('groups.index',compact('groups'))
+        $groups = Group::orderBy('id', 'DESC')->paginate(10);
+
+        return view('groups.index', compact('groups'))
             ->with('i', ($request->input('page', 1) - 1) * 10);
     }
 
@@ -33,7 +33,6 @@ class GroupController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
@@ -46,7 +45,7 @@ class GroupController extends Controller
         Group::create($request->all());
 
         return redirect()->route('groups.index')
-                        ->with('success','Group created successfully');
+            ->with('success', 'Group created successfully');
     }
 
     /**
@@ -58,7 +57,8 @@ class GroupController extends Controller
     public function show($id)
     {
         $item = Group::find($id);
-        return view('groups.show',compact('item'));
+
+        return view('groups.show', compact('item'));
     }
 
     /**
@@ -70,13 +70,13 @@ class GroupController extends Controller
     public function edit($id)
     {
         $item = Group::find($id);
-        return view('groups.edit',compact('item'));
+
+        return view('groups.edit', compact('item'));
     }
 
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
@@ -90,7 +90,7 @@ class GroupController extends Controller
         Group::find($id)->update($request->all());
 
         return redirect()->route('groups.index')
-                        ->with('success','Group updated successfully');
+            ->with('success', 'Group updated successfully');
     }
 
     /**
@@ -102,7 +102,8 @@ class GroupController extends Controller
     public function destroy($id)
     {
         Group::find($id)->delete();
+
         return redirect()->route('groups.index')
-                        ->with('success','Group deleted successfully');
+            ->with('success', 'Group deleted successfully');
     }
 }

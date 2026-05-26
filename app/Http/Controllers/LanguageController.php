@@ -2,9 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests;
-use App\Http\Controllers\Controller;
-
 use App\Language;
 use Illuminate\Http\Request;
 
@@ -20,7 +17,7 @@ class LanguageController extends Controller
         $keyword = $request->get('search');
         $perPage = 1000;
 
-        if (!empty($keyword)) {
+        if (! empty($keyword)) {
             $languages = Language::paginate($perPage);
         } else {
             $languages = Language::paginate($perPage);
@@ -42,15 +39,14 @@ class LanguageController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param \Illuminate\Http\Request $request
      *
      * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
      */
     public function store(Request $request)
     {
-        
+
         $requestData = $request->all();
-        
+
         Language::create($requestData);
 
         return redirect('languages')->with('flash_message', 'Language added!');
@@ -60,7 +56,6 @@ class LanguageController extends Controller
      * Display the specified resource.
      *
      * @param  int  $id
-     *
      * @return \Illuminate\View\View
      */
     public function show($id)
@@ -74,7 +69,6 @@ class LanguageController extends Controller
      * Show the form for editing the specified resource.
      *
      * @param  int  $id
-     *
      * @return \Illuminate\View\View
      */
     public function edit($id)
@@ -87,16 +81,14 @@ class LanguageController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param \Illuminate\Http\Request $request
      * @param  int  $id
-     *
      * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
      */
     public function update(Request $request, $id)
     {
-        
+
         $requestData = $request->all();
-        
+
         $language = Language::findOrFail($id);
         $language->update($requestData);
 
@@ -107,7 +99,6 @@ class LanguageController extends Controller
      * Remove the specified resource from storage.
      *
      * @param  int  $id
-     *
      * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
      */
     public function destroy($id)

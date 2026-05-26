@@ -12,10 +12,8 @@ class CreateMeasurementsTable extends Migration
      */
     public function up()
     {
-        if (!Schema::hasTable('measurements')) 
-        {
-            Schema::create('measurements', function (Blueprint $table) 
-            {
+        if (! Schema::hasTable('measurements')) {
+            Schema::create('measurements', function (Blueprint $table) {
                 $table->increments('id');
                 $table->string('abbreviation');
                 $table->boolean('show_in_charts')->default(true);
@@ -37,13 +35,11 @@ class CreateMeasurementsTable extends Migration
      */
     public function down()
     {
-        if (Schema::hasTable('measurements')) 
-        {
-            Schema::table('measurements', function(Blueprint $table)
-            {
+        if (Schema::hasTable('measurements')) {
+            Schema::table('measurements', function (Blueprint $table) {
                 $table->dropForeign(['physical_quantity_id']);
             });
-            
+
             Schema::drop('measurements');
         }
 

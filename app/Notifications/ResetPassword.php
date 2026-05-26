@@ -2,13 +2,13 @@
 
 namespace App\Notifications;
 
-use Illuminate\Support\Facades\Lang;
-use Illuminate\Notifications\Notification as NotificationBase;
 use Illuminate\Notifications\Messages\MailMessage;
+use Illuminate\Notifications\Notification as NotificationBase;
+use Illuminate\Support\Facades\Lang;
 
 class ResetPassword extends NotificationBase
 {
-     /**
+    /**
      * The password reset token.
      *
      * @var string
@@ -50,7 +50,6 @@ class ResetPassword extends NotificationBase
      * @param  mixed  $notifiable
      * @return \Illuminate\Notifications\Messages\MailMessage
      */
-
     public function toMail($notifiable)
     {
         if (static::$toMailCallback) {

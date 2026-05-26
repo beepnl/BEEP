@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class AddMinMaxValues extends Migration
 {
@@ -14,12 +14,15 @@ class AddMinMaxValues extends Migration
     public function up()
     {
         Schema::table('measurements', function (Blueprint $table) {
-            if (!Schema::hasColumn('measurements','min_value'))
+            if (! Schema::hasColumn('measurements', 'min_value')) {
                 $table->float('min_value')->nullable();
-            if (!Schema::hasColumn('measurements','max_value'))
+            }
+            if (! Schema::hasColumn('measurements', 'max_value')) {
                 $table->float('max_value')->nullable();
-            if (!Schema::hasColumn('measurements','hex_color'))
+            }
+            if (! Schema::hasColumn('measurements', 'hex_color')) {
                 $table->string('hex_color', 6)->nullable()->default('333333');
+            }
         });
     }
 
@@ -31,15 +34,18 @@ class AddMinMaxValues extends Migration
     public function down()
     {
         Schema::table('measurements', function (Blueprint $table) {
-            if (Schema::hasColumn('measurements','min_value'))
+            if (Schema::hasColumn('measurements', 'min_value')) {
                 $table->dropColumn('min_value');
+            }
 
-            if (Schema::hasColumn('measurements','max_value'))
+            if (Schema::hasColumn('measurements', 'max_value')) {
                 $table->dropColumn('max_value');
+            }
 
-            if (Schema::hasColumn('measurements','hex_color'))
+            if (Schema::hasColumn('measurements', 'hex_color')) {
                 $table->dropColumn('hex_color');
-            
+            }
+
         });
     }
 }

@@ -3,11 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests;
-
-use App\Models\HiveTag;
 use Illuminate\Http\Request;
-
 use Validator;
 
 class HiveTagsController extends Controller
@@ -27,29 +23,30 @@ class HiveTagsController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param \Illuminate\Http\Request $request
      *
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
     {
-        $data      = $request->all();
+        $data = $request->all();
         $validator = Validator::make($data, [
-            'tag'          => 'required|string',
-            'router_link'  => 'required',
-            'hive_id'      => 'nullable|integer|exists:hives,id',
-            'action_id'    => 'nullable|integer',
+            'tag' => 'required|string',
+            'router_link' => 'required',
+            'hive_id' => 'nullable|integer|exists:hives,id',
+            'action_id' => 'nullable|integer',
         ]);
 
-        if ($validator->fails())
-            return response()->json(['errors'=>$validator->errors()]);
-        
-        $user      = $request->user(); 
-        $hive_tags = $user->hive_tags();
-        $existing  = $hive_tags->where('tag', $request->input('tag'));
+        if ($validator->fails()) {
+            return response()->json(['errors' => $validator->errors()]);
+        }
 
-        if ($existing->count() > 0)
+        $user = $request->user();
+        $hive_tags = $user->hive_tags();
+        $existing = $hive_tags->where('tag', $request->input('tag'));
+
+        if ($existing->count() > 0) {
             return $this->update($request, $existing->first()->id);
+        }
 
         $hive_tag = $user->hive_tags()->create($data);
 
@@ -60,7 +57,6 @@ class HiveTagsController extends Controller
      * Display the specified resource.
      *
      * @param  int  $id
-     *
      * @return \Illuminate\Http\Response
      */
     public function show(Request $request, $tag)
@@ -73,28 +69,28 @@ class HiveTagsController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param \Illuminate\Http\Request $request
      * @param  int  $id
-     *
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request, $tag)
     {
-        $data      = $request->all();
+        $data = $request->all();
         $validator = Validator::make($data, [
-            'tag'          => 'required|string',
-            'router_link'  => 'required',
-            'hive_id'      => 'nullable|integer|exists:hives,id',
-            'action_id'    => 'nullable|integer',
+            'tag' => 'required|string',
+            'router_link' => 'required',
+            'hive_id' => 'nullable|integer|exists:hives,id',
+            'action_id' => 'nullable|integer',
         ]);
 
-        if ($validator->fails())
-            return response()->json(['errors'=>$validator->errors()]);
+        if ($validator->fails()) {
+            return response()->json(['errors' => $validator->errors()]);
+        }
 
         $hive_tag = $request->user()->hive_tags()->where('tag', $tag)->first();
-        
-        if ($hive_tag)
+
+        if ($hive_tag) {
             $hive_tag->update($data);
+        }
 
         return response()->json($hive_tag, 200);
     }
@@ -103,7 +99,6 @@ class HiveTagsController extends Controller
      * Remove the specified resource from storage.
      *
      * @param  int  $id
-     *
      * @return \Illuminate\Http\Response
      */
     public function destroy(Request $request, $tag)

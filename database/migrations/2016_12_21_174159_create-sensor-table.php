@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class CreateSensorTable extends Migration
 {
@@ -48,13 +48,12 @@ class CreateSensorTable extends Migration
      */
     public function down()
     {
-        Schema::table('sensors', function(Blueprint $table)
-        {
+        Schema::table('sensors', function (Blueprint $table) {
             $table->dropForeign(['user_id']);
             $table->dropForeign(['hive_id']);
             $table->dropForeign(['category_id']);
         });
-        
+
         Schema::dropIfExists('sensor_user');
         Schema::dropIfExists('sensors');
     }

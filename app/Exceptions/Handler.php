@@ -3,7 +3,6 @@
 namespace App\Exceptions;
 
 use Exception;
-use Illuminate\Auth\AuthenticationException;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
 
 class Handler extends ExceptionHandler
@@ -16,6 +15,7 @@ class Handler extends ExceptionHandler
     protected $dontReport = [
         //
     ];
+
     /**
      * A list of the inputs that are never flashed for validation exceptions.
      *
@@ -25,33 +25,31 @@ class Handler extends ExceptionHandler
         'password',
         'password_confirmation',
     ];
+
     /**
      * Report or log an exception.
      *
-     * @param  \Exception  $exception
      * @return void
      */
     public function report(Exception $exception)
     {
         parent::report($exception);
     }
+
     /**
      * Render an exception into an HTTP response.
      *
      * @param  \Illuminate\Http\Request  $request
-     * @param  \Exception  $exception
      * @return \Illuminate\Http\Response
      */
-   
     public function render($request, Exception $exception)
     {
         // PGe added redirect in case of (ugly) tokenmismatch exception error page
-        if($exception instanceof \Illuminate\Session\TokenMismatchException)
-        {
-              return redirect()
-                  ->back()
-                  ->withInput($request->except('_token'))
-                  ->withMessage('Your session expired, please log in again');
+        if ($exception instanceof \Illuminate\Session\TokenMismatchException) {
+            return redirect()
+                ->back()
+                ->withInput($request->except('_token'))
+                ->withMessage('Your session expired, please log in again');
         }
 
         return parent::render($request, $exception);

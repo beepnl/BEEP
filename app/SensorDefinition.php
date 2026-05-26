@@ -2,11 +2,9 @@
 
 namespace App;
 
+use Cache;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use App\Measurement;
-use Cache;
-
 use Illuminate\Support\Facades\Log;
 
 class SensorDefinition extends Model
@@ -21,10 +19,10 @@ class SensorDefinition extends Model
     protected $table = 'sensor_definitions';
 
     /**
-    * The database primary key value.
-    *
-    * @var string
-    */
+     * The database primary key value.
+     *
+     * @var string
+     */
     protected $primaryKey = 'id';
 
     /**
@@ -34,9 +32,11 @@ class SensorDefinition extends Model
      */
 
     // recalculate: true => on the fly correction + at sensor value storage, false (default) => only calculate at sensor value storage
-    protected $fillable = ['name', 'inside', 'offset', 'multiplier', 'input_measurement_id', 'output_measurement_id', 'device_id', 'updated_at', 'recalculate']; 
-    protected $appends  = ['input_abbr', 'output_abbr'];
-    protected $hidden   = ['input_measurement', 'output_measurement', 'deleted_at'];
+    protected $fillable = ['name', 'inside', 'offset', 'multiplier', 'input_measurement_id', 'output_measurement_id', 'device_id', 'updated_at', 'recalculate'];
+
+    protected $appends = ['input_abbr', 'output_abbr'];
+
+    protected $hidden = ['input_measurement', 'output_measurement', 'deleted_at'];
 
     public static function boot()
     {
@@ -63,34 +63,37 @@ class SensorDefinition extends Model
 
     public function getInputAbbrAttribute()
     {
-        if ($this->input_measurement_id != null)
-            return Cache::rememberForever('meas-id-'.$this->input_measurement_id.'-abbr', function (){
+        if ($this->input_measurement_id != null) {
+            return Cache::rememberForever('meas-id-'.$this->input_measurement_id.'-abbr', function () {
                 return $this->input_measurement->abbreviation;
             });
+        }
 
         return null;
     }
 
     public function getOutputAbbrAttribute()
     {
-        if ($this->output_measurement_id != null)
-            return Cache::rememberForever('meas-id-'.$this->output_measurement_id.'-abbr', function (){
+        if ($this->output_measurement_id != null) {
+            return Cache::rememberForever('meas-id-'.$this->output_measurement_id.'-abbr', function () {
                 return $this->output_measurement->abbreviation;
             });
+        }
 
         // Fallback
         if ($this->input_measurement_id != null) {
             return $this->getInputAbbrAttribute();
-        } 
+        }
 
         return null;
     }
 
-    // transform bool output into real boolean value 
+    // transform bool output into real boolean value
     public function getInsideAttribute($value)
     {
-        if (isset($value))
+        if (isset($value)) {
             return $value == 1 ? true : false;
+        }
 
         return null;
     }
@@ -99,10 +102,12 @@ class SensorDefinition extends Model
     {
         return $this->belongsTo(Measurement::class);
     }
+
     public function output_measurement()
     {
         return $this->belongsTo(Measurement::class);
     }
+
     public function device()
     {
         return $this->belongsTo(Device::class);
@@ -112,40 +117,40 @@ class SensorDefinition extends Model
     {
         $outputValue = $inputValue;
 
-        if( (!empty($this->offset) || !empty($this->multiplier)) && isset($this->input_measurement_id) && isset($this->output_measurement_id))
-        {
-            $offset = !empty($this->offset) ? floatval($this->offset) : 0;
-            $multi  = !empty($this->multiplier) ? floatval($this->multiplier) : 1;
+        if ((! empty($this->offset) || ! empty($this->multiplier)) && isset($this->input_measurement_id) && isset($this->output_measurement_id)) {
+            $offset = ! empty($this->offset) ? floatval($this->offset) : 0;
+            $multi = ! empty($this->multiplier) ? floatval($this->multiplier) : 1;
 
             $outputValue = (floatval($inputValue) - $offset) * $multi;
 
             $outAbbr = $this->output_abbr;
-            if (isset($outAbbr))
-            {
-                $mima   = Measurement::minMaxValuesArray();
+            if (isset($outAbbr)) {
+                $mima = Measurement::minMaxValuesArray();
                 $om_min = $mima[$outAbbr]['min'];
                 $om_max = $mima[$outAbbr]['max'];
 
-                //die(print_r(['in'=>$inputValue, 'out'=>$outputValue, 'min'=>$om_min, 'max'=>$om_max]));
+                // die(print_r(['in'=>$inputValue, 'out'=>$outputValue, 'min'=>$om_min, 'max'=>$om_max]));
 
-                if (isset($om_min) && $outputValue < $om_min)
+                if (isset($om_min) && $outputValue < $om_min) {
                     return null;
+                }
 
-                if (isset($om_max) && $outputValue > $om_max)
+                if (isset($om_max) && $outputValue > $om_max) {
                     return null;
-                
+                }
+
             }
         }
 
         return $outputValue;
     }
 
-    public static function addDeviceMeasurementCalibrations($device, $data_array, $calibration_m_abbr=null)
+    public static function addDeviceMeasurementCalibrations($device, $data_array, $calibration_m_abbr = null)
     {
         /** $calibration_m_abbr:
-        ['w_v' => 
+        ['w_v' =>
             [
-                1743801780 => 
+                1743801780 =>
                     [
                       'id' => 1338,
                       'output_abbr' => 'weight_kg',
@@ -155,22 +160,22 @@ class SensorDefinition extends Model
             ]
         ]
         ordered in ascending updated order
-        **/
-
-        if ($calibration_m_abbr === null)
+         **/
+        if ($calibration_m_abbr === null) {
             $calibration_m_abbr = $device->calibrationsMeasurementAbbreviations(false);
+        }
 
         if (is_array($calibration_m_abbr) && count($calibration_m_abbr) > 0) {
-            
-            //Log::debug($calibration_m_abbr);
-            
+
+            // Log::debug($calibration_m_abbr);
+
             $measurement_min_max = Measurement::minMaxValuesArray();
             $data_meas = array_keys($data_array);
             $cali_meas = array_keys($calibration_m_abbr);
             $cali_match = array_intersect($cali_meas, $data_meas);
-            
-            //Log::debug(['data'=>$data_array, 'cali'=>$cali_meas, 'match'=>$cali_match]);
-            
+
+            // Log::debug(['data'=>$data_array, 'cali'=>$cali_meas, 'match'=>$cali_match]);
+
             if (isset($data_array['time']) && count($cali_match) > 0) {
                 foreach ($cali_match as $m_in_abbr) {
                     $data_value = $data_array[$m_in_abbr];
@@ -179,13 +184,13 @@ class SensorDefinition extends Model
                         continue;
                     } // only calibrate existing values
 
-                    $calis  = $calibration_m_abbr[$m_in_abbr];
-                    $time   = $data_array['time'];
+                    $calis = $calibration_m_abbr[$m_in_abbr];
+                    $time = $data_array['time'];
                     $unix_d = strtotime($time);
                     $unixes = array_keys($calis); // unix timestamps
                     $length = count($unixes);
 
-                    //Log::debug(['time'=>$time, 'unix_d'=>$unix_d, 'length'=>$length]);
+                    // Log::debug(['time'=>$time, 'unix_d'=>$unix_d, 'length'=>$length]);
 
                     for ($i = 0; $i < $length; $i++) {
                         $unix_curr = $unixes[$i];
@@ -202,7 +207,7 @@ class SensorDefinition extends Model
 
                             // Calibrate value
                             $data_array[$cali_output.'_raw'] = $data_value;
-                            $calibrated_value = ($data_value - $cali_offset) * $cali_multi; 
+                            $calibrated_value = ($data_value - $cali_offset) * $cali_multi;
 
                             // Hide values outside value min/max
                             if (isset($meas_min) && $calibrated_value < $meas_min) {
@@ -251,14 +256,11 @@ class SensorDefinition extends Model
                         }
                     }
                 }
-            }
-            else
-            {
-                Log::debug(json_encode(['error'=>'no_match_or_time', 'data'=>$data_array, 'cali'=>$cali_meas, 'match'=>$cali_match]));
+            } else {
+                Log::debug(json_encode(['error' => 'no_match_or_time', 'data' => $data_array, 'cali' => $cali_meas, 'match' => $cali_match]));
             }
         }
 
         return $data_array;
     }
-    
 }

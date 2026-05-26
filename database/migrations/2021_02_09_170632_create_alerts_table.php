@@ -12,8 +12,7 @@ class CreateAlertsTable extends Migration
      */
     public function up()
     {
-        if (!Schema::hasTable('alerts')) 
-        {
+        if (! Schema::hasTable('alerts')) {
             Schema::create('alerts', function (Blueprint $table) {
                 $table->increments('id');
                 $table->timestamps();
@@ -40,8 +39,7 @@ class CreateAlertsTable extends Migration
      */
     public function down()
     {
-        if (Schema::hasTable('alerts')) 
-        {
+        if (Schema::hasTable('alerts')) {
             Schema::drop('alerts');
         }
     }

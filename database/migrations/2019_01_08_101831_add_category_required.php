@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class AddCategoryRequired extends Migration
 {
@@ -13,10 +13,10 @@ class AddCategoryRequired extends Migration
      */
     public function up()
     {
-        Schema::table('categories', function (Blueprint $table)
-        {
-            if (Schema::hasColumn('categories','required') == false)
+        Schema::table('categories', function (Blueprint $table) {
+            if (Schema::hasColumn('categories', 'required') == false) {
                 $table->boolean('required')->default(false);
+            }
 
         });
     }
@@ -28,10 +28,10 @@ class AddCategoryRequired extends Migration
      */
     public function down()
     {
-        Schema::table('categories', function (Blueprint $table)
-        {
-            if (Schema::hasColumn('categories','required') == true)
+        Schema::table('categories', function (Blueprint $table) {
+            if (Schema::hasColumn('categories', 'required') == true) {
                 $table->dropColumn('required');
+            }
         });
     }
 }

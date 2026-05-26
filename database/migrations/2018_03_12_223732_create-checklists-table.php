@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class CreateChecklistsTable extends Migration
 {
@@ -11,10 +11,9 @@ class CreateChecklistsTable extends Migration
      *
      * @return void
      */
-        public function up()
+    public function up()
     {
-        if (!Schema::hasTable('checklists')) 
-        {
+        if (! Schema::hasTable('checklists')) {
             Schema::create('checklists', function (Blueprint $table) {
                 $table->increments('id')->index();
                 $table->string('type')->nullable();
@@ -26,8 +25,7 @@ class CreateChecklistsTable extends Migration
         }
 
         // Create table for associating checklists to category items (Many-to-Many)
-        if (!Schema::hasTable('checklist_category')) 
-        {
+        if (! Schema::hasTable('checklist_category')) {
             Schema::create('checklist_category', function (Blueprint $table) {
                 $table->integer('category_id')->unsigned();
                 $table->integer('checklist_id')->unsigned();
@@ -42,8 +40,7 @@ class CreateChecklistsTable extends Migration
         }
 
         // Create table for associating checklists to hives (Many-to-Many)
-        if (!Schema::hasTable('checklist_hive')) 
-        {
+        if (! Schema::hasTable('checklist_hive')) {
             Schema::create('checklist_hive', function (Blueprint $table) {
                 $table->integer('hive_id')->unsigned();
                 $table->integer('checklist_id')->unsigned();
@@ -58,8 +55,7 @@ class CreateChecklistsTable extends Migration
         }
 
         // Create table for associating checklists to users (Many-to-Many)
-        if (!Schema::hasTable('checklist_user')) 
-        {
+        if (! Schema::hasTable('checklist_user')) {
             Schema::create('checklist_user', function (Blueprint $table) {
                 $table->integer('user_id')->unsigned();
                 $table->integer('checklist_id')->unsigned();
@@ -81,25 +77,19 @@ class CreateChecklistsTable extends Migration
      */
     public function down()
     {
-        if (Schema::hasTable('checklist_user')) 
-        {
-            Schema::table('checklist_user', function(Blueprint $table)
-            {
-                $table->dropForeign(['checklist_id','user_id']);
+        if (Schema::hasTable('checklist_user')) {
+            Schema::table('checklist_user', function (Blueprint $table) {
+                $table->dropForeign(['checklist_id', 'user_id']);
             });
         }
-        if (Schema::hasTable('checklist_hive')) 
-        {
-            Schema::table('checklist_hive', function(Blueprint $table)
-            {
-                $table->dropForeign(['checklist_id','hive_id']);
+        if (Schema::hasTable('checklist_hive')) {
+            Schema::table('checklist_hive', function (Blueprint $table) {
+                $table->dropForeign(['checklist_id', 'hive_id']);
             });
         }
-        if (Schema::hasTable('checklist_category')) 
-        {
-            Schema::table('checklist_category', function(Blueprint $table)
-            {
-                $table->dropForeign(['checklist_id','category_id']);
+        if (Schema::hasTable('checklist_category')) {
+            Schema::table('checklist_category', function (Blueprint $table) {
+                $table->dropForeign(['checklist_id', 'category_id']);
             });
         }
 

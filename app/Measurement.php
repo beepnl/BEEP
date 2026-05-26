@@ -2,10 +2,8 @@
 
 namespace App;
 
-use Illuminate\Database\Eloquent\Model;
-use App\PhysicalQuantity;
-use App\Translation;
 use Cache;
+use Illuminate\Database\Eloquent\Model;
 use LaravelLocalization;
 
 class Measurement extends Model
@@ -18,10 +16,10 @@ class Measurement extends Model
     protected $table = 'measurements';
 
     /**
-    * The database primary key value.
-    *
-    * @var string
-    */
+     * The database primary key value.
+     *
+     * @var string
+     */
     protected $primaryKey = 'id';
 
     /**
@@ -32,27 +30,27 @@ class Measurement extends Model
      *
      * @var array
      */
-    protected $fillable              = ['abbreviation', 'physical_quantity_id', 'show_in_charts', 'chart_group', 'min_value', 'max_value', 'hex_color', 'show_in_alerts', 'show_in_dials', 'weather', 'data_source_type', 'data_api_url', 'data_repository_url', 'future'];
-    protected $hidden                = ['created_at', 'updated_at']; //'parent'
-    protected $appends               = ['pq','unit','pq_name_unit', 'low_value', 'high_value']; //'parent'
-    public static $data_source_types = ['db_influx'=>'Influx Database', 'api'=>'API', 'lambda_model'=>'Lambda Model', 'open_weather'=>'Open Weather'];
+    protected $fillable = ['abbreviation', 'physical_quantity_id', 'show_in_charts', 'chart_group', 'min_value', 'max_value', 'hex_color', 'show_in_alerts', 'show_in_dials', 'weather', 'data_source_type', 'data_api_url', 'data_repository_url', 'future'];
+
+    protected $hidden = ['created_at', 'updated_at']; // 'parent'
+
+    protected $appends = ['pq', 'unit', 'pq_name_unit', 'low_value', 'high_value']; // 'parent'
+
+    public static $data_source_types = ['db_influx' => 'Influx Database', 'api' => 'API', 'lambda_model' => 'Lambda Model', 'open_weather' => 'Open Weather'];
 
     public static function boot()
     {
         parent::boot();
 
-        static::created(function($m)
-        {
+        static::created(function ($m) {
             $m->forgetCache();
         });
 
-        static::updated(function($m)
-        {
+        static::updated(function ($m) {
             $m->forgetCache();
         });
 
-        static::deleted(function($m)
-        {
+        static::deleted(function ($m) {
             $m->forgetCache();
         });
     }
@@ -91,10 +89,10 @@ class Measurement extends Model
         Cache::forget('meas-id-'.$this->id.'-max'); // fot SensorDefinition
         Cache::forget('measurement-display-decimals');
         Category::forgetTaxonomyListCache();
-        if (isset($this->physical_quantity_id))
+        if (isset($this->physical_quantity_id)) {
             $this->physical_quantity->forgetCache();
+        }
     }
-
 
     public function getPqAttribute()
     {
@@ -137,14 +135,14 @@ class Measurement extends Model
     {
         // add sensor name (temporarily)
         return Cache::remember('measurement-'.$this->id.'-pq-'.$this->physical_quantity_id.'-'.$this->abbreviation.'-name', env('CACHE_TIMEOUT_LONG'), function () {
-            //$abbr = '';
+            // $abbr = '';
             // if (isset($this->abbreviation))
             // {
             //     $mabb = $this->abbreviation;
-            //     $aind = strpos($mabb, '_'); 
+            //     $aind = strpos($mabb, '_');
             //     $abbr = ' - '.($aind ? substr($mabb, 0, $aind) : $mabb);
             // }
-            return $this->physical_quantity_cached()->name; //.$abbr;
+            return $this->physical_quantity_cached()->name; // .$abbr;
         });
     }
 
@@ -152,50 +150,55 @@ class Measurement extends Model
     {
         return Cache::remember('measurement-'.$this->id.'-pq-'.$this->physical_quantity_id.'-unit', env('CACHE_TIMEOUT_LONG'), function () {
             $pq = $this->physical_quantity_cached();
-            if ($pq)
+            if ($pq) {
                 return $pq->unit;
-            else
+            } else {
                 return '';
+            }
         });
     }
-    
+
     public function pq_name_unit()
     {
-        if ($this->physical_quantity_id != null)
-        {
+        if ($this->physical_quantity_id != null) {
             $unit = $this->unit() != null && $this->unit() != '' ? ' ('.$this->unit().')' : '';
             $name = $this->pq_name().$unit;
-            if ($name)
+            if ($name) {
                 return $name;
+            }
         }
+
         return null;
     }
 
     public function trans()
     {
-        //$trans = Translation::where('name', $this->name)->with('language')->get()->pluck('translation','language.lang');
+        // $trans = Translation::where('name', $this->name)->with('language')->get()->pluck('translation','language.lang');
         $out = Cache::rememberForever('measurement-'.$this->id.'-trans-'.$this->abbreviation, function () {
             $trans = DB::table('translations')
-                    ->join('languages', 'translations.language_id', '=', 'languages.id')
-                    ->where('translations.type', 'measurement')
-                    ->where('translations.name', $this->abbreviation)
-                    ->select('translations.translation', 'languages.twochar')
-                    ->get();
-            
-            if ($trans)
-            {
+                ->join('languages', 'translations.language_id', '=', 'languages.id')
+                ->where('translations.type', 'measurement')
+                ->where('translations.name', $this->abbreviation)
+                ->select('translations.translation', 'languages.twochar')
+                ->get();
+
+            if ($trans) {
                 $out = [];
-                foreach($trans as $item)
-                    $out[$item->twochar] = $item->translation; 
-                
-                if (count($out) > 0)
+                foreach ($trans as $item) {
+                    $out[$item->twochar] = $item->translation;
+                }
+
+                if (count($out) > 0) {
                     return $out;
+                }
             }
+
             return null;
         });
 
-        if ($out)
+        if ($out) {
             return $out;
+        }
 
         return null;
     }
@@ -207,42 +210,43 @@ class Measurement extends Model
 
     public static function getIdByAbbreviation($abbreviation)
     {
-        $measurement_abbr_ids = Cache::remember('measurement-abbr-ids', env('CACHE_TIMEOUT_LONG'), function ()
-        {
+        $measurement_abbr_ids = Cache::remember('measurement-abbr-ids', env('CACHE_TIMEOUT_LONG'), function () {
             return Measurement::pluck('id', 'abbreviation')->toArray();
         });
-        if (isset($measurement_abbr_ids[$abbreviation]))
+        if (isset($measurement_abbr_ids[$abbreviation])) {
             return $measurement_abbr_ids[$abbreviation];
+        }
 
         return null;
     }
 
     public static function getMatchingMeasurements()
     {
-        return ['bv','w_v','weight_kg', 't_i','t_0','t_1','s_bin_71_122','s_bin_122_173','s_bin_173_224','s_bin_224_276','s_bin_276_327','s_bin_327_378','s_bin_378_429','s_bin_429_480','s_bin_480_532','s_bin_532_583','s_bin_0_201','s_bin_201_402','s_bin_402_602','s_bin_602_803','s_bin_803_1004','s_bin_1004_1205','s_bin_1205_1406','s_bin_1406_1607','s_bin_1607_1807','s_bin_1807_2008'];
+        return ['bv', 'w_v', 'weight_kg', 't_i', 't_0', 't_1', 's_bin_71_122', 's_bin_122_173', 's_bin_173_224', 's_bin_224_276', 's_bin_276_327', 's_bin_327_378', 's_bin_378_429', 's_bin_429_480', 's_bin_480_532', 's_bin_532_583', 's_bin_0_201', 's_bin_201_402', 's_bin_402_602', 's_bin_602_803', 's_bin_803_1004', 's_bin_1004_1205', 's_bin_1205_1406', 's_bin_1406_1607', 's_bin_1607_1807', 's_bin_1807_2008'];
     }
 
-    public static function getValidMeasurements($output=false, $weather=false, $locale=null)
+    public static function getValidMeasurements($output = false, $weather = false, $locale = null)
     {
         $name_table = $weather ? 'weather' : 'sensors';
         $name_value = $output ? 'output' : 'valid';
-        $locale     = $locale == null ? LaravelLocalization::getCurrentLocale() : $locale;
-        return Cache::remember('measurement-list-'.$locale.'-'.$name_table.'-'.$name_value, env('CACHE_TIMEOUT_LONG'), function () use ($output, $weather)
-        {
-            if ($output)
-                return Measurement::where('weather',$weather)->where('show_in_charts', true)->pluck('abbreviation')->toArray();
+        $locale = $locale == null ? LaravelLocalization::getCurrentLocale() : $locale;
 
-            return Measurement::where('weather',$weather)->get()->pluck('pq', 'abbreviation')->toArray();
+        return Cache::remember('measurement-list-'.$locale.'-'.$name_table.'-'.$name_value, env('CACHE_TIMEOUT_LONG'), function () use ($output, $weather) {
+            if ($output) {
+                return Measurement::where('weather', $weather)->where('show_in_charts', true)->pluck('abbreviation')->toArray();
+            }
+
+            return Measurement::where('weather', $weather)->get()->pluck('pq', 'abbreviation')->toArray();
         });
     }
 
     public static function getWeightMeasurementIds()
     {
-        return Cache::remember('measurement-weight-ids', env('CACHE_TIMEOUT_LONG'), function ()
-        {
-            $input_id  = Measurement::where('abbreviation','w_v')->value('id');
-            $output_id = Measurement::where('abbreviation','weight_kg')->value('id');
-            return ['input_id'=>$input_id, 'output_id'=>$output_id];
+        return Cache::remember('measurement-weight-ids', env('CACHE_TIMEOUT_LONG'), function () {
+            $input_id = Measurement::where('abbreviation', 'w_v')->value('id');
+            $output_id = Measurement::where('abbreviation', 'weight_kg')->value('id');
+
+            return ['input_id' => $input_id, 'output_id' => $output_id];
         });
     }
 
@@ -264,14 +268,14 @@ class Measurement extends Model
         $list = [];
         $list[''] = '-';
 
-        foreach(Measurement::orderBy('abbreviation')->get() as $q)
-        {
+        foreach (Measurement::orderBy('abbreviation')->get() as $q) {
             $id = $q->id;
             $label = $q->abbreviation.' ('.$q->pq_name_unit.')';
 
             $list[$id] = $label;
 
         }
+
         return $list;
     }
 }

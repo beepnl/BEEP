@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class AddExcludeHiveIdsToAlertRules extends Migration
 {
@@ -13,8 +13,7 @@ class AddExcludeHiveIdsToAlertRules extends Migration
      */
     public function up()
     {
-        if (Schema::hasTable('alert_rules')) 
-        {
+        if (Schema::hasTable('alert_rules')) {
             Schema::table('alert_rules', function (Blueprint $table) {
                 $table->string('exclude_hive_ids')->nullable();
                 $table->integer('calculation_minutes')->unsigned()->nullable()->change();
@@ -29,8 +28,7 @@ class AddExcludeHiveIdsToAlertRules extends Migration
      */
     public function down()
     {
-        if (Schema::hasTable('alert_rules')) 
-        {
+        if (Schema::hasTable('alert_rules')) {
             Schema::table('alert_rules', function (Blueprint $table) {
                 $table->dropColumn('exclude_hive_ids');
             });

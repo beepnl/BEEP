@@ -5,7 +5,6 @@
  * a role & permission management solution for Laravel.
  *
  * @license MIT
- * @package Trebol\Entrust
  */
 
 return [
@@ -131,5 +130,5 @@ return [
     'permission_foreign_key' => 'permission_id',
 
     'type' => 'web',
-    'response-error' => 'Unauthorized'
+    'response-error' => 'Unauthorized',
 ];

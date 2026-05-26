@@ -2,9 +2,9 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
-use App\User;
 use App\Hive;
+use App\User;
+use Illuminate\Database\Eloquent\Model;
 
 class HiveTag extends Model
 {
@@ -16,10 +16,10 @@ class HiveTag extends Model
     protected $table = 'hive_tags';
 
     /**
-    * The database primary key value.
-    *
-    * @var string
-    */
+     * The database primary key value.
+     *
+     * @var string
+     */
     protected $primaryKey = 'id';
 
     /**
@@ -28,16 +28,18 @@ class HiveTag extends Model
      * @var array
      */
     protected $fillable = ['user_id', 'tag', 'hive_id', 'action_id', 'router_link'];
-    protected $hidden   = ['id', 'created_at', 'updated_at', 'user_id'];
-    protected $casts    = ['router_link'=>'array'];
+
+    protected $hidden = ['id', 'created_at', 'updated_at', 'user_id'];
+
+    protected $casts = ['router_link' => 'array'];
 
     public function hive()
     {
         return $this->belongsTo(Hive::class);
     }
+
     public function user()
     {
         return $this->belongsTo(User::class);
     }
-    
 }

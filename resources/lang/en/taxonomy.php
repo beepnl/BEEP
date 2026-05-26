@@ -13,10 +13,10 @@ return [
     |
     */
 
-    'score_quality'   => ['','Poor','Fair','Average','Good','Excellent'],
-    'score_amount'    => ['','Low','Medium','High','Extreme'],
-    'smileys_3'       => ['','8-(','8-|','8-)'],
-    'boolean'         => ['No','Yes'],
-    'boolean_yes_red' => ['No','Yes'],
+    'score_quality' => ['', 'Poor', 'Fair', 'Average', 'Good', 'Excellent'],
+    'score_amount' => ['', 'Low', 'Medium', 'High', 'Extreme'],
+    'smileys_3' => ['', '8-(', '8-|', '8-)'],
+    'boolean' => ['No', 'Yes'],
+    'boolean_yes_red' => ['No', 'Yes'],
 
 ];

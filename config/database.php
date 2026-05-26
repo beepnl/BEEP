@@ -58,7 +58,7 @@ return [
             'prefix_indexes' => true,
             'strict' => true,
             'modes' => [
-                //'ONLY_FULL_GROUP_BY',
+                // 'ONLY_FULL_GROUP_BY',
                 'STRICT_TRANS_TABLES',
                 'NO_ZERO_IN_DATE',
                 'NO_ZERO_DATE',
@@ -84,7 +84,7 @@ return [
             'prefix_indexes' => true,
             'strict' => true,
             'modes' => [
-                //'ONLY_FULL_GROUP_BY',
+                // 'ONLY_FULL_GROUP_BY',
                 'STRICT_TRANS_TABLES',
                 'NO_ZERO_IN_DATE',
                 'NO_ZERO_DATE',
@@ -148,9 +148,9 @@ return [
     */
 
     'redis' => [
- 
+
         'client' => env('REDIS_CLIENT', 'predis'),
- 
+
         'options' => [
             'cluster' => env('REDIS_CLUSTER', 'predis'),
             'prefix' => env('REDIS_PREFIX', Str::slug(env('APP_NAME', 'laravel'), '_').'_database_'),

@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class AddLocationRoofed extends Migration
 {
@@ -13,10 +13,10 @@ class AddLocationRoofed extends Migration
      */
     public function up()
     {
-        Schema::table('locations', function (Blueprint $table) 
-        {
-            if (!Schema::hasColumn('locations','roofed'))
-                $table->boolean('roofed')->nullable();  
+        Schema::table('locations', function (Blueprint $table) {
+            if (! Schema::hasColumn('locations', 'roofed')) {
+                $table->boolean('roofed')->nullable();
+            }
         });
     }
 
@@ -27,10 +27,10 @@ class AddLocationRoofed extends Migration
      */
     public function down()
     {
-        Schema::table('locations', function (Blueprint $table) 
-        {
-            if (Schema::hasColumn('locations','roofed'))
-                $table->dropColumn('roofed');  
+        Schema::table('locations', function (Blueprint $table) {
+            if (Schema::hasColumn('locations', 'roofed')) {
+                $table->dropColumn('roofed');
+            }
         });
     }
 }

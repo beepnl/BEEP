@@ -26,7 +26,7 @@ class AddRateLimitToUser extends Migration
     public function down()
     {
         Schema::table('users', function (Blueprint $table) {
-             $table->dropColumn('rate_limit_per_min');
+            $table->dropColumn('rate_limit_per_min');
         });
     }
 }

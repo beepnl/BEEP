@@ -4,8 +4,6 @@ namespace App;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use LaravelLocalization;
-use Moment\Moment;
 
 class InspectionItem extends Model
 {
@@ -19,10 +17,10 @@ class InspectionItem extends Model
     protected $table = 'inspection_items';
 
     /**
-    * The database primary key value.
-    *
-    * @var string
-    */
+     * The database primary key value.
+     *
+     * @var string
+     */
     protected $primaryKey = 'id';
 
     /**
@@ -32,9 +30,9 @@ class InspectionItem extends Model
      */
     protected $fillable = ['value', 'inspection_id', 'category_id'];
 
-    protected $appends  = ['val','unit','type'];
-    
-    protected $hidden   = ['category','deleted_at','inspection_id'];
+    protected $appends = ['val', 'unit', 'type'];
+
+    protected $hidden = ['category', 'deleted_at', 'inspection_id'];
 
     public $timestamps = false;
 
@@ -42,18 +40,22 @@ class InspectionItem extends Model
     {
         return $this->name();
     }
+
     public function getAncAttribute()
     {
         return $this->ancestors();
     }
+
     public function getValAttribute()
     {
         return $this->val();
     }
+
     public function getUnitAttribute()
     {
         return $this->unit();
     }
+
     public function getTypeAttribute()
     {
         return $this->type();
@@ -61,16 +63,18 @@ class InspectionItem extends Model
 
     public function type()
     {
-        if (isset($this->category))
+        if (isset($this->category)) {
             return $this->category->input;
+        }
 
         return null;
     }
 
     public function inputType()
     {
-        if (isset($this->category))
+        if (isset($this->category)) {
             return $this->category->inputType;
+        }
 
         return null;
     }
@@ -87,35 +91,39 @@ class InspectionItem extends Model
 
     public function name()
     {
-        if (isset($this->category))
+        if (isset($this->category)) {
             return $this->category->transName();
+        }
 
         return '';
     }
 
     public function ancestors()
     {
-        if (isset($this->category))
+        if (isset($this->category)) {
             return $this->category->ancName();
+        }
 
         return '';
     }
 
     public function val($locale = null)
     {
-        $val   = $this->value;
+        $val = $this->value;
         $input = $this->inputType();
 
-        if (!isset($val) || $val === null || $input === null)
+        if (! isset($val) || $val === null || $input === null) {
             return null;
+        }
 
         return $input->render($val, $locale);
     }
 
     public function unit()
     {
-        if (isset($this->category))
+        if (isset($this->category)) {
             return $this->category->unit;
+        }
 
         return '';
     }
@@ -123,13 +131,11 @@ class InspectionItem extends Model
     public function humanReadableValue()
     {
         $value = $this->val;
-        
-        if (isset($this->unit))
+
+        if (isset($this->unit)) {
             $value .= ' '.$this->unit;
+        }
 
         return $value;
     }
-
-
-    
 }

@@ -17,7 +17,7 @@ class AddUserTypeToRoleUserAndPermissionUserTables extends Migration
         if (Schema::hasTable('role_user') && ! Schema::hasColumn('role_user', 'organization_id')) {
             Schema::table('role_user', function (Blueprint $table) {
                 $table->unsignedInteger('organization_id')->nullable();
-                $table->string('user_type')->default('App\\\User');
+                $table->string('user_type')->default(\App\User::class);
             });
             Schema::table('role_user', function (Blueprint $table) {
                 $table->foreign('organization_id')->references('id')->on('organizations')->onUpdate('cascade');
@@ -30,7 +30,7 @@ class AddUserTypeToRoleUserAndPermissionUserTables extends Migration
             Schema::create('permission_user', function (Blueprint $table) {
                 $table->unsignedInteger('permission_id');
                 $table->unsignedInteger('user_id');
-                $table->string('user_type')->default('App\\\User');
+                $table->string('user_type')->default(\App\User::class);
                 $table->unsignedInteger('organization_id')->nullable();
                 $table->unique(['user_id', 'permission_id', 'user_type', 'organization_id'], 'unique_permission_user_constraint');
             });

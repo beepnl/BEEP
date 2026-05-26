@@ -56,7 +56,8 @@
             "php": "7.4"
         },
         "allow-plugins": {
-            "kylekatarnls/update-helper": true
+            "kylekatarnls/update-helper": true,
+            "php-http/discovery": true
         }
     },
     "extra": {

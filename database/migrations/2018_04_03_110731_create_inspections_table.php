@@ -3,7 +3,7 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 
-class CreateInspectionsTable extends Migration
+return new class extends Migration
 {
     /**
      * Run the migrations.
@@ -104,4 +104,4 @@ class CreateInspectionsTable extends Migration
         Schema::dropIfExists('inspection_hive');
         Schema::dropIfExists('inspections');
     }
-}
+};

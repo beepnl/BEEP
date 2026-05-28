@@ -3,7 +3,7 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Support\Facades\Schema;
 
-class AddQueenHiveDeleteForeignKey extends Migration
+return new class extends Migration
 {
     /**
      * Run the migrations.
@@ -30,4 +30,4 @@ class AddQueenHiveDeleteForeignKey extends Migration
             $table->foreign('hive_id')->references('id')->on('hives')->onUpdate('cascade');
         });
     }
-}
+};

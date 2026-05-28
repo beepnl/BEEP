@@ -4,7 +4,7 @@ use App\Language;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Support\Facades\Schema;
 
-class AddLanguageTwoChar extends Migration
+return new class extends Migration
 {
     /**
      * Run the migrations.
@@ -41,4 +41,4 @@ class AddLanguageTwoChar extends Migration
             }
         });
     }
-}
+};

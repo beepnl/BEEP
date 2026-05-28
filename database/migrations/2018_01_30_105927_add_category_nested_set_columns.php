@@ -5,7 +5,7 @@ use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 use Kalnoy\Nestedset\NestedSet;
 
-class AddCategoryNestedSetColumns extends Migration
+return new class extends Migration
 {
     /**
      * Run the migrations.
@@ -35,4 +35,4 @@ class AddCategoryNestedSetColumns extends Migration
             NestedSet::dropColumns($table);
         });
     }
-}
+};

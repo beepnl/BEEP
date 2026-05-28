@@ -2,7 +2,7 @@
 
 use Illuminate\Database\Migrations\Migration;
 
-class UpgradeDbToUtf8mb4 extends Migration
+return new class extends Migration
 {
     /**
      * Run the migrations.
@@ -122,4 +122,4 @@ class UpgradeDbToUtf8mb4 extends Migration
             \DB::connection($connection)->getPdo()->exec($query);
         }
     }
-}
+};

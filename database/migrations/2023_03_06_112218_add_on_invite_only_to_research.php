@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class AddOnInviteOnlyToResearch extends Migration
+return new class extends Migration
 {
     /**
      * Run the migrations.
@@ -29,4 +29,4 @@ class AddOnInviteOnlyToResearch extends Migration
             $table->dropColumn('on_invite_only');
         });
     }
-}
+};

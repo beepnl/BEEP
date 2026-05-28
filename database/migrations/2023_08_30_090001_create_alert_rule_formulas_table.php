@@ -3,7 +3,7 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 
-class CreateAlertRuleFormulasTable extends Migration
+return new class extends Migration
 {
     /**
      * Run the migrations.
@@ -60,4 +60,4 @@ class CreateAlertRuleFormulasTable extends Migration
     {
         Schema::drop('alert_rule_formulas');
     }
-}
+};

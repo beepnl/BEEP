@@ -12,6 +12,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Log;
 use Moment\Moment;
+use InfluxDB;
 
 class Device extends Model
 {
@@ -534,18 +535,17 @@ class Device extends Model
         Device::cacheRequestRate('influx-get');
         Device::cacheRequestRate('influx-'.$from);
 
-        $client = new \Influx;
+        $client = new \InfluxDB;
         $options = ['precision' => 's'];
         $values = [];
 
-        $queryApi = $client::createQueryApi();
-
         try {
-            $result = $queryApi->query($query, $options);
+            $result = $client::query($query, $options);
             $values = $result->getPoints();
-        } catch (\Exception $e) {
+        } catch (InfluxDB\Exception $e) {
+            Log::error($e);
+            Log::error("Query that caused the error: $query");
             // return Response::json('influx-group-by-query-error', 500);
-            // die($e->getMessage());
         }
 
         return $values;

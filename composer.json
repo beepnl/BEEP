@@ -34,7 +34,7 @@
         "phpoffice/phpspreadsheet": "^1.2",
         "predis/predis": "^2.2",
         "santigarcor/laratrust": "^6.3",
-        "tray-labs/laravel-influxdb": "*",
+        "tray-labs/laravel-influxdb": "1.0.*",
         "laravel/ui": "^2.0"
     },
     "require-dev": {

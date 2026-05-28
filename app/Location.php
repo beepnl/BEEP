@@ -2,19 +2,18 @@
 
 namespace App;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Auth;
 use Cache;
 use Iatstuti\Database\Support\CascadeSoftDeletes;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Log;
 
 class Location extends Model
 {
-    use HasFactory;
-
     use CascadeSoftDeletes, SoftDeletes;
+    use HasFactory;
 
     protected $cascadeDeletes = ['hives', 'inspections'];
 

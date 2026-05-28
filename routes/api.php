@@ -140,4 +140,3 @@ Route::middleware('auth:api', 'verifiedApi', 'throttle:3,1,low_traffic')->group(
     Route::get('export', [Api\ExportController::class, 'all']);
     Route::get('weather', [Api\WeatherController::class, 'index']);
 });
-

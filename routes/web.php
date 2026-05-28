@@ -1,33 +1,33 @@
 <?php
 
 use App\Http\Controllers\AlertController;
+use App\Http\Controllers\AlertRuleController;
 use App\Http\Controllers\AlertRuleFormulaController;
+use App\Http\Controllers\CalculationModelController;
+use App\Http\Controllers\CategoriesController;
 use App\Http\Controllers\CategoryInputsController;
+use App\Http\Controllers\ChecklistController;
 use App\Http\Controllers\ChecklistSvgController;
+use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DashboardGroupController;
+use App\Http\Controllers\DeviceController;
+use App\Http\Controllers\FlashLogController;
+use App\Http\Controllers\GroupController;
 use App\Http\Controllers\HiveTagsController;
 use App\Http\Controllers\ImageController;
 use App\Http\Controllers\InspectionItemsController;
 use App\Http\Controllers\InspectionsController;
+use App\Http\Controllers\LanguageController;
 use App\Http\Controllers\MeasurementController;
 use App\Http\Controllers\PermissionController;
 use App\Http\Controllers\PhysicalQuantityController;
-use App\Http\Controllers\SensorDefinitionController;
-use App\Http\Controllers\UserController;
-use App\Http\Controllers\AlertRuleController;
-use App\Http\Controllers\CalculationModelController;
-use App\Http\Controllers\CategoriesController;
-use App\Http\Controllers\ChecklistController;
-use App\Http\Controllers\DashboardController;
-use App\Http\Controllers\DeviceController;
-use App\Http\Controllers\FlashLogController;
-use App\Http\Controllers\GroupController;
-use App\Http\Controllers\LanguageController;
 use App\Http\Controllers\ResearchController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\SampleCodeController;
+use App\Http\Controllers\SensorDefinitionController;
 use App\Http\Controllers\TaxonomyController;
 use App\Http\Controllers\TranslationController;
+use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 
 /*

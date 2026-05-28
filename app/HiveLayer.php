@@ -2,8 +2,8 @@
 
 namespace App;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Cache;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Log;
@@ -11,7 +11,6 @@ use Illuminate\Support\Facades\Log;
 class HiveLayer extends Model
 {
     use HasFactory;
-
     use SoftDeletes;
 
     protected $fillable = ['hive_id', 'category_id', 'order', 'color'];

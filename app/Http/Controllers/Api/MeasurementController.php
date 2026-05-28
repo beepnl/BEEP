@@ -2,13 +2,8 @@
 
 namespace App\Http\Controllers\Api;
 
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Facades\Log;
-use Auth;
-use App\User;
-use App\Device;
 use App\Category;
+use App\Device;
 use App\Measurement;
 use App\Models\AlertRule;
 use App\Models\Calculation;
@@ -17,10 +12,15 @@ use App\Models\Webhook;
 use App\SensorDefinition;
 use App\Traits\MeasurementLegacyCalculationsTrait;
 use App\Traits\MeasurementLoRaDecoderTrait;
-// use App\Transformer\SensorTransformer;
+use App\User;
+use Auth;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\ClientException;
+use Illuminate\Http\Request;
+// use App\Transformer\SensorTransformer;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
 use InfluxDB;
 use Moment\Moment;
 use Response;
@@ -1442,8 +1442,8 @@ class MeasurementController extends Controller
         $timeZone = $intervalArr['timeZone'];
         $whereKeyAndTime = $device->influxWhereKeys().' AND time >= \''.$start_date.'\' AND time <= \''.$end_date.'\'';
 
-        $calibration_m_abbr   = $device->calibrationsMeasurementAbbreviations(true);
-        $add_calibrations     = count($calibration_m_abbr) > 0 ? true : false;
+        $calibration_m_abbr = $device->calibrationsMeasurementAbbreviations(true);
+        $add_calibrations = count($calibration_m_abbr) > 0 ? true : false;
 
         if ($resolution != null) {
             if ($device) {
@@ -1489,13 +1489,10 @@ class MeasurementController extends Controller
             $sensors_out = Device::getInfluxQuery($sensorQuery, 'data');
 
             // Apply SensorDefinitions that have 'recalculate' set to true
-            if ($add_calibrations)
-            {
+            if ($add_calibrations) {
                 $log_set = false;
-                foreach ($sensors_out as $i => $data_array)
-                {
-                    if ($log_set == false && isset($data_array['weight_kg']))
-                    {
+                foreach ($sensors_out as $i => $data_array) {
+                    if ($log_set == false && isset($data_array['weight_kg'])) {
                         Log::debug('measurements device '.$device->name.' ('.$device->id.'), values: '.json_encode($data_array).', calibr: '.json_encode($calibration_m_abbr));
                         $log_set = true;
                     }
@@ -1561,16 +1558,16 @@ class MeasurementController extends Controller
                 if (count($data_time_key_arr) > 0) {
                     foreach ($sensors_out as $i => $values) {
                         $time = $values['time'];
-                        if (isset($data_time_key_arr[$time])) // add clean_weight data to already available datetime
-                        {
+                        if (isset($data_time_key_arr[$time])) { // add clean_weight data to already available datetime
                             $sensors_out[$i] = array_merge($sensors_out[$i], $data_time_key_arr[$time]); // merge all data incl. net weight
                             unset($data_time_key_arr[$time]); // to retain missing values and add then later
                         }
                     }
                 }
                 // add missing time values to sensors
-                if (count($data_time_key_arr) > 0)
+                if (count($data_time_key_arr) > 0) {
                     $sensors_out = array_merge($sensors_out, array_values($data_time_key_arr));
+                }
 
             }
             // return Response::json(['sensor_query' => $sensorQuery, 'cleanWeight_query' => $clean_weight_query, 'cleanWeight_out'=> $clean_weight_out, 'measurements' => $sensors_out]);

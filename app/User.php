@@ -13,6 +13,7 @@ use App\Notifications\VerifyEmail;
 use Auth;
 use Cache;
 use DB;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Facades\Log;
@@ -20,6 +21,7 @@ use Laratrust\Traits\LaratrustUserTrait;
 
 class User extends Authenticatable
 {
+    use HasFactory;
     use LaratrustUserTrait;
     use Notifiable;
 
@@ -459,6 +461,6 @@ class User extends Authenticatable
             return $array;
         }
 
-        return Auth::user()->pluck('name','id');
+        return Auth::user()->pluck('name', 'id');
     }
 }

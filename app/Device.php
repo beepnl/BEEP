@@ -11,8 +11,8 @@ use Iatstuti\Database\Support\CascadeSoftDeletes;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Log;
-use Moment\Moment;
 use InfluxDB;
+use Moment\Moment;
 
 class Device extends Model
 {
@@ -87,7 +87,7 @@ class Device extends Model
         Cache::forget('device-'.$this->id.'-calibrations-measurement-types');
         Cache::forget('device-'.$this->id.'-calibrations-measurement-types-0');
         Cache::forget('device-'.$this->id.'-calibrations-measurement-types-1');
-        
+
         Log::debug("Device ID $this->id cache emptied");
 
         if ($clear_users) {
@@ -924,7 +924,7 @@ class Device extends Model
 
     // By default, only return the force recalculation calibrations,
     // If recalculate is set to false, return all available calibrations.
-    public function calibrationsMeasurementAbbreviations($recalculate=true)
+    public function calibrationsMeasurementAbbreviations($recalculate = true)
     {
         $cache_name = 'device-'.$this->id.'-calibrations-measurement-types-'.$recalculate ? '1' : '0';
 

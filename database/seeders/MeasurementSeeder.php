@@ -1,5 +1,7 @@
 <?php
 
+namespace Database\Seeders;
+
 use App\Measurement;
 use App\PhysicalQuantity;
 use Illuminate\Database\Seeder;

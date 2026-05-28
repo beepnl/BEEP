@@ -1,5 +1,7 @@
 <?php
 
+namespace Database\Seeders;
+
 use App\Device;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\RequestException;

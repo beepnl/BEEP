@@ -28,8 +28,8 @@ class HiveFactory extends Factory
             'user_id' => 1,
             'location_id' => 1,
             'hive_type_id' => 1,
-            'color' => $this->faker->hexcolor,
-            'name' => $this->faker->name,
+            'color' => $this->faker->hexColor(),
+            'name' => $this->faker->name(),
         ];
     }
 }

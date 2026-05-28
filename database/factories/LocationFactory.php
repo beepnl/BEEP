@@ -28,13 +28,13 @@ class LocationFactory extends Factory
             'user_id' => 1,
             'continent_id' => 4, // eu
             'category_id' => 36, // fixed
-            'name' => $this->faker->name,
-            'coordinate_lat' => $this->faker->latitude,
-            'coordinate_lon' => $this->faker->longitude,
-            'street' => $this->faker->streetName,
+            'name' => $this->faker->name(),
+            'coordinate_lat' => $this->faker->latitude(),
+            'coordinate_lon' => $this->faker->longitude(),
+            'street' => $this->faker->streetName(),
             'street_no' => $this->faker->numberBetween($min = 1, $max = 99),
-            'postal_code' => $this->faker->postcode,
-            'country_code' => $this->faker->country,
+            'postal_code' => $this->faker->postcode(),
+            'country_code' => $this->faker->country(),
         ];
     }
 }

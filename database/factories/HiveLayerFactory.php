@@ -28,7 +28,7 @@ class HiveLayerFactory extends Factory
             'hive_id' => 1,
             'category_id' => 26,
             'order' => $this->faker->numberBetween($min = 1, $max = 99),
-            'color' => $this->faker->hexcolor,
+            'color' => $this->faker->hexColor(),
         ];
     }
 

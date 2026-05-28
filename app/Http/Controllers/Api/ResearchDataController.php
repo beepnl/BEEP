@@ -43,7 +43,7 @@ class ResearchDataController extends Controller
         $this->valid_sensors = Measurement::getValidMeasurements();
         $this->output_sensors = Measurement::getValidMeasurements(true);
         $this->output_weather = Measurement::getValidMeasurements(true, true);
-        $this->client = new \Influx;
+        $this->client = new \InfluxDB;
         // die(print_r($this->valid_sensors));
     }
 

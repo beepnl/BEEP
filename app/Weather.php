@@ -209,7 +209,7 @@ class Weather extends Model
     */
     private static function storeDataToInflux($result) // store posted data
     {
-        $client = new \Influx;
+        $client = new \InfluxDB;
         $points = [];
         $data_array = [];
 

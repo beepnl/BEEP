@@ -2,6 +2,7 @@
 
 namespace App;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use App\Models\Alert;
 use App\Models\AlertRule;
 use App\Models\ChecklistSvg;
@@ -20,6 +21,8 @@ use Laratrust\Traits\LaratrustUserTrait;
 
 class User extends Authenticatable
 {
+    use HasFactory;
+
     use LaratrustUserTrait;
     use Notifiable;
 

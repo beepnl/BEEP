@@ -2,6 +2,7 @@
 
 namespace App;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Auth;
 use Cache;
 use Iatstuti\Database\Support\CascadeSoftDeletes;
@@ -11,6 +12,8 @@ use Illuminate\Support\Facades\Log;
 
 class Hive extends Model
 {
+    use HasFactory;
+
     use CascadeSoftDeletes, SoftDeletes;
 
     protected $cascadeDeletes = ['queen', 'inspections', 'layers', 'frames'];

@@ -569,26 +569,26 @@ trait MeasurementLoRaDecoderTrait
             }
         } else { // BEEP base v2 firmware (fport == 1)
             $beep_sensors = [
-                    't', // 0
-                    'h', // 1
-                    'w_v',
-                    't_i',
-                    'a_i',
-                    'bv',
-                    's_tot',
-                    's_fan_4',
-                    's_fan_6',
-                    's_fan_9',
-                    's_fly_a',
-                    'w_fl_hb',
-                    'w_fl_lb',
-                    'w_fr_hb',
-                    'w_fr_lb',
-                    'w_bl_hb',
-                    'w_bl_lb',
-                    'w_br_hb',
-                    'w_br_lb', // 18
-                ];
+                't', // 0
+                'h', // 1
+                'w_v',
+                't_i',
+                'a_i',
+                'bv',
+                's_tot',
+                's_fan_4',
+                's_fan_6',
+                's_fan_9',
+                's_fly_a',
+                'w_fl_hb',
+                'w_fl_lb',
+                'w_fr_hb',
+                'w_fr_lb',
+                'w_bl_hb',
+                'w_bl_lb',
+                'w_br_hb',
+                'w_br_lb', // 18
+            ];
 
             $minLength = min(strlen($payload) / 2, count($beep_sensors));
 

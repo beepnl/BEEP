@@ -285,7 +285,7 @@ class UserController extends Controller
         if ($returnIdArray) {
             return $roles->pluck('id', 'id')->toArray();
         } else {
-            return $roles->pluck('display_name','id');
+            return $roles->pluck('display_name', 'id');
         }
     }
 }

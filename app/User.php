@@ -459,6 +459,6 @@ class User extends Authenticatable
             return $array;
         }
 
-        return Auth::user()->pluck('name','id');
+        return Auth::user()->pluck('name', 'id');
     }
 }

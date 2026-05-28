@@ -480,6 +480,6 @@ class DeviceController extends Controller
         Device::find($id)->delete();
 
         return redirect()->route('devices.index')
-            ->with('success','Device deleted successfully');
+            ->with('success', 'Device deleted successfully');
     }
 }

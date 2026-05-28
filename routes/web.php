@@ -29,9 +29,9 @@ Route::get('webapp', function () {
     return redirect()->away('https://app.beep.nl');
 });
 
-Route::get('code', ['as' => 'sample-code.code', 'uses' => 'SampleCodeController@code']);
-Route::post('codecheck', ['as' => 'sample-code.check', 'uses' => 'SampleCodeController@check'])->middleware('throttle:3,1');
-Route::patch('coderesult', ['as' => 'sample-code.resultsave', 'uses' => 'SampleCodeController@resultsave']);
+Route::get('code', 'SampleCodeController@code')->name('sample-code.code');
+Route::post('codecheck', 'SampleCodeController@check')->name('sample-code.check')->middleware('throttle:3,1');
+Route::patch('coderesult', 'SampleCodeController@resultsave')->name('sample-code.resultsave');
 
 // Hack for redirecting e-mail reset password link to webapp
 // Route::get('password/reset/{token}',['as'=>'password.reset', function ($token) {
@@ -39,65 +39,57 @@ Route::patch('coderesult', ['as' => 'sample-code.resultsave', 'uses' => 'SampleC
 // }]);
 
 // Secured by login
-Route::group(
-    [
-        'prefix' => LaravelLocalization::setLocale(),
-        'middleware' => ['auth', 'localeSessionRedirect', 'localizationRedirect', 'verified'],
-    ],
+Route::prefix(LaravelLocalization::setLocale())->middleware('auth', 'localeSessionRedirect', 'localizationRedirect', 'verified')->group(
     function () {
-        Route::group(
-            ['middleware' => ['role:superadmin|admin|lab']],
+        Route::middleware('role:superadmin|admin|lab')->group(
             function () {
-                Route::get('code-upload', ['as' => 'sample-code.upload', 'uses' => 'SampleCodeController@upload']);
-                Route::post('code-upload-store', ['as' => 'sample-code.upload-store', 'uses' => 'SampleCodeController@upload_store']);
+                Route::get('code-upload', 'SampleCodeController@upload')->name('sample-code.upload');
+                Route::post('code-upload-store', 'SampleCodeController@upload_store')->name('sample-code.upload-store');
             });
 
-        Route::group(
-            ['middleware' => ['role:superadmin|admin|translator']],
+        Route::middleware('role:superadmin|admin|translator')->group(
             function () {
 
                 // Routes
-                Route::get('languages', ['as' => 'languages.index', 'uses' => 'LanguageController@index', 'middleware' => ['permission:language-list|language-create|language-edit|language-delete']]);
-                Route::get('languages/create', ['as' => 'languages.create', 'uses' => 'LanguageController@create', 'middleware' => ['permission:language-create']]);
-                Route::post('languages/create', ['as' => 'languages.store', 'uses' => 'LanguageController@store', 'middleware' => ['permission:language-create']]);
-                Route::get('languages/{id}', ['as' => 'languages.show', 'uses' => 'LanguageController@show']);
-                Route::get('languages/{id}/edit', ['as' => 'languages.edit', 'uses' => 'LanguageController@edit', 'middleware' => ['permission:language-edit']]);
-                Route::patch('languages/{id}', ['as' => 'languages.update', 'uses' => 'LanguageController@update', 'middleware' => ['permission:language-edit']]);
-                Route::delete('languages/{id}', ['as' => 'languages.destroy', 'uses' => 'LanguageController@destroy', 'middleware' => ['permission:language-delete']]);
+                Route::get('languages', 'LanguageController@index')->name('languages.index')->middleware('permission:language-list|language-create|language-edit|language-delete');
+                Route::get('languages/create', 'LanguageController@create')->name('languages.create')->middleware('permission:language-create');
+                Route::post('languages/create', 'LanguageController@store')->name('languages.store')->middleware('permission:language-create');
+                Route::get('languages/{id}', 'LanguageController@show')->name('languages.show');
+                Route::get('languages/{id}/edit', 'LanguageController@edit')->name('languages.edit')->middleware('permission:language-edit');
+                Route::patch('languages/{id}', 'LanguageController@update')->name('languages.update')->middleware('permission:language-edit');
+                Route::delete('languages/{id}', 'LanguageController@destroy')->name('languages.destroy')->middleware('permission:language-delete');
 
-                Route::get('translations', ['as' => 'translations.index', 'uses' => 'TranslationController@index', 'middleware' => ['permission:translation-list']]);
-                Route::get('translations/{language}', ['as' => 'translations.edit', 'uses' => 'TranslationController@edit', 'middleware' => ['permission:translation-create']]);
-                Route::patch('translations/{language}', ['as' => 'translations.update', 'uses' => 'TranslationController@update', 'middleware' => ['permission:translation-edit']]);
+                Route::get('translations', 'TranslationController@index')->name('translations.index')->middleware('permission:translation-list');
+                Route::get('translations/{language}', 'TranslationController@edit')->name('translations.edit')->middleware('permission:translation-create');
+                Route::patch('translations/{language}', 'TranslationController@update')->name('translations.update')->middleware('permission:translation-edit');
 
             });
 
-        Route::group(
-            ['middleware' => ['role:superadmin|admin|manager']],
+        Route::middleware('role:superadmin|admin|manager')->group(
             function () {
 
-                Route::get('devices', ['as' => 'devices.index', 'uses' => 'DeviceController@index', 'middleware' => ['permission:sensor-list|sensor-create|sensor-edit|sensor-delete']]);
-                Route::get('devices/create', ['as' => 'devices.create', 'uses' => 'DeviceController@create', 'middleware' => ['permission:sensor-create']]);
-                Route::get('devices/data', ['as' => 'devices.data', 'uses' => 'DeviceController@data']);
-                Route::post('devices/create', ['as' => 'devices.store', 'uses' => 'DeviceController@store', 'middleware' => ['permission:sensor-create']]);
-                Route::get('devices/{id}', ['as' => 'devices.show', 'uses' => 'DeviceController@show']);
-                Route::get('devices/{id}/sync', ['as' => 'devices.sync', 'uses' => 'DeviceController@sync']);
-                Route::get('devices/{id}/undelete', ['as' => 'devices.undelete', 'uses' => 'DeviceController@undelete']);
-                Route::get('devices/{id}/edit', ['as' => 'devices.edit', 'uses' => 'DeviceController@edit', 'middleware' => ['permission:sensor-edit']]);
-                Route::get('devices/{id}/flashlog/{fl_id}', ['as' => 'devices.flashlog', 'uses' => 'DeviceController@flashlog', 'middleware' => ['permission:sensor-edit']]);
-                Route::patch('devices/{id}', ['as' => 'devices.update', 'uses' => 'DeviceController@update', 'middleware' => ['permission:sensor-edit']]);
-                Route::delete('devices/{id}', ['as' => 'devices.destroy', 'uses' => 'DeviceController@destroy', 'middleware' => ['permission:sensor-delete']]);
+                Route::get('devices', 'DeviceController@index')->name('devices.index')->middleware('permission:sensor-list|sensor-create|sensor-edit|sensor-delete');
+                Route::get('devices/create', 'DeviceController@create')->name('devices.create')->middleware('permission:sensor-create');
+                Route::get('devices/data', 'DeviceController@data')->name('devices.data');
+                Route::post('devices/create', 'DeviceController@store')->name('devices.store')->middleware('permission:sensor-create');
+                Route::get('devices/{id}', 'DeviceController@show')->name('devices.show');
+                Route::get('devices/{id}/sync', 'DeviceController@sync')->name('devices.sync');
+                Route::get('devices/{id}/undelete', 'DeviceController@undelete')->name('devices.undelete');
+                Route::get('devices/{id}/edit', 'DeviceController@edit')->name('devices.edit')->middleware('permission:sensor-edit');
+                Route::get('devices/{id}/flashlog/{fl_id}', 'DeviceController@flashlog')->name('devices.flashlog')->middleware('permission:sensor-edit');
+                Route::patch('devices/{id}', 'DeviceController@update')->name('devices.update')->middleware('permission:sensor-edit');
+                Route::delete('devices/{id}', 'DeviceController@destroy')->name('devices.destroy')->middleware('permission:sensor-delete');
             });
 
-        Route::group(
-            ['middleware' => ['role:superadmin|admin']],
+        Route::middleware('role:superadmin|admin')->group(
             function () {
-                Route::get('groups', ['as' => 'groups.index', 'uses' => 'GroupController@index', 'middleware' => ['permission:group-list|group-create|group-edit|group-delete']]);
-                Route::get('groups/create', ['as' => 'groups.create', 'uses' => 'GroupController@create', 'middleware' => ['permission:group-create']]);
-                Route::post('groups/create', ['as' => 'groups.store', 'uses' => 'GroupController@store', 'middleware' => ['permission:group-create']]);
-                Route::get('groups/{id}', ['as' => 'groups.show', 'uses' => 'GroupController@show']);
-                Route::get('groups/{id}/edit', ['as' => 'groups.edit', 'uses' => 'GroupController@edit', 'middleware' => ['permission:group-edit']]);
-                Route::patch('groups/{id}', ['as' => 'groups.update', 'uses' => 'GroupController@update', 'middleware' => ['permission:group-edit']]);
-                Route::delete('groups/{id}', ['as' => 'groups.destroy', 'uses' => 'GroupController@destroy', 'middleware' => ['permission:group-delete']]);
+                Route::get('groups', 'GroupController@index')->name('groups.index')->middleware('permission:group-list|group-create|group-edit|group-delete');
+                Route::get('groups/create', 'GroupController@create')->name('groups.create')->middleware('permission:group-create');
+                Route::post('groups/create', 'GroupController@store')->name('groups.store')->middleware('permission:group-create');
+                Route::get('groups/{id}', 'GroupController@show')->name('groups.show');
+                Route::get('groups/{id}/edit', 'GroupController@edit')->name('groups.edit')->middleware('permission:group-edit');
+                Route::patch('groups/{id}', 'GroupController@update')->name('groups.update')->middleware('permission:group-edit');
+                Route::delete('groups/{id}', 'GroupController@destroy')->name('groups.destroy')->middleware('permission:group-delete');
 
                 Route::resource('physicalquantity', 'PhysicalQuantityController');
                 Route::resource('categoryinputs', 'CategoryInputsController');
@@ -105,37 +97,36 @@ Route::group(
                 Route::resource('measurement', 'MeasurementController');
                 Route::resource('sensordefinition', 'SensorDefinitionController');
                 Route::resource('flash-log', 'FlashLogController');
-                Route::get('flash-log/parse/{id}', ['as' => 'flash-log.parse', 'uses' => 'FlashLogController@parse']);
+                Route::get('flash-log/parse/{id}', 'FlashLogController@parse')->name('flash-log.parse');
 
                 // Create new research
-                Route::get('research/create', ['as' => 'research.create', 'uses' => 'ResearchController@create']);
-                Route::post('research/create', ['as' => 'research.store', 'uses' => 'ResearchController@store']);
+                Route::get('research/create', 'ResearchController@create')->name('research.create');
+                Route::post('research/create', 'ResearchController@store')->name('research.store');
 
                 Route::resource('categories', 'CategoriesController');
-                Route::delete('categories/{id}/pop', ['as' => 'categories.pop', 'uses' => 'CategoriesController@pop', 'middleware' => ['permission:taxonomy-delete']]);
-                Route::get('categories/{id}/fix', ['as' => 'categories.fix', 'uses' => 'CategoriesController@fix']);
-                Route::get('categories/{id}/duplicate', ['as' => 'categories.duplicate', 'uses' => 'CategoriesController@duplicate']);
-                Route::get('taxonomy/display', ['as' => 'taxonomy.display', 'uses' => 'TaxonomyController@display']);
+                Route::delete('categories/{id}/pop', 'CategoriesController@pop')->name('categories.pop')->middleware('permission:taxonomy-delete');
+                Route::get('categories/{id}/fix', 'CategoriesController@fix')->name('categories.fix');
+                Route::get('categories/{id}/duplicate', 'CategoriesController@duplicate')->name('categories.duplicate');
+                Route::get('taxonomy/display', 'TaxonomyController@display')->name('taxonomy.display');
 
                 Route::resource('dashboard-group', 'DashboardGroupController');
             });
 
-        Route::group(
-            ['middleware' => ['role:superadmin']],
+        Route::middleware('role:superadmin')->group(
             function () {
                 Route::get('info', function () {
                     return view('phpinfo');
                 });
 
                 // Roles
-                Route::get('roles', ['as' => 'roles.index', 'uses' => 'RoleController@index', 'middleware' => ['permission:role-list|role-create|role-edit|role-delete']]);
-                Route::get('roles/create', ['as' => 'roles.create', 'uses' => 'RoleController@create', 'middleware' => ['permission:role-create']]);
-                Route::post('roles/create', ['as' => 'roles.store', 'uses' => 'RoleController@store', 'middleware' => ['permission:role-create']]);
-                Route::get('roles/{id}', ['as' => 'roles.show', 'uses' => 'RoleController@show']);
-                Route::get('roles/{id}/edit', ['as' => 'roles.edit', 'uses' => 'RoleController@edit', 'middleware' => ['permission:role-edit']]);
-                Route::patch('roles/{id}', ['as' => 'roles.update', 'uses' => 'RoleController@update', 'middleware' => ['permission:role-edit']]);
-                Route::delete('roles/{id}', ['as' => 'roles.destroy', 'uses' => 'RoleController@destroy', 'middleware' => ['permission:role-delete']]);
-                Route::get('alert-rule/{id}/parse', ['as' => 'alert-rule.parse', 'uses' => 'AlertRuleController@parse']);
+                Route::get('roles', 'RoleController@index')->name('roles.index')->middleware('permission:role-list|role-create|role-edit|role-delete');
+                Route::get('roles/create', 'RoleController@create')->name('roles.create')->middleware('permission:role-create');
+                Route::post('roles/create', 'RoleController@store')->name('roles.store')->middleware('permission:role-create');
+                Route::get('roles/{id}', 'RoleController@show')->name('roles.show');
+                Route::get('roles/{id}/edit', 'RoleController@edit')->name('roles.edit')->middleware('permission:role-edit');
+                Route::patch('roles/{id}', 'RoleController@update')->name('roles.update')->middleware('permission:role-edit');
+                Route::delete('roles/{id}', 'RoleController@destroy')->name('roles.destroy')->middleware('permission:role-delete');
+                Route::get('alert-rule/{id}/parse', 'AlertRuleController@parse')->name('alert-rule.parse');
 
                 // Resource controllers
                 Route::resource('permissions', 'PermissionController');
@@ -146,14 +137,14 @@ Route::group(
                 Route::resource('alert-rule-formula', 'AlertRuleFormulaController');
                 Route::resource('calculation-model', 'CalculationModelController');
 
-                Route::get('calculation-model/{id}/run', ['as' => 'calculation-model.run', 'uses' => 'CalculationModelController@run']);
+                Route::get('calculation-model/{id}/run', 'CalculationModelController@run')->name('calculation-model.run');
 
-                Route::delete('checklists/destroy/copies', ['as' => 'checklists.copies', 'uses' => 'ChecklistController@destroyCopies']);
+                Route::delete('checklists/destroy/copies', 'ChecklistController@destroyCopies')->name('checklists.copies');
 
             });
 
         // Open research routes based on database access
-        Route::get('dashboard', ['as' => 'dashboard.index', 'uses' => 'DashboardController@index']);
+        Route::get('dashboard', 'DashboardController@index')->name('dashboard.index');
 
         Route::resource('checklists', 'ChecklistController');
         Route::resource('inspections', 'InspectionsController');
@@ -161,16 +152,16 @@ Route::group(
         Route::resource('hive-tags', 'HiveTagsController');
         Route::resource('checklist-svg', 'ChecklistSvgController');
 
-        Route::get('research', ['as' => 'research.index', 'uses' => 'ResearchController@index']);
-        Route::get('research/{id}', ['as' => 'research.show', 'uses' => 'ResearchController@show']);
-        Route::get('research/{id}/data', ['as' => 'research.data', 'uses' => 'ResearchController@data']);
-        Route::get('research/{id}/consent', ['as' => 'research.consent', 'uses' => 'ResearchController@consent']);
-        Route::get('research/{id}/consent/{c_id}', ['as' => 'research.consent_edit', 'uses' => 'ResearchController@consent_edit']);
-        Route::patch('research/{id}/consent/{c_id}', ['as' => 'research.consent_edit', 'uses' => 'ResearchController@consent_edit']);
-        Route::delete('research/{id}/consent/{c_id}', ['as' => 'research.consent_edit', 'uses' => 'ResearchController@consent_edit']);
-        Route::get('research/{id}/consent/{c_id}', ['as' => 'research.consent_edit', 'uses' => 'ResearchController@consent_edit']);
-        Route::get('research/{id}/edit', ['as' => 'research.edit', 'uses' => 'ResearchController@edit']);
-        Route::patch('research/{id}', ['as' => 'research.update', 'uses' => 'ResearchController@update']);
-        Route::delete('research/{id}', ['as' => 'research.destroy', 'uses' => 'ResearchController@destroy']);
+        Route::get('research', 'ResearchController@index')->name('research.index');
+        Route::get('research/{id}', 'ResearchController@show')->name('research.show');
+        Route::get('research/{id}/data', 'ResearchController@data')->name('research.data');
+        Route::get('research/{id}/consent', 'ResearchController@consent')->name('research.consent');
+        Route::get('research/{id}/consent/{c_id}', 'ResearchController@consent_edit')->name('research.consent_edit');
+        Route::patch('research/{id}/consent/{c_id}', 'ResearchController@consent_edit')->name('research.consent_edit');
+        Route::delete('research/{id}/consent/{c_id}', 'ResearchController@consent_edit')->name('research.consent_edit');
+        Route::get('research/{id}/consent/{c_id}', 'ResearchController@consent_edit')->name('research.consent_edit');
+        Route::get('research/{id}/edit', 'ResearchController@edit')->name('research.edit');
+        Route::patch('research/{id}', 'ResearchController@update')->name('research.update');
+        Route::delete('research/{id}', 'ResearchController@destroy')->name('research.destroy');
     }
 );

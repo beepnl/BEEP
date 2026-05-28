@@ -27,6 +27,7 @@
         "kalnoy/nestedset": "^5.0.1",
         "laravel/framework": "^7.29",
         "laravel/tinker": "^2.5",
+        "laravel/ui": "^2.0",
         "laravelcollective/html": "^6.1",
         "league/flysystem-aws-s3-v3": "~1.0",
         "league/flysystem-cached-adapter": "~1.0",
@@ -34,8 +35,7 @@
         "phpoffice/phpspreadsheet": "^1.2",
         "predis/predis": "^2.2",
         "santigarcor/laratrust": "^6.3",
-        "tray-labs/laravel-influxdb": "1.0.*",
-        "laravel/ui": "^2.0"
+        "tray-labs/laravel-influxdb": "1.0.12"
     },
     "require-dev": {
         "appzcoder/crud-generator": "^3.2",

@@ -170,6 +170,7 @@ return [
         Collective\Html\HtmlServiceProvider::class,
         Intervention\Image\ImageServiceProvider::class,
         Mcamara\LaravelLocalization\LaravelLocalizationServiceProvider::class,
+        TrayLabs\InfluxDB\Providers\ServiceProvider::class,
         //
 
         /*

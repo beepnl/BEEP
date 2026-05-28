@@ -538,8 +538,10 @@ class Device extends Model
         $options = ['precision' => 's'];
         $values = [];
 
+        $queryApi = $client::createQueryApi();
+
         try {
-            $result = $client::query($query, $options);
+            $result = $queryApi->query($query, $options);
             $values = $result->getPoints();
         } catch (\Exception $e) {
             // return Response::json('influx-group-by-query-error', 500);

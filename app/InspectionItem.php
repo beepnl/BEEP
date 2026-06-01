@@ -2,6 +2,7 @@
 
 namespace App;
 
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
@@ -79,12 +80,12 @@ class InspectionItem extends Model
         return null;
     }
 
-    public function inspection()
+    public function inspection(): HasOne
     {
         return $this->hasOne(Inspection::class, 'id', 'inspection_id');
     }
 
-    public function category()
+    public function category(): HasOne
     {
         return $this->hasOne(Category::class, 'id', 'category_id');
     }

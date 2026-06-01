@@ -2,6 +2,10 @@
 
 namespace App;
 
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Auth;
 use Cache;
 use Dyrynda\Database\Support\CascadeSoftDeletes;
@@ -148,32 +152,32 @@ class Inspection extends Model
     }
 
     // Relations
-    public function users()
+    public function users(): BelongsToMany
     {
         return $this->belongsToMany(User::class, 'inspection_user');
     }
 
-    public function hives()
+    public function hives(): BelongsToMany
     {
         return $this->belongsToMany(Hive::class, 'inspection_hive');
     }
 
-    public function locations()
+    public function locations(): BelongsToMany
     {
         return $this->belongsToMany(Location::class, 'inspection_location');
     }
 
-    public function items()
+    public function items(): HasMany
     {
         return $this->hasMany(InspectionItem::class);
     }
 
-    public function checklist()
+    public function checklist(): HasOne
     {
         return $this->hasOne(Checklist::class);
     }
 
-    public function image()
+    public function image(): BelongsTo
     {
         return $this->belongsTo(Image::class);
     }

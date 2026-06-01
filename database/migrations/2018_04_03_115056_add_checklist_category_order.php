@@ -11,7 +11,7 @@ return new class extends Migration
      *
      * @return void
      */
-    public function up()
+    public function up(): void
     {
         if (Schema::hasTable('checklist_category')) {
             Schema::table('checklist_category', function (Blueprint $table) {
@@ -28,7 +28,7 @@ return new class extends Migration
      *
      * @return void
      */
-    public function down()
+    public function down(): void
     {
         if (Schema::hasTable('checklist_category')) {
             Schema::table('checklist_category', function (Blueprint $table) {

@@ -2,6 +2,11 @@
 
 namespace App;
 
+use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasManyThrough;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Auth;
 use Cache;
 use Dyrynda\Database\Support\CascadeSoftDeletes;
@@ -244,53 +249,53 @@ class Hive extends Model
         return false;
     }
 
-    public function queen()
+    public function queen(): HasOne
     {
         return $this->hasOne(Queen::class);
     }
 
-    public function type()
+    public function type(): BelongsTo
     {
         return $this->belongsTo(Category::class, 'hive_type_id');
     }
 
-    public function user()
+    public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
     }
 
-    public function groups()
+    public function groups(): BelongsToMany
     {
         return $this->belongsToMany(Group::class, 'group_hive');
     }
 
-    public function checklists()
+    public function checklists(): BelongsToMany
     {
         return $this->belongsToMany(Checklist::class, 'checklist_hive');
     }
 
-    public function inspections()
+    public function inspections(): BelongsToMany
     {
         return $this->belongsToMany(Inspection::class, 'inspection_hive');
     }
 
     // Hive buildup
-    public function location()
+    public function location(): BelongsTo
     {
         return $this->belongsTo(Location::class);
     }
 
-    public function layers()
+    public function layers(): HasMany
     {
         return $this->hasMany(HiveLayer::class);
     }
 
-    public function frames()
+    public function frames(): HasManyThrough
     {
         return $this->hasManyThrough(HiveLayerFrame::class, HiveLayer::class, 'hive_id', 'layer_id');
     }
 
-    public function devices()
+    public function devices(): HasMany
     {
         return $this->hasMany(Device::class);
     }

@@ -2,6 +2,7 @@
 
 namespace App;
 
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Auth;
 use Cache;
 use DB;
@@ -98,12 +99,12 @@ class Group extends Model
         return (bool) ($this->getUsersAttribute()->where('id', Auth::user()->id)->where('creator', 1)->count() > 0); // myself
     }
 
-    public function group_users()
+    public function group_users(): BelongsToMany
     {
         return $this->belongsToMany(User::class, 'group_user');
     }
 
-    public function group_hives()
+    public function group_hives(): BelongsToMany
     {
         return $this->belongsToMany(Hive::class, 'group_hive');
     }

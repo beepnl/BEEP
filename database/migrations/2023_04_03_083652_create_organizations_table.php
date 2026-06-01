@@ -10,7 +10,7 @@ return new class extends Migration
      *
      * @return void
      */
-    public function up()
+    public function up(): void
     {
         if (! Schema::hasTable('organizations')) {
             Schema::create('organizations', function (Blueprint $table) {
@@ -87,7 +87,7 @@ return new class extends Migration
      *
      * @return void
      */
-    public function down()
+    public function down(): void
     {
         if (Schema::hasTable('users') && Schema::hasColumn('users', 'organization_id')) {
             Schema::table('users', function (Blueprint $table) {

@@ -2,6 +2,7 @@
 
 namespace App;
 
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Cache;
 use Illuminate\Database\Eloquent\Model;
 use LaravelLocalization;
@@ -119,7 +120,7 @@ class Measurement extends Model
         return $this->physical_quantity()->value('high_value');
     }
 
-    public function physical_quantity()
+    public function physical_quantity(): HasOne
     {
         return $this->hasOne(PhysicalQuantity::class, 'id', 'physical_quantity_id');
     }

@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use App\Hive;
 use App\User;
 use Illuminate\Database\Eloquent\Model;
@@ -33,12 +34,12 @@ class HiveTag extends Model
 
     protected $casts = ['router_link' => 'array'];
 
-    public function hive()
+    public function hive(): BelongsTo
     {
         return $this->belongsTo(Hive::class);
     }
 
-    public function user()
+    public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
     }

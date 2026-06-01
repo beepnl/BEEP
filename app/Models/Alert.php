@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use App\Device;
 use App\Hive;
 use App\Location;
@@ -46,32 +47,32 @@ class Alert extends Model
         return null;
     }
 
-    public function alert_rule()
+    public function alert_rule(): BelongsTo
     {
         return $this->belongsTo(AlertRule::class);
     }
 
-    public function measurement()
+    public function measurement(): BelongsTo
     {
         return $this->belongsTo(Measurement::class);
     }
 
-    public function location()
+    public function location(): BelongsTo
     {
         return $this->belongsTo(Location::class);
     }
 
-    public function hive()
+    public function hive(): BelongsTo
     {
         return $this->belongsTo(Hive::class);
     }
 
-    public function device()
+    public function device(): BelongsTo
     {
         return $this->belongsTo(Device::class);
     }
 
-    public function user()
+    public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
     }

@@ -11,7 +11,7 @@ return new class extends Migration
      *
      * @return void
      */
-    public function up()
+    public function up(): void
     {
         Schema::table('measurements', function (Blueprint $table) {
             $table->boolean('show_in_dials')->default(false);
@@ -24,7 +24,7 @@ return new class extends Migration
      *
      * @return void
      */
-    public function down()
+    public function down(): void
     {
         Schema::table('measurements', function (Blueprint $table) {
             $table->dropColumn('show_in_dials');

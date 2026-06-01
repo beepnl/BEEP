@@ -15,7 +15,7 @@ class AppServiceProvider extends ServiceProvider
      *
      * @return void
      */
-    public function boot()
+    public function boot(): void
     {
         /**
          * Paginate a standard Laravel Collection.
@@ -55,7 +55,7 @@ class AppServiceProvider extends ServiceProvider
      *
      * @return void
      */
-    public function register()
+    public function register(): void
     {
         $this->app->singleton(HiveFactory::class, function () {
             return new HiveFactory;

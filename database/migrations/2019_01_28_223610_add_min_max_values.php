@@ -11,7 +11,7 @@ return new class extends Migration
      *
      * @return void
      */
-    public function up()
+    public function up(): void
     {
         Schema::table('measurements', function (Blueprint $table) {
             if (! Schema::hasColumn('measurements', 'min_value')) {
@@ -31,7 +31,7 @@ return new class extends Migration
      *
      * @return void
      */
-    public function down()
+    public function down(): void
     {
         Schema::table('measurements', function (Blueprint $table) {
             if (Schema::hasColumn('measurements', 'min_value')) {

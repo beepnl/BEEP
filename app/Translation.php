@@ -2,6 +2,7 @@
 
 namespace App;
 
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
 use LaravelLocalization;
@@ -36,7 +37,7 @@ class Translation extends Model
 
     // Relations
 
-    public function language()
+    public function language(): HasOne
     {
         return $this->hasOne(Language::class, 'id', 'language_id');
     }

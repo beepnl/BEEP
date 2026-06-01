@@ -11,7 +11,7 @@ return new class extends Migration
      *
      * @return void
      */
-    public function up()
+    public function up(): void
     {
         Schema::table('sensors', function (Blueprint $table) {
             DB::statement('ALTER TABLE `sensors` MODIFY COLUMN `datetime_offset_sec` DOUBLE NULL;');
@@ -23,7 +23,7 @@ return new class extends Migration
      *
      * @return void
      */
-    public function down()
+    public function down(): void
     {
         Schema::table('sensors', function (Blueprint $table) {
             $table->float('datetime_offset_sec')->change();

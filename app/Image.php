@@ -2,6 +2,7 @@
 
 namespace App;
 
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Auth;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
@@ -46,22 +47,22 @@ class Image extends Model
 
     protected $hidden = ['storage', 'user_id'];
 
-    public function category()
+    public function category(): BelongsTo
     {
         return $this->belongsTo(Category::class);
     }
 
-    public function user()
+    public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
     }
 
-    public function hive()
+    public function hive(): BelongsTo
     {
         return $this->belongsTo(Hive::class);
     }
 
-    public function inspection()
+    public function inspection(): BelongsTo
     {
         return $this->belongsTo(Inspection::class);
     }

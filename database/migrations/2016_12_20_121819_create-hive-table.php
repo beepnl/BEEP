@@ -11,7 +11,7 @@ return new class extends Migration
      *
      * @return void
      */
-    public function up()
+    public function up(): void
     {
         Schema::create('hive_types', function (Blueprint $table) {
             $table->increments('id')->index();
@@ -69,7 +69,7 @@ return new class extends Migration
      *
      * @return void
      */
-    public function down()
+    public function down(): void
     {
         Schema::table('hive_layer_frames', function (Blueprint $table) {
             $table->dropForeign(['layer_id']);

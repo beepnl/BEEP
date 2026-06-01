@@ -39,7 +39,7 @@ class ResetPassword extends NotificationBase
      * @param  mixed  $notifiable
      * @return array|string
      */
-    public function via($notifiable)
+    public function via($notifiable): array
     {
         return ['mail'];
     }
@@ -50,7 +50,7 @@ class ResetPassword extends NotificationBase
      * @param  mixed  $notifiable
      * @return \Illuminate\Notifications\Messages\MailMessage
      */
-    public function toMail($notifiable)
+    public function toMail($notifiable): MailMessage
     {
         if (static::$toMailCallback) {
             return call_user_func(static::$toMailCallback, $notifiable, $this->token);

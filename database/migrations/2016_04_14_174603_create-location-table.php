@@ -11,7 +11,7 @@ return new class extends Migration
      *
      * @return void
      */
-    public function up()
+    public function up(): void
     {
         Schema::create('continents', function (Blueprint $table) {
             $table->increments('id')->index();
@@ -45,7 +45,7 @@ return new class extends Migration
      *
      * @return void
      */
-    public function down()
+    public function down(): void
     {
         Schema::table('locations', function (Blueprint $table) {
             $table->dropForeign(['user_id']);

@@ -9,7 +9,7 @@ class PostSensorRequest extends Request
      *
      * @return bool
      */
-    public function authorize()
+    public function authorize(): bool
     {
         return true;
     }
@@ -19,7 +19,7 @@ class PostSensorRequest extends Request
      *
      * @return array
      */
-    public function rules()
+    public function rules(): array
     {
         return [
             'id' => 'nullable|integer|unique:sensors,id,'.$this->input('id'),

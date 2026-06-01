@@ -9,7 +9,7 @@ use Illuminate\Database\Seeder;
 
 class DeviceCorrectionSeeder extends Seeder
 {
-    public function run()
+    public function run(): void
     {
         /*
         1. Get BEEP type devices from DB, that have a 20 character long hardware_id that starts with '0e'

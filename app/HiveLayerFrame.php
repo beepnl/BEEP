@@ -2,6 +2,7 @@
 
 namespace App;
 
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -27,12 +28,12 @@ class HiveLayerFrame extends Model
         return Category::find($this->category_id)->name;
     }
 
-    public function layer()
+    public function layer(): BelongsTo
     {
         return $this->belongsTo(HiveLayer::class, 'layer_id');
     }
 
-    public function type()
+    public function type(): BelongsTo
     {
         return $this->belongsTo(Category::class);
     }

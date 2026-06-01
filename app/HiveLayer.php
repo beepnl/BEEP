@@ -2,6 +2,8 @@
 
 namespace App;
 
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Cache;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -63,17 +65,17 @@ class HiveLayer extends Model
         });
     }
 
-    public function hive()
+    public function hive(): BelongsTo
     {
         return $this->belongsTo(Hive::class);
     }
 
-    public function type()
+    public function type(): BelongsTo
     {
         return $this->belongsTo(Category::class);
     }
 
-    public function frames()
+    public function frames(): HasMany
     {
         return $this->hasMany(HiveLayerFrame::class, 'layer_id');
     }

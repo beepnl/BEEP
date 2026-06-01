@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use App\Measurement;
 use Cache;
 use Illuminate\Database\Eloquent\Model;
@@ -44,12 +45,12 @@ class AlertRuleFormula extends Model
 
     public static $logicals = ['or' => 'Or', 'and' => 'And'];
 
-    public function alert_rule()
+    public function alert_rule(): BelongsTo
     {
         return $this->belongsTo(AlertRule::class);
     }
 
-    public function measurement()
+    public function measurement(): BelongsTo
     {
         return $this->belongsTo(Measurement::class);
     }

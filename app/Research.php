@@ -2,6 +2,8 @@
 
 namespace App;
 
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Auth;
 use DB;
 use Illuminate\Database\Eloquent\Model;
@@ -74,27 +76,27 @@ class Research extends Model
         return null;
     }
 
-    public function owner()
+    public function owner(): BelongsTo
     {
         return $this->belongsTo(User::class);
     }
 
-    public function users()
+    public function users(): BelongsToMany
     {
         return $this->belongsToMany(User::class, 'research_user')->distinct('user_id');
     }
 
-    public function viewers()
+    public function viewers(): BelongsToMany
     {
         return $this->belongsToMany(User::class, 'research_viewer');
     }
 
-    public function checklists()
+    public function checklists(): BelongsToMany
     {
         return $this->belongsToMany(Checklist::class, 'checklist_research');
     }
 
-    public function image()
+    public function image(): BelongsTo
     {
         return $this->belongsTo(Image::class);
     }

@@ -10,7 +10,7 @@ return new class extends Migration
      *
      * @return void
      */
-    public function up()
+    public function up(): void
     {
         Schema::create('sample_codes', function (Blueprint $table) {
             $table->increments('id');
@@ -43,7 +43,7 @@ return new class extends Migration
      *
      * @return void
      */
-    public function down()
+    public function down(): void
     {
         if (Schema::hasTable('sample_codes')) {
             Schema::table('sample_codes', function (Blueprint $table) {

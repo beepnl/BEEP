@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use App\Device;
 use App\Hive;
 use App\Measurement;
@@ -53,17 +54,17 @@ class FlashLog extends Model
 
     protected $casts = ['meta_data' => 'array', 'time_corrections' => 'array'];
 
-    public function hive()
+    public function hive(): BelongsTo
     {
         return $this->belongsTo(Hive::class);
     }
 
-    public function device()
+    public function device(): BelongsTo
     {
         return $this->belongsTo(Device::class)->withTrashed();
     }
 
-    public function user()
+    public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
     }

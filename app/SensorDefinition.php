@@ -2,6 +2,7 @@
 
 namespace App;
 
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Cache;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -98,17 +99,17 @@ class SensorDefinition extends Model
         return null;
     }
 
-    public function input_measurement()
+    public function input_measurement(): BelongsTo
     {
         return $this->belongsTo(Measurement::class);
     }
 
-    public function output_measurement()
+    public function output_measurement(): BelongsTo
     {
         return $this->belongsTo(Measurement::class);
     }
 
-    public function device()
+    public function device(): BelongsTo
     {
         return $this->belongsTo(Device::class);
     }

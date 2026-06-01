@@ -2,6 +2,8 @@
 
 namespace App;
 
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
 use Kalnoy\Nestedset\NodeTrait;
@@ -93,17 +95,17 @@ class Taxonomy extends Model
         return null;
     }
 
-    public function physicalQuantity()
+    public function physicalQuantity(): HasOne
     {
         return $this->hasOne(PhysicalQuantity::class, 'id', 'physical_quantity_id');
     }
 
-    public function checklists()
+    public function checklists(): BelongsToMany
     {
         return $this->belongsToMany(Checklist::class, 'checklist_category');
     }
 
-    public function inputType()
+    public function inputType(): HasOne
     {
         return $this->hasOne(CategoryInput::class, 'id', 'category_input_id');
     }

@@ -2,6 +2,7 @@
 
 namespace App;
 
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Cache;
 use DB;
 use Illuminate\Database\Eloquent\Model;
@@ -50,12 +51,12 @@ class PhysicalQuantity extends Model
     }
 
     // Relations
-    public function categories()
+    public function categories(): HasMany
     {
         return $this->hasMany(Category::class);
     }
 
-    public function measurements()
+    public function measurements(): HasMany
     {
         return $this->hasMany(Measurement::class);
     }

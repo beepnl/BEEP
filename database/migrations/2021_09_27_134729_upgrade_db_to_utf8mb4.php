@@ -9,7 +9,7 @@ return new class extends Migration
      *
      * @return void
      */
-    public function up()
+    public function up(): void
     {
         $dryRun = false;
         $this->convertDb('mysql', 'utf8mb4', 'utf8mb4_unicode_ci', $dryRun);
@@ -20,7 +20,7 @@ return new class extends Migration
      *
      * @return void
      */
-    public function down()
+    public function down(): void
     {
         $dryRun = false;
         $this->convertDb('mysql', 'utf8', 'utf8_unicode_ci', $dryRun);

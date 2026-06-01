@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use App\Checklist;
 use App\User;
 use Illuminate\Database\Eloquent\Model;
@@ -29,12 +30,12 @@ class ChecklistSvg extends Model
      */
     protected $fillable = ['user_id', 'checklist_id', 'name', 'svg', 'pages', 'last_print', 'app_version'];
 
-    public function checklist()
+    public function checklist(): BelongsTo
     {
         return $this->belongsTo(Checklist::class);
     }
 
-    public function user()
+    public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
     }

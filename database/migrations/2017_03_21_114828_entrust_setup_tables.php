@@ -10,7 +10,7 @@ return new class extends Migration
      *
      * @return void
      */
-    public function up()
+    public function up(): void
     {
         // Create table for storing roles
         Schema::create('roles', function (Blueprint $table) {
@@ -62,7 +62,7 @@ return new class extends Migration
      *
      * @return void
      */
-    public function down()
+    public function down(): void
     {
         Schema::drop('permission_role');
         Schema::drop('permissions');

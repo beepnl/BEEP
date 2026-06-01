@@ -22,7 +22,7 @@ class HiveLayerFactory extends Factory
      *
      * @return array
      */
-    public function definition()
+    public function definition(): array
     {
         return [
             'hive_id' => 1,

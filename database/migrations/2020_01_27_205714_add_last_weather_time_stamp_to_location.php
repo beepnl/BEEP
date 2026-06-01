@@ -11,7 +11,7 @@ return new class extends Migration
      *
      * @return void
      */
-    public function up()
+    public function up(): void
     {
         Schema::table('locations', function (Blueprint $table) {
             $table->timestamp('last_weather_time')->nullable();
@@ -23,7 +23,7 @@ return new class extends Migration
      *
      * @return void
      */
-    public function down()
+    public function down(): void
     {
         Schema::table('locations', function (Blueprint $table) {
             $table->dropColumn('last_weather_time');

@@ -2,6 +2,9 @@
 
 namespace App;
 
+use Illuminate\Database\Eloquent\Relations\HasManyThrough;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use App\Models\Alert;
 use App\Models\AlertRule;
 use App\Models\ChecklistSvg;
@@ -133,12 +136,12 @@ class User extends Authenticatable
     }
 
     // links
-    public function images()
+    public function images(): HasMany
     {
         return $this->hasMany(Image::class);
     }
 
-    public function hives()
+    public function hives(): HasMany
     {
         return $this->hasMany(Hive::class);
     }
@@ -182,17 +185,17 @@ class User extends Authenticatable
         return Hive::whereIn('id', $all_ids);
     }
 
-    public function hive_tags()
+    public function hive_tags(): HasMany
     {
         return $this->hasMany(HiveTag::class);
     }
 
-    public function checklists()
+    public function checklists(): BelongsToMany
     {
         return $this->belongsToMany(Checklist::class, 'checklist_user');
     }
 
-    public function inspections()
+    public function inspections(): BelongsToMany
     {
         return $this->belongsToMany(Inspection::class, 'inspection_user');
     }
@@ -212,17 +215,17 @@ class User extends Authenticatable
         return Inspection::whereIn('id', $all_ids);
     }
 
-    public function researches()
+    public function researches(): BelongsToMany
     {
         return $this->belongsToMany(Research::class, 'research_user');
     }
 
-    public function researchesOwned()
+    public function researchesOwned(): HasMany
     {
         return $this->hasMany(Research::class);
     }
 
-    public function flashlogs()
+    public function flashlogs(): HasMany
     {
         return $this->hasMany(FlashLog::class);
     }
@@ -237,7 +240,7 @@ class User extends Authenticatable
         return FlashLog::whereIn('id', $all_ids);
     }
 
-    public function researchesVisible()
+    public function researchesVisible(): BelongsToMany
     {
         return $this->belongsToMany(Research::class, 'research_viewer');
     }
@@ -268,7 +271,7 @@ class User extends Authenticatable
         return Research::whereIn('id', $all_ids);
     }
 
-    public function devices()
+    public function devices(): HasMany
     {
         return $this->hasMany(Device::class);
     }
@@ -288,32 +291,32 @@ class User extends Authenticatable
         return Device::whereIn('id', $all_ids);
     }
 
-    public function groups()
+    public function groups(): BelongsToMany
     {
         return $this->belongsToMany(Group::class, 'group_user')->whereNotNull('accepted');
     }
 
-    public function dashboardGroups()
+    public function dashboardGroups(): HasMany
     {
         return $this->hasMany(DashboardGroup::class);
     }
 
-    public function checklistSvgs()
+    public function checklistSvgs(): HasMany
     {
         return $this->hasMany(ChecklistSvg::class);
     }
 
-    public function settings()
+    public function settings(): HasMany
     {
         return $this->hasMany(Setting::class);
     }
 
-    public function samplecodes()
+    public function samplecodes(): HasMany
     {
         return $this->hasMany(SampleCode::class);
     }
 
-    public function queens()
+    public function queens(): HasManyThrough
     {
         return $this->hasManyThrough(Queen::class, Hive::class, 'user_id', 'hive_id');
     }
@@ -337,7 +340,7 @@ class User extends Authenticatable
         return Checklist::whereIn('id', $checklist_ids);
     }
 
-    public function locations()
+    public function locations(): HasMany
     {
         return $this->hasMany(Location::class);
     }
@@ -370,7 +373,7 @@ class User extends Authenticatable
         });
     }
 
-    public function groupInvitations()
+    public function groupInvitations(): BelongsToMany
     {
         $user_id = $this->id;
 
@@ -397,12 +400,12 @@ class User extends Authenticatable
         });
     }
 
-    public function alert_rules()
+    public function alert_rules(): HasMany
     {
         return $this->hasMany(AlertRule::class);
     }
 
-    public function alerts()
+    public function alerts(): HasMany
     {
         return $this->hasMany(Alert::class);
     }

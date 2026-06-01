@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use App\Device;
 use App\Mail\AlertMail;
 use App\Measurement;
@@ -150,22 +152,22 @@ class AlertRule extends Model
         }
     }
 
-    public function measurement()
+    public function measurement(): BelongsTo
     {
         return $this->belongsTo(Measurement::class);
     }
 
-    public function user()
+    public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
     }
 
-    public function alert_rule_formulas()
+    public function alert_rule_formulas(): HasMany
     {
         return $this->hasMany(AlertRuleFormula::class);
     }
 
-    public function alerts()
+    public function alerts(): HasMany
     {
         return $this->hasMany(Alert::class);
     }

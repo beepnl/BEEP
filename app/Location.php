@@ -2,6 +2,11 @@
 
 namespace App;
 
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasManyThrough;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Auth;
 use Cache;
 use Dyrynda\Database\Support\CascadeSoftDeletes;
@@ -81,37 +86,37 @@ class Location extends Model
         return false;
     }
 
-    public function hives()
+    public function hives(): HasMany
     {
         return $this->hasMany(Hive::class);
     }
 
-    public function inspections()
+    public function inspections(): BelongsToMany
     {
         return $this->belongsToMany(Inspection::class, 'inspection_location');
     }
 
-    public function layers()
+    public function layers(): HasManyThrough
     {
         return $this->hasManyThrough(HiveLayer::class, Hive::class);
     }
 
-    public function user()
+    public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
     }
 
-    public function type()
+    public function type(): BelongsTo
     {
         return $this->belongsTo(Category::class);
     }
 
-    public function device_count()
+    public function device_count(): HasManyThrough
     {
         return $this->hasManyThrough(Device::class, Hive::class)->count();
     }
 
-    public function continent()
+    public function continent(): HasOne
     {
         return $this->hasOne(Continent::class);
     }

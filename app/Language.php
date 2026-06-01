@@ -2,6 +2,7 @@
 
 namespace App;
 
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Model;
 
 class Language extends Model
@@ -18,7 +19,7 @@ class Language extends Model
     }
 
     // Relations
-    public function translations()
+    public function translations(): BelongsToMany
     {
         return $this->belongsToMany(Translation::class);
     }

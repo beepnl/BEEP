@@ -2,6 +2,7 @@
 
 namespace App;
 
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Model;
 
 class SampleCode extends Model
@@ -27,17 +28,17 @@ class SampleCode extends Model
      */
     protected $fillable = ['sample_code', 'sample_note', 'sample_date', 'test_result', 'test', 'test_date', 'test_lab_name', 'user_id', 'hive_id', 'queen_id'];
 
-    public function hive()
+    public function hive(): BelongsTo
     {
         return $this->belongsTo(Hive::class);
     }
 
-    public function user()
+    public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
     }
 
-    public function queen()
+    public function queen(): BelongsTo
     {
         return $this->belongsTo(Queen::class);
     }

@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use App\Device;
 use App\Measurement;
 use Cache;
@@ -59,12 +60,12 @@ class CalculationModel extends Model
     public static $calculations = ['model_cumulative_daily_weight_anomaly' => 'Cumulative daily hive weight anomaly',
         'model_colony_failure_weight_history' => 'Colony failure weight history (AWS Lambda)'];
 
-    public function input_measurement()
+    public function input_measurement(): BelongsTo
     {
         return $this->belongsTo(Measurement::class, 'data_measurement_id');
     }
 
-    public function measurement()
+    public function measurement(): BelongsTo
     {
         return $this->belongsTo(Measurement::class);
     }

@@ -10,7 +10,7 @@ return new class extends Migration
      *
      * @return void
      */
-    public function up()
+    public function up(): void
     {
         if (! Schema::hasTable('alert_rules')) {
             Schema::create('alert_rules', function (Blueprint $table) {
@@ -40,7 +40,7 @@ return new class extends Migration
      *
      * @return void
      */
-    public function down()
+    public function down(): void
     {
         if (Schema::hasTable('alert_rules')) {
             Schema::drop('alert_rules');

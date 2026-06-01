@@ -2,6 +2,8 @@
 
 namespace App;
 
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Cache;
 use Dyrynda\Database\Support\CascadeSoftDeletes;
 use Illuminate\Database\Eloquent\Model;
@@ -67,17 +69,17 @@ class Queen extends Model
         return isset($this->mother_id) ? Queen::find($this->mother_id)->name : '';
     }
 
-    public function hive()
+    public function hive(): BelongsTo
     {
         return $this->belongsTo(Hive::class);
     }
 
-    public function race()
+    public function race(): HasOne
     {
         return $this->hasOne(Category::class, 'race_id');
     }
 
-    public function mother()
+    public function mother(): HasOne
     {
         return $this->hasOne(Queen::class, 'mother_id');
     }

@@ -2,6 +2,7 @@
 
 namespace App;
 
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Auth;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -68,7 +69,7 @@ class Checklist extends Model
         return $this->researches()->pluck('name');
     }
 
-    public function categories()
+    public function categories(): BelongsToMany
     {
         return $this->belongsToMany(Category::class, 'checklist_category')->withPivot('order')->orderBy('order');
     }
@@ -78,17 +79,17 @@ class Checklist extends Model
         return $this->categories()->pluck('id')->toArray();
     }
 
-    public function users()
+    public function users(): BelongsToMany
     {
         return $this->belongsToMany(User::class, 'checklist_user');
     }
 
-    public function hives()
+    public function hives(): BelongsToMany
     {
         return $this->belongsToMany(Hive::class, 'checklist_hive');
     }
 
-    public function researches()
+    public function researches(): BelongsToMany
     {
         return $this->belongsToMany(Research::class, 'checklist_research');
     }

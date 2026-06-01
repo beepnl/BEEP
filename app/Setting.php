@@ -2,6 +2,7 @@
 
 namespace App;
 
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Model;
 
 class Setting extends Model
@@ -21,12 +22,12 @@ class Setting extends Model
         return Category::find($this->category_id)->name;
     }
 
-    public function user()
+    public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
     }
 
-    public function type()
+    public function type(): BelongsTo
     {
         return $this->belongsTo(Category::class);
     }

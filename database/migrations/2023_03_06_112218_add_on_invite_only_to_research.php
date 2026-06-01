@@ -11,7 +11,7 @@ return new class extends Migration
      *
      * @return void
      */
-    public function up()
+    public function up(): void
     {
         Schema::table('researches', function (Blueprint $table) {
             $table->boolean('on_invite_only')->default(false);
@@ -23,7 +23,7 @@ return new class extends Migration
      *
      * @return void
      */
-    public function down()
+    public function down(): void
     {
         Schema::table('researches', function (Blueprint $table) {
             $table->dropColumn('on_invite_only');

@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use Illuminate\Http\Request;
 use Closure;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Response;
@@ -14,7 +15,7 @@ class EnsureWebappEmailIsVerified
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response|\Illuminate\Http\RedirectResponse
      */
-    public function handle($request, Closure $next)
+    public function handle(Request $request, Closure $next): \Symfony\Component\HttpFoundation\Response
     {
         if (! $request->user()) {
             return Response::json('invalid_user', 400);

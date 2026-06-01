@@ -2,6 +2,8 @@
 
 namespace App;
 
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use App\Models\Alert;
 use App\Models\FlashLog;
 use Auth;
@@ -249,7 +251,7 @@ class Device extends Model
         return false;
     }
 
-    public function sensorDefinitions()
+    public function sensorDefinitions(): HasMany
     {
         return $this->hasMany(SensorDefinition::class);
     }
@@ -306,7 +308,7 @@ class Device extends Model
         return $this->sensorDefinitions()->whereIn('id', $sd_ids)->orderBy('updated_at', 'desc')->get();
     }
 
-    public function hive()
+    public function hive(): BelongsTo
     {
         return $this->belongsTo(Hive::class);
     }
@@ -320,7 +322,7 @@ class Device extends Model
         return null;
     }
 
-    public function user()
+    public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
     }
@@ -330,12 +332,12 @@ class Device extends Model
         return $this->user->researches();
     }
 
-    public function alerts()
+    public function alerts(): HasMany
     {
         return $this->hasMany(Alert::class);
     }
 
-    public function flashLogs()
+    public function flashLogs(): HasMany
     {
         return $this->hasMany(FlashLog::class);
     }

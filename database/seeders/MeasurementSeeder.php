@@ -94,7 +94,7 @@ class MeasurementSeeder extends Seeder
         's_bin537_586Hz',
     ];
 
-    public function run()
+    public function run(): void
     {
         if (PhysicalQuantity::where('abbreviation', '-')->count() == 0) {
             PhysicalQuantity::create(['abbreviation' => 'hPa', 'name' => 'Pressure', 'unit' => 'hPa']);

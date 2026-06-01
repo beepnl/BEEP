@@ -6,7 +6,7 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    public function up()
+    public function up(): void
     {
         if (Schema::hasTable('researches')) {
             Schema::table('researches', function (Blueprint $table) {
@@ -34,7 +34,7 @@ return new class extends Migration
      *
      * @return void
      */
-    public function down()
+    public function down(): void
     {
         if (Schema::hasTable('research_viewer')) {
             Schema::table('research_viewer', function (Blueprint $table) {

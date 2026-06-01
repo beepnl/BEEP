@@ -12,7 +12,7 @@ class UserSeeder extends Seeder
      *
      * @return void
      */
-    public function run()
+    public function run(): void
     {
         $users = User::all();
         foreach ($users as $user) {

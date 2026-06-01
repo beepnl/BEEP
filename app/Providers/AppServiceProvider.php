@@ -4,12 +4,24 @@ namespace App\Providers;
 
 use App\ChecklistFactory;
 use App\HiveFactory;
+use Illuminate\Cache\RateLimiting\Limit;
+use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
 {
+    /**
+     * The path to your application's "home" route.
+     *
+     * Typically, users are redirected here after authentication.
+     *
+     * @var string
+     */
+    public const HOME = '/home';
+
     /**
      * Bootstrap any application services.
      */
@@ -46,6 +58,8 @@ class AppServiceProvider extends ServiceProvider
 
             return $paginator;
         });
+
+        $this->bootRoute();
     }
 
     /**
@@ -64,5 +78,12 @@ class AppServiceProvider extends ServiceProvider
         if ($this->app->environment() == 'local') {
             $this->app->register('Appzcoder\CrudGenerator\CrudGeneratorServiceProvider');
         }
+    }
+
+    public function bootRoute(): void
+    {
+        RateLimiter::for('api', function (Request $request) {
+            return Limit::perMinute(60)->by($request->user()?->id ?: $request->ip());
+        });
     }
 }

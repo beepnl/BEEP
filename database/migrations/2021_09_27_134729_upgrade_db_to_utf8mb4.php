@@ -27,7 +27,7 @@ return new class extends Migration
         $dbName = config("database.connections.{$connection}.database");
 
         $varchars = \DB::connection($connection)
-            ->select(\DB::raw("SELECT * FROM INFORMATION_SCHEMA.COLUMNS WHERE DATA_TYPE = 'varchar' AND (CHARACTER_SET_NAME != '{$charset}' OR COLLATION_NAME != '{$collate}') AND TABLE_SCHEMA = '{$dbName}'"));
+            ->select(\DB::raw("SELECT * FROM INFORMATION_SCHEMA.COLUMNS WHERE DATA_TYPE = 'varchar' AND (CHARACTER_SET_NAME != '{$charset}' OR COLLATION_NAME != '{$collate}') AND TABLE_SCHEMA = '{$dbName}'")->getValue(DB::connection()->getQueryGrammar()));
 
         // Check if shrinking field size will truncate!
         $skip = [];  // List of table.column that will be handled manually
@@ -40,12 +40,12 @@ return new class extends Migration
 
                     // Check if column is indexed
                     $index = \DB::connection($connection)
-                        ->select(\DB::raw("SHOW INDEX FROM `{$t->TABLE_NAME}` where column_name = '{$t->COLUMN_NAME}'"));
+                        ->select(\DB::raw("SHOW INDEX FROM `{$t->TABLE_NAME}` where column_name = '{$t->COLUMN_NAME}'")->getValue(DB::connection()->getQueryGrammar()));
                     $indexed[$key] = count($index) ? true : false;
 
                     if (count($index)) {
                         $result = \DB::connection($connection)
-                            ->select(\DB::raw("SELECT count(*) as `count` from `{$t->TABLE_NAME}` where length(`{$t->COLUMN_NAME}`) > 191"));
+                            ->select(\DB::raw("SELECT count(*) as `count` from `{$t->TABLE_NAME}` where length(`{$t->COLUMN_NAME}`) > 191")->getValue(DB::connection()->getQueryGrammar()));
                         if ($result[0]->count > 0) {
                             echo "-- DATA TRUNCATION: {$t->TABLE_NAME}.{$t->COLUMN_NAME}({$t->CHARACTER_MAXIMUM_LENGTH}) => {$result[0]->count}".PHP_EOL;
                             if (! in_array($key, $skip)) {
@@ -86,14 +86,14 @@ return new class extends Migration
 
         // Convert text like columns
         $texts = \DB::connection($connection)
-            ->select(\DB::raw("SELECT * FROM INFORMATION_SCHEMA.COLUMNS WHERE DATA_TYPE LIKE '%text%' AND (CHARACTER_SET_NAME != '{$charset}' OR COLLATION_NAME != '{$collate}') AND TABLE_SCHEMA = '{$dbName}'"));
+            ->select(\DB::raw("SELECT * FROM INFORMATION_SCHEMA.COLUMNS WHERE DATA_TYPE LIKE '%text%' AND (CHARACTER_SET_NAME != '{$charset}' OR COLLATION_NAME != '{$collate}') AND TABLE_SCHEMA = '{$dbName}'")->getValue(DB::connection()->getQueryGrammar()));
         foreach ($texts as $t) {
             $tableChanges["{$t->TABLE_NAME}"][] = "CHANGE `{$t->COLUMN_NAME}` `{$t->COLUMN_NAME}` {$t->DATA_TYPE} CHARACTER SET {$charset} COLLATE {$collate}";
         }
 
         // Convert tables
         $tables = \DB::connection($connection)
-            ->select(\DB::raw("SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_COLLATION != '{$collate}' AND TABLE_SCHEMA = '{$dbName}';"));
+            ->select(\DB::raw("SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_COLLATION != '{$collate}' AND TABLE_SCHEMA = '{$dbName}';")->getValue(DB::connection()->getQueryGrammar()));
         foreach ($tables as $t) {
             $tableChanges["{$t->TABLE_NAME}"][] = "CONVERT TO CHARACTER SET {$charset} COLLATE {$collate}";
             $tableChanges["{$t->TABLE_NAME}"][] = "DEFAULT CHARACTER SET={$charset} COLLATE={$collate}";

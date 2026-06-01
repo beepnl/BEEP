@@ -27,7 +27,7 @@
         "laravel/ui": "^4.2",
         "laravelcollective/html": "^6.4",
         "league/flysystem-aws-s3-v3": "^3.0",
-        "mcamara/laravel-localization": "^1.7",
+        "mcamara/laravel-localization": "2.3.0",
         "phpoffice/phpspreadsheet": "^1.15",
         "predis/predis": "^2.2",
         "santigarcor/laratrust": "^7.2",
@@ -49,7 +49,7 @@
         "preferred-install": "dist",
         "sort-packages": true,
         "platform": {
-            "php": "8.0.30"
+            "php": "8.2"
         },
         "allow-plugins": {
             "kylekatarnls/update-helper": true,

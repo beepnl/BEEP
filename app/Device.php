@@ -83,7 +83,7 @@ class Device extends Model
     protected function casts(): array
     {
         return [
-            'log_file_info' => 'array'
+            'log_file_info' => 'array',
         ];
     }
 

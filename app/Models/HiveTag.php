@@ -35,7 +35,7 @@ class HiveTag extends Model
     protected function casts(): array
     {
         return [
-            'router_link' => 'array'
+            'router_link' => 'array',
         ];
     }
 

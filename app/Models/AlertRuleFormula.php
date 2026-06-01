@@ -46,7 +46,7 @@ class AlertRuleFormula extends Model
     protected function casts(): array
     {
         return [
-            'future' => 'boolean'
+            'future' => 'boolean',
         ];
     }
 

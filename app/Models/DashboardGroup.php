@@ -36,7 +36,7 @@ class DashboardGroup extends Model
     protected function casts(): array
     {
         return [
-            'hive_ids' => 'array'
+            'hive_ids' => 'array',
         ];
     }
 

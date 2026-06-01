@@ -61,7 +61,7 @@ class CalculationModel extends Model
     protected function casts(): array
     {
         return [
-            'data_relative_interval' => 'boolean'
+            'data_relative_interval' => 'boolean',
         ];
     }
 

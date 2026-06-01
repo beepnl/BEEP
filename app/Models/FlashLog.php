@@ -55,7 +55,7 @@ class FlashLog extends Model
     protected function casts(): array
     {
         return [
-            'meta_data' => 'array', 'time_corrections' => 'array'
+            'meta_data' => 'array', 'time_corrections' => 'array',
         ];
     }
 

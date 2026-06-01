@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\View\View;
 use App\Category;
 use App\Checklist;
 use App\Device;
@@ -56,7 +57,7 @@ class DashboardController extends Controller
      *
      * @return \Illuminate\View\View
      */
-    public function index(Request $request)
+    public function index(Request $request): View
     {
         $moment = new Moment;
         $last_hour = $moment->subtractHours(1)->format('Y-m-d H:i:s');

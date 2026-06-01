@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\View\View;
+use Illuminate\Http\RedirectResponse;
 use App\Models\Alert;
 use App\User;
 use Illuminate\Http\Request;
@@ -13,7 +15,7 @@ class AlertController extends Controller
      *
      * @return \Illuminate\View\View
      */
-    public function index(Request $request)
+    public function index(Request $request): View
     {
         $rule_id = $request->input('rule_id');
         $device_id = $request->input('device_id');
@@ -46,7 +48,7 @@ class AlertController extends Controller
      *
      * @return \Illuminate\View\View
      */
-    public function create()
+    public function create(): View
     {
         $alert = new Alert;
 
@@ -59,7 +61,7 @@ class AlertController extends Controller
      *
      * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
      */
-    public function store(Request $request)
+    public function store(Request $request): RedirectResponse
     {
         $this->validate($request, [
             'alert_rule_id' => 'required',
@@ -80,7 +82,7 @@ class AlertController extends Controller
      * @param  int  $id
      * @return \Illuminate\View\View
      */
-    public function show($id)
+    public function show(int $id): View
     {
         $alert = Alert::findOrFail($id);
 
@@ -93,7 +95,7 @@ class AlertController extends Controller
      * @param  int  $id
      * @return \Illuminate\View\View
      */
-    public function edit($id)
+    public function edit(int $id): View
     {
         $alert = Alert::findOrFail($id);
 
@@ -106,7 +108,7 @@ class AlertController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
      */
-    public function update(Request $request, $id)
+    public function update(Request $request, int $id): RedirectResponse
     {
         $this->validate($request, [
             'alert_rule_id' => 'required',
@@ -128,7 +130,7 @@ class AlertController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
      */
-    public function destroy($id)
+    public function destroy(int $id): RedirectResponse
     {
         Alert::destroy($id);
 

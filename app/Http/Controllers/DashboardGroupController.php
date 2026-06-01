@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\View\View;
+use Illuminate\Http\RedirectResponse;
 use App\Models\DashboardGroup;
 use Auth;
 use Cache;
@@ -16,7 +18,7 @@ class DashboardGroupController extends Controller
      *
      * @return \Illuminate\View\View
      */
-    public function index(Request $request)
+    public function index(Request $request): View
     {
         $keyword = $request->get('search');
         $perPage = 100;
@@ -46,7 +48,7 @@ class DashboardGroupController extends Controller
      *
      * @return \Illuminate\View\View
      */
-    public function create()
+    public function create(): View
     {
         $dashboardgroup = new DashboardGroup;
         $dashboardgroup->user_id = Auth::user()->id;
@@ -62,7 +64,7 @@ class DashboardGroupController extends Controller
      *
      * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
      */
-    public function store(Request $request)
+    public function store(Request $request): RedirectResponse
     {
         $this->validate($request, [
             'code' => 'required|string|min:6',
@@ -89,7 +91,7 @@ class DashboardGroupController extends Controller
      * @param  int  $id
      * @return \Illuminate\View\View
      */
-    public function show($id)
+    public function show(int $id): View
     {
         $dashboardgroup = DashboardGroup::findOrFail($id);
 
@@ -102,7 +104,7 @@ class DashboardGroupController extends Controller
      * @param  int  $id
      * @return \Illuminate\View\View
      */
-    public function edit($id)
+    public function edit(int $id): View
     {
         $dashboardgroup = DashboardGroup::findOrFail($id);
         $hive_ids = Auth::user()->hives()->pluck('name', 'id')->toArray();
@@ -116,7 +118,7 @@ class DashboardGroupController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
      */
-    public function update(Request $request, $id)
+    public function update(Request $request, int $id): RedirectResponse
     {
         $this->validate($request, [
             'code' => 'required|string|min:6',
@@ -152,7 +154,7 @@ class DashboardGroupController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
      */
-    public function destroy($id)
+    public function destroy(int $id): RedirectResponse
     {
         DashboardGroup::destroy($id);
 

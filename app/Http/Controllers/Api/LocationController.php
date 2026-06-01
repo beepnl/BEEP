@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use Illuminate\Http\JsonResponse;
 use App\Category;
 use App\Continent;
 use App\HiveFactory;
@@ -34,7 +35,7 @@ class LocationController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index(Request $request)
+    public function index(Request $request): JsonResponse
     {
         if ($request->filled('ids')) {
             if (gettype($request->input('ids')) == 'array') {
@@ -130,7 +131,7 @@ class LocationController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function show(Request $request, Location $location)
+    public function show(Request $request, Location $location): JsonResponse
     {
         $location = $request->user()->locations()->with('hives.layers.frames', 'hives.queen')->findOrFail($location->id);
 

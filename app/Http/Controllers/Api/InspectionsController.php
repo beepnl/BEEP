@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use Illuminate\Http\JsonResponse;
 use App\Category;
 use App\Hive;
 use App\Http\Controllers\Controller;
@@ -120,7 +121,7 @@ class InspectionsController extends Controller
     ]
 }
      **/
-    public function lists(Request $request)
+    public function lists(Request $request): JsonResponse
     {
         $out = [];
         $checklists = $request->user()->allChecklists();
@@ -249,7 +250,7 @@ class InspectionsController extends Controller
     ]
 }
      */
-    public function hive(Request $request, $hive_id)
+    public function hive(Request $request, $hive_id): JsonResponse
     {
         $hive = $request->user()->allHives()->findOrFail($hive_id);
         $locale = $request->filled('locale') ? $request->input('locale') : LaravelLocalization::getCurrentLocale();
@@ -263,7 +264,7 @@ class InspectionsController extends Controller
     @authenticated
     @urlParam id required The id of the inspection.
      **/
-    public function show(Request $request, $id)
+    public function show(Request $request, $id): JsonResponse
     {
         $inspection = $request->user()->allInspections()->find($id);
         if (isset($inspection) == false) {
@@ -293,7 +294,7 @@ class InspectionsController extends Controller
     @bodyParam notes string Textual value of the notes fields. Example: This is an inspection note
     @bodyParam checklist_id integer Id of the user checklist for generating this inspection. Example: 829
      **/
-    public function store(Request $request)
+    public function store(Request $request): JsonResponse
     {
         $validator = Validator::make($request->input(),
             [

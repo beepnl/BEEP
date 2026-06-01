@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use Illuminate\Http\JsonResponse;
 use App\Device;
 use App\Http\Controllers\Controller;
 use App\Measurement;
@@ -91,7 +92,7 @@ class FlashLogController extends Controller
      *
      * @authenticated
      */
-    public function index(Request $request)
+    public function index(Request $request): JsonResponse
     {
         return response()->json($this->getUserFlashlogs());
     }
@@ -115,7 +116,7 @@ class FlashLogController extends Controller
      * @bodyParam csv integer Save the Flashlog block_id data as a CSV file (1) and return a link. Default: 0. Example: 0
      * @bodyParam json integer Save the Flashlog block_id data as a JSON file (1) and return a link. Default: 0. Example: 0
      */
-    public function show(Request $request, $id)
+    public function show(Request $request, $id): JsonResponse
     {
         $out = $this->parse($request, $id);
 
@@ -137,7 +138,7 @@ class FlashLogController extends Controller
      * @bodyParam from_cache boolean get Flashlog parse result from cache (24 hours). Default: true. Example: false
      * @bodyParam save_result boolean Flashlog save the parsed result as new log_file_parsed. Default: false. Example: false
      */
-    public function persist(Request $request, $id)
+    public function persist(Request $request, $id): JsonResponse
     {
         $out = $this->parse($request, $id, true);
 
@@ -812,7 +813,7 @@ class FlashLogController extends Controller
         return $out;
     }
 
-    public function destroy(Request $request, $id)
+    public function destroy(Request $request, $id): JsonResponse
     {
         return response()->json($request->user()->flashlogs()->findOrFail($id)->delete());
     }

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use Illuminate\Http\JsonResponse;
 use App\Hive;
 use App\Http\Controllers\Controller;
 use App\Measurement;
@@ -25,7 +26,7 @@ class DashboardGroupController extends Controller
     List all user Dashboard groups
     @authenticated
      **/
-    public function index(Request $request)
+    public function index(Request $request): JsonResponse
     {
         $dgroup = $request->user()->dashboardGroups;
 
@@ -141,7 +142,7 @@ class DashboardGroupController extends Controller
         return response()->json($out);
     }
 
-    public function store(Request $request)
+    public function store(Request $request): JsonResponse
     {
         $validator = Validator::make($request->input(), [
             'hive_ids.*' => 'required|exists:hives,id',
@@ -173,7 +174,7 @@ class DashboardGroupController extends Controller
         return $dgroup;
     }
 
-    public function update(Request $request, $id)
+    public function update(Request $request, $id): JsonResponse
     {
         $validator = Validator::make($request->input(), [
             'hive_ids.*' => 'required|exists:hives,id',
@@ -204,7 +205,7 @@ class DashboardGroupController extends Controller
         return response()->json($dgroup, 200);
     }
 
-    public function destroy(Request $request, $id)
+    public function destroy(Request $request, $id): JsonResponse
     {
         $g = $request->user()->dashboardGroups()->findOrFail($id);
 

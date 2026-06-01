@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\View\View;
+use Illuminate\Http\RedirectResponse;
 use App\Category;
 use App\Language;
 use App\Measurement;
@@ -13,12 +15,12 @@ use Kalnoy\Nestedset\Collection;
 
 class TranslationController extends Controller
 {
-    public function index()
+    public function index(): View
     {
         return view('translations.index');
     }
 
-    public function edit(Language $language, Request $request)
+    public function edit(Language $language, Request $request): View
     {
         $output_csv = boolval($request->input('csv', 0));
 
@@ -30,7 +32,7 @@ class TranslationController extends Controller
         return view('translations.edit', compact('measurements', 'language', 'physical_quantities', 'alert_rules', 'output_csv', 'categories'));
     }
 
-    public function update(Language $language, Request $request)
+    public function update(Language $language, Request $request): RedirectResponse
     {
         $translation_measurement = $request->input('translation_measurement');
         $translation_category = $request->input('translation_category');
@@ -107,7 +109,7 @@ class TranslationController extends Controller
     /**
      * @return static
      */
-    protected function makeOptions(Collection $items)
+    protected function makeOptions(Collection $items): static
     {
         $options = [];
 
@@ -122,7 +124,7 @@ class TranslationController extends Controller
      * @param  Category  $except
      * @return CategoriesController
      */
-    protected function getCategoryOptions($except = null)
+    protected function getCategoryOptions(Category $except = null): CategoriesController
     {
         /** @var \Kalnoy\Nestedset\QueryBuilder $query */
         $query = Category::select('id', 'name')->withDepth();

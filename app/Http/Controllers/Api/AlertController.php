@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\Controller;
 use App\Models\Alert;
 use Auth;
@@ -23,7 +24,7 @@ class AlertController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index(Request $request)
+    public function index(Request $request): JsonResponse
     {
         if ($request->user()->alerts()->count() > 0) {
             return response()->json(['alerts' => $request->user()->alerts()->get()]);
@@ -45,7 +46,7 @@ class AlertController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(Request $request): JsonResponse
     {
         $this->validate($request, [
             'alert_rule_id' => 'required|integer|exists:alert_rules,id',
@@ -82,7 +83,7 @@ class AlertController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function update(Request $request, $id): JsonResponse
     {
         $alert = Auth::user()->alerts()->findOrFail($id);
         $alert->update($request->except('user_id'));
@@ -98,7 +99,7 @@ class AlertController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Request $request, $id)
+    public function destroy(Request $request, $id): JsonResponse
     {
         if ($request->filled('alert_ids')) {
             Auth::user()->alerts()->whereIn('id', $request->input('alert_ids'))->delete();

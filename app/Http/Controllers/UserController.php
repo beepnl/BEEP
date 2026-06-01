@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\View\View;
+use Illuminate\Http\RedirectResponse;
 use App\Device;
 use App\Role;
 use App\User;
@@ -20,7 +22,7 @@ class UserController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index(Request $request)
+    public function index(Request $request): View
     {
         $page = $request->input('page');
         $show_stats = $request->filled('stats');
@@ -51,7 +53,7 @@ class UserController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function create()
+    public function create(): View
     {
         $roles = $this->getMyPermittedRoles(Auth::user());
         $sensors = Device::all()->pluck('name', 'id');
@@ -64,7 +66,7 @@ class UserController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(Request $request): RedirectResponse
     {
         if ($this->checkRoleAuthorization($request, 'user-create') == false) {
             return redirect()->route('users.index')->with('error', 'You are not allowed to create this type of user');
@@ -126,7 +128,7 @@ class UserController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show($id)
+    public function show(int $id): View
     {
         $user = User::find($id);
         $sensors = []; // DB::table('sensors')->join('sensor_user', 'sensors.id', '=', 'sensor_user.sensor_id')->where('user_id',$id)->orderBy('name','asc')->pluck('name','id');
@@ -140,7 +142,7 @@ class UserController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function edit($id)
+    public function edit(int $id): View
     {
         $user = User::find($id);
         $roles = $this->getMyPermittedRoles($user);
@@ -157,7 +159,7 @@ class UserController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function update(Request $request, int $id): RedirectResponse
     {
         if ($this->checkRoleAuthorization($request, 'user-edit', $id) == false) {
             return redirect()->route('users.index')->with('error', 'You are not allowed to edit this user');
@@ -228,7 +230,7 @@ class UserController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id)
+    public function destroy(int $id): RedirectResponse
     {
         if ($this->checkRoleAuthorization(null, 'user-delete', $id) == false) {
             return redirect()->route('users.index')->with('error', 'User not deleted, you have no permission');

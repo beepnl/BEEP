@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Validator;
@@ -72,7 +73,7 @@ class HiveTagsController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $tag)
+    public function update(Request $request, $tag): JsonResponse
     {
         $data = $request->all();
         $validator = Validator::make($data, [
@@ -101,7 +102,7 @@ class HiveTagsController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Request $request, $tag)
+    public function destroy(Request $request, $tag): JsonResponse
     {
         $request->user()->hive_tags()->where('tag', $tag)->delete();
 

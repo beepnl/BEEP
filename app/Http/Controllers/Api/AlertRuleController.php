@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\Controller;
 use App\Models\AlertRule;
 use App\Models\AlertRuleFormula;
@@ -27,7 +28,7 @@ class AlertRuleController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index(Request $request)
+    public function index(Request $request): JsonResponse
     {
         if ($request->user()->alert_rules()->count() > 0) {
             return response()->json(['alert_rules' => $request->user()->alert_rules()->get()]);
@@ -86,7 +87,7 @@ class AlertRuleController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(Request $request): JsonResponse
     {
         $validator = Validator::make($request->all(), [
             'name' => 'nullable|string',
@@ -208,7 +209,7 @@ class AlertRuleController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function update(Request $request, $id): JsonResponse
     {
         $validator = Validator::make($request->all(), [
             'name' => 'nullable|string',
@@ -311,7 +312,7 @@ class AlertRuleController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id)
+    public function destroy($id): JsonResponse
     {
         Auth::user()->alert_rules()->findOrFail($id)->delete();
 

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use Illuminate\Http\JsonResponse;
 use App\SampleCode;
 use Auth;
 use Illuminate\Http\Request;
@@ -19,7 +20,7 @@ class SampleCodeController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(): JsonResponse
     {
         $code = Auth::user()->samplecodes()->get();
 
@@ -35,7 +36,7 @@ class SampleCodeController extends Controller
     Create a sample code for lab results
     @authenticated
      **/
-    public function store(Request $request)
+    public function store(Request $request): JsonResponse
     {
         if ($request->filled('hive_id') && $request->user()->allHives()->find($request->input('hive_id'))) {
             try {
@@ -77,7 +78,7 @@ class SampleCodeController extends Controller
      * @param  \App\SampleCode  $sampleCode
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Request $request)
+    public function destroy(Request $request): JsonResponse
     {
         if ($request->filled('sample_code')) {
             $code = $request->user()->samplecodes()->where('sample_code', $request->input('sample_code'))->first();

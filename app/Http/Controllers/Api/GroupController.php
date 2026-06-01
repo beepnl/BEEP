@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use Illuminate\Http\JsonResponse;
 use App\Group;
 use App\Http\Controllers\Controller;
 use App\Mail\GroupAcceptation;
@@ -31,7 +32,7 @@ class GroupController extends Controller
      *
      * @urlParam ids string P
      */
-    public function index(Request $request, $code = 200, $message = null, $error = null)
+    public function index(Request $request, $code = 200, $message = null, $error = null): JsonResponse
     {
         if ($request->filled('ids')) {
             $group_ids = $request->input('ids');
@@ -62,7 +63,7 @@ class GroupController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function checktoken(Request $request)
+    public function checktoken(Request $request): JsonResponse
     {
         $validator = Validator::make($request->only('token', 'group_id', 'decline'), [
             'token' => 'required|exists:group_user,token',
@@ -144,7 +145,7 @@ class GroupController extends Controller
         return $this->index($request, 201, __('group.Created').$requestData['name']);
     }
 
-    public function show(Request $request, $id)
+    public function show(Request $request, $id): JsonResponse
     {
         $group = $request->user()->groups()->find($id);
         if ($group) {
@@ -188,7 +189,7 @@ class GroupController extends Controller
         return response()->json('no_group_found', 404);
     }
 
-    public function detach(Request $request, $id)
+    public function detach(Request $request, $id): JsonResponse
     {
         $group = $request->user()->groups()->findOrFail($id);
         if ($group) {

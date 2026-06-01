@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\View\View;
 use App\Category;
 use LaravelLocalization;
 
@@ -25,7 +26,7 @@ class TaxonomyController extends Controller
         }, ARRAY_FILTER_USE_BOTH);
     }
 
-    public function display()
+    public function display(): View
     {
         $fixed = Category::fixTree(); // kalnoy/nestedset: to fix the tree to fill _lft and _rgt columns
 

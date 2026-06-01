@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\View\View;
+use Illuminate\Http\RedirectResponse;
 use App\InspectionItem;
 use Illuminate\Http\Request;
 
@@ -12,7 +14,7 @@ class InspectionItemsController extends Controller
      *
      * @return \Illuminate\View\View
      */
-    public function index(Request $request)
+    public function index(Request $request): View
     {
         $keyword = $request->get('search');
         $perPage = 100;
@@ -34,7 +36,7 @@ class InspectionItemsController extends Controller
      *
      * @return \Illuminate\View\View
      */
-    public function create()
+    public function create(): View
     {
         return view('inspection-items.create');
     }
@@ -45,7 +47,7 @@ class InspectionItemsController extends Controller
      *
      * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
      */
-    public function store(Request $request)
+    public function store(Request $request): RedirectResponse
     {
 
         $requestData = $request->all();
@@ -61,7 +63,7 @@ class InspectionItemsController extends Controller
      * @param  int  $id
      * @return \Illuminate\View\View
      */
-    public function show($id)
+    public function show(int $id): View
     {
         $inspectionitem = InspectionItem::findOrFail($id);
 
@@ -74,7 +76,7 @@ class InspectionItemsController extends Controller
      * @param  int  $id
      * @return \Illuminate\View\View
      */
-    public function edit($id)
+    public function edit(int $id): View
     {
         $inspectionitem = InspectionItem::findOrFail($id);
 
@@ -87,7 +89,7 @@ class InspectionItemsController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
      */
-    public function update(Request $request, $id)
+    public function update(Request $request, int $id): RedirectResponse
     {
 
         $requestData = $request->all();
@@ -104,7 +106,7 @@ class InspectionItemsController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
      */
-    public function destroy($id)
+    public function destroy(int $id): RedirectResponse
     {
         InspectionItem::destroy($id);
 

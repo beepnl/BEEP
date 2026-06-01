@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use Illuminate\Http\JsonResponse;
 use App\Category;
 use App\Http\Controllers\Controller;
 use App\Setting;
@@ -63,7 +64,7 @@ class SettingController extends Controller
         return Response::json('no named settings to save', 400);
     }
 
-    public function index(Request $request)
+    public function index(Request $request): JsonResponse
     {
         // die(print_r($request->user()->settings()->get()));
         return Response::json($request->user()->settings()->groupBy('name', 'number')->get());

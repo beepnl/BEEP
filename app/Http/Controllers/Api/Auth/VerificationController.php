@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api\Auth;
 
+use Illuminate\Http\RedirectResponse;
 use App\Http\Controllers\Controller;
 use App\User;
 use Illuminate\Auth\Events\Verified;
@@ -60,7 +61,7 @@ class VerificationController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function verify(Request $request)
+    public function verify(Request $request): RedirectResponse
     {
         $user = null;
 

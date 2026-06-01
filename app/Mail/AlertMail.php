@@ -29,7 +29,7 @@ class AlertMail extends Mailable
      *
      * @return $this
      */
-    public function build()
+    public function build(): static
     {
         $subject = __('alert.subject').($this->alert->alert_rule_name !== null ? ' - '.$this->alert->alert_rule_name : '').($this->alert->hive_name !== null ? ' - '.__('beep.Hive').': '.$this->alert->hive_name : '');
 

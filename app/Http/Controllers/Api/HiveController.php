@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use Illuminate\Http\JsonResponse;
 use App\Category;
 use App\Hive;
 use App\HiveFactory;
@@ -112,7 +113,7 @@ class HiveController extends Controller
         }
     ]}
      */
-    public function index(Request $request)
+    public function index(Request $request): JsonResponse
     {
         if ($request->user()->hives()->count() > 0) {
             return response()->json(['hives' => $request->user()->hives()->with('layers.frames', 'queen')->get()]);
@@ -130,7 +131,7 @@ class HiveController extends Controller
      * @param  \App\Requests\PostHiveRequest  $request
      * @return \App\Hive
      */
-    public function store(PostHiveRequest $request)
+    public function store(PostHiveRequest $request): Hive
     {
 
         $user_id = $request->user()->id;
@@ -164,7 +165,7 @@ class HiveController extends Controller
      *
      * @return \App\Hive
      */
-    public function show(Request $request, Hive $hive)
+    public function show(Request $request, Hive $hive): JsonResponse
     {
         return response()->json(['hives' => [$request->user()->allhives()->orderBy('name')->with('layers.frames', 'queen')->findOrFail($hive->id)]]);
     }
@@ -178,7 +179,7 @@ class HiveController extends Controller
      * @param  \App\Requests\PostHiveRequest  $request
      * @return \App\Hive
      */
-    public function update(PostHiveRequest $request, Hive $hive)
+    public function update(PostHiveRequest $request, Hive $hive): Hive
     {
         $hive = $request->user()->allhives(true)->findOrFail($hive->id);
         $location = $request->user()->allLocations(true)->findOrFail($request->input('location_id'));
@@ -211,7 +212,7 @@ class HiveController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Request $request, Hive $hive)
+    public function destroy(Request $request, Hive $hive): JsonResponse
     {
         $hive = $request->user()->hives()->findOrFail($hive->id);
         $hive->delete();

@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\View\View;
+use Illuminate\Http\RedirectResponse;
 use App\Category;
 use App\CategoryFactory;
 use App\CategoryInput;
@@ -27,7 +29,7 @@ class CategoriesController extends Controller
         $this->categoryFactory = $categoryFactory;
     }
 
-    public function index()
+    public function index(): View
     {
         // $tax = $this->categoryFactory->parse_taxonomy();
         // die(print_r($tax));
@@ -43,7 +45,7 @@ class CategoriesController extends Controller
      *
      * @return Response
      */
-    public function create(Request $input)
+    public function create(Request $input): View
     {
         $data = $input->only('parent_id');
         $tree = Category::all()->toTree();
@@ -59,7 +61,7 @@ class CategoriesController extends Controller
      *
      * @return Response
      */
-    public function store(PostCategoryRequest $input)
+    public function store(PostCategoryRequest $input): RedirectResponse
     {
         $category = null;
 
@@ -261,7 +263,7 @@ class CategoriesController extends Controller
      * @param  int  $id
      * @return Response
      */
-    public function show($id)
+    public function show(int $id): View
     {
         $cats = Category::all();
         $count = $cats->count();
@@ -278,7 +280,7 @@ class CategoriesController extends Controller
      * @param  int  $id
      * @return Response
      */
-    public function edit($id)
+    public function edit(int $id): View
     {
         $cats = Category::all();
         $count = $cats->count();
@@ -296,7 +298,7 @@ class CategoriesController extends Controller
      * @param  int  $id
      * @return Response
      */
-    public function update(PostCategoryRequest $input, $id)
+    public function update(PostCategoryRequest $input, int $id): RedirectResponse
     {
         $category = Category::findOrFail($id);
 
@@ -370,7 +372,7 @@ class CategoriesController extends Controller
         return redirect()->route('categories.show', [$id])->with('error', 'Category name is required!');
     }
 
-    public function duplicate($id)
+    public function duplicate($id): RedirectResponse
     {
         $category = Category::findOrFail($id);
 
@@ -397,7 +399,7 @@ class CategoriesController extends Controller
         return redirect()->route('categories.index')->with('success', 'Category duplicated');
     }
 
-    public function fix($id)
+    public function fix($id): RedirectResponse
     {
         $inputTypeListId = CategoryInput::where('type', 'list')->value('id');
         $inputTypeLisItemtId = CategoryInput::where('type', 'list_item')->value('id');
@@ -515,7 +517,7 @@ class CategoriesController extends Controller
         return $this->destroy($id);
     }
 
-    public function destroy($id)
+    public function destroy($id): RedirectResponse
     {
         $category = Category::findOrFail($id);
 
@@ -538,7 +540,7 @@ class CategoriesController extends Controller
     /**
      * @return static
      */
-    protected function makeOptions(Collection $items)
+    protected function makeOptions(Collection $items): static
     {
         $options = ['' => 'Root'];
 
@@ -553,7 +555,7 @@ class CategoriesController extends Controller
      * @param  Category  $except
      * @return CategoriesController
      */
-    protected function getCategoryOptions($except = null)
+    protected function getCategoryOptions(Category $except = null): CategoriesController
     {
         /** @var \Kalnoy\Nestedset\QueryBuilder $query */
         $query = Category::select('id', 'name')->withDepth();

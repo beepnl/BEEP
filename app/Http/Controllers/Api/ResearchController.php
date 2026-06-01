@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\Controller;
 use App\Research;
 use DB;
@@ -47,17 +48,17 @@ class ResearchController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function add_consent(Request $request, $id)
+    public function add_consent(Request $request, $id): JsonResponse
     {
         return response()->json($this->save_consent($request, $id, true), 200);
     }
 
-    public function remove_consent(Request $request, $id)
+    public function remove_consent(Request $request, $id): JsonResponse
     {
         return response()->json($this->save_consent($request, $id, false), 200);
     }
 
-    public function edit_consent(Request $request, $id, $consent_id)
+    public function edit_consent(Request $request, $id, $consent_id): JsonResponse
     {
         $consent = DB::table('research_user')->where('user_id', $request->user()->id)->where('research_id', $id)->find($consent_id);
 
@@ -71,7 +72,7 @@ class ResearchController extends Controller
         return response()->json($saved, $saved ? 200 : 500);
     }
 
-    public function delete_no_consent(Request $request, $id, $consent_id)
+    public function delete_no_consent(Request $request, $id, $consent_id): JsonResponse
     {
         $consent = DB::table('research_user')->where('user_id', $request->user()->id)->where('research_id', $id)->find($consent_id);
 

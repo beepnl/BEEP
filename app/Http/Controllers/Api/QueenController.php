@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\Controller;
 use App\Queen;
 use Illuminate\Http\Request;
@@ -19,7 +20,7 @@ class QueenController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index(Request $request)
+    public function index(Request $request): JsonResponse
     {
         if ($request->user()->queens()->count() > 0) {
             return response()->json(['queens' => $request->user()->queens()->get()]);
@@ -33,7 +34,7 @@ class QueenController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(Request $request): JsonResponse
     {
         $race_id = $request->filled('race_id') ? $request->input('race_id') : Category::findCategoryIdByParentAndName('subspecies', 'other');
         $date = $request->filled('birth_date') ? date('Y-m-d', strtotime($request->input('birth_date'))) : null;
@@ -58,7 +59,7 @@ class QueenController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function show(Request $request, Queen $queen)
+    public function show(Request $request, Queen $queen): JsonResponse
     {
         return response()->json($request->user()->queens()->findorFail($queen->id));
     }
@@ -78,7 +79,7 @@ class QueenController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Request $request, Queen $queen)
+    public function destroy(Request $request, Queen $queen): JsonResponse
     {
         $queen = $request->user()->queens()->findorFail($queen->id);
         $queen->delete();

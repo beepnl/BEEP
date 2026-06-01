@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use Illuminate\View\View;
 use App\Http\Controllers\Controller;
 use App\Weather;
 use Illuminate\Http\Request;
@@ -18,7 +19,7 @@ class WeatherController extends Controller
      *
      * @return \Illuminate\View\View
      */
-    public function index(Request $request)
+    public function index(Request $request): View
     {
         $lat = $request->filled('lat') ? $request->input('lat') : null;
         $lon = $request->filled('lon') ? $request->input('lon') : null;

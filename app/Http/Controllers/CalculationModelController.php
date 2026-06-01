@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\View\View;
+use Illuminate\Http\RedirectResponse;
 use App\Models\CalculationModel;
 use Illuminate\Http\Request;
 
@@ -12,7 +14,7 @@ class CalculationModelController extends Controller
      *
      * @return \Illuminate\View\View
      */
-    public function index(Request $request)
+    public function index(Request $request): View
     {
         $keyword = $request->get('search');
         $perPage = 25;
@@ -42,7 +44,7 @@ class CalculationModelController extends Controller
      *
      * @return \Illuminate\View\View
      */
-    public function create()
+    public function create(): View
     {
         $calculationmodel = new CalculationModel;
 
@@ -55,7 +57,7 @@ class CalculationModelController extends Controller
      *
      * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
      */
-    public function store(Request $request)
+    public function store(Request $request): RedirectResponse
     {
 
         $requestData = $request->all();
@@ -71,14 +73,14 @@ class CalculationModelController extends Controller
      * @param  int  $id
      * @return \Illuminate\View\View
      */
-    public function show($id)
+    public function show(int $id): View
     {
         $calculationmodel = CalculationModel::findOrFail($id);
 
         return view('calculation-model.show', compact('calculationmodel'));
     }
 
-    public function run(Request $request, $id)
+    public function run(Request $request, $id): View
     {
         $calculationmodel = CalculationModel::findOrFail($id);
         $model_result = $calculationmodel->run_model($request->user());
@@ -92,7 +94,7 @@ class CalculationModelController extends Controller
      * @param  int  $id
      * @return \Illuminate\View\View
      */
-    public function edit($id)
+    public function edit(int $id): View
     {
         $calculationmodel = CalculationModel::findOrFail($id);
 
@@ -105,7 +107,7 @@ class CalculationModelController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
      */
-    public function update(Request $request, $id)
+    public function update(Request $request, int $id): RedirectResponse
     {
 
         $requestData = $request->all();
@@ -122,7 +124,7 @@ class CalculationModelController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
      */
-    public function destroy($id)
+    public function destroy(int $id): RedirectResponse
     {
         CalculationModel::destroy($id);
 

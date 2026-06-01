@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\View\View;
+use Illuminate\Http\RedirectResponse;
 use App\Device;
 use App\Models\CalculationModel;
 use App\Models\FlashLog;
@@ -18,7 +20,7 @@ class FlashLogController extends Controller
      *
      * @return \Illuminate\View\View
      */
-    public function index(Request $request)
+    public function index(Request $request): View
     {
         $bytes = $request->filled('mb') ? intval($request->get('mb') * 1024 * 1024) : null;
         $log_parsed = $request->filled('log_parsed') ? boolval($request->get('log_parsed')) : null;
@@ -86,7 +88,7 @@ class FlashLogController extends Controller
      *
      * @return \Illuminate\View\View
      */
-    public function create()
+    public function create(): View
     {
         $flashlog = new FlashLog;
 
@@ -99,7 +101,7 @@ class FlashLogController extends Controller
      *
      * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
      */
-    public function store(Request $request)
+    public function store(Request $request): RedirectResponse
     {
 
         $requestData = $request->all();
@@ -115,7 +117,7 @@ class FlashLogController extends Controller
      * @param  int  $id
      * @return \Illuminate\View\View
      */
-    public function show(Request $request, $id)
+    public function show(Request $request, int $id): View
     {
         $flashlog = FlashLog::findOrFail($id);
 
@@ -192,7 +194,7 @@ class FlashLogController extends Controller
      * @param  int  $id
      * @return \Illuminate\View\View
      */
-    public function parse(Request $request, $id)
+    public function parse(Request $request, int $id): RedirectResponse
     {
         $fill_time = $request->filled('no_fill') && $request->input('no_fill') == 1 ? false : true;
         $fill_sdef = $request->filled('no_sensor_def') && $request->input('no_sensor_def') == 1 ? false : true;
@@ -276,7 +278,7 @@ class FlashLogController extends Controller
      * @param  int  $id
      * @return \Illuminate\View\View
      */
-    public function edit($id)
+    public function edit(int $id): View
     {
         $flashlog = FlashLog::findOrFail($id);
 
@@ -289,7 +291,7 @@ class FlashLogController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
      */
-    public function update(Request $request, $id)
+    public function update(Request $request, int $id)
     {
         $request->validate([
             'created_at' => 'required|date',
@@ -332,7 +334,7 @@ class FlashLogController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
      */
-    public function destroy($id)
+    public function destroy(int $id): RedirectResponse
     {
         FlashLog::destroy($id);
 

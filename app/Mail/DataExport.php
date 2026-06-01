@@ -27,7 +27,7 @@ class DataExport extends Mailable
      *
      * @return $this
      */
-    public function build()
+    public function build(): static
     {
         return $this->markdown('emails.export', ['name' => $this->user->name])->attachFromStorageDisk($this->attachment_disk, $this->attachment_path);
     }

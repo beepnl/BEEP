@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\View\View;
+use Illuminate\Http\RedirectResponse;
 use App\Device;
 use App\Measurement;
 use App\SensorDefinition;
@@ -15,7 +17,7 @@ class SensorDefinitionController extends Controller
      *
      * @return \Illuminate\View\View
      */
-    public function index(Request $request)
+    public function index(Request $request): View
     {
         $page = $request->get('page');
         $keyword = $request->get('search');
@@ -82,7 +84,7 @@ class SensorDefinitionController extends Controller
      *
      * @return \Illuminate\View\View
      */
-    public function create()
+    public function create(): View
     {
         $devices_select = Device::selectList();
         $measurement_select = Measurement::selectList();
@@ -96,7 +98,7 @@ class SensorDefinitionController extends Controller
      *
      * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
      */
-    public function store(Request $request)
+    public function store(Request $request): RedirectResponse
     {
         $this->validate($request, [
             'device_id' => 'required|integer|exists:sensors,id',
@@ -118,7 +120,7 @@ class SensorDefinitionController extends Controller
      * @param  int  $id
      * @return \Illuminate\View\View
      */
-    public function show($id)
+    public function show(int $id): View
     {
         $sensordefinition = SensorDefinition::findOrFail($id);
 
@@ -131,7 +133,7 @@ class SensorDefinitionController extends Controller
      * @param  int  $id
      * @return \Illuminate\View\View
      */
-    public function edit($id)
+    public function edit(int $id): View
     {
         $sensordefinition = SensorDefinition::findOrFail($id);
         $devices_select = Device::selectList();
@@ -146,7 +148,7 @@ class SensorDefinitionController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
      */
-    public function update(Request $request, $id)
+    public function update(Request $request, int $id): RedirectResponse
     {
         $this->validate($request, [
             'device_id' => 'required|integer|exists:sensors,id',
@@ -170,7 +172,7 @@ class SensorDefinitionController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
      */
-    public function destroy($id)
+    public function destroy(int $id): RedirectResponse
     {
         SensorDefinition::destroy($id);
 

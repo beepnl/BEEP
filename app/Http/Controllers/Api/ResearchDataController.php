@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use Illuminate\Http\JsonResponse;
 use App\Device;
 use App\Hive;
 use App\Http\Controllers\Controller;
@@ -162,7 +163,7 @@ class ResearchDataController extends Controller
         }
     ]
      */
-    public function index(Request $request)
+    public function index(Request $request): JsonResponse
     {
         $auth = $this->checkAuthorization($request);
         if ($auth == false) {
@@ -293,7 +294,7 @@ class ResearchDataController extends Controller
         ]
     }
      */
-    public function show(Request $request, $id)
+    public function show(Request $request, $id): JsonResponse
     {
         $auth = $this->checkAuthorization($request, $id);
         if ($auth == false) {
@@ -483,7 +484,7 @@ class ResearchDataController extends Controller
         }
     ]
      */
-    public function user_data(Request $request, $id, $user_id, $item)
+    public function user_data(Request $request, $id, $user_id, $item): JsonResponse
     {
         $auth = $this->checkAuthorization($request, $id);
         if ($auth == false) {
@@ -721,7 +722,7 @@ class ResearchDataController extends Controller
     @bodyParam timezone string Provide the front-end timezone to correct the time from UTC to front-end time. Example: Europe/Amsterdam
     @bodyParam output_csv_links boolean Optionally provide true if you want the data to be returned as an array of CSV files in stead of JSON data.
      */
-    public function research_data(Request $request, $id, $item)
+    public function research_data(Request $request, $id, $item): JsonResponse
     {
         $auth = $this->checkAuthorization($request, $id);
         if ($auth == false) {

@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\View\View;
+use Illuminate\Http\RedirectResponse;
 use App\Language;
 use Illuminate\Http\Request;
 
@@ -12,7 +14,7 @@ class LanguageController extends Controller
      *
      * @return \Illuminate\View\View
      */
-    public function index(Request $request)
+    public function index(Request $request): View
     {
         $keyword = $request->get('search');
         $perPage = 1000;
@@ -31,7 +33,7 @@ class LanguageController extends Controller
      *
      * @return \Illuminate\View\View
      */
-    public function create()
+    public function create(): View
     {
         return view('languages.create');
     }
@@ -42,7 +44,7 @@ class LanguageController extends Controller
      *
      * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
      */
-    public function store(Request $request)
+    public function store(Request $request): RedirectResponse
     {
 
         $requestData = $request->all();
@@ -58,7 +60,7 @@ class LanguageController extends Controller
      * @param  int  $id
      * @return \Illuminate\View\View
      */
-    public function show($id)
+    public function show(int $id): View
     {
         $language = Language::findOrFail($id);
 
@@ -71,7 +73,7 @@ class LanguageController extends Controller
      * @param  int  $id
      * @return \Illuminate\View\View
      */
-    public function edit($id)
+    public function edit(int $id): View
     {
         $language = Language::findOrFail($id);
 
@@ -84,7 +86,7 @@ class LanguageController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
      */
-    public function update(Request $request, $id)
+    public function update(Request $request, int $id): RedirectResponse
     {
 
         $requestData = $request->all();
@@ -101,7 +103,7 @@ class LanguageController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
      */
-    public function destroy($id)
+    public function destroy(int $id): RedirectResponse
     {
         Language::destroy($id);
 

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 
@@ -35,7 +36,7 @@ class ChecklistSvgController extends Controller
     @bodyParam last_print datetime The last print datetime
     @authenticated
      **/
-    public function store(Request $request)
+    public function store(Request $request): JsonResponse
     {
 
         $checklist_svg = $request->user()->checklistSvgs()->create($request->all());
@@ -60,7 +61,7 @@ class ChecklistSvgController extends Controller
     Edit an SVG inspection
     @authenticated
      **/
-    public function update(Request $request, $id)
+    public function update(Request $request, $id): JsonResponse
     {
 
         $checklist_svg = $request->user()->checklistSvgs()->findOrFail($id);
@@ -74,7 +75,7 @@ class ChecklistSvgController extends Controller
     Delete an SVG inspection
     @authenticated
      **/
-    public function destroy($id)
+    public function destroy($id): JsonResponse
     {
         $request->user()->checklistSvgs()->destroy($id);
 

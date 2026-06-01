@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use Illuminate\Http\JsonResponse;
 use App\Category;
 use App\Device;
 use App\Inspection;
@@ -90,7 +91,7 @@ class DeviceController extends Controller
         }
     ]
      */
-    public function index(Request $request)
+    public function index(Request $request): JsonResponse
     {
 
         if ($request->filled('hardware_id')) {
@@ -135,7 +136,7 @@ class DeviceController extends Controller
     Get a BEEP TTS Cloud Device by Device ID (BEEP hardware_id)
     @authenticated
      */
-    public function getTTNDevice(Request $request, $dev_id)
+    public function getTTNDevice(Request $request, $dev_id): JsonResponse
     {
         if ($this->canUserClaimDeviceFromRequest($request, false, '/devices/ttn/'.$dev_id) === false) {
             return Response::json('device_not_yours', 403);
@@ -151,7 +152,7 @@ class DeviceController extends Controller
     Create a BEEP TTS Cloud Device by Device ID, lorawan_device.dev_eui, and lorawan_device.app_key
     @authenticated
      */
-    public function postTTNDevice(Request $request, $dev_id)
+    public function postTTNDevice(Request $request, $dev_id): JsonResponse
     {
         $validator = Validator::make($request->input(), [
             'lorawan_device.dev_eui' => 'required|alpha-num|size:16',
@@ -179,7 +180,7 @@ class DeviceController extends Controller
     Debug BEEP TTS Cloud Device by lorawan_device.device_id, and lorawan_device.dev_eui
     @authenticated
      */
-    public function debugTtsDevice(Request $request, $step, $dev_id, $dev_eui, $app_key = null)
+    public function debugTtsDevice(Request $request, $step, $dev_id, $dev_eui, $app_key = null): JsonResponse
     {
         if ($request->user()->hasRole('superadmin')) {
             $response = null;
@@ -474,7 +475,7 @@ class DeviceController extends Controller
     List one Device by id
     @authenticated
      */
-    public function show(Request $request, $id)
+    public function show(Request $request, $id): JsonResponse
     {
         $device = $request->user()->allDevices()->with('sensorDefinitions')->findOrFail($id);
 
@@ -508,7 +509,7 @@ class DeviceController extends Controller
     @bodyParam create_ttn_device boolean If true, create a new LoRaWAN device in the BEEP TTN console. If succesfull, create the device.
     @bodyParam app_key string BEEP base LoRaWAN application key that you would like to store in TTN
      */
-    public function store(Request $request)
+    public function store(Request $request): JsonResponse
     {
 
         $device_array = $request->input();
@@ -628,7 +629,7 @@ class DeviceController extends Controller
     @bodyParam next_downlink_message string Hex string to send via downlink at next connection (LoRaWAN port 6)
     @bodyParam last_downlink_result string Result received from BEEP base after downlink message (LoRaWAN port 5)
      */
-    public function update(Request $request, $id)
+    public function update(Request $request, $id): JsonResponse
     {
         $result = null;
         $timeZone = $request->input('timezone', 'UTC');
@@ -858,7 +859,7 @@ class DeviceController extends Controller
      *     "timestamp": 1705327800
      * }
      */
-    public function clocksync(Request $request)
+    public function clocksync(Request $request): JsonResponse
     {
         // Validate the request
         $validator = Validator::make($request->all(), [
@@ -992,7 +993,7 @@ class DeviceController extends Controller
      *     "payload": "940D"
      * }
      */
-    public function lora_reset(Request $request)
+    public function lora_reset(Request $request): JsonResponse
     {
         // Validate the request
         $validator = Validator::make($request->all(), [
@@ -1096,7 +1097,7 @@ class DeviceController extends Controller
      *     "payload": "9D010F"
      * }
      */
-    public function interval(Request $request)
+    public function interval(Request $request): JsonResponse
     {
         // Validate the request
         $validator = Validator::make($request->all(), [

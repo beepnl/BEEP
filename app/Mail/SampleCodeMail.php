@@ -28,7 +28,7 @@ class SampleCodeMail extends Mailable
      *
      * @return $this
      */
-    public function build()
+    public function build(): static
     {
         $subject = __('samplecode.subject').' ('.$this->code.')'.($this->hive !== null ? ' - '.__('samplecode.Hive', ['hive' => $this->hive]) : '');
 

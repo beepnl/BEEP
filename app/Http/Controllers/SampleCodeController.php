@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\View\View;
+use Illuminate\Http\RedirectResponse;
 use App\Category;
 use App\Inspection;
 use App\InspectionItem;
@@ -22,13 +24,13 @@ use Storage;
 class SampleCodeController extends Controller
 {
     // Open routes
-    public function code()
+    public function code(): View
     {
         return view('sample-code.code');
     }
 
     // Get excel template to fill out
-    public function upload()
+    public function upload(): View
     {
         $template_url = $this->createExcelTemplate();
         $data = Session::get('data');
@@ -38,7 +40,7 @@ class SampleCodeController extends Controller
     }
 
     // Upload filled excel template to input
-    public function upload_store(Request $request)
+    public function upload_store(Request $request): RedirectResponse
     {
         $msg = 'No file found';
         $res = 'error';
@@ -602,7 +604,7 @@ class SampleCodeController extends Controller
         return redirect('code')->with('error', 'Sample code not found');
     }
 
-    public function resultsave(Request $request)
+    public function resultsave(Request $request): RedirectResponse
     {
         $samplecode = SampleCode::where('sample_code', $request->input('samplecode'))->first();
 
@@ -637,7 +639,7 @@ class SampleCodeController extends Controller
      *
      * @return \Illuminate\View\View
      */
-    public function index(Request $request)
+    public function index(Request $request): View
     {
         $samplecode = SampleCode::all();
 
@@ -649,7 +651,7 @@ class SampleCodeController extends Controller
      *
      * @return \Illuminate\View\View
      */
-    public function create()
+    public function create(): View
     {
         $samplecode = new SampleCode;
         $samplecode->sample_code = SampleCode::generate_code();
@@ -666,7 +668,7 @@ class SampleCodeController extends Controller
      *
      * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
      */
-    public function store(Request $request)
+    public function store(Request $request): RedirectResponse
     {
         $this->validate($request, [
             'sample_code' => 'required',
@@ -685,7 +687,7 @@ class SampleCodeController extends Controller
      * @param  int  $id
      * @return \Illuminate\View\View
      */
-    public function show($id)
+    public function show(int $id): View
     {
         $samplecode = SampleCode::findOrFail($id);
 
@@ -698,7 +700,7 @@ class SampleCodeController extends Controller
      * @param  int  $id
      * @return \Illuminate\View\View
      */
-    public function edit($id)
+    public function edit(int $id): View
     {
         $samplecode = SampleCode::findOrFail($id);
 
@@ -711,7 +713,7 @@ class SampleCodeController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
      */
-    public function update(Request $request, $id)
+    public function update(Request $request, int $id): RedirectResponse
     {
         $this->validate($request, [
             'sample_code' => 'required',
@@ -731,7 +733,7 @@ class SampleCodeController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
      */
-    public function destroy($id)
+    public function destroy(int $id): RedirectResponse
     {
         SampleCode::destroy($id);
 

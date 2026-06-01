@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use Illuminate\Http\JsonResponse;
 use App\Category;
 use App\Device;
 use App\Measurement;
@@ -361,7 +362,7 @@ class MeasurementController extends Controller
     Request all currently available sensor measurement types that can be POSTed to
     @queryParam locale string Two digit locale to get translated sensor measurement types. Example: en
      */
-    public function sensor_measurement_types(Request $request)
+    public function sensor_measurement_types(Request $request): JsonResponse
     {
         $locale = null;
         if ($request->filled('locale')) {
@@ -371,7 +372,7 @@ class MeasurementController extends Controller
         return Response::json(Measurement::getValidMeasurements(false, false, $locale));
     }
 
-    public function sensor_measurement_types_available(Request $request)
+    public function sensor_measurement_types_available(Request $request): JsonResponse
     {
         $device_id = $request->input('device_id');
         $device = $this->get_user_device($request);
@@ -411,7 +412,7 @@ class MeasurementController extends Controller
     @bodyParam id integer ID to look up the Device
     @bodyParam hive_id integer Hive ID to look up the Device
      */
-    public function lastvalues(Request $request)
+    public function lastvalues(Request $request): JsonResponse
     {
         $this->cacheRequestRate('get-measurements-last');
 
@@ -990,7 +991,7 @@ class MeasurementController extends Controller
           "erase_type":"fatfs"
         }
      */
-    public function flashlog(Request $request)
+    public function flashlog(Request $request): JsonResponse
     {
         $user = $request->user();
         $inp = $request->all();
@@ -1122,7 +1123,7 @@ class MeasurementController extends Controller
         return Response::json($result, $parsed ? 200 : 500);
     }
 
-    public function decode_beep_lora_payload(Request $request, $port, $payload)
+    public function decode_beep_lora_payload(Request $request, $port, $payload): JsonResponse
     {
         return Response::json($this->decode_beep_payload($payload, $port));
     }
@@ -1368,7 +1369,7 @@ class MeasurementController extends Controller
     @bodyParam weather integer Load corresponding weather data from the weather database (1) or not (0). Example: 1
     @bodyParam timezone string Provide the front-end timezone to correct the time from UTC to front-end time. Example: Europe/Amsterdam
      */
-    public function data(Request $request)
+    public function data(Request $request): JsonResponse
     {
         $this->cacheRequestRate('get-measurements');
 
@@ -1596,7 +1597,7 @@ class MeasurementController extends Controller
     @bodyParam weather integer Load corresponding weather data from the weather database (1) or not (0). Example: 1
     @bodyParam timezone string Provide the front-end timezone to correct the time from UTC to front-end time. Example: Europe/Amsterdam
      */
-    public function comparedata(Request $request)
+    public function comparedata(Request $request): JsonResponse
     {
         $this->cacheRequestRate('get-measurements');
 

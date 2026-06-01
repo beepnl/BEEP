@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use Illuminate\Http\JsonResponse;
 use App\Category;
 use App\CategoryInput;
 use App\Http\Controllers\Controller;
@@ -49,7 +50,7 @@ class CategoryController extends Controller
     }
     ]
      */
-    public function inputs(Request $request)
+    public function inputs(Request $request): JsonResponse
     {
         // die($category);
         return response()->json(CategoryInput::all());
@@ -63,7 +64,7 @@ class CategoryController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function show(Request $request, Category $category)
+    public function show(Request $request, Category $category): JsonResponse
     {
         // die($category);
         return response()->json($category);
@@ -1506,7 +1507,7 @@ class CategoryController extends Controller
     }
 ]
      */
-    public function index(Request $request)
+    public function index(Request $request): JsonResponse
     {
         return response()->json(Category::whereIsRoot()->with('children')->get());
     }

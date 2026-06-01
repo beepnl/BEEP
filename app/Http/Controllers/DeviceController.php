@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\View\View;
+use Illuminate\Http\RedirectResponse;
 use App\Category;
 use App\Device;
 use App\Hive;
@@ -21,7 +23,7 @@ class DeviceController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index(Request $request)
+    public function index(Request $request): View
     {
         $keyword = $request->get('search');
         $search_user = $request->get('user');
@@ -88,7 +90,7 @@ class DeviceController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function data(Request $request)
+    public function data(Request $request): View
     {
         $keyword = $request->get('search');
         $search_user = $request->get('user');
@@ -210,7 +212,7 @@ class DeviceController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function create()
+    public function create(): View
     {
         $types = Category::descendentsByRootParentAndName('hive', 'app', 'sensor')->pluck('name', 'id');
         $users = User::all()->sortBy('name')->pluck('name', 'id');
@@ -223,7 +225,7 @@ class DeviceController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(Request $request): RedirectResponse
     {
         $this->validate($request, [
             'name' => 'required',
@@ -263,7 +265,7 @@ class DeviceController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show($id)
+    public function show(int $id): View
     {
         $item = Device::find($id);
 
@@ -400,7 +402,7 @@ class DeviceController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function edit($id)
+    public function edit(int $id): View
     {
         $item = Device::find($id);
         $types = Category::descendentsByRootParentAndName('hive', 'app', 'sensor')->pluck('name', 'id');
@@ -423,7 +425,7 @@ class DeviceController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function update(Request $request, int $id): RedirectResponse
     {
         $this->validate($request, [
             'name' => 'required',
@@ -461,7 +463,7 @@ class DeviceController extends Controller
     }
 
     // /devices/{id}/undelete
-    public function undelete($id)
+    public function undelete($id): RedirectResponse
     {
         Device::withTrashed()->findOrFail($id)->restore();
 
@@ -475,7 +477,7 @@ class DeviceController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id)
+    public function destroy(int $id): RedirectResponse
     {
         Device::find($id)->delete();
 

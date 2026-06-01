@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\View\View;
+use Illuminate\Http\RedirectResponse;
 use App\Category;
 use App\CategoryFactory;
 use App\Checklist;
@@ -23,7 +25,7 @@ class ChecklistController extends Controller
      *
      * @return \Illuminate\View\View
      */
-    public function index(Request $request)
+    public function index(Request $request): View
     {
 
         if (Auth::user()->hasRole('superadmin')) {
@@ -40,7 +42,7 @@ class ChecklistController extends Controller
      *
      * @return \Illuminate\View\View
      */
-    public function create()
+    public function create(): View
     {
         $taxonomy = Category::getTaxonomy();
         $selected = $this->categoryFactory->get_old_ids_array();
@@ -57,7 +59,7 @@ class ChecklistController extends Controller
      *
      * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
      */
-    public function store(Request $request)
+    public function store(Request $request): RedirectResponse
     {
 
         $requestData = $request->except(['user_id']);
@@ -79,7 +81,7 @@ class ChecklistController extends Controller
      * @param  int  $id
      * @return \Illuminate\View\View
      */
-    public function show($id)
+    public function show(int $id): View
     {
         $checklist = $this->getUserChecklists()->find($id);
         $items = $checklist->categories()->get()->toTree();
@@ -94,7 +96,7 @@ class ChecklistController extends Controller
      * @param  int  $id
      * @return \Illuminate\View\View
      */
-    public function edit($id)
+    public function edit(int $id): View
     {
         $locale = LaravelLocalization::getCurrentLocale();
         $checklist = $this->getUserChecklists()->find($id);
@@ -121,7 +123,7 @@ class ChecklistController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
      */
-    public function update(Request $request, $id)
+    public function update(Request $request, int $id): RedirectResponse
     {
 
         $requestData = $request->except(['user_id']);
@@ -145,14 +147,14 @@ class ChecklistController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
      */
-    public function destroy($id)
+    public function destroy(int $id): RedirectResponse
     {
         $this->getUserChecklists()->find($id)->delete();
 
         return redirect('checklists')->with('flash_message', 'Checklist deleted!');
     }
 
-    public function destroyCopies()
+    public function destroyCopies(): RedirectResponse
     {
         Checklist::where('type', 'like', '%_copy%')->forceDelete();
 

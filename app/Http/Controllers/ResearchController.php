@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\View\View;
+use Illuminate\Http\RedirectResponse;
 use App\Device;
 use App\Hive;
 use App\Inspection;
@@ -66,7 +68,7 @@ class ResearchController extends Controller
      *
      * @return \Illuminate\View\View
      */
-    public function index(Request $request)
+    public function index(Request $request): View
     {
         $this->checkAuthorization($request);
 
@@ -79,7 +81,7 @@ class ResearchController extends Controller
         return view('research.index', compact('research'));
     }
 
-    public function consent($id, Request $request)
+    public function consent($id, Request $request): View
     {
         $this->checkAuthorization($request);
 
@@ -152,7 +154,7 @@ class ResearchController extends Controller
      *
      * @return \Illuminate\View\View
      */
-    public function create()
+    public function create(): View
     {
         if (Auth::user()->hasRole('superadmin') == false) {
             return redirect('dashboard')->with('error', 'Unauthorized');
@@ -169,7 +171,7 @@ class ResearchController extends Controller
      *
      * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
      */
-    public function store(Request $request)
+    public function store(Request $request): RedirectResponse
     {
         $this->checkAuthorization($request);
 
@@ -224,7 +226,7 @@ class ResearchController extends Controller
      * @param  int  $id
      * @return \Illuminate\View\View
      */
-    public function show($id, Request $request)
+    public function show(int $id, Request $request): View
     {
         $this->checkAuthorization($request);
 
@@ -988,7 +990,7 @@ class ResearchController extends Controller
      * @param  int  $id
      * @return \Illuminate\View\View
      */
-    public function data($id, Request $request)
+    public function data(int $id, Request $request): View
     {
         $this->checkAuthorization($request);
 
@@ -1722,7 +1724,7 @@ class ResearchController extends Controller
      * @param  int  $id
      * @return \Illuminate\View\View
      */
-    public function edit($id)
+    public function edit(int $id): View
     {
         if (Auth::user()->hasRole('superadmin')) {
             $research = Research::findOrFail($id);
@@ -1739,7 +1741,7 @@ class ResearchController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
      */
-    public function update(Request $request, $id)
+    public function update(Request $request, int $id): RedirectResponse
     {
         $this->checkAuthorization($request);
 
@@ -1800,7 +1802,7 @@ class ResearchController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
      */
-    public function destroy($id)
+    public function destroy(int $id): RedirectResponse
     {
         if (Auth::user()->hasRole('superadmin')) {
             Research::destroy($id);

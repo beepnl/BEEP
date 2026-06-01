@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use Illuminate\Http\JsonResponse;
 use App\Device;
 use App\Hive;
 use App\Http\Controllers\Controller;
@@ -68,7 +69,7 @@ class ExportController extends Controller
     @bodyParam sensordata boolean 1: also include measurement data in export. 0, of not filled: do not add measurement data. Default: set in environment settings. Example: 0
     @bodyParam link boolean 1: Save the export to a file and provide the link, 0, or not filled means: send the Excel as an attachment to an email to the user's email address. Default: 0. Example: 1
      **/
-    public function all(Request $request)
+    public function all(Request $request): JsonResponse
     {
         $fileName = strtolower(env('APP_NAME')).'-export-user-'.$request->user()->id;
         $user = $request->user();

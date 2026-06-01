@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use Illuminate\Http\JsonResponse;
 use App\ChecklistFactory;
 use App\User;
 use Auth;
@@ -98,12 +99,12 @@ class UserController extends Controller
         }
     }
 
-    public function notVerified(Request $request)
+    public function notVerified(Request $request): JsonResponse
     {
         return Response::json('email_not_verified', 400);
     }
 
-    public function notAuthenticated(Request $request)
+    public function notAuthenticated(Request $request): JsonResponse
     {
         return Response::json(['message' => 'invalid_user'], 400);
     }
@@ -121,7 +122,7 @@ class UserController extends Controller
     @bodyParam password_confirmation string required Password confirmation of the user. Example: testtest
     @bodyParam policy_accepted string required Name of the privacy policy that has been accepted by the user by ticking the accept terms box. Example: beep_terms_2018_05_25_avg_v1
      */
-    public function register(Request $request)
+    public function register(Request $request): JsonResponse
     {
 
         $validator = Validator::make(
@@ -278,7 +279,7 @@ class UserController extends Controller
     Destroy the logged in user and all its data in the database
     @authenticated
      */
-    public function destroy(Request $request)
+    public function destroy(Request $request): JsonResponse
     {
         $user = $request->user();
         $validator = Validator::make(
@@ -311,7 +312,7 @@ class UserController extends Controller
     @bodyParam policy_accepted string Name of the privacy policy that has been accepted by the user by ticking the accept terms box. Example: beep_terms_2018_05_25_avg_v1
     @bodyParam locale string Locale string to define locale. Example: en
      */
-    public function edit(Request $request)
+    public function edit(Request $request): JsonResponse
     {
         $user = $request->user();
         $save = false;
@@ -407,7 +408,7 @@ class UserController extends Controller
     @authenticated
     @bodyParam locale string Two digit country string to define locale
      */
-    public function userlocale(Request $request)
+    public function userlocale(Request $request): JsonResponse
     {
         $user = $request->user();
         $save = false;

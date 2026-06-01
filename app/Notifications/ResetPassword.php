@@ -2,6 +2,7 @@
 
 namespace App\Notifications;
 
+use Closure;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification as NotificationBase;
 use Illuminate\Support\Facades\Lang;
@@ -28,7 +29,7 @@ class ResetPassword extends NotificationBase
      * @param  string  $token
      * @return void
      */
-    public function __construct($token)
+    public function __construct(string $token)
     {
         $this->token = $token;
     }
@@ -72,7 +73,7 @@ class ResetPassword extends NotificationBase
      * @param  \Closure  $callback
      * @return void
      */
-    public static function toMailUsing($callback)
+    public static function toMailUsing(Closure $callback): void
     {
         static::$toMailCallback = $callback;
     }

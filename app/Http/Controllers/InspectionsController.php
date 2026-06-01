@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\View\View;
+use Illuminate\Http\RedirectResponse;
 use App\Inspection;
 use Auth;
 use Illuminate\Http\Request;
@@ -13,7 +15,7 @@ class InspectionsController extends Controller
      *
      * @return \Illuminate\View\View
      */
-    public function index(Request $request)
+    public function index(Request $request): View
     {
         // if (Auth::user()->hasRole('superadmin'))
         //     $inspections = Inspection::all();
@@ -28,7 +30,7 @@ class InspectionsController extends Controller
      *
      * @return \Illuminate\View\View
      */
-    public function create()
+    public function create(): View
     {
         return view('inspections.create');
     }
@@ -39,7 +41,7 @@ class InspectionsController extends Controller
      *
      * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
      */
-    public function store(Request $request)
+    public function store(Request $request): RedirectResponse
     {
 
         $requestData = $request->all();
@@ -55,7 +57,7 @@ class InspectionsController extends Controller
      * @param  int  $id
      * @return \Illuminate\View\View
      */
-    public function show($id)
+    public function show(int $id): View
     {
         if (Auth::user()->hasRole(['admin', 'superadmin'])) {
             $inspection = Inspection::find($id);
@@ -79,7 +81,7 @@ class InspectionsController extends Controller
      * @param  int  $id
      * @return \Illuminate\View\View
      */
-    public function edit($id)
+    public function edit(int $id): View
     {
         $inspection = $this->getUserInspections()->find($id);
 
@@ -92,7 +94,7 @@ class InspectionsController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
      */
-    public function update(Request $request, $id)
+    public function update(Request $request, int $id): RedirectResponse
     {
 
         $requestData = $request->all();
@@ -109,7 +111,7 @@ class InspectionsController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
      */
-    public function destroy($id)
+    public function destroy(int $id): RedirectResponse
     {
         $this->getUserInspections()->find($id)->delete();
 

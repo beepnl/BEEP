@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\Controller;
 use App\Image;
 use Auth;
@@ -20,7 +21,7 @@ class ImageController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index(Request $request)
+    public function index(Request $request): JsonResponse
     {
         $images = Auth::user()->images()->get();
 
@@ -37,7 +38,7 @@ class ImageController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(Request $request): JsonResponse
     {
 
         if ($request->has('file') && $request->hasFile('file')) {
@@ -55,7 +56,7 @@ class ImageController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show($id)
+    public function show(int $id)
     {
         $image = Auth::user()->images()->findOrFail($id);
 
@@ -68,7 +69,7 @@ class ImageController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function update(Request $request, int $id): JsonResponse
     {
 
         $image = Auth::user()->images()->findOrFail($id);
@@ -83,7 +84,7 @@ class ImageController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroyByUrl(Request $request)
+    public function destroyByUrl(Request $request): JsonResponse
     {
         if ($request->filled('image_url')) {
             $image_url = $request->input('image_url');

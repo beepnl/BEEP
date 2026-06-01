@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use Illuminate\Http\JsonResponse;
 use App\Checklist;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
@@ -19,14 +20,14 @@ class ChecklistController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index(Request $request)
+    public function index(Request $request): JsonResponse
     {
         $checklists = $request->user()->allChecklists()->orderBy('name')->get();
 
         return response()->json($checklists);
     }
 
-    public function store(Request $request)
+    public function store(Request $request): JsonResponse
     {
         $requestData = $request->except(['user_id']);
         $checklist = Checklist::create($requestData);
@@ -40,7 +41,7 @@ class ChecklistController extends Controller
         return response()->json(['checklist_id' => $checklist->id], 201);
     }
 
-    public function show(Request $request, $id)
+    public function show(Request $request, $id): JsonResponse
     {
         $checklist = $request->user()->allChecklists()->find($id);
         if ($checklist) {
@@ -53,7 +54,7 @@ class ChecklistController extends Controller
         return response()->json(null, 404);
     }
 
-    public function update(Request $request, $id)
+    public function update(Request $request, $id): JsonResponse
     {
 
         $requestData = $request->except(['user_id']);
@@ -73,7 +74,7 @@ class ChecklistController extends Controller
         return response()->json('Nothing updated', 500);
     }
 
-    public function destroy(Request $request, $id)
+    public function destroy(Request $request, $id): JsonResponse
     {
         return response()->json($request->user()->checklists()->findOrFail($id)->delete());
     }

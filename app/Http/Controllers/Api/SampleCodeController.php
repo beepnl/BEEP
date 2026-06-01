@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers\Api;
 
-use Illuminate\Http\JsonResponse;
 use App\SampleCode;
 use Auth;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 /**

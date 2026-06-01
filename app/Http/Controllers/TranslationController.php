@@ -2,15 +2,15 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\View\View;
-use Illuminate\Http\RedirectResponse;
 use App\Category;
 use App\Language;
 use App\Measurement;
 use App\Models\AlertRule;
 use App\PhysicalQuantity;
 use App\Translation;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\View\View;
 use Kalnoy\Nestedset\Collection;
 
 class TranslationController extends Controller
@@ -117,7 +117,7 @@ class TranslationController extends Controller
         return $options;
     }
 
-    protected function getCategoryOptions(Category $except = null): CategoriesController
+    protected function getCategoryOptions(?Category $except = null): CategoriesController
     {
         /** @var \Kalnoy\Nestedset\QueryBuilder $query */
         $query = Category::select('id', 'name')->withDepth();

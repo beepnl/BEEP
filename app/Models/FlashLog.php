@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use App\Device;
 use App\Hive;
 use App\Measurement;
@@ -10,6 +9,7 @@ use App\Traits\MeasurementLoRaDecoderTrait;
 use App\User;
 use Cache;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use Moment\Moment;

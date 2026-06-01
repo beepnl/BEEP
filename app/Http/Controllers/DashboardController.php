@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\View\View;
 use App\Category;
 use App\Checklist;
 use App\Device;
@@ -20,6 +19,7 @@ use App\User;
 use DB;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\View\View;
 use Moment\Moment;
 
 class DashboardController extends Controller

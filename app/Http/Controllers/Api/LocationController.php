@@ -2,13 +2,13 @@
 
 namespace App\Http\Controllers\Api;
 
-use Illuminate\Http\JsonResponse;
 use App\Category;
 use App\Continent;
 use App\HiveFactory;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\PostLocationRequest;
 use App\Location;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Validator;
 

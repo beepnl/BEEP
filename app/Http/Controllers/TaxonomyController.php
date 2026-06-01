@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\View\View;
 use App\Category;
+use Illuminate\View\View;
 use LaravelLocalization;
 
 class TaxonomyController extends Controller

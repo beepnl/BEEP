@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers\Api;
 
-use Illuminate\Http\JsonResponse;
 use App\Category;
 use App\Device;
 use App\Measurement;
@@ -17,6 +16,7 @@ use App\User;
 use Auth;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\ClientException;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 // use App\Transformer\SensorTransformer;
 use Illuminate\Support\Facades\Cache;

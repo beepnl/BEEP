@@ -2,15 +2,15 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\View\View;
-use Illuminate\Http\RedirectResponse;
 use App\Category;
 use App\CategoryFactory;
 use App\Checklist;
 use App\User;
 use Auth;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\View\View;
 use LaravelLocalization;
 
 class ChecklistController extends Controller

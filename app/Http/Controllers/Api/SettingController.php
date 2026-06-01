@@ -2,10 +2,10 @@
 
 namespace App\Http\Controllers\Api;
 
-use Illuminate\Http\JsonResponse;
 use App\Category;
 use App\Http\Controllers\Controller;
 use App\Setting;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Response;
 

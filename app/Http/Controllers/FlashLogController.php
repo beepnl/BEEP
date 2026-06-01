@@ -2,15 +2,15 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\View\View;
-use Illuminate\Http\RedirectResponse;
 use App\Device;
 use App\Models\CalculationModel;
 use App\Models\FlashLog;
 use App\SensorDefinition;
 use App\User;
 use Carbon\Carbon;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\View\View;
 use Storage;
 
 class FlashLogController extends Controller

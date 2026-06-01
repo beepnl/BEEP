@@ -2,16 +2,16 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\View\View;
-use Illuminate\Http\RedirectResponse;
 use App\Device;
 use App\Role;
 use App\User;
 use Auth;
 use DB;
 use Hash;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
+use Illuminate\View\View;
 use InterventionImage;
 use Storage;
 

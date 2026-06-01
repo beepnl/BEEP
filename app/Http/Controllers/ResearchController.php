@@ -2,8 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\View\View;
-use Illuminate\Http\RedirectResponse;
 use App\Device;
 use App\Hive;
 use App\Inspection;
@@ -17,8 +15,10 @@ use App\User;
 use Auth;
 use Cache;
 use DB;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use Illuminate\View\View;
 use InfluxDB;
 use Moment\Moment;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;

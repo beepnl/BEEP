@@ -2,8 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\View\View;
-use Illuminate\Http\RedirectResponse;
 use App\Category;
 use App\CategoryFactory;
 use App\CategoryInput;
@@ -11,8 +9,10 @@ use App\Http\Requests\PostCategoryRequest;
 use App\PhysicalQuantity;
 use App\Translation;
 use DB;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
+use Illuminate\View\View;
 use Image;
 use Kalnoy\Nestedset\Collection;
 use Storage;
@@ -534,7 +534,7 @@ class CategoriesController extends Controller
         return $options;
     }
 
-    protected function getCategoryOptions(Category $except = null): CategoriesController
+    protected function getCategoryOptions(?Category $except = null): CategoriesController
     {
         /** @var \Kalnoy\Nestedset\QueryBuilder $query */
         $query = Category::select('id', 'name')->withDepth();

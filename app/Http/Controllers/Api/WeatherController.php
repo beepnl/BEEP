@@ -2,10 +2,10 @@
 
 namespace App\Http\Controllers\Api;
 
-use Illuminate\View\View;
 use App\Http\Controllers\Controller;
 use App\Weather;
 use Illuminate\Http\Request;
+use Illuminate\View\View;
 
 /**
  * @group Api\WeatherController

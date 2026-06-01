@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers\Api;
 
-use Illuminate\Http\JsonResponse;
 use App\Category;
 use App\Hive;
 use App\HiveFactory;
@@ -10,6 +9,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\PostHiveRequest;
 use App\Location;
 use App\Queen;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 /**

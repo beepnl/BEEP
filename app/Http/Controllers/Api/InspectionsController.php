@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers\Api;
 
-use Illuminate\Http\JsonResponse;
 use App\Category;
 use App\Hive;
 use App\Http\Controllers\Controller;
@@ -10,6 +9,7 @@ use App\Image;
 use App\Inspection;
 use App\InspectionItem;
 use Auth;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use LaravelLocalization;
 use Moment\Moment;

@@ -2,8 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\View\View;
-use Illuminate\Http\RedirectResponse;
 use App\Category;
 use App\Device;
 use App\Hive;
@@ -13,8 +11,10 @@ use App\Research;
 use App\User;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\RequestException;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use Illuminate\View\View;
 
 class DeviceController extends Controller
 {

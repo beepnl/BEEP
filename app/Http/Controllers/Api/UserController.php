@@ -2,12 +2,12 @@
 
 namespace App\Http\Controllers\Api;
 
-use Illuminate\Http\JsonResponse;
 use App\ChecklistFactory;
 use App\User;
 use Auth;
 use Hash;
 use Illuminate\Auth\Events\Login as ApiTokenLogin;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Str;

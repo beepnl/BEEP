@@ -2,11 +2,11 @@
 
 namespace App\Http\Controllers\Api\Auth;
 
-use Illuminate\Http\RedirectResponse;
 use App\Http\Controllers\Controller;
 use App\User;
 use Illuminate\Auth\Events\Verified;
 use Illuminate\Foundation\Auth\VerifiesEmails;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 
 /**

@@ -2,10 +2,10 @@
 
 namespace App\Http\Controllers\Api;
 
-use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\Controller;
 use App\Image;
 use Auth;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 /**

@@ -26,7 +26,6 @@ class ResetPassword extends NotificationBase
     /**
      * Create a notification instance.
      *
-     * @param  string  $token
      * @return void
      */
     public function __construct(string $token)
@@ -49,7 +48,6 @@ class ResetPassword extends NotificationBase
      * Build the mail representation of the notification.
      *
      * @param  mixed  $notifiable
-     * @return \Illuminate\Notifications\Messages\MailMessage
      */
     public function toMail($notifiable): MailMessage
     {
@@ -69,9 +67,6 @@ class ResetPassword extends NotificationBase
 
     /**
      * Set a callback that should be used when building the notification mail message.
-     *
-     * @param  \Closure  $callback
-     * @return void
      */
     public static function toMailUsing(Closure $callback): void
     {

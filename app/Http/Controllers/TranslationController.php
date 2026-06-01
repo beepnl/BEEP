@@ -106,9 +106,6 @@ class TranslationController extends Controller
         return redirect()->route('translations.edit', [$language->id])->with('error', 'No translations updated.');
     }
 
-    /**
-     * @return static
-     */
     protected function makeOptions(Collection $items): static
     {
         $options = [];
@@ -120,10 +117,6 @@ class TranslationController extends Controller
         return $options;
     }
 
-    /**
-     * @param  Category  $except
-     * @return CategoriesController
-     */
     protected function getCategoryOptions(Category $except = null): CategoriesController
     {
         /** @var \Kalnoy\Nestedset\QueryBuilder $query */

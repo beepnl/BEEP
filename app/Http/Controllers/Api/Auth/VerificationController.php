@@ -58,8 +58,6 @@ class VerificationController extends Controller
 
     /**
      * Mark the authenticated user's email address as verified.
-     *
-     * @return \Illuminate\Http\Response
      */
     public function verify(Request $request): RedirectResponse
     {

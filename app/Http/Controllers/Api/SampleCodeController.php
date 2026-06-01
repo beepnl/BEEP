@@ -17,8 +17,6 @@ class SampleCodeController extends Controller
 {
     /**
      * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
      */
     public function index(): JsonResponse
     {
@@ -76,7 +74,6 @@ class SampleCodeController extends Controller
      * Remove the specified resource from storage.
      *
      * @param  \App\SampleCode  $sampleCode
-     * @return \Illuminate\Http\Response
      */
     public function destroy(Request $request): JsonResponse
     {

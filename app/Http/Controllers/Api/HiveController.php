@@ -61,7 +61,6 @@ class HiveController extends Controller
      * api/hives GET
      * Display a listing of user hives.
      *
-     * @return \Illuminate\Http\Response
      *
      * @authenticated
      *
@@ -127,9 +126,6 @@ class HiveController extends Controller
      * Store a newly created Hive in storage for the authenticated user.
      *
      * @authenticated
-     *
-     * @param  \App\Requests\PostHiveRequest  $request
-     * @return \App\Hive
      */
     public function store(PostHiveRequest $request): Hive
     {
@@ -162,8 +158,6 @@ class HiveController extends Controller
      * Display the specified resource.
      *
      * @authenticated
-     *
-     * @return \App\Hive
      */
     public function show(Request $request, Hive $hive): JsonResponse
     {
@@ -175,9 +169,6 @@ class HiveController extends Controller
      * Update the specified user Hive in storage.
      *
      * @authenticated
-     *
-     * @param  \App\Requests\PostHiveRequest  $request
-     * @return \App\Hive
      */
     public function update(PostHiveRequest $request, Hive $hive): Hive
     {
@@ -209,8 +200,6 @@ class HiveController extends Controller
      * Remove the specified user Hive from storage.
      *
      * @authenticated
-     *
-     * @return \Illuminate\Http\Response
      */
     public function destroy(Request $request, Hive $hive): JsonResponse
     {

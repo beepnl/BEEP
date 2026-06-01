@@ -60,8 +60,6 @@ class GroupController extends Controller
      * Check a token for a group id, and accept or decline the invite
      *
      * @authenticated
-     *
-     * @return \Illuminate\Http\Response
      */
     public function checktoken(Request $request): JsonResponse
     {

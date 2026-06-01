@@ -17,8 +17,6 @@ class QueenController extends Controller
 {
     /**
      * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
      */
     public function index(Request $request): JsonResponse
     {
@@ -31,8 +29,6 @@ class QueenController extends Controller
 
     /**
      * Store a newly created resource in storage.
-     *
-     * @return \Illuminate\Http\Response
      */
     public function store(Request $request): JsonResponse
     {
@@ -56,8 +52,6 @@ class QueenController extends Controller
 
     /**
      * Display the specified resource.
-     *
-     * @return \Illuminate\Http\Response
      */
     public function show(Request $request, Queen $queen): JsonResponse
     {
@@ -76,8 +70,6 @@ class QueenController extends Controller
 
     /**
      * Remove the specified resource from storage.
-     *
-     * @return \Illuminate\Http\Response
      */
     public function destroy(Request $request, Queen $queen): JsonResponse
     {

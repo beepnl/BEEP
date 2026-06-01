@@ -32,8 +32,6 @@ class LocationController extends Controller
 
     /**
      * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
      */
     public function index(Request $request): JsonResponse
     {
@@ -128,8 +126,6 @@ class LocationController extends Controller
 
     /**
      * Display the specified resource.
-     *
-     * @return \Illuminate\Http\Response
      */
     public function show(Request $request, Location $location): JsonResponse
     {
@@ -141,7 +137,6 @@ class LocationController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @param  \App\Location  $location
      * @return \Illuminate\Http\Response
      */

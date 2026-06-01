@@ -45,8 +45,6 @@ class ResearchController extends Controller
      * @bodyParam location_ids array Only share data from these location IDs
      * @bodyParam hive_ids array Only share data from these hive IDs
      * @bodyParam device_ids array Only share data from these device IDs
-     *
-     * @return \Illuminate\Http\Response
      */
     public function add_consent(Request $request, $id): JsonResponse
     {

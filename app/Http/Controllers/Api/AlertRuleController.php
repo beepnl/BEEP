@@ -25,8 +25,6 @@ class AlertRuleController extends Controller
      * List all user alert rules that are not deleted.
      *
      * @authenticated
-     *
-     * @return \Illuminate\Http\Response
      */
     public function index(Request $request): JsonResponse
     {
@@ -84,8 +82,6 @@ class AlertRuleController extends Controller
      * @bodyParam alert_via_email boolean Set to false (0) if an e-mail should NOT be sent on alert. Default: true (1).
      * @bodyParam webhook_url string URL of optional endpoint to call on alert for web hook integration.
      * @bodyParam active boolean Set to false (0) if the alert should NOT be active. Default: true (1).
-     *
-     * @return \Illuminate\Http\Response
      */
     public function store(Request $request): JsonResponse
     {
@@ -206,8 +202,6 @@ class AlertRuleController extends Controller
      * @bodyParam alert_via_email boolean Set to false (0) if an e-mail should NOT be sent on alert. Default: true (1).
      * @bodyParam webhook_url string URL of optional endpoint to call on alert for web hook integration.
      * @bodyParam active boolean Set to false (0) if the alert should NOT be active. Default: true (1).
-     *
-     * @return \Illuminate\Http\Response
      */
     public function update(Request $request, $id): JsonResponse
     {
@@ -309,8 +303,6 @@ class AlertRuleController extends Controller
      * Delete the specified user alert rule.
      *
      * @authenticated
-     *
-     * @return \Illuminate\Http\Response
      */
     public function destroy($id): JsonResponse
     {

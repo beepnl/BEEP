@@ -21,8 +21,6 @@ class AlertController extends Controller
      * List all user alerts that are not deleted.
      *
      * @authenticated
-     *
-     * @return \Illuminate\Http\Response
      */
     public function index(Request $request): JsonResponse
     {
@@ -43,8 +41,6 @@ class AlertController extends Controller
      * @bodyParam measurement_id integer required The physical quantity / unit to alert for.
      * @bodyParam alert_value string required The alert value.
      * @bodyParam show boolean Set to false (0) if the alert should NOT be shown anymore.
-     *
-     * @return \Illuminate\Http\Response
      */
     public function store(Request $request): JsonResponse
     {
@@ -80,8 +76,6 @@ class AlertController extends Controller
      * @authenticated
      *
      * @bodyParam show boolean Set to false (0) if the alert should NOT be shown anymore.
-     *
-     * @return \Illuminate\Http\Response
      */
     public function update(Request $request, $id): JsonResponse
     {
@@ -96,8 +90,6 @@ class AlertController extends Controller
      * Delete the specified user alert, or all if id === 'all', or specific id's when provided &alert_ids=1,4,7
      *
      * @authenticated
-     *
-     * @return \Illuminate\Http\Response
      */
     public function destroy(Request $request, $id): JsonResponse
     {

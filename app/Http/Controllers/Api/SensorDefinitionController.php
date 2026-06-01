@@ -112,8 +112,6 @@ class SensorDefinitionController extends Controller
      * @bodyParam device_hardware_id string Device hardware ID that the Sensordefinition belongs to. Required if hardware_id, and device_id are not set.
      * @bodyParam input_measurement_abbreviation string Filter sensordefinitions by provided input abbreviation.
      * @bodyParam limit integer If input_abbr is set, limit the amount of results provided by more than 1 to get all historic sensordefinitions of this type.
-     *
-     * @return \Illuminate\Http\Response
      */
     public function index(Request $request): JsonResponse
     {
@@ -161,8 +159,6 @@ class SensorDefinitionController extends Controller
      * @bodyParam device_id integer Device ID that the Sensordefinition belongs to. Required if hardware_id, and device_hardware_id are not set.
      * @bodyParam hardware_id string Device hardware ID that the Sensordefinition belongs to. Required if device_id, and device_hardware_id are not set.
      * @bodyParam device_hardware_id string Device hardware ID that the Sensordefinition belongs to. Required if hardware_id, and device_id are not set.
-     *
-     * @return \Illuminate\Http\Response
      */
     public function store(Request $request): JsonResponse
     {

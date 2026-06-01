@@ -61,8 +61,6 @@ class CategoryController extends Controller
      * Display the specified category.
      *
      * @authenticated
-     *
-     * @return \Illuminate\Http\Response
      */
     public function show(Request $request, Category $category): JsonResponse
     {

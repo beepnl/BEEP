@@ -42,8 +42,6 @@ class CategoriesController extends Controller
 
     /**
      * Show the form for creating a new resource.
-     *
-     * @return Response
      */
     public function create(Request $input): View
     {
@@ -57,9 +55,6 @@ class CategoriesController extends Controller
 
     /**
      * Store a newly created resource in storage.
-     *
-     *
-     * @return Response
      */
     public function store(PostCategoryRequest $input): RedirectResponse
     {
@@ -259,9 +254,6 @@ class CategoriesController extends Controller
 
     /**
      * Display the specified resource.
-     *
-     * @param  int  $id
-     * @return Response
      */
     public function show(int $id): View
     {
@@ -276,9 +268,6 @@ class CategoriesController extends Controller
 
     /**
      * Show the form for editing the specified resource.
-     *
-     * @param  int  $id
-     * @return Response
      */
     public function edit(int $id): View
     {
@@ -294,9 +283,6 @@ class CategoriesController extends Controller
 
     /**
      * Update the specified resource in storage.
-     *
-     * @param  int  $id
-     * @return Response
      */
     public function update(PostCategoryRequest $input, int $id): RedirectResponse
     {
@@ -537,9 +523,6 @@ class CategoriesController extends Controller
         return redirect()->route('categories.index')->with('error', 'Category not found');
     }
 
-    /**
-     * @return static
-     */
     protected function makeOptions(Collection $items): static
     {
         $options = ['' => 'Root'];
@@ -551,10 +534,6 @@ class CategoriesController extends Controller
         return $options;
     }
 
-    /**
-     * @param  Category  $except
-     * @return CategoriesController
-     */
     protected function getCategoryOptions(Category $except = null): CategoriesController
     {
         /** @var \Kalnoy\Nestedset\QueryBuilder $query */

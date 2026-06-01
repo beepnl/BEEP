@@ -31,9 +31,14 @@ class DashboardGroup extends Model
 
     protected $hidden = ['user_id', 'user', 'created_at', 'updated_at'];
 
-    protected $casts = ['hive_ids' => 'array'];
-
     public static $intervals = ['hour' => 'Hour', 'day' => 'Day', 'week' => 'Week', 'month' => 'Month', 'year' => 'Year', 'selection' => 'Selection'];
+
+    protected function casts(): array
+    {
+        return [
+            'hive_ids' => 'array'
+        ];
+    }
 
     public function hives()
     {

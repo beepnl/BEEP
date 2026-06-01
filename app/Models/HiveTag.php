@@ -32,7 +32,12 @@ class HiveTag extends Model
 
     protected $hidden = ['id', 'created_at', 'updated_at', 'user_id'];
 
-    protected $casts = ['router_link' => 'array'];
+    protected function casts(): array
+    {
+        return [
+            'router_link' => 'array'
+        ];
+    }
 
     public function hive(): BelongsTo
     {

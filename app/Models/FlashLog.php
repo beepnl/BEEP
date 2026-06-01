@@ -52,7 +52,12 @@ class FlashLog extends Model
 
     protected $appends = ['device_name', 'hive_name', 'user_name'];
 
-    protected $casts = ['meta_data' => 'array', 'time_corrections' => 'array'];
+    protected function casts(): array
+    {
+        return [
+            'meta_data' => 'array', 'time_corrections' => 'array'
+        ];
+    }
 
     public function hive(): BelongsTo
     {

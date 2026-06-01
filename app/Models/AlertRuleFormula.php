@@ -33,8 +33,6 @@ class AlertRuleFormula extends Model
     protected $fillable = ['alert_rule_id', 'measurement_id', 'calculation', 'comparator', 'comparison', 'logical', 'period_minutes', 'threshold_value', 'future'];
 
     protected $hidden = [];
-
-    protected $casts = ['future' => 'boolean'];
     // protected $appends            = ['calculation_minutes']; // CAUSES LOOP BY append of alert_rule->formulas
 
     public static $calculations = ['min' => 'Minimum', 'max' => 'Maximum', 'ave' => 'Average', 'cnt' => 'Count']; // exclude "der"=>"Derivative" for the moment (because of user interpretation complexity)
@@ -44,6 +42,13 @@ class AlertRuleFormula extends Model
     public static $comparisons = ['val' => 'Value', 'inc' => 'Increase', 'dec' => 'Decrease', 'abs_dif' => 'Absolute_value_of_dif']; // exclude "abs"=>"Absolute_value","dif"=>"Difference" because it has no usecase
 
     public static $logicals = ['or' => 'Or', 'and' => 'And'];
+
+    protected function casts(): array
+    {
+        return [
+            'future' => 'boolean'
+        ];
+    }
 
     public function alert_rule(): BelongsTo
     {

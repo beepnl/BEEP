@@ -32,8 +32,6 @@ class Device extends Model
 
     protected $appends = ['type', 'hive_name', 'location_name', 'owner', 'online'];
 
-    protected $casts = ['log_file_info' => 'array'];
-
     public $timestamps = false;
 
     public static function boot()
@@ -80,6 +78,13 @@ class Device extends Model
             // Log::info("Deleted Device $d->id $d->name");
             $d->empty_cache();
         });
+    }
+
+    protected function casts(): array
+    {
+        return [
+            'log_file_info' => 'array'
+        ];
     }
 
     public function empty_cache($clear_users = true)

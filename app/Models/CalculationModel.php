@@ -34,8 +34,6 @@ class CalculationModel extends Model
      */
     protected $fillable = ['name', 'measurement_id', 'data_measurement_id', 'data_interval', 'data_relative_interval', 'data_interval_index', 'data_api_url', 'data_api_http_request', 'data_last_call', 'calculation', 'repository_url', 'data_interval_amount', 'calculation_interval_minutes'];
 
-    protected $casts = ['data_relative_interval' => 'boolean'];
-
     /**
      * Model properties:
      * name
@@ -59,6 +57,13 @@ class CalculationModel extends Model
 
     public static $calculations = ['model_cumulative_daily_weight_anomaly' => 'Cumulative daily hive weight anomaly',
         'model_colony_failure_weight_history' => 'Colony failure weight history (AWS Lambda)'];
+
+    protected function casts(): array
+    {
+        return [
+            'data_relative_interval' => 'boolean'
+        ];
+    }
 
     public function input_measurement(): BelongsTo
     {

@@ -35,11 +35,14 @@ class Research extends Model
 
     protected $appends = ['consent', 'consent_history', 'checklist_names', 'thumb_url'];
 
-    protected $casts = [
-        'default_user_ids' => 'array',
-    ];
-
     public static $pictureType = 'research';
+
+    protected function casts(): array
+    {
+        return [
+            'default_user_ids' => 'array',
+        ];
+    }
 
     public static function storeImage($requestData)
     {

@@ -2,6 +2,11 @@
 
 namespace App;
 
+use Illuminate\Database\Eloquent\Attributes\Appends;
+use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Attributes\Guarded;
+use Illuminate\Database\Eloquent\Attributes\Hidden;
+use Illuminate\Database\Eloquent\Attributes\Table;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
@@ -9,21 +14,16 @@ use Illuminate\Support\Facades\DB;
 use Kalnoy\Nestedset\NodeTrait;
 use LaravelLocalization;
 
+#[Table('categories')]
+#[Fillable('name', 'category_input_id', 'physical_quantity_id', 'parent_id', 'description', 'source', 'icon', 'type')]
+#[Guarded('id')]
+#[Hidden('created_at', 'updated_at', 'category_input_id', 'physical_quantity_id', '_lft', '_rgt', 'pivot', 'old_id', 'description', 'type', 'input_type', 'options', 'parent_id', 'source', 'name', 'required')]
+#[Appends('icon', 'text')]
 class Taxonomy extends Model
 {
     // This model is used for the creation of the object tree for the JSTree elements
 
     use NodeTrait;
-
-    protected $table = 'categories';
-
-    protected $fillable = ['name', 'category_input_id', 'physical_quantity_id', 'parent_id', 'description', 'source', 'icon', 'type'];
-
-    protected $guarded = ['id'];
-
-    protected $hidden = ['created_at', 'updated_at', 'category_input_id', 'physical_quantity_id', '_lft', '_rgt', 'pivot', 'old_id', 'description', 'type', 'input_type', 'options', 'parent_id', 'source', 'name', 'required'];
-
-    protected $appends = ['icon', 'text'];
 
     public static $types =
         [

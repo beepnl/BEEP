@@ -8,6 +8,10 @@ use App\Measurement;
 use App\Traits\MeasurementLoRaDecoderTrait;
 use App\User;
 use Cache;
+use Illuminate\Database\Eloquent\Attributes\Appends;
+use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Attributes\Hidden;
+use Illuminate\Database\Eloquent\Attributes\Table;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Facades\Log;
@@ -15,6 +19,10 @@ use Illuminate\Support\Str;
 use Moment\Moment;
 use Storage;
 
+#[Table('flash_logs', 'id')]
+#[Fillable('user_id', 'device_id', 'hive_id', 'log_messages', 'log_saved', 'log_parsed', 'log_has_timestamps', 'bytes_received', 'log_file', 'log_file_stripped', 'log_file_parsed', 'log_size_bytes', 'log_erased', 'time_percentage', 'persisted_days', 'persisted_measurements', 'persisted_block_ids', 'log_date_start', 'log_date_end', 'logs_per_day', 'csv_url', 'meta_data', 'time_corrections', 'valid_override')]
+#[Hidden('device', 'hive', 'user', 'persisted_block_ids')]
+#[Appends('device_name', 'hive_name', 'user_name')]
 class FlashLog extends Model
 {
     use MeasurementLoRaDecoderTrait;
@@ -26,31 +34,6 @@ class FlashLog extends Model
     protected $weight_mid = 20;
 
     protected static $minUnixTime = 1546297200; // min time for Flashlog internal time is: 2019-01-01 00:00:00
-
-    /**
-     * The database table used by the model.
-     *
-     * @var string
-     */
-    protected $table = 'flash_logs';
-
-    /**
-     * The database primary key value.
-     *
-     * @var string
-     */
-    protected $primaryKey = 'id';
-
-    /**
-     * Attributes that should be mass-assignable.
-     *
-     * @var array
-     */
-    protected $fillable = ['user_id', 'device_id', 'hive_id', 'log_messages', 'log_saved', 'log_parsed', 'log_has_timestamps', 'bytes_received', 'log_file', 'log_file_stripped', 'log_file_parsed', 'log_size_bytes', 'log_erased', 'time_percentage', 'persisted_days', 'persisted_measurements', 'persisted_block_ids', 'log_date_start', 'log_date_end', 'logs_per_day', 'csv_url', 'meta_data', 'time_corrections', 'valid_override'];
-
-    protected $hidden = ['device', 'hive', 'user', 'persisted_block_ids'];
-
-    protected $appends = ['device_name', 'hive_name', 'user_name'];
 
     protected function casts(): array
     {

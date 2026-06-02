@@ -8,14 +8,15 @@ use Illuminate\Auth\Events\Verified;
 use Illuminate\Foundation\Auth\VerifiesEmails;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Routing\Controllers\HasMiddleware;
-use Illuminate\Routing\Controllers\Middleware;
+use Illuminate\Routing\Attributes\Controllers\Middleware;
 
 /**
  * @group Api\Auth\VerificationController
  * User verification functions
  */
-class VerificationController extends Controller implements HasMiddleware
+#[Middleware('signed', only: ['verify'])]
+#[Middleware('throttle:10,1', only: ['verify'])]
+class VerificationController extends Controller
 {
     /*
     |--------------------------------------------------------------------------
@@ -47,14 +48,6 @@ class VerificationController extends Controller implements HasMiddleware
         // $this->middleware('auth');
 
         $this->redirectTo = env('WEBAPP_URL', '/').env('WEBAPP_EMAIL_VERIFY_URL', 'login').'?msg=email_verified';
-    }
-
-    public static function middleware(): array
-    {
-        return [
-            new Middleware('signed', only: ['verify']),
-            new Middleware('throttle:10,1', only: ['verify']),
-        ];
     }
 
     /**

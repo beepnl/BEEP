@@ -2,17 +2,17 @@
 
 namespace App;
 
+use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Attributes\WithoutTimestamps;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Support\Facades\DB;
 use LaravelLocalization;
 
+#[WithoutTimestamps]
+#[Fillable('name', 'language_id', 'type', 'translation')]
 class Translation extends Model
 {
-    public $fillable = ['name', 'language_id', 'type', 'translation'];
-
-    public $timestamps = false;
-
     public static function boot()
     {
         parent::boot();

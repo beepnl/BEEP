@@ -2,20 +2,20 @@
 
 namespace App;
 
+use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Attributes\Hidden;
+use Illuminate\Database\Eloquent\Attributes\Table;
+use Illuminate\Database\Eloquent\Attributes\WithoutTimestamps;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use LaravelLocalization;
 
+#[Table('category_inputs')]
+#[WithoutTimestamps]
+#[Fillable('name', 'type', 'min', 'max', 'decimals', 'icon')]
+#[Hidden('icon')]
 class CategoryInput extends Model
 {
-    protected $table = 'category_inputs';
-
-    public $fillable = ['name', 'type', 'min', 'max', 'decimals', 'icon'];
-
-    public $hidden = ['icon'];
-
-    public $timestamps = false;
-
     // Relations
 
     public function category(): BelongsTo

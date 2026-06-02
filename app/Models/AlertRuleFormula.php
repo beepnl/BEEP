@@ -4,35 +4,17 @@ namespace App\Models;
 
 use App\Measurement;
 use Cache;
+use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Attributes\Table;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use LaravelLocalization;
 use Translation;
 
+#[Table('alert_rule_formulas', 'id')]
+#[Fillable('alert_rule_id', 'measurement_id', 'calculation', 'comparator', 'comparison', 'logical', 'period_minutes', 'threshold_value', 'future')]
 class AlertRuleFormula extends Model
 {
-    /**
-     * The database table used by the model.
-     *
-     * @var string
-     */
-    protected $table = 'alert_rule_formulas';
-
-    /**
-     * The database primary key value.
-     *
-     * @var string
-     */
-    protected $primaryKey = 'id';
-
-    /**
-     * Attributes that should be mass-assignable.
-     *
-     * @var array
-     */
-    protected $fillable = ['alert_rule_id', 'measurement_id', 'calculation', 'comparator', 'comparison', 'logical', 'period_minutes', 'threshold_value', 'future'];
-
-    protected $hidden = [];
     // protected $appends            = ['calculation_minutes']; // CAUSES LOOP BY append of alert_rule->formulas
 
     public static $calculations = ['min' => 'Minimum', 'max' => 'Maximum', 'ave' => 'Average', 'cnt' => 'Count']; // exclude "der"=>"Derivative" for the moment (because of user interpretation complexity)

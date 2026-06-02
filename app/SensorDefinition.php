@@ -3,41 +3,22 @@
 namespace App;
 
 use Cache;
+use Illuminate\Database\Eloquent\Attributes\Appends;
+use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Attributes\Hidden;
+use Illuminate\Database\Eloquent\Attributes\Table;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Log;
 
+#[Table('sensor_definitions', 'id')]
+#[Fillable('name', 'inside', 'offset', 'multiplier', 'input_measurement_id', 'output_measurement_id', 'device_id', 'updated_at', 'recalculate')]
+#[Appends('input_abbr', 'output_abbr')]
+#[Hidden('input_measurement', 'output_measurement', 'deleted_at')]
 class SensorDefinition extends Model
 {
     use SoftDeletes;
-
-    /**
-     * The database table used by the model.
-     *
-     * @var string
-     */
-    protected $table = 'sensor_definitions';
-
-    /**
-     * The database primary key value.
-     *
-     * @var string
-     */
-    protected $primaryKey = 'id';
-
-    /**
-     * Attributes that should be mass-assignable.
-     *
-     * @var array
-     */
-
-    // recalculate: true => on the fly correction + at sensor value storage, false (default) => only calculate at sensor value storage
-    protected $fillable = ['name', 'inside', 'offset', 'multiplier', 'input_measurement_id', 'output_measurement_id', 'device_id', 'updated_at', 'recalculate'];
-
-    protected $appends = ['input_abbr', 'output_abbr'];
-
-    protected $hidden = ['input_measurement', 'output_measurement', 'deleted_at'];
 
     public static function boot()
     {

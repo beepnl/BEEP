@@ -2,32 +2,15 @@
 
 namespace App;
 
+use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Attributes\Table;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
+#[Table('sample_codes', 'id')]
+#[Fillable('sample_code', 'sample_note', 'sample_date', 'test_result', 'test', 'test_date', 'test_lab_name', 'user_id', 'hive_id', 'queen_id')]
 class SampleCode extends Model
 {
-    /**
-     * The database table used by the model.
-     *
-     * @var string
-     */
-    protected $table = 'sample_codes';
-
-    /**
-     * The database primary key value.
-     *
-     * @var string
-     */
-    protected $primaryKey = 'id';
-
-    /**
-     * Attributes that should be mass-assignable.
-     *
-     * @var array
-     */
-    protected $fillable = ['sample_code', 'sample_note', 'sample_date', 'test_result', 'test', 'test_date', 'test_lab_name', 'user_id', 'hive_id', 'queen_id'];
-
     public function hive(): BelongsTo
     {
         return $this->belongsTo(Hive::class);

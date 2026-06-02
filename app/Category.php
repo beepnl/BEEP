@@ -3,25 +3,25 @@
 namespace App;
 
 use Cache;
+use Illuminate\Database\Eloquent\Attributes\Appends;
+use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Attributes\Guarded;
+use Illuminate\Database\Eloquent\Attributes\Hidden;
+use Illuminate\Database\Eloquent\Attributes\Table;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Kalnoy\Nestedset\NodeTrait;
 use LaravelLocalization;
 
+#[Table('categories')]
+#[Fillable('name', 'category_input_id', 'physical_quantity_id', 'parent_id', 'description', 'source', 'icon', 'type', 'required')]
+#[Guarded('id')]
+#[Hidden('created_at', 'updated_at', 'category_input_id', 'physical_quantity_id', '_lft', '_rgt', 'pivot', 'input_type', 'options', 'old_id')]
+#[Appends('input', 'trans', 'unit')]
 class Category extends Model
 {
     use NodeTrait;
-
-    protected $table = 'categories';
-
-    protected $fillable = ['name', 'category_input_id', 'physical_quantity_id', 'parent_id', 'description', 'source', 'icon', 'type', 'required'];
-
-    protected $guarded = ['id'];
-
-    protected $hidden = ['created_at', 'updated_at', 'category_input_id', 'physical_quantity_id', '_lft', '_rgt', 'pivot', 'input_type', 'options', 'old_id'];
-
-    protected $appends = ['input', 'trans', 'unit']; // 'parent'
 
     public static $types =
         [

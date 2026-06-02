@@ -3,6 +3,11 @@
 namespace App;
 
 use Cache;
+use Illuminate\Database\Eloquent\Attributes\Appends;
+use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Attributes\Guarded;
+use Illuminate\Database\Eloquent\Attributes\Hidden;
+use Illuminate\Database\Eloquent\Attributes\WithoutTimestamps;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -10,20 +15,15 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Log;
 
+#[WithoutTimestamps]
+#[Fillable('hive_id', 'category_id', 'order', 'color')]
+#[Guarded('id')]
+#[Hidden('category_id', 'hive_id', 'created_at', 'deleted_at', 'frames')]
+#[Appends('type', 'framecount')]
 class HiveLayer extends Model
 {
     use HasFactory;
     use SoftDeletes;
-
-    protected $fillable = ['hive_id', 'category_id', 'order', 'color'];
-
-    protected $guarded = ['id'];
-
-    protected $hidden = ['category_id', 'hive_id', 'created_at', 'deleted_at', 'frames'];
-
-    protected $appends = ['type', 'framecount'];
-
-    public $timestamps = false;
 
     // Cache functions
     public static function boot()

@@ -4,20 +4,20 @@ namespace App;
 
 use Cache;
 use DB;
+use Illuminate\Database\Eloquent\Attributes\Appends;
+use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Attributes\Table;
+use Illuminate\Database\Eloquent\Attributes\WithoutTimestamps;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use LaravelLocalization;
 
+#[Table('physical_quantities')]
+#[WithoutTimestamps]
+#[Appends('trans')]
+#[Fillable('name', 'unit', 'abbreviation', 'low_value', 'high_value')]
 class PhysicalQuantity extends Model
 {
-    protected $table = 'physical_quantities';
-
-    protected $appends = ['trans'];
-
-    public $fillable = ['name', 'unit', 'abbreviation', 'low_value', 'high_value'];
-
-    public $timestamps = false;
-
     public static function boot()
     {
         parent::boot();

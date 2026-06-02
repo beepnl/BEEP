@@ -5,6 +5,11 @@ namespace App;
 use Auth;
 use Cache;
 use Dyrynda\Database\Support\CascadeSoftDeletes;
+use Illuminate\Database\Eloquent\Attributes\Appends;
+use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Attributes\Guarded;
+use Illuminate\Database\Eloquent\Attributes\Hidden;
+use Illuminate\Database\Eloquent\Attributes\WithoutTimestamps;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -15,22 +20,17 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Log;
 
+#[WithoutTimestamps]
+#[Fillable('user_id', 'location_id', 'hive_type_id', 'color', 'name', 'bb_width_cm', 'bb_depth_cm', 'bb_height_cm', 'fr_width_cm', 'fr_height_cm', 'order')]
+#[Guarded('id')]
+#[Hidden('user_id', 'deleted_at', 'pivot')]
+#[Appends('type', 'location', 'attention', 'impression', 'notes', 'reminder', 'reminder_date', 'inspection_count', 'sensors', 'owner', 'editable', 'group_ids', 'last_inspection_date')]
 class Hive extends Model
 {
     use CascadeSoftDeletes, SoftDeletes;
     use HasFactory;
 
     protected $cascadeDeletes = ['queen', 'inspections', 'layers', 'frames'];
-
-    protected $fillable = ['user_id', 'location_id', 'hive_type_id', 'color', 'name', 'bb_width_cm', 'bb_depth_cm', 'bb_height_cm', 'fr_width_cm', 'fr_height_cm', 'order'];
-
-    protected $guarded = ['id'];
-
-    protected $hidden = ['user_id', 'deleted_at', 'pivot'];
-
-    protected $appends = ['type', 'location', 'attention', 'impression', 'notes', 'reminder', 'reminder_date', 'inspection_count', 'sensors', 'owner', 'editable', 'group_ids', 'last_inspection_date'];
-
-    public $timestamps = false;
 
     public static function boot()
     {

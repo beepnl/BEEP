@@ -3,6 +3,9 @@
 namespace App;
 
 use Auth;
+use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Attributes\Hidden;
+use Illuminate\Database\Eloquent\Attributes\Table;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Str;
@@ -10,6 +13,9 @@ use InterventionImage;
 use Moment\Moment;
 use Storage;
 
+#[Table('images', 'id')]
+#[Fillable('storage', 'filename', 'image_url', 'thumb_url', 'description', 'type', 'height', 'width', 'size_kb', 'date', 'user_id', 'hive_id', 'category_id', 'inspection_id')]
+#[Hidden('storage', 'user_id')]
 class Image extends Model
 {
     public static $storage = 'public';
@@ -23,29 +29,6 @@ class Image extends Model
     public static $imageDir = 'images';
 
     public static $thumbDir = 'thumbs';
-
-    /**
-     * The database table used by the model.
-     *
-     * @var string
-     */
-    protected $table = 'images';
-
-    /**
-     * The database primary key value.
-     *
-     * @var string
-     */
-    protected $primaryKey = 'id';
-
-    /**
-     * Attributes that should be mass-assignable.
-     *
-     * @var array
-     */
-    protected $fillable = ['storage', 'filename', 'image_url', 'thumb_url', 'description', 'type', 'height', 'width', 'size_kb', 'date', 'user_id', 'hive_id', 'category_id', 'inspection_id'];
-
-    protected $hidden = ['storage', 'user_id'];
 
     public function category(): BelongsTo
     {

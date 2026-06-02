@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers\Api\Auth;
 
+use Illuminate\Routing\Controllers\HasMiddleware;
+use Illuminate\Routing\Controllers\Middleware;
 use App\Http\Controllers\Controller;
 use App\User;
 use Illuminate\Auth\Events\Verified;
@@ -13,7 +15,7 @@ use Illuminate\Http\Request;
  * @group Api\Auth\VerificationController
  * User verification functions
  */
-class VerificationController extends Controller
+class VerificationController extends Controller implements HasMiddleware
 {
     /*
     |--------------------------------------------------------------------------
@@ -43,9 +45,16 @@ class VerificationController extends Controller
     public function __construct()
     {
         // $this->middleware('auth');
-        $this->middleware('signed')->only('verify');
-        $this->middleware('throttle:10,1')->only('verify');
+
         $this->redirectTo = env('WEBAPP_URL', '/').env('WEBAPP_EMAIL_VERIFY_URL', 'login').'?msg=email_verified';
+    }
+
+    public static function middleware(): array
+    {
+        return [
+            new Middleware('signed', only: ['verify']),
+            new Middleware('throttle:10,1', only: ['verify']),
+        ];
     }
 
     /**

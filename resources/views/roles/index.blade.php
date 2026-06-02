@@ -37,9 +37,9 @@
 					<a class="btn btn-primary" href="{{ route('roles.edit',$role->id) }}" title="{{ __('crud.edit') }}"><i class="fa fa-pencil"></i></a>
 					@endpermission
 					@permission('role-delete')
-					{!! Form::open(['method' => 'DELETE','route' => ['roles.destroy', $role->id], 'style'=>'display:inline', 'onsubmit'=>'return confirm("'.__('crud.sure',['item'=>__('general.role'),'name'=>'\''.$role->display_name.'\'']).'")']) !!}
-		            {!! Form::button('<i class="fa fa-trash-o"></i>', ['type'=>'submit', 'class' => 'btn btn-danger pull-right']) !!}
-		        	{!! Form::close() !!}
+					{{ html()->form('DELETE', route('roles.destroy', $role->id))->style('display:inline')->attribute('onsubmit', 'return confirm("' . __('crud.sure', ['item' => __('general.role'), 'name' => '\'' . $role->display_name . '\'']) . '")')->open() }}
+		            {{ html()->input('submit')->value('<i class="fa fa-trash-o"></i>')->class('btn btn-danger pull-right') }}
+		        	{{ html()->form()->close() }}
 		        	@endpermission
 			</td>
 		</tr>

@@ -12,7 +12,7 @@
 	@component('components/box')
 		@slot('title')
 			{{ __('crud.overview', ['item'=>__('general.devices')]) }}
-	        {!! Form::open(['method' => 'GET', 'route' => 'devices.index', 'class' => 'form-inline', 'role' => 'search'])  !!}
+	        {{ html()->form('GET', route('devices.index'))->class('form-inline')->attribute('role', 'search')->open() }}
 	        <div class="input-group" style="display: inline-block;">
 	            <input type="text" class="form-control" style="max-width: 100px;" name="research" placeholder="Research..." value="{{ request('research') }}">
 	            <span class="input-group-btn">
@@ -31,7 +31,7 @@
 	                <button type="submit" class="btn btn-deafult"><i class="fa fa-search"></i></button>
 	            </span>
 	        </div>
-	        {!! Form::close() !!}
+	        {{ html()->form()->close() }}
 	        <span><h5><em>NB: De 'Research', 'User' & 'Device properties' filter velden filteren max 50 devices op volgorde van het laatste contact uit de database</em></h5></span>
 		@endslot
 
@@ -114,9 +114,9 @@
 								<a class="btn btn-warning" href="{{ route('devices.sync',$device->id) }}" title="Sync device clock and reset"><i class="fa fa-refresh"></i></a>
 								@endpermission
 								@permission('sensor-delete')
-								{!! Form::open(['method' => 'DELETE','route' => ['devices.destroy', $device->id], 'style'=>'display:inline', 'onsubmit'=>'return confirm("'.__('crud.sure',['item'=>__('general.sensor'),'name'=>'\''.$device->name.'\'']).'")']) !!}
-					            {!! Form::button('<i class="fa fa-trash-o"></i>', ['type'=>'submit', 'class' => 'btn btn-danger pull-right']) !!}
-					        	{!! Form::close() !!}
+								{{ html()->form('DELETE', route('devices.destroy', $device->id))->style('display:inline')->attribute('onsubmit', 'return confirm("' . __('crud.sure', ['item' => __('general.sensor'), 'name' => '\'' . $device->name . '\'']) . '")')->open() }}
+					            {{ html()->input('submit')->value('<i class="fa fa-trash-o"></i>')->class('btn btn-danger pull-right') }}
+					        	{{ html()->form()->close() }}
 					        	@endpermission
 					        @endif
 						</td>

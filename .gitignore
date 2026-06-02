@@ -24,7 +24,7 @@ Homestead.json
 Homestead.yaml
 .env
 .env.docs
-.phpunit.result.cache
+/.phpunit.cache
 .DS_Store
 .phpintel
 .log

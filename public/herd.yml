@@ -1,5 +1,5 @@
 name: BEEP
-php: '8.2'
+php: '8.3'
 secured: true
 aliases:
     - BEEP.test

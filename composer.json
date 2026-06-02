@@ -34,10 +34,9 @@
         "predis/predis": "^2.2",
         "santigarcor/laratrust": "^8.5",
         "spatie/laravel-html": "^3.13",
-        "tray-labs/laravel-influxdb": "1.0.12"
+        "tray-labs/laravel-influxdb": "^1.0.13"
     },
     "require-dev": {
-        "appzcoder/crud-generator": "^4.0",
         "barryvdh/laravel-debugbar": "^4.0",
         "filp/whoops": "^2.8",
         "mockery/mockery": "^1.6",
@@ -51,7 +50,7 @@
         "preferred-install": "dist",
         "sort-packages": true,
         "platform": {
-            "php": "8.2"
+            "php": "8.3"
         },
         "allow-plugins": {
             "kylekatarnls/update-helper": true,

@@ -22,5 +22,7 @@
         <env name="SESSION_DRIVER" value="array"/>
         <env name="TELESCOPE_ENABLED" value="false"/>
         <env name="PULSE_ENABLED" value="false"/>
+        <env name="BROADCAST_CONNECTION" value="null"/>
+        <env name="NIGHTWATCH_ENABLED" value="false"/>
     </php>
 </phpunit>

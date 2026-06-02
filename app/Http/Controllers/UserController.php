@@ -98,7 +98,7 @@ class UserController extends Controller
             $roleIds = $this->getMyPermittedRoles(Auth::user(), true);
             foreach ($request->input('roles') as $key => $value) {
                 if (in_array($value, $roleIds)) {
-                    $user->attachRole($value);
+                    $user->addRole($value);
                 }
             }
         }
@@ -186,7 +186,7 @@ class UserController extends Controller
             if ($request->filled('roles')) {
                 DB::table('role_user')->where('user_id', $id)->delete();
                 foreach ($request->input('roles') as $key => $value) {
-                    $user->attachRole($value);
+                    $user->addRole($value);
                 }
             }
         } else {

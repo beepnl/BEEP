@@ -9,7 +9,6 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withProviders([
         \Laravel\Tinker\TinkerServiceProvider::class,
         \EllipseSynergie\ApiResponse\Laravel\ResponseServiceProvider::class,
-        \Collective\Html\HtmlServiceProvider::class,
         \Intervention\Image\ImageServiceProvider::class,
         \Mcamara\LaravelLocalization\LaravelLocalizationServiceProvider::class,
         \TrayLabs\InfluxDB\Providers\ServiceProvider::class,

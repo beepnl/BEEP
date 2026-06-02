@@ -2,7 +2,7 @@
 
 namespace App;
 
-use Laratrust\Models\LaratrustRole;
+use Laratrust\Models\Role as LaratrustRole;
 
 class Role extends LaratrustRole
 {
@@ -66,7 +66,7 @@ class Role extends LaratrustRole
             $super->display_name = 'Super administrator'; // optional
             $super->description = 'User is the master of the system, and can edit everything'; // optional
             $super->save();
-            $super->attachPermissions($perm_super); // all roles
+            $super->givePermissions($perm_super); // all roles
         }
 
         if (Role::where('name', 'admin')->count() == 0) {
@@ -75,7 +75,7 @@ class Role extends LaratrustRole
             $admin->display_name = 'Administrator'; // optional
             $admin->description = 'User is allowed to manage users, groups and sensors'; // optional
             $admin->save();
-            $admin->attachPermissions($perm_admin);
+            $admin->givePermissions($perm_admin);
         }
 
         if (Role::where('name', 'manager')->count() == 0) {
@@ -84,7 +84,7 @@ class Role extends LaratrustRole
             $manag->display_name = 'Sensor manager'; // optional
             $manag->description = 'User is allowed to manage groups and sensors'; // optional
             $manag->save();
-            $manag->attachPermissions($perm_manag);
+            $manag->givePermissions($perm_manag);
         }
 
         if (Role::where('name', 'taxonomy')->count() == 0) {
@@ -93,7 +93,7 @@ class Role extends LaratrustRole
             $taxon->display_name = 'Taxonomy editor'; // optional
             $taxon->description = 'User is allowed to create and edit taxonomy items'; // optional
             $taxon->save();
-            $taxon->attachPermissions($perm_taxonomy_editor);
+            $taxon->givePermissions($perm_taxonomy_editor);
         }
 
         if (Role::where('name', 'translator')->count() == 0) {
@@ -102,7 +102,7 @@ class Role extends LaratrustRole
             $trans->display_name = 'Translation editor'; // optional
             $trans->description = 'User is allowed to create languages and edit translations'; // optional
             $trans->save();
-            $trans->attachPermissions($perm_language_editor);
+            $trans->givePermissions($perm_language_editor);
         }
     }
 }

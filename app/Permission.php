@@ -2,7 +2,8 @@
 
 namespace App;
 
-use Laratrust\Models\LaratrustPermission;
+use Laratrust\Models\Permission as LaratrustPermission;
+
 
 class Permission extends LaratrustPermission
 {
@@ -170,7 +171,7 @@ class Permission extends LaratrustPermission
 
             // if (Role::where('name', 'superadmin')->count() == 1)
             // {
-            // 	Role::where('name', 'superadmin')->first()->attachPermissions([$p]);
+            // 	Role::where('name', 'superadmin')->first()->givePermissions([$p]);
             // }
             echo 'Added permission '.$value['display_name']."\r\n";
         }

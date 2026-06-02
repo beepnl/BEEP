@@ -43,7 +43,7 @@ return new class extends Migration
         if (Schema::hasTable('roles') && \App\Role::where('name', 'api-gateway')->count() == 0) {
             $api_role = \App\Role::create(['name' => 'api-gateway', 'display_name' => 'API gateway access role', 'description' => 'API gateway access role to get minimal list of (cached) data for API gateway auth. NB: Set user token in AWS Lambda config variables.']);
             $api_user = \App\User::create(['name' => 'hcs-api-gateway-user', 'email' => 'hcs@iconize.nl']);
-            $api_user->attachRole($api_role->id);
+            $api_user->addRole($api_role->id);
         }
     }
 

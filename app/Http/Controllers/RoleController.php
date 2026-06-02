@@ -51,7 +51,7 @@ class RoleController extends Controller
         $role->save();
 
         foreach ($request->input('permission') as $key => $value) {
-            $role->attachPermission($value);
+            $role->givePermission($value);
         }
 
         return redirect()->route('roles.index')
@@ -106,7 +106,7 @@ class RoleController extends Controller
             ->delete();
 
         foreach ($request->input('permission') as $key => $value) {
-            $role->attachPermission($value);
+            $role->givePermission($value);
         }
 
         return redirect()->route('roles.index')

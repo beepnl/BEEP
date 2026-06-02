@@ -25,13 +25,13 @@
         "laravel/framework": "^11.51",
         "laravel/tinker": "^2.9",
         "laravel/ui": "^4.4",
-        "laravelcollective/html": "^6.4",
         "league/flysystem-aws-s3-v3": "^3.0",
         "mcamara/laravel-localization": "2.3.0",
         "phpoffice/phpspreadsheet": "^1.15",
         "predis/predis": "^2.2",
         "santigarcor/laratrust": "^8.3",
-        "tray-labs/laravel-influxdb": "1.0.12"
+        "tray-labs/laravel-influxdb": "1.0.12",
+        "spatie/laravel-html": "^3.11"
     },
     "require-dev": {
         "appzcoder/crud-generator": "^4.0",

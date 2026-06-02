@@ -37,7 +37,7 @@ class RoleController extends Controller
      */
     public function store(Request $request): RedirectResponse
     {
-        $this->validate($request, [
+        $request->validate([
             'name' => 'required|unique:roles,name',
             'display_name' => 'required',
             'description' => 'required',
@@ -91,7 +91,7 @@ class RoleController extends Controller
      */
     public function update(Request $request, int $id): RedirectResponse
     {
-        $this->validate($request, [
+        $request->validate([
             'display_name' => 'required',
             'description' => 'required',
             'permission' => 'required',

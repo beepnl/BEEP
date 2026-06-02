@@ -171,7 +171,7 @@ class ResearchController extends Controller
     {
         $this->checkAuthorization($request);
 
-        $this->validate($request, [
+        $request->validate([
             'name' => 'required|string',
             'url' => 'nullable|url',
             'image' => 'nullable|image|max:2000',
@@ -223,7 +223,7 @@ class ResearchController extends Controller
     {
         $this->checkAuthorization($request);
 
-        $this->validate($request, [
+        $request->validate([
             'date_start' => 'nullable|date',
             'date_until' => 'nullable|date|after:date_start',
             'user_ids.*' => 'nullable|exists:users,id',
@@ -984,7 +984,7 @@ class ResearchController extends Controller
     {
         $this->checkAuthorization($request);
 
-        $this->validate($request, [
+        $request->validate([
             'date_start' => 'nullable|date',
             'date_until' => 'nullable|date|after:date_start',
             'user_ids.*' => 'nullable|exists:users,id',
@@ -1731,7 +1731,7 @@ class ResearchController extends Controller
     {
         $this->checkAuthorization($request);
 
-        $this->validate($request, [
+        $request->validate([
             'name' => 'required|string',
             'url' => 'nullable|url',
             'image' => 'nullable|image|max:2000',

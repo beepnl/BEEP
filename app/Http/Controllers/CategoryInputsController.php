@@ -45,8 +45,7 @@ class CategoryInputsController extends Controller
      */
     public function store(Request $request): RedirectResponse
     {
-        $this->validate($request,
-            [
+        $request->validate([
                 'name' => 'required|string',
                 'type' => 'required|string|unique:category_inputs',
                 'min' => 'nullable|integer',
@@ -88,8 +87,7 @@ class CategoryInputsController extends Controller
      */
     public function update(Request $request, int $id): RedirectResponse
     {
-        $this->validate($request,
-            [
+        $request->validate([
                 'name' => 'required|string',
                 'type' => Rule::unique('category_inputs')->ignore($id),
                 'min' => 'nullable|integer',

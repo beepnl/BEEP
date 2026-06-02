@@ -50,7 +50,7 @@ class HiveTagsController extends Controller
      */
     public function store(Request $request): RedirectResponse
     {
-        $this->validate($request, [
+        $request->validate([
             'tag' => 'required',
             'user_id' => 'required',
         ]);
@@ -88,7 +88,7 @@ class HiveTagsController extends Controller
      */
     public function update(Request $request, int $id): RedirectResponse
     {
-        $this->validate($request, [
+        $request->validate([
             'tag' => 'required',
             'user_id' => 'required',
         ]);

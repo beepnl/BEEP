@@ -33,7 +33,7 @@ class GroupController extends Controller
      */
     public function store(Request $request): RedirectResponse
     {
-        $this->validate($request, [
+        $request->validate([
             'name' => 'required',
             'type' => 'required',
         ]);
@@ -69,7 +69,7 @@ class GroupController extends Controller
      */
     public function update(Request $request, int $id): RedirectResponse
     {
-        $this->validate($request, [
+        $request->validate([
             'name' => 'required',
             'type' => 'required',
         ]);

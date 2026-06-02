@@ -52,7 +52,7 @@ class AlertRuleFormulaController extends Controller
      */
     public function store(Request $request): RedirectResponse
     {
-        $this->validate($request, [
+        $request->validate([
             'alert_rule_id' => 'required',
             'measurement_id' => 'required',
             'calculation' => 'required',
@@ -94,7 +94,7 @@ class AlertRuleFormulaController extends Controller
      */
     public function update(Request $request, int $id): RedirectResponse
     {
-        $this->validate($request, [
+        $request->validate([
             'alert_rule_id' => 'required',
             'measurement_id' => 'required',
             'calculation' => 'required',

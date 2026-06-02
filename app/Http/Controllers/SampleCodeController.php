@@ -666,7 +666,7 @@ class SampleCodeController extends Controller
      */
     public function store(Request $request): RedirectResponse
     {
-        $this->validate($request, [
+        $request->validate([
             'sample_code' => 'required',
             'hive_id' => 'required',
         ]);
@@ -704,7 +704,7 @@ class SampleCodeController extends Controller
      */
     public function update(Request $request, int $id): RedirectResponse
     {
-        $this->validate($request, [
+        $request->validate([
             'sample_code' => 'required',
             'hive_id' => 'required',
         ]);

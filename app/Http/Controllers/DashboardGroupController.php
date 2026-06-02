@@ -62,7 +62,7 @@ class DashboardGroupController extends Controller
      */
     public function store(Request $request): RedirectResponse
     {
-        $this->validate($request, [
+        $request->validate([
             'code' => 'required|string|min:6',
             'hive_ids.*' => 'required|exists:hives,id',
             'interval' => ['required', Rule::in(array_keys(DashboardGroup::$intervals))],
@@ -109,7 +109,7 @@ class DashboardGroupController extends Controller
      */
     public function update(Request $request, int $id): RedirectResponse
     {
-        $this->validate($request, [
+        $request->validate([
             'code' => 'required|string|min:6',
             'hive_ids.*' => 'required|exists:hives,id',
             'interval' => ['required', Rule::in(array_keys(DashboardGroup::$intervals))],

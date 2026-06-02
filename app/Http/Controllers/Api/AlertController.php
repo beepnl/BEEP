@@ -44,7 +44,7 @@ class AlertController extends Controller
      */
     public function store(Request $request): JsonResponse
     {
-        $this->validate($request, [
+        $request->validate([
             'alert_rule_id' => 'required|integer|exists:alert_rules,id',
             'measurement_id' => 'required|integer|exists:measurements,id',
             'alert_value' => 'required|string',

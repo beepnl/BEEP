@@ -79,7 +79,7 @@ class AlertRuleController extends Controller
      */
     public function store(Request $request): RedirectResponse
     {
-        $this->validate($request, [
+        $request->validate([
             'measurement_id' => 'required',
             'calculation' => 'required',
             'comparator' => 'required',
@@ -142,7 +142,7 @@ class AlertRuleController extends Controller
      */
     public function update(Request $request, int $id): RedirectResponse
     {
-        $this->validate($request, [
+        $request->validate([
             'measurement_id' => 'required',
             'calculation' => 'required',
             'comparator' => 'required',

@@ -96,7 +96,7 @@ class SensorDefinitionController extends Controller
      */
     public function store(Request $request): RedirectResponse
     {
-        $this->validate($request, [
+        $request->validate([
             'device_id' => 'required|integer|exists:sensors,id',
             'input_measurement_id' => 'integer|exists:measurements,id',
         ]);
@@ -139,7 +139,7 @@ class SensorDefinitionController extends Controller
      */
     public function update(Request $request, int $id): RedirectResponse
     {
-        $this->validate($request, [
+        $request->validate([
             'device_id' => 'required|integer|exists:sensors,id',
             'input_measurement_id' => 'integer|exists:measurements,id',
         ]);

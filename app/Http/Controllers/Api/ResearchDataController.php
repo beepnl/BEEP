@@ -491,7 +491,7 @@ class ResearchDataController extends Controller
             return Response::json('unauthorized-for-research', 405);
         }
 
-        $this->validate($request, [
+        $request->validate([
             'date_start' => 'nullable|date',
             'date_until' => 'nullable|date',
             'device_id' => 'nullable|integer|exists:sensors,id',
@@ -729,7 +729,7 @@ class ResearchDataController extends Controller
             return Response::json('unauthorized-for-research', 405);
         }
 
-        $this->validate($request, [
+        $request->validate([
             'date_start' => 'nullable|date',
             'date_until' => 'nullable|date',
             'year_months' => 'nullable|string',

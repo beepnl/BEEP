@@ -66,7 +66,7 @@ class UserController extends Controller
             return redirect()->route('users.index')->with('error', 'You are not allowed to create this type of user');
         }
 
-        $this->validate($request, [
+        $request->validate([
             'name' => 'required',
             'email' => 'required|email|unique:users,email',
             'password' => 'required|same:confirm-password',
@@ -151,7 +151,7 @@ class UserController extends Controller
         }
 
         // Do normal validation
-        $this->validate($request, [
+        $request->validate([
             'name' => 'required',
             'email' => 'required|email|unique:users,email,'.$id,
             'password' => 'same:confirm-password',

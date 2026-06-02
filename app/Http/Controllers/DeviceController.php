@@ -219,7 +219,7 @@ class DeviceController extends Controller
      */
     public function store(Request $request): RedirectResponse
     {
-        $this->validate($request, [
+        $request->validate([
             'name' => 'required',
             'key' => 'required',
             'user_id' => 'required',
@@ -410,7 +410,7 @@ class DeviceController extends Controller
      */
     public function update(Request $request, int $id): RedirectResponse
     {
-        $this->validate($request, [
+        $request->validate([
             'name' => 'required',
             'key' => 'required',
             'user_id' => 'required',

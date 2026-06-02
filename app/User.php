@@ -374,7 +374,7 @@ class User extends Authenticatable implements LaratrustUser
         });
     }
 
-    public function groupInvitations()
+    public function groupInvitations(): BelongsToMany
     {
         $user_id = $this->id;
 

@@ -46,12 +46,12 @@ class CategoryInputsController extends Controller
     public function store(Request $request): RedirectResponse
     {
         $request->validate([
-                'name' => 'required|string',
-                'type' => 'required|string|unique:category_inputs',
-                'min' => 'nullable|integer',
-                'max' => 'nullable|integer',
-                'decimals' => 'nullable|integer',
-            ]);
+            'name' => 'required|string',
+            'type' => 'required|string|unique:category_inputs',
+            'min' => 'nullable|integer',
+            'max' => 'nullable|integer',
+            'decimals' => 'nullable|integer',
+        ]);
 
         $requestData = $request->all();
 
@@ -88,12 +88,12 @@ class CategoryInputsController extends Controller
     public function update(Request $request, int $id): RedirectResponse
     {
         $request->validate([
-                'name' => 'required|string',
-                'type' => Rule::unique('category_inputs')->ignore($id),
-                'min' => 'nullable|integer',
-                'max' => 'nullable|integer',
-                'decimals' => 'nullable|integer',
-            ]);
+            'name' => 'required|string',
+            'type' => Rule::unique('category_inputs')->ignore($id),
+            'min' => 'nullable|integer',
+            'max' => 'nullable|integer',
+            'decimals' => 'nullable|integer',
+        ]);
 
         $categoryinput = CategoryInput::findOrFail($id);
         $requestData = $request->all();

@@ -1,6 +1,6 @@
 <?php
 
-class ExampleTest extends TestCase
+final class ExampleTest extends TestCase
 {
     /**
      * A basic functional test example.

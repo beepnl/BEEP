@@ -14,7 +14,7 @@ class InspectionItemsController extends Controller
      */
     public function index(Request $request): View
     {
-        $keyword = $request->get('search');
+        $keyword = $request->input('search');
         $perPage = 100;
 
         if (! empty($keyword)) {

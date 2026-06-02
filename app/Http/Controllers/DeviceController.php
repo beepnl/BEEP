@@ -23,9 +23,9 @@ class DeviceController extends Controller
      */
     public function index(Request $request): View
     {
-        $keyword = $request->get('search');
-        $search_user = $request->get('user');
-        $search_res = $request->get('research');
+        $keyword = $request->input('search');
+        $search_user = $request->input('user');
+        $search_res = $request->input('research');
         $perPage = 50;
         $devices = Device::withTrashed()->where('id', '!=', null);
 
@@ -88,10 +88,10 @@ class DeviceController extends Controller
      */
     public function data(Request $request): View
     {
-        $keyword = $request->get('search');
-        $search_user = $request->get('user');
-        $search_res = $request->get('research');
-        $high_weight = boolval($request->get('high_weight', false));
+        $keyword = $request->input('search');
+        $search_user = $request->input('user');
+        $search_res = $request->input('research');
+        $high_weight = boolval($request->input('high_weight', false));
         $perPage = 10;
         $devices = Device::withTrashed()->where('id', '!=', null);
 

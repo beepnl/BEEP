@@ -14,7 +14,7 @@ class PhysicalQuantityController extends Controller
      */
     public function index(Request $request): View
     {
-        $keyword = $request->get('search');
+        $keyword = $request->input('search');
         $perPage = 1000;
 
         if (! empty($keyword)) {

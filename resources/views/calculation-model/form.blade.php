@@ -11,7 +11,7 @@
 	<div class="form-group {{ $errors->has('data_measurement_id') ? 'has-error' : ''}}">
 	    <label for="data_measurement_id" control-label>{{ 'IN: Data Measurement' }}</label>
 	    <div>
-	        {!! Form::select('data_measurement_id', App\Measurement::selectList(), e($calculationmodel->data_measurement_id ?? null), array('placeholder'=>__('crud.select', ['item'=>__('general.measurement')]),'class' => 'form-control select2')) !!}
+	        {{ html()->select('data_measurement_id', App\Measurement::selectList(), e($calculationmodel->data_measurement_id ?? null))->placeholder(__('crud.select', ['item' => __('general.measurement')]))->class('form-control select2') }}
 	        {!! $errors->first('data_measurement_id', '<p class="help-block">:message</p>') !!}
 	    </div>
 	</div>
@@ -20,7 +20,7 @@
 	<div class="form-group {{ $errors->has('measurement_id') ? 'has-error' : ''}}">
 	    <label for="measurement_id" control-label>{{ 'OUT: Output Measurement' }}</label>
 	    <div>
-	        {!! Form::select('measurement_id', App\Measurement::selectList(), e($calculationmodel->measurement_id ?? null), array('placeholder'=>__('crud.select', ['item'=>__('general.measurement')]),'class' => 'form-control select2')) !!}
+	        {{ html()->select('measurement_id', App\Measurement::selectList(), e($calculationmodel->measurement_id ?? null))->placeholder(__('crud.select', ['item' => __('general.measurement')]))->class('form-control select2') }}
 	        {!! $errors->first('measurement_id', '<p class="help-block">:message</p>') !!}
 	    </div>
 	</div>
@@ -107,7 +107,7 @@
 	    <label for="calculation" control-label>{{ 'Calculation type' }}</label>
 	    <div>
 	        <div>
-	        {!! Form::select('calculation', App\Models\CalculationModel::$calculations, e($calculationmodel->calculation ?? null), array('placeholder'=>__('crud.select', ['item'=>'Calculation type']),'class' => 'form-control select2')) !!}
+	        {{ html()->select('calculation', App\Models\CalculationModel::$calculations, e($calculationmodel->calculation ?? null))->placeholder(__('crud.select', ['item' => 'Calculation type']))->class('form-control select2') }}
 	        {!! $errors->first('calculation', '<p class="help-block">:message</p>') !!}
 	    </div>
 	    </div>

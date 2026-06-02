@@ -36,9 +36,9 @@
 					<a class="btn btn-primary" href="{{ route('groups.edit',$group->id) }}" title="{{ __('crud.edit') }}"><i class="fa fa-pencil"></i></a>
 					@endpermission
 					@permission('group-delete')
-					{!! Form::open(['method' => 'DELETE','route' => ['groups.destroy', $group->id], 'style'=>'display:inline', 'onsubmit'=>'return confirm("'.__('crud.sure',['item'=>__('general.group'),'name'=>'\''.$group->name.'\'']).'")']) !!}
-		            {!! Form::button('<i class="fa fa-trash-o"></i>', ['type'=>'submit', 'class' => 'btn btn-danger pull-right']) !!}
-		        	{!! Form::close() !!}
+					{{ html()->form('DELETE', route('groups.destroy', $group->id))->style('display:inline')->attribute('onsubmit', 'return confirm("' . __('crud.sure', ['item' => __('general.group'), 'name' => '\'' . $group->name . '\'']) . '")')->open() }}
+		            {{ html()->input('submit')->value('<i class="fa fa-trash-o"></i>')->class('btn btn-danger pull-right') }}
+		        	{{ html()->form()->close() }}
 		        	@endpermission
 				</td>
 			</tr>

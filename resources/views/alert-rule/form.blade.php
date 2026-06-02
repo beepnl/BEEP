@@ -80,7 +80,7 @@
 	<div class="form-group {{ $errors->has('measurement_id') ? 'has-error' : ''}}">
 	    <label for="measurement_id" control-label>{{ 'Measurement Id' }}</label>
 	    <div>
-	        {!! Form::select('measurement_id', App\Measurement::selectList(), e($alertrule->measurement_id ?? null), array('placeholder'=>__('crud.select', ['item'=>__('general.measurement')]),'class' => 'form-control select2')) !!}
+	        {{ html()->select('measurement_id', App\Measurement::selectList(), e($alertrule->measurement_id ?? null))->placeholder(__('crud.select', ['item' => __('general.measurement')]))->class('form-control select2') }}
 	        {!! $errors->first('measurement_id', '<p class="help-block">:message</p>') !!}
 	    </div>
 	</div>
@@ -155,7 +155,7 @@
 	<div class="form-group {{ $errors->has('exclude_months') ? 'has-error' : ''}}">
 	    <label for="exclude_months" control-label>{{ 'Exclude Months' }}</label>
 	    <div>
-	        {!! Form::select('exclude_months[]', App\Models\AlertRule::$exclude_months, isset($alertrule->exclude_months) ? $alertrule->getExcludeMonthsAttribute() : null, array('class' => 'form-control select2', 'multiple')) !!}
+	        {{ html()->multiselect('exclude_months[]', App\Models\AlertRule::$exclude_months, isset($alertrule->exclude_months) ? $alertrule->getExcludeMonthsAttribute() : null)->class('form-control select2') }}
 	        {!! $errors->first('exclude_months', '<p class="help-block">:message</p>') !!}
 	    </div>
 	</div>
@@ -164,7 +164,7 @@
 	<div class="form-group {{ $errors->has('exclude_hours') ? 'has-error' : ''}}">
 	    <label for="exclude_hours" control-label>{{ 'Exclude Hours' }}</label>
 	    <div>
-	        {!! Form::select('exclude_hours[]', App\Models\AlertRule::$exclude_hours, isset($alertrule->exclude_hours) ? $alertrule->getExcludeHoursAttribute() : null, array('class' => 'form-control select2', 'multiple')) !!}
+	        {{ html()->multiselect('exclude_hours[]', App\Models\AlertRule::$exclude_hours, isset($alertrule->exclude_hours) ? $alertrule->getExcludeHoursAttribute() : null)->class('form-control select2') }}
 	        {!! $errors->first('exclude_hours', '<p class="help-block">:message</p>') !!}
 	    </div>
 	</div>
@@ -173,7 +173,7 @@
 	<div class="form-group {{ $errors->has('exclude_hive_ids') ? 'has-error' : ''}}">
 	    <label for="exclude_hive_ids" control-label>{{ 'Exclude Hives' }}</label>
 	    <div>
-	        {!! Form::select('exclude_hive_ids[]', App\Hive::selectList(true), isset($alertrule->exclude_hive_ids) ? $alertrule->getExcludeHiveIdsAttribute() : null, array('class' => 'form-control select2', 'multiple')) !!}
+	        {{ html()->multiselect('exclude_hive_ids[]', App\Hive::selectList(true), isset($alertrule->exclude_hive_ids) ? $alertrule->getExcludeHiveIdsAttribute() : null)->class('form-control select2') }}
 	        {!! $errors->first('exclude_hive_ids', '<p class="help-block">:message</p>') !!}
 	    </div>
 	</div>
@@ -193,7 +193,7 @@
 	<div class="form-group {{ $errors->has('user_id') ? 'has-error' : ''}}">
 	    <label for="user_id" control-label>{{ 'User Id' }}</label>
 	    <div>
-	        {!! Form::select('user_id', App\User::selectList(), e($alertrule->user_id ?? null), array('placeholder'=>__('crud.select', ['item'=>__('general.user')]),'class' => 'form-control select2')) !!}
+	        {{ html()->select('user_id', App\User::selectList(), e($alertrule->user_id ?? null))->placeholder(__('crud.select', ['item' => __('general.user')]))->class('form-control select2') }}
 	        {!! $errors->first('user_id', '<p class="help-block">:message</p>') !!}
 	    </div>
 	</div>

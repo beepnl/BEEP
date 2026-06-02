@@ -10,7 +10,7 @@
         @slot('title')
             {{ __('crud.overview', ['item'=>__('general.devices')]) }}
             <br>
-            {!! Form::open(['method' => 'GET', 'route' => 'devices.data', 'class' => 'form-inline', 'role' => 'search'])  !!}
+            {{ html()->form('GET', route('devices.data'))->class('form-inline')->attribute('role', 'search')->open() }}
             <div class="input-group" style="display: inline-block; width: 200px;">
                 <select class="form-control" style="max-width: 160px;" name="year" value="{{ request('year') }}">
                     @for($year=date('Y'); $year > 2018; $year--)
@@ -53,7 +53,7 @@
                     <button type="submit" class="btn btn-deafult"><i class="fa fa-search"></i></button>
                 </span>
             </div>
-            {!! Form::close() !!}
+            {{ html()->form()->close() }}
             <span><h5><em>NB: Fill at least one of the 'Research', 'User' & 'Device properties' filter properties to show Data and Completeness. The filter shows 10 items per page.</em></h5></span>
         @endslot
 

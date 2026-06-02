@@ -3,7 +3,7 @@
 	    <label for="user_id" control-label>{{ 'Owner' }}</label>
 	    <div>
 	        {{-- <input class="form-control" name="checklist_id" type="number" id="checklist_id" value="{{ isset($research->checklist_id) ? $research->checklist_id : '' }}" > --}}
-	        {!! Form::select('user_id', App\User::selectList(), isset($research->user_id) ? $research->user_id : Auth::user()->id, array('id'=>'user_id','class' => 'form-control select2')) !!}
+	        {{ html()->select('user_id', App\User::selectList(), isset($research->user_id) ? $research->user_id : Auth::user()->id)->id('user_id')->class('form-control select2') }}
 	        {!! $errors->first('user_id', '<p class="help-block">:message</p>') !!}
 	    </div>
 	</div>
@@ -145,7 +145,7 @@
 	    <label for="checklist_ids" control-label>{{ 'Checklists' }}</label>
 	    <div>
 	        {{-- <input class="form-control" name="checklist_id" type="number" id="checklist_id" value="{{ isset($research->checklist_id) ? $research->checklist_id : '' }}" > --}}
-	        {!! Form::select('checklist_ids[]', App\Checklist::selectList(), $research->checklists->count() > 0 ? $research->checklists->pluck('id') : null, array('id'=>'checklist_ids','class' => 'form-control select2', 'multiple')) !!}
+	        {{ html()->multiselect('checklist_ids[]', App\Checklist::selectList(), $research->checklists->count() > 0 ? $research->checklists->pluck('id') : null)->id('checklist_ids')->class('form-control select2') }}
 	        {!! $errors->first('checklist_ids', '<p class="help-block">:message</p>') !!}
 	    </div>
 	</div>
@@ -156,7 +156,7 @@
 	    <label for="viewer_ids" control-label>{{ 'Viewers' }}</label>
 	    <div>
 	        {{-- <input class="form-control" name="checklist_id" type="number" id="checklist_id" value="{{ isset($research->checklist_id) ? $research->checklist_id : '' }}" > --}}
-	        {!! Form::select('viewer_ids[]', App\User::selectList(), $research->viewers->count() > 0 ? $research->viewers->pluck('id') : null, array('id'=>'viewer_ids','class' => 'form-control select2', 'multiple')) !!}
+	        {{ html()->multiselect('viewer_ids[]', App\User::selectList(), $research->viewers->count() > 0 ? $research->viewers->pluck('id') : null)->id('viewer_ids')->class('form-control select2') }}
 	        {!! $errors->first('viewer_ids', '<p class="help-block">:message</p>') !!}
 	    </div>
 	</div>
@@ -167,7 +167,7 @@
 	    <label for="default_user_ids" control-label>{{ 'Most important users (first selection in research backend) & Invited users (in case of On invite only)' }}</label>
 	    <div>
 	        {{-- <input class="form-control" name="checklist_id" type="number" id="checklist_id" value="{{ isset($research->checklist_id) ? $research->checklist_id : '' }}" > --}}
-	        {!! Form::select('default_user_ids[]', App\User::selectList(), isset($research->default_user_ids) ? $research->default_user_ids : null, array('id'=>'default_user_ids','class' => 'form-control select2', 'multiple')) !!}
+	        {{ html()->multiselect('default_user_ids[]', App\User::selectList(), isset($research->default_user_ids) ? $research->default_user_ids : null)->id('default_user_ids')->class('form-control select2') }}
 	        {!! $errors->first('default_user_ids', '<p class="help-block">:message</p>') !!}
 	    </div>
 	</div>

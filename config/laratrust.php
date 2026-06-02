@@ -177,7 +177,7 @@ return [
         /**
          * Role foreign key on Laratrust's role_user and permission_user tables.
          */
-              'team' => 'organization_id',
+        'team' => 'organization_id',
     ],
 
     /*
@@ -254,7 +254,7 @@ return [
         'strict_check' => false,
     ],
 
-        /*
+    /*
     |--------------------------------------------------------------------------
     | Laratrust Magic 'isAbleTo' Method
     |--------------------------------------------------------------------------

@@ -4,7 +4,6 @@ namespace App;
 
 use Laratrust\Models\Permission as LaratrustPermission;
 
-
 class Permission extends LaratrustPermission
 {
     public $fillable = ['name', 'display_name', 'description'];

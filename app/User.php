@@ -23,7 +23,6 @@ use Illuminate\Support\Facades\Log;
 use Laratrust\Contracts\LaratrustUser;
 use Laratrust\Traits\HasRolesAndPermissions;
 
-
 class User extends Authenticatable implements LaratrustUser
 {
     use HasFactory;

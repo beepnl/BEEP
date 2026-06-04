@@ -3,20 +3,19 @@ window.abortControllers = {};
 function cacheAuthValue() {
     // Whenever the auth header is set for one endpoint, cache it for the others
     window.lastAuthValue = '';
-    document.querySelectorAll(`label[id^=auth-] > input`)
-        .forEach(el => {
-            el.addEventListener('change', (event) => {
-                window.lastAuthValue = event.target.value;
-                document.querySelectorAll(`label[id^=auth-] > input`)
-                    .forEach(otherInput => {
-                        if (otherInput === el) return;
-                        // Don't block the main thread
-                       setTimeout(() => {
-                           otherInput.value = window.lastAuthValue;
-                        }, 0);
-                    });
+    let authInputs = document.querySelectorAll(`.auth-value`)
+    authInputs.forEach(el => {
+        el.addEventListener('input', (event) => {
+            window.lastAuthValue = event.target.value;
+            authInputs.forEach(otherInput => {
+                if (otherInput === el) return;
+                // Don't block the main thread
+                setTimeout(() => {
+                    otherInput.value = window.lastAuthValue;
+                }, 0);
             });
         });
+    });
 }
 
 window.addEventListener('DOMContentLoaded', cacheAuthValue);
@@ -39,12 +38,13 @@ function getCookie(name) {
 
 function tryItOut(endpointId) {
     document.querySelector(`#btn-tryout-${endpointId}`).hidden = true;
-    document.querySelector(`#btn-executetryout-${endpointId}`).hidden = false;
     document.querySelector(`#btn-canceltryout-${endpointId}`).hidden = false;
+    const executeBtn = document.querySelector(`#btn-executetryout-${endpointId}`).hidden = false;
+    executeBtn.disabled = false;
 
     // Show all input fields
     document.querySelectorAll(`input[data-endpoint=${endpointId}],label[data-endpoint=${endpointId}]`)
-        .forEach(el => el.hidden = false);
+        .forEach(el => el.style.display = 'block');
 
     if (document.querySelector(`#form-${endpointId}`).dataset.authed === "1") {
         const authElement = document.querySelector(`#auth-${endpointId}`);
@@ -64,11 +64,11 @@ function cancelTryOut(endpointId) {
     document.querySelector(`#btn-tryout-${endpointId}`).hidden = false;
     const executeBtn = document.querySelector(`#btn-executetryout-${endpointId}`);
     executeBtn.hidden = true;
-    executeBtn.textContent = "Send Request 💥";
+    executeBtn.textContent = executeBtn.dataset.initialText;
     document.querySelector(`#btn-canceltryout-${endpointId}`).hidden = true;
     // Hide inputs
     document.querySelectorAll(`input[data-endpoint=${endpointId}],label[data-endpoint=${endpointId}]`)
-        .forEach(el => el.hidden = true);
+        .forEach(el => el.style.display = 'none');
     document.querySelectorAll(`#form-${endpointId} details`)
         .forEach(el => el.open = false);
     const authElement = document.querySelector(`#auth-${endpointId}`);
@@ -82,14 +82,14 @@ function cancelTryOut(endpointId) {
     document.querySelector('#example-responses-' + endpointId).hidden = false;
 }
 
-function makeAPICall(method, path, body, query, headers, endpointId) {
+function makeAPICall(method, path, body = {}, query = {}, headers = {}, endpointId = null) {
     console.log({endpointId, path, body, query, headers});
 
-    if (!(body instanceof FormData)) {
+    if (!(body instanceof FormData) && typeof body !== "string") {
         body = JSON.stringify(body)
     }
 
-    const url = new URL(window.baseUrl + '/' + path.replace(/^\//, ''));
+    const url = new URL(window.tryItOutBaseUrl + '/' + path.replace(/^\//, ''));
 
     // We need this function because if you try to set an array or object directly to a URLSearchParams object,
     // you'll get [object Object] or the array.toString()
@@ -119,11 +119,11 @@ function makeAPICall(method, path, body, query, headers, endpointId) {
         headers,
         body: method === 'GET' ? undefined : body,
         signal: window.abortControllers[endpointId].signal,
-        referrer: window.baseUrl,
+        referrer: window.tryItOutBaseUrl,
         mode: 'cors',
         credentials: 'same-origin',
     })
-        .then(response => Promise.all([response.status, response.text(), response.headers]));
+        .then(response => Promise.all([response.status, response.statusText, response.text(), response.headers]));
 }
 
 function hideCodeSamples(endpointId) {
@@ -139,6 +139,17 @@ function handleResponse(endpointId, response, status, headers) {
 
     const responseContentEl = document.querySelector('#execution-response-content-' + endpointId);
 
+    // Check if the response contains Laravel's  dd() default dump output
+    const isLaravelDump = response.includes('Sfdump');
+
+    // If it's a Laravel dd() dump, use innerHTML to render it safely
+    if (isLaravelDump) {
+        responseContentEl.innerHTML = response === '' ? responseContentEl.dataset.emptyResponseText : response;
+    } else {
+        // Otherwise, stick to textContent for regular responses
+        responseContentEl.textContent = response === '' ? responseContentEl.dataset.emptyResponseText : response;
+    }
+
     // Prettify it if it's JSON
     let isJson = false;
     try {
@@ -146,12 +157,13 @@ function handleResponse(endpointId, response, status, headers) {
         if (jsonParsed !== null) {
             isJson = true;
             response = JSON.stringify(jsonParsed, null, 4);
+            responseContentEl.textContent = response;
         }
     } catch (e) {
 
     }
-    responseContentEl.textContent = response === '' ? '<Empty response>' : response;
-    isJson && window.hljs.highlightBlock(responseContentEl);
+
+    isJson && window.hljs.highlightElement(responseContentEl);
     const statusEl = document.querySelector('#execution-response-status-' + endpointId);
     statusEl.textContent = ` (${status})`;
     document.querySelector('#execution-results-' + endpointId).hidden = false;
@@ -165,10 +177,8 @@ function handleError(endpointId, err) {
 
     // Show error views
     let errorMessage = err.message || err;
-    errorMessage += "\n\nTip: Check that you're properly connected to the network.";
-    errorMessage += "\nIf you're a maintainer of ths API, verify that your API is running and you've enabled CORS.";
-    errorMessage += "\nYou can check the Dev Tools console for debugging information.";
-    document.querySelector('#execution-error-message-' + endpointId).textContent = errorMessage;
+    const $errorMessageEl = document.querySelector('#execution-error-message-' + endpointId);
+    $errorMessageEl.textContent = errorMessage + $errorMessageEl.textContent;
     const errorEl = document.querySelector('#execution-error-' + endpointId);
     errorEl.hidden = false;
     errorEl.scrollIntoView({behavior: "smooth", block: "center"});
@@ -177,7 +187,8 @@ function handleError(endpointId, err) {
 
 async function executeTryOut(endpointId, form) {
     const executeBtn = document.querySelector(`#btn-executetryout-${endpointId}`);
-    executeBtn.textContent = "⏱ Sending...";
+    executeBtn.textContent = executeBtn.dataset.loadingText;
+    executeBtn.disabled = true;
     executeBtn.scrollIntoView({behavior: "smooth", block: "center"});
 
     let body;
@@ -195,6 +206,11 @@ async function executeTryOut(endpointId, form) {
     const bodyParameters = form.querySelectorAll('input[data-component=body]');
     bodyParameters.forEach(el => {
         let value = el.value;
+
+        if (el.type === 'number' && typeof value === 'string') {
+            value = parseFloat(value);
+        }
+
         if (el.type === 'file' && el.files[0]) {
             setter(el.name, el.files[0]);
             return;
@@ -219,8 +235,8 @@ async function executeTryOut(endpointId, form) {
     const queryParameters = form.querySelectorAll('input[data-component=query]');
     queryParameters.forEach(el => {
         if (el.type !== 'radio' || (el.type === 'radio' && el.checked)) {
-            if (el.value === '' && el.required === false) {
-                // Don't include empty optional values in the request
+            if (el.value === '') {
+                // Don't include empty values in the request
                 return;
             }
 
@@ -232,12 +248,9 @@ async function executeTryOut(endpointId, form) {
     const urlParameters = form.querySelectorAll('input[data-component=url]');
     urlParameters.forEach(el => (path = path.replace(new RegExp(`\\{${el.name}\\??}`), el.value)));
 
-    const headers = JSON.parse(form.dataset.headers);
-    // Check for auth param that might go in header
-    if (form.dataset.authed === "1") {
-        const authHeaderEl = form.querySelector('input[data-component=header]');
-        if (authHeaderEl) headers[authHeaderEl.name] = authHeaderEl.dataset.prefix + authHeaderEl.value;
-    }
+    const headers = Object.fromEntries(Array.from(form.querySelectorAll('input[data-component=header]'))
+        .map(el => [el.name, el.value]));
+
     // When using FormData, the browser sets the correct content-type + boundary
     let method = form.dataset.method;
     if (body instanceof FormData) {
@@ -252,13 +265,13 @@ async function executeTryOut(endpointId, form) {
 
     let preflightPromise = Promise.resolve();
     if (window.useCsrf && window.csrfUrl) {
-        preflightPromise = makeAPICall('GET', window.csrfUrl, {}, {}, {}, null).then(() => {
+        preflightPromise = makeAPICall('GET', window.csrfUrl).then(() => {
             headers['X-XSRF-TOKEN'] = getCookie('XSRF-TOKEN');
         });
     }
 
     return preflightPromise.then(() => makeAPICall(method, path, body, query, headers, endpointId))
-        .then(([responseStatus, responseContent, responseHeaders]) => {
+        .then(([responseStatus, statusText, responseContent, responseHeaders]) => {
             handleResponse(endpointId, responseContent, responseStatus, responseHeaders)
         })
         .catch(err => {
@@ -270,6 +283,7 @@ async function executeTryOut(endpointId, form) {
             handleError(endpointId, err);
         })
         .finally(() => {
-            executeBtn.textContent = "Send Request 💥";
+            executeBtn.disabled = false;
+            executeBtn.textContent = executeBtn.dataset.initialText;
         });
 }

@@ -71,6 +71,10 @@ Route::patch('coderesult', [SampleCodeController::class, 'resultsave'])->name('s
 // Secured by login
 Route::prefix(LaravelLocalization::setLocale())->middleware('auth', 'localeSessionRedirect', 'localizationRedirect', 'verified')->group(
     function () {
+        Route::get('docs', function () {
+        return view('scribe/index');
+        });
+
         Route::middleware('role:superadmin|admin|lab')->group(
             function () {
                 Route::get('code-upload', [SampleCodeController::class, 'upload'])->name('sample-code.upload');

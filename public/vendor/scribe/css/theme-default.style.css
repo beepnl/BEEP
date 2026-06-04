@@ -1,7 +1,7 @@
 /*! normalize.css v3.0.2 | MIT License | git.io/normalize */
 
 html {
-    font-family: 'PT Sans', sans-serif;
+    font-family: 'Open Sans', sans-serif;
     font-size: 1.2em;
     -ms-text-size-adjust: 100%;
     -webkit-text-size-adjust: 100%
@@ -223,7 +223,7 @@ th {
 
 body,
 html {
-    font-family: 'PT Sans', Helvetica Neue, Helvetica, Arial, Microsoft Yahei, 微软雅黑, STXihei, 华文细黑, sans-serif;
+    font-family: 'Open Sans', Helvetica Neue, Helvetica, Arial, Microsoft Yahei, 微软雅黑, STXihei, 华文细黑, sans-serif;
     font-size: 16px;
 }
 
@@ -233,7 +233,7 @@ html {
 .content h4,
 .content h5,
 .content h6 {
-    font-family: 'PT Sans', Helvetica Neue, Helvetica, Arial, Microsoft Yahei, 微软雅黑, STXihei, 华文细黑, sans-serif;
+    font-family: 'Open Sans', Helvetica Neue, Helvetica, Arial, Microsoft Yahei, 微软雅黑, STXihei, 华文细黑, sans-serif;
 }
 
 .content h1,
@@ -264,7 +264,7 @@ html {
 .content aside.success:before,
 .content aside.warning:before,
 .tocify-wrapper>.search:before {
-    font-family: 'PT Sans', sans-serif;
+    font-family: 'Open Sans', sans-serif;
     speak: none;
     font-style: normal;
     font-variant: normal;
@@ -492,6 +492,9 @@ html {
     white-space: nowrap;
     text-overflow: ellipsis
 }
+.tocify-wrapper .tocify-item.level-3>a {
+    padding: 0 25px;
+}
 
 .tocify-wrapper li,
 .tocify-wrapper ul {
@@ -530,6 +533,10 @@ html {
 .tocify-wrapper .tocify-subheader .tocify-item>a {
     padding-left: 25px;
     font-size: 12px
+}
+
+.tocify-wrapper .tocify-subheader .tocify-item.level-3>a {
+    padding-left: 35px;
 }
 
 .tocify-wrapper .tocify-subheader>li:last-child {
@@ -681,6 +688,7 @@ html {
 .content>p,
 .content>table,
 .content>ul,
+.content>div,
 .content>form>aside,
 .content>form>details,
 .content>form>h1,
@@ -691,7 +699,8 @@ html {
 .content>form>h6,
 .content>form>p,
 .content>form>table,
-.content>form>ul {
+.content>form>ul,
+.content>form>div {
     margin-right: 50%;
     padding: 0 28px;
     box-sizing: border-box;
@@ -831,21 +840,30 @@ html {
 .content aside {
     padding-top: 1em;
     padding-bottom: 1em;
-    text-shadow: 0 1px 0 #a0c6da;
     margin-top: 1.5em;
     margin-bottom: 1.5em;
+    background: #292929;
+    line-height: 1.6;
+    color: #c8c8c8;
+    text-shadow: none;
+}
+
+.content aside.info {
     background: #8fbcd4;
-    line-height: 1.6
+    text-shadow: 0 1px 0 #a0c6da;
+    color: initial;
 }
 
 .content aside.warning {
     background-color: #c97a7e;
-    text-shadow: 0 1px 0 #d18e91
+    text-shadow: 0 1px 0 #d18e91;
+    color: initial;
 }
 
 .content aside.success {
     background-color: #6ac174;
-    text-shadow: 0 1px 0 #80ca89
+    text-shadow: 0 1px 0 #80ca89;
+    color: initial;
 }
 
 .content aside:before {
@@ -874,6 +892,11 @@ html {
     clear: right;
     box-sizing: border-box;
     text-shadow: 0 1px 2px rgba(0, 0, 0, .4)
+}
+
+.content blockquote pre.sf-dump,
+.content pre pre.sf-dump {
+    width: 100%;
 }
 
 .content .annotation {
@@ -944,20 +967,6 @@ html {
     .page-wrapper .lang-selector {
         display: none
     }
-    .content aside,
-    .content dl,
-    .content h1,
-    .content h2,
-    .content h3,
-    .content h4,
-    .content h5,
-    .content h6,
-    .content ol,
-    .content p,
-    .content table,
-    .content ul {
-        margin-right: 0
-    }
     .content>aside,
     .content>details,
     .content>dl,
@@ -971,6 +980,7 @@ html {
     .content>p,
     .content>table,
     .content>ul,
+    .content>div,
     .content>form>aside,
     .content>form>details,
     .content>form>h1,
@@ -981,7 +991,8 @@ html {
     .content>form>h6,
     .content>form>p,
     .content>form>table,
-    .content>form>ul {
+    .content>form>ul,
+    .content>form>div {
         margin-right: 0;
     }
     .content blockquote,
@@ -1026,6 +1037,10 @@ html {
     background-color: green;
 }
 
+.badge.badge-darkgoldenrod {
+    background-color: darkgoldenrod;
+}
+
 .badge.badge-darkgreen {
     background-color: darkgreen;
 }
@@ -1058,4 +1073,22 @@ html {
         width: 95%;
     }
 
+}
+
+button {
+    border: none;
+}
+
+* {
+    /* Foreground, Background */
+    scrollbar-color: #3c4c67 transparent;
+}
+*::-webkit-scrollbar { /* Background */
+    width: 10px;
+    height: 10px;
+    background: transparent;
+}
+
+*::-webkit-scrollbar-thumb { /* Foreground */
+    background: #626161;
 }

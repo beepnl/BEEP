@@ -4,25 +4,25 @@ namespace App;
 
 use Cache;
 use Dyrynda\Database\Support\CascadeSoftDeletes;
+use Illuminate\Database\Eloquent\Attributes\Appends;
+use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Attributes\Guarded;
+use Illuminate\Database\Eloquent\Attributes\Hidden;
+use Illuminate\Database\Eloquent\Attributes\WithoutTimestamps;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Log;
 
+#[WithoutTimestamps]
+#[Fillable('hive_id', 'created_at', 'race_id', 'quality', 'color', 'name', 'fertilized', 'clipped', 'fertilizing_location', 'origin', 'tree', 'line', 'mother_id', 'marker', 'goal', 'description', 'birth_date')]
+#[Guarded('id')]
+#[Hidden('fertilizing_location', 'marker', 'goal', 'deleted_at', 'laravel_through_key', 'created_at')]
+#[Appends('race')]
 class Queen extends Model
 {
     use CascadeSoftDeletes, SoftDeletes;
-
-    protected $fillable = ['hive_id', 'created_at', 'race_id', 'quality', 'color', 'name', 'fertilized', 'clipped', 'fertilizing_location', 'origin', 'tree', 'line', 'mother_id', 'marker', 'goal', 'description', 'birth_date'];
-
-    protected $guarded = ['id'];
-
-    protected $hidden = ['fertilizing_location', 'marker', 'goal', 'deleted_at', 'laravel_through_key', 'created_at'];
-
-    protected $appends = ['race'];
-
-    public $timestamps = false;
 
     // Caching
     public static function boot()

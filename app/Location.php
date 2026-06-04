@@ -5,6 +5,11 @@ namespace App;
 use Auth;
 use Cache;
 use Dyrynda\Database\Support\CascadeSoftDeletes;
+use Illuminate\Database\Eloquent\Attributes\Appends;
+use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Attributes\Guarded;
+use Illuminate\Database\Eloquent\Attributes\Hidden;
+use Illuminate\Database\Eloquent\Attributes\WithoutTimestamps;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -15,22 +20,17 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Log;
 
+#[WithoutTimestamps]
+#[Fillable('user_id', 'continent_id', 'category_id', 'name', 'coordinate_lat', 'coordinate_lon', 'street', 'street_no', 'postal_code', 'country_code', 'city', 'roofed', 'last_weather_time', 'hex_color')]
+#[Guarded('id')]
+#[Hidden('user_id', 'continent_id', 'category_id')]
+#[Appends('type', 'continent', 'owner')]
 class Location extends Model
 {
     use CascadeSoftDeletes, SoftDeletes;
     use HasFactory;
 
     protected $cascadeDeletes = ['hives', 'inspections'];
-
-    protected $fillable = ['user_id', 'continent_id', 'category_id', 'name', 'coordinate_lat', 'coordinate_lon', 'street', 'street_no', 'postal_code', 'country_code', 'city', 'roofed', 'last_weather_time', 'hex_color'];
-
-    protected $guarded = ['id'];
-
-    protected $hidden = ['user_id', 'continent_id', 'category_id'];
-
-    protected $appends = ['type', 'continent', 'owner'];
-
-    public $timestamps = false;
 
     // Caching
     public static function boot()

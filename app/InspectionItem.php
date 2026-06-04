@@ -2,40 +2,23 @@
 
 namespace App;
 
+use Illuminate\Database\Eloquent\Attributes\Appends;
+use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Attributes\Hidden;
+use Illuminate\Database\Eloquent\Attributes\Table;
+use Illuminate\Database\Eloquent\Attributes\WithoutTimestamps;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
+#[Table('inspection_items', 'id')]
+#[WithoutTimestamps]
+#[Fillable('value', 'inspection_id', 'category_id')]
+#[Appends('val', 'unit', 'type')]
+#[Hidden('category', 'deleted_at', 'inspection_id')]
 class InspectionItem extends Model
 {
     use SoftDeletes;
-
-    /**
-     * The database table used by the model.
-     *
-     * @var string
-     */
-    protected $table = 'inspection_items';
-
-    /**
-     * The database primary key value.
-     *
-     * @var string
-     */
-    protected $primaryKey = 'id';
-
-    /**
-     * Attributes that should be mass-assignable.
-     *
-     * @var array
-     */
-    protected $fillable = ['value', 'inspection_id', 'category_id'];
-
-    protected $appends = ['val', 'unit', 'type'];
-
-    protected $hidden = ['category', 'deleted_at', 'inspection_id'];
-
-    public $timestamps = false;
 
     public function getNameAttribute()
     {

@@ -15,7 +15,7 @@ class MeasurementController extends Controller
      */
     public function index(Request $request): View
     {
-        $keyword = $request->get('search');
+        $keyword = $request->input('search');
 
         if (! empty($keyword)) {
             $measurement = Measurement::where('abbreviation', 'LIKE', "%$keyword%")->get();

@@ -2,25 +2,25 @@
 
 namespace App;
 
+use Illuminate\Database\Eloquent\Attributes\Appends;
+use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Attributes\Guarded;
+use Illuminate\Database\Eloquent\Attributes\Hidden;
+use Illuminate\Database\Eloquent\Attributes\WithoutTimestamps;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
+#[WithoutTimestamps]
+#[Fillable('layer_id', 'category_id', 'present', 'order')]
+#[Guarded('id')]
+#[Hidden('category_id', 'layer_id', 'created_at', 'deleted_at')]
+#[Appends('type')]
 class HiveLayerFrame extends Model
 {
     use HasFactory;
     use SoftDeletes;
-
-    protected $fillable = ['layer_id', 'category_id', 'present', 'order'];
-
-    protected $guarded = ['id'];
-
-    protected $hidden = ['category_id', 'layer_id', 'created_at', 'deleted_at'];
-
-    protected $appends = ['type'];
-
-    public $timestamps = false;
 
     // Relations
     public function getTypeAttribute()

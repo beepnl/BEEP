@@ -20,13 +20,13 @@ class FlashLogController extends Controller
      */
     public function index(Request $request): View
     {
-        $bytes = $request->filled('mb') ? intval($request->get('mb') * 1024 * 1024) : null;
-        $log_parsed = $request->filled('log_parsed') ? boolval($request->get('log_parsed')) : null;
-        $log_has_ts = $request->filled('log_has_timestamps') ? boolval($request->get('log_has_timestamps')) : null;
-        $log_csv_url = $request->filled('csv_url') ? (boolval($request->get('csv_url')) ? '!=' : '=') : null; // != null / = null
-        $search_user = $request->get('user');
-        $search_dev = $request->get('device');
-        $device_id = $request->get('device_id');
+        $bytes = $request->filled('mb') ? intval($request->input('mb') * 1024 * 1024) : null;
+        $log_parsed = $request->filled('log_parsed') ? boolval($request->input('log_parsed')) : null;
+        $log_has_ts = $request->filled('log_has_timestamps') ? boolval($request->input('log_has_timestamps')) : null;
+        $log_csv_url = $request->filled('csv_url') ? (boolval($request->input('csv_url')) ? '!=' : '=') : null; // != null / = null
+        $search_user = $request->input('user');
+        $search_dev = $request->input('device');
+        $device_id = $request->input('device_id');
         $perPage = 50;
 
         $flashlogs = FlashLog::where('id', '!=', null);

@@ -7,6 +7,10 @@ use App\Mail\AlertMail;
 use App\Measurement;
 use App\User;
 use Cache;
+use Illuminate\Database\Eloquent\Attributes\Appends;
+use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Attributes\Hidden;
+use Illuminate\Database\Eloquent\Attributes\Table;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -17,33 +21,12 @@ use Mail;
 use Moment\Moment;
 use Translation;
 
+#[Table('alert_rules', 'id')]
+#[Fillable('name', 'description', 'measurement_id', 'calculation', 'calculation_minutes', 'comparator', 'comparison', 'threshold_value', 'exclude_months', 'exclude_hours', 'exclude_hive_ids', 'alert_via_email', 'webhook_url', 'active', 'user_id', 'default_rule', 'timezone', 'alert_on_occurences', 'last_calculated_at', 'last_evaluated_at')]
+#[Hidden('last_calculated_at', 'alert_rule_formulas')]
+#[Appends('formulas', 'no_value')]
 class AlertRule extends Model
 {
-    /**
-     * The database table used by the model.
-     *
-     * @var string
-     */
-    protected $table = 'alert_rules';
-
-    /**
-     * The database primary key value.
-     *
-     * @var string
-     */
-    protected $primaryKey = 'id';
-
-    /**
-     * Attributes that should be mass-assignable.
-     *
-     * @var array
-     */
-    protected $fillable = ['name', 'description', 'measurement_id', 'calculation', 'calculation_minutes', 'comparator', 'comparison', 'threshold_value', 'exclude_months', 'exclude_hours', 'exclude_hive_ids', 'alert_via_email', 'webhook_url', 'active', 'user_id', 'default_rule', 'timezone', 'alert_on_occurences', 'last_calculated_at', 'last_evaluated_at'];
-
-    protected $hidden = ['last_calculated_at', 'alert_rule_formulas'];
-
-    protected $appends = ['formulas', 'no_value'];
-
     public static $calculations = ['min' => 'Minimum', 'max' => 'Maximum', 'ave' => 'Average', 'cnt' => 'Count']; // exclude "der"=>"Derivative" for the moment (because of user interpretation complexity)
 
     public static $influx_calc = ['min' => 'MIN', 'max' => 'MAX', 'ave' => 'MEAN', 'der' => 'DERIVATIVE', 'cnt' => 'COUNT'];

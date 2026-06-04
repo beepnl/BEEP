@@ -13,6 +13,10 @@ use App\Notifications\VerifyEmail;
 use Auth;
 use Cache;
 use DB;
+use Illuminate\Database\Eloquent\Attributes\Appends;
+use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Attributes\Guarded;
+use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -23,21 +27,15 @@ use Illuminate\Support\Facades\Log;
 use Laratrust\Contracts\LaratrustUser;
 use Laratrust\Traits\HasRolesAndPermissions;
 
+#[Fillable('name', 'email', 'password', 'api_token', 'last_login', 'policy_accepted', 'locale', 'avatar', 'rate_limit_per_min')]
+#[Hidden('password', 'remember_token', 'researchesVisible', 'researchesOwned')]
+#[Guarded('id')]
+#[Appends('app_debug', 'admin', 'permissions')]
 class User extends Authenticatable implements LaratrustUser
 {
     use HasFactory;
     use HasRolesAndPermissions;
     use Notifiable;
-
-    protected $fillable = ['name', 'email', 'password', 'api_token', 'last_login', 'policy_accepted', 'locale', 'avatar', 'rate_limit_per_min'];
-
-    protected $hidden = ['password', 'remember_token', 'researchesVisible', 'researchesOwned'];
-
-    protected $guarded = ['id'];
-
-    // protected $cascadeDeletes = ['hives','checklists','inspections','locations','sensors']; // for soft deletes
-
-    protected $appends = ['app_debug', 'admin', 'permissions'];
 
     // Fix for Trebol\Entrust permissions that do not check
     // public function can($permission, $arguments=[])

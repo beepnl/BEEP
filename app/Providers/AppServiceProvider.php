@@ -75,9 +75,10 @@ class AppServiceProvider extends ServiceProvider
             return new ChecklistFactory;
         });
 
-        if ($this->app->environment() == 'local') {
-            $this->app->register('Appzcoder\CrudGenerator\CrudGeneratorServiceProvider');
-        }
+        // if needed install crud generator package compatible with laravel 13+, such as ibex/crud-generator, and register it here for local environment
+        // if ($this->app->environment() == 'local') {
+        //     $this->app->register('Appzcoder\CrudGenerator\CrudGeneratorServiceProvider');
+        // }
     }
 
     public function bootRoute(): void

@@ -26,7 +26,7 @@ class UserController extends Controller
         $show_stats = $request->filled('stats');
 
         if (Auth::user()->hasRole('superadmin')) {
-            $keyword = $request->get('search');
+            $keyword = $request->input('search');
             $perPage = 50;
             $users = User::where('id', '!=', null);
 

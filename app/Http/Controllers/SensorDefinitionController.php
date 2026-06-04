@@ -17,12 +17,12 @@ class SensorDefinitionController extends Controller
      */
     public function index(Request $request): View
     {
-        $page = $request->get('page');
-        $keyword = $request->get('search');
-        $search_user = $request->get('user');
-        $search_dev = $request->get('device');
-        $search_mid = $request->get('measurement_id');
-        $device_id = $request->get('device_id');
+        $page = $request->input('page');
+        $keyword = $request->input('search');
+        $search_user = $request->input('user');
+        $search_dev = $request->input('device');
+        $search_mid = $request->input('measurement_id');
+        $device_id = $request->input('device_id');
         $perPage = 50;
         $defs = SensorDefinition::where('id', '!=', null);
 

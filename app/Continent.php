@@ -2,11 +2,10 @@
 
 namespace App;
 
+use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Attributes\Guarded;
 use Illuminate\Database\Eloquent\Model;
 
-class Continent extends Model
-{
-    protected $fillable = ['name', 'abbr'];
-
-    protected $guarded = ['id'];
-}
+#[Fillable('name', 'abbr')]
+#[Guarded('id')]
+class Continent extends Model {}

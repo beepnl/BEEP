@@ -3,40 +3,20 @@
 namespace App;
 
 use Cache;
+use Illuminate\Database\Eloquent\Attributes\Appends;
+use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Attributes\Hidden;
+use Illuminate\Database\Eloquent\Attributes\Table;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use LaravelLocalization;
 
+#[Table('measurements', 'id')]
+#[Fillable('abbreviation', 'physical_quantity_id', 'show_in_charts', 'chart_group', 'min_value', 'max_value', 'hex_color', 'show_in_alerts', 'show_in_dials', 'weather', 'data_source_type', 'data_api_url', 'data_repository_url', 'future')]
+#[Hidden('created_at', 'updated_at')]
+#[Appends('pq', 'unit', 'pq_name_unit', 'low_value', 'high_value')]
 class Measurement extends Model
 {
-    /**
-     * The database table used by the model.
-     *
-     * @var string
-     */
-    protected $table = 'measurements';
-
-    /**
-     * The database primary key value.
-     *
-     * @var string
-     */
-    protected $primaryKey = 'id';
-
-    /**
-     * Attributes that should be mass-assignable.
-     * data_source_type     : type of data source $data_types
-     * data_api_url         : (external) url to call data from
-     * data_repository_url  : Github repository URL with explanation, and background of measurement source
-     *
-     * @var array
-     */
-    protected $fillable = ['abbreviation', 'physical_quantity_id', 'show_in_charts', 'chart_group', 'min_value', 'max_value', 'hex_color', 'show_in_alerts', 'show_in_dials', 'weather', 'data_source_type', 'data_api_url', 'data_repository_url', 'future'];
-
-    protected $hidden = ['created_at', 'updated_at']; // 'parent'
-
-    protected $appends = ['pq', 'unit', 'pq_name_unit', 'low_value', 'high_value']; // 'parent'
-
     public static $data_source_types = ['db_influx' => 'Influx Database', 'api' => 'API', 'lambda_model' => 'Lambda Model', 'open_weather' => 'Open Weather'];
 
     public static function boot()

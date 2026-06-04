@@ -5,6 +5,11 @@ namespace App;
 use Auth;
 use Cache;
 use Dyrynda\Database\Support\CascadeSoftDeletes;
+use Illuminate\Database\Eloquent\Attributes\Appends;
+use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Attributes\Hidden;
+use Illuminate\Database\Eloquent\Attributes\Table;
+use Illuminate\Database\Eloquent\Attributes\WithoutTimestamps;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -15,38 +20,16 @@ use Illuminate\Support\Facades\Log;
 use LaravelLocalization;
 use Moment\Moment;
 
+#[Table('inspections', 'id')]
+#[WithoutTimestamps]
+#[Fillable('notes', 'created_at', 'impression', 'attention', 'reminder', 'reminder_date', 'checklist_id', 'image_id')]
+#[Hidden('pivot', 'deleted_at', 'hives', 'locations', 'items')]
+#[Appends('owner', 'thumb_url', 'hive_id', 'location_id', 'item_count', 'searchable')]
 class Inspection extends Model
 {
     use CascadeSoftDeletes, SoftDeletes;
 
     protected $cascadeDeletes = ['items'];
-
-    /**
-     * The database table used by the model.
-     *
-     * @var string
-     */
-    protected $table = 'inspections';
-
-    /**
-     * The database primary key value.
-     *
-     * @var string
-     */
-    protected $primaryKey = 'id';
-
-    /**
-     * Attributes that should be mass-assignable.
-     *
-     * @var array
-     */
-    protected $fillable = ['notes', 'created_at', 'impression', 'attention', 'reminder', 'reminder_date', 'checklist_id', 'image_id'];
-
-    protected $hidden = ['pivot', 'deleted_at', 'hives', 'locations', 'items'];
-
-    protected $appends = ['owner', 'thumb_url', 'hive_id', 'location_id', 'item_count', 'searchable'];
-
-    public $timestamps = false;
 
     public static function boot()
     {

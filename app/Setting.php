@@ -2,20 +2,19 @@
 
 namespace App;
 
+use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Attributes\Guarded;
+use Illuminate\Database\Eloquent\Attributes\Hidden;
+use Illuminate\Database\Eloquent\Attributes\WithoutTimestamps;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
+#[WithoutTimestamps]
+#[Fillable('user_id', 'category_id', 'name', 'value', 'number')]
+#[Guarded('id')]
+#[Hidden('user_id', 'category_id', 'id', 'deleted_at')]
 class Setting extends Model
 {
-    protected $fillable = ['user_id', 'category_id', 'name', 'value', 'number'];
-
-    protected $guarded = ['id'];
-
-    protected $hidden = ['user_id', 'category_id', 'id', 'deleted_at'];
-    // protected $appends  = ['type'];
-
-    public $timestamps = false;
-
     // Relations
     public function getTypeAttribute()
     {

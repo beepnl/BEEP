@@ -4,37 +4,20 @@ namespace App;
 
 use Auth;
 use DB;
+use Illuminate\Database\Eloquent\Attributes\Appends;
+use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Attributes\Hidden;
+use Illuminate\Database\Eloquent\Attributes\Table;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
+#[Table('researches', 'id')]
+#[Fillable('description', 'name', 'url', 'image_id', 'type', 'institution', 'type_of_data_used', 'start_date', 'end_date', 'user_id', 'default_user_ids', 'visible', 'on_invite_only')]
+#[Hidden('users', 'deleted_at', 'user_id', 'owner', 'viewers', 'visible')]
+#[Appends('consent', 'consent_history', 'checklist_names', 'thumb_url')]
 class Research extends Model
 {
-    /**
-     * The database table used by the model.
-     *
-     * @var string
-     */
-    protected $table = 'researches';
-
-    /**
-     * The database primary key value.
-     *
-     * @var string
-     */
-    protected $primaryKey = 'id';
-
-    /**
-     * Attributes that should be mass-assignable.
-     *
-     * @var array
-     */
-    protected $fillable = ['description', 'name', 'url', 'image_id', 'type', 'institution', 'type_of_data_used', 'start_date', 'end_date', 'user_id', 'default_user_ids', 'visible', 'on_invite_only'];
-
-    protected $hidden = ['users', 'deleted_at', 'user_id', 'owner', 'viewers', 'visible'];
-
-    protected $appends = ['consent', 'consent_history', 'checklist_names', 'thumb_url'];
-
     public static $pictureType = 'research';
 
     protected function casts(): array

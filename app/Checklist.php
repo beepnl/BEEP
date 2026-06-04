@@ -3,39 +3,22 @@
 namespace App;
 
 use Auth;
+use Illuminate\Database\Eloquent\Attributes\Appends;
+use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Attributes\Hidden;
+use Illuminate\Database\Eloquent\Attributes\Table;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\DB;
 
+#[Table('checklists', 'id')]
+#[Fillable('name', 'type', 'description')]
+#[Hidden('pivot', 'deleted_at', 'users')]
+#[Appends('category_ids', 'required_ids', 'owner', 'researches')]
 class Checklist extends Model
 {
     use SoftDeletes;
-
-    /**
-     * The database table used by the model.
-     *
-     * @var string
-     */
-    protected $table = 'checklists';
-
-    /**
-     * The database primary key value.
-     *
-     * @var string
-     */
-    protected $primaryKey = 'id';
-
-    /**
-     * Attributes that should be mass-assignable.
-     *
-     * @var array
-     */
-    protected $fillable = ['name', 'type', 'description'];
-
-    protected $hidden = ['pivot', 'deleted_at', 'users'];
-
-    protected $appends = ['category_ids', 'required_ids', 'owner', 'researches'];
 
     // check for deletion of linked items
     protected static function boot()

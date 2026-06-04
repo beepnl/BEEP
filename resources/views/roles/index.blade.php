@@ -38,7 +38,7 @@
 					@endpermission
 					@permission('role-delete')
 					{{ html()->form('DELETE', route('roles.destroy', $role->id))->style('display:inline')->attribute('onsubmit', 'return confirm("' . __('crud.sure', ['item' => __('general.role'), 'name' => '\'' . $role->display_name . '\'']) . '")')->open() }}
-		            {{ html()->input('submit')->value('<i class="fa fa-trash-o"></i>')->class('btn btn-danger pull-right') }}
+		            <button type="submit" class="btn btn-danger pull-right"><i class="fa fa-trash-o"></i></button>
 		        	{{ html()->form()->close() }}
 		        	@endpermission
 			</td>

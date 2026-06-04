@@ -6,22 +6,22 @@ use Auth;
 use Cache;
 use DB;
 use Dyrynda\Database\Support\CascadeSoftDeletes;
+use Illuminate\Database\Eloquent\Attributes\Appends;
+use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Attributes\Hidden;
+use Illuminate\Database\Eloquent\Attributes\WithoutTimestamps;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Log;
 
+#[WithoutTimestamps]
+#[Fillable('type', 'name', 'description', 'hex_color', 'icon')]
+#[Hidden('pivot', 'deleted_at', 'type', 'icon')]
+#[Appends('hives', 'users', 'admin', 'creator')]
 class Group extends Model
 {
     use CascadeSoftDeletes, SoftDeletes;
-
-    public $timestamps = false;
-
-    public $fillable = ['type', 'name', 'description', 'hex_color', 'icon'];
-
-    protected $hidden = ['pivot', 'deleted_at', 'type', 'icon'];
-
-    public $appends = ['hives', 'users', 'admin', 'creator']; // 'hive_ids'
 
     // Caching
     public static function boot()

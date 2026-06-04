@@ -6,10 +6,10 @@ use App\Http\Controllers\Controller;
 use Auth;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Routing\Controllers\HasMiddleware;
-use Illuminate\Routing\Controllers\Middleware;
+use Illuminate\Routing\Attributes\Controllers\Middleware;
 
-class LoginController extends Controller implements HasMiddleware
+#[Middleware('guest', except: ['logout'])]
+class LoginController extends Controller
 {
     /*
     |--------------------------------------------------------------------------
@@ -30,13 +30,6 @@ class LoginController extends Controller implements HasMiddleware
      * @var string
      */
     protected $redirectTo = '/home';
-
-    public static function middleware(): array
-    {
-        return [
-            new Middleware('guest', except: ['logout']),
-        ];
-    }
 
     public function logout(): RedirectResponse
     {

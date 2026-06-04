@@ -8,6 +8,12 @@ use Auth;
 use Cache;
 use DB;
 use Dyrynda\Database\Support\CascadeSoftDeletes;
+use Illuminate\Database\Eloquent\Attributes\Appends;
+use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Attributes\Guarded;
+use Illuminate\Database\Eloquent\Attributes\Hidden;
+use Illuminate\Database\Eloquent\Attributes\Table;
+use Illuminate\Database\Eloquent\Attributes\WithoutTimestamps;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -16,23 +22,17 @@ use Illuminate\Support\Facades\Log;
 use InfluxDB;
 use Moment\Moment;
 
+#[Table('sensors')]
+#[WithoutTimestamps]
+#[Fillable('user_id', 'hive_id', 'category_id', 'name', 'key', 'last_message_received', 'hardware_id', 'firmware_version', 'hardware_version', 'boot_count', 'measurement_interval_min', 'measurement_transmission_ratio', 'ble_pin', 'battery_voltage', 'next_downlink_message', 'last_downlink_result', 'datetime', 'datetime_offset_sec', 'former_key_list', 'rtc', 'log_file_info')]
+#[Guarded('id')]
+#[Hidden('user_id', 'category_id', 'deleted_at', 'hive', 'former_key_list')]
+#[Appends('type', 'hive_name', 'location_name', 'owner', 'online')]
 class Device extends Model
 {
     use CascadeSoftDeletes, SoftDeletes;
 
-    protected $table = 'sensors';
-
     protected $cascadeDeletes = ['sensorDefinitions'];
-
-    protected $fillable = ['user_id', 'hive_id', 'category_id', 'name', 'key', 'last_message_received', 'hardware_id', 'firmware_version', 'hardware_version', 'boot_count', 'measurement_interval_min', 'measurement_transmission_ratio', 'ble_pin', 'battery_voltage', 'next_downlink_message', 'last_downlink_result', 'datetime', 'datetime_offset_sec', 'former_key_list', 'rtc', 'log_file_info'];
-
-    protected $guarded = ['id'];
-
-    protected $hidden = ['user_id', 'category_id', 'deleted_at', 'hive', 'former_key_list'];
-
-    protected $appends = ['type', 'hive_name', 'location_name', 'owner', 'online'];
-
-    public $timestamps = false;
 
     public static function boot()
     {

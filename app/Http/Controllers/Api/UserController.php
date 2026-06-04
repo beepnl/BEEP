@@ -80,8 +80,8 @@ class UserController extends Controller
     {
         $credentials =
         [
-            'email' => $request->get('email'),
-            'password' => $request->get('password'),
+            'email' => $request->input('email'),
+            'password' => $request->input('password'),
         ];
 
         if (Auth::attempt($credentials)) {

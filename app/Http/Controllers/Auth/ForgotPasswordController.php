@@ -4,9 +4,10 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Foundation\Auth\SendsPasswordResetEmails;
-use Illuminate\Routing\Controllers\HasMiddleware;
+use Illuminate\Routing\Attributes\Controllers\Middleware;
 
-class ForgotPasswordController extends Controller implements HasMiddleware
+#[Middleware('guest')]
+class ForgotPasswordController extends Controller
 {
     /*
     |--------------------------------------------------------------------------
@@ -20,11 +21,4 @@ class ForgotPasswordController extends Controller implements HasMiddleware
     */
 
     use SendsPasswordResetEmails;
-
-    public static function middleware(): array
-    {
-        return [
-            'guest',
-        ];
-    }
 }

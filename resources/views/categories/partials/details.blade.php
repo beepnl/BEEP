@@ -106,7 +106,7 @@
                 {{ html()->form()->close() }}
 
                 {{ html()->form('DELETE', route('categories.pop', $category->id))->style('display:inline')->attribute('onsubmit', 'return confirm("Are you sure you want to pop category &quot;' . $category->name . '&quot; out in between of the tree (and move all it&quot;s descendants to its parent?")')->attribute('title', 'Pop category (and move all it\'s descendants to its parent)')->open() }}
-                {{ html()->input('submit')->value('<i class="fa fa-minus-circle"></i>')->class('btn btn-danger pull-right')->style('margin-right: 10px;') }}
+                <button type="submit" class="btn btn-danger pull-right"><i class="fa fa-minus-circle" style="margin-right: 10px;"></i></button>
                 {{ html()->form()->close() }}
                 @endif
                 @endpermission

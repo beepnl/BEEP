@@ -48,7 +48,9 @@ Route::middleware('auth:api', 'verifiedApi', 'throttle:global_rate_limit_per_min
 });
 
 // normal traffic routes
-Route::middleware('auth:api', 'verifiedApi', 'throttle:global_rate_limit_per_min,1,normal_traffic')->group(function () {
+Route::middleware('auth:api', 'verifiedApi', 'throttle:global_rate_limit_per_min,1,normal_traffic')
+    ->name('api.') // prefixes all route names: api.checklists.index, api.hives.index, etc., to prevent collision with routes in web.php (overwriting f.e. the 'checklists.index' route name from web.php)
+    ->group(function () {
     // Route::post('devices/tts/{step}/{dev_id}/{dev_eui}/{app_key}', 'Api\DeviceController@debugTtsDevice');
 
     // Authenticate and provide the token

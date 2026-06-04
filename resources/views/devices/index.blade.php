@@ -115,7 +115,7 @@
 								@endpermission
 								@permission('sensor-delete')
 								{{ html()->form('DELETE', route('devices.destroy', $device->id))->style('display:inline')->attribute('onsubmit', 'return confirm("' . __('crud.sure', ['item' => __('general.sensor'), 'name' => '\'' . $device->name . '\'']) . '")')->open() }}
-					            {{ html()->input('submit')->value('<i class="fa fa-trash-o"></i>')->class('btn btn-danger pull-right') }}
+					            <button type="submit" class="btn btn-danger pull-right"><i class="fa fa-trash-o"></i></button>
 					        	{{ html()->form()->close() }}
 					        	@endpermission
 					        @endif

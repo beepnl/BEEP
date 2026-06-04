@@ -102,7 +102,7 @@
                 @if ($category->useAmount() == 0)
 
                 {{ html()->form('DELETE', route('categories.destroy', $category->id))->style('display:inline')->attribute('onsubmit', 'return confirm("' . __('crud.sure', ['item' => __('general.category'), 'name' => '\'' . $category->name . '\'']) . '")')->attribute('title', 'Delete category (and all it\'s descendants)')->open() }}
-                {{ html()->input('submit')->value('<i class="fa fa-trash-o"></i>')->class('btn btn-danger pull-right') }}
+                <button type="submit" class="btn btn-danger pull-right"><i class="fa fa-trash-o"></i></button>
                 {{ html()->form()->close() }}
 
                 {{ html()->form('DELETE', route('categories.pop', $category->id))->style('display:inline')->attribute('onsubmit', 'return confirm("Are you sure you want to pop category &quot;' . $category->name . '&quot; out in between of the tree (and move all it&quot;s descendants to its parent?")')->attribute('title', 'Pop category (and move all it\'s descendants to its parent)')->open() }}

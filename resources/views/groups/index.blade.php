@@ -37,7 +37,7 @@
 					@endpermission
 					@permission('group-delete')
 					{{ html()->form('DELETE', route('groups.destroy', $group->id))->style('display:inline')->attribute('onsubmit', 'return confirm("' . __('crud.sure', ['item' => __('general.group'), 'name' => '\'' . $group->name . '\'']) . '")')->open() }}
-		            {{ html()->input('submit')->value('<i class="fa fa-trash-o"></i>')->class('btn btn-danger pull-right') }}
+		            <button type="submit" class="btn btn-danger pull-right"><i class="fa fa-trash-o"></i></button>
 		        	{{ html()->form()->close() }}
 		        	@endpermission
 				</td>

@@ -255,7 +255,7 @@ function _init() {
       _this.fix();
       _this.fixSidebar();
       $('body, html, .wrapper').css('height', 'auto');
-      $(window, ".wrapper").resize(function () {
+      $(window, ".wrapper").on("resize", function () {
         _this.fix();
         _this.fixSidebar();
       });
@@ -351,7 +351,7 @@ function _init() {
         }
       });
 
-      $(".content-wrapper").click(function () {
+      $(".content-wrapper").on("click",function () {
         //Enable hide menu when clicking on the content-wrapper on small screens
         if ($(window).width() <= (screenSizes.sm - 1) && $("body").hasClass("sidebar-open")) {
           $("body").removeClass('sidebar-open');
@@ -521,7 +521,7 @@ function _init() {
         if (_this.hasBindedResize) {
           return;
         }
-        $(window).resize(function () {
+        $(window).on("resize", function () {
           _this._fix(sidebar);
         });
         _this.hasBindedResize = true;

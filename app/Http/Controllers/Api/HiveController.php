@@ -127,7 +127,7 @@ class HiveController extends Controller
      *
      * @authenticated
      */
-    public function store(PostHiveRequest $request): Hive
+    public function store(PostHiveRequest $request): JsonResponse
     {
 
         $user_id = $request->user()->id;
@@ -170,7 +170,7 @@ class HiveController extends Controller
      *
      * @authenticated
      */
-    public function update(PostHiveRequest $request, Hive $hive): Hive
+    public function update(PostHiveRequest $request, Hive $hive): JsonResponse
     {
         $hive = $request->user()->allhives(true)->findOrFail($hive->id);
         $location = $request->user()->allLocations(true)->findOrFail($request->input('location_id'));

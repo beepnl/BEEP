@@ -4,6 +4,7 @@ namespace App\Transformer;
 
 use App\Device;
 use App\Measurement;
+use Illuminate\Support\Facades\Log;
 use InfluxDB;
 
 class HighWeightFix
@@ -71,8 +72,9 @@ class HighWeightFix
             HighWeightFixcacheRequestRate('influx-weight');
             $result = $client::query($query, $options);
             $values = $result->getPoints();
-        } catch (InfluxDB\Exception $e) {
-            // return Response::json('influx-group-by-query-error', 500);
+        } catch (\Throwable $e) {
+            Log::error($e);
+            Log::error("Query that caused the error: $query");
         }
 
         return $values;

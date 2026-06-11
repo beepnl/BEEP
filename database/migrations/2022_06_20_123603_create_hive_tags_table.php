@@ -3,14 +3,12 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 
-class CreateHiveTagsTable extends Migration
+return new class extends Migration
 {
     /**
      * Run the migrations.
-     *
-     * @return void
      */
-    public function up()
+    public function up(): void
     {
         Schema::create('hive_tags', function (Blueprint $table) {
             $table->increments('id');
@@ -20,16 +18,14 @@ class CreateHiveTagsTable extends Migration
             $table->integer('hive_id')->nullable()->unsigned();
             $table->integer('action_id')->nullable()->unsigned();
             $table->json('router_link')->nullable();
-            });
+        });
     }
 
     /**
      * Reverse the migrations.
-     *
-     * @return void
      */
-    public function down()
+    public function down(): void
     {
         Schema::drop('hive_tags');
     }
-}
+};

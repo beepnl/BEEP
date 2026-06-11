@@ -2,118 +2,106 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests;
-use App\Http\Controllers\Controller;
-use Illuminate\Support\Facades\Log;
-
-use App\User;
 use App\Device;
 use App\Measurement;
 use App\SensorDefinition;
+use App\User;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\View\View;
 
 class SensorDefinitionController extends Controller
 {
     /**
      * Display a listing of the resource.
-     *
-     * @return \Illuminate\View\View
      */
-    public function index(Request $request)
+    public function index(Request $request): View
     {
-        $page        = $request->get('page');
-        $keyword     = $request->get('search');
-        $search_user = $request->get('user');
-        $search_dev  = $request->get('device');
-        $search_mid  = $request->get('measurement_id');
-        $device_id   = $request->get('device_id');
-        $perPage     = 50;
-        $defs        = SensorDefinition::where('id', '!=', null);
+        $page = $request->input('page');
+        $keyword = $request->input('search');
+        $search_user = $request->input('user');
+        $search_dev = $request->input('device');
+        $search_mid = $request->input('measurement_id');
+        $device_id = $request->input('device_id');
+        $perPage = 50;
+        $defs = SensorDefinition::where('id', '!=', null);
 
-        if (!empty($device_id)) 
-        {
+        if (! empty($device_id)) {
             $defs = $defs->where('device_id', $device_id);
         }
-        if (!empty($search_mid)) 
-        {
+        if (! empty($search_mid)) {
             $defs = $defs->where('input_measurement_id', $search_mid)->orWhere('output_measurement_id', $search_mid);
         }
- 
-        if (!empty($search_dev)) 
-        {
-            $dev_ids = Device::where('hive_id', 'LIKE', "%$search_dev%")
-                            ->orWhere('id', 'LIKE', "%$search_dev%")
-                            ->orWhere('name', 'LIKE', "%$search_dev%")
-                            ->orWhere('key', 'LIKE', "%$search_dev%")
-                            ->orWhere('former_key_list', 'LIKE', "%$search_dev%")
-                            ->orWhere('last_message_received', 'LIKE', "%$search_dev%")
-                            ->orWhere('hardware_id', 'LIKE', "%$search_dev%")
-                            ->orWhere('firmware_version', 'LIKE', "%$search_dev%")
-                            ->orWhere('hardware_version', 'LIKE', "%$search_dev%")
-                            ->orWhere('measurement_interval_min', 'LIKE', "%$search_dev%")
-                            ->orWhere('battery_voltage', 'LIKE', "%$search_dev%")
-                            ->orWhere('datetime', 'LIKE', "%$search_dev%")
-                            ->orWhere('datetime_offset_sec', 'LIKE', "%$search_dev%")
-                            ->pluck('id');
-            if ($dev_ids)
-                $defs = $defs->whereIn('device_id', $dev_ids);
-            
-        }
 
-        if (!empty($search_user)) 
-        {
-            $user_ids = User::where('name', 'LIKE', "%$search_user%")
-                        ->orWhere('email', 'LIKE', "%$search_user%")
-                        ->orWhere('locale', 'LIKE', "%$search_user%")
-                        ->orWhere('id', 'LIKE', "%$search_user%")
-                        ->pluck('id');
-            
-            if (count($user_ids) > 0)
-            {
-                $dev_ids = Device::whereIn('user_id', $user_ids)->pluck('id');
-                $defs    = $defs->whereIn('device_id', $dev_ids);
+        if (! empty($search_dev)) {
+            $dev_ids = Device::where('hive_id', 'LIKE', "%$search_dev%")
+                ->orWhere('id', 'LIKE', "%$search_dev%")
+                ->orWhere('name', 'LIKE', "%$search_dev%")
+                ->orWhere('key', 'LIKE', "%$search_dev%")
+                ->orWhere('former_key_list', 'LIKE', "%$search_dev%")
+                ->orWhere('last_message_received', 'LIKE', "%$search_dev%")
+                ->orWhere('hardware_id', 'LIKE', "%$search_dev%")
+                ->orWhere('firmware_version', 'LIKE', "%$search_dev%")
+                ->orWhere('hardware_version', 'LIKE', "%$search_dev%")
+                ->orWhere('measurement_interval_min', 'LIKE', "%$search_dev%")
+                ->orWhere('battery_voltage', 'LIKE', "%$search_dev%")
+                ->orWhere('datetime', 'LIKE', "%$search_dev%")
+                ->orWhere('datetime_offset_sec', 'LIKE', "%$search_dev%")
+                ->pluck('id');
+            if ($dev_ids) {
+                $defs = $defs->whereIn('device_id', $dev_ids);
             }
 
         }
 
-        if (!empty($keyword)) 
-        {
+        if (! empty($search_user)) {
+            $user_ids = User::where('name', 'LIKE', "%$search_user%")
+                ->orWhere('email', 'LIKE', "%$search_user%")
+                ->orWhere('locale', 'LIKE', "%$search_user%")
+                ->orWhere('id', 'LIKE', "%$search_user%")
+                ->pluck('id');
+
+            if (count($user_ids) > 0) {
+                $dev_ids = Device::whereIn('user_id', $user_ids)->pluck('id');
+                $defs = $defs->whereIn('device_id', $dev_ids);
+            }
+
+        }
+
+        if (! empty($keyword)) {
             $defs = $defs->where('name', 'LIKE', "%$keyword%");
         }
 
         $sensordefinition = $defs->orderByDesc('id')->paginate($perPage);
 
-
-        return view('sensordefinition.index', compact('sensordefinition','search_mid','page'));
+        return view('sensordefinition.index', compact('sensordefinition', 'search_mid', 'page'));
     }
 
     /**
      * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\View\View
      */
-    public function create()
+    public function create(): View
     {
-        $devices_select     = Device::selectList();
+        $devices_select = Device::selectList();
         $measurement_select = Measurement::selectList();
-        return view('sensordefinition.create', compact('devices_select','measurement_select'));
+
+        return view('sensordefinition.create', compact('devices_select', 'measurement_select'));
     }
 
     /**
      * Store a newly created resource in storage.
      *
-     * @param \Illuminate\Http\Request $request
      *
      * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
      */
-    public function store(Request $request)
+    public function store(Request $request): RedirectResponse
     {
-        $this->validate($request, [
+        $request->validate([
             'device_id' => 'required|integer|exists:sensors,id',
             'input_measurement_id' => 'integer|exists:measurements,id',
         ]);
         $requestData = $request->all();
-        $updated_at  = str_replace('T', ' ', $requestData['updated_at']).':00';
+        $updated_at = str_replace('T', ' ', $requestData['updated_at']).':00';
         $requestData['updated_at'] = $updated_at;
         $sensordefinition = SensorDefinition::create($requestData);
         $sensordefinition->updated_at = $updated_at;
@@ -124,12 +112,8 @@ class SensorDefinitionController extends Controller
 
     /**
      * Display the specified resource.
-     *
-     * @param  int  $id
-     *
-     * @return \Illuminate\View\View
      */
-    public function show($id)
+    public function show(int $id): View
     {
         $sensordefinition = SensorDefinition::findOrFail($id);
 
@@ -138,36 +122,30 @@ class SensorDefinitionController extends Controller
 
     /**
      * Show the form for editing the specified resource.
-     *
-     * @param  int  $id
-     *
-     * @return \Illuminate\View\View
      */
-    public function edit($id)
+    public function edit(int $id): View
     {
-        $sensordefinition   = SensorDefinition::findOrFail($id);
-        $devices_select     = Device::selectList();
+        $sensordefinition = SensorDefinition::findOrFail($id);
+        $devices_select = Device::selectList();
         $measurement_select = Measurement::selectList();
-        return view('sensordefinition.edit', compact('sensordefinition','devices_select','measurement_select'));
+
+        return view('sensordefinition.edit', compact('sensordefinition', 'devices_select', 'measurement_select'));
     }
 
     /**
      * Update the specified resource in storage.
      *
-     * @param \Illuminate\Http\Request $request
-     * @param  int  $id
-     *
      * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
      */
-    public function update(Request $request, $id)
+    public function update(Request $request, int $id): RedirectResponse
     {
-        $this->validate($request, [
+        $request->validate([
             'device_id' => 'required|integer|exists:sensors,id',
             'input_measurement_id' => 'integer|exists:measurements,id',
         ]);
         $sensordefinition = SensorDefinition::findOrFail($id);
         $requestData = $request->all();
-        $updated_at  = str_replace('T', ' ', $requestData['updated_at']).':00';
+        $updated_at = str_replace('T', ' ', $requestData['updated_at']).':00';
         $requestData['updated_at'] = $updated_at;
         // prevent updated_at from updating by the update action
         $sensordefinition->update($requestData); // first change updated_at
@@ -180,11 +158,9 @@ class SensorDefinitionController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  int  $id
-     *
      * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
      */
-    public function destroy($id)
+    public function destroy(int $id): RedirectResponse
     {
         SensorDefinition::destroy($id);
 

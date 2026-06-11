@@ -2,108 +2,96 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-use App\Http\Controllers\Controller;
-use App\Role;
 use App\Permission;
+use App\Role;
 use DB;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
+use Illuminate\View\View;
 
 class RoleController extends Controller
 {
     /**
      * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
      */
-    public function index(Request $request)
+    public function index(Request $request): View
     {
-        $roles = Role::orderBy('id','DESC')->paginate(10);
-        return view('roles.index',compact('roles'))
+        $roles = Role::orderBy('id', 'DESC')->paginate(10);
+
+        return view('roles.index', compact('roles'))
             ->with('i', ($request->input('page', 1) - 1) * 10);
     }
 
     /**
      * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
      */
-    public function create()
+    public function create(): View
     {
         $permission = Permission::get();
-        return view('roles.create',compact('permission'));
+
+        return view('roles.create', compact('permission'));
     }
 
     /**
      * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(Request $request): RedirectResponse
     {
-        $this->validate($request, [
+        $request->validate([
             'name' => 'required|unique:roles,name',
             'display_name' => 'required',
             'description' => 'required',
             'permission' => 'required',
         ]);
 
-        $role = new Role();
+        $role = new Role;
         $role->name = $request->input('name');
         $role->display_name = $request->input('display_name');
         $role->description = $request->input('description');
         $role->save();
 
         foreach ($request->input('permission') as $key => $value) {
-            $role->attachPermission($value);
+            $role->givePermission($value);
         }
 
         return redirect()->route('roles.index')
-                        ->with('success','Role created successfully');
+            ->with('success', 'Role created successfully');
     }
+
     /**
      * Display the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
      */
-    public function show($id)
+    public function show(int $id): View
     {
         $role = Role::find($id);
-        $rolePermissions = Permission::join("permission_role","permission_role.permission_id","=","permissions.id")
-            ->where("permission_role.role_id",$id)
+        $rolePermissions = Permission::join('permission_role', 'permission_role.permission_id', '=', 'permissions.id')
+            ->where('permission_role.role_id', $id)
             ->get();
 
-        return view('roles.show',compact('role','rolePermissions'));
+        return view('roles.show', compact('role', 'rolePermissions'));
     }
 
     /**
      * Show the form for editing the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
      */
-    public function edit($id)
+    public function edit(int $id): View
     {
         $role = Role::find($id);
         $permission = Permission::get();
-        $rolePermissions = DB::table("permission_role")->where("permission_role.role_id",$id)
-            ->pluck("permission_id");
-        //print_r($permission);
-        //die($rolePermissions);
-        return view('roles.edit',compact('role','permission','rolePermissions'));
+        $rolePermissions = DB::table('permission_role')->where('permission_role.role_id', $id)
+            ->pluck('permission_id');
+
+        // print_r($permission);
+        // die($rolePermissions);
+        return view('roles.edit', compact('role', 'permission', 'rolePermissions'));
     }
 
     /**
      * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function update(Request $request, int $id): RedirectResponse
     {
-        $this->validate($request, [
+        $request->validate([
             'display_name' => 'required',
             'description' => 'required',
             'permission' => 'required',
@@ -114,26 +102,25 @@ class RoleController extends Controller
         $role->description = $request->input('description');
         $role->save();
 
-        DB::table("permission_role")->where("permission_role.role_id",$id)
+        DB::table('permission_role')->where('permission_role.role_id', $id)
             ->delete();
 
         foreach ($request->input('permission') as $key => $value) {
-            $role->attachPermission($value);
+            $role->givePermission($value);
         }
 
         return redirect()->route('roles.index')
-                        ->with('success','Role updated successfully');
+            ->with('success', 'Role updated successfully');
     }
+
     /**
      * Remove the specified resource from storage.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
      */
-    public function destroy($id)
+    public function destroy(int $id): RedirectResponse
     {
-        DB::table("roles")->where('id',$id)->delete();
+        DB::table('roles')->where('id', $id)->delete();
+
         return redirect()->route('roles.index')
-                        ->with('success','Role deleted successfully');
+            ->with('success', 'Role deleted successfully');
     }
 }

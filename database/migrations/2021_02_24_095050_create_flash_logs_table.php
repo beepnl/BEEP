@@ -3,17 +3,14 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 
-class CreateFlashLogsTable extends Migration
+return new class extends Migration
 {
     /**
      * Run the migrations.
-     *
-     * @return void
      */
-    public function up()
+    public function up(): void
     {
-        if (!Schema::hasTable('flash_logs')) 
-        {
+        if (! Schema::hasTable('flash_logs')) {
             Schema::create('flash_logs', function (Blueprint $table) {
                 $table->increments('id');
                 $table->timestamps();
@@ -28,20 +25,17 @@ class CreateFlashLogsTable extends Migration
                 $table->string('log_file')->nullable();
                 $table->string('log_file_stripped')->nullable();
                 $table->string('log_file_parsed')->nullable();
-                });
+            });
         }
     }
 
     /**
      * Reverse the migrations.
-     *
-     * @return void
      */
-    public function down()
+    public function down(): void
     {
-        if (Schema::hasTable('flash_logs')) 
-        {
+        if (Schema::hasTable('flash_logs')) {
             Schema::drop('flash_logs');
         }
     }
-}
+};

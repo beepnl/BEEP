@@ -1,17 +1,15 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
-class AddDownlinkMessageToDevice extends Migration
+return new class extends Migration
 {
     /**
      * Run the migrations.
-     *
-     * @return void
      */
-    public function up()
+    public function up(): void
     {
         Schema::table('sensors', function (Blueprint $table) {
             $table->text('next_downlink_message')->nullable();
@@ -21,14 +19,12 @@ class AddDownlinkMessageToDevice extends Migration
 
     /**
      * Reverse the migrations.
-     *
-     * @return void
      */
-    public function down()
+    public function down(): void
     {
         Schema::table('sensors', function (Blueprint $table) {
             $table->dropColumn('last_downlink_result');
             $table->dropColumn('next_downlink_message');
         });
     }
-}
+};

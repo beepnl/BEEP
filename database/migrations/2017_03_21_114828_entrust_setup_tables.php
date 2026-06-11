@@ -1,15 +1,14 @@
 <?php
+
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 
-class EntrustSetupTables extends Migration
+return new class extends Migration
 {
     /**
      * Run the migrations.
-     *
-     * @return  void
      */
-    public function up()
+    public function up(): void
     {
         // Create table for storing roles
         Schema::create('roles', function (Blueprint $table) {
@@ -58,14 +57,12 @@ class EntrustSetupTables extends Migration
 
     /**
      * Reverse the migrations.
-     *
-     * @return  void
      */
-    public function down()
+    public function down(): void
     {
         Schema::drop('permission_role');
         Schema::drop('permissions');
         Schema::drop('role_user');
         Schema::drop('roles');
     }
-}
+};

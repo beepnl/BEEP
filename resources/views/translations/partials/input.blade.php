@@ -32,10 +32,10 @@
                 {{ App\Translation::where('type', 'alert_rule_description')->where('name', $r->description)->where('language_id', 1)->value('translation') }}</p>
             </td>
             <td>
-                {!! Form::text("translation_alert_rule[$r->id]", App\Translation::where('type', 'alert_rule')->where('name', $r->name)->where('language_id', $language->id)->value('translation'), [ 'class' => 'form-control' ]) !!}
+                {{ html()->text("translation_alert_rule[{$r->id}]", App\Translation::where('type', 'alert_rule')->where('name', $r->name)->where('language_id', $language->id)->value('translation'))->class('form-control') }}
             </td>
             <td>
-                {!! Form::text("translation_alert_rule_descr[$r->id]", App\Translation::where('type', 'alert_rule_description')->where('name', $r->description)->where('language_id', $language->id)->value('translation'), [ 'class' => 'form-control' ]) !!}
+                {{ html()->text("translation_alert_rule_descr[{$r->id}]", App\Translation::where('type', 'alert_rule_description')->where('name', $r->description)->where('language_id', $language->id)->value('translation'))->class('form-control') }}
             </td>
         </tr>
 
@@ -78,7 +78,7 @@ NB: Only translate the Physical quantity, not the abbreviation, or unit</p>
                 <p>{{ App\Translation::where('type', 'physical_quantity')->where('name', $p->abbreviation)->where('language_id', 1)->value('translation') }}</p>
             </td>
             <td>
-                {!! Form::text("translation_physical_quantity[$p->id]", App\Translation::where('type', 'physical_quantity')->where('name', $p->abbreviation)->where('language_id', $language->id)->value('translation'), [ 'class' => 'form-control' ]) !!}
+                {{ html()->text("translation_physical_quantity[{$p->id}]", App\Translation::where('type', 'physical_quantity')->where('name', $p->abbreviation)->where('language_id', $language->id)->value('translation'))->class('form-control') }}
             </td>
         </tr>
 
@@ -120,7 +120,7 @@ NB: Only translate the Physical quantity, not the abbreviation, or unit</p>
                 <p>{{ App\Translation::where('type', 'measurement')->where('name', $m->abbreviation)->where('language_id', 1)->value('translation') }}</p>
             </td>
             <td>
-                {!! Form::text("translation_measurement[$m->id]", App\Translation::where('type', 'measurement')->where('name', $m->abbreviation)->where('language_id', $language->id)->value('translation'), [ 'class' => 'form-control' ]) !!}
+                {{ html()->text("translation_measurement[{$m->id}]", App\Translation::where('type', 'measurement')->where('name', $m->abbreviation)->where('language_id', $language->id)->value('translation'))->class('form-control') }}
             </td>
         </tr>
 
@@ -169,7 +169,7 @@ NB: Only translate the Physical quantity, not the abbreviation, or unit</p>
                             <p style="padding-left: {{ 20*$depth }}px;">{{ App\Translation::where('type', 'category')->where('name', $name)->where('language_id', 1)->value('translation') }}</p>
                         </td>
                         <td>
-                            {!! Form::text("translation_category[$cat_id]", App\Translation::where('type', 'category')->where('name', $name)->where('language_id', $language->id)->value('translation'), [ 'class' => 'form-control' ]) !!}
+                            {{ html()->text("translation_category[{$cat_id}]", App\Translation::where('type', 'category')->where('name', $name)->where('language_id', $language->id)->value('translation'))->class('form-control') }}
                         </td>
                     </tr>
                 

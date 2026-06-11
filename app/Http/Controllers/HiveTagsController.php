@@ -2,25 +2,22 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Controllers\Controller;
-use App\Http\Requests;
-
 use App\Models\HiveTag;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\View\View;
 
 class HiveTagsController extends Controller
 {
     /**
      * Display a listing of the resource.
-     *
-     * @return \Illuminate\View\View
      */
-    public function index(Request $request)
+    public function index(Request $request): View
     {
-        $keyword = $request->get('search');
+        $keyword = $request->input('search');
         $perPage = 25;
 
-        if (!empty($keyword)) {
+        if (! empty($keyword)) {
             $hivetags = HiveTag::where('user_id', 'LIKE', "%$keyword%")
                 ->orWhere('tag', 'LIKE', "%$keyword%")
                 ->orWhere('hive_id', 'LIKE', "%$keyword%")
@@ -37,30 +34,28 @@ class HiveTagsController extends Controller
 
     /**
      * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\View\View
      */
-    public function create()
+    public function create(): View
     {
-        $hivetag = new HiveTag();
+        $hivetag = new HiveTag;
+
         return view('hive-tags.create');
     }
 
     /**
      * Store a newly created resource in storage.
      *
-     * @param \Illuminate\Http\Request $request
      *
      * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
      */
-    public function store(Request $request)
+    public function store(Request $request): RedirectResponse
     {
-        $this->validate($request, [
-			'tag' => 'required',
-			'user_id' => 'required'
-		]);
+        $request->validate([
+            'tag' => 'required',
+            'user_id' => 'required',
+        ]);
         $requestData = $request->all();
-        
+
         HiveTag::create($requestData);
 
         return redirect('hive-tags')->with('flash_message', 'HiveTag added!');
@@ -68,12 +63,8 @@ class HiveTagsController extends Controller
 
     /**
      * Display the specified resource.
-     *
-     * @param  int  $id
-     *
-     * @return \Illuminate\View\View
      */
-    public function show($id)
+    public function show(int $id): View
     {
         $hivetag = HiveTag::findOrFail($id);
 
@@ -82,12 +73,8 @@ class HiveTagsController extends Controller
 
     /**
      * Show the form for editing the specified resource.
-     *
-     * @param  int  $id
-     *
-     * @return \Illuminate\View\View
      */
-    public function edit($id)
+    public function edit(int $id): View
     {
         $hivetag = HiveTag::findOrFail($id);
 
@@ -97,19 +84,16 @@ class HiveTagsController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param \Illuminate\Http\Request $request
-     * @param  int  $id
-     *
      * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
      */
-    public function update(Request $request, $id)
+    public function update(Request $request, int $id): RedirectResponse
     {
-        $this->validate($request, [
-			'tag' => 'required',
-			'user_id' => 'required'
-		]);
+        $request->validate([
+            'tag' => 'required',
+            'user_id' => 'required',
+        ]);
         $requestData = $request->all();
-        
+
         $hivetag = HiveTag::findOrFail($id);
         $hivetag->update($requestData);
 
@@ -119,11 +103,9 @@ class HiveTagsController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  int  $id
-     *
      * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
      */
-    public function destroy($id)
+    public function destroy(int $id): RedirectResponse
     {
         HiveTag::destroy($id);
 

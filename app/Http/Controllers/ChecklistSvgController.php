@@ -2,25 +2,22 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Controllers\Controller;
-use App\Http\Requests;
-
 use App\Models\ChecklistSvg;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\View\View;
 
 class ChecklistSvgController extends Controller
 {
     /**
      * Display a listing of the resource.
-     *
-     * @return \Illuminate\View\View
      */
-    public function index(Request $request)
+    public function index(Request $request): View
     {
-        $keyword = $request->get('search');
+        $keyword = $request->input('search');
         $perPage = 25;
 
-        if (!empty($keyword)) {
+        if (! empty($keyword)) {
             $checklistsvg = ChecklistSvg::where('user_id', 'LIKE', "%$keyword%")
                 ->orWhere('checklist_id', 'LIKE', "%$keyword%")
                 ->orWhere('name', 'LIKE', "%$keyword%")
@@ -37,30 +34,28 @@ class ChecklistSvgController extends Controller
 
     /**
      * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\View\View
      */
-    public function create()
+    public function create(): View
     {
-        $checklistsvg = new ChecklistSvg();
+        $checklistsvg = new ChecklistSvg;
+
         return view('checklist-svg.create');
     }
 
     /**
      * Store a newly created resource in storage.
      *
-     * @param \Illuminate\Http\Request $request
      *
      * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
      */
-    public function store(Request $request)
+    public function store(Request $request): RedirectResponse
     {
-        $this->validate($request, [
-			'user_id' => 'required',
-			'checklist_id' => 'required'
-		]);
+        $request->validate([
+            'user_id' => 'required',
+            'checklist_id' => 'required',
+        ]);
         $requestData = $request->all();
-        
+
         ChecklistSvg::create($requestData);
 
         return redirect('checklist-svg')->with('flash_message', 'ChecklistSvg added!');
@@ -68,12 +63,8 @@ class ChecklistSvgController extends Controller
 
     /**
      * Display the specified resource.
-     *
-     * @param  int  $id
-     *
-     * @return \Illuminate\View\View
      */
-    public function show($id)
+    public function show(int $id): View
     {
         $checklistsvg = ChecklistSvg::findOrFail($id);
 
@@ -82,12 +73,8 @@ class ChecklistSvgController extends Controller
 
     /**
      * Show the form for editing the specified resource.
-     *
-     * @param  int  $id
-     *
-     * @return \Illuminate\View\View
      */
-    public function edit($id)
+    public function edit(int $id): View
     {
         $checklistsvg = ChecklistSvg::findOrFail($id);
 
@@ -97,19 +84,16 @@ class ChecklistSvgController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param \Illuminate\Http\Request $request
-     * @param  int  $id
-     *
      * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
      */
-    public function update(Request $request, $id)
+    public function update(Request $request, int $id): RedirectResponse
     {
-        $this->validate($request, [
-			'user_id' => 'required',
-			'checklist_id' => 'required'
-		]);
+        $request->validate([
+            'user_id' => 'required',
+            'checklist_id' => 'required',
+        ]);
         $requestData = $request->all();
-        
+
         $checklistsvg = ChecklistSvg::findOrFail($id);
         $checklistsvg->update($requestData);
 
@@ -119,11 +103,9 @@ class ChecklistSvgController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  int  $id
-     *
      * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
      */
-    public function destroy($id)
+    public function destroy(int $id): RedirectResponse
     {
         ChecklistSvg::destroy($id);
 

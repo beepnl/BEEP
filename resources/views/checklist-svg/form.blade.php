@@ -1,14 +1,14 @@
 <div class="col-xs-12">
             <div class="form-group">
                 <label>{{ __('general.User') }}</label>
-                {!! Form::select('user_id', App\User::selectlist(), isset($checklistsvg->user_id) ? $checklistsvg->user_id : Auth::user()->id, array('placeholder'=>__('crud.select', ['item'=>__('general.user')]),'class' => 'form-control select2')) !!}
+                {{ html()->select('user_id', App\User::selectlist(), isset($checklistsvg->user_id) ? $checklistsvg->user_id : Auth::user()->id)->placeholder(__('crud.select', ['item' => __('general.user')]))->class('form-control select2') }}
             </div>
         </div>
 <div class="col-xs-12">
 	<div class="form-group {{ $errors->has('checklist_id') ? 'has-error' : ''}}">
 	    <label for="checklist_id" control-label>{{ 'Checklist' }}</label>
 	    <div>
-	        {!! Form::select('checklist_id', App\Checklist::selectList(), isset($checklistsvg->checklist_id) ? $checklistsvg->checklist_id : null, array('id'=>'checklist_id', 'class' => 'form-control select2')) !!}
+	        {{ html()->select('checklist_id', App\Checklist::selectList(), isset($checklistsvg->checklist_id) ? $checklistsvg->checklist_id : null)->id('checklist_id')->class('form-control select2') }}
 	        {!! $errors->first('checklist_id', '<p class="help-block">:message</p>') !!}
 	    </div>
 	</div>

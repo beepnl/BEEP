@@ -3,17 +3,14 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 
-class CreateAlertRuleFormulasTable extends Migration
+return new class extends Migration
 {
     /**
      * Run the migrations.
-     *
-     * @return void
      */
-    public function up()
+    public function up(): void
     {
-        if (!Schema::hasTable('alert_rule_formulas')) 
-        {
+        if (! Schema::hasTable('alert_rule_formulas')) {
 
             Schema::create('alert_rule_formulas', function (Blueprint $table) {
                 $table->increments('id');
@@ -47,18 +44,16 @@ class CreateAlertRuleFormulasTable extends Migration
             //     $arf->save();
             // }
 
-            // Remove formula fields from the AlertRule table 
+            // Remove formula fields from the AlertRule table
 
         }
     }
 
     /**
      * Reverse the migrations.
-     *
-     * @return void
      */
-    public function down()
+    public function down(): void
     {
         Schema::drop('alert_rule_formulas');
     }
-}
+};

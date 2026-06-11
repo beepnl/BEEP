@@ -3,8 +3,6 @@
 namespace App\Listeners;
 
 use Illuminate\Auth\Events\Login;
-use Illuminate\Queue\InteractsWithQueue;
-use Illuminate\Contracts\Queue\ShouldQueue;
 
 class LogSuccessfulLogin
 {
@@ -20,11 +18,8 @@ class LogSuccessfulLogin
 
     /**
      * Handle the event.
-     *
-     * @param  Login  $event
-     * @return void
      */
-    public function handle(Login $event)
+    public function handle(Login $event): void
     {
         $event->user->last_login = date('Y-m-d H:i:s');
         $event->user->save();

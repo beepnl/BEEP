@@ -1,3 +1,4 @@
+*.log
 
 /vendor
 !resources/views/vendor/
@@ -24,7 +25,7 @@ Homestead.json
 Homestead.yaml
 .env
 .env.docs
-.phpunit.result.cache
+/.phpunit.cache
 .DS_Store
 .phpintel
 .log
@@ -33,8 +34,10 @@ Homestead.yaml
 npm-debug.log
 yarn-error.log
 /.idea
+/.nova
 /.vscode
 /.vagrant
 
 /node_modules
 dump.rdb
+/storage/pail

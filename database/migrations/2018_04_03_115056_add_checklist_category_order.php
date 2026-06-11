@@ -1,24 +1,21 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
-class AddChecklistCategoryOrder extends Migration
+return new class extends Migration
 {
     /**
      * Run the migrations.
-     *
-     * @return void
      */
-    public function up()
+    public function up(): void
     {
-        if (Schema::hasTable('checklist_category')) 
-        {
-            Schema::table('checklist_category', function (Blueprint $table)
-            {
-                if (Schema::hasColumn('checklist_category','order') == false)
+        if (Schema::hasTable('checklist_category')) {
+            Schema::table('checklist_category', function (Blueprint $table) {
+                if (Schema::hasColumn('checklist_category', 'order') == false) {
                     $table->integer('order')->unsigned()->nullable();
+                }
 
             });
         }
@@ -26,17 +23,13 @@ class AddChecklistCategoryOrder extends Migration
 
     /**
      * Reverse the migrations.
-     *
-     * @return void
      */
-    public function down()
+    public function down(): void
     {
-        if (Schema::hasTable('checklist_category')) 
-        {
-            Schema::table('checklist_category', function (Blueprint $table)
-            {
+        if (Schema::hasTable('checklist_category')) {
+            Schema::table('checklist_category', function (Blueprint $table) {
                 $table->dropColumn('order');
             });
         }
     }
-}
+};

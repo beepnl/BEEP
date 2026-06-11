@@ -2,25 +2,25 @@
 
 namespace App;
 
+use Illuminate\Database\Eloquent\Attributes\Appends;
+use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Attributes\WithoutTimestamps;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
+#[WithoutTimestamps]
+#[Fillable('name', 'name_english', 'icon', 'abbreviation', 'twochar')]
+#[Appends('lang')]
 class Language extends Model
 {
-    protected $fillable = ['name','name_english','icon','abbreviation','twochar'];
-
-    protected $appends = ['lang'];
-
-    public $timestamps = false;
-
     public function getLangAttribute()
     {
-    	return $this->twochar;
+        return $this->twochar;
     }
 
     // Relations
-    public function translations()
+    public function translations(): BelongsToMany
     {
         return $this->belongsToMany(Translation::class);
     }
-
 }

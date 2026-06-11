@@ -1,17 +1,15 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
-class AddDimensionsToHive extends Migration
+return new class extends Migration
 {
     /**
      * Run the migrations.
-     *
-     * @return void
      */
-    public function up()
+    public function up(): void
     {
         Schema::table('hives', function (Blueprint $table) {
             $table->decimal('bb_width_cm', 6, 1)->unsigned()->nullable();
@@ -24,10 +22,8 @@ class AddDimensionsToHive extends Migration
 
     /**
      * Reverse the migrations.
-     *
-     * @return void
      */
-    public function down()
+    public function down(): void
     {
         Schema::table('hives', function (Blueprint $table) {
             $table->dropColumn('bb_width_cm');
@@ -37,4 +33,4 @@ class AddDimensionsToHive extends Migration
             $table->dropColumn('fr_height_cm');
         });
     }
-}
+};

@@ -2,29 +2,26 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Controllers\Controller;
-use App\Http\Requests;
-
 use App\Models\DashboardGroup;
+use Auth;
+use Cache;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
-use Auth;
+use Illuminate\View\View;
 use Str;
-use Cache;
 
 class DashboardGroupController extends Controller
 {
     /**
      * Display a listing of the resource.
-     *
-     * @return \Illuminate\View\View
      */
-    public function index(Request $request)
+    public function index(Request $request): View
     {
-        $keyword = $request->get('search');
+        $keyword = $request->input('search');
         $perPage = 100;
 
-        if (!empty($keyword)) {
+        if (! empty($keyword)) {
             $dashboardgroup = DashboardGroup::where('user_id', 'LIKE', "%$keyword%")
                 ->orWhere('code', 'LIKE', "%$keyword%")
                 ->orWhere('name', 'LIKE', "%$keyword%")
@@ -46,31 +43,29 @@ class DashboardGroupController extends Controller
 
     /**
      * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\View\View
      */
-    public function create()
+    public function create(): View
     {
-        $dashboardgroup = new DashboardGroup();
+        $dashboardgroup = new DashboardGroup;
         $dashboardgroup->user_id = Auth::user()->id;
         $dashboardgroup->code = strtoupper(Str::random(6));
-        $hive_ids = Auth::user()->hives()->pluck('name','id')->toArray();
-        return view('dashboard-group.create', compact('hive_ids','dashboardgroup'));
+        $hive_ids = Auth::user()->hives()->pluck('name', 'id')->toArray();
+
+        return view('dashboard-group.create', compact('hive_ids', 'dashboardgroup'));
     }
 
     /**
      * Store a newly created resource in storage.
      *
-     * @param \Illuminate\Http\Request $request
      *
      * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
      */
-    public function store(Request $request)
+    public function store(Request $request): RedirectResponse
     {
-        $this->validate($request, [
-			'code' => 'required|string|min:6',
+        $request->validate([
+            'code' => 'required|string|min:6',
             'hive_ids.*' => 'required|exists:hives,id',
-            'interval'          => ['required', Rule::in(array_keys(DashboardGroup::$intervals))],
+            'interval' => ['required', Rule::in(array_keys(DashboardGroup::$intervals))],
             'speed' => 'required|integer|min:1|max:84600',
             'name' => 'nullable|string',
             'description' => 'nullable|string',
@@ -78,9 +73,9 @@ class DashboardGroupController extends Controller
             'show_inspections' => 'boolean',
             'show_all' => 'boolean',
             'hide_measurements' => 'boolean',
-		]);
+        ]);
         $requestData = $request->all();
-        
+
         DashboardGroup::create($requestData);
 
         return redirect('dashboard-group')->with('flash_message', 'DashboardGroup added!');
@@ -88,12 +83,8 @@ class DashboardGroupController extends Controller
 
     /**
      * Display the specified resource.
-     *
-     * @param  int  $id
-     *
-     * @return \Illuminate\View\View
      */
-    public function show($id)
+    public function show(int $id): View
     {
         $dashboardgroup = DashboardGroup::findOrFail($id);
 
@@ -102,32 +93,26 @@ class DashboardGroupController extends Controller
 
     /**
      * Show the form for editing the specified resource.
-     *
-     * @param  int  $id
-     *
-     * @return \Illuminate\View\View
      */
-    public function edit($id)
+    public function edit(int $id): View
     {
         $dashboardgroup = DashboardGroup::findOrFail($id);
-        $hive_ids = Auth::user()->hives()->pluck('name','id')->toArray();
-        return view('dashboard-group.edit', compact('hive_ids','dashboardgroup'));
+        $hive_ids = Auth::user()->hives()->pluck('name', 'id')->toArray();
+
+        return view('dashboard-group.edit', compact('hive_ids', 'dashboardgroup'));
     }
 
     /**
      * Update the specified resource in storage.
      *
-     * @param \Illuminate\Http\Request $request
-     * @param  int  $id
-     *
      * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
      */
-    public function update(Request $request, $id)
+    public function update(Request $request, int $id): RedirectResponse
     {
-        $this->validate($request, [
-			'code' => 'required|string|min:6',
+        $request->validate([
+            'code' => 'required|string|min:6',
             'hive_ids.*' => 'required|exists:hives,id',
-            'interval'          => ['required', Rule::in(array_keys(DashboardGroup::$intervals))],
+            'interval' => ['required', Rule::in(array_keys(DashboardGroup::$intervals))],
             'speed' => 'required|integer|min:1|max:84600',
             'name' => 'nullable|string',
             'description' => 'nullable|string',
@@ -135,16 +120,17 @@ class DashboardGroupController extends Controller
             'show_inspections' => 'boolean',
             'show_all' => 'boolean',
             'hide_measurements' => 'boolean',
-		]);
+        ]);
         $requestData = $request->all();
-        
+
         $dashboardgroup = DashboardGroup::findOrFail($id);
-        
+
         // Empty cache
         $code = $dashboardgroup->code;
         Cache::forget('dashboard-code'.$code.'-hive-null-data');
-        foreach ($dashboardgroup->hive_ids as $hive_id)
+        foreach ($dashboardgroup->hive_ids as $hive_id) {
             Cache::forget('dashboard-code'.$code.'-hive-'.$hive_id.'-data');
+        }
 
         $dashboardgroup->update($requestData);
 
@@ -154,11 +140,9 @@ class DashboardGroupController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  int  $id
-     *
      * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
      */
-    public function destroy($id)
+    public function destroy(int $id): RedirectResponse
     {
         DashboardGroup::destroy($id);
 

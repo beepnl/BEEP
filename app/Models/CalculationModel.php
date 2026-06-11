@@ -2,40 +2,21 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use App\Device;
 use App\Measurement;
-use App\Models\AlertRuleFormula;
-use Moment\Moment;
-use GuzzleHttp\Exception\GuzzleException;
-use GuzzleHttp\Client;
-use Illuminate\Support\Facades\Log;
 use Cache;
+use GuzzleHttp\Client;
+use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Attributes\Table;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Facades\Log;
+use Moment\Moment;
 
+#[Table('calculation_models', 'id')]
+#[Fillable('name', 'measurement_id', 'data_measurement_id', 'data_interval', 'data_relative_interval', 'data_interval_index', 'data_api_url', 'data_api_http_request', 'data_last_call', 'calculation', 'repository_url', 'data_interval_amount', 'calculation_interval_minutes')]
 class CalculationModel extends Model
 {
-    /**
-     * The database table used by the model.
-     *
-     * @var string
-     */
-    protected $table = 'calculation_models';
-
-    /**
-    * The database primary key value.
-    *
-    * @var string
-    */
-    protected $primaryKey = 'id';
-
-    /**
-     * Attributes that should be mass-assignable.
-     *
-     * @var array
-     */
-    protected $fillable = ['name', 'measurement_id', 'data_measurement_id', 'data_interval', 'data_relative_interval', 'data_interval_index', 'data_api_url', 'data_api_http_request', 'data_last_call', 'calculation', 'repository_url', 'data_interval_amount', 'calculation_interval_minutes'];
-    protected $casts    = ['data_relative_interval'=>'boolean'];
-
     /**
      * Model properties:
      * name
@@ -49,69 +30,70 @@ class CalculationModel extends Model
      * data_last_call           timest  Timestamp of last request
      * calculation              enum    internal/api/lambda
      * repository_url           str     Description of the current model
-     * data_processing_function str     Name of the function to post process the data before 
+     * data_processing_function str     Name of the function to post process the data before
      * data_interval_amount     int     Amount of data intervals to fetch
      * calculation_interval_minutes int Prefered calculation interval
      */
 
     // Internal or external model calculation type
-    public static $request_types= ["GET"=>"GET request", "POST"=>"POST request"];
-    public static $calculations = ["model_cumulative_daily_weight_anomaly"=>"Cumulative daily hive weight anomaly", 
-                                   "model_colony_failure_weight_history"=>"Colony failure weight history (AWS Lambda)"];
+    public static $request_types = ['GET' => 'GET request', 'POST' => 'POST request'];
 
+    public static $calculations = ['model_cumulative_daily_weight_anomaly' => 'Cumulative daily hive weight anomaly',
+        'model_colony_failure_weight_history' => 'Colony failure weight history (AWS Lambda)'];
 
-    public function input_measurement()
+    protected function casts(): array
+    {
+        return [
+            'data_relative_interval' => 'boolean',
+        ];
+    }
+
+    public function input_measurement(): BelongsTo
     {
         return $this->belongsTo(Measurement::class, 'data_measurement_id');
     }
-    public function measurement()
+
+    public function measurement(): BelongsTo
     {
         return $this->belongsTo(Measurement::class);
     }
 
     public function run_model($user)
     {
-        $model_result = ['error'=>'empty result'];
-        
-        if ($user)
-        {
+        $model_result = ['error' => 'empty result'];
+
+        if ($user) {
             $interval_array = $this->interval_array();
-            $model_result   = ['user'=>$user->name, 'interval_array'=>$interval_array];
-        
-            switch($this->calculation)
-            {
+            $model_result = ['user' => $user->name, 'interval_array' => $interval_array];
+
+            switch ($this->calculation) {
                 case 'model_cumulative_daily_weight_anomaly':
                     $devices = $user->allDevices()->get();
-                    if ($devices->count() > 0)
-                    {
+                    if ($devices->count() > 0) {
                         // get data arrays per apiary ()
                         $apiaries = $devices->groupBy('location_name');
                         $model_result['devices'] = $devices->count();
 
-                        foreach ($apiaries as $apiary_name => $hive_devices) 
-                        {
+                        foreach ($apiaries as $apiary_name => $hive_devices) {
                             $model_result[$apiary_name] = [];
                             $model_result[$apiary_name]['hives'] = $hive_devices->count();
 
                             $apiary_data = [];
                             $has_data = false;
-                            foreach ($hive_devices as $device)
-                            {
+                            foreach ($hive_devices as $device) {
                                 $model_result[$apiary_name][$device->name] = [];
-                                
+
                                 $apiary_data = $this->addDeviceCleanWeight($apiary_data, $device, $interval_array);
-                                if (isset($apiary_data['query']))
-                                {   
+                                if (isset($apiary_data['query'])) {
                                     $model_result[$apiary_name][$device->name]['query'] = $apiary_data['query'];
-                                }
-                                else if (count($apiary_data) > 0)
-                                {
+                                } elseif (count($apiary_data) > 0) {
                                     $has_data = true;
                                 }
                             }
-                            if ($has_data){
+                            if ($has_data) {
                                 $model_result[$apiary_name]['apiary_data'] = $apiary_data;
-                                $model_result[$apiary_name]['api_result']  = $this->model_cumulative_daily_weight_anomaly($apiary_data);
+                                $model_result[$apiary_name]['api_result'] = $this->model_cumulative_daily_weight_anomaly($apiary_data);
+
                                 return $model_result;  // TODO: remove after it works
                             }
                         }
@@ -121,32 +103,27 @@ class CalculationModel extends Model
                 case 'model_colony_failure_weight_history':
                     // Send 240 cumulative weight values in a flat array
                     $devices = $user->allDevices()->get();
-                    if ($devices->count() > 0)
-                    {
+                    if ($devices->count() > 0) {
                         // get data arrays per apiary ()
                         $apiaries = $devices->groupBy('location_name');
                         $model_result['devices'] = $devices->count();
 
-                        foreach ($apiaries as $apiary_name => $hive_devices) 
-                        {
+                        foreach ($apiaries as $apiary_name => $hive_devices) {
                             $model_result[$apiary_name] = [];
                             $model_result[$apiary_name]['hives'] = $hive_devices->count();
 
                             $has_data = false;
-                            foreach ($hive_devices as $device)
-                            {
+                            foreach ($hive_devices as $device) {
                                 $model_result[$apiary_name][$device->name] = [];
-                                
+
                                 $device_data = [];
                                 $device_data = $this->addDeviceCleanWeight($device_data, $device, $interval_array);
-                                if (isset($device_data['query']))
-                                {   
+                                if (isset($device_data['query'])) {
                                     $model_result[$apiary_name][$device->name]['query'] = $device_data['query'];
-                                }
-                                else if (count($device_data) > 0)
-                                {
+                                } elseif (count($device_data) > 0) {
                                     $has_data = true;
-                                    $model_result[$apiary_name][$device->name]['api_result']  = $this->model_colony_failure_weight_history($device_data);
+                                    $model_result[$apiary_name][$device->name]['api_result'] = $this->model_colony_failure_weight_history($device_data);
+
                                     return $model_result; // TODO: remove after it works
                                 }
                             }
@@ -157,6 +134,7 @@ class CalculationModel extends Model
                     // No calculation
             }
         }
+
         return $model_result;
     }
 
@@ -171,7 +149,7 @@ class CalculationModel extends Model
         // Send data to external model Lambda in JSON POST format
         // http://calculation.beep.nl:8080/cumulative_weight_anomaly
         $model_result_json = $this->callApi($apiary_weight_data_arrays);
-        
+
         return $model_result_json;
     }
 
@@ -182,132 +160,120 @@ class CalculationModel extends Model
         $weight_array = [];
 
         // transform from 240 timestamps + values to single array of 240 values
-        foreach ($data_arrays as $data_array)
-        {
-            if (isset($data_array['net_weight_kg']))
+        foreach ($data_arrays as $data_array) {
+            if (isset($data_array['net_weight_kg'])) {
                 $weight_array[] = $data_array['net_weight_kg'];
+            }
 
         }
-        $model_result_json = $this->callApi(['weights'=>$weight_array]);
+        $model_result_json = $this->callApi(['weights' => $weight_array]);
 
         return $model_result_json * 100;
     }
 
-
     // Calculate relevant start/end time interval
     private function interval_array()
     {
-        $relative_interval  = $this->data_relative_interval;
-        $interval_char      = substr($this->data_interval, -1); // m, h, d, w, etc
-        $index              = $this->data_interval_index;
-        $interval_count     = $this->data_interval_amount;
-        $timeZone           = 'UTC';
-        $interval           = 'day';
-        $total_minutes      = 1440;
-        $timeFormat         = 'Y-m-d H:i:s';
+        $relative_interval = $this->data_relative_interval;
+        $interval_char = substr($this->data_interval, -1); // m, h, d, w, etc
+        $index = $this->data_interval_index;
+        $interval_count = $this->data_interval_amount;
+        $timeZone = 'UTC';
+        $interval = 'day';
+        $total_minutes = 1440;
+        $timeFormat = 'Y-m-d H:i:s';
 
-        switch($interval_char)
-        {
-            case "m":
+        switch ($interval_char) {
+            case 'm':
                 $total_minutes = $interval_count;
-                $interval      = 'minute';
-                break; 
-            case "h":
-                $total_minutes = $interval_count*60;
-                $interval      = 'hour';
+                $interval = 'minute';
                 break;
-            case "d":
-                $total_minutes = $interval_count*24*60;
-                $interval      = 'day';
+            case 'h':
+                $total_minutes = $interval_count * 60;
+                $interval = 'hour';
                 break;
-            case "w":
-                $total_minutes = $interval_count*24*60*7;
-                $interval      = 'week';
+            case 'd':
+                $total_minutes = $interval_count * 24 * 60;
+                $interval = 'day';
+                break;
+            case 'w':
+                $total_minutes = $interval_count * 24 * 60 * 7;
+                $interval = 'week';
                 break;
         }
 
-        // Calculate start/end based on 
+        // Calculate start/end based on
         $staTimestamp = new Moment(null, $timeZone);
         $endTimestamp = new Moment(null, $timeZone);
-        
+
         // set start/end of interval
         $staIndex = $index;
         $endIndex = $index;
 
-        if ($relative_interval)
+        if ($relative_interval) {
             $staIndex += 1;
+        }
 
-        $staTimestamp->subtractMinutes($staIndex*$total_minutes);
-        $endTimestamp->subtractMinutes($endIndex*$total_minutes);
+        $staTimestamp->subtractMinutes($staIndex * $total_minutes);
+        $endTimestamp->subtractMinutes($endIndex * $total_minutes);
 
         // Relative
-        if ($relative_interval)
-        {
+        if ($relative_interval) {
             // $start = $staTimestamp->setTimezone('UTC')->format($timeFormat);
             // $end   = $endTimestamp->setTimezone('UTC')->format($timeFormat);
             $start = $staTimestamp->startOf($interval)->setTimezone('UTC')->format($timeFormat);
-            $end   = $endTimestamp->endOf($interval)->setTimezone('UTC')->format($timeFormat);
-        }
-        else // absolute time intervals
-        {
+            $end = $endTimestamp->endOf($interval)->setTimezone('UTC')->format($timeFormat);
+        } else { // absolute time intervals
             $start = $staTimestamp->startOf($interval)->setTimezone('UTC')->format($timeFormat);
-            $end   = $endTimestamp->endOf($interval)->setTimezone('UTC')->format($timeFormat);
+            $end = $endTimestamp->endOf($interval)->setTimezone('UTC')->format($timeFormat);
         }
 
-        return ['start'=>$start, 'end'=>$end, 'interval'=>$interval, 'relative_interval'=>$relative_interval, 'index'=>$index, 'total_minutes'=>$total_minutes, 'timeZone'=>$timeZone];
+        return ['start' => $start, 'end' => $end, 'interval' => $interval, 'relative_interval' => $relative_interval, 'index' => $index, 'total_minutes' => $total_minutes, 'timeZone' => $timeZone];
     }
 
     // Add device clean weight to data array
     private function addDeviceCleanWeight($apiary_data, $device, $interval_array)
     {
-        //$cleanWeight_query = $device -> getCleanedWeightQuery($this->data_interval, $interval_array['start'], $interval_array['end']); // getCleanedWeightQuery($resolution, $start_date, $end_date, $limit=5000, $threshold=0.75, $frame=2, $timeZone='UTC')
-        
-        $fill              = env('INFLUX_FILL') !== null ? env('INFLUX_FILL') : 'null';
+        // $cleanWeight_query = $device -> getCleanedWeightQuery($this->data_interval, $interval_array['start'], $interval_array['end']); // getCleanedWeightQuery($resolution, $start_date, $end_date, $limit=5000, $threshold=0.75, $frame=2, $timeZone='UTC')
+
+        $fill = env('INFLUX_FILL') !== null ? env('INFLUX_FILL') : 'null';
         $groupByResolution = 'GROUP BY time('.$this->data_interval.') fill('.$fill.')';
-        $whereKeyAndTime   = $device->influxWhereKeys().' AND time >= \''.$interval_array['start'].'\' AND time <= \''.$interval_array['end'].'\'';
-        $name              = "weight_$device->id";
+        $whereKeyAndTime = $device->influxWhereKeys().' AND time >= \''.$interval_array['start'].'\' AND time <= \''.$interval_array['end'].'\'';
+        $name = "weight_$device->id";
         $cleanWeight_query = 'SELECT MEAN("weight_kg") as "'.$name.'" FROM "sensors" WHERE '.$whereKeyAndTime.' '.$groupByResolution.' LIMIT '.$this->data_interval_amount;
 
-        $cleanWeight_out = Cache::remember($cleanWeight_query, env('CACHE_TIMEOUT_LONG'), function () use ($cleanWeight_query)
-        {
+        $cleanWeight_out = Cache::remember($cleanWeight_query, env('CACHE_TIMEOUT_LONG'), function () use ($cleanWeight_query) {
             return Device::getInfluxQuery($cleanWeight_query, 'alert');
         });
 
-        if (count($cleanWeight_out) > 0)
-        {
-            //dd(['ccw' => count($cleanWeight_out), 'so' => count($cleanWeight_out)]);
-        
-            if (count($cleanWeight_out) == (count($apiary_data)+1))
-            {
+        if (count($cleanWeight_out) > 0) {
+            // dd(['ccw' => count($cleanWeight_out), 'so' => count($cleanWeight_out)]);
+
+            if (count($cleanWeight_out) == (count($apiary_data) + 1)) {
                 array_shift($cleanWeight_out);
             }
-                        
-            if (count($apiary_data) == 0)
-            {
+
+            if (count($apiary_data) == 0) {
                 $apiary_data = $cleanWeight_out;
-            }
-            else
-            {
-                if (count($cleanWeight_out) == count($apiary_data))
-                {
-                    foreach ($apiary_data as $key => $value) 
-                    {
-                        foreach ($cleanWeight_out[$key] as $name => $value) 
-                        {
-                            if ($name != 'time')
-                                $apiary_data[$key][$name] =  $value;
+            } else {
+                if (count($cleanWeight_out) == count($apiary_data)) {
+                    foreach ($apiary_data as $key => $value) {
+                        foreach ($cleanWeight_out[$key] as $name => $value) {
+                            if ($name != 'time') {
+                                $apiary_data[$key][$name] = $value;
+                            }
                         }
                     }
                 }
             }
-            
+
         }
         // else
         // {
         //     $apiary_data['query'] = $cleanWeight_query;
         // }
-        //dd(['cleanWeight_out'=> count($cleanWeight_out), 'apiary_data' => count($apiary_data), 'sensor_query' => $sensorQuery, 'cleanWeight_query' => $cleanWeight_query, 'cleanWeight_out'=>$cleanWeight_out, 'apiary_data'=>$apiary_data]);
-        
+        // dd(['cleanWeight_out'=> count($cleanWeight_out), 'apiary_data' => count($apiary_data), 'sensor_query' => $sensorQuery, 'cleanWeight_query' => $cleanWeight_query, 'cleanWeight_out'=>$cleanWeight_out, 'apiary_data'=>$apiary_data]);
+
         return $apiary_data;
     }
 
@@ -316,41 +282,34 @@ class CalculationModel extends Model
     {
         $out = null;
 
-        if ($data)
-        {
-            $url  = $this->data_api_url;
+        if ($data) {
+            $url = $this->data_api_url;
             $type = $this->data_api_http_request == 'POST' ? 'POST' : 'GET';
 
-            $out  = ['url'=>$url, 'type'=>$type];
-            try
-            {
-                $guzzle   = new Client();
+            $out = ['url' => $url, 'type' => $type];
+            try {
+                $guzzle = new Client;
                 $response = $guzzle->request($type, $url, ['json' => json_encode($data), 'verify' => true, 'http_errors' => false]);
-                if ($response)
-                {
+                if ($response) {
                     $out['status'] = $response->getStatusCode();
-                    if ($response->getStatusCode() == 200)
-                    {
+                    if ($response->getStatusCode() == 200) {
                         return json_decode($response->getBody());
-                    }
-                    else
-                    {
-                        Log::error(['service'=>'CalculationModel::callApi', 'url'=>$url, 'type'=>$type, 'error'=>['body'=>json_decode($response->getBody()), 'code'=>$response->getStatusCode()]]);
+                    } else {
+                        Log::error(['service' => 'CalculationModel::callApi', 'url' => $url, 'type' => $type, 'error' => ['body' => json_decode($response->getBody()), 'code' => $response->getStatusCode()]]);
                         $out['body'] = json_decode($response->getBody());
                     }
                 }
-            }
-            catch(\Exception $e)
-            {
-                Log::error(['service'=>'CalculationModel::callApi', 'url'=>$url, 'type'=>$type, 'error'=>$e->getMessage()]);
+            } catch (\Exception $e) {
+                Log::error(['service' => 'CalculationModel::callApi', 'url' => $url, 'type' => $type, 'error' => $e->getMessage()]);
                 $out['error'] = $e->getMessage();
             }
         }
+
         return $out;
     }
 
     // Boxplot from data array
-   public static function calculateBoxplot(array $data): array
+    public static function calculateBoxplot(array $data): array
     {
         $count = count($data);
 
@@ -373,12 +332,13 @@ class CalculationModel extends Model
             if ($n % 2 === 1) {
                 return $arr[$mid];
             }
+
             return ($arr[$mid - 1] + $arr[$mid]) / 2;
         };
 
         $min = $data[0];
         $max = $data[$count - 1];
-        $q2  = $median($data);
+        $q2 = $median($data);
 
         // Build halves in a way that excludes the median when count is odd
         if ($count === 1) {
@@ -390,7 +350,7 @@ class CalculationModel extends Model
             // For upper half: skip the median if odd; start at intdiv($count,2) for even,
             // or intdiv($count,2)+1 for odd.
             $upperStart = ($count % 2 === 0) ? intdiv($count, 2) : intdiv($count, 2) + 1;
-            $upperHalf  = array_slice($data, $upperStart);
+            $upperHalf = array_slice($data, $upperStart);
 
             // median() can return null for empty slices; fallback to overall median $q2
             $q1 = $median($lowerHalf) ?? $q2;
@@ -431,27 +391,26 @@ class CalculationModel extends Model
         ];
     }
 
+    public static function arrayToString($array, string $separator = ', ', string $prefix = '', $not_keys = []): string
+    {
 
-    public static function arrayToString($array, string $separator = ', ', string $prefix = '', $not_keys=[]): string {
-
-        if (is_array($array))
-        {
+        if (is_array($array)) {
             $result = [];
-            foreach ($array as $key => $value)
-            {
-                if (is_array($not_keys) && in_array($key, $not_keys))
+            foreach ($array as $key => $value) {
+                if (is_array($not_keys) && in_array($key, $not_keys)) {
                     continue;
+                }
 
                 $compositeKey = $prefix === '' ? $key : "$prefix.$key";
 
-                if (is_array($value))
-                {
+                if (is_array($value)) {
                     $result[] = self::arrayToString($value, $separator, $compositeKey, $not_keys);
                 } else {
-                
+
                     $rounded_value = $value;
-                    if (is_numeric($rounded_value))
+                    if (is_numeric($rounded_value)) {
                         $rounded_value = round($rounded_value, 2);
+                    }
 
                     $result[] = "$compositeKey: $rounded_value";
                 }
@@ -460,9 +419,6 @@ class CalculationModel extends Model
             return implode($separator, $result);
         }
 
-        return ''; 
+        return '';
     }
 }
-
-
-

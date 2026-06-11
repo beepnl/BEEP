@@ -2,80 +2,70 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Http\Requests;
 use App\Http\Controllers\Controller;
-use Illuminate\Support\Facades\Storage;
-
-use App\SensorDefinition;
 use App\Measurement;
+use App\SensorDefinition;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 
 /**
  * @group Api\SensorDefinitionController
  * Manage your sensor definitions
+ *
  * @authenticated
  */
 class SensorDefinitionController extends Controller
 {
     private function getDeviceFromRequest(Request $request)
     {
-        
-        if ($request->filled('device_id'))
-        {
+
+        if ($request->filled('device_id')) {
             return $request->user()->devices()->findOrFail($request->input('device_id'));
-        }
-        else if ($request->filled('hardware_id'))
-        {
+        } elseif ($request->filled('hardware_id')) {
             return $request->user()->devices()->where('hardware_id', strtolower($request->input('hardware_id')))->first();
-        }
-        else if ($request->filled('device_hardware_id'))
-        {
+        } elseif ($request->filled('device_hardware_id')) {
             return $request->user()->devices()->where('hardware_id', strtolower($request->input('device_hardware_id')))->first();
         }
+
         return null;
     }
 
-    private function getMeasurementFromRequestKey(Request $request, $output=true)
+    private function getMeasurementFromRequestKey(Request $request, $output = true)
     {
-        $request_id  = $output ? 'output_measurement_id' : 'input_measurement_id';
+        $request_id = $output ? 'output_measurement_id' : 'input_measurement_id';
         $request_key = $output ? 'output_measurement_abbreviation' : 'input_measurement_abbreviation';
 
-        if ($request->filled($request_id))
-        {
+        if ($request->filled($request_id)) {
             return Measurement::findOrFail($request->input($request_id));
-        }
-        else if ($request->filled($request_key))
-        {
+        } elseif ($request->filled($request_key)) {
             return Measurement::where('abbreviation', $request->input($request_key))->first();
         }
+
         return null;
     }
 
     private function makeRequestDataArray(Request $request)
     {
-        $measurement_in   = $this->getMeasurementFromRequestKey($request, false); 
-        $measurement_out  = $this->getMeasurementFromRequestKey($request, true);
+        $measurement_in = $this->getMeasurementFromRequestKey($request, false);
+        $measurement_out = $this->getMeasurementFromRequestKey($request, true);
 
         // Change output weight measurement for React native app
-        if ($request->hasHeader('X-ClientId') && ($request->header('X-ClientId') == 'android' || $request->header('X-ClientId') == 'ios')) 
-        {
-            if (isset($measurement_in) && $measurement_in->abbreviation == 'w_v')
-            {
-                if (isset($measurement_out) == false || $measurement_out->abbreviation == 'w_v')
+        if ($request->hasHeader('X-ClientId') && ($request->header('X-ClientId') == 'android' || $request->header('X-ClientId') == 'ios')) {
+            if (isset($measurement_in) && $measurement_in->abbreviation == 'w_v') {
+                if (isset($measurement_out) == false || $measurement_out->abbreviation == 'w_v') {
                     $measurement_out = Measurement::where('abbreviation', 'weight_kg')->first();
+                }
             }
         }
 
-
         $request_data = $request->only('name', 'inside', 'offset', 'multiplier', 'input_measurement_id', 'output_measurement_id', 'device_id');
 
-        $request_data['input_measurement_id']  = isset($measurement_in) ? $measurement_in->id : null;
+        $request_data['input_measurement_id'] = isset($measurement_in) ? $measurement_in->id : null;
         $request_data['output_measurement_id'] = isset($measurement_out) ? $measurement_out->id : (isset($measurement_in) ? $measurement_in->id : null);
 
-        if (isset($measurement_in) && $measurement_in->abbreviation == 'w_v' && isset($request_data['offset']) && isset($request_data['multiplier']) && $request_data['offset'] == 0 && $request_data['multiplier'] == 0)
-        {
-            $in_abbr  = $measurement_in->abbreviation;
+        if (isset($measurement_in) && $measurement_in->abbreviation == 'w_v' && isset($request_data['offset']) && isset($request_data['multiplier']) && $request_data['offset'] == 0 && $request_data['multiplier'] == 0) {
+            $in_abbr = $measurement_in->abbreviation;
             $out_abbr = isset($measurement_out) ? $measurement_out->abbreviation : 'null';
             Log::error("SensorDefinition request in: $in_abbr, out: $out_abbr, weight has empty multiplier and offset:");
             Log::error(json_encode($request_data));
@@ -83,27 +73,27 @@ class SensorDefinitionController extends Controller
             $request_data['multiplier'] = 1;
         }
 
-        if ($request->filled('inside'))
-        {
-            if ($request_data['inside'] === -1)
+        if ($request->filled('inside')) {
+            if ($request_data['inside'] === -1) {
                 $request_data['inside'] = null;
-            else
-                $request_data['inside'] = $request_data['inside'] === "true" || $request_data['inside'] === true || $request_data['inside'] == 1 ? 1 : 0;
+            } else {
+                $request_data['inside'] = $request_data['inside'] === 'true' || $request_data['inside'] === true || $request_data['inside'] == 1 ? 1 : 0;
+            }
         }
 
-        if ( (!isset($request_data['name']) || empty($request_data['name'])) )
-        {
-            if (isset($measurement_out))
+        if ((! isset($request_data['name']) || empty($request_data['name']))) {
+            if (isset($measurement_out)) {
                 $request_data['name'] = $measurement_out->pq_name().' '.__('beep.calibrated');
-            else if (isset($measurement_in))
+            } elseif (isset($measurement_in)) {
                 $request_data['name'] = $measurement_in->pq_name().' '.__('beep.calibrated');
+            }
         }
 
         if ($request->filled('updated_at')) {
             $updated_date_utc = $request->input('updated_at');
-            $updated_date_db  = substr($updated_date_utc, 0, 10).' '.substr($updated_date_utc, 11, 8); // strip timezone
+            $updated_date_db = substr($updated_date_utc, 0, 10).' '.substr($updated_date_utc, 11, 8); // strip timezone
             $request_data['updated_at'] = date('Y-m-d H:i:s', strtotime($updated_date_db));
-            //Log::debug("CalibrationController makeRequestDataArray updated_date_utc: $updated_date_utc, updated_date_db: $updated_date_db");
+            // Log::debug("CalibrationController makeRequestDataArray updated_date_utc: $updated_date_utc, updated_date_db: $updated_date_db");
         } elseif (isset($calibration['updated_at'])) {
             $request_data['updated_at'] = $calibration->updated_at; // do NOT update the calibration date, by setting the 'updated_at' to the available date
         }
@@ -111,46 +101,41 @@ class SensorDefinitionController extends Controller
         return $request_data;
     }
 
-
     /**
      * api/sensordefinition GET
      * Display a listing of all sensordefinitions that belong to a device
+     *
      * @authenticated
+     *
      * @bodyParam device_id integer Device ID that the Sensordefinition belongs to. Required if hardware_id, and device_hardware_id are not set.
      * @bodyParam hardware_id string Device hardware ID that the Sensordefinition belongs to. Required if device_id, and device_hardware_id are not set.
      * @bodyParam device_hardware_id string Device hardware ID that the Sensordefinition belongs to. Required if hardware_id, and device_id are not set.
      * @bodyParam input_measurement_abbreviation string Filter sensordefinitions by provided input abbreviation.
      * @bodyParam limit integer If input_abbr is set, limit the amount of results provided by more than 1 to get all historic sensordefinitions of this type.
-     *
-     * @return \Illuminate\Http\Response
      */
-    public function index(Request $request)
+    public function index(Request $request): JsonResponse
     {
         $device = $this->getDeviceFromRequest($request);
 
-        if ($device)
-        {
-            
-            if ($request->filled('input_measurement_abbreviation'))
-            {
-                $measurement_in    = $this->getMeasurementFromRequestKey($request, false);
-                $limit             = $request->filled('limit') ? intVal($request->input('limit')) : 1;
+        if ($device) {
 
-                if (isset($measurement_in))
+            if ($request->filled('input_measurement_abbreviation')) {
+                $measurement_in = $this->getMeasurementFromRequestKey($request, false);
+                $limit = $request->filled('limit') ? intval($request->input('limit')) : 1;
+
+                if (isset($measurement_in)) {
                     $sensordefinitions = $device->sensorDefinitions->where('input_measurement_id', $measurement_in->id)->sortByDesc('updated_at')->take($limit)->values();
-                else
+                } else {
                     $sensordefinitions = $device->sensorDefinitions->sortByDesc('updated_at')->take($limit)->values();
-            }
-            else
-            {
-                $sensordefinitions = $device->sensorDefinitions->sortBy('updated_at')->values(); // Bugfix iOS app: sort by Asc to get last in iOS app. 
+                }
+            } else {
+                $sensordefinitions = $device->sensorDefinitions->sortBy('updated_at')->values(); // Bugfix iOS app: sort by Asc to get last in iOS app.
             }
 
-            if ($sensordefinitions)
+            if ($sensordefinitions) {
                 return response()->json($sensordefinitions);
-        }
-        else
-        {
+            }
+        } else {
             return response()->json('no_device_found', 404);
         }
 
@@ -162,6 +147,7 @@ class SensorDefinitionController extends Controller
      * Store a newly created sensordefinition
      *
      * @authenticated
+     *
      * @bodyParam name string Name of the sensorinstance (e.g. temperature frame 1)
      * @bodyParam inside boolean True is measured inside, false if measured outside
      * @bodyParam offset float Measurement value that defines 0
@@ -173,19 +159,18 @@ class SensorDefinitionController extends Controller
      * @bodyParam device_id integer Device ID that the Sensordefinition belongs to. Required if hardware_id, and device_hardware_id are not set.
      * @bodyParam hardware_id string Device hardware ID that the Sensordefinition belongs to. Required if device_id, and device_hardware_id are not set.
      * @bodyParam device_hardware_id string Device hardware ID that the Sensordefinition belongs to. Required if hardware_id, and device_id are not set.
-     * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(Request $request): JsonResponse
     {
-        //Log::debug('sensordefinition_post');
-        //Log::debug($request->input());
-        
+        // Log::debug('sensordefinition_post');
+        // Log::debug($request->input());
+
         $device = $this->getDeviceFromRequest($request);
 
-        if ($device)
-        {
-            $request_data     = new SensorDefinition($this->makeRequestDataArray($request));
+        if ($device) {
+            $request_data = new SensorDefinition($this->makeRequestDataArray($request));
             $sensordefinition = $device->sensorDefinitions()->save($request_data);
+
             return response()->json($sensordefinition, 201);
         }
 
@@ -197,17 +182,19 @@ class SensorDefinitionController extends Controller
     /**
      * api/sensordefinition/{id} GET
      * Display the specified sensordefinition
+     *
      * @authenticated
+     *
      * @urlParam id required Sensordefinition ID
+     *
      * @bodyParam device_id integer Device ID that the Sensordefinition belongs to. Required if hardware_id, and device_hardware_id are not set.
      * @bodyParam hardware_id string Device hardware ID that the Sensordefinition belongs to. Required if device_id, and device_hardware_id are not set.
      * @bodyParam device_hardware_id string Device hardware ID that the Sensordefinition belongs to. Required if hardware_id, and device_id are not set.
      */
-    public function show(Request $request, $id)
+    public function show(Request $request, $id): JsonResponse
     {
         $device = $this->getDeviceFromRequest($request);
-        if ($device)
-        {
+        if ($device) {
             return response()->json($this->getDeviceFromRequest($request)->sensorDefinitions()->findOrFail($id), 200);
         }
 
@@ -217,21 +204,23 @@ class SensorDefinitionController extends Controller
     /**
      * api/sensordefinition/{id} PATCH
      * Update the specified sensordefinition
+     *
      * @authenticated
+     *
      * @urlParam id required Sensordefinition ID
+     *
      * @bodyParam device_id integer Device ID that the Sensordefinition belongs to. Required if hardware_id, and device_hardware_id are not set.
      * @bodyParam hardware_id string Device hardware ID that the Sensordefinition belongs to. Required if device_id, and device_hardware_id are not set.
      * @bodyParam device_hardware_id string Device hardware ID that the Sensordefinition belongs to. Required if hardware_id, and device_id are not set.
      */
-    public function update(Request $request, $id)
+    public function update(Request $request, $id): JsonResponse
     {
         $device = $this->getDeviceFromRequest($request);
-        if ($device)
-        {
+        if ($device) {
             $sensordefinition = $device->sensorDefinitions()->findOrFail($id);
-            $request_data     = $this->makeRequestDataArray($request);
-            // $request_data = $request->only('name', 'inside', 'offset', 'multiplier', 'input_measurement_id', 'output_measurement_id', 'device_id'); 
-            
+            $request_data = $this->makeRequestDataArray($request);
+            // $request_data = $request->only('name', 'inside', 'offset', 'multiplier', 'input_measurement_id', 'output_measurement_id', 'device_id');
+
             // if ($request->filled('inside'))
             // {
             //     if ($request_data['inside'] === -1)
@@ -239,40 +228,45 @@ class SensorDefinitionController extends Controller
             //     else
             //         $request_data['inside'] = $request_data['inside'] === "true" || $request_data['inside'] === true || $request_data['inside'] == 1 ? 1 : 0;
             // }
-            if (isset($request_data['updated_at']))
+            if (isset($request_data['updated_at'])) {
                 $updated_at = $request_data['updated_at'];
+            }
 
             $sensordefinition->update($request_data);
-            
-            if (isset($request_data['updated_at']))
-            {
+
+            if (isset($request_data['updated_at'])) {
                 $sensordefinition->updated_at = $updated_at;
                 $sensordefinition->save(['timestamps' => false]);
             }
 
             return response()->json($sensordefinition, 200);
         }
+
         return response()->json('no_device_found', 404);
     }
 
     /**
      * api/sensordefinition/{id} DELETE
      * Remove the specified sensordefinition
+     *
      * @authenticated
+     *
      * @urlParam id required Sensordefinition ID
+     *
      * @bodyParam device_id integer Device ID that the Sensordefinition belongs to. Required if hardware_id, and device_hardware_id are not set.
      * @bodyParam hardware_id string Device hardware ID that the Sensordefinition belongs to. Required if device_id, and device_hardware_id are not set.
      * @bodyParam device_hardware_id string Device hardware ID that the Sensordefinition belongs to. Required if hardware_id, and device_id are not set.
      */
-    public function destroy(Request $request, $id)
+    public function destroy(Request $request, $id): JsonResponse
     {
         $device = $this->getDeviceFromRequest($request);
-        if ($device)
-        {
+        if ($device) {
             $sensordefinition = $device->sensorDefinitions()->findOrFail($id);
             $sensordefinition->delete();
+
             return response()->json('sensor_definition_deleted', 204);
         }
+
         return response()->json('no_device_found', 404);
     }
 }

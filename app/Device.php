@@ -549,10 +549,9 @@ class Device extends Model
         try {
             $result = $client::query($query, $options);
             $values = $result->getPoints();
-        } catch (InfluxDB\Exception $e) {
+        } catch (\Throwable $e) {
             Log::error($e);
             Log::error("Query that caused the error: $query");
-            // return Response::json('influx-group-by-query-error', 500);
         }
 
         return $values;

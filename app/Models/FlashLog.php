@@ -335,6 +335,22 @@ class FlashLog extends Model
         return false;
     }
 
+    public function hasWeightSensorDefinitions()
+    {
+        $weight_m_ids = Measurement::getWeightMeasurementIds();
+
+        $weight_sensor_defs = $this->device->sensorDefinitions()
+            ->where('input_measurement_id', $weight_m_ids['input_id'])
+            ->where('output_measurement_id', $weight_m_ids['output_id'])
+            ->count();
+
+        if ($weight_sensor_defs == 0) {
+            return false;
+        }
+
+        return true;
+    }
+
     public function hasNoWeightData()
     {
         // has no weight data if data_days_weight < 1
@@ -452,12 +468,13 @@ class FlashLog extends Model
                 $errors['fa-plus-square'] .= ': '.implode(', ', $highDataDatesArr);
             }
         }
-
-        $weight_kg_perc = $this->getWeightLogPercentage();
-        if ($this->hasNoWeightData()) {
-            $errors['fa-balance-scale'] = 'No weight data';
-        } elseif ($weight_kg_perc < 90) {
-            $errors['fa-balance-scale'] = "Weight data: $weight_kg_perc %";
+        if ($this->hasWeightSensorDefinitions()) {
+            $weight_kg_perc = $this->getWeightLogPercentage();
+            if ($this->hasNoWeightData()) {
+                $errors['fa-balance-scale'] = 'No weight data';
+            } elseif ($weight_kg_perc < 90) {
+                $errors['fa-balance-scale'] = "Weight data: $weight_kg_perc %";
+            }
         }
 
         return $errors;

@@ -9,6 +9,9 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 
+use App\Http\Resources\SensorDefinitionResource;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+
 /**
  * @group Api\SensorDefinitionController
  * Manage your sensor definitions
@@ -93,7 +96,7 @@ class SensorDefinitionController extends Controller
             $updated_date_utc = $request->input('updated_at');
             $updated_date_db = substr($updated_date_utc, 0, 10).' '.substr($updated_date_utc, 11, 8); // strip timezone
             $request_data['updated_at'] = date('Y-m-d H:i:s', strtotime($updated_date_db));
-            // Log::debug("CalibrationController makeRequestDataArray updated_date_utc: $updated_date_utc, updated_date_db: $updated_date_db");
+            Log::debug("CalibrationController makeRequestDataArray updated_date_utc: $updated_date_utc, updated_date_db: $updated_date_db");
         } elseif (isset($calibration['updated_at'])) {
             $request_data['updated_at'] = $calibration->updated_at; // do NOT update the calibration date, by setting the 'updated_at' to the available date
         }
@@ -113,7 +116,7 @@ class SensorDefinitionController extends Controller
      * @bodyParam input_measurement_abbreviation string Filter sensordefinitions by provided input abbreviation.
      * @bodyParam limit integer If input_abbr is set, limit the amount of results provided by more than 1 to get all historic sensordefinitions of this type.
      */
-    public function index(Request $request): JsonResponse
+    public function index(Request $request): JsonResponse|AnonymousResourceCollection
     {
         $device = $this->getDeviceFromRequest($request);
 
@@ -133,7 +136,7 @@ class SensorDefinitionController extends Controller
             }
 
             if ($sensordefinitions) {
-                return response()->json($sensordefinitions);
+                return SensorDefinitionResource::collection($sensordefinitions);
             }
         } else {
             return response()->json('no_device_found', 404);
@@ -160,7 +163,7 @@ class SensorDefinitionController extends Controller
      * @bodyParam hardware_id string Device hardware ID that the Sensordefinition belongs to. Required if device_id, and device_hardware_id are not set.
      * @bodyParam device_hardware_id string Device hardware ID that the Sensordefinition belongs to. Required if hardware_id, and device_id are not set.
      */
-    public function store(Request $request): JsonResponse
+    public function store(Request $request): JsonResponse|\Illuminate\Http\Response
     {
         // Log::debug('sensordefinition_post');
         // Log::debug($request->input());
@@ -171,7 +174,7 @@ class SensorDefinitionController extends Controller
             $request_data = new SensorDefinition($this->makeRequestDataArray($request));
             $sensordefinition = $device->sensorDefinitions()->save($request_data);
 
-            return response()->json($sensordefinition, 201);
+            return (new SensorDefinitionResource($sensordefinition))->response()->setStatusCode(201);
         }
 
         Log::error('sensordefinition_storage_error: '.json_encode($request->input()));
@@ -191,11 +194,11 @@ class SensorDefinitionController extends Controller
      * @bodyParam hardware_id string Device hardware ID that the Sensordefinition belongs to. Required if device_id, and device_hardware_id are not set.
      * @bodyParam device_hardware_id string Device hardware ID that the Sensordefinition belongs to. Required if hardware_id, and device_id are not set.
      */
-    public function show(Request $request, $id): JsonResponse
+    public function show(Request $request, $id): JsonResponse|SensorDefinitionResource
     {
         $device = $this->getDeviceFromRequest($request);
         if ($device) {
-            return response()->json($this->getDeviceFromRequest($request)->sensorDefinitions()->findOrFail($id), 200);
+         return new SensorDefinitionResource($device->sensorDefinitions()->findOrFail($id));
         }
 
         return response()->json('no_device_found', 404);
@@ -213,7 +216,7 @@ class SensorDefinitionController extends Controller
      * @bodyParam hardware_id string Device hardware ID that the Sensordefinition belongs to. Required if device_id, and device_hardware_id are not set.
      * @bodyParam device_hardware_id string Device hardware ID that the Sensordefinition belongs to. Required if hardware_id, and device_id are not set.
      */
-    public function update(Request $request, $id): JsonResponse
+    public function update(Request $request, $id): JsonResponse|SensorDefinitionResource
     {
         $device = $this->getDeviceFromRequest($request);
         if ($device) {
@@ -239,7 +242,7 @@ class SensorDefinitionController extends Controller
                 $sensordefinition->save(['timestamps' => false]);
             }
 
-            return response()->json($sensordefinition, 200);
+            return new SensorDefinitionResource($sensordefinition);
         }
 
         return response()->json('no_device_found', 404);

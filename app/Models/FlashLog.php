@@ -343,6 +343,23 @@ class FlashLog extends Model
         return false;
     }
 
+
+  public function hasWeightSensorDefinitions()
+  {
+
+      $weight_m_ids = Measurement::getWeightMeasurementIds();
+
+      $weight_sensor_defs = $this->device->sensorDefinitions()
+          ->where('input_measurement_id', $weight_m_ids['input_id'])
+          ->where('output_measurement_id', $weight_m_ids['output_id'])
+          ->count();
+
+      if ($weight_sensor_defs == 0)
+          return false;
+
+      return true;
+  }
+
     public function hasNoWeightData()
     {
         // has no weight data if data_days_weight < 1 
@@ -455,17 +472,16 @@ class FlashLog extends Model
                 $errors['fa-plus-square'] .= ': '.implode(', ', $highDataDatesArr);
             }
         }
-
-        $weight_kg_perc = $this->getWeightLogPercentage();
-        if ($this->hasNoWeightData())
+        
+        if ($this->hasWeightSensorDefinitions()) 
         {
-            $errors['fa-balance-scale'] = 'No weight data';
+            $weight_kg_perc = $this->getWeightLogPercentage();
+            if ($this->hasNoWeightData()) {
+                $errors['fa-balance-scale'] = 'No weight data';
+            } else if ($weight_kg_perc < 90) {
+                $errors['fa-balance-scale'] = "Weight data: $weight_kg_perc %";
+            }
         }
-        else if ($weight_kg_perc < 90)
-        {
-            $errors['fa-balance-scale'] = "Weight data: $weight_kg_perc %";
-        }
-
         return $errors;
     }
 
@@ -1071,7 +1087,7 @@ class FlashLog extends Model
                 $blockStaDate= $blockStart->format($this->timeFormat);
                 $blockEnd    = $endMoment->addSeconds(round($blockEndOff * $matchSecInt));
                 $blockEndDate= $blockEnd->format($this->timeFormat);
-
+            
                 // Load active weight device sensor definitions
                 $weight_m_ids  = Measurement::getWeightMeasurementIds();
                 $sensor_defs_w = $device->activeTypeDateSensorDefinitions($weight_m_ids['input_id'], $weight_m_ids['output_id'], $blockStaDate, $blockEndDate);

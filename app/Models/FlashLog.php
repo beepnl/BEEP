@@ -175,7 +175,7 @@ class FlashLog extends Model
                 !isset($this->meta_data['rtc_bug']) || 
                 !isset($this->meta_data['valid_data_points']) ||
                 count($this->getHighDataDates()) > 0 ||
-                $this->hasNoWeightData() ||
+                ($this->hasNoWeightData() && $this->hasWeightSensorDefinitions()) ||
                 $this->parsed == false
             )
         )
@@ -481,6 +481,10 @@ class FlashLog extends Model
             } else if ($weight_kg_perc < 90) {
                 $errors['fa-balance-scale'] = "Weight data: $weight_kg_perc %";
             }
+        }
+        else
+        {
+            $errors['fa-balance-scale'] = 'No weight calibration';
         }
         return $errors;
     }

@@ -9,8 +9,6 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 
-use DateTimeInterface;
-
 
 /**
  * @group Api\SensorDefinitionController
@@ -20,19 +18,7 @@ use DateTimeInterface;
  */
 class SensorDefinitionController extends Controller
 {
-    /**
- * Prepare a date for array / JSON serialization.
- *
- * @param  \DateTimeInterface  $date
- * @return string
- */
-
-protected function serializeDate(\DateTimeInterface $date): string
-{
-    return $date->format('Y-m-d H:i');
-}
-
-    private function getDeviceFromRequest(Request $request)
+       private function getDeviceFromRequest(Request $request)
     {
 
         if ($request->filled('device_id')) {

@@ -20,6 +20,12 @@ class SensorDefinition extends Model
 {
     use SoftDeletes;
 
+    protected function serializeDate(\DateTimeInterface $date): string
+    {
+        return $date->format('Y-m-d H:i');
+    }
+
+
     public static function boot()
     {
         parent::boot();

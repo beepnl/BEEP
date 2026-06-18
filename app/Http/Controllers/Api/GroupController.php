@@ -206,8 +206,6 @@ class GroupController extends Controller
         $group_hive_ids = $group->group_hives()->pluck('hives.id')->toArray();
         $user_group_hive_ids = array_intersect($group_hive_ids, $user_hive_ids);
 
-        // die(print_r(['user_hives'=>$user_hive_ids,'hives'=>$group_hive_ids, 'match'=>$user_group_hive_ids]));
-
         $group->group_hives()->detach($user_group_hive_ids);
         $user->groups()->detach($group->id);
 
@@ -221,10 +219,9 @@ class GroupController extends Controller
     {
         $group = $request->user()->groups()->findOrFail($id);
         $name = $group->name;
-        $del = false;
 
         if ($group && $group->getCreatorAttribute()) {
-            $del = $group->delete();
+            $group->delete();
 
             return $this->index($request, 200, __('group.Deleted').$name);
         }
@@ -235,8 +232,19 @@ class GroupController extends Controller
     private function syncHives(Request $request, $group)
     {
         // add edit_hive states to group_hive association
+        // FIX: decode JSON strings if necessary, and default to empty arrays
         $hive_ids = $request->input('hives_selected');
+        if (is_string($hive_ids)) {
+            $hive_ids = json_decode($hive_ids, true) ?? [];
+        }
+        $hive_ids = is_array($hive_ids) ? $hive_ids : [];
+
         $edit_ids = $request->input('hives_editable');
+        if (is_string($edit_ids)) {
+            $edit_ids = json_decode($edit_ids, true) ?? [];
+        }
+        $edit_ids = is_array($edit_ids) ? $edit_ids : [];
+
         $sync_ids = [];
         foreach ($hive_ids as $i => $hive_id) {
             $sync_ids[$hive_id] = ['edit_hive' => false];
@@ -250,12 +258,15 @@ class GroupController extends Controller
 
     private function checkIfUsersExist(Request $request)
     {
+        // FIX: decode JSON string to array if necessary
         $users = $request->input('users');
+        if (is_string($users)) {
+            $users = json_decode($users, true) ?? [];
+        }
+        $users = is_array($users) ? $users : [];
+
         $error_msg = [];
         foreach ($users as $i => $user) {
-            $validUser = null;
-            $user_id = '';
-
             if (isset($user['email'])) {
                 $validUser = User::where('email', $user['email'])->first();
                 if (! isset($validUser)) {
@@ -275,7 +286,14 @@ class GroupController extends Controller
     {
         // add edit_hive states to group_hive association
         $groupUsers = $group->users;
+
+        // FIX: decode JSON string to array if necessary
         $users = $request->input('users');
+        if (is_string($users)) {
+            $users = json_decode($users, true) ?? [];
+        }
+        $users = is_array($users) ? $users : [];
+
         $invite_grp = [];
         $invite_new = [];
         $updated_msg = [];
@@ -305,7 +323,9 @@ class GroupController extends Controller
 
             $validData = $validator->validated();
             $email = $validData['email'];
-            $name = isset($validData['name']) ? $validData['name'] : $validUser['name'];
+
+            // FIX: $validUser is an Eloquent model, use -> not []
+            $name = isset($validData['name']) ? $validData['name'] : (isset($validUser) ? $validUser->name : '');
             $admin = (isset($validData['admin']) && $validData['admin']);
             $delete = (isset($validData['delete']) && $validData['delete']);
 
@@ -319,15 +339,13 @@ class GroupController extends Controller
                 $alreadyIn = ($groupUsers->where('email', $email)->count() > 0);
                 // check if we need to invite
                 if ($alreadyIn) {
-                    if ($delete) { // detach user and it's hives from the group
+                    if ($delete) {
                         $this->detachFromGroup($validUser, $group);
-                    } else { // update user
+                    } else {
                         $res = DB::table('group_user')->where('user_id', $validUser->id)->where('group_id', $group->id)->update(['admin' => $admin]);
                         if ($res && $validUser->id != $request->user()->id) {
                             $updated_msg[] = $name;
                         }
-
-                        // die(print_r(['admin'=>$admin,'del'=>$delete,'invite_new'=>$invite_new, 'invite_grp'=>$invite_grp, 'updated_msg'=>$updated_msg, 'u'=>$validUser->id, 'g'=>$group->group_id]));
                     }
                 } else {
                     // invite existing Beep user for group
@@ -338,7 +356,6 @@ class GroupController extends Controller
                 $validUser->emptyCache('group');
             } else {
                 // invite non-existing Beep user for group
-                // die(print_r(['invite_new_user'=>$email]));
                 if ($delete) {
                     $invite_grp[$email] = $admin;
                 } else {
@@ -346,11 +363,16 @@ class GroupController extends Controller
                 }
             }
         }
+
         if (count($invite_grp) > 0) {
             $emails = [];
             foreach ($invite_grp as $email => $user) {
+                // FIX: $name is not in scope here; use $user['name'] if available
                 $invited_by = Auth::user()->name.(Auth::user()->name != Auth::user()->email ? ' ('.Auth::user()->email.')' : '');
-                Mail::to($email)->send(new GroupInvitation($group, $name, $admin, $user['token'], $invited_by));
+                $inviteName = is_array($user) && isset($user['name']) ? $user['name'] : $email;
+                $inviteAdmin = is_array($user) && isset($user['admin']) ? $user['admin'] : false;
+                $inviteToken = is_array($user) && isset($user['token']) ? $user['token'] : '';
+                Mail::to($email)->send(new GroupInvitation($group, $inviteName, $inviteAdmin, $inviteToken, $invited_by));
                 $emails[] = $email;
             }
 
@@ -362,6 +384,7 @@ class GroupController extends Controller
         } elseif (count($error_msg) > 0) {
             return ['error' => implode(', ', $error_msg)];
         }
+
         $group->empty_cache();
 
         return $group->group_users();

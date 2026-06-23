@@ -348,12 +348,18 @@ class GroupController extends Controller
                         }
                     }
                 } else {
-                    // invite existing Beep user for group
-                    $token = Str::random(30);
+                // invite existing Beep user for group
+                $token = Str::random(30);
+                // if $validUser is a stdClass (from a non-eloquent query), reload the Eloquent model
+                if (! is_null($validUser) && ! method_exists($validUser, 'groups')) {
+                    $validUser = User::find($validUser->id);
+                }
+                if ($validUser) {
                     $validUser->groups()->attach($group->id, ['creator' => false, 'admin' => $admin, 'invited' => now(), 'token' => $token]);
                     $invite_grp[$validUser->email] = ['name' => $name, 'admin' => $admin, 'token' => $token];
+                    $validUser->emptyCache('group');
                 }
-                $validUser->emptyCache('group');
+                }
             } else {
                 // invite non-existing Beep user for group
                 if ($delete) {

@@ -781,7 +781,9 @@ class DeviceController extends Controller
         }
 
         $headers = [];
-        $token = env('HELIUM_PROVISION_TOKEN') ?: env('HELIUM_COVERAGE_PROVISION_TOKEN');
+        $token = $purpose == 'coverage_check'
+            ? (env('HELIUM_COVERAGE_PROVISION_TOKEN') ?: env('HELIUM_PROVISION_TOKEN'))
+            : env('HELIUM_PROVISION_TOKEN');
         if ($token != null && $token != '')
             $headers['Authorization'] = 'Bearer '.$token;
 

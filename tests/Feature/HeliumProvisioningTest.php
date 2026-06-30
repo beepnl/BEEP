@@ -24,7 +24,9 @@ class HeliumProvisioningTest extends TestCase
         'HELIUM_CHIRPSTACK_HTTP_EVENT_URL',
         'HELIUM_CONSOLE_API_KEY',
         'HELIUM_PROVISION_URL',
+        'HELIUM_PROVISION_TOKEN',
         'HELIUM_COVERAGE_PROVISION_URL',
+        'HELIUM_COVERAGE_PROVISION_TOKEN',
     ];
 
     protected function tearDown(): void
@@ -172,6 +174,47 @@ class HeliumProvisioningTest extends TestCase
         $this->assertTrue($data['helium']['can_coverage_check']);
         $this->assertSame('webhook', $data['helium']['coverage_driver']);
         $this->assertSame([], $data['helium']['missing_coverage_config']);
+    }
+
+    public function test_coverage_webhook_uses_coverage_token(): void
+    {
+        $this->setEnv('HELIUM_COVERAGE_PROVISION_URL', 'https://provisioner.example/coverage');
+        $this->setEnv('HELIUM_PROVISION_TOKEN', 'device-token');
+        $this->setEnv('HELIUM_COVERAGE_PROVISION_TOKEN', 'coverage-token');
+
+        $controller = new TestHeliumDeviceController([
+            new GuzzleResponse(200, [], '{"ok":true}'),
+        ]);
+
+        $device = new Device([
+            'name' => 'BEEPBASE-ABCD',
+            'hardware_id' => '0123456789abcdef',
+        ]);
+        $device->id = 123;
+
+        $response = $this->invokePrivate(
+            $controller,
+            'provisionHeliumWithWebhook',
+            [
+                'helium-coverage-123-0123456789abcdef',
+                '0011223344556677',
+                '70b3d57ed002ee76',
+                '00112233445566778899aabbccddeeff',
+                $device,
+                'coverage_check',
+            ]
+        );
+
+        $this->assertSame(200, $response->getStatusCode());
+
+        $history = $controller->getHistory();
+        $this->assertCount(1, $history);
+        $this->assertSame('https://provisioner.example/coverage', (string) $history[0]['request']->getUri());
+        $this->assertSame('Bearer coverage-token', $history[0]['request']->getHeaderLine('Authorization'));
+
+        $body = json_decode((string) $history[0]['request']->getBody(), true);
+        $this->assertSame('coverage_check', $body['purpose']);
+        $this->assertSame('helium-coverage-123-0123456789abcdef', $body['network_device_id']);
     }
 
     public function test_console_check_fails_cleanly_when_not_configured(): void

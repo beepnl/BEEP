@@ -107,6 +107,9 @@ Route::group([], function()
 		Route::post('devices/clocksync',    'Api\DeviceController@clocksync');
 		Route::post('devices/lora_reset',   'Api\DeviceController@lora_reset');
 		Route::post('devices/interval',     'Api\DeviceController@interval');
+		Route::get('devices/lorawan/providers', 'Api\DeviceController@lorawanProviders');
+		Route::post('devices/{id}/lorawan/helium', 'Api\DeviceController@heliumLorawan');
+		Route::post('devices/{id}/lorawan/coverage-check', 'Api\DeviceController@coverageCheck');
 
 		// Control resources 
 		Route::resource('devices', 			'Api\DeviceController',		 			['except'=>['create','edit']]);

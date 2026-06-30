@@ -406,6 +406,537 @@ class DeviceController extends Controller
         }
     }
 
+    private function makeCoverageCheckDeviceId($provider, Device $device)
+    {
+        $hardware_id = $device->hardware_id ? $device->hardware_id : 'device-'.$device->id;
+        $dev_id      = strtolower($provider.'-coverage-'.$device->id.'-'.$hardware_id);
+        $dev_id      = preg_replace('/[^a-z0-9-]/', '-', $dev_id);
+        $dev_id      = preg_replace('/-+/', '-', $dev_id);
+        $dev_id      = trim($dev_id, '-');
+
+        return substr($dev_id, 0, 36);
+    }
+
+    private function makeHeliumDeviceId(Device $device)
+    {
+        $hardware_id = $device->hardware_id ? $device->hardware_id : 'device-'.$device->id;
+        $dev_id      = strtolower('helium-'.$device->id.'-'.$hardware_id);
+        $dev_id      = preg_replace('/[^a-z0-9-]/', '-', $dev_id);
+        $dev_id      = preg_replace('/-+/', '-', $dev_id);
+        $dev_id      = trim($dev_id, '-');
+
+        return substr($dev_id, 0, 36);
+    }
+
+    private function responseBody($response)
+    {
+        if (method_exists($response, 'getBody'))
+            return (string) $response->getBody();
+
+        if (method_exists($response, 'getContent'))
+            return $response->getContent();
+
+        return '';
+    }
+
+    private function responseJsonBody($response)
+    {
+        $body = $this->responseBody($response);
+        $json = json_decode($body);
+
+        return $json ?: $body;
+    }
+
+    private function envFlag($key, $default=false)
+    {
+        return filter_var(env($key, $default), FILTER_VALIDATE_BOOLEAN);
+    }
+
+    private function heliumDeviceName(Device $device, $purpose='device')
+    {
+        $name = $device->name ?: 'BEEP base '.$device->id;
+        if ($purpose == 'coverage_check')
+            $name .= ' coverage check';
+
+        return substr($name, 0, 100);
+    }
+
+    private function heliumApiError($error, $message, $status=501)
+    {
+        return Response::json([
+            'error' => $error,
+            'message' => $message,
+        ], $status);
+    }
+
+    private function heliumUrl($base_url, $path)
+    {
+        return rtrim($base_url, '/').'/'.ltrim($path, '/');
+    }
+
+    protected function makeHeliumHttpClient()
+    {
+        return new Client();
+    }
+
+    private function doHeliumRequest($method, $url, $headers=[], $json=null)
+    {
+        $guzzle = $this->makeHeliumHttpClient();
+        $options = [
+            'headers' => array_merge(['Content-Type' => 'application/json'], $headers),
+        ];
+
+        if ($json !== null)
+            $options['json'] = $json;
+
+        try
+        {
+            return $guzzle->request($method, $url, $options);
+        }
+        catch(RequestException $e)
+        {
+            if (!$e->hasResponse())
+                return Response::json('no_helium_response', 500);
+
+            return $e->getResponse();
+        }
+    }
+
+    private function heliumProvisionDriver($purpose='device')
+    {
+        $driver = env('HELIUM_PROVISION_DRIVER');
+        if ($driver)
+            return $driver;
+
+        foreach (['chirpstack_rest', 'legacy_console', 'webhook'] as $candidate)
+        {
+            if ($this->isHeliumProvisionConfigured($candidate, $purpose))
+                return $candidate;
+        }
+
+        if (env('HELIUM_CHIRPSTACK_REST_URL'))
+            return 'chirpstack_rest';
+
+        if (env('HELIUM_CONSOLE_API_KEY'))
+            return 'legacy_console';
+
+        if (env('HELIUM_PROVISION_URL') || env('HELIUM_COVERAGE_PROVISION_URL'))
+            return 'webhook';
+
+        return 'not_configured';
+    }
+
+    private function isHeliumProvisionConfigured($driver=null, $purpose='device')
+    {
+        $driver = $driver ?: $this->heliumProvisionDriver($purpose);
+
+        return count($this->heliumMissingConfig($driver, $purpose)) == 0;
+    }
+
+    private function heliumMissingConfig($driver, $purpose='device')
+    {
+        if ($driver == 'chirpstack_rest')
+        {
+            return array_values(array_filter([
+                env('HELIUM_CHIRPSTACK_REST_URL') ? null : 'HELIUM_CHIRPSTACK_REST_URL',
+                env('HELIUM_CHIRPSTACK_API_TOKEN') ? null : 'HELIUM_CHIRPSTACK_API_TOKEN',
+                env('HELIUM_CHIRPSTACK_APPLICATION_ID') ? null : 'HELIUM_CHIRPSTACK_APPLICATION_ID',
+                env('HELIUM_CHIRPSTACK_DEVICE_PROFILE_ID') ? null : 'HELIUM_CHIRPSTACK_DEVICE_PROFILE_ID',
+            ]));
+        }
+
+        if ($driver == 'legacy_console')
+            return env('HELIUM_CONSOLE_API_KEY') ? [] : ['HELIUM_CONSOLE_API_KEY'];
+
+        if ($driver == 'webhook')
+        {
+            if ($purpose == 'coverage_check')
+                return (env('HELIUM_COVERAGE_PROVISION_URL') || env('HELIUM_PROVISION_URL')) ? [] : ['HELIUM_COVERAGE_PROVISION_URL'];
+
+            return env('HELIUM_PROVISION_URL') ? [] : ['HELIUM_PROVISION_URL'];
+        }
+
+        return ['HELIUM_PROVISION_DRIVER'];
+    }
+
+    /**
+    api/devices/lorawan/providers GET
+    Return LoRaWAN provider capabilities for the current API environment.
+    @authenticated
+    */
+    public function lorawanProviders(Request $request)
+    {
+        $driver = $this->heliumProvisionDriver();
+        $coverage_driver = $this->heliumProvisionDriver('coverage_check');
+
+        return Response::json([
+            'ttn' => [
+                'can_provision' => !!(env('TTN_API_URL') && env('TTN_API_KEY') && env('TTN_APP_NAME') && env('TTN_APP_EUI')),
+                'can_coverage_check' => !!(env('TTN_API_URL') && env('TTN_API_KEY') && env('TTN_APP_NAME') && env('TTN_APP_EUI')),
+            ],
+            'helium' => [
+                'can_provision' => $this->isHeliumProvisionConfigured($driver),
+                'can_coverage_check' => $this->isHeliumProvisionConfigured($coverage_driver, 'coverage_check'),
+                'driver' => $driver,
+                'coverage_driver' => $coverage_driver,
+                'missing_config' => $this->heliumMissingConfig($driver),
+                'missing_coverage_config' => $this->heliumMissingConfig($coverage_driver, 'coverage_check'),
+                'http_integration_managed' => $driver == 'chirpstack_rest' ? $this->envFlag('HELIUM_CHIRPSTACK_CONFIGURE_HTTP', false) : null,
+            ],
+        ], 200);
+    }
+
+    private function provisionHeliumWithChirpStack($dev_id, $dev_eui, $app_eui, $app_key, Device $device, $purpose='device')
+    {
+        $base_url          = env('HELIUM_CHIRPSTACK_REST_URL');
+        $token             = env('HELIUM_CHIRPSTACK_API_TOKEN');
+        $application_id    = env('HELIUM_CHIRPSTACK_APPLICATION_ID');
+        $device_profile_id = env('HELIUM_CHIRPSTACK_DEVICE_PROFILE_ID');
+
+        if (!$base_url || !$token || !$application_id || !$device_profile_id)
+        {
+            return $this->heliumApiError(
+                'helium_chirpstack_not_configured',
+                'Configure HELIUM_CHIRPSTACK_REST_URL, HELIUM_CHIRPSTACK_API_TOKEN, HELIUM_CHIRPSTACK_APPLICATION_ID, and HELIUM_CHIRPSTACK_DEVICE_PROFILE_ID on the API server to enable Helium/OpenLNS provisioning.'
+            );
+        }
+
+        $headers = [
+            'Authorization' => 'Bearer '.$token,
+            'Grpc-Metadata-Authorization' => 'Bearer '.$token,
+        ];
+
+        if ($this->envFlag('HELIUM_CHIRPSTACK_CONFIGURE_HTTP', false))
+        {
+            $event_url = env('HELIUM_CHIRPSTACK_HTTP_EVENT_URL') ?: url('api/lora_sensors');
+            $integration = [
+                'integration' => [
+                    'applicationId' => $application_id,
+                    'encoding' => 'JSON',
+                    'eventEndpointUrl' => $event_url,
+                ],
+            ];
+
+            $response = $this->doHeliumRequest(
+                'PUT',
+                $this->heliumUrl($base_url, 'api/applications/'.$application_id.'/integrations/http'),
+                $headers,
+                $integration
+            );
+
+            if ($response->getStatusCode() < 200 || $response->getStatusCode() >= 300)
+            {
+                $response = $this->doHeliumRequest(
+                    'POST',
+                    $this->heliumUrl($base_url, 'api/applications/'.$application_id.'/integrations/http'),
+                    $headers,
+                    $integration
+                );
+
+                if ($response->getStatusCode() < 200 || $response->getStatusCode() >= 300)
+                    return $response;
+            }
+        }
+
+        $this->doHeliumRequest('DELETE', $this->heliumUrl($base_url, 'api/devices/'.$dev_eui), $headers);
+
+        $device_response = $this->doHeliumRequest(
+            'POST',
+            $this->heliumUrl($base_url, 'api/devices'),
+            $headers,
+            [
+                'device' => [
+                    'devEui' => $dev_eui,
+                    'joinEui' => $app_eui,
+                    'name' => $this->heliumDeviceName($device, $purpose),
+                    'description' => 'BEEP API provisioned '.$purpose.' for device '.$device->id.' / '.$device->hardware_id,
+                    'applicationId' => $application_id,
+                    'deviceProfileId' => $device_profile_id,
+                    'skipFcntCheck' => false,
+                    'isDisabled' => false,
+                    'tags' => [
+                        'beep_device_id' => (string) $device->id,
+                        'beep_hardware_id' => (string) $device->hardware_id,
+                        'beep_lorawan_id' => $dev_id,
+                        'purpose' => $purpose,
+                        'provider' => 'helium',
+                    ],
+                ],
+            ]
+        );
+
+        if ($device_response->getStatusCode() < 200 || $device_response->getStatusCode() >= 300)
+            return $device_response;
+
+        return $this->doHeliumRequest(
+            'POST',
+            $this->heliumUrl($base_url, 'api/devices/'.$dev_eui.'/keys'),
+            $headers,
+            [
+                'deviceKeys' => [
+                    'devEui' => $dev_eui,
+                    'nwkKey' => $app_key,
+                ],
+            ]
+        );
+    }
+
+    private function getOrCreateLegacyHeliumLabel($base_url, $headers)
+    {
+        $label_id = env('HELIUM_CONSOLE_LABEL_ID');
+        if ($label_id)
+            return $label_id;
+
+        $label_name = env('HELIUM_CONSOLE_LABEL_NAME');
+        if (!$label_name)
+            return null;
+
+        $label_name = strtoupper($label_name);
+        $labels_response = $this->doHeliumRequest('GET', $this->heliumUrl($base_url, 'api/v1/labels'), $headers);
+        if ($labels_response->getStatusCode() >= 200 && $labels_response->getStatusCode() < 300)
+        {
+            $labels = json_decode($this->responseBody($labels_response));
+            if (is_array($labels))
+            {
+                foreach ($labels as $label)
+                {
+                    if (isset($label->id) && isset($label->name) && strtoupper($label->name) == $label_name)
+                        return $label->id;
+                }
+            }
+        }
+
+        $label_response = $this->doHeliumRequest('POST', $this->heliumUrl($base_url, 'api/v1/labels'), $headers, ['name' => $label_name]);
+        if ($label_response->getStatusCode() < 200 || $label_response->getStatusCode() >= 300)
+            return $label_response;
+
+        $label = json_decode($this->responseBody($label_response));
+        return isset($label->id) ? $label->id : null;
+    }
+
+    private function provisionHeliumWithLegacyConsole($dev_id, $dev_eui, $app_eui, $app_key, Device $device, $purpose='device')
+    {
+        $base_url = env('HELIUM_CONSOLE_API_URL') ?: 'https://console.helium.com';
+        $api_key  = env('HELIUM_CONSOLE_API_KEY');
+
+        if (!$api_key)
+        {
+            return $this->heliumApiError(
+                'helium_console_not_configured',
+                'Configure HELIUM_CONSOLE_API_KEY on the API server to enable legacy Helium Console provisioning.'
+            );
+        }
+
+        $headers = ['key' => $api_key];
+        $device_response = $this->doHeliumRequest(
+            'POST',
+            $this->heliumUrl($base_url, 'api/v1/devices'),
+            $headers,
+            [
+                'app_eui' => $app_eui,
+                'app_key' => $app_key,
+                'dev_eui' => $dev_eui,
+                'name' => $this->heliumDeviceName($device, $purpose),
+            ]
+        );
+
+        if ($device_response->getStatusCode() < 200 || $device_response->getStatusCode() >= 300)
+            return $device_response;
+
+        $device_body = json_decode($this->responseBody($device_response));
+        $console_device_id = isset($device_body->id) ? $device_body->id : null;
+        $label = $this->getOrCreateLegacyHeliumLabel($base_url, $headers);
+
+        if ($label && is_object($label) && method_exists($label, 'getStatusCode'))
+            return $label;
+
+        if ($console_device_id && $label)
+        {
+            $label_response = $this->doHeliumRequest(
+                'POST',
+                $this->heliumUrl($base_url, 'api/v1/devices/'.$console_device_id.'/labels'),
+                $headers,
+                ['label' => $label]
+            );
+
+            if ($label_response->getStatusCode() < 200 || $label_response->getStatusCode() >= 300)
+                return $label_response;
+        }
+
+        return $device_response;
+    }
+
+    private function provisionHeliumWithWebhook($dev_id, $dev_eui, $app_eui, $app_key, Device $device, $purpose='device')
+    {
+        $url = $purpose == 'coverage_check'
+            ? (env('HELIUM_COVERAGE_PROVISION_URL') ?: env('HELIUM_PROVISION_URL'))
+            : env('HELIUM_PROVISION_URL');
+
+        if ($url == null || $url == '')
+        {
+            return $this->heliumApiError(
+                'helium_provisioner_not_configured',
+                'Configure HELIUM_PROVISION_URL on the API server to enable Helium device provisioning.'
+            );
+        }
+
+        $headers = [];
+        $token = env('HELIUM_PROVISION_TOKEN') ?: env('HELIUM_COVERAGE_PROVISION_TOKEN');
+        if ($token != null && $token != '')
+            $headers['Authorization'] = 'Bearer '.$token;
+
+        return $this->doHeliumRequest('POST', $url, $headers, [
+            'purpose' => $purpose,
+            'network_device_id' => $dev_id,
+            'device_id' => $device->id,
+            'hardware_id' => $device->hardware_id,
+            'name' => $this->heliumDeviceName($device, $purpose),
+            'dev_eui' => $dev_eui,
+            'app_eui' => $app_eui,
+            'app_key' => $app_key,
+            'uplink_url' => url('api/lora_sensors'),
+            'payload_format' => 'helium_http_raw',
+            'integration' => [
+                'name' => 'BEEP lora_sensors',
+                'type' => 'http',
+                'decoder' => 'raw',
+            ],
+        ]);
+    }
+
+    private function provisionHeliumDevice($dev_id, $dev_eui, $app_eui, $app_key, Device $device, $purpose='device')
+    {
+        $driver = $this->heliumProvisionDriver($purpose);
+
+        if ($driver == 'chirpstack_rest')
+            return $this->provisionHeliumWithChirpStack($dev_id, $dev_eui, $app_eui, $app_key, $device, $purpose);
+
+        if ($driver == 'legacy_console')
+            return $this->provisionHeliumWithLegacyConsole($dev_id, $dev_eui, $app_eui, $app_key, $device, $purpose);
+
+        if ($driver == 'webhook' || $driver == 'not_configured')
+            return $this->provisionHeliumWithWebhook($dev_id, $dev_eui, $app_eui, $app_key, $device, $purpose);
+
+        return $this->heliumApiError(
+            'invalid_helium_provision_driver',
+            'Configure HELIUM_PROVISION_DRIVER as chirpstack_rest, legacy_console, or webhook.'
+        );
+    }
+
+    /**
+    api/devices/{id}/lorawan/helium POST
+    Provision a BEEP base in the BEEP Helium account and return LoRaWAN credentials for the mobile app to write over Bluetooth.
+    @authenticated
+    @bodyParam dev_eui string optional 16 hexadecimal characters. Generated when omitted.
+    @bodyParam app_eui string optional 16 hexadecimal characters. HELIUM_APP_EUI is used when omitted and configured.
+    @bodyParam app_key string optional 32 hexadecimal characters. Generated when omitted.
+    */
+    public function heliumLorawan(Request $request, $id)
+    {
+        $validator = Validator::make($request->input(), [
+            'dev_eui' => ['nullable', 'regex:/^[0-9a-fA-F]{16}$/'],
+            'app_eui' => ['nullable', 'regex:/^[0-9a-fA-F]{16}$/'],
+            'app_key' => ['nullable', 'regex:/^[0-9a-fA-F]{32}$/'],
+        ]);
+
+        if ($validator->fails())
+            return Response::json(['errors'=>$validator->errors()], 422);
+
+        $device = $request->user()->allDevices()->findOrFail($id);
+        if (!$device->hardware_id)
+            return Response::json(['error' => 'device_has_no_hardware_id'], 422);
+
+        $dev_id  = $this->makeHeliumDeviceId($device);
+        $dev_eui = strtolower($request->input('dev_eui', bin2hex(random_bytes(8))));
+        $app_key = strtolower($request->input('app_key', bin2hex(random_bytes(16))));
+        $app_eui = strtolower($request->input('app_eui') ?: env('HELIUM_APP_EUI') ?: bin2hex(random_bytes(8)));
+
+        if (!preg_match('/^[0-9a-f]{16}$/', $app_eui))
+            return Response::json(['error' => 'invalid_or_missing_app_eui'], 422);
+
+        $response = $this->provisionHeliumDevice($dev_id, $dev_eui, $app_eui, $app_key, $device);
+        if ($response->getStatusCode() < 200 || $response->getStatusCode() >= 300)
+            return Response::json($this->responseJsonBody($response), $response->getStatusCode());
+
+        if ($device->key && strtolower($device->key) !== $dev_eui)
+            $device->addFormerKey($device->key);
+
+        $device->key = $dev_eui;
+        $device->save();
+
+        return Response::json([
+            'provider' => 'helium',
+            'device_id' => $device->id,
+            'hardware_id' => $device->hardware_id,
+            'network_device_id' => $dev_id,
+            'dev_eui' => $dev_eui,
+            'app_eui' => $app_eui,
+            'app_key' => $app_key,
+            'uplink_url' => url('api/lora_sensors'),
+            'join_timeout_seconds' => 180,
+        ], 200);
+    }
+
+    /**
+    api/devices/{id}/lorawan/coverage-check POST
+    Provision temporary LoRaWAN credentials for checking network coverage.
+    @authenticated
+    @bodyParam provider string required One of: ttn, helium
+    @bodyParam dev_eui string optional 16 hexadecimal characters. Generated when omitted.
+    @bodyParam app_eui string optional 16 hexadecimal characters. TTN uses TTN_APP_EUI when omitted.
+    @bodyParam app_key string optional 32 hexadecimal characters. Generated when omitted.
+    */
+    public function coverageCheck(Request $request, $id)
+    {
+        $validator = Validator::make($request->input(), [
+            'provider' => ['required', Rule::in(['ttn', 'helium'])],
+            'dev_eui' => ['nullable', 'regex:/^[0-9a-fA-F]{16}$/'],
+            'app_eui' => ['nullable', 'regex:/^[0-9a-fA-F]{16}$/'],
+            'app_key' => ['nullable', 'regex:/^[0-9a-fA-F]{32}$/'],
+        ]);
+
+        if ($validator->fails())
+            return Response::json(['errors'=>$validator->errors()], 422);
+
+        $device = $request->user()->allDevices()->findOrFail($id);
+        if (!$device->hardware_id)
+            return Response::json(['error' => 'device_has_no_hardware_id'], 422);
+
+        $provider = strtolower($request->input('provider'));
+        $dev_id   = $this->makeCoverageCheckDeviceId($provider, $device);
+        $dev_eui  = strtolower($request->input('dev_eui', bin2hex(random_bytes(8))));
+        $app_key  = strtolower($request->input('app_key', bin2hex(random_bytes(16))));
+        $app_eui  = strtolower($request->input('app_eui') ?: ($provider == 'ttn' ? env('TTN_APP_EUI') : (env('HELIUM_APP_EUI') ?: bin2hex(random_bytes(8)))));
+
+        if (!preg_match('/^[0-9a-f]{16}$/', $app_eui))
+            return Response::json(['error' => 'invalid_or_missing_app_eui'], 422);
+
+        if ($provider == 'ttn')
+        {
+            $response = $this->updateOrCreateTTNDevice($dev_id, $dev_eui, $app_key);
+        }
+        else
+        {
+            $response = $this->provisionHeliumDevice($dev_id, $dev_eui, $app_eui, $app_key, $device, 'coverage_check');
+        }
+
+        if ($response->getStatusCode() < 200 || $response->getStatusCode() >= 300)
+            return Response::json($this->responseJsonBody($response), $response->getStatusCode());
+
+        return Response::json([
+            'provider' => $provider,
+            'device_id' => $device->id,
+            'hardware_id' => $device->hardware_id,
+            'network_device_id' => $dev_id,
+            'dev_eui' => $dev_eui,
+            'app_eui' => $app_eui,
+            'app_key' => $app_key,
+            'uplink_url' => url('api/lora_sensors'),
+            'join_timeout_seconds' => 180,
+            'persisted' => false,
+        ], 200);
+    }
+
     private function canUserClaimDevice($id=null, $key=null, $hwi=null, $undeleteTrashed=true, $from='')
     {
         $can_claim     = 0;

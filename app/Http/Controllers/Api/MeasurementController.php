@@ -715,6 +715,42 @@ class MeasurementController extends Controller
         return $data_array;
     }
 
+    private function parse_chirpstack_payload($request_data)
+    {
+        $data_array = [];
+
+        $dev_eui = data_get($request_data, 'deviceInfo.devEui');
+        if ($dev_eui)
+        {
+            $dev_eui = strtolower($dev_eui);
+            if (Device::where('key', $dev_eui)->count() > 0)
+                $data_array['key'] = $dev_eui;
+        }
+
+        $rx_info = data_get($request_data, 'rxInfo.0');
+        if (isset($rx_info['rssi']))
+            $data_array['rssi'] = $rx_info['rssi'];
+        if (isset($rx_info['snr']))
+            $data_array['snr'] = $rx_info['snr'];
+        if (isset($rx_info['location']['latitude']))
+            $data_array['lat'] = $rx_info['location']['latitude'];
+        if (isset($rx_info['location']['longitude']))
+            $data_array['lon'] = $rx_info['location']['longitude'];
+
+        if (isset($request_data['fPort']))
+            $data_array['port'] = $request_data['fPort'];
+        else if (isset($request_data['f_port']))
+            $data_array['port'] = $request_data['f_port'];
+
+        if (isset($request_data['data']))
+            $data_array['payload'] = $request_data['data'];
+
+        if (isset($data_array['key']) && isset($data_array['payload']) && isset($data_array['port']))
+            $data_array = array_merge($data_array, $this->decode_helium_payload($data_array));
+
+        return $data_array;
+    }
+
     private function parse_swisscom_payload($request_data)
     {
         $data_array = [];
@@ -909,6 +945,11 @@ class MeasurementController extends Controller
             $data_array = $this->parse_helium_payload($request_data);
             $payload_type = 'helium';
         }
+        else if ($request->filled('deviceInfo.devEui') && $request->filled('data')) // ChirpStack/OpenLNS HTTPS POST
+        {
+            $data_array = $this->parse_chirpstack_payload($request_data);
+            $payload_type = 'chirpstack';
+        }
         else if (is_array($request_data) && $this->is_kpn_things_payload($request_data))
         {
             $data_array = $this->parse_kpnthings_payload($request_data);
@@ -975,6 +1016,11 @@ class MeasurementController extends Controller
         {
             $data_array = $this->parse_helium_payload($request_data);
             $this->cacheRequestRate('store-lora-sensors-helium');
+        }
+        else if (is_array($request_data) && count($request_data) > 1 && data_get($request_data, 'deviceInfo.devEui') && isset($request_data['data']))
+        {
+            $data_array = $this->parse_chirpstack_payload($request_data);
+            $this->cacheRequestRate('store-lora-sensors-chirpstack');
         }
         else if (($request->filled('data') && $request->filled('identifiers'))) // TTN V3 Packet broker HTTPS POST
         {

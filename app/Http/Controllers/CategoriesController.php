@@ -78,7 +78,7 @@ class CategoriesController extends Controller
     private function storeOne($new)
     {
         if (isset($new['name']) && $new['name'] != null) {
-            $parent = isset($inputArray['parent_id']) ? Category::find($inputArray['parent_id']) : null;
+            $parent = isset($inputArray['parent_id']) ? Category::find($inputArray['parent_id']) : null; // TODO-LARAVEL-UPGRADE fix error 'Use of unassigned variable $inputArray'
             $name = trim(str_replace(' ', '_', strtolower($new['name'])));
             $new['name'] = $name;
             Translation::createTranslations($name, 'category');
@@ -523,7 +523,7 @@ class CategoriesController extends Controller
         return redirect()->route('categories.index')->with('error', 'Category not found');
     }
 
-    protected function makeOptions(Collection $items): static
+    protected function makeOptions(Collection $items): array // DONE-LARAVEL-UPGRADE was 'static' but got error about output type array
     {
         $options = ['' => 'Root'];
 
@@ -534,7 +534,7 @@ class CategoriesController extends Controller
         return $options;
     }
 
-    protected function getCategoryOptions(?Category $except = null): CategoriesController
+    protected function getCategoryOptions(?Category $except = null): array // DONE-LARAVEL-UPGRADE was CategoriesController but got error about output type array
     {
         /** @var \Kalnoy\Nestedset\QueryBuilder $query */
         $query = Category::select('id', 'name')->withDepth();

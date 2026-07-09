@@ -55,9 +55,15 @@ class Image extends Model
     {
         $storage = env('IMAGE_STORAGE', Image::$storage);
         $url = Storage::disk($storage)->url(Image::getImagePath($filename, $type));
-        if ($storage == 'public') {
-            $url = env('APP_URL').$url;
+
+        if (!str_starts_with($url, 'https://') && !str_starts_with($url, 'http://')) {
+        $url = 'https://'.ltrim($url, '/');
         }
+
+        // TODO-LARAVEL-UPGRADE check if ok to remove (replace with https:// prefix above)
+        // if ($storage == 'public') {
+        //     $url = env('APP_URL').$url;
+        // }
 
         return $url;
     }
@@ -67,9 +73,14 @@ class Image extends Model
         $storage = env('IMAGE_STORAGE', Image::$storage);
         $url = Storage::disk($storage)->url(Image::getImagePath($filename, $type, true));
 
-        if ($storage == 'public') {
-            $url = env('APP_URL').$url;
+        if (!str_starts_with($url, 'https://') && !str_starts_with($url, 'http://')) {
+        $url = 'https://'.ltrim($url, '/');
         }
+
+        // TODO-LARAVEL-UPGRADE check if ok to remove (replace with https:// prefix above)
+        // if ($storage == 'public') {
+        //     $url = env('APP_URL').$url;
+        // }
 
         return $url;
     }

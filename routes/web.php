@@ -172,10 +172,10 @@ Route::group(
 		Route::get('research/{id}', 		['as'=>'research.show','uses'=>'ResearchController@show']);
 		Route::get('research/{id}/data',    ['as'=>'research.data','uses'=>'ResearchController@data']);
 		Route::get('research/{id}/consent', ['as'=>'research.consent','uses'=>'ResearchController@consent']);
-		Route::post('research/{id}/consent_create', ['as'=>'research.consent_create','uses'=>'ResearchController@consent_create']);
 		Route::get('research/{id}/consent/{c_id}', ['as'=>'research.consent_edit','uses'=>'ResearchController@consent_edit']);
 		Route::patch('research/{id}/consent/{c_id}', ['as'=>'research.consent_edit','uses'=>'ResearchController@consent_edit']);
 		Route::delete('research/{id}/consent/{c_id}', ['as'=>'research.consent_edit','uses'=>'ResearchController@consent_edit']);
+		Route::post('research/{id}/consent_create', ['as'=>'research.consent_create','uses'=>'ResearchController@consent_create']);
 		Route::get('research/{id}/edit',	['as'=>'research.edit','uses'=>'ResearchController@edit']);
 		Route::patch('research/{id}',		['as'=>'research.update','uses'=>'ResearchController@update']);
 		Route::delete('research/{id}',		['as'=>'research.destroy','uses'=>'ResearchController@destroy']);

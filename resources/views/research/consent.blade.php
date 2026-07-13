@@ -14,9 +14,12 @@
 
         @slot('action')
             @permission('role-create')
-                <a href="{{ route('research.consent_create', ['id'=>$research->id]) }}" class="btn btn-primary">
-                    <i class="fa fa-plus" aria-hidden="true"></i> {{ __('crud.add_a', ['item'=>'Research consents (for all users)']) }}
-                </a>
+                <form method="POST" action="{{ route('research.consent_create', ['id'=>$research->id]) }}" accept-charset="UTF-8" style="display:inline">
+                    {{ csrf_field() }}
+                    <button type="submit" class="btn btn-primary pull-right">
+                        <i class="fa fa-plus" aria-hidden="true"></i> {{ __('crud.add', ['item'=>'Research consents (for all users)']) }}
+                    </button>
+                </form>
             @endpermission
         @endslot
 

@@ -124,13 +124,13 @@ class ResearchController extends Controller
 
             if ($existing == 0)
             {
-                $sensor_ids = $u->allDevices()->pluck('id')->toArray();
-                $sensor_str = implode(',', $sensor_ids);
+                $device_ids = $u->allDevices()->pluck('id')->toArray();
+                //$sensor_str = implode(',', $sensor_ids);
 
                 $response = $client->post(url("/api/research/$id/add_consent"), [
                             'json' => [
                                 'updated_at' => $research->start_date, 
-                                'consent_sensor_ids' => $sensor_str
+                                'device_ids' => $device_ids
                             ],
                             'headers' => [
                                 'Authorization' => 'Bearer ' . $u->api_token,

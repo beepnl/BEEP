@@ -124,7 +124,7 @@ class ResearchController extends Controller
 
             if ($existing == 0)
             {
-                $device_ids = $u->allDevices()->pluck('id')->toArray();
+                $device_ids = $u->devices()->pluck('id')->toArray();
                 $device_str = implode(',', $device_ids);
 
                 $response = $client->post(url("/api/research/$id/add_consent"), [

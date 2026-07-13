@@ -124,12 +124,13 @@ class ResearchController extends Controller
 
             if ($existing == 0)
             {
-                $sensor_ids = $u->devices()->pluck('id')->toArray();
+                $sensor_ids = $u->allDevices()->pluck('id')->toArray();
+                $sensor_str = implode(',', $sensor_ids);
 
                 $response = $client->post(url("/api/research/$id/add_consent"), [
                             'json' => [
                                 'updated_at' => $research->start_date, 
-                                'consent_sensor_ids' => $sensor_ids
+                                'consent_sensor_ids' => $sensor_str
                             ],
                             'headers' => [
                                 'Authorization' => 'Bearer ' . $u->api_token,
@@ -138,8 +139,8 @@ class ResearchController extends Controller
 
                 $research_data = json_decode($response->getBody(), true);
 
-                if (!isset($research_data->consent)) {
-                    return redirect()->route('research.consent', $id)->with('error', 'Consent not created'.json_encode($research_data));
+                if (isset($research_data->consent) && $research_data->consent == false) {
+                    return redirect()->route('research.consent', $id)->with('error', 'Consent not created: '.json_encode($research_data));
                 }
                 else
                 {

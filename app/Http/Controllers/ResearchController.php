@@ -115,6 +115,7 @@ class ResearchController extends Controller
         $research = Research::findOrFail($id);
         $users    = User::whereIn('id', $research->default_user_ids)->get();
         $consents = 0;
+        $client   = new Client(); // Guzzle
         
         // Add consents (if not yet available)
         foreach ($users as $u)

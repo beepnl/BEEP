@@ -7,7 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Support\Facades\Http;
+use GuzzleHttp\Client;
 
 use App\User;
 use App\Research;
@@ -125,13 +125,19 @@ class ResearchController extends Controller
             {
                 $sensor_ids = $u->devices()->pluck('id')->toArray();
 
-                $response = Http::withToken($u->api_token) // or ->withHeaders([...])
-                            ->post(url("/api/research/$id/add_consent"), 
-                               ['updated_at' => $research->start_date, 
+                $response = $client->post(url("/api/research/$id/add_consent"), [
+                            'json' => [
+                                'updated_at' => $research->start_date, 
                                 'consent_sensor_ids' => $sensor_ids
-                            ]);
+                            ],
+                            'headers' => [
+                                'Authorization' => 'Bearer ' . $u->api_token,
+                            ],
+                        ]);
 
-                if ($response->failed()) {
+                $research_data = json_decode($response->getBody(), true);
+
+                if (!isset($research_data->consent)) {
                     return redirect()->route('research.consent', $id)->with('error', 'Consent not created');
                 }
                 else

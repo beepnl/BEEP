@@ -116,7 +116,7 @@ class ResearchController extends Controller
         $users    = User::whereIn('id', $research->default_user_ids)->get();
         $consents = 0;
         $client   = new Client(); // Guzzle
-        
+
         // Add consents (if not yet available)
         foreach ($users as $u)
         {
@@ -139,7 +139,7 @@ class ResearchController extends Controller
                 $research_data = json_decode($response->getBody(), true);
 
                 if (!isset($research_data->consent)) {
-                    return redirect()->route('research.consent', $id)->with('error', 'Consent not created');
+                    return redirect()->route('research.consent', $id)->with('error', 'Consent not created'.json_encode($research_data));
                 }
                 else
                 {

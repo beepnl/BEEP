@@ -14,8 +14,8 @@
 
         @slot('action')
             @permission('role-create')
-                <a href="{{ route('research.create') }}" class="btn btn-primary">
-                    <i class="fa fa-plus" aria-hidden="true"></i> {{ __('crud.add_a', ['item'=>__('beep.Research')]) }}
+                <a href="{{ route('research.consent_create', ['id'=>$research->id]) }}" class="btn btn-primary">
+                    <i class="fa fa-plus" aria-hidden="true"></i> {{ __('crud.add_a', ['item'=>'Research consents (for all users)']) }}
                 </a>
             @endpermission
         @endslot

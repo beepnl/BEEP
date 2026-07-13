@@ -124,7 +124,7 @@ class ResearchController extends Controller
 
             if ($existing == 0)
             {
-                $device_ids = $u->devices()->orderByDesc('id')->take(40)->pluck('id')->toArray();
+                $device_ids = $u->devices()->orderByDesc('id')->take(30)->pluck('id')->toArray();
                 $response   = $client->post(url("/api/research/$id/add_consent"), [
                             'json' => [
                                 'updated_at' => $research->start_date, 

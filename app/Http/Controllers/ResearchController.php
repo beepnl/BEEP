@@ -126,7 +126,7 @@ class ResearchController extends Controller
                 $sensor_ids = $u->devices()->pluck('id')->toArray();
 
                 $response = Http::withToken($u->api_token) // or ->withHeaders([...])
-                            ->post(url("research/$id/add_consent"), 
+                            ->post(url("/api/research/$id/add_consent"), 
                                ['updated_at' => $research->start_date, 
                                 'consent_sensor_ids' => $sensor_ids
                             ]);

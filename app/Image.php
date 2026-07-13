@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\Attributes\Table;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Str;
-use InterventionImage;
+use Intervention\Image\Facades\Image as InterventionImage;
 use Moment\Moment;
 use Storage;
 
@@ -54,7 +54,9 @@ class Image extends Model
     public static function imageUrl($filename, $type)
     {
         $storage = env('IMAGE_STORAGE', Image::$storage);
-        $url = Storage::disk($storage)->url(Image::getImagePath($filename, $type));
+        /** @var \Illuminate\Filesystem\FilesystemAdapter $storageDisk */
+        $storageDisk = Storage::disk($storage); 
+        $url = $storageDisk->url(Image::getImagePath($filename, $type)); // DONE-LARAVEL-UPGRADE fixed warning 'Call to unknown method: Illuminate\Contracts\Filesystem\Filesystem::url()
 
         if (!str_starts_with($url, 'https://') && !str_starts_with($url, 'http://')) {
         $url = 'https://'.ltrim($url, '/');
@@ -71,7 +73,9 @@ class Image extends Model
     public static function imageThumbUrl($filename, $type)
     {
         $storage = env('IMAGE_STORAGE', Image::$storage);
-        $url = Storage::disk($storage)->url(Image::getImagePath($filename, $type, true));
+        /** @var \Illuminate\Filesystem\FilesystemAdapter $storageDisk */
+        $storageDisk = Storage::disk($storage); 
+        $url = $storageDisk->url(Image::getImagePath($filename, $type, true)); // DONE-LARAVEL-UPGRADE fixed warning 'Call to unknown method: Illuminate\Contracts\Filesystem\Filesystem::url()
 
         if (!str_starts_with($url, 'https://') && !str_starts_with($url, 'http://')) {
         $url = 'https://'.ltrim($url, '/');
@@ -145,7 +149,7 @@ class Image extends Model
                 $thumbPath = Image::getImagePath($fileName, $type, true);
 
                 // save big image
-                $imageResized = InterventionImage::make($imageFile)->resize($maxPizelSize, $maxPizelSize, $anu);
+                $imageResized = InterventionImage::make($imageFile)->resize($maxPizelSize, $maxPizelSize, $anu); // DONE-LARAVEL-UPGRADE fixed warning 'Use of unknown class: 'InterventionImage'
                 $fileDate = Image::formatExifDate($imageResized->exif('DateTimeOriginal')); // formed as 2020:01:04 11:20:18
                 $imageHeight = $imageResized->getHeight();
                 $imageWidth = $imageResized->getWidth();
@@ -155,7 +159,7 @@ class Image extends Model
                 $fileDate = $fileDate ? $fileDate : date('Y-m-d H:i:s');
 
                 // save thumbnail
-                $thumb = InterventionImage::make($imageResized)->resize($thumbPixels, $thumbPixels, $anu);
+                $thumb = InterventionImage::make($imageResized)->resize($thumbPixels, $thumbPixels, $anu); // DONE-LARAVEL-UPGRADE fixed warning 'Use of unknown class: 'InterventionImage'
                 $thumbStored = Storage::disk($storage)->put($thumbPath, $thumb->stream());
 
                 if ($imageStored) {

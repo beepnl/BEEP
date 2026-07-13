@@ -51,6 +51,8 @@ class MeasurementController extends Controller
 
     protected $maxDataPoints = 5000;
 
+    protected $client;
+
     public function __construct()
     {
         // make sure to add to the measurements DB table w_v_kg_per_val, w_fl_kg_per_val, etc. and w_v_offset, w_fl_offset to let the calibration functions function correctly
@@ -58,7 +60,7 @@ class MeasurementController extends Controller
         $this->valid_weather = Measurement::getValidMeasurements(false, true);
         $this->output_sensors = Measurement::getValidMeasurements(true);
         $this->output_weather = Measurement::getValidMeasurements(true, true);
-        $this->client = new \Influx;
+        $this->client = 'Influx'; // DONE-LARAVEL-UPGRADE fixed warning 'Use of unknown class: 'Influx'' & Undefined property: MeasurementController::$client
         // die(print_r($this->valid_sensors));
     }
 
@@ -211,28 +213,28 @@ class MeasurementController extends Controller
         if ($device) {
             // store device metadata
             if (isset($data_array['beep_base']) && boolval($data_array['beep_base']) && isset($data_array['hardware_id'])) { // store hardware id
-                $device = $this->addDeviceMeta($device, 'hardware_id', $data_array['hardware_id']);
+                $device = $this->addDeviceMeta($device, 'hardware_id', $data_array['hardware_id'], $dev_eui);
                 if (isset($data_array['measurement_transmission_ratio'])) {
-                    $device = $this->addDeviceMeta($device, 'measurement_transmission_ratio', $data_array['measurement_transmission_ratio']);
+                    $device = $this->addDeviceMeta($device, 'measurement_transmission_ratio', $data_array['measurement_transmission_ratio'], $dev_eui);
                 }
                 if (isset($data_array['measurement_interval_min'])) {
-                    $device = $this->addDeviceMeta($device, 'measurement_interval_min', $data_array['measurement_interval_min']);
+                    $device = $this->addDeviceMeta($device, 'measurement_interval_min', $data_array['measurement_interval_min'], $dev_eui);
                 }
                 if (isset($data_array['hardware_version'])) {
-                    $device = $this->addDeviceMeta($device, 'hardware_version', $data_array['hardware_version']);
+                    $device = $this->addDeviceMeta($device, 'hardware_version', $data_array['hardware_version'], $dev_eui);
                 }
                 if (isset($data_array['firmware_version'])) {
-                    $device = $this->addDeviceMeta($device, 'firmware_version', $data_array['firmware_version']);
+                    $device = $this->addDeviceMeta($device, 'firmware_version', $data_array['firmware_version'], $dev_eui);
                 }
                 if (isset($data_array['bootcount'])) {
-                    $device = $this->addDeviceMeta($device, 'bootcount', $data_array['bootcount']);
+                    $device = $this->addDeviceMeta($device, 'bootcount', $data_array['bootcount'], $dev_eui);
                 }
                 if (isset($data_array['time_device'])) {
-                    $device = $this->addDeviceMeta($device, 'time_device', $data_array['time_device']);
+                    $device = $this->addDeviceMeta($device, 'time_device', $data_array['time_device'], $dev_eui);
                 }
                 if (isset($data_array['time_clock']) && $data_array['time_clock'] == 'rtc') {
-                    $device = $this->addDeviceMeta($device, 'last_downlink_result', 'RTC detected');
-                    $device = $this->addDeviceMeta($device, 'rtc', true);
+                    $device = $this->addDeviceMeta($device, 'last_downlink_result', 'RTC detected', $dev_eui);
+                    $device = $this->addDeviceMeta($device, 'rtc', true, $dev_eui);
                 }
             }
             // store metadata from sensor
@@ -240,7 +242,7 @@ class MeasurementController extends Controller
             $device->save();
         } else {
             if (isset($data_array['beep_base']) && boolval($data_array['beep_base']) && isset($data_array['hardware_id'])) { // store hardware id
-                $device = $this->addDeviceMeta($device, 'hardware_id', $data_array['hardware_id']);
+                $device = $this->addDeviceMeta($device, 'hardware_id', $data_array['hardware_id'], $dev_eui);
             } // create device if ALLOW_DEVICE_CREATION == 'true'
 
             if ($device) { // new device created from hw id?
@@ -294,7 +296,7 @@ class MeasurementController extends Controller
                 $battery_voltage = $battery_voltage / 1000;
                 $data_array['bv'] = $battery_voltage;
             }
-            $device = $this->addDeviceMeta($device, 'battery_voltage', $battery_voltage);
+            $device = $this->addDeviceMeta($device, 'battery_voltage', $battery_voltage, $dev_eui);
             $device->save();
         }
 
@@ -757,7 +759,7 @@ class MeasurementController extends Controller
         return $data_array;
     }
 
-    private function addDeviceMeta($device = null, $field = null, $value = null)
+    private function addDeviceMeta($device = null, $field = null, $value = null, $key = null)
     {
         if ($device == null && $field == 'hardware_id' && $value !== null && env('ALLOW_DEVICE_CREATION') == 'true' && Auth::user() && Auth::user()->hasRole('sensor-data')) { // no device with this key available, so create new device by hardware id
             $device = Device::where('hardware_id', $value)->first();
@@ -767,11 +769,11 @@ class MeasurementController extends Controller
             }
 
             if ($device) {
-                $device->key = $key; // update device key of hardware id to prevent double hardware id's
+                $device->key = $key; // update device key of hardware id to prevent double hardware id's // DONE-LARAVEL-UPGRADE fixed error 'Use of unassigned variable $key', added $key as a parameter and gave the $dev_eui as input in the storeMeasurements() function
             } else {
                 $category_id = Category::findCategoryIdByParentAndName('sensor', 'beep');
-                $device_name = 'BEEPBASE-'.strtoupper(substr($key, -4, 4));
-                $device = Device::create(['name' => $device_name, 'key' => $key, 'hardware_id' => $value, 'user_id' => 1, 'category_id' => $category_id]);
+                $device_name = 'BEEPBASE-'.strtoupper(substr($key, -4, 4)); // DONE-LARAVEL-UPGRADE fixed error 'Use of unassigned variable $key'
+                $device = Device::create(['name' => $device_name, 'key' => $key, 'hardware_id' => $value, 'user_id' => 1, 'category_id' => $category_id]);  // DONE-LARAVEL-UPGRADE fixed error 'Use of unassigned variable $key'
             }
         }
 
@@ -803,6 +805,7 @@ class MeasurementController extends Controller
 
     private function sendDeviceDownlink($key, $url)
     {
+        /** @var Device|null $device */
         $device = Device::where('key', $key)->first();
 
         if ($device && isset($url) && isset($device->next_downlink_message)) { // && Auth::user()->hasRole('sensor-data')
@@ -818,15 +821,15 @@ class MeasurementController extends Controller
             // store waiting message for sensor
             if ($result instanceof ClientException) {
                 $device->last_downlink_result = 'Error (no result): last downlink ('.$msg.') tried to sent @ '.date('Y-m-d H:i:s').'. Error message: '.substr($result->getMessage(), 0, 150);
-                $device->save();
+                $device->save(); // DONE-LARAVEL-UPGRADE fixed warning 'Call to unknown method: stdClass::save()
             } elseif ($result) {
                 if ($result->getStatusCode() == 200) {
                     $device->next_downlink_message = null;
                     $device->last_downlink_result = 'Last downlink ('.$msg.') sent @ '.date('Y-m-d H:i:s').', waiting for result...';
-                    $device->save();
+                    $device->save(); // DONE-LARAVEL-UPGRADE fixed warning 'Call to unknown method: stdClass::save()
                 } else {
                     $device->last_downlink_result = 'Error (status '.$result->getStatusCode().'): last downlink ('.$msg.') tried to @ '.date('Y-m-d H:i:s');
-                    $device->save();
+                    $device->save(); // DONE-LARAVEL-UPGRADE fixed warning 'Call to unknown method: stdClass::save()
                 }
             }
         }
@@ -848,15 +851,16 @@ class MeasurementController extends Controller
         }
 
         // process downlink
-        if (isset($data_array['key']) && isset($data['downlink_url'])) {
-            $this->sendDeviceDownlink($data_array['key'], $data['downlink_url']);
+        if (isset($data_array['key']) && isset($data_array['downlink_url'])) { // TODO-LARAVEL-UPGRADE CHECK geen error hier, maar $data is ook unassigned (zie ook hieronder) -> heb hier $data['downlink_url'] veranderd in $data_array['downlink_url'] ??
+            $this->sendDeviceDownlink($data_array['key'], $data_array['downlink_url']); // TODO-LARAVEL-UPGRADE CHECK fixed error 'Use of unassigned variable $data'  -> heb hier $data['downlink_url'] veranderd in $data_array['downlink_url'] ??
         }
 
-        if (isset($data_array['key']) && isset($data_array['beep_base']) && boolval($data_array['beep_base']) && isset($data['port']) && $data['port'] == 6) { // downlink response
+        if (isset($data_array['key']) && isset($data_array['beep_base']) && boolval($data_array['beep_base']) && isset($data_array['port']) && $data_array['port'] == 6) { // downlink response // TODO-LARAVEL-UPGRADE CHECK fixed error 'Use of unassigned variable $data'  -> heb hier $data['port'] veranderd in $data_array['port'] ??
+            /** @var Device|null $device */    
             $device = Device::where('key', $data_array['key'])->first();
             if ($device) { // && Auth::user()->hasRole('sensor-data')
                 $device->last_downlink_result = json_encode($data_array);
-                $device->save();
+                $device->save(); // DONE-LARAVEL-UPGRADE fixed warning 'Call to unknown method: stdClass::save()
             }
         }
 
@@ -1078,7 +1082,9 @@ class MeasurementController extends Controller
                     $f_log = Storage::disk($disk)->putFileAs($f_dir, $file, $name, $mime);
                     $saved = $f_log ? true : false;
                     $data = Storage::disk($disk)->get($f_dir.'/'.$name);
-                    $f_log = Storage::disk($disk)->url($f_dir.'/'.$name);
+                    /** @var \Illuminate\Filesystem\FilesystemAdapter $storageDisk */
+                    $storageDisk = Storage::disk($disk);
+                    $f_log = $storageDisk->url($f_dir.'/'.$name); // DONE-LARAVEL-UPGRADE fixed warning 'Call to unknown method: Illuminate\Contracts\Filesystem\Filesystem::url()'
                     if ($save == false) { // check if file needs to be saved
                         $saved = Storage::disk($disk)->delete($f_dir.'/'.$name) ? false : true;
                         $f_log = null;
@@ -1088,7 +1094,9 @@ class MeasurementController extends Controller
                     if ($save) {
                         $logFileName = $f_dir.'/sensor_'.$sid."_flash_$time.log";
                         $saved = Storage::disk($disk)->put($logFileName, $data, $mime);
-                        $f_log = Storage::disk($disk)->url($logFileName);
+                        /** @var \Illuminate\Filesystem\FilesystemAdapter $storageDisk */
+                        $storageDisk = Storage::disk($disk);
+                        $f_log = $storageDisk->url($logFileName); // DONE-LARAVEL-UPGRADE fixed warning 'Call to unknown method: Illuminate\Contracts\Filesystem\Filesystem::url()'
                     }
                 }
 
@@ -1739,6 +1747,8 @@ class MeasurementController extends Controller
 
             return Response::json(['id' => $device->id, 'interval' => $interval, 'relative_interval' => $relative_interval, 'index' => $index, 'timeGroup' => $timeGroup, 'resolution' => $resolution, 'measurements' => $sensors_out, 'sensorDefinitions' => $sensorDefinitions, 'cacheSensorNames' => $cache_sensor_names]);
         }
+
+        return Response::json('resolution-error', 500); // DONE-LARAVEL-UPGRADE fixed warning ''comparedata': not all code paths return a value
     }
 
     private function mapToSmallerResolution($resolution)

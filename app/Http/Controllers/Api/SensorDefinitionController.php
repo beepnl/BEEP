@@ -46,7 +46,7 @@ class SensorDefinitionController extends Controller
         return null;
     }
 
-    private function makeRequestDataArray(Request $request)
+    private function makeRequestDataArray(Request $request, $calibration = null)
     {
         $measurement_in = $this->getMeasurementFromRequestKey($request, false);
         $measurement_out = $this->getMeasurementFromRequestKey($request, true);
@@ -95,8 +95,8 @@ class SensorDefinitionController extends Controller
             $updated_date_db = substr($updated_date_utc, 0, 10).' '.substr($updated_date_utc, 11, 8); // strip timezone
             $request_data['updated_at'] = date('Y-m-d H:i:s', strtotime($updated_date_db));
             Log::debug("CalibrationController makeRequestDataArray updated_date_utc: $updated_date_utc, updated_date_db: $updated_date_db");
-        } elseif (isset($calibration['updated_at'])) {
-            $request_data['updated_at'] = $calibration->updated_at; // do NOT update the calibration date, by setting the 'updated_at' to the available date
+        } elseif (isset($calibration) && isset($calibration->updated_at)) {
+            $request_data['updated_at'] = $calibration->updated_at; // do NOT update the calibration date, by keeping the existing 'updated_at' value DONE-LARAVEL-UPGRADE fixed error 'Use of unassigned variable $calibration' (added as input variable, assumed this is the $sensordefinition)
         }
 
         return $request_data;
@@ -219,7 +219,7 @@ class SensorDefinitionController extends Controller
         $device = $this->getDeviceFromRequest($request);
         if ($device) {
             $sensordefinition = $device->sensorDefinitions()->findOrFail($id);
-            $request_data = $this->makeRequestDataArray($request);
+            $request_data = $this->makeRequestDataArray($request, $sensordefinition); // DONE-LARAVEL-UPGRADE assumed the $sensordefinition should be added as $calibration input parameter)
             // $request_data = $request->only('name', 'inside', 'offset', 'multiplier', 'input_measurement_id', 'output_measurement_id', 'device_id');
 
             // if ($request->filled('inside'))

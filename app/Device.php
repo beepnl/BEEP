@@ -264,7 +264,7 @@ class Device extends Model
     public function activeSensorDefinitions()
     {
         return Cache::rememberForever('device-'.$this->id.'-active-calibrations', function () {
-            return $this->sensorDefinitions()->orderBy('updated_at', 'desc')->get()->unique('input_measurement_id', 'output_measurement_id');
+            return $this->sensorDefinitions()->orderBy('updated_at', 'desc')->get()->unique('input_measurement_id')->unique('output_measurement_id'); // DONE-LARAVEL-UPGRADE fixed warning, was unique('input_measurement_id','output_measurement_id')
         });
     }
 
@@ -281,7 +281,7 @@ class Device extends Model
         }
 
         // If more than 1, chech which one to use
-        $sd_during = $io_sds->whereBetween('updated_at', [$start, $end])->sortByDesc('updated_at')->unique('input_measurement_id', 'output_measurement_id');
+        $sd_during = $io_sds->whereBetween('updated_at', [$start, $end])->sortByDesc('updated_at')->unique('input_measurement_id')->unique('output_measurement_id'); // DONE-LARAVEL-UPGRADE fixed warning, was unique('input_measurement_id','output_measurement_id')
 
         if ($sd_during->count() > 0) {
             foreach ($sd_during as $sd) {
@@ -542,7 +542,7 @@ class Device extends Model
         Device::cacheRequestRate('influx-get');
         Device::cacheRequestRate('influx-'.$from);
 
-        $client = new \InfluxDB;
+        $client = 'InfluxDB'; // DONE-LARAVEL-UPGRADE fixed warning 'Use of unknown class: 'InfluxDB''
         $options = ['precision' => 's'];
         $values = [];
 

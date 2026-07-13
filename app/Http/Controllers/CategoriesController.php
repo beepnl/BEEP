@@ -13,20 +13,17 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\View\View;
-use Image;
+use Intervention\Image\Facades\Image;
 use Kalnoy\Nestedset\Collection;
 use Storage;
 
 class CategoriesController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     *
-     * @return Response
-     */
+    protected CategoryFactory $categoryFactory;
+
     public function __construct(CategoryFactory $categoryFactory)
     {
-        $this->categoryFactory = $categoryFactory;
+        $this->categoryFactory = $categoryFactory; // DONE-LARAVEL-UPGRADE fixed warning 'Undefined property: CategoriesController::$categoryFactor
     }
 
     public function index(): View
@@ -78,7 +75,7 @@ class CategoriesController extends Controller
     private function storeOne($new)
     {
         if (isset($new['name']) && $new['name'] != null) {
-            $parent = isset($inputArray['parent_id']) ? Category::find($inputArray['parent_id']) : null; // TODO-LARAVEL-UPGRADE fix error 'Use of unassigned variable $inputArray'
+            $parent = isset($new['parent_id']) ? Category::find($new['parent_id']) : null; // DONE-LARAVEL-UPGRADE fixed error 'Use of unassigned variable $inputArray'
             $name = trim(str_replace(' ', '_', strtolower($new['name'])));
             $new['name'] = $name;
             Translation::createTranslations($name, 'category');
@@ -311,7 +308,7 @@ class CategoriesController extends Controller
                 $img = $icon;
                 if ($ext != 'svg') {
                     $file = Str::random(40).'.'.$ext;
-                    Image::make($icon)->resize(100, 100)->save(public_path('/storage/icons/'.$file));
+                    Image::make($icon)->resize(100, 100)->save(public_path('/storage/icons/'.$file)); // DONE-LARAVEL-UPGRADE fixed warning 'Use of unknown class: 'Image''
                     $cat_input['icon'] = $file;
                 } else {
                     $cat_input['icon'] = $img->store('/', 'icons');
@@ -403,10 +400,11 @@ class CategoriesController extends Controller
         $itemsBooleanized = 0;
         foreach ($listCategories as $cat) {
             // die(print_r($cat->children()->get()->toArray()));
-            $childCount = $cat->children()->count();
+            /** @var Category $cat */
+            $childCount = $cat->children()->count(); // DONE-LARAVEL-UPGRADE fixed warning 'Call to unknown method: stdClass::children()
             if ($childCount > 0) {
                 $onlyListItems = true;
-                foreach ($cat->children()->get() as $child) {
+                foreach ($cat->children()->get() as $child) { // DONE-LARAVEL-UPGRADE fixed warning 'Call to unknown method: stdClass::children()
                     if ($child->category_input_id != $inputTypeLisItemtId) {
                         $onlyListItems = false;
                     }
@@ -417,7 +415,7 @@ class CategoriesController extends Controller
                     // $itemsOptionized += $cat->save();
                 } else { // make label (category holder)
                     $cat->category_input_id = $inputLabelItemId;
-                    $itemsUnListed += $cat->save();
+                    $itemsUnListed += $cat->save(); // DONE-LARAVEL-UPGRADE fixed warning 'Call to unknown method: stdClass::save()
                 }
             } else { // make Boolean (checkbox)
                 // $cat->category_input_id = $inputBooleanItemId;
@@ -523,7 +521,7 @@ class CategoriesController extends Controller
         return redirect()->route('categories.index')->with('error', 'Category not found');
     }
 
-    protected function makeOptions(Collection $items): array // DONE-LARAVEL-UPGRADE was 'static' but got error about output type array
+    protected function makeOptions(Collection $items): array // DONE-LARAVEL-UPGRADE fixed - was 'static' but got error about output type array
     {
         $options = ['' => 'Root'];
 
@@ -534,7 +532,7 @@ class CategoriesController extends Controller
         return $options;
     }
 
-    protected function getCategoryOptions(?Category $except = null): array // DONE-LARAVEL-UPGRADE was CategoriesController but got error about output type array
+    protected function getCategoryOptions(?Category $except = null): array // DONE-LARAVEL-UPGRADE fixed - was CategoriesController but got error about output type array
     {
         /** @var \Kalnoy\Nestedset\QueryBuilder $query */
         $query = Category::select('id', 'name')->withDepth();

@@ -3,6 +3,7 @@ namespace App\Http\Controllers\Api;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Log;
 use Auth;
 use App\User;
 use App\Device;
@@ -1505,7 +1506,7 @@ class MeasurementController extends Controller
         $timeZone             = $intervalArr['timeZone'];
         $whereKeyAndTime      = $device->influxWhereKeys().' AND time >= \''.$start_date.'\' AND time <= \''.$end_date.'\'';
 
-        $calibration_m_abbr   = $device->calibrationsMeasurementAbbreviations();
+        $calibration_m_abbr   = $device->calibrationsMeasurementAbbreviations(true);
         $add_calibrations     = count($calibration_m_abbr) > 0 ? true : false;
 
         if($resolution != null)
@@ -1555,8 +1556,16 @@ class MeasurementController extends Controller
             // Apply SensorDefinitions that have 'recalculate' set to true
             if ($add_calibrations)
             {
+                $log_set = false;
                 foreach ($sensors_out as $i => $data_array)
+                {
+                    if ($log_set == false && isset($data_array['weight_kg']))
+                    {
+                        Log::debug('measurements device '.$device->name.' ('.$device->id.'), values: '.json_encode($data_array).', calibr: '.json_encode($calibration_m_abbr));
+                        $log_set = true;
+                    }
                     $sensors_out[$i] = SensorDefinition::addDeviceMeasurementCalibrations($device, $data_array, $calibration_m_abbr);
+                }
             }
         }
 
@@ -1634,14 +1643,14 @@ class MeasurementController extends Controller
                         $time = $values['time'];
                         if (isset($data_time_key_arr[$time])) // add clean_weight data to already available datetime
                         {
-                            $sensors_out[$i] = array_merge($data_time_key_arr[$time], $sensors_out[$i]);
+                            $sensors_out[$i] = array_merge($sensors_out[$i], $data_time_key_arr[$time]); // merge all data incl. net weight
                             unset($data_time_key_arr[$time]); // to retain missing values and add then later
                         }
                     }
                 }
                 // add missing time values to sensors
                 if (count($data_time_key_arr) > 0)
-                    $sensors_out = array_merge(array_values($data_time_key_arr), $sensors_out);
+                    $sensors_out = array_merge($sensors_out, array_values($data_time_key_arr));
 
             }
             //return Response::json(['sensor_query' => $sensorQuery, 'cleanWeight_query' => $clean_weight_query, 'cleanWeight_out'=> $clean_weight_out, 'measurements' => $sensors_out]);

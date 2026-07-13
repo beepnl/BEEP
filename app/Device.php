@@ -84,6 +84,8 @@ class Device extends Model
         Cache::forget('device-'.$this->id.'-hive-'.$this->hive_id.'-user-ids');
         Cache::forget('device-'.$this->id.'-hive-'.$this->hive_id.'-rule-ids');
         Cache::forget('device-'.$this->id.'-calibrations-measurement-types');
+        Cache::forget('device-'.$this->id.'-calibrations-measurement-types-0');
+        Cache::forget('device-'.$this->id.'-calibrations-measurement-types-1');
         
         Log::debug("Device ID $this->id cache emptied");
 
@@ -917,6 +919,8 @@ class Device extends Model
         return $out_arr;
     }
 
+    // By default, only return the force recalculation calibrations,
+    // If recalculate is set to false, return all available calibrations.
     public function calibrationsMeasurementAbbreviations($recalculate=true)
     {
         $cache_name = 'device-'.$this->id.'-calibrations-measurement-types-'.$recalculate?'1':'0';

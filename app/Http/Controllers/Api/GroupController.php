@@ -132,8 +132,8 @@ class GroupController extends Controller
         $this->syncHives($request, $group);
 
         $msg = $this->syncUsers($request, $group);
-        $request->user()->emptyCache('group');
-        $group->empty_cache(true); // DEBUG empty group users cache?
+        $request->user()->emptyCache('group'); // empty group cache so that the newly created group will be immediately returned in the response
+        $group->empty_cache(true); // empty group users cache - otherwise invitation invited and token prop will be null
 
         if (gettype($msg) == 'array') {
             if (isset($msg['message'])) {

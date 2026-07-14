@@ -133,7 +133,8 @@ class GroupController extends Controller
 
         $msg = $this->syncUsers($request, $group);
         $request->user()->emptyCache('group');
-        
+        $group->empty_cache(true); // DEBUG empty group users cache?
+
         if (gettype($msg) == 'array') {
             if (isset($msg['message'])) {
                 return $this->index($request, 201, $msg['message']);

@@ -132,6 +132,8 @@ class GroupController extends Controller
         $this->syncHives($request, $group);
 
         $msg = $this->syncUsers($request, $group);
+        $request->user()->emptyCache('group');
+        
         if (gettype($msg) == 'array') {
             if (isset($msg['message'])) {
                 return $this->index($request, 201, $msg['message']);

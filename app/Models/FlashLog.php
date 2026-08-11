@@ -329,6 +329,18 @@ class FlashLog extends Model
         return false;
     }
 
+    public function logMessagesTooFewForSize()
+    {
+        /* 2026-08-11: warn if the amount of parsed messages seems too few for the size of the flash log file:
+           a port 3 measurement message occupies 56 (fw < 1.8.0) to 75 (fw 1.8.0+) bytes of flash,
+           so flag if the parsed messages cover less than half of the received bytes at 80 bytes/message (i.e. < 1 message per 160 bytes)
+        */
+        if (isset($this->log_messages) && isset($this->bytes_received) && $this->bytes_received > 10240)
+            return $this->log_messages * 160 < $this->bytes_received;
+
+        return false;
+    }
+
     public function hasRtcBug()
     {
         /* has RTC bug if: 

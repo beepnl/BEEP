@@ -51,7 +51,7 @@ class ChecklistSvgController extends Controller
      **/
     public function show($id)
     {
-        $checklist_svg = $request->user()->checklistSvgs()->findOrFail($id);
+        $checklist_svg = $request->user()->checklistSvgs()->findOrFail($id); // DONE-LARAVEL-UPGRADE nb did NOT fix error 'Use of unassigned variable '$request'' as this show by id function is not used in the app
 
         return $checklist_svg;
     }

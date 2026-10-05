@@ -65,13 +65,13 @@ class DashboardGroupController extends Controller
                     // only on first meta call
                     if ($hive_id === null) {
                         $out = $dgroup->toArray();
-                        $out['sensormeasurements'] = Measurement::all();
+                        $out['sensormeasurements'] = Measurement::all()->toArray();
                     }
 
                     $user = $dgroup->user;
                     $hives = $dgroup->hives;
 
-                    $out['hives'] = [];
+                    $hivesOut = [];
                     foreach ($hives as $hive) {
                         if ($hive && (! isset($hive_id) || $hive->id == $hive_id)) { // all or only selected hive
                             $hive_array = [];
@@ -126,9 +126,10 @@ class DashboardGroupController extends Controller
                                 $hive_array['layers'] = $hive->layers;
                             }
 
-                            $out['hives'][] = $hive_array;
+                            $hivesOut[] = $hive_array;
                         }
                     }
+                    $out['hives'] = $hivesOut; // DONE-LARAVEL-UPGRADE fixed error 'Argument '2' passed to offsetSet() is expected to be of type App\Measurement, array given
                 }
             }
 
@@ -167,11 +168,11 @@ class DashboardGroupController extends Controller
         return response()->json($dgroup, 201);
     }
 
-    public function show($id)
+    public function show(Request $request, $id): JsonResponse
     {
-        $dgroup = $request->user()->dashboardGroups()->findOrFail($id);
+        $dgroup = $request->user()->dashboardGroups()->findOrFail($id); // DONE-LARAVEL-UPGRADE fixed error 'Useof unassgined variable '$request''
 
-        return $dgroup;
+        return response()->json($dgroup);
     }
 
     public function update(Request $request, $id): JsonResponse

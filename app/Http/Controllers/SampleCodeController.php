@@ -572,7 +572,7 @@ class SampleCodeController extends Controller
 
             // add general inspection data columns
             $pre = [
-                'Sample code' => $sample_code,
+                'Sample code' => $sample_code, // DONE-LARAVEL-UPGRADE nb did NOT fix error 'Use of unassigned variable '$sample_code'', as this function getInspections() is currently not used in the API code
                 'inspection_id' => $inspection->id,
                 __('export.created_at') => $inspection->created_at,
                 __('export.hive') => $inspection->hives()->count() > 0 ? $inspection->hives()->first()->id : '',

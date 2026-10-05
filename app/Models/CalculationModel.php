@@ -140,7 +140,7 @@ class CalculationModel extends Model
 
     private function get_data($devices)
     {
-        return $data_arrays;
+        return []; // $data_arrays; // TODO-LARAVEL-UPGRADE check fixed error 'Use of unassigned variable '$data_arrays', seems like this function is not used anywhere?
     }
 
     // Calculation models (+ post data processing), return single $data_arrays

@@ -85,8 +85,8 @@ class ResearchController extends Controller
 
     private function save_consent(Request $request, $id, $consent)
     {
-        $research = Research::findOrFail($id);
-        $timestamp = date('Y-m-d H:i:s');
+        $research  = Research::findOrFail($id);
+        $timestamp = $request->input('updated_at', date('Y-m-d H:i:s'));
 
         $history = $research->getConsentHistoryAttribute();
         $updated = false;

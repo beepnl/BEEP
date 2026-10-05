@@ -119,8 +119,9 @@
                 @php
                     $valid = $item->validLog();
                     $error = $item->log_date_end > $item->created_at ? true : false;
-                    $color = $error ? '#FFDDDD' : ($valid ? 'lightgreen' : null);
-                    $msg   = $error ? 'End date after upload date' : ($valid ? 'Validated log' : null);
+                    $few   = $item->logMessagesTooFewForSize();
+                    $color = $error ? '#FFDDDD' : ($valid ? 'lightgreen' : ($few ? 'orange' : null));
+                    $msg   = $error ? 'End date after upload date' : ($valid ? 'Validated log' : ($few ? 'Too few messages parsed for the flash log file size' : null));
                     $date_s= isset($item->log_date_start)? substr($item->log_date_start, 0, 10) : '';
                     $date_e= isset($item->log_date_end)? substr($item->log_date_end, 0, 10) : '';
                     $errors= $item->getErrorsArray();

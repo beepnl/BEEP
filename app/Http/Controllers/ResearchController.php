@@ -3,21 +3,26 @@
 namespace App\Http\Controllers;
 
 use App\Device;
+use App\Http\Requests;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
+
+use App\Http\Controllers\Controller;
+use GuzzleHttp\Client;
+
+use App\User;
+use App\Research;
+use App\Location;
 use App\Hive;
 use App\Inspection;
-use App\Location;
 use App\Measurement;
 use App\Models\CalculationModel;
 use App\Models\FlashLog;
-use App\Research;
 use App\SensorDefinition;
-use App\User;
 use Auth;
 use Cache;
 use DB;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
 use Illuminate\View\View;
 use InfluxDB;
 use Moment\Moment;
@@ -101,6 +106,51 @@ class ResearchController extends Controller
         }
 
         return view('research.consent', compact('research', 'consents'));
+    }
+
+    public function consent_create($id, Request $request)
+    {
+        $this->checkAuthorization($request);
+
+        if ($request->user()->hasRole('superadmin') == false)
+            return redirect('research.index')->with('error', 'Unauthorized');
+        
+        $research = Research::findOrFail($id);
+        $users    = User::whereIn('id', $research->default_user_ids)->get();
+        $consents = 0;
+        $client   = new Client(); // Guzzle
+
+        // Add consents (if not yet available)
+        foreach ($users as $u)
+        {
+            $existing = DB::table('research_user')->where('research_id', $id)->where('user_id', $u->id)->count();
+
+            if ($existing == 0)
+            {
+                $device_ids = $u->devices()->orderByDesc('id')->take(40)->pluck('id')->toArray();
+                $response   = $client->post(url("/api/research/$id/add_consent"), [
+                            'json' => [
+                                'updated_at' => $research->start_date, 
+                                'device_ids' => $device_ids
+                            ],
+                            'headers' => [
+                                'Authorization' => 'Bearer ' . $u->api_token,
+                            ],
+                        ]);
+
+                $research_data = json_decode($response->getBody(), true);
+
+                if (isset($research_data['consent']) && $research_data['consent'] == false) {
+                    return redirect()->route('research.consent', $id)->with('error', 'Consent not created: '.json_encode($research_data));
+                }
+                else
+                {
+                    $consents++;
+                }
+            }
+        }
+
+        return redirect()->route('research.consent', $id)->with('success', "$consents Consents created");
     }
 
     public function consent_edit($id, $c_id, Request $request)

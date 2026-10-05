@@ -175,6 +175,15 @@ Route::prefix(LaravelLocalization::setLocale())->middleware('auth', 'localeSessi
 
                 Route::delete('checklists/destroy/copies', [ChecklistController::class, 'destroyCopies'])->name('checklists.copies');
 
+                Route::get('research/{id}/consent', [ResearchController::class, 'consent'])->name('research.consent');
+                Route::get('research/{id}/consent/{c_id}', [ResearchController::class, 'consent_edit'])->name('research.consent_edit');
+                Route::patch('research/{id}/consent/{c_id}', [ResearchController::class, 'consent_edit'])->name('research.consent_edit');
+                Route::delete('research/{id}/consent/{c_id}', [ResearchController::class, 'consent_edit'])->name('research.consent_edit');
+                Route::post('research/{id}/consent_create', [ResearchController::class, 'consent_create'])->name('research.consent_create');
+
+                Route::get('research/{id}/edit', [ResearchController::class, 'edit'])->name('research.edit');
+                Route::patch('research/{id}', [ResearchController::class, 'update'])->name('research.update');
+                Route::delete('research/{id}', [ResearchController::class, 'destroy'])->name('research.destroy');
             });
 
         // Open research routes based on database access
@@ -189,13 +198,5 @@ Route::prefix(LaravelLocalization::setLocale())->middleware('auth', 'localeSessi
         Route::get('research', [ResearchController::class, 'index'])->name('research.index');
         Route::get('research/{id}', [ResearchController::class, 'show'])->name('research.show');
         Route::get('research/{id}/data', [ResearchController::class, 'data'])->name('research.data');
-        Route::get('research/{id}/consent', [ResearchController::class, 'consent'])->name('research.consent');
-        Route::get('research/{id}/consent/{c_id}', [ResearchController::class, 'consent_edit'])->name('research.consent_edit');
-        Route::patch('research/{id}/consent/{c_id}', [ResearchController::class, 'consent_edit'])->name('research.consent_edit');
-        Route::delete('research/{id}/consent/{c_id}', [ResearchController::class, 'consent_edit'])->name('research.consent_edit');
-        Route::get('research/{id}/consent/{c_id}', [ResearchController::class, 'consent_edit'])->name('research.consent_edit');
-        Route::get('research/{id}/edit', [ResearchController::class, 'edit'])->name('research.edit');
-        Route::patch('research/{id}', [ResearchController::class, 'update'])->name('research.update');
-        Route::delete('research/{id}', [ResearchController::class, 'destroy'])->name('research.destroy');
     }
 );

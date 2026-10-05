@@ -175,7 +175,7 @@ class FlashLog extends Model
                 !isset($this->meta_data['rtc_bug']) || 
                 !isset($this->meta_data['valid_data_points']) ||
                 count($this->getHighDataDates()) > 0 ||
-                $this->hasNoWeightData() ||
+                ($this->hasNoWeightData() && $this->hasWeightSensorDefinitions()) ||
                 $this->parsed == false
             )
         )
@@ -329,6 +329,18 @@ class FlashLog extends Model
         return false;
     }
 
+    public function logMessagesTooFewForSize()
+    {
+        /* 2026-08-11: warn if the amount of parsed messages seems too few for the size of the flash log file:
+           a port 3 measurement message occupies 56 (fw < 1.8.0) to 75 (fw 1.8.0+) bytes of flash,
+           so flag if the parsed messages cover less than half of the received bytes at 80 bytes/message (i.e. < 1 message per 160 bytes)
+        */
+        if (isset($this->log_messages) && isset($this->bytes_received) && $this->bytes_received > 10240)
+            return $this->log_messages * 160 < $this->bytes_received;
+
+        return false;
+    }
+
     public function hasRtcBug()
     {
         /* has RTC bug if: 
@@ -342,6 +354,23 @@ class FlashLog extends Model
 
         return false;
     }
+
+
+  public function hasWeightSensorDefinitions()
+  {
+
+      $weight_m_ids = Measurement::getWeightMeasurementIds();
+
+      $weight_sensor_defs = $this->device->sensorDefinitions()
+          ->where('input_measurement_id', $weight_m_ids['input_id'])
+          ->where('output_measurement_id', $weight_m_ids['output_id'])
+          ->count();
+
+      if ($weight_sensor_defs == 0)
+          return false;
+
+      return true;
+  }
 
     public function hasNoWeightData()
     {
@@ -455,17 +484,20 @@ class FlashLog extends Model
                 $errors['fa-plus-square'] .= ': '.implode(', ', $highDataDatesArr);
             }
         }
-
-        $weight_kg_perc = $this->getWeightLogPercentage();
-        if ($this->hasNoWeightData())
+        
+        if ($this->hasWeightSensorDefinitions()) 
         {
-            $errors['fa-balance-scale'] = 'No weight data';
+            $weight_kg_perc = $this->getWeightLogPercentage();
+            if ($this->hasNoWeightData()) {
+                $errors['fa-balance-scale'] = 'No weight data';
+            } else if ($weight_kg_perc < 90) {
+                $errors['fa-balance-scale'] = "Weight data: $weight_kg_perc %";
+            }
         }
-        else if ($weight_kg_perc < 90)
+        else
         {
-            $errors['fa-balance-scale'] = "Weight data: $weight_kg_perc %";
+            $errors['fa-balance-scale'] = 'No weight calibration';
         }
-
         return $errors;
     }
 
@@ -595,14 +627,18 @@ class FlashLog extends Model
                 $bytes   += mb_strlen($lineData, 'utf-8')/2;
             }
             unset($in);
-            
+
+            // 2026-08-11: fw 1.8.0+ single line upload starts directly with the 63 byte start-up message, of which port + length (023F) are stripped as line prefix above; restore them to keep the measurement_interval_min of the first block
+            if (substr($alldata, 0, 8) == '01000100' && substr($alldata, 126, 2) == '0A')
+                $alldata = '023F'.$alldata;
+
             // fw 1.5.9 1st port 2 log entry
             // 0100010005000902935D7C83FFFF94540E0123A76E05A5161AEE1F0000002A03091D01000F256079A4250A 03351B0CF10CEA640A0116539504020D8C081B0C0A094600140010002C0049001A0014005A001A0033002A07000000000000256079A6270A
             // 01000100050009029356BAA6FFFF94540E0123FA62FD38425EEE1F0000001A03091D01000F256079A25D0A 03351B0CBF0CB5640A011386550402059D0C600C0A0946005B002E0067003C0016001000160015000F000507000000000000256079A3E00A
 
 
-            // Split data by 0A02 and 0A03 (0A03 30 1B) 0A0330
-            $data  = preg_replace('/0A022([A-Fa-f0-9]{1})0100/', "0A\n022\${1}0100", $alldata);
+            // Split data by 0A02 and 0A03 (0A03 30 1B) 0A0330 (fw 1.8.0+ start-up message has length 0x3F, so match 0x2X and 0x3X)
+            $data  = preg_replace('/0A02([23][A-Fa-f0-9]{1})0100/', "0A\n02\${1}0100", $alldata);
             $data  = preg_replace('/0A03351B/', "0A\n03351B", $data);
 
             // Calculate from payload parts
@@ -621,6 +657,9 @@ class FlashLog extends Model
             
             $data  = preg_replace($payload, $replace, $data);
 
+            // 2026-08-11: fw 1.8.0+ port 3 payload is 72 bytes (len 0x48): reset reason tail (2E + 20 bytes) added after the time field, so the payload exceeds the 90 char max above
+            $data  = preg_replace('/03([4-6][A-Fa-f0-9])1B([A-Fa-f0-9]{10,14})0A([A-Fa-f0-9]{73,93}2E[A-Fa-f0-9]{40})0A/', "\n03\${1}1B\${2}0A0\${3}0A", $data);
+
             // fix missing battery hex code
             $data  = preg_replace('/0A03([A-Fa-f0-9]{2})([A-Fa-f0-9]{2})0D/', "0A\n03\${1}1B0D\${2}0D", $data);
             // split error lines
@@ -629,6 +668,7 @@ class FlashLog extends Model
             $data  = preg_replace('/03([A-Fa-f0-9]{2})1B0D1B0D([A-Fa-f0-9]{90,120})0A/', "03\${1}1B0D\${2}0A", $data); // Double 1B0D (fw 1.4.2)
             $data  = preg_replace('/02([A-Fa-f0-9]{76})0A03([A-Fa-f0-9]{90,120})0A/', "02\${1}0A\n03\${2}0A", $data); // port 2 data
             $data  = preg_replace('/([A-Fa-f0-9]{12,14})0A01([A-Fa-f0-9]{6})([A-Fa-f0-9]{1})040([A-Fa-f0-9]{70,90})0A/', "\${1}0A01\${2}040\${4}0A", $data); // 2025-06-10 PGe: fw 1.5.15: remove extra character after weight 24 bit string
+            $data  = preg_replace('/1B([A-Fa-f0-9]{10})0A0001([A-Fa-f0-9]{6})0401/', "1B\${1}0A001\${2}0401", $data); // 2026-08-11: fw 1.8.0: remove extra character before weight 24 bit string (decoder removes the remaining extra 0 via its 0A001 check)
 
             // remove empty rows
             $data  = preg_replace('/^\h*\v+/m', '', $data);
@@ -1071,7 +1111,7 @@ class FlashLog extends Model
                 $blockStaDate= $blockStart->format($this->timeFormat);
                 $blockEnd    = $endMoment->addSeconds(round($blockEndOff * $matchSecInt));
                 $blockEndDate= $blockEnd->format($this->timeFormat);
-
+            
                 // Load active weight device sensor definitions
                 $weight_m_ids  = Measurement::getWeightMeasurementIds();
                 $sensor_defs_w = $device->activeTypeDateSensorDefinitions($weight_m_ids['input_id'], $weight_m_ids['output_id'], $blockStaDate, $blockEndDate);

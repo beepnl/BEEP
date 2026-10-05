@@ -851,11 +851,12 @@ class MeasurementController extends Controller
         }
 
         // process downlink
-        if (isset($data_array['key']) && isset($data_array['downlink_url'])) { // TODO-LARAVEL-UPGRADE CHECK geen error hier, maar $data is ook unassigned (zie ook hieronder) -> heb hier $data['downlink_url'] veranderd in $data_array['downlink_url'] ??
-            $this->sendDeviceDownlink($data_array['key'], $data_array['downlink_url']); // TODO-LARAVEL-UPGRADE CHECK fixed error 'Use of unassigned variable $data'  -> heb hier $data['downlink_url'] veranderd in $data_array['downlink_url'] ??
+        // DONE-LARAVEL-UPGRADE fixed error 'Use of unassigned variable $data' - this block and the one below used $data (always undefined) instead of $data_array, so isset() silently always returned false and this logic never ran in production. Confirmed $data_array is correct here: it holds the decoded TTN/Simpoint payload (key, downlink_url, beep_base, port) built above, matching what sendDeviceDownlink() and the port-6 downlink-response save below expect.
+        if (isset($data_array['key']) && isset($data_array['downlink_url'])) {
+            $this->sendDeviceDownlink($data_array['key'], $data_array['downlink_url']);
         }
 
-        if (isset($data_array['key']) && isset($data_array['beep_base']) && boolval($data_array['beep_base']) && isset($data_array['port']) && $data_array['port'] == 6) { // downlink response // TODO-LARAVEL-UPGRADE CHECK fixed error 'Use of unassigned variable $data'  -> heb hier $data['port'] veranderd in $data_array['port'] ??
+        if (isset($data_array['key']) && isset($data_array['beep_base']) && boolval($data_array['beep_base']) && isset($data_array['port']) && $data_array['port'] == 6) { // downlink response
             /** @var Device|null $device */    
             $device = Device::where('key', $data_array['key'])->first();
             if ($device) { // && Auth::user()->hasRole('sensor-data')

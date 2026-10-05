@@ -62,7 +62,7 @@ class Image extends Model
         $url = 'https://'.ltrim($url, '/');
         }
 
-        // TODO-LARAVEL-UPGRADE check if ok to remove (replace with https:// prefix above)
+        // DONE-LARAVEL-UPGRADE ok to remove - dead code, replaced with https:// prefix above
         // if ($storage == 'public') {
         //     $url = env('APP_URL').$url;
         // }
@@ -81,7 +81,7 @@ class Image extends Model
         $url = 'https://'.ltrim($url, '/');
         }
 
-        // TODO-LARAVEL-UPGRADE check if ok to remove (replace with https:// prefix above)
+        // DONE-LARAVEL-UPGRADE ok to remove - dead code, replaced with https:// prefix above
         // if ($storage == 'public') {
         //     $url = env('APP_URL').$url;
         // }

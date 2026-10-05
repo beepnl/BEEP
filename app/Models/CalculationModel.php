@@ -138,10 +138,11 @@ class CalculationModel extends Model
         return $model_result;
     }
 
-    private function get_data($devices)
-    {
-        return []; // $data_arrays; // TODO-LARAVEL-UPGRADE check fixed error 'Use of unassigned variable '$data_arrays', seems like this function is not used anywhere?
-    }
+    // DONE-LARAVEL-UPGRADE function not used, but keep for future use
+    // private function get_data($devices)
+    // {
+    //     return $data_arrays;
+    // }
 
     // Calculation models (+ post data processing), return single $data_arrays
     private function model_cumulative_daily_weight_anomaly($apiary_weight_data_arrays)

@@ -264,7 +264,7 @@ class Device extends Model
     public function activeSensorDefinitions()
     {
         return Cache::rememberForever('device-'.$this->id.'-active-calibrations', function () {
-            return $this->sensorDefinitions()->orderBy('updated_at', 'desc')->get()->unique('input_measurement_id')->unique('output_measurement_id'); // DONE-LARAVEL-UPGRADE fixed warning, was unique('input_measurement_id','output_measurement_id')
+            return $this->sensorDefinitions()->orderBy('updated_at', 'desc')->get()->unique(fn ($sd) => $sd->input_measurement_id.'_'.$sd->output_measurement_id); // DONE-LARAVEL-UPGRADE fixed warning - was unique('input_measurement_id','output_measurement_id'), which Collection::unique() treats as unique('input_measurement_id', $strict=true), deduping on input only; chaining ->unique()->unique() over-deduped by filtering twice, so use a compound-key callback instead
         });
     }
 
@@ -281,7 +281,7 @@ class Device extends Model
         }
 
         // If more than 1, chech which one to use
-        $sd_during = $io_sds->whereBetween('updated_at', [$start, $end])->sortByDesc('updated_at')->unique('input_measurement_id')->unique('output_measurement_id'); // DONE-LARAVEL-UPGRADE fixed warning, was unique('input_measurement_id','output_measurement_id')
+        $sd_during = $io_sds->whereBetween('updated_at', [$start, $end])->sortByDesc('updated_at')->unique(fn ($sd) => $sd->input_measurement_id.'_'.$sd->output_measurement_id); // DONE-LARAVEL-UPGRADE fixed warning - was unique('input_measurement_id','output_measurement_id'); use compound-key callback for consistency with activeSensorDefinitions() (harmless here since $io_sds is already filtered to a single input/output pair, but kept consistent)
 
         if ($sd_during->count() > 0) {
             foreach ($sd_during as $sd) {

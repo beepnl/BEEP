@@ -552,7 +552,7 @@ class SampleCodeController extends Controller
 
         $inspections = $inspections->where('created_at', '>=', $date_start)->where('created_at', '<=', $date_until)->sortByDesc('created_at');
 
-        $table = $inspections->map(function ($inspection) use ($inspection_data) {
+        $table = $inspections->map(function ($inspection) use ($inspection_data, $sample_code) {
             if (isset($inspection->items)) {
                 foreach ($inspection->items as $inspectionItem) {
                     $array_key = $inspectionItem->anc.$inspectionItem->name;
@@ -572,7 +572,7 @@ class SampleCodeController extends Controller
 
             // add general inspection data columns
             $pre = [
-                'Sample code' => $sample_code, // DONE-LARAVEL-UPGRADE nb did NOT fix error 'Use of unassigned variable '$sample_code'', as this function getInspections() is currently not used in the API code
+                'Sample code' => $sample_code, // DONE-LARAVEL-UPGRADE fixed error 'Use of unassigned variable '$sample_code'' - it's a valid parameter of getInspections(), but wasn't captured into this closure's use() clause; added it
                 'inspection_id' => $inspection->id,
                 __('export.created_at') => $inspection->created_at,
                 __('export.hive') => $inspection->hives()->count() > 0 ? $inspection->hives()->first()->id : '',

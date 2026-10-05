@@ -49,9 +49,9 @@ class ChecklistSvgController extends Controller
     Show an SVG inspection
     @authenticated
      **/
-    public function show($id)
+    public function show(Request $request, $id)
     {
-        $checklist_svg = $request->user()->checklistSvgs()->findOrFail($id); // DONE-LARAVEL-UPGRADE nb did NOT fix error 'Use of unassigned variable '$request'' as this show by id function is not used in the app
+        $checklist_svg = $request->user()->checklistSvgs()->findOrFail($id); // DONE-LARAVEL-UPGRADE fixed error 'Use of unassigned variable '$request'' - this route IS registered (api/checklist-svg/{id} GET), added Request $request as parameter
 
         return $checklist_svg;
     }
@@ -75,9 +75,9 @@ class ChecklistSvgController extends Controller
     Delete an SVG inspection
     @authenticated
      **/
-    public function destroy($id): JsonResponse
+    public function destroy(Request $request, $id): JsonResponse
     {
-        $request->user()->checklistSvgs()->destroy($id);
+        $request->user()->checklistSvgs()->destroy($id); // DONE-LARAVEL-UPGRADE fixed error 'Use of unassigned variable '$request'' - this route IS registered (api/checklist-svg/{id} DELETE), added Request $request as parameter
 
         return response()->json(null, 204);
     }

@@ -4,7 +4,11 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Foundation\Auth\VerifiesEmails;
+use Illuminate\Routing\Attributes\Controllers\Middleware;
 
+#[Middleware('auth')]
+#[Middleware('signed', only: ['verify'])]
+#[Middleware('throttle:10,1', only: ['verify', 'resend'])]
 class VerificationController extends Controller
 {
     /*
@@ -26,16 +30,4 @@ class VerificationController extends Controller
      * @var string
      */
     protected $redirectTo = '/home';
-
-    /**
-     * Create a new controller instance.
-     *
-     * @return void
-     */
-    public function __construct()
-    {
-        $this->middleware('auth');
-        $this->middleware('signed')->only('verify');
-        $this->middleware('throttle:10,1')->only('verify', 'resend');
-    }
 }

@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('page-title') {{ __('crud.management', ['item'=>__('beep.AlertRule')]) }}
-    {!! Form::open(['method' => 'GET', 'route' => 'alert-rule.index', 'class' => 'form-inline', 'role' => 'search', 'style'=>'display: inline-block;'])  !!}
+    {{ html()->form('GET', route('alert-rule.index'))->class('form-inline')->attribute('role', 'search')->style('display: inline-block;')->open() }}
     <div class="input-group" style="display: inline-block;">
         <input type="text" class="form-control" style="max-width: 100px;" name="rule_id" placeholder="Rule ID" value="{{ $rule_id }}">
         <span class="input-group-btn">
@@ -15,7 +15,7 @@
         </span>
     </div> --}}
     <div class="input-group" style="display: inline-block; font-size:16px;">
-        {!! Form::select('user_id', $users, $user_id, array('class' => 'form-control select2', 'placeholder'=>'Select user...', 'onchange'=>'this.form.submit()')) !!}
+        {{ html()->select('user_id', $users, $user_id)->class('form-control select2')->placeholder('Select user...')->attribute('onchange', 'this.form.submit()') }}
         {!! $errors->first('user_id', '<p class="help-block">:message</p>') !!}
     </div>
     <div style="display: inline-block;">
@@ -24,7 +24,7 @@
     <div style="display: inline-block;">
         <input type="checkbox" style="min-width: 10px;" name="default_rule" value="1" onchange="this.form.submit();" @if($default_rule) checked @endif> <span style="font-size:16px;">Default</span></input>
     </div>
-    {!! Form::close() !!}
+    {{ html()->form()->close() }}
 @endsection
 
 @section('content')

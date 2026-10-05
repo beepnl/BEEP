@@ -5,11 +5,11 @@ New category
 @overwrite
 
 @section('body')
-    {!! Form::model($data, [ 'route' => 'categories.store' ]) !!}
+    {{ html()->modelForm($data, 'POST', route('categories.store'))->open() }}
         @include('categories.partials.form')
         <br>
         <div class="form-group">
-            {!! Form::submit('Create', [ 'class' => 'btn btn-primary btn-block' ]) !!}
+            {{ html()->input('submit')->value('Create')->class('btn btn-primary btn-block') }}
         </div>
-    {!! Form::close() !!}
+    {{ html()->closeModelForm() }}
 @overwrite

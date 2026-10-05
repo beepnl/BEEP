@@ -5,12 +5,12 @@
 @overwrite
 
 @section('body')
-    {!! Form::model($category, [ 'route' => [ 'categories.update', $category->getKey() ], 'method' => 'PATCH' ]) !!}
+    {{ html()->modelForm($category, 'PATCH', route('categories.update', $category->getKey()))->open() }}
         
         @include('categories.partials.form')
 
         <div class="form-group">
-            {!! Form::submit('Save', [ 'class' => 'btn btn-primary' ]) !!}
+            {{ html()->input('submit')->value('Save')->class('btn btn-primary') }}
         </div>
-    {!! Form::close() !!}
+    {{ html()->closeModelForm() }}
 @overwrite

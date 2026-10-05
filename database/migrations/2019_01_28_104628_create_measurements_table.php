@@ -3,19 +3,15 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 
-class CreateMeasurementsTable extends Migration
+return new class extends Migration
 {
     /**
      * Run the migrations.
-     *
-     * @return void
      */
-    public function up()
+    public function up(): void
     {
-        if (!Schema::hasTable('measurements')) 
-        {
-            Schema::create('measurements', function (Blueprint $table) 
-            {
+        if (! Schema::hasTable('measurements')) {
+            Schema::create('measurements', function (Blueprint $table) {
                 $table->increments('id');
                 $table->string('abbreviation');
                 $table->boolean('show_in_charts')->default(true);
@@ -32,20 +28,16 @@ class CreateMeasurementsTable extends Migration
 
     /**
      * Reverse the migrations.
-     *
-     * @return void
      */
-    public function down()
+    public function down(): void
     {
-        if (Schema::hasTable('measurements')) 
-        {
-            Schema::table('measurements', function(Blueprint $table)
-            {
+        if (Schema::hasTable('measurements')) {
+            Schema::table('measurements', function (Blueprint $table) {
                 $table->dropForeign(['physical_quantity_id']);
             });
-            
+
             Schema::drop('measurements');
         }
 
     }
-}
+};

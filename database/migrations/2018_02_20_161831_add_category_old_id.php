@@ -1,36 +1,31 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
-class AddCategoryOldId extends Migration
+return new class extends Migration
 {
     /**
      * Run the migrations.
-     *
-     * @return void
      */
-    public function up()
+    public function up(): void
     {
-        Schema::table('categories', function (Blueprint $table)
-        {
-            if (Schema::hasColumn('categories','old_id') == false)
+        Schema::table('categories', function (Blueprint $table) {
+            if (Schema::hasColumn('categories', 'old_id') == false) {
                 $table->string('old_id', 30)->nullable();
+            }
 
         });
     }
 
     /**
      * Reverse the migrations.
-     *
-     * @return void
      */
-    public function down()
+    public function down(): void
     {
-        Schema::table('categories', function (Blueprint $table)
-        {
+        Schema::table('categories', function (Blueprint $table) {
             $table->dropColumn('old_id');
         });
     }
-}
+};

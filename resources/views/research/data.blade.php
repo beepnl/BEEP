@@ -58,7 +58,7 @@
                         <div class="form-group {{ $errors->has('user_ids') ? 'has-error' : ''}}">
                             <label for="user_ids" control-label>{{ 'Select consented users' }} ({{ count($consent_users_selected) }} / {{ count($consent_users_select) }})</label>
                             <div>
-                                {!! Form::select('user_ids[]', $consent_users_select, $consent_users_selected, array('id'=>'user_ids','class' => 'form-control select2', 'multiple')) !!}
+                                {{ html()->multiselect('user_ids[]', $consent_users_select, $consent_users_selected)->id('user_ids')->class('form-control select2') }}
                                 {!! $errors->first('user_ids', '<p class="help-block">:message</p>') !!}
                             </div>
                         </div>
@@ -70,7 +70,7 @@
                             <div class="form-group {{ $errors->has('device_ids') ? 'has-error' : ''}}">
                                 <label for="device_ids" control-label>{{ 'Devices filter (default: all)' }}</label>
                                 <div>
-                                    {!! Form::select('device_ids[]', $devices_select, $device_ids, array('id'=>'device_ids','class' => 'form-control select2', 'multiple')) !!}
+                                    {{ html()->multiselect('device_ids[]', $devices_select, $device_ids)->id('device_ids')->class('form-control select2') }}
                                     {!! $errors->first('device_ids', '<p class="help-block">:message</p>') !!}
                                 </div>
                             </div>

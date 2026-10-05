@@ -3,17 +3,14 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 
-class CreateAlertRulesTable extends Migration
+return new class extends Migration
 {
     /**
      * Run the migrations.
-     *
-     * @return void
      */
-    public function up()
+    public function up(): void
     {
-        if (!Schema::hasTable('alert_rules')) 
-        {
+        if (! Schema::hasTable('alert_rules')) {
             Schema::create('alert_rules', function (Blueprint $table) {
                 $table->increments('id');
                 $table->timestamps();
@@ -38,14 +35,11 @@ class CreateAlertRulesTable extends Migration
 
     /**
      * Reverse the migrations.
-     *
-     * @return void
      */
-    public function down()
+    public function down(): void
     {
-        if (Schema::hasTable('alert_rules')) 
-        {
+        if (Schema::hasTable('alert_rules')) {
             Schema::drop('alert_rules');
         }
     }
-}
+};

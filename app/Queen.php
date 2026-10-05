@@ -2,22 +2,27 @@
 
 namespace App;
 
-use Iatstuti\Database\Support\CascadeSoftDeletes;
+use Cache;
+use Dyrynda\Database\Support\CascadeSoftDeletes;
+use Illuminate\Database\Eloquent\Attributes\Appends;
+use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Attributes\Guarded;
+use Illuminate\Database\Eloquent\Attributes\Hidden;
+use Illuminate\Database\Eloquent\Attributes\WithoutTimestamps;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Log;
-use Cache;
 
+#[WithoutTimestamps]
+#[Fillable('hive_id', 'created_at', 'race_id', 'quality', 'color', 'name', 'fertilized', 'clipped', 'fertilizing_location', 'origin', 'tree', 'line', 'mother_id', 'marker', 'goal', 'description', 'birth_date')]
+#[Guarded('id')]
+#[Hidden('fertilizing_location', 'marker', 'goal', 'deleted_at', 'laravel_through_key', 'created_at')]
+#[Appends('race')]
 class Queen extends Model
 {
-    use SoftDeletes, CascadeSoftDeletes;
-
-    protected $fillable = ['hive_id', 'created_at', 'race_id', 'quality', 'color', 'name', 'fertilized', 'clipped', 'fertilizing_location', 'origin', 'tree', 'line', 'mother_id', 'marker', 'goal', 'description', 'birth_date'];
-	protected $guarded 	= ['id'];
-    protected $hidden   = ['fertilizing_location', 'marker', 'goal', 'deleted_at', 'laravel_through_key', 'created_at'];
-    protected $appends  = ['race'];
-
-    public $timestamps = false;
+    use CascadeSoftDeletes, SoftDeletes;
 
     // Caching
     public static function boot()
@@ -38,23 +43,24 @@ class Queen extends Model
     }
 
     // Cache functions
-    public function empty_cache($clear_hive=true)
+    public function empty_cache($clear_hive = true)
     {
         Log::debug("Queen ID $this->id cache emptied");
 
-        if ($clear_hive)
+        if ($clear_hive) {
             $this->hive->empty_cache();
+        }
     }
 
     // Relations
     public function getRaceAttribute()
     {
-        if (isset($this->race_id) && $this->race_id != '')
-        {
+        if (isset($this->race_id) && $this->race_id != '') {
             return Cache::rememberForever("queen-race-$this->race_id-name", function () {
                 return Category::find($this->race_id)->name;
             });
         }
+
         return '';
     }
 
@@ -63,23 +69,23 @@ class Queen extends Model
         return isset($this->mother_id) ? Queen::find($this->mother_id)->name : '';
     }
 
-	public function hive()
+    public function hive(): BelongsTo
     {
         return $this->belongsTo(Hive::class);
     }
 
-    public function race()
+    public function race(): HasOne
     {
         return $this->hasOne(Category::class, 'race_id');
     }
 
-    public function mother()
+    public function mother(): HasOne
     {
         return $this->hasOne(Queen::class, 'mother_id');
     }
 
     public static function selectList()
     {
-        return Queen::orderBy('name')->pluck('name','id');
+        return Queen::orderBy('name')->pluck('name', 'id');
     }
 }

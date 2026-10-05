@@ -1,17 +1,14 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Support\Facades\Schema;
 
-class AddLocationHiveDeleteForeignKey extends Migration
+return new class extends Migration
 {
     /**
      * Run the migrations.
-     *
-     * @return void
      */
-    public function up()
+    public function up(): void
     {
         Schema::table('hives', function ($table) {
             $table->dropForeign(['location_id']);
@@ -21,14 +18,12 @@ class AddLocationHiveDeleteForeignKey extends Migration
 
     /**
      * Reverse the migrations.
-     *
-     * @return void
      */
-    public function down()
+    public function down(): void
     {
         Schema::table('hives', function ($table) {
             $table->dropForeign(['location_id']);
             $table->foreign('location_id')->references('id')->on('locations')->onUpdate('cascade');
         });
     }
-}
+};

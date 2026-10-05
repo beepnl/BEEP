@@ -42,24 +42,24 @@
             </div>
 
 
-    	{!! Form::model($item, ['method' => 'PATCH','route' => ['research.consent_edit', ['id'=>$research->id, 'c_id'=>$item->id]]]) !!}
+    	{{ html()->modelForm($item, 'PATCH', route('research.consent_edit', ['id' => $research->id, 'c_id' => $item->id]))->open() }}
 
             <div class="col-xs-12 col-sm-6 col-md-4">
                 <div class="form-group">
                     <label>{{ __('beep.Hives') }}</label>
-                    {!! Form::select('consent_hive_ids[]', \App\Hive::where('user_id',$item->user_id)->pluck('name','id')->toArray(), $item->consent_hive_ids, array('class' => 'form-control select2', 'multiple', 'id'=>'consent_hive_ids')) !!}
+                    {{ html()->multiselect('consent_hive_ids[]', \App\Hive::where('user_id', $item->user_id)->pluck('name', 'id')->toArray(), $item->consent_hive_ids)->class('form-control select2')->id('consent_hive_ids') }}
                 </div>
             </div>
             <div class="col-xs-12 col-sm-6 col-md-4">
                 <div class="form-group">
                     <label>Locations</label>
-                    {!! Form::select('consent_location_ids[]', \App\Location::where('user_id',$item->user_id)->pluck('name','id')->toArray(), $item->consent_location_ids, array('class' => 'form-control select2', 'multiple', 'id'=>'consent_location_ids')) !!}
+                    {{ html()->multiselect('consent_location_ids[]', \App\Location::where('user_id', $item->user_id)->pluck('name', 'id')->toArray(), $item->consent_location_ids)->class('form-control select2')->id('consent_location_ids') }}
                 </div>
             </div>
             <div class="col-xs-12 col-sm-6 col-md-4">
                 <div class="form-group">
                     <label>Devices</label>
-                    {!! Form::select('consent_sensor_ids[]', \App\Device::where('user_id',$item->user_id)->pluck('name','id')->toArray(), $item->consent_sensor_ids, array('class' => 'form-control select2', 'multiple', 'id'=>'consent_sensor_ids')) !!}
+                    {{ html()->multiselect('consent_sensor_ids[]', \App\Device::where('user_id', $item->user_id)->pluck('name', 'id')->toArray(), $item->consent_sensor_ids)->class('form-control select2')->id('consent_sensor_ids') }}
                 </div>
             </div>
 
@@ -75,6 +75,6 @@
     			<button type="submit" class="btn btn-primary btn-block">{{ __('crud.save') }}</button>
             </div>
 
-    	{!! Form::close() !!}
+    	{{ html()->closeModelForm() }}
     @endcomponent
 @endsection

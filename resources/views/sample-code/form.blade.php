@@ -58,7 +58,7 @@
 	<div class="form-group {{ $errors->has('user_id') ? 'has-error' : ''}}">
 	    <label for="user_id" control-label>{{ 'User' }}</label>
 	    <div>
-	        {!! Form::select('user_id', App\User::selectList(), isset($samplecode->user_id) ? $samplecode->user_id : null, array('id'=>'user_id', 'class' => 'form-control')) !!}
+	        {{ html()->select('user_id', App\User::selectList(), isset($samplecode->user_id) ? $samplecode->user_id : null)->id('user_id')->class('form-control') }}
 	        {!! $errors->first('user_id', '<p class="help-block">:message</p>') !!}
 	    </div>
 	</div>
@@ -74,7 +74,7 @@
 	<div class="form-group {{ $errors->has('queen_id') ? 'has-error' : ''}}">
 	    <label for="queen_id" control-label>{{ 'Queen' }}</label>
 	    <div>
-	        {!! Form::select('queen_id', App\Queen::selectList(), isset($samplecode->queen_id) ? $samplecode->queen_id : null, array('id'=>'queen_id', 'class' => 'form-control')) !!}
+	        {{ html()->select('queen_id', App\Queen::selectList(), isset($samplecode->queen_id) ? $samplecode->queen_id : null)->id('queen_id')->class('form-control') }}
 	        {!! $errors->first('queen_id', '<p class="help-block">:message</p>') !!}
 	    </div>
 	</div>

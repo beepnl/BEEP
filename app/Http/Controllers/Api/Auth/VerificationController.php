@@ -3,15 +3,19 @@
 namespace App\Http\Controllers\Api\Auth;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Foundation\Auth\VerifiesEmails;
-use Illuminate\Http\Request;
-use Illuminate\Auth\Events\Verified;
 use App\User;
+use Illuminate\Auth\Events\Verified;
+use Illuminate\Foundation\Auth\VerifiesEmails;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
+use Illuminate\Routing\Attributes\Controllers\Middleware;
 
 /**
  * @group Api\Auth\VerificationController
  * User verification functions
  */
+#[Middleware('signed', only: ['verify'])]
+#[Middleware('throttle:10,1', only: ['verify'])]
 class VerificationController extends Controller
 {
     /*
@@ -34,7 +38,6 @@ class VerificationController extends Controller
      */
     protected $redirectTo = '/webapp#!/login?msg=email_verified';
 
-
     /**
      * Create a new controller instance.
      *
@@ -42,16 +45,13 @@ class VerificationController extends Controller
      */
     public function __construct()
     {
-        //$this->middleware('auth');
-        $this->middleware('signed')->only('verify');
-        $this->middleware('throttle:10,1')->only('verify');
-        $this->redirectTo = env('WEBAPP_URL',"/").env('WEBAPP_EMAIL_VERIFY_URL','login')."?msg=email_verified";
-    }
+        // $this->middleware('auth');
 
+        $this->redirectTo = env('WEBAPP_URL', '/').env('WEBAPP_EMAIL_VERIFY_URL', 'login').'?msg=email_verified';
+    }
 
     /**
      * Show the email verification notice.
-     *
      */
     public function show()
     {
@@ -60,29 +60,22 @@ class VerificationController extends Controller
 
     /**
      * Mark the authenticated user's email address as verified.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
      */
-    public function verify(Request $request)
+    public function verify(Request $request): RedirectResponse
     {
         $user = null;
 
-        // ->route('id') gets route user id and getKey() gets current user id() 
+        // ->route('id') gets route user id and getKey() gets current user id()
         // do not forget that you must send Authorization header to get the user from the request
-        if ($request->user() && $request->route('id') == $request->user()->getKey())
-        {
+        if ($request->user() && $request->route('id') == $request->user()->getKey()) {
             $user = $request->user();
-        }
-        else
-        {
+        } else {
             $user = User::find($request->route('id'));
         }
 
         $email = '';
 
-        if ($user && $user->markEmailAsVerified()) 
-        {
+        if ($user && $user->markEmailAsVerified()) {
             $email = '&email='.$user->email;
             event(new Verified($user));
         }
@@ -93,37 +86,33 @@ class VerificationController extends Controller
     /**
      * Resend the email verification notification.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
     public function resend(Request $request)
     {
         $user = null;
-        //die(print_r($request->input()));
-        if ($request->filled(['email']))
-        {
+        // die(print_r($request->input()));
+        if ($request->filled(['email'])) {
             $email = $request->input('email');
-            $user  = User::where('email', '=', $email)->first();
-        }
-        else 
-        {
+            $user = User::where('email', '=', $email)->first();
+        } else {
             $user = $request->user();
         }
 
-        if($user === null)
+        if ($user === null) {
             return response()->json('invalid_user', 400);
+        }
 
-        //die(print_r($user));
+        // die(print_r($user));
 
         if ($user->hasVerifiedEmail()) {
             return response()->json('email_verified', 422);
-//            return redirect($this->redirectPath());
+            //            return redirect($this->redirectPath());
         }
 
         $user->sendApiEmailVerificationNotification();
 
         return response()->json('email_verification_sent');
-//        return back()->with('resent', true);
+        //        return back()->with('resent', true);
     }
-
 }

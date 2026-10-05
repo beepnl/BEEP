@@ -63,7 +63,7 @@
 	<div class="form-group {{ $errors->has('user_id') ? 'has-error' : ''}}">
 	    <label for="user_id" control-label>{{ 'User' }}</label>
 	    <div>
-	        {!! Form::select('user_id', App\User::all()->sortBy('name')->pluck('name','id'), isset($image->user_id) ? $image->user_id : Auth::user()->id, array('id'=>'user_id', 'class' => 'form-control select2', 'placeholder'=>'Select user...')) !!}
+	        {{ html()->select('user_id', App\User::all()->sortBy('name')->pluck('name', 'id'), isset($image->user_id) ? $image->user_id : Auth::user()->id)->id('user_id')->class('form-control select2')->placeholder('Select user...') }}
 	        {!! $errors->first('user_id', '<p class="help-block">:message</p>') !!}
 	    </div>
 	</div>
@@ -72,7 +72,7 @@
 	<div class="form-group {{ $errors->has('hive_id') ? 'has-error' : ''}}">
 	    <label for="hive_id" control-label>{{ 'Hive' }}</label>
 	    <div>
-	        {!! Form::select('hive_id', Auth::user()->allHives()->orderBy('name')->pluck('name','id'), isset($image->hive_id) ? $image->hive_id : null, array('id'=>'hive_id', 'class' => 'form-control select2', 'placeholder'=>'Select hive...')) !!}
+	        {{ html()->select('hive_id', Auth::user()->allHives()->orderBy('name')->pluck('name', 'id'), isset($image->hive_id) ? $image->hive_id : null)->id('hive_id')->class('form-control select2')->placeholder('Select hive...') }}
 	        {!! $errors->first('hive_id', '<p class="help-block">:message</p>') !!}
 	    </div>
 	</div>
@@ -81,7 +81,7 @@
 	<div class="form-group {{ $errors->has('category_id') ? 'has-error' : ''}}">
 	    <label for="category_id" control-label>{{ 'Category (image, file)' }}</label>
 	    <div>
-	        {!! Form::select('category_id', App\Category::all()->whereIn('input', ['image','file'])->pluck('trans','id'), isset($image->category_id) ? $image->category_id : null, array('id'=>'category_id', 'class' => 'form-control select2', 'placeholder'=>'Select category...')) !!}
+	        {{ html()->select('category_id', App\Category::all()->whereIn('input', ['image', 'file'])->pluck('trans', 'id'), isset($image->category_id) ? $image->category_id : null)->id('category_id')->class('form-control select2')->placeholder('Select category...') }}
 	        {!! $errors->first('category_id', '<p class="help-block">:message</p>') !!}
 	    </div>
 	</div>
@@ -90,7 +90,7 @@
 	<div class="form-group {{ $errors->has('inspection_id') ? 'has-error' : ''}}">
 	    <label for="inspection_id" control-label>{{ 'Inspection' }}</label>
 	    <div>
-	        {!! Form::select('inspection_id', Auth::user()->inspections->sortByDesc('created_at')->pluck('created_at','id'), isset($image->inspection_id) ? $image->inspection_id : null, array('id'=>'inspection_id', 'class' => 'form-control select2', 'placeholder'=>'Select inspection...')) !!}
+	        {{ html()->select('inspection_id', Auth::user()->inspections->sortByDesc('created_at')->pluck('created_at', 'id'), isset($image->inspection_id) ? $image->inspection_id : null)->id('inspection_id')->class('form-control select2')->placeholder('Select inspection...') }}
 	        {!! $errors->first('inspection_id', '<p class="help-block">:message</p>') !!}
 	    </div>
 	</div>

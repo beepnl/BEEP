@@ -5,7 +5,6 @@
  * a role & permission management solution for Laravel.
  *
  * @license MIT
- * @package Trebol\Entrust
  */
 
 return [
@@ -19,7 +18,7 @@ return [
     | the role if it is in a different namespace.
     |
     */
-    'role' => 'App\Role',
+    'role' => App\Role::class,
 
     /*
     |--------------------------------------------------------------------------
@@ -51,7 +50,7 @@ return [
     | Update the User if it is in a different namespace.
     |
     */
-    'user' => 'App\User',
+    'user' => App\User::class,
 
     /*
     |--------------------------------------------------------------------------
@@ -95,7 +94,7 @@ return [
     | Update the permission if it is in a different namespace.
     |
     */
-    'permission' => 'App\Permission',
+    'permission' => App\Permission::class,
 
     /*
     |--------------------------------------------------------------------------
@@ -131,5 +130,5 @@ return [
     'permission_foreign_key' => 'permission_id',
 
     'type' => 'web',
-    'response-error' => 'Unauthorized'
+    'response-error' => 'Unauthorized',
 ];

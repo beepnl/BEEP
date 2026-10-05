@@ -29,7 +29,7 @@
 <div class="col-xs-12">
 	<div class="form-group {{ $errors->has('hive_ids') ? 'has-error' : ''}}">
 	    <label for="hive_ids" control-label>{{ 'HivesIds' }}</label>
-	    {!! Form::select('hive_ids[]', $hive_ids, $dashboardgroup->hive_ids, array('class' => 'form-control select2','multiple')) !!}
+	    {{ html()->multiselect('hive_ids[]', $hive_ids, $dashboardgroup->hive_ids)->class('form-control select2') }}
 	</div>
 </div>
 
@@ -46,7 +46,7 @@
 	<div class="form-group {{ $errors->has('interval') ? 'has-error' : ''}}">
 	    <label for="interval" control-label>{{ 'Interval' }}</label>
 	    <div>
-	        {!! Form::select('interval', \App\Models\DashboardGroup::$intervals, $dashboardgroup->interval, array('class' => 'form-control select2','required')) !!}
+	        {{ html()->select('interval', \App\Models\DashboardGroup::$intervals, $dashboardgroup->interval)->class('form-control select2')->required() }}
 	        {!! $errors->first('interval', '<p class="help-block">:message</p>') !!}
 	    </div>
 	</div>

@@ -2,25 +2,22 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests;
-use App\Http\Controllers\Controller;
-
 use App\Permission;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\View\View;
 
 class PermissionController extends Controller
 {
     /**
      * Display a listing of the resource.
-     *
-     * @return \Illuminate\View\View
      */
-    public function index(Request $request)
+    public function index(Request $request): View
     {
-        $keyword = $request->get('search');
+        $keyword = $request->input('search');
         $perPage = 1000;
 
-        if (!empty($keyword)) {
+        if (! empty($keyword)) {
             $permissions = Permission::paginate($perPage);
         } else {
             $permissions = Permission::paginate($perPage);
@@ -31,10 +28,8 @@ class PermissionController extends Controller
 
     /**
      * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\View\View
      */
-    public function create()
+    public function create(): View
     {
         return view('permissions.create');
     }
@@ -42,15 +37,14 @@ class PermissionController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param \Illuminate\Http\Request $request
      *
      * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
      */
-    public function store(Request $request)
+    public function store(Request $request): RedirectResponse
     {
-        
+
         $requestData = $request->all();
-        
+
         Permission::create($requestData);
 
         return redirect('permissions')->with('flash_message', 'Permission added!');
@@ -58,12 +52,8 @@ class PermissionController extends Controller
 
     /**
      * Display the specified resource.
-     *
-     * @param  int  $id
-     *
-     * @return \Illuminate\View\View
      */
-    public function show($id)
+    public function show(int $id): View
     {
         $permission = Permission::findOrFail($id);
 
@@ -72,12 +62,8 @@ class PermissionController extends Controller
 
     /**
      * Show the form for editing the specified resource.
-     *
-     * @param  int  $id
-     *
-     * @return \Illuminate\View\View
      */
-    public function edit($id)
+    public function edit(int $id): View
     {
         $permission = Permission::findOrFail($id);
 
@@ -87,16 +73,13 @@ class PermissionController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param \Illuminate\Http\Request $request
-     * @param  int  $id
-     *
      * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
      */
-    public function update(Request $request, $id)
+    public function update(Request $request, int $id): RedirectResponse
     {
-        
+
         $requestData = $request->all();
-        
+
         $permission = Permission::findOrFail($id);
         $permission->update($requestData);
 
@@ -106,11 +89,9 @@ class PermissionController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  int  $id
-     *
      * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
      */
-    public function destroy($id)
+    public function destroy(int $id): RedirectResponse
     {
         Permission::destroy($id);
 

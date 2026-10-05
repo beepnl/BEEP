@@ -50,7 +50,7 @@
 	<div class="form-group {{ $errors->has('checklist_id') ? 'has-error' : ''}}">
 	    <label for="checklist_id" control-label>{{ 'Checklist' }}</label>
 	    <div>
-	        {!! Form::select('checklist_id', App\Checklist::selectList(), isset($measurement->checklist_id) ? $measurement->checklist_id : null, array('id'=>'checklist_id', 'class' => 'form-control select2')) !!}
+	        {{ html()->select('checklist_id', App\Checklist::selectList(), isset($measurement->checklist_id) ? $measurement->checklist_id : null)->id('checklist_id')->class('form-control select2') }}
 	        {!! $errors->first('checklist_id', '<p class="help-block">:message</p>') !!}
 	    </div>
 	</div>

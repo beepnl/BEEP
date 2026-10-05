@@ -15,30 +15,30 @@
 			</ul>
 		</div>
 	@endif
-	{!! Form::open(array('route' => 'devices.store','method'=>'POST')) !!}
+	{{ html()->form('POST', route('devices.store'))->open() }}
 	<div class="row">
 		<div class="col-xs-12 col-sm-12 col-md-12">
             <div class="form-group">
                 <label>{{ __('crud.name') }}:</label>
-                {!! Form::text('name', null, ['placeholder' => __('crud.name'),'class' => 'form-control']) !!}
+                {{ html()->text('name')->placeholder(__('crud.name'))->class('form-control') }}
             </div>
         </div>
         <div class="col-xs-12 col-sm-12 col-md-12">
             <div class="form-group">
                 <label>{{ __('crud.type') }}:</label>
-                {!! Form::select('category_id', $types, null, ['placeholder'=>__('crud.select', ['item'=>__('general.device').' '.__('general.type')]),'class' => 'form-control select2']) !!}
+                {{ html()->select('category_id', $types)->placeholder(__('crud.select', ['item' => __('general.device') . ' ' . __('general.type')]))->class('form-control select2') }}
             </div>
         </div>
         <div class="col-xs-12 col-sm-12 col-md-12">
             <div class="form-group">
                 <label>LoRa DEV EUI:</label>
-                {!! Form::text('key', null, ['placeholder' => __('crud.key'),'class' => 'form-control']) !!}
+                {{ html()->text('key')->placeholder(__('crud.key'))->class('form-control') }}
             </div>
         </div>
         <div class="col-xs-12 col-sm-12 col-md-12">
             <div class="form-group">
                 <label>{{ __('general.User') }}:</label>
-                {!! Form::select('user_id', App\User::selectlist(), null, array('placeholder'=>__('crud.select', ['item'=>__('general.user')]),'class' => 'form-control select2')) !!}
+                {{ html()->select('user_id', App\User::selectlist())->placeholder(__('crud.select', ['item' => __('general.user')]))->class('form-control select2') }}
             </div>
         </div>
         <div class="col-xs-12 col-sm-12 col-md-12 text-center">
@@ -60,5 +60,5 @@
             </div>
         </div>
 	</div>
-	{!! Form::close() !!}
+	{{ html()->form()->close() }}
 @endsection

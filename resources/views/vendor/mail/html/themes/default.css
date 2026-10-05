@@ -1,294 +1,294 @@
 /* Base */
 
 body, body *:not(html):not(style):not(br):not(tr):not(code) {
-    font-family: 'Roboto Condensed', 'Helvetica Neue', Helvetica, Arial, sans-serif;
-    box-sizing: border-box;
+font-family: 'Roboto Condensed', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+box-sizing: border-box;
 }
 
 body {
-    background-color: #F2F4F6;
-    color: #333333;
-    height: 100%;
-    line-height: 1.4;
-    margin: 0;
-    width: 100% !important;
-    -webkit-text-size-adjust: none;
+background-color: #F2F4F6;
+color: #333333;
+height: 100%;
+line-height: 1.4;
+margin: 0;
+width: 100% !important;
+-webkit-text-size-adjust: none;
 }
 
 p,
 ul,
 ol,
 blockquote {
-    line-height: 1.4;
-    text-align: left;
+line-height: 1.4;
+text-align: left;
 }
 
 a {
-    color: #F29100;
+color: #F29100;
 }
 
 a img {
-    border: none;
+border: none;
 }
 
 /* Typography */
 
 h1 {
-    color: #2F3133;
-    font-size: 19px;
-    font-weight: bold;
-    margin-top: 0;
-    text-align: left;
+color: #2F3133;
+font-size: 19px;
+font-weight: bold;
+margin-top: 0;
+text-align: left;
 }
 
 h2 {
-    color: #2F3133;
-    font-size: 16px;
-    font-weight: bold;
-    margin-top: 0;
-    text-align: left;
+color: #2F3133;
+font-size: 16px;
+font-weight: bold;
+margin-top: 0;
+text-align: left;
 }
 
 h3 {
-    color: #2F3133;
-    font-size: 14px;
-    font-weight: bold;
-    margin-top: 0;
-    text-align: left;
+color: #2F3133;
+font-size: 14px;
+font-weight: bold;
+margin-top: 0;
+text-align: left;
 }
 
 p {
-    color: #333333;
-    font-size: 14px;
-    line-height: 1.5em;
-    margin-top: 0;
-    text-align: left;
+color: #333333;
+font-size: 14px;
+line-height: 1.5em;
+margin-top: 0;
+text-align: left;
 }
 
 p.sub {
-    font-size: 12px;
+font-size: 12px;
 }
 
 img {
-    max-width: 100%;
+max-width: 100%;
 }
 
 /* Layout */
 
 .wrapper {
-    background-color: #FFF;
-    margin: 0;
-    padding: 0;
-    width: 100%;
-    -premailer-cellpadding: 0;
-    -premailer-cellspacing: 0;
-    -premailer-width: 100%;
+background-color: #FFF;
+margin: 0;
+padding: 0;
+width: 100%;
+-premailer-cellpadding: 0;
+-premailer-cellspacing: 0;
+-premailer-width: 100%;
 }
 
 .content {
-    margin: 0;
-    padding: 0;
-    width: 100%;
-    -premailer-cellpadding: 0;
-    -premailer-cellspacing: 0;
-    -premailer-width: 100%;
+margin: 0;
+padding: 0;
+width: 100%;
+-premailer-cellpadding: 0;
+-premailer-cellspacing: 0;
+-premailer-width: 100%;
 }
 
 /* Header */
 
 .header {
-    padding: 15px 0;
-    text-align: center;
+padding: 15px 0;
+text-align: center;
 }
 
 .header a {
-    color: #999999;
-    font-size: 19px;
-    font-weight: bold;
-    text-decoration: none;
-    text-shadow: 0 1px 0 white;
+color: #999999;
+font-size: 19px;
+font-weight: bold;
+text-decoration: none;
+text-shadow: 0 1px 0 white;
 }
 
 /* Body */
 
 .body {
-    background-color: #FFFFFF;
-    border-bottom: 1px solid #EDEFF2;
-    border-top: 1px solid #EDEFF2;
-    margin: 0;
-    padding: 0;
-    width: 100%;
-    -premailer-cellpadding: 0;
-    -premailer-cellspacing: 0;
-    -premailer-width: 100%;
+background-color: #FFFFFF;
+border-bottom: 1px solid #EDEFF2;
+border-top: 1px solid #EDEFF2;
+margin: 0;
+padding: 0;
+width: 100%;
+-premailer-cellpadding: 0;
+-premailer-cellspacing: 0;
+-premailer-width: 100%;
 }
 
 .inner-body {
-    background-color: #FFFFFF;
-    margin: 0 auto;
-    padding: 0;
-    width: 570px;
-    -premailer-cellpadding: 0;
-    -premailer-cellspacing: 0;
-    -premailer-width: 570px;
+background-color: #FFFFFF;
+margin: 0 auto;
+padding: 0;
+width: 570px;
+-premailer-cellpadding: 0;
+-premailer-cellspacing: 0;
+-premailer-width: 570px;
 }
 
 /* Subcopy */
 
 .subcopy {
-    border-top: 1px solid #EDEFF2;
-    margin-top: 20px;
-    padding-top: 20px;
+border-top: 1px solid #EDEFF2;
+margin-top: 20px;
+padding-top: 20px;
 }
 
 .subcopy p {
-    font-size: 13px;
+font-size: 13px;
 }
 
 /* Footer */
 
 .footer {
-    margin: 0 auto;
-    padding: 0;
-    text-align: center;
-    width: 570px;
-    -premailer-cellpadding: 0;
-    -premailer-cellspacing: 0;
-    -premailer-width: 570px;
+margin: 0 auto;
+padding: 0;
+text-align: center;
+width: 570px;
+-premailer-cellpadding: 0;
+-premailer-cellspacing: 0;
+-premailer-width: 570px;
 }
 
 .footer p {
-    color: #AEAEAE;
-    font-size: 12px;
-    text-align: center;
+color: #AEAEAE;
+font-size: 12px;
+text-align: center;
 }
 
 /* Tables */
 
 .table table {
-    margin: 20px auto;
-    width: 100%;
-    -premailer-cellpadding: 0;
-    -premailer-cellspacing: 0;
-    -premailer-width: 100%;
+margin: 20px auto;
+width: 100%;
+-premailer-cellpadding: 0;
+-premailer-cellspacing: 0;
+-premailer-width: 100%;
 }
 
 .table th {
-    border-bottom: 1px solid #EDEFF2;
-    padding-bottom: 8px;
+border-bottom: 1px solid #EDEFF2;
+padding-bottom: 8px;
 }
 
 .table td {
-    color: #444444;
-    font-size: 15px;
-    line-height: 16px;
-    padding: 10px 0;
+color: #444444;
+font-size: 15px;
+line-height: 16px;
+padding: 10px 0;
 }
 
 .content-cell {
-    padding: 35px;
+padding: 35px;
 }
 
 /* Buttons */
 
 .action {
-    margin: 30px auto;
-    padding: 0;
-    text-align: center;
-    width: 100%;
-    -premailer-cellpadding: 0; 
-    -premailer-cellspacing: 0;
-    -premailer-width: 100%;
+margin: 30px auto;
+padding: 0;
+text-align: center;
+width: 100%;
+-premailer-cellpadding: 0; 
+-premailer-cellspacing: 0;
+-premailer-width: 100%;
 }
 
 .button {
-    border-radius: 4px;
-    color: #333;
-    display: inline-block;
-    text-decoration: none;
-    -webkit-text-size-adjust: none;
-    background-color: #EEEEEE;
-    border: 10px solid #EEEEEE;
+border-radius: 4px;
+color: #333;
+display: inline-block;
+text-decoration: none;
+-webkit-text-size-adjust: none;
+background-color: #EEEEEE;
+border: 10px solid #EEEEEE;
 }
 
 .button-primary {
-    background-color: #F29100;
-    border-top: 10px solid #F29100;
-    border-right: 18px solid #F29100;
-    border-bottom: 10px solid #F29100;
-    border-left: 18px solid #F29100;
-    color: #FFF;
+background-color: #F29100;
+border-top: 10px solid #F29100;
+border-right: 18px solid #F29100;
+border-bottom: 10px solid #F29100;
+border-left: 18px solid #F29100;
+color: #FFF;
 }
 
 .button-info {
-    background-color: #243D80;
-    border-top: 10px solid #243D80;
-    border-right: 18px solid #243D80;
-    border-bottom: 10px solid #243D80;
-    border-left: 18px solid #243D80;
-    color: #FFF;
+background-color: #243D80;
+border-top: 10px solid #243D80;
+border-right: 18px solid #243D80;
+border-bottom: 10px solid #243D80;
+border-left: 18px solid #243D80;
+color: #FFF;
 }
 
 .button-success {
-    background-color: #2ab27b;
-    border-top: 10px solid #2ab27b;
-    border-right: 18px solid #2ab27b;
-    border-bottom: 10px solid #2ab27b;
-    border-left: 18px solid #2ab27b;
-    color: #FFF;
+background-color: #2ab27b;
+border-top: 10px solid #2ab27b;
+border-right: 18px solid #2ab27b;
+border-bottom: 10px solid #2ab27b;
+border-left: 18px solid #2ab27b;
+color: #FFF;
 }
 
 .button-error {
-    background-color: #bf5329;
-    border-top: 10px solid #bf5329;
-    border-right: 18px solid #bf5329;
-    border-bottom: 10px solid #bf5329;
-    border-left: 18px solid #bf5329;
-    color: #FFF;
+background-color: #bf5329;
+border-top: 10px solid #bf5329;
+border-right: 18px solid #bf5329;
+border-bottom: 10px solid #bf5329;
+border-left: 18px solid #bf5329;
+color: #FFF;
 }
 
 /* Panels */
 
 .panel {
-    margin: 0 0 10px;
+margin: 0 0 10px;
 }
 
 .panel-content {
-    background-color: #EDEFF2;
-    padding: 20px;
-    padding-top: 8px;
-    padding-bottom: 8px;
+background-color: #EDEFF2;
+padding: 20px;
+padding-top: 8px;
+padding-bottom: 8px;
 }
 
 .panel-item {
-    padding: 0;
+padding: 0;
 }
 
 .panel-item p:last-of-type {
-    margin-bottom: 0;
-    padding-bottom: 0;
+margin-bottom: 0;
+padding-bottom: 0;
 }
 
 /* Promotions */
 
 .promotion {
-    background-color: #FFFFFF;
-    border: 2px dashed #9BA2AB;
-    margin: 0;
-    margin-bottom: 25px;
-    margin-top: 25px;
-    padding: 24px;
-    width: 100%;
-    -premailer-cellpadding: 0;
-    -premailer-cellspacing: 0;
-    -premailer-width: 100%;
+background-color: #FFFFFF;
+border: 2px dashed #9BA2AB;
+margin: 0;
+margin-bottom: 25px;
+margin-top: 25px;
+padding: 24px;
+width: 100%;
+-premailer-cellpadding: 0;
+-premailer-cellspacing: 0;
+-premailer-width: 100%;
 }
 
 .promotion h1 {
-    text-align: center;
+text-align: center;
 }
 
 .promotion p {
-    font-size: 15px;
-    text-align: center;
+font-size: 15px;
+text-align: center;
 }

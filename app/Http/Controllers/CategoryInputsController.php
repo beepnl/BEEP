@@ -2,26 +2,23 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests;
-use App\Http\Controllers\Controller;
-
 use App\CategoryInput;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
+use Illuminate\View\View;
 
 class CategoryInputsController extends Controller
 {
     /**
      * Display a listing of the resource.
-     *
-     * @return \Illuminate\View\View
      */
-    public function index(Request $request)
+    public function index(Request $request): View
     {
-        $keyword = $request->get('search');
+        $keyword = $request->input('search');
         $perPage = 1000;
 
-        if (!empty($keyword)) {
+        if (! empty($keyword)) {
             $categoryinputs = CategoryInput::paginate($perPage);
         } else {
             $categoryinputs = CategoryInput::paginate($perPage);
@@ -32,35 +29,32 @@ class CategoryInputsController extends Controller
 
     /**
      * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\View\View
      */
-    public function create()
+    public function create(): View
     {
-        $categoryinput = new CategoryInput();
+        $categoryinput = new CategoryInput;
+
         return view('categoryinputs.create', compact('categoryinput'));
     }
 
     /**
      * Store a newly created resource in storage.
      *
-     * @param \Illuminate\Http\Request $request
      *
      * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
      */
-    public function store(Request $request)
+    public function store(Request $request): RedirectResponse
     {
-        $this->validate($request,
-        [
-            'name'                  => 'required|string',
-            'type'                  => 'required|string|unique:category_inputs',
-            'min'                   => 'nullable|integer',
-            'max'                   => 'nullable|integer',
-            'decimals'              => 'nullable|integer',
+        $request->validate([
+            'name' => 'required|string',
+            'type' => 'required|string|unique:category_inputs',
+            'min' => 'nullable|integer',
+            'max' => 'nullable|integer',
+            'decimals' => 'nullable|integer',
         ]);
 
         $requestData = $request->all();
-        
+
         CategoryInput::create($requestData);
 
         return redirect('categoryinputs')->with('flash_message', 'CategoryInput added!');
@@ -68,12 +62,8 @@ class CategoryInputsController extends Controller
 
     /**
      * Display the specified resource.
-     *
-     * @param  int  $id
-     *
-     * @return \Illuminate\View\View
      */
-    public function show($id)
+    public function show(int $id): View
     {
         $categoryinput = CategoryInput::findOrFail($id);
 
@@ -82,12 +72,8 @@ class CategoryInputsController extends Controller
 
     /**
      * Show the form for editing the specified resource.
-     *
-     * @param  int  $id
-     *
-     * @return \Illuminate\View\View
      */
-    public function edit($id)
+    public function edit(int $id): View
     {
         $categoryinput = CategoryInput::findOrFail($id);
 
@@ -97,25 +83,21 @@ class CategoryInputsController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param \Illuminate\Http\Request $request
-     * @param  int  $id
-     *
      * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
      */
-    public function update(Request $request, $id)
+    public function update(Request $request, int $id): RedirectResponse
     {
-        $this->validate($request,
-        [
-            'name'                  => 'required|string',
-            'type'                  => Rule::unique('category_inputs')->ignore($id),
-            'min'                   => 'nullable|integer',
-            'max'                   => 'nullable|integer',
-            'decimals'              => 'nullable|integer',
+        $request->validate([
+            'name' => 'required|string',
+            'type' => Rule::unique('category_inputs')->ignore($id),
+            'min' => 'nullable|integer',
+            'max' => 'nullable|integer',
+            'decimals' => 'nullable|integer',
         ]);
-        
+
         $categoryinput = CategoryInput::findOrFail($id);
         $requestData = $request->all();
-        
+
         $categoryinput->update($requestData);
 
         return redirect('categoryinputs')->with('flash_message', 'CategoryInput updated!');
@@ -124,11 +106,9 @@ class CategoryInputsController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  int  $id
-     *
      * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
      */
-    public function destroy($id)
+    public function destroy(int $id): RedirectResponse
     {
         CategoryInput::destroy($id);
 

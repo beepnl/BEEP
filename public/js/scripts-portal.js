@@ -49,7 +49,7 @@ $(function () {
     "plugins": ["search", "state", "sort"]
   });
   var to = false;
-  $('#category-tree-search').keyup(function () {
+  $('#category-tree-search').on("keyup",function () {
     if (to) {
       clearTimeout(to);
     }
@@ -143,7 +143,7 @@ $(function () {
     }
   });
   var to = false;
-  $('#checklist-tree-search').keyup(function () {
+  $('#checklist-tree-search').on("keyup",function () {
     if (to) {
       clearTimeout(to);
     }

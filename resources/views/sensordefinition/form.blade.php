@@ -62,7 +62,7 @@
 	<div class="form-group {{ $errors->has('input_measurement_id') ? 'has-error' : ''}}">
 	    <label for="input_measurement_id" control-label>{{ 'Measurement' }}</label>
 	    <div>
-	        {!! Form::select('input_measurement_id', $measurement_select, isset($sensordefinition->input_measurement_id) ? $sensordefinition->input_measurement_id : null, array('id'=>'input_measurement_id', 'class' => 'form-control select2', 'placeholder'=>'Select physical quantity...')) !!}
+	        {{ html()->select('input_measurement_id', $measurement_select, isset($sensordefinition->input_measurement_id) ? $sensordefinition->input_measurement_id : null)->id('input_measurement_id')->class('form-control select2')->placeholder('Select physical quantity...') }}
 	        {!! $errors->first('input_measurement_id', '<p class="help-block">:message</p>') !!}
 	    </div>
 	</div>
@@ -72,7 +72,7 @@
 	<div class="form-group {{ $errors->has('output_measurement_id') ? 'has-error' : ''}}">
 	    <label for="output_measurement_id" control-label>{{ 'Measurement' }}</label>
 	    <div>
-	        {!! Form::select('output_measurement_id', $measurement_select, isset($sensordefinition->output_measurement_id) ? $sensordefinition->output_measurement_id : null, array('id'=>'output_measurement_id', 'class' => 'form-control select2', 'placeholder'=>'Select physical quantity...')) !!}
+	        {{ html()->select('output_measurement_id', $measurement_select, isset($sensordefinition->output_measurement_id) ? $sensordefinition->output_measurement_id : null)->id('output_measurement_id')->class('form-control select2')->placeholder('Select physical quantity...') }}
 	        {!! $errors->first('output_measurement_id', '<p class="help-block">:message</p>') !!}
 	    </div>
 	</div>
@@ -82,7 +82,7 @@
 	<div class="form-group {{ $errors->has('device_id') ? 'has-error' : ''}}">
 	    <label for="device_id" control-label>{{ 'Device' }}*</label>
 	    <div>
-	        {!! Form::select('device_id', $devices_select, isset($sensordefinition->device_id) ? $sensordefinition->device_id : null, array('id'=>'device_id', 'class' => 'form-control select2')) !!}
+	        {{ html()->select('device_id', $devices_select, isset($sensordefinition->device_id) ? $sensordefinition->device_id : null)->id('device_id')->class('form-control select2') }}
 	        {!! $errors->first('device_id', '<p class="help-block">:message</p>') !!}
 	    </div>
 	</div>

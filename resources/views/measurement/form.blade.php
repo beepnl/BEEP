@@ -11,7 +11,7 @@
 	<div class="form-group {{ $errors->has('physical_quantity_id') ? 'has-error' : ''}}">
 	    <label for="physical_quantity_id" control-label>{{ 'Physical Quantity Id' }}</label>
 	    <div>
-	        {!! Form::select('physical_quantity_id', App\PhysicalQuantity::selectList(), isset($measurement->physical_quantity_id) ? $measurement->physical_quantity_id : null, array('id'=>'physical_quantity_id', 'class' => 'form-control')) !!}
+	        {{ html()->select('physical_quantity_id', App\PhysicalQuantity::selectList(), isset($measurement->physical_quantity_id) ? $measurement->physical_quantity_id : null)->id('physical_quantity_id')->class('form-control') }}
 	        {!! $errors->first('physical_quantity_id', '<p class="help-block">:message</p>') !!}
 	    </div>
 	</div>

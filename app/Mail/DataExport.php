@@ -2,11 +2,9 @@
 
 namespace App\Mail;
 
-use App\User;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
-use Illuminate\Contracts\Queue\ShouldQueue;
 
 class DataExport extends Mailable
 {
@@ -19,7 +17,7 @@ class DataExport extends Mailable
      */
     public function __construct($user, $attachment_disk, $attachment_path)
     {
-        $this->user            = $user;
+        $this->user = $user;
         $this->attachment_disk = $attachment_disk;
         $this->attachment_path = $attachment_path;
     }
@@ -29,8 +27,8 @@ class DataExport extends Mailable
      *
      * @return $this
      */
-    public function build()
+    public function build(): static
     {
-        return $this->markdown('emails.export',['name'=>$this->user->name])->attachFromStorageDisk($this->attachment_disk, $this->attachment_path);
+        return $this->markdown('emails.export', ['name' => $this->user->name])->attachFromStorageDisk($this->attachment_disk, $this->attachment_path);
     }
 }

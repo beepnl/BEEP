@@ -1,17 +1,14 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Support\Facades\Schema;
 
-class AddQueenHiveDeleteForeignKey extends Migration
+return new class extends Migration
 {
     /**
      * Run the migrations.
-     *
-     * @return void
      */
-    public function up()
+    public function up(): void
     {
         Schema::table('queens', function ($table) {
             $table->dropForeign(['hive_id']);
@@ -21,14 +18,12 @@ class AddQueenHiveDeleteForeignKey extends Migration
 
     /**
      * Reverse the migrations.
-     *
-     * @return void
      */
-    public function down()
+    public function down(): void
     {
         Schema::table('queens', function ($table) {
             $table->dropForeign(['hive_id']);
             $table->foreign('hive_id')->references('id')->on('hives')->onUpdate('cascade');
         });
     }
-}
+};

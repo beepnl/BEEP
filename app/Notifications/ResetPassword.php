@@ -2,13 +2,14 @@
 
 namespace App\Notifications;
 
-use Illuminate\Support\Facades\Lang;
-use Illuminate\Notifications\Notification as NotificationBase;
+use Closure;
 use Illuminate\Notifications\Messages\MailMessage;
+use Illuminate\Notifications\Notification as NotificationBase;
+use Illuminate\Support\Facades\Lang;
 
 class ResetPassword extends NotificationBase
 {
-     /**
+    /**
      * The password reset token.
      *
      * @var string
@@ -25,10 +26,9 @@ class ResetPassword extends NotificationBase
     /**
      * Create a notification instance.
      *
-     * @param  string  $token
      * @return void
      */
-    public function __construct($token)
+    public function __construct(string $token)
     {
         $this->token = $token;
     }
@@ -39,7 +39,7 @@ class ResetPassword extends NotificationBase
      * @param  mixed  $notifiable
      * @return array|string
      */
-    public function via($notifiable)
+    public function via($notifiable): array
     {
         return ['mail'];
     }
@@ -48,10 +48,8 @@ class ResetPassword extends NotificationBase
      * Build the mail representation of the notification.
      *
      * @param  mixed  $notifiable
-     * @return \Illuminate\Notifications\Messages\MailMessage
      */
-
-    public function toMail($notifiable)
+    public function toMail($notifiable): MailMessage
     {
         if (static::$toMailCallback) {
             return call_user_func(static::$toMailCallback, $notifiable, $this->token);
@@ -69,11 +67,8 @@ class ResetPassword extends NotificationBase
 
     /**
      * Set a callback that should be used when building the notification mail message.
-     *
-     * @param  \Closure  $callback
-     * @return void
      */
-    public static function toMailUsing($callback)
+    public static function toMailUsing(Closure $callback): void
     {
         static::$toMailCallback = $callback;
     }

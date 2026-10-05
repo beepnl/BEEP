@@ -1,38 +1,32 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
-class ChangeSensorsHiveIdNullable extends Migration
+return new class extends Migration
 {
     /**
      * Run the migrations.
-     *
-     * @return void
      */
-    public function up()
+    public function up(): void
     {
         Schema::table('sensors', function (Blueprint $table) {
-            if (Schema::hasColumn('sensors','hive_id'))
-            {
-                $table->integer('hive_id')->unsigned()->nullable()->change();;
+            if (Schema::hasColumn('sensors', 'hive_id')) {
+                $table->integer('hive_id')->unsigned()->nullable()->change();
             }
         });
     }
 
     /**
      * Reverse the migrations.
-     *
-     * @return void
      */
-    public function down()
+    public function down(): void
     {
         Schema::table('sensors', function (Blueprint $table) {
-            if (Schema::hasColumn('sensors','hive_id'))
-            {
-                $table->integer('hive_id')->unsigned()->change();;
+            if (Schema::hasColumn('sensors', 'hive_id')) {
+                $table->integer('hive_id')->unsigned()->change();
             }
         });
     }
-}
+};

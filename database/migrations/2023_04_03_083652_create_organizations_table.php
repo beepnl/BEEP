@@ -3,17 +3,14 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 
-class CreateOrganizationsTable extends Migration
+return new class extends Migration
 {
     /**
      * Run the migrations.
-     *
-     * @return void
      */
-    public function up()
+    public function up(): void
     {
-        if (!Schema::hasTable('organizations')) 
-        {
+        if (! Schema::hasTable('organizations')) {
             Schema::create('organizations', function (Blueprint $table) {
                 $table->increments('id');
                 $table->timestamps();
@@ -21,11 +18,10 @@ class CreateOrganizationsTable extends Migration
                 $table->text('description')->nullable();
                 $table->string('country_code')->nullable();
                 $table->string('logo_url')->nullable();
-                });
+            });
         }
 
-        if (Schema::hasTable('users') && !Schema::hasColumn('users','organization_id'))
-        {
+        if (Schema::hasTable('users') && ! Schema::hasColumn('users', 'organization_id')) {
             Schema::table('users', function (Blueprint $table) {
                 $table->integer('organization_id')->unsigned()->nullable();
             });
@@ -33,8 +29,7 @@ class CreateOrganizationsTable extends Migration
                 $table->foreign('organization_id')->references('id')->on('organizations')->onUpdate('cascade');
             });
         }
-        if (Schema::hasTable('devices') && !Schema::hasColumn('devices','organization_id')) 
-        {
+        if (Schema::hasTable('devices') && ! Schema::hasColumn('devices', 'organization_id')) {
             Schema::table('devices', function (Blueprint $table) {
                 $table->integer('organization_id')->unsigned()->nullable();
             });
@@ -42,8 +37,7 @@ class CreateOrganizationsTable extends Migration
                 $table->foreign('organization_id')->references('id')->on('organizations')->onUpdate('cascade');
             });
         }
-        if (Schema::hasTable('sensors') && !Schema::hasColumn('sensors','organization_id')) 
-        {
+        if (Schema::hasTable('sensors') && ! Schema::hasColumn('sensors', 'organization_id')) {
             Schema::table('sensors', function (Blueprint $table) {
                 $table->integer('organization_id')->unsigned()->nullable();
             });
@@ -51,8 +45,7 @@ class CreateOrganizationsTable extends Migration
                 $table->foreign('organization_id')->references('id')->on('organizations')->onUpdate('cascade');
             });
         }
-        if (Schema::hasTable('checklists') && !Schema::hasColumn('checklists','organization_id')) 
-        {
+        if (Schema::hasTable('checklists') && ! Schema::hasColumn('checklists', 'organization_id')) {
             Schema::table('checklists', function (Blueprint $table) {
                 $table->integer('organization_id')->unsigned()->nullable();
             });
@@ -60,8 +53,7 @@ class CreateOrganizationsTable extends Migration
                 $table->foreign('organization_id')->references('id')->on('organizations')->onUpdate('cascade');
             });
         }
-        if (Schema::hasTable('locations') && !Schema::hasColumn('locations','organization_id')) 
-        {
+        if (Schema::hasTable('locations') && ! Schema::hasColumn('locations', 'organization_id')) {
             Schema::table('locations', function (Blueprint $table) {
                 $table->integer('organization_id')->unsigned()->nullable();
             });
@@ -69,17 +61,15 @@ class CreateOrganizationsTable extends Migration
                 $table->foreign('organization_id')->references('id')->on('organizations')->onUpdate('cascade');
             });
         }
-        if (Schema::hasTable('researches') && !Schema::hasColumn('researches','organization_id')) 
-        {
-           Schema::table('researches', function (Blueprint $table) {
+        if (Schema::hasTable('researches') && ! Schema::hasColumn('researches', 'organization_id')) {
+            Schema::table('researches', function (Blueprint $table) {
                 $table->integer('organization_id')->unsigned()->nullable();
             });
             Schema::table('researches', function (Blueprint $table) {
                 $table->foreign('organization_id')->references('id')->on('organizations')->onUpdate('cascade');
             });
         }
-        if (Schema::hasTable('location_researches') && !Schema::hasColumn('location_researches','organization_id')) 
-        {
+        if (Schema::hasTable('location_researches') && ! Schema::hasColumn('location_researches', 'organization_id')) {
             Schema::table('location_researches', function (Blueprint $table) {
                 $table->integer('organization_id')->unsigned()->nullable();
             });
@@ -87,81 +77,64 @@ class CreateOrganizationsTable extends Migration
                 $table->foreign('organization_id')->references('id')->on('organizations')->onUpdate('cascade');
             });
         }
-
 
     }
 
     /**
      * Reverse the migrations.
-     *
-     * @return void
      */
-    public function down()
+    public function down(): void
     {
-        if (Schema::hasTable('users') && Schema::hasColumn('users','organization_id')) 
-        {
-            Schema::table('users', function(Blueprint $table)
-            {
+        if (Schema::hasTable('users') && Schema::hasColumn('users', 'organization_id')) {
+            Schema::table('users', function (Blueprint $table) {
                 $table->dropForeign(['organization_id']);
             });
             Schema::table('users', function (Blueprint $table) {
                 $table->dropColumn('organization_id');
             });
         }
-        if (Schema::hasTable('devices') && Schema::hasColumn('devices','organization_id')) 
-        {
-            Schema::table('devices', function(Blueprint $table)
-            {
+        if (Schema::hasTable('devices') && Schema::hasColumn('devices', 'organization_id')) {
+            Schema::table('devices', function (Blueprint $table) {
                 $table->dropForeign(['organization_id']);
             });
             Schema::table('devices', function (Blueprint $table) {
                 $table->dropColumn('organization_id');
             });
         }
-         if (Schema::hasTable('sensors') && Schema::hasColumn('sensors','organization_id')) 
-        {
-            Schema::table('sensors', function(Blueprint $table)
-            {
+        if (Schema::hasTable('sensors') && Schema::hasColumn('sensors', 'organization_id')) {
+            Schema::table('sensors', function (Blueprint $table) {
                 $table->dropForeign(['organization_id']);
             });
             Schema::table('sensors', function (Blueprint $table) {
                 $table->dropColumn('organization_id');
             });
         }
-        if (Schema::hasTable('checklists') && Schema::hasColumn('checklists','organization_id')) 
-        {
-            Schema::table('checklists', function(Blueprint $table)
-            {
+        if (Schema::hasTable('checklists') && Schema::hasColumn('checklists', 'organization_id')) {
+            Schema::table('checklists', function (Blueprint $table) {
                 $table->dropForeign(['organization_id']);
             });
             Schema::table('checklists', function (Blueprint $table) {
                 $table->dropColumn('organization_id');
             });
         }
-        if (Schema::hasTable('locations') && Schema::hasColumn('locations','organization_id')) 
-        {
-            Schema::table('locations', function(Blueprint $table)
-            {
+        if (Schema::hasTable('locations') && Schema::hasColumn('locations', 'organization_id')) {
+            Schema::table('locations', function (Blueprint $table) {
                 $table->dropForeign(['organization_id']);
             });
             Schema::table('locations', function (Blueprint $table) {
                 $table->dropColumn('organization_id');
             });
         }
-        if (Schema::hasTable('researches') && Schema::hasColumn('researches','organization_id')) 
-        {
-            Schema::table('researches', function(Blueprint $table)
-            {
+        if (Schema::hasTable('researches') && Schema::hasColumn('researches', 'organization_id')) {
+            Schema::table('researches', function (Blueprint $table) {
                 $table->dropForeign(['organization_id']);
             });
             Schema::table('researches', function (Blueprint $table) {
                 $table->dropColumn('organization_id');
             });
         }
-        if (Schema::hasTable('location_researches') && Schema::hasColumn('location_researches','organization_id')) 
-        {
-            Schema::table('location_researches', function(Blueprint $table)
-            {
+        if (Schema::hasTable('location_researches') && Schema::hasColumn('location_researches', 'organization_id')) {
+            Schema::table('location_researches', function (Blueprint $table) {
                 $table->dropForeign(['organization_id']);
             });
             Schema::table('location_researches', function (Blueprint $table) {
@@ -171,4 +144,4 @@ class CreateOrganizationsTable extends Migration
 
         Schema::drop('organizations');
     }
-}
+};

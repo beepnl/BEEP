@@ -2,31 +2,29 @@
 
 namespace App;
 
+use Cache;
+use GuzzleHttp\Client;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Log;
-use App\Location;
-use App\Controllers\Api\MeasurementController;
-use Storage;
 use InfluxDB;
 use LaravelLocalization;
-use GuzzleHttp\Exception\GuzzleException;
-use GuzzleHttp\Client;
-use Cache;
+use Storage;
 
 class Weather extends Model
 {
     public static function cacheRequestRate($name)
     {
-        Cache::remember($name.'-time', 86400, function () use ($name)
-        { 
-            Cache::forget($name.'-count'); 
-            return time(); 
+        Cache::remember($name.'-time', 86400, function () use ($name) {
+            Cache::forget($name.'-count');
+
+            return time();
         });
 
-        if (Cache::has($name.'-count'))
+        if (Cache::has($name.'-count')) {
             Cache::increment($name.'-count');
-        else
+        } else {
             Cache::put($name.'-count', 1);
+        }
 
     }
 
@@ -41,7 +39,7 @@ class Weather extends Model
         "pressure": 1040,
         "humidity": 10
     },
-    
+
     Old (Darksky)
     summary: Any summaries containing temperature or snow accumulation units will have their values in degrees Celsius or in centimeters (respectively).
     nearestStormDistance: Kilometers.
@@ -60,82 +58,72 @@ class Weather extends Model
 
     */
 
-    public static function callApi($location=null, $lat=null, $lon=null)
+    public static function callApi($location = null, $lat = null, $lon = null)
     {
         $result = null;
 
-        if ($lat == null || $lon == null)
-        {
-            if ($location && isset($location->coordinate_lat) && isset($location->coordinate_lon))
-            {
+        if ($lat == null || $lon == null) {
+            if ($location && isset($location->coordinate_lat) && isset($location->coordinate_lon)) {
                 $lat = $location->coordinate_lat;
                 $lon = $location->coordinate_lon;
-            }
-            else
-            {
-                return ['error'=>['msg'=>'no_coordinates','code'=>500]];
+            } else {
+                return ['error' => ['msg' => 'no_coordinates', 'code' => 500]];
             }
         }
 
-        $disk     = 'public';
+        $disk = 'public';
         $filename = 'weather/lat_'.$lat.'_lon_'.$lon.'.json';
 
-        if (Storage::disk($disk)->exists($filename))
-        {
-            $seconds = env('OPENWEATHER_API_CHECK_MINUTES', 10)*60;
+        if (Storage::disk($disk)->exists($filename)) {
+            $seconds = env('OPENWEATHER_API_CHECK_MINUTES', 10) * 60;
             $now_sec = time();
             $lst_sec = Storage::disk($disk)->exists($filename) ? Storage::disk($disk)->lastModified($filename) : 0;
             $dif_sec = $now_sec - $lst_sec;
 
-            if ($dif_sec < $seconds) // check if cached file should be displayed
-            {
-                if ($location)
-                {
+            if ($dif_sec < $seconds) { // check if cached file should be displayed
+                if ($location) {
                     $location->last_weather_time = date('Y-m-d H:i:s', $lst_sec);
                     $location->save();
                 }
+
                 return Storage::disk($disk)->get($filename);
             }
         }
-        
+
         // file not found yet
-        $result   = null;
-        $lang     = LaravelLocalization::getCurrentLocale();
-        $units    = env('OPENWEATHER_API_UNITS', 'metric');
-        $url      = env('OPENWEATHER_API_URL').'&lat='.$lat.'&lon='.$lon.'&units='.$units; 
-        
-        try
-        {
-            $guzzle   = new Client();
+        $result = null;
+        $lang = LaravelLocalization::getCurrentLocale();
+        $units = env('OPENWEATHER_API_UNITS', 'metric');
+        $url = env('OPENWEATHER_API_URL').'&lat='.$lat.'&lon='.$lon.'&units='.$units;
+
+        try {
+            $guzzle = new Client;
             $response = $guzzle->request('GET', $url, ['verify' => true, 'http_errors' => false]);
-            if ($response->getStatusCode() == 200)
-                $result = json_decode($response->getBody());  
-        }
-        catch(\Exception $e)
-        {
+            if ($response->getStatusCode() == 200) {
+                $result = json_decode($response->getBody());
+            }
+        } catch (\Exception $e) {
             // gracefully do nothing
         }
-       
-        if ($result)
-        {
+
+        if ($result) {
             $out = json_encode($result);
             Storage::disk($disk)->put($filename, $out);
 
             // save data to Influx by lat/lon
-            if (isset($result->main))
-            {
+            if (isset($result->main)) {
                 Weather::storeDataToInflux($result);
             }
 
-            if ($location)
-            {
+            if ($location) {
                 $location->last_weather_time = date('Y-m-d H:i:s');
                 $location->save();
             }
+
             return $out;
         }
 
-        return ['error'=>['msg'=>'no_data','code'=>500]];
+        return ['error' => ['msg' => 'no_data', 'code' => 500]];
     }
 
     public static function updateLocations()
@@ -143,22 +131,22 @@ class Weather extends Model
         $locations = Location::where('coordinate_lat', '!=', null)->where('coordinate_lon', '!=', null)->get();
 
         $count = 0;
-        $time  = time();
+        $time = time();
         Log::info('Weather::updateLocations()');
 
-        foreach ($locations as $loc) 
-        {
-            if ($loc->device_count() > 0)
-            {
+        foreach ($locations as $loc) {
+            if ($loc->device_count() > 0) {
                 $result = Weather::callApi($loc);
-                if (gettype($result) == 'string') // array is error
+                if (gettype($result) == 'string') { // array is error
                     $count++;
+                }
             }
         }
         $secs = time() - $time;
-        $msg  = "Weather::updateLocations() updated $count locations in $secs sec";
+        $msg = "Weather::updateLocations() updated $count locations in $secs sec";
 
         Log::info($msg);
+
         return $msg;
     }
 
@@ -221,64 +209,94 @@ class Weather extends Model
     */
     private static function storeDataToInflux($result) // store posted data
     {
-        $client     = new \Influx;
-        $points     = [];
+        $client = new \InfluxDB;
+        $points = [];
         $data_array = [];
 
         $valid_sens = Measurement::all()->pluck('pq', 'abbreviation')->toArray();
-        $unix_time  = isset($result->dt) ? intval($result->dt) : time();
-        $lat        = isset($result->coord->lat) ? floatval($result->coord->lat) : null;
-        $lon        = isset($result->coord->lon) ? floatval($result->coord->lon) : null;
+        $unix_time = isset($result->dt) ? intval($result->dt) : time();
+        $lat = isset($result->coord->lat) ? floatval($result->coord->lat) : null;
+        $lon = isset($result->coord->lon) ? floatval($result->coord->lon) : null;
 
-        if (isset($lat) && isset($lon))
-        {
-            foreach ($result as $key => $value) 
-            {
-                switch($key)
-                {
+        if (isset($lat) && isset($lon)) {
+            foreach ($result as $key => $value) {
+                switch ($key) {
                     case 'weather':
-                        if (isset($value->id)){ $data_array['weather_id'] = $value->id; };
-                        if (isset($value->icon)){ $data_array['weather_icon'] = $value->icon; };
-                        if (isset($value->main)){ $data_array['weather_name'] = $value->main; };
-                        if (isset($value->description)){ $data_array['weather_description'] = $value->description; };
+                        if (isset($value->id)) {
+                            $data_array['weather_id'] = $value->id;
+                        }
+                        if (isset($value->icon)) {
+                            $data_array['weather_icon'] = $value->icon;
+                        }
+                        if (isset($value->main)) {
+                            $data_array['weather_name'] = $value->main;
+                        }
+                        if (isset($value->description)) {
+                            $data_array['weather_description'] = $value->description;
+                        }
                         break;
                     case 'main':
-                        if (isset($value->temp)){ $data_array['temperature'] = $value->temp; };
-                        if (isset($value->temp_min)){ $data_array['temperatureMin'] = $value->temp_min; };
-                        if (isset($value->temp_max)){ $data_array['temperatureMax'] = $value->temp_max; };
-                        if (isset($value->feels_like)){ $data_array['apparentTemperature'] = $value->feels_like; };
-                        if (isset($value->pressure)){ $data_array['pressure'] = $value->pressure; };
-                        if (isset($value->sea_level)){ $data_array['pressure'] = $value->sea_level; };
-                        if (isset($value->grnd_level)){ $data_array['pressure'] = $value->grnd_level; };
-                        if (isset($value->humidity)){ $data_array['humidity'] = $value->humidity; };
+                        if (isset($value->temp)) {
+                            $data_array['temperature'] = $value->temp;
+                        }
+                        if (isset($value->temp_min)) {
+                            $data_array['temperatureMin'] = $value->temp_min;
+                        }
+                        if (isset($value->temp_max)) {
+                            $data_array['temperatureMax'] = $value->temp_max;
+                        }
+                        if (isset($value->feels_like)) {
+                            $data_array['apparentTemperature'] = $value->feels_like;
+                        }
+                        if (isset($value->pressure)) {
+                            $data_array['pressure'] = $value->pressure;
+                        }
+                        if (isset($value->sea_level)) {
+                            $data_array['pressure'] = $value->sea_level;
+                        }
+                        if (isset($value->grnd_level)) {
+                            $data_array['pressure'] = $value->grnd_level;
+                        }
+                        if (isset($value->humidity)) {
+                            $data_array['humidity'] = $value->humidity;
+                        }
                         break;
                     case 'visibility':
                         $data_array['visibility'] = $value;
                         break;
                     case 'clouds':
-                        if (isset($value->all)){ $data_array['cloudiness'] = $value->all; };
+                        if (isset($value->all)) {
+                            $data_array['cloudiness'] = $value->all;
+                        }
                         break;
                     case 'wind':
-                        if (isset($value->speed)){ $data_array['windSpeed'] = $value->speed; };
-                        if (isset($value->deg)){ $data_array['windBearing'] = $value->deg; };
-                        if (isset($value->gust)){ $data_array['windGust'] = $value->gust; };
+                        if (isset($value->speed)) {
+                            $data_array['windSpeed'] = $value->speed;
+                        }
+                        if (isset($value->deg)) {
+                            $data_array['windBearing'] = $value->deg;
+                        }
+                        if (isset($value->gust)) {
+                            $data_array['windGust'] = $value->gust;
+                        }
                         break;
                     case 'rain':
                     case 'snow':
-                        if (isset($value->{'1h'})){ $data_array['precipIntensity'] = $value->{'1h'}; };
-                        if (isset($value->{'3h'})){ $data_array[$key.'_3h'] = $value->{'3h'}; };
+                        if (isset($value->{'1h'})) {
+                            $data_array['precipIntensity'] = $value->{'1h'};
+                        }
+                        if (isset($value->{'3h'})) {
+                            $data_array[$key.'_3h'] = $value->{'3h'};
+                        }
                         break;
                     default:
                         // no action
                 }
             }
-            //die(print_r($data_array));
-            foreach ($data_array as $key => $value) 
-            {
-                if (in_array($key, array_keys($valid_sens)) )
-                {
-                    switch($key)
-                    {
+            // die(print_r($data_array));
+            foreach ($data_array as $key => $value) {
+                if (in_array($key, array_keys($valid_sens))) {
+                    switch ($key) {
                         case 'weather_name':
                         case 'weather_icon':
                         case 'weather_description':
@@ -288,11 +306,11 @@ class Weather extends Model
                             $val = floatval($value);
                     }
 
-                    array_push($points, 
+                    array_push($points,
                         new InfluxDB\Point(
                             'weather',                  // name of the measurement
                             null,                       // the measurement value
-                            ['lat'=>$lat, 'lon'=>$lon],        // optional tags
+                            ['lat' => $lat, 'lon' => $lon],        // optional tags
                             ["$key" => $val], // key value pairs
                             $unix_time                  // Time precision has to be set to InfluxDB\Database::PRECISION_SECONDS!
                         )
@@ -300,21 +318,18 @@ class Weather extends Model
                 }
             }
         }
-        //die(print_r($points));
+        // die(print_r($points));
         $stored = false;
-        if (count($points) > 0)
-        {
+        if (count($points) > 0) {
             Weather::cacheRequestRate('influx-write');
-            try
-            {
+            try {
                 $stored = $client::writePoints($points, InfluxDB\Database::PRECISION_SECONDS);
-            }
-            catch(\Exception $e)
-            {
+            } catch (\Exception $e) {
                 // gracefully do nothing
                 Log::error($e);
             }
         }
+
         return $stored;
     }
 }

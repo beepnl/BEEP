@@ -11,6 +11,6 @@ return [
     'dbname' => env('INFLUXDB_DBNAME', ''),
     'udp' => [
         'enabled' => env('INFLUXDB_UDP_ENABLED', false),
-        'port'    => env('INFLUXDB_UDP_PORT', 8086),
+        'port' => env('INFLUXDB_UDP_PORT', 8086),
     ],
 ];

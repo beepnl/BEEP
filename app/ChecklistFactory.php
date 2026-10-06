@@ -33,7 +33,6 @@ class ChecklistFactory
         $count = ['locations'=>0, 'inspections'=>0, 'conditions'=>0, 'actions'=>0, 'hives'=>0, 'hive_layers'=>0, 'hive_layer_frames'=>0, 'queens'=>0, 'sensors'=>0];
 
         $this->non_system_categories = Category::where('old_id','!=',null)->get();//getTaxonomy(null, false, true);
-        print_r(['non_system_categories'=>$this->non_system_categories->pluck('old_id','id')->toArray()]);
 
         $stdChecklist          = $this->getStandardChecklist();
         $fallBackOfFallBacks   = Category::where('name','not_assigned_in_migration')->value('id',938); // id=938
@@ -68,9 +67,6 @@ class ChecklistFactory
 
         if ($hive_sensor_cats->where('name','other')->count() > 0)
             $fallback_sensor_id = $hive_sensor_cats->where('name','other')->pluck('id')[0];
-
-        print_r(['new_cat_ids'=> ['loc'=>$loc_type_cats->pluck('name','id')->toArray(), 'hive'=>$hive_type_cats->pluck('name','id')->toArray(), 'bee'=>$bee_race_cats->pluck('name','id')->toArray(), 'layer'=>$hive_layer_cats->pluck('name','id')->toArray(), 'frame'=>$hive_frame_cats->pluck('name','id')->toArray(), 'sensor'=>$hive_sensor_cats->pluck('name','id')->toArray()]]);
-        print_r(['fallback_ids'=>['loc'=>$fallback_loc_type_id, 'hive'=>$fallback_hive_type_id, 'bee'=>$fallback_bee_race_id, 'layer'=>$fallback_hive_layer_id, 'frame'=>$fallback_hive_frame_id, 'sensor'=>$fallback_sensor_id]]);
 
         foreach ($users as $user) 
         {
@@ -110,9 +106,7 @@ class ChecklistFactory
                 //die(print_r($hive->actions()->pluck('created_at')->toArray()));
                 //die(print_r(['user'=>$user->name, 'count'=>$count]));
             }
-            print_r(['id'=>$user->id, 'user'=>$user->name, 'count'=>$count]);
         }
-        print_r(['total_count'=>$count]);
 
         if ($debug)
             die('End of debug output');
@@ -344,7 +338,9 @@ class ChecklistFactory
         }
         else
         {
-            print_r(['changeCategoryIdToNew unknown item'=>$item]);
+            // Unknown (non-eloquent) item: nothing to remap, counted as 0.
+            // Previously this branch did print_r() here, which leaked debug
+            // output into the response/CLI stdout. See phase 0 cleanup.
         }
         return 0;
     }

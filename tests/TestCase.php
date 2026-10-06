@@ -2,7 +2,10 @@
 
 namespace Tests;
 
-abstract class TestCase extends Illuminate\Foundation\Testing\TestCase
+use Illuminate\Contracts\Console\Kernel as ConsoleKernelContract;
+use Illuminate\Foundation\Testing\TestCase as BaseTestCase;
+
+abstract class TestCase extends BaseTestCase
 {
     /**
      * The base URL to use while testing the application.
@@ -20,7 +23,7 @@ abstract class TestCase extends Illuminate\Foundation\Testing\TestCase
     {
         $app = require __DIR__.'/../bootstrap/app.php';
 
-        $app->make(Illuminate\Contracts\Console\Kernel::class)->bootstrap();
+        $app->make(ConsoleKernelContract::class)->bootstrap();
 
         return $app;
     }

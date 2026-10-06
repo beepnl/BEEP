@@ -78,9 +78,68 @@ jobs:
       - name: Application boots
         run: php artisan --version
 
+      # PHPUnit lives in the "test" job below. It needs a MySQL server,
+      # because the schema is built by BEEP's own migrations and its taxonomy
+      # migration loads a MySQL-specific SQL dump, so it cannot run against
+      # SQLite. Keeping it out of this job leaves "validate" free of any
+      # database dependency.
+
+  # ------------------------------------------------------------------
+  # API tests.
+  #
+  # Not blocking yet. The suite passes on PHP 8.0 with MariaDB locally; this
+  # job is the first run on the project's real combination of MySQL 5.7 and
+  # PHP 7.4. Once it is green here, drop `continue-on-error` so a regression
+  # breaks the build.
+  # ------------------------------------------------------------------
+  test:
+    name: API tests
+    runs-on: ubuntu-latest
+    continue-on-error: true
+
+    services:
+      mysql:
+        image: mysql:5.7
+        env:
+          MYSQL_ROOT_PASSWORD: secret
+          # phpunit.xml points DB_DATABASE at bee_data_test. The service has
+          # to create it; RefreshDatabase then migrates it from scratch.
+          MYSQL_DATABASE: bee_data_test
+        ports:
+          - '3306:3306'
+        options: >-
+          --health-cmd="mysqladmin ping"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=10
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '7.4'
+          extensions: mbstring, pdo, pdo_mysql, tokenizer, xml, json, curl, zip, bcmath, gd
+          tools: composer:v2
+
+      - name: Configure environment
+        # phpunit.xml supplies the DB_* defaults; these cover the rest.
+        run: |
+          cp .env.example .env
+          php artisan key:generate
+          sed -i 's/^DB_HOST=.*/DB_HOST=127.0.0.1/' .env
+          sed -i 's/^CACHE_DRIVER=.*/CACHE_DRIVER=array/' .env
+          sed -i 's/^SESSION_DRIVER=.*/SESSION_DRIVER=array/' .env
+          sed -i 's/^QUEUE_CONNECTION=.*/QUEUE_CONNECTION=sync/' .env
+
+      - name: Install dependencies
+        run: composer install --no-interaction --prefer-dist --no-progress
+
       - name: PHPUnit
-        # Phase 0 ships no tests, so this reports "No tests executed" and exits
-        # 0. Real tests are added in phase 1.
+        # The suite runs about 60 tests in well under a minute, so there is
+        # nothing to split.
         run: vendor/bin/phpunit --testdox
 
   # ------------------------------------------------------------------

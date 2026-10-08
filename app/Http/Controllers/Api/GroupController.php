@@ -376,6 +376,9 @@ class GroupController extends Controller
             }
         }
 
+        // clear group (users) cache before returning, so the response reflects the updated group_user pivot data
+        $group->empty_cache();
+
         if (count($invite_grp) > 0) {
             $emails = [];
             foreach ($invite_grp as $email => $user) {
@@ -396,8 +399,6 @@ class GroupController extends Controller
         } elseif (count($error_msg) > 0) {
             return ['error' => implode(', ', $error_msg)];
         }
-
-        $group->empty_cache();
 
         return $group->group_users();
     }

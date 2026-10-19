@@ -53,6 +53,13 @@ return [
             'days' => 14,
         ],
 
+        'calibration' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/calibration.log'),
+            'level' => 'info',
+            'days' => 1095,
+        ],
+
         'slack' => [
             'driver' => 'slack',
             'url' => env('WEBHOOK_URL'),

@@ -1,6 +1,38 @@
 @extends('layouts.app')
  
+@php
+    $query_add_arr = [];
+    $not_arr       = ['log_device_id', 'only_change_value', 'only_change', 'log_device_note','reparse_fl_ids'];
+
+    foreach(request()->query() as $qp => $qv)
+    {
+        if(in_array($qp, $not_arr))
+            continue;
+
+        if (is_array($qv))
+        {
+            foreach($qv as $v)
+                $query_add_arr[] = $qp."[]=".$v;
+        }
+        else
+        {
+            $query_add_arr[] = "$qp=$qv";
+        }
+
+    }
+    $query_add_js = implode('&', $query_add_arr);
+    $i = 0;
+
+    $reparse_url = route('research.data', $research->id)."?$query_add_js&reparse_fl_ids=".implode(',', $reparse_fl_ids);
+    $reparse_cnt = count($reparse_fl_ids);
+@endphp
+
+
 @section('page-title') {{ __('beep.Research').': '.(isset($research->name) ? $research->name : __('general.Item')).' (ID: '.$research->id.')' }} Device data completeness
+    
+    <span style="float:right;">
+        <a href="{!! $reparse_url !!}" id="reparse_fl_ids" class="btn btn-danger loading-spinner" title="Re-parse {{ $reparse_cnt }} flashlogs" data-loading-text="<i class='fa fa-circle-o-notch fa-spin'></i>"><i class="fa fa-refresh" aria-hidden="true"></i> Re-parse {{$reparse_cnt}} Flashlogs</a>
+    </span>
 @endsection
 
 @section('content')
@@ -159,6 +191,9 @@
         </script>
 
         <style type="text/css">
+            .table > tbody > tr > td, .table > tbody > tr > th, .table > thead > tr > td, .table > thead > tr > th{
+                padding: 4px;
+            }
             .tb-row-normal{
                 height: 45px; 
                 max-height: 45px; 
@@ -207,6 +242,9 @@
                 margin: 0px;
                 padding: 0px;
             }
+            .table-header-rotated thead th.rotate.year {
+                border-right: 6px solid #000;
+            }
             .table-header-rotated > tbody > tr > th{
                 border-left: 1px solid #AAA;
             }
@@ -239,7 +277,7 @@
                 border-bottom: 3px solid black;
             }
             td.lowbat{
-                border-top: 3px solid red !important;
+                border-bottom: 6px solid red !important;
             }
             td.arrow-left {
               position: relative;
@@ -268,29 +306,6 @@
 
         <script>
             
-            @php
-                $query_add_arr = [];
-                $not_arr       = ['log_device_id', 'only_change_value', 'only_change', 'log_device_note'];
-                foreach(request()->query() as $qp => $qv)
-                {
-                    if(in_array($qp, $not_arr))
-                        continue;
-
-                    if (is_array($qv))
-                    {
-                        foreach($qv as $v)
-                            $query_add_arr[] = $qp."[]=".$v;
-                    }
-                    else
-                    {
-                        $query_add_arr[] = "$qp=$qv";
-                    }
-
-                }
-                $query_add_js = implode('&', $query_add_arr);
-                $i = 0;
-            @endphp
-
             function handleKey(event) {
                 if ((event.type === "keydown" && event.key === "Enter") || event.type === "click") {
                   event.preventDefault(); // Prevent default form submission
@@ -333,10 +348,11 @@
                 </div>
             </div>
             <small>Data completeness = Percentage of maximum available weight data points per day per device (for the set mesurement interval, which defaults to 15 min = 96 data points per day). {{ $add_flashlogs ? 'Taking' : 'Not taking' }} into account prognose for available validated Flashlogs</small>
+            
             <!-- Data table -->
-
             <div style="display: block;">
-            <div style="display: inline-block; width: 750px; overflow-y: hidden; overflow-x: scroll;">
+            <div style="display: inline-block; width: 750px; overflow-y: hidden; overflow-x: scroll; vertical-align: top;">
+                <!-- Data fixed header cols -->
                 <table class="table table-responsive table-striped table-header-rotated">
                     <thead>
                         <tr>
@@ -374,6 +390,7 @@
                             }
                             $log_status = !isset($device->log_file_info['valid']) ? 'fa-question' : (boolval($device->log_file_info['valid']) ? 'fa-check' : 'fa-times');
                             $log_color  = !isset($device->log_file_info['valid']) ? '' : (boolval($device->log_file_info['valid']) ? 'gr' : 'rd');
+                            $outdated_csv = $device->checkLogOutdated();
                             $i++;
                         @endphp
                         <tr class="tb-row-small" @if (isset($device->deleted_at)) style="color: #AAA;" title="Device has been deleted at {{$device->deleted_at}}" @else title="{{ $device->name }}" @endif>
@@ -401,7 +418,7 @@
                                     <button class="btn btn-warning btn-sm loading-spinner" title="Create total CSV" type="submit" data-loading-text="<i class='fa fa-circle-o-notch fa-spin'></i>"><i class="fa fa-upload" aria-hidden="true"></i></button>
                                     
                                     @if(isset($device->log_file_info['csv_url']))
-                                        <a href="{{ $device->log_file_info['csv_url'] }}" target="_blank" class="btn btn-success btn-sm" title="Download total CSV: {{ App\Models\CalculationModel::arrayToString($device->log_file_info, ' ', '', ['csv_url','valid_data_points','port2_times_device']) }}"><i class="fa fa-download" aria-hidden="true"></i></a>
+                                        <a href="{{ $device->log_file_info['csv_url'] }}" target="_blank" class="btn @if($outdated_csv) btn-danger @else btn-success @endif btn-sm" title="@if($outdated_csv) (Newer Flashlogs are available, Create total CSV to add data) @endif Download total CSV {{$device->log_file_info['created_date']}}: {{ App\Models\CalculationModel::arrayToString($device->log_file_info, ' ', '', ['csv_url','valid_data_points','port2_times_device','firmwares','lowest_bv']) }}"><i class="fa fa-download" aria-hidden="true"></i></a>
                                     @endif
                                     
                                 </form>
@@ -414,12 +431,12 @@
                     </tbody>
                 </table>
             </div>
-            <div style="display: inline-block; width: calc( 100% - 760px); overflow-y: hidden; overflow-x: scroll;">
+            <div style="display: inline-block; width: calc( 100% - 760px); overflow-y: hidden; overflow-x: scroll; vertical-align: top;">
                 <table class="table table-responsive table-striped table-header-rotated">
                     <thead>
                         <tr>
                             @foreach($dates as $date => $d)
-                                <th class="rotate"><div><div>{{ $date }}</div></div></th>
+                                <th class="rotate @if(substr($date,5,5)=='01-01') year @endif"><div><div>{{ $date }}</div></div></th>
                             @endforeach
                         </tr>
                     </thead>
@@ -473,7 +490,7 @@
 
                                     if (isset($d['devices'][$key]['perc']))
                                     {
-                                        $perc      = $d['devices'][$key]['perc'];
+                                        $perc      = round($d['devices'][$key]['perc']);
                                         if ($perc >= 101)
                                             $class_arr[] = 'rd';
                                         else if ($perc >= 80)

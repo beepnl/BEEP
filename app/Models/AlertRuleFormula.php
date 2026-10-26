@@ -109,8 +109,9 @@ class AlertRuleFormula extends Model
     public function readableFunction($short=false, $value=null)
     {
         $arf        = $this;
+        $user       = $arf->user;
         $locales    = config('laravellocalization.supportedLocales');
-        $locale     = isset($locales[$arf->user->locale]) ? $arf->user->locale : LaravelLocalization::getCurrentLocale();
+        $locale     = $user && isset($locales[$user->locale]) ? $user->locale : LaravelLocalization::getCurrentLocale();
         
         $pq_name    = isset($m_abbr) ? Translation::get($locale, $m_abbr, 'measurement') : $arf->getPq();
         $unit       = $arf->getUnit();

@@ -10,6 +10,7 @@ use App\Models\FlashLog;
 use App\Models\CalculationModel;
 use App\User;
 use App\Device;
+use App\SensorDefinition;
 use Storage;
 use Carbon\Carbon;
 
@@ -77,7 +78,7 @@ class FlashLogController extends Controller
 
         //dd($bytes, $log_parsed);
 
-        $flashlog = $flashlogs->orderByDesc('created_at')->paginate($perPage);
+        $flashlog = $flashlogs->orderByDesc('id')->paginate($perPage);
 
 
         return view('flash-log.index', compact('flashlog'));
@@ -91,7 +92,7 @@ class FlashLogController extends Controller
     public function create()
     {
         $flashlog = new FlashLog();
-        return view('flash-log.create');
+        return view('flash-log.create', compact('flashlog'));
     }
 
     /**
@@ -124,7 +125,7 @@ class FlashLogController extends Controller
 
         // Analyse one day
         $date          = $request->filled('date') ? $request->input('date') : null;
-        $correct_data  = $request->filled('correct_data') && $request->input('correct_data') === '1' ? true : false;
+        $correct_data  = $request->filled('correct_data') && $request->input('correct_data') === '0' ? false : true;
         $show_payload  = $request->filled('show_payload') && $request->input('show_payload') === '1' ? true : false;
         $date_analysis = null;
         if (isset($date))
@@ -191,14 +192,14 @@ class FlashLogController extends Controller
      */
     public function parse(Request $request, $id)
     {
-        $fill_time= $request->filled('no_fill') && $request->input('no_fill') == 1 ? false : true;
-        $fill_sdef= $request->filled('no_sensor_def') && $request->input('no_sensor_def') == 1 ? false : true;
-        $fill_csv = $request->filled('csv') && $request->input('csv') == 1 ? true : false;
-        $fill_meta= $request->filled('add_meta') && $request->input('add_meta') == 1 ? true : false;
-        $load_show= $request->filled('load_show') && $request->input('load_show') == 1 ? true : false;
-        $correct_data = $request->filled('correct_data') && $request->input('correct_data') === '1' ? true : false;
-        $flashlog = FlashLog::findOrFail($id);
-        $out      = [];
+        $fill_time    = $request->filled('no_fill') && $request->input('no_fill') == 1 ? false : true;
+        $fill_sdef    = $request->filled('no_sensor_def') && $request->input('no_sensor_def') == 1 ? false : true;
+        $fill_csv     = $request->filled('csv') && $request->input('csv') == 1 ? true : false;
+        $fill_meta    = $request->filled('add_meta') && $request->input('add_meta') == 1 ? true : false;
+        $load_show    = $request->filled('load_show') && $request->input('load_show') == 1 ? true : false;
+        $correct_data = $request->filled('correct_data') && $request->input('correct_data') === '0' ? false : true;
+        $flashlog     = FlashLog::findOrFail($id);
+        $out          = [];
         
         $query_par= array_diff_key($request->query(), ['no_fill'=>0,'no_sensor_def'=>0,'csv'=>0, 'add_meta'=>0,'load_show'=>0]); // do not copy the command to the url params to prevent pressing wrong button
         if ($load_show)
@@ -206,64 +207,71 @@ class FlashLogController extends Controller
 
         $route    = $load_show ? 'flash-log.show' : 'flash-log.index';
         
-        //dd($query_par);
-        if(isset($flashlog->log_file))
+        // Update bytes received if 0
+        if (isset($flashlog->log_file) && $flashlog->bytes_received == 0 && $flashlog->log_messages > 0)
         {
-            // Update bytes received if 0
-            if ($flashlog->bytes_received == 0 && $flashlog->log_messages > 0)
+            $flashlog->bytes_received = $flashlog->getFileSizeBytes('log_file');
+            $flashlog->save();
+        }
+
+        if (($correct_data == false || $flashlog->valid_override) && ($fill_csv || $fill_meta || $flashlog->valid_override) && isset($flashlog->log_parsed)) // use parsed log file to generate CSV, if valid_override == 1 'protect' the generated log_file_parsed.json by not overwriting with raw log
+        {
+            $flashlog_parsed_text = $flashlog->getFileContent('log_file_parsed');
+            if (empty($flashlog_parsed_text))
+                return redirect()->route($route, $query_par)->with('error', "FlashLog $id log_file_parsed is empty");
+
+
+            $flashlog_parsed_json = json_decode($flashlog_parsed_text, true);
+            
+            // add sensor definitions
+            if (is_array($flashlog_parsed_json) && $correct_data)
             {
-                $flashlog->bytes_received = $flashlog->getFileSizeBytes('log_file');
-                $flashlog->save();
+                foreach ($flashlog_parsed_json as $i => $data_array){
+
+                    if (isset($data_array['w_v']) && (!isset($data_array['weight_kg']) || $data_array['w_v'] == $data_array['weight_kg']))
+                        $flashlog_parsed_json[$i] = SensorDefinition::addDeviceMeasurementCalibrations($flashlog->device, $data_array);
+                }
             }
 
-            if (($fill_csv || $fill_meta) && isset($flashlog->log_parsed)) // use parsed log file to generate CSV
+            if ($fill_meta)
+                $fl_saved = $flashlog->addMetaToFlashlog($flashlog_parsed_json);
+            else
+                $fl_saved = $flashlog->addCsvToFlashlog($flashlog_parsed_json);
+
+            $type = $fill_meta ? 'Meta' : 'CSV';
+            
+            if ($fl_saved)
             {
-                $flashlog_parsed_text = $flashlog->getFileContent('log_file_parsed');
-                if (empty($flashlog_parsed_text))
-                    return redirect()->route($route, $query_par)->with('error', "FlashLog $id log_file_parsed is empty");
+                $meta_str = CalculationModel::arrayToString($flashlog->meta_data, ', ', '', ['valid_data_points','port2_times_device','firmwares','lowest_bv']);
+                return redirect()->route($route, $query_par)->with('success', "FlashLog $id $type set, Meta data: ".$meta_str);
+            }
 
-                $flashlog_parsed_json = json_decode($flashlog_parsed_text, true);
+            return redirect()->route($route, $query_par)->with('error', "FlashLog $id $type save error");
 
-                if ($fill_meta)
-                    $fl_saved = $flashlog->addMetaToFlashlog($flashlog_parsed_json);
-                else
-                    $fl_saved = $flashlog->addCsvToFlashlog($flashlog_parsed_json);
+        }
+        else if (isset($flashlog->log_file))
+        {
+            $data = $flashlog->getFileContent('log_file');
+            if (isset($data))
+            {
+                // log($data='', $log_bytes=null, $save=true, $fill=?, $show=false, $matches_min_override=null, $match_props_override=null, $db_records_override=null, $save_override=false, $from_cache=false, $match_days_offset=0, $add_sensordefinitions=true, $use_rtc=true, $correct_data=false)
+                $res  = $flashlog->log($data, null, true, $fill_time, false, null, null, null, false, false, 0, $fill_sdef, true, $correct_data);
 
-                $type = $fill_meta ? 'Meta' : 'CSV';
-                
-                if ($fl_saved)
-                {
-                    $meta_str = CalculationModel::arrayToString($flashlog->meta_data, ', ', '', ['valid_data_points','port2_times_device']);
-                    return redirect()->route($route, $query_par)->with('success', "FlashLog $id $type set, Meta data: ".$meta_str);
+                foreach ($res as $key => $value) {
+                    $out[] = "$key=$value"; 
                 }
-
-                return redirect()->route($route, $query_par)->with('error', "FlashLog $id $type save error");
 
             }
             else
             {
-
-                $data = $flashlog->getFileContent('log_file');
-                if (isset($data))
-                {
-                    // log($data='', $log_bytes=null, $save=true, $fill=?, $show=false, $matches_min_override=null, $match_props_override=null, $db_records_override=null, $save_override=false, $from_cache=false, $match_days_offset=0, $add_sensordefinitions=?)
-                    $res  = $flashlog->log($data, null, true, $fill_time, false, null, null, null, false, false, 0, $fill_sdef, true, $correct_data);
-
-                    foreach ($res as $key => $value) {
-                        $out[] = "$key=$value"; 
-                    }
-
-                }
-                else
-                {
-                    return redirect()->route($route, $query_par)->with('error', "FlashLog $id file '$flashlog->log_file' not found");
-                }
+                return redirect()->route($route, $query_par)->with('error', "FlashLog $id file '$flashlog->log_file' not found");
             }
         }
         else
         {
             return redirect()->route($route, $query_par)->with('error', "FlashLog $id No flashlog file present, nothing to parse");
         }
+
         return redirect()->route($route, $query_par)->with('success', "FlashLog $id parsed again: ".implode(', ',$out));
     }
 
@@ -293,21 +301,39 @@ class FlashLogController extends Controller
     {
         $request->validate([
             'created_at' => 'required|date',
+            'file' => 'nullable|file|max:50000', // max 50MB
         ]);
 
-        $requestData = $request->all();
+        $flashlog = FlashLog::findOrFail($id);
+    
 
+        if ($request->hasFile('file')) // Store file in S3 inside "uploads" folder
+        {
+            $disk = env('FLASHLOG_STORAGE', 'public');
+            $file = $request->file('file');
+            $name = $file->getClientOriginalName();
+            $path = $file->storeAs('flashlog/validated', $name, $disk);
+            $url  = Storage::disk($disk)->url($path);
+
+            $flashlog->log_file_parsed = $url;
+            $flashlog->valid_override  = 1;
+            $flashlog->save();
+
+            return self::parse($request, $id); // reparse flashlog
+        }
+
+        $requestData = $request->except('file');
+        
         if ($request->filled('time_corrections')) {
             $time_corrections = json_decode($request->input('time_corrections'));
             $requestData['time_corrections'] = $time_corrections;
         }
         
-        $flashlog = FlashLog::findOrFail($id);
         $flashlog->update($requestData);
         $flashlog->created_at = Carbon::parse($request->created_at);
         $flashlog->save();
 
-        return redirect('flash-log')->with('flash_message', 'FlashLog updated!');
+        return redirect()->route('flash-log.show', $id)->with('flash_message', 'FlashLog updated!');
     }
 
     /**

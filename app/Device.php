@@ -84,6 +84,8 @@ class Device extends Model
         Cache::forget('device-'.$this->id.'-hive-'.$this->hive_id.'-user-ids');
         Cache::forget('device-'.$this->id.'-hive-'.$this->hive_id.'-rule-ids');
         Cache::forget('device-'.$this->id.'-calibrations-measurement-types');
+        Cache::forget('device-'.$this->id.'-calibrations-measurement-types-0');
+        Cache::forget('device-'.$this->id.'-calibrations-measurement-types-1');
         
         Log::debug("Device ID $this->id cache emptied");
 
@@ -156,6 +158,13 @@ class Device extends Model
         return false;
     }
 
+    public function checkLogOutdated()
+    {
+        if (isset($this->log_file_info['created_date']))
+            return ($this->flashlogs()->where('updated_at' , '>', $this->log_file_info['created_date'])->count() > 0);
+        
+        return false;
+    }
 
     public function researchNames()
     {
@@ -273,6 +282,10 @@ class Device extends Model
                 $sd_ids[] = $sd_next->id;
         }
 
+        // If none, add the only calibration
+        if (count($sd_ids) == 0&& $io_sds->count() == 1)
+            $sd_ids[] = $io_sds->first()->id;
+
         return $this->sensorDefinitions()->whereIn('id', $sd_ids)->orderBy('updated_at', 'desc')->get();
     }
 
@@ -326,6 +339,9 @@ class Device extends Model
         $meas_per_day = isset($this->interval_min) && $this->interval_min > 0 ? round(1440/$this->interval_min) : 96;
         foreach ($flogs as $fl)
         {
+            if ($fl->bytes_received < 100) // neglect small files
+                continue;
+
             $logpd = $fl->logs_per_day;
             $logperc = min(100, round(100 * $logpd / $meas_per_day));
             $days  = $fl->getLogDays();
@@ -334,9 +350,11 @@ class Device extends Model
             $post  = $pers || $logd ? ' ('.$logd.$pers.')' : ''; 
             $name  = $fl->id.'. '.substr($fl->created_at, 0, 10).$post;
             $valid = $fl->validLog();
+            $icon_h= $fl->getFixAndErrorHtmlIcons();
+            
             $flogs_valid += $valid;
             $color = $valid ? 'style="color: green;" title="Flash log id:'.$fl->id.' has '.$logd.' valid weight/time data"' : 'title="Flash log '.$fl->id.' should be checked for valid data: has '.$logd.' of data, but end date might not be within 1 hour of the upload date."';
-            $html .= '<li style="padding:0; margin:0;"><a href="/flash-log/'.$fl->id.'" '.$color.'>'.$name.'</a></li>';
+            $html .= '<li style="padding:0; margin:0;"><a href="/flash-log/'.$fl->id.'" '.$color.'>'.$icon_h.' '.$name.'</a></li>';
         }
 
         $html .= '</ul></div>';
@@ -601,7 +619,7 @@ class Device extends Model
         $output = null;
         try
         {
-            $query  = 'SELECT '.$fields.' from "sensors" WHERE '.$this->influxWhereKeys().' AND time > now() - 365d '.$groupby.' ORDER BY time DESC LIMIT '.$limit;
+            $query  = 'SELECT '.$fields.' from "sensors" WHERE '.$this->influxWhereKeys().' AND time > now() - 365d AND time <= now() '.$groupby.' ORDER BY time DESC LIMIT '.$limit;
             //die(print_r($query));
             $values = Device::getInfluxQuery($query, 'last');
             //die(print_r($values));
@@ -901,11 +919,19 @@ class Device extends Model
         return $out_arr;
     }
 
-    public function calibrationsMeasurementAbbreviations()
+    // By default, only return the force recalculation calibrations,
+    // If recalculate is set to false, return all available calibrations.
+    public function calibrationsMeasurementAbbreviations($recalculate=true)
     {
-        return Cache::rememberForever('device-'.$this->id.'-calibrations-measurement-types', function () {
+        $cache_name = 'device-'.$this->id.'-calibrations-measurement-types-'.$recalculate?'1':'0';
+        return Cache::rememberForever($cache_name, function () use ($recalculate){
             $out = [];
-            $cals = $this->sensorDefinitions()->where('recalculate', '=', true)->whereColumn('input_measurement_id', '!=', 'output_measurement_id')->orderBy('updated_at', 'asc')->get();
+
+            if ($recalculate)
+                $cals = $this->sensorDefinitions()->where('recalculate', '=', true)->whereColumn('input_measurement_id', '!=', 'output_measurement_id')->orderBy('updated_at', 'asc')->get();
+            else
+                $cals = $this->sensorDefinitions()->whereColumn('input_measurement_id', '!=', 'output_measurement_id')->orderBy('updated_at', 'asc')->get();
+
             foreach ($cals as $cal) {
                 if (isset($cal->input_abbr)) {
                     $m_abbr = $cal->input_abbr;

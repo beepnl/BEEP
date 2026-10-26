@@ -202,7 +202,7 @@ class AlertRule extends Model
         $rule       = $this;
         
         $locales    = config('laravellocalization.supportedLocales');
-        $locale     = isset($locales[$rule->user->locale]) ? $rule->user->locale : LaravelLocalization::getCurrentLocale();
+        $locale     = isset($rule->user) && isset($locales[$rule->user->locale]) ? $rule->user->locale : LaravelLocalization::getCurrentLocale();
         $pq_name    = isset($m_abbr) ? Translation::get($locale, $m_abbr, 'measurement') : $rule->getPq();
         $unit       = $rule->getUnit();
         $direct     = $rule->calculation_minutes == 0 ? true : false;

@@ -84,6 +84,7 @@ Route::group(
 				Route::get('devices/data',		    ['as'=>'devices.data','uses'=>'DeviceController@data']);
 				Route::post('devices/create',		['as'=>'devices.store','uses'=>'DeviceController@store','middleware' => ['permission:sensor-create']]);
 				Route::get('devices/{id}',			['as'=>'devices.show','uses'=>'DeviceController@show']);
+				Route::get('devices/{id}/sync',		['as'=>'devices.sync','uses'=>'DeviceController@sync']);
 				Route::get('devices/{id}/undelete',	['as'=>'devices.undelete','uses'=>'DeviceController@undelete']);
 				Route::get('devices/{id}/edit',		['as'=>'devices.edit','uses'=>'DeviceController@edit','middleware' => ['permission:sensor-edit']]);
 				Route::get('devices/{id}/flashlog/{fl_id}',	['as'=>'devices.flashlog','uses'=>'DeviceController@flashlog','middleware' => ['permission:sensor-edit']]);
@@ -155,7 +156,16 @@ Route::group(
 				Route::get('calculation-model/{id}/run',['as'=>'calculation-model.run','uses'=>'CalculationModelController@run']);
 
 				Route::delete('checklists/destroy/copies',	['as'=>'checklists.copies','uses'=>'ChecklistController@destroyCopies']);
+
+				Route::get('research/{id}/consent', ['as'=>'research.consent','uses'=>'ResearchController@consent']);
+				Route::get('research/{id}/consent/{c_id}', ['as'=>'research.consent_edit','uses'=>'ResearchController@consent_edit']);
+				Route::patch('research/{id}/consent/{c_id}', ['as'=>'research.consent_edit','uses'=>'ResearchController@consent_edit']);
+				Route::delete('research/{id}/consent/{c_id}', ['as'=>'research.consent_edit','uses'=>'ResearchController@consent_edit']);
+				Route::post('research/{id}/consent_create', ['as'=>'research.consent_create','uses'=>'ResearchController@consent_create']);
 				
+				Route::get('research/{id}/edit',	['as'=>'research.edit','uses'=>'ResearchController@edit']);
+				Route::patch('research/{id}',		['as'=>'research.update','uses'=>'ResearchController@update']);
+				Route::delete('research/{id}',		['as'=>'research.destroy','uses'=>'ResearchController@destroy']);
 			});
 
 		// Open research routes based on database access
@@ -170,13 +180,5 @@ Route::group(
 		Route::get('research', 				['as'=>'research.index','uses'=>'ResearchController@index']);
 		Route::get('research/{id}', 		['as'=>'research.show','uses'=>'ResearchController@show']);
 		Route::get('research/{id}/data',    ['as'=>'research.data','uses'=>'ResearchController@data']);
-		Route::get('research/{id}/consent', ['as'=>'research.consent','uses'=>'ResearchController@consent']);
-		Route::get('research/{id}/consent/{c_id}', ['as'=>'research.consent_edit','uses'=>'ResearchController@consent_edit']);
-		Route::patch('research/{id}/consent/{c_id}', ['as'=>'research.consent_edit','uses'=>'ResearchController@consent_edit']);
-		Route::delete('research/{id}/consent/{c_id}', ['as'=>'research.consent_edit','uses'=>'ResearchController@consent_edit']);
-		Route::get('research/{id}/consent/{c_id}', ['as'=>'research.consent_edit','uses'=>'ResearchController@consent_edit']);
-		Route::get('research/{id}/edit',	['as'=>'research.edit','uses'=>'ResearchController@edit']);
-		Route::patch('research/{id}',		['as'=>'research.update','uses'=>'ResearchController@update']);
-		Route::delete('research/{id}',		['as'=>'research.destroy','uses'=>'ResearchController@destroy']);
 	}
 );

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
 use App\Category;
 use App\Device;
@@ -11,6 +12,9 @@ use App\Research;
 use App\Hive;
 use App\Location;
 use App\Models\FlashLog;
+use GuzzleHttp\Client;
+use GuzzleHttp\Psr7;
+use GuzzleHttp\Exception\RequestException;
 
 class DeviceController extends Controller
 {
@@ -282,6 +286,99 @@ class DeviceController extends Controller
         return view('devices.show',compact('item'));
     }
 
+    public function sync($id)
+    {
+        $device = Device::findOrFail($id);
+
+        // Check if device has hardware_id (required for TTN)
+        if (!$device->hardware_id) {
+            return Response::json(['error' => 'Device has no hardware_id configured for TTN'], 422);
+        }
+
+        // Calculate the next scheduled transmission time
+        $now = time();
+        $timezone = 'Europe/Amsterdam'; // CET timezone as specified
+        
+        // Get device timing information
+        $last_message_received = $device->last_message_received ? strtotime($device->last_message_received) : null;
+        $measurement_interval_min = $device->measurement_interval_min ?: 15; // Default to 15 minutes if not set
+        
+        if (!$last_message_received) {
+            return Response::json(['error' => 'Device has no last_message_received timestamp'], 422);
+        }
+
+        // Calculate next expected message time
+        $interval_seconds = $measurement_interval_min * 60;
+        $time_since_last = $now - $last_message_received;
+        $messages_missed = floor($time_since_last / $interval_seconds);
+        
+        // Next message time is the last message time plus the next interval
+        $next_message_time = $last_message_received + (($messages_missed + 1) * $interval_seconds);
+        
+        // Add a small buffer (30 seconds) to ensure the device is listening
+        $scheduled_downlink_time = $next_message_time + 30;
+        
+        // Convert to CET timezone
+        $cet_time = new \DateTime();
+        $cet_time->setTimezone(new \DateTimeZone($timezone));
+        $cet_time->setTimestamp($scheduled_downlink_time);
+        $cet_timestamp = $cet_time->getTimestamp();
+
+        // Create the payload: A5 + hex timestamp
+        $hex_timestamp = dechex($cet_timestamp);
+        $payload_hex = 'A5' . $hex_timestamp;
+        $payload_base64 = base64_encode(hex2bin($payload_hex));
+
+        // Prepare the downlink data
+        $downlink_data = [
+            'downlinks' => [
+                [
+                    'frm_payload' => $payload_base64,
+                    'f_port' => 6
+                ]
+            ]
+        ];
+
+        // Send the downlink via TTN
+        $msg = "";
+        $err = true;
+
+        try {
+            $guzzle = new Client();
+            $url = env('TTN_API_URL') . '/as/applications/' . env('TTN_APP_NAME') . '/webhooks/' . env('TTN_APP_WEBHOOK') . '/devices/' . $device->hardware_id . '/down/push';
+            
+            Log::info("Sync device_id=$id url=$url");
+            Log::info("Sync device_id=$id downlink_data:");
+            Log::info($downlink_data);
+
+            $response = $guzzle->request('POST', $url, [
+                'headers' => [
+                    'Authorization' => 'Bearer ' . env('TTN_API_KEY'),
+                    'Content-Type' => 'application/json',
+                    'User-Agent' => env('TTN_APP_NAME')
+                ],
+                'json' => $downlink_data
+            ]);
+
+            if ($response->getStatusCode() == 202 || $response->getStatusCode() == 200) {
+                // Update the device with the scheduled downlink
+                $msg = 'Clock sync downlink scheduled';
+                $device->next_downlink_message = $payload_hex;
+                $device->last_downlink_result = 'Clock sync downlink scheduled @ UTC: '.date('Y-m-d H:i:s', $scheduled_downlink_time);
+                $device->save();
+                $err = false;
+            } else {
+                $msg = 'Failed to schedule downlink';
+
+            }
+        } catch (RequestException $e) {
+            $error_response = $e->hasResponse() ? json_decode($e->getResponse()->getBody(), true) : null;
+            $msg = "TTN downlink failed: ".json_encode($error_response) ?: $e->getMessage();
+            Log::error("Sync device_id=$id error=$msg");
+        }
+
+        return redirect()->route('devices.index')->with($err?'error':'success', $msg);
+    }
 
     public function flashlog(Request $request, $id, $fl_id)
     {

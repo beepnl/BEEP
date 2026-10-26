@@ -34,7 +34,7 @@
 	    </div>
 	</div>
 </div>
-<div class="col-xs-12 col-md-4">
+<div class="col-xs-12 col-md-3">
 	<div class="form-group {{ $errors->has('log_saved') ? 'has-error' : ''}}">
 	    <label for="log_saved" control-label>{{ 'Log Saved' }}</label>
 	    <div>
@@ -48,7 +48,7 @@
 	    </div>
 	</div>
 </div>
-<div class="col-xs-12 col-md-4">
+<div class="col-xs-12 col-md-3">
 	<div class="form-group {{ $errors->has('log_parsed') ? 'has-error' : ''}}">
 	    <label for="log_parsed" control-label>{{ 'Log Parsed' }}</label>
 	    <div>
@@ -62,7 +62,7 @@
 	    </div>
 	</div>
 </div>
-<div class="col-xs-12 col-md-4">
+<div class="col-xs-12 col-md-3">
 	<div class="form-group {{ $errors->has('log_has_timestamps') ? 'has-error' : ''}}">
 	    <label for="log_has_timestamps" control-label>{{ 'Log Has Timestamps' }}</label>
 	    <div>
@@ -76,6 +76,22 @@
 	    </div>
 	</div>
 </div>
+
+<div class="col-xs-12 col-md-3">
+	<div class="form-group {{ $errors->has('valid_override') ? 'has-error' : ''}}">
+	    <label title="Only use the log_file_parsed for CSV and meta generation" for="valid_override" control-label>{{ 'Manual validation (do not overwrite log_file_parsed)' }}</label>
+	    <div>
+	        <div class="radio">
+    <label><input name="valid_override" type="radio" value="1" {{ (isset($flashlog) && 1 == $flashlog->valid_override) ? 'checked' : '' }}> Yes</label>
+</div>
+<div class="radio">
+    <label><input name="valid_override" type="radio" value="0" @if (isset($flashlog)) {{ (0 == $flashlog->valid_override) ? 'checked' : '' }} @endif> No</label>
+</div>
+	        {!! $errors->first('valid_override', '<p class="help-block">:message</p>') !!}
+	    </div>
+	</div>
+</div>
+
 <div class="col-xs-12">
 	<div class="form-group {{ $errors->has('created_at') ? 'has-error' : ''}}">
 	    <label for="created_at" control-label>{{ 'Upload date (created_at)' }}</label>
@@ -83,7 +99,7 @@
 	        <input class="form-control" type="datetime-local" 
            id="created_at" 
            name="created_at"
-           value="{{ $flashlog->created_at->format('Y-m-d\TH:i') ?? ''}}">
+           value="{{ isset($flashlog->created_at) ? $flashlog->created_at->format('Y-m-d\TH:i') : ''}}">
 	        {!! $errors->first('created_at', '<p class="help-block">:message</p>') !!}
 	    </div>
 	</div>
@@ -127,7 +143,11 @@
 
 <div class="col-xs-12">
 	<div class="form-group {{ $errors->has('time_corrections') ? 'has-error' : ''}}">
-	    <label for="time_corrections" control-label>Time corrections: enter {"{{date('Y-m-d')}} 00:00:00": "-86400"}</label>
+		@php
+		$start_date = isset($flashlog->log_date_start) ? $flashlog->log_date_start : date('Y-m-d').' 00:00:00';
+		$corr_time  = isset($flashlog->log_date_start) ? 86400 : -86400;
+		@endphp
+	    <label for="time_corrections" control-label>Time corrections, enter: {"{{$start_date}}": "{{$corr_time}}"}</label>
 	    <div>
 <textarea name="time_corrections" rows="10" style="width: 100%">
 @json(isset($flashlog->time_corrections) ? $flashlog->time_corrections : [], JSON_PRETTY_PRINT)

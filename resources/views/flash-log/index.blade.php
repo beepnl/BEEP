@@ -105,11 +105,11 @@
                     <th>Messages</th>
                     <th>Time %</th>
                     <th>Erased/ Parsed/ Time</th>
-                    <th style="min-width: 60px;">Log start</th>
-                    <th style="min-width: 60px;">Log end</th>
+                    <th style="min-width: 60px;">Log start/ Log end</th>
                     <th style="min-width: 60px;">Time log %</th>
                     <th>Size</th>
                     <th>Persisted</th>
+                    <th style="min-width: 60px;">Error</th>
                     <th style="min-width: 280px;">Actions</th>
                 </tr>
             </thead>
@@ -119,11 +119,17 @@
                 @php
                     $valid = $item->validLog();
                     $error = $item->log_date_end > $item->created_at ? true : false;
-                    $color = $error ? '#FFDDDD' : ($valid ? 'lightgreen' : null);
-                    $msg   = $error ? 'End date after upload date' : ($valid ? 'Validated log' : null);
+                    $few   = $item->logMessagesTooFewForSize();
+                    $color = $error ? '#FFDDDD' : ($valid ? 'lightgreen' : ($few ? 'orange' : null));
+                    $msg   = $error ? 'End date after upload date' : ($valid ? 'Validated log' : ($few ? 'Too few messages parsed for the flash log file size' : null));
+                    $date_s= isset($item->log_date_start)? substr($item->log_date_start, 0, 10) : '';
+                    $date_e= isset($item->log_date_end)? substr($item->log_date_end, 0, 10) : '';
+                    $errors= $item->getErrorsArray();
+                    $icon_h= $item->getFixAndErrorHtmlIcons();
+                    $weight_kg_perc = $item->getWeightLogPercentage();
                 @endphp
 
-                <tr @if($color) style="background: {{$color}};" title="{{$msg}}" @endif>
+                <tr id="{{$item->id}}" @if($color) style="background: {{$color}};" title="{{$msg}}" @endif>
                     <td>{{ $item->id }}</td>
                     <td>{{ $item->created_at }}</td>
                     <td>{{ $item->updated_at }}</td>
@@ -133,8 +139,7 @@
                     <td>{{ $item->log_messages }}</td>
                     <td>{{ $item->time_percentage }}%</td>
                     <td>{{ $item->log_erased }} / {{ $item->log_parsed }} / {{ $item->log_has_timestamps }}</td>
-                    <td>{{ $item->log_date_start }}</td>
-                    <td>{{ $item->log_date_end }}</td>
+                    <td>{{ $date_s }} / {{ $date_e }}</td>
                     <td>{{ $item->getTimeLogPercentage() }}% of<br>{{ $item->getLogDays() }} days</td>
                     <td>{{ round($item->bytes_received/1024/1024,3) }}MB @if(isset($item->log_size_bytes) && $item->log_size_bytes > 0) ({{ round(100*($item->bytes_received / $item->log_size_bytes),1) }}%) @endif </td>
                     <td>@if(isset($item->persisted_block_ids))
@@ -142,17 +147,20 @@
                         Blok: {{ $item->persisted_block_ids }}<br>
                         Meas: {{ $item->persisted_measurements }} (@if($item->log_messages > 0){{ round(100 * $item->persisted_measurements / $item->log_messages) }}%@else 0%@endif), 
                         @endif
+                    <td>
+                        {!! $icon_h !!}
+                    </td>
                     </td>
                     <td col-sm-1>
                         <a href="{{ route('flash-log.show', $item->id) }}" title="{{ __('crud.show') }}"><button class="btn btn-default"><i class="fa fa-eye" aria-hidden="true"></i></button></a>
 
-                        <a href="{{ route('flash-log.parse', array_merge(request()->query(), ['id'=>$item->id]) ) }}" title="{{ __('crud.parse') }}"><button title="Parse Flashlog with time fill and adding Sensordefinitions (slow)" class="btn btn-info loading-spinner" data-loading-text="<i class='fa fa-refresh fa-spin'></i>"><i class="fa fa-refresh" aria-hidden="true"></i></button></a>
+                        <a href="{{ route('flash-log.parse', array_merge(request()->query(), ['id'=>$item->id]) ) }}#{{$item->id}}" title="{{ __('crud.parse') }}"><button title="Parse Flashlog with time fill and adding Sensordefinitions (slow)" class="btn btn-info loading-spinner" data-loading-text="<i class='fa fa-refresh fa-spin'></i>"><i class="fa fa-refresh" aria-hidden="true"></i></button></a>
                         
                         {{-- <a href="{{ route('flash-log.parse', array_merge(request()->query(), ['id'=>$item->id, 'no_sensor_def'=>1]) ) }}" title="{{ __('crud.parse') }}"><button title="Parse Flashlog with time fill, but without adding Sensordefinitions" class="btn btn-default loading-spinner" data-loading-text="<i class='fa fa-refresh fa-spin'></i>"><i class="fa fa-refresh" aria-hidden="true"></i></button></a> --}}
 
-                        <a href="{{ route('flash-log.parse', array_merge(request()->query(), ['id'=>$item->id, 'add_meta'=>1]) ) }}" title="{{ __('crud.parse') }}"><button title="Add meta data to Flashlog" class="btn btn-warning loading-spinner" data-loading-text="<i class='fa fa-refresh fa-spin'></i>"><i class="fa fa-refresh" aria-hidden="true"></i></button></a>
+                        <a href="{{ route('flash-log.parse', array_merge(request()->query(), ['id'=>$item->id, 'add_meta'=>1]) ) }}#{{$item->id}}" title="{{ __('crud.parse') }}"><button title="Add meta data to Flashlog" class="btn btn-warning loading-spinner" data-loading-text="<i class='fa fa-refresh fa-spin'></i>"><i class="fa fa-refresh" aria-hidden="true"></i></button></a>
                         
-                        <a href="{{ route('flash-log.parse', array_merge(request()->query(), ['id'=>$item->id, 'csv'=>1]) ) }}" title="{{ __('crud.parse') }}"><button title="Create new CSV" class="btn btn-success loading-spinner" data-loading-text="<i class='fa fa-refresh fa-spin'></i>"><i class="fa fa-table" aria-hidden="true"></i></button></a>
+                        <a href="{{ route('flash-log.parse', array_merge(request()->query(), ['id'=>$item->id, 'csv'=>1]) ) }}#{{$item->id}}" title="{{ __('crud.parse') }}"><button title="Create new CSV" class="btn btn-success loading-spinner" data-loading-text="<i class='fa fa-refresh fa-spin'></i>"><i class="fa fa-table" aria-hidden="true"></i></button></a>
 
                         <a href="{{ route('flash-log.edit', $item->id) }}" title="{{ __('crud.edit') }}"><button class="btn btn-primary"><i class="fa fa-pencil" aria-hidden="true"></i></button></a>
 

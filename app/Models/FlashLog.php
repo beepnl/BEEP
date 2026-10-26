@@ -44,7 +44,7 @@ class FlashLog extends Model
      *
      * @var array
      */
-    protected $fillable = ['user_id', 'device_id', 'hive_id', 'log_messages', 'log_saved', 'log_parsed', 'log_has_timestamps', 'bytes_received', 'log_file', 'log_file_stripped', 'log_file_parsed', 'log_size_bytes', 'log_erased', 'time_percentage', 'persisted_days', 'persisted_measurements', 'persisted_block_ids', 'log_date_start', 'log_date_end', 'logs_per_day', 'csv_url', 'meta_data', 'time_corrections'];
+    protected $fillable = ['user_id', 'device_id', 'hive_id', 'log_messages', 'log_saved', 'log_parsed', 'log_has_timestamps', 'bytes_received', 'log_file', 'log_file_stripped', 'log_file_parsed', 'log_size_bytes', 'log_erased', 'time_percentage', 'persisted_days', 'persisted_measurements', 'persisted_block_ids', 'log_date_start', 'log_date_end', 'logs_per_day', 'csv_url', 'meta_data', 'time_corrections', 'valid_override'];
     protected $hidden   = ['device', 'hive', 'user', 'persisted_block_ids'];
 
     protected $appends  = ['device_name', 'hive_name', 'user_name'];
@@ -101,10 +101,9 @@ class FlashLog extends Model
     {
         if(isset($this->{$type}))
         {
-            $file = 'flashlog/'.last(explode('/',$this->{$type}));
-            //die(print_r($file));
+            $file = $this->getFlashlogStoragePath($this->{$type});
             $disk = env('FLASHLOG_STORAGE', 'public');
-            if (Storage::disk($disk)->exists($file))
+            if (isset($file) && Storage::disk($disk)->exists($file))
                 return Storage::disk($disk)->size($file);
         }
         return null;
@@ -114,13 +113,28 @@ class FlashLog extends Model
     {
         if(isset($this->{$type}))
         {
-            $file = 'flashlog/'.last(explode('/',$this->{$type}));
-            //die(print_r($file));
+            $file = $this->getFlashlogStoragePath($this->{$type});
             $disk = env('FLASHLOG_STORAGE', 'public');
-            if (Storage::disk($disk)->exists($file))
+            if (isset($file) && Storage::disk($disk)->exists($file))
                 return Storage::disk($disk)->get($file);
         }
         return null;
+    }
+
+    private function getFlashlogStoragePath($path)
+    {
+        if (!isset($path) || $path === '') {
+            return null;
+        }
+
+        $parsedPath = parse_url($path, PHP_URL_PATH);
+        $file = ltrim(isset($parsedPath) ? $parsedPath : $path, '/');
+
+        if (strpos($file, 'flashlog/') === 0) {
+            return $file;
+        }
+
+        return 'flashlog/'.last(explode('/', $path));
     }
 
     public function getPersistedBlockIdsArrayAttribute($value)
@@ -149,6 +163,64 @@ class FlashLog extends Model
         $this->save();
 
         return $array;
+    }
+
+    public function shouldBeParsed()
+    {
+        if ($this->bytes_received > 100 && !isset($this->meta_data['auto_parsed']) &&
+            (
+                empty($this->log_date_start) || 
+                empty($this->meta_data) || 
+                empty($this->csv_url) || 
+                !isset($this->meta_data['rtc_bug']) || 
+                !isset($this->meta_data['valid_data_points']) ||
+                count($this->getHighDataDates()) > 0 ||
+                ($this->hasNoWeightData() && $this->hasWeightSensorDefinitions()) ||
+                $this->parsed == false
+            )
+        )
+        {
+            return true;
+        }
+
+        return false;    
+    }
+
+    public static function parseUnparsedFlashlogs()
+    {
+        $parse_fl_sec   = env('FLASHLOG_PARSE_HISTORY_SEC', (24*7*3600)); // last week
+        $last_week_date = date('Y-m-d', time()-$parse_fl_sec);
+        $fls            = self::where('created_at', '>' , $last_week_date)->whereNotNull('log_file')->where('log_messages', '>', 0)->where('log_messages', '<', 65000)->orderByDesc('created_at')->get(); // prevent memory issues by parsing only log files ~ < 3.5MB
+        $cnt            = $fls->count();
+        Log::info("Auto parse check for $cnt Flashlogs since $last_week_date");
+        
+        foreach($fls as $fl)
+        {
+            if ($fl->shouldBeParsed())
+            {
+                Log::info("Flashlog $fl->id :");
+                $data = $fl->getFileContent('log_file');
+                if (isset($data))
+                {
+                    // log($data='', $log_bytes=null, $save=true, $fill=?, $show=false, $matches_min_override=null, $match_props_override=null, $db_records_override=null, $save_override=false, $from_cache=false, $match_days_offset=0, $add_sensordefinitions=true, $use_rtc=true, $correct_data=false)
+                    $res  = $fl->log($data, null, true, true, false, null, null, null, false, false, 0, true, true, true);
+
+                    foreach ($res as $key => $value) {
+                        Log::info("$key=$value"); 
+                    }
+                    $meta_data = $fl->meta_data;
+                    $meta_data['auto_parsed']=date('Y-m-d H:i:s');
+                    $fl->meta_data = $meta_data;
+                    $fl->save();
+
+                    Log::info("________________________");
+                }
+                else
+                {
+                    Log::info("No data");
+                }
+            }
+        }
     }
 
     public function getLogDays($data_only=true) // only logs with set time
@@ -221,26 +293,239 @@ class FlashLog extends Model
         return 0;
     }
 
+    public function getWeightLogPercentage()
+    {
+        $weight_kg_perc = 0; 
+        if (isset($this->meta_data['data_days_weight']) && isset($this->meta_data['data_days']) && $this->meta_data['data_days'] > 0)
+        {
+            $weight_kg_perc = round(100 * $this->meta_data['data_days_weight'] / $this->meta_data['data_days']);
+        }
+        return $weight_kg_perc;
+    }
+
     public function validLog()
     {
         /* validate log if: 
-           1. created_at (upload date) is within 1 hour from last timestamp
-           2. log % > 90%: interval 15 min should have 96 msg/day (>86msg = >90%)
+           1. Manual validation, or
+           2. created_at (upload date) is within 1 hour from last timestamp
+           3. log % > 90%: interval 15 min should have 96 msg/day (>86msg = >90%)
         */
+        if (isset($this->valid_override) && $this->valid_override === 1)
+            return true; // 1.
+
         $logs_per_day = $this->getLogPerDay();
         
         if (isset($logs_per_day)) // means that $this->log_date_end is set
         {
             $created_u  = strtotime($this->created_at);
             $last_log_u = strtotime($this->log_date_end);
-            if (abs($last_log_u - $created_u) < env('FLASHLOG_VALID_UPLOAD_DIFF_SEC', 7200)) // make sure last available containing data is not more than max time away from upload date
+            if (abs($last_log_u - $created_u) < env('FLASHLOG_VALID_UPLOAD_DIFF_SEC', 7200)) // 2. make sure last available containing data is not more than max time away from upload date
             {
                 $logs_per_day_perc = $this->getTimeLogPercentage();
-                if ($logs_per_day_perc >= env('FLASHLOG_VALID_TIME_LOG_PERC', 90) && $logs_per_day_perc <= 101)
-                    return true;
+                if ($logs_per_day_perc >= env('FLASHLOG_VALID_TIME_LOG_PERC', 90) && $logs_per_day_perc <= 101) // 3.
+                    return true; 
             }
         }
         return false;
+    }
+
+    public function logMessagesTooFewForSize()
+    {
+        /* 2026-08-11: warn if the amount of parsed messages seems too few for the size of the flash log file:
+           a port 3 measurement message occupies 56 (fw < 1.8.0) to 75 (fw 1.8.0+) bytes of flash,
+           so flag if the parsed messages cover less than half of the received bytes at 80 bytes/message (i.e. < 1 message per 160 bytes)
+        */
+        if (isset($this->log_messages) && isset($this->bytes_received) && $this->bytes_received > 10240)
+            return $this->log_messages * 160 < $this->bytes_received;
+
+        return false;
+    }
+
+    public function hasRtcBug()
+    {
+        /* has RTC bug if: 
+           meta data shows more than the set interval data items (96) on a RTC month index error date
+        */
+        if (isset($this->meta_data['rtc_bug']))
+            return $this->meta_data['rtc_bug'];
+
+        else if (isset($this->meta_data['valid_data_points']))
+            return $this->fixBugRtcMonthIndex(null, true); // indicate bug
+
+        return false;
+    }
+
+
+  public function hasWeightSensorDefinitions()
+  {
+
+      $weight_m_ids = Measurement::getWeightMeasurementIds();
+
+      $weight_sensor_defs = $this->device->sensorDefinitions()
+          ->where('input_measurement_id', $weight_m_ids['input_id'])
+          ->where('output_measurement_id', $weight_m_ids['output_id'])
+          ->count();
+
+      if ($weight_sensor_defs == 0)
+          return false;
+
+      return true;
+  }
+
+    public function hasNoWeightData()
+    {
+        // has no weight data if data_days_weight < 1 
+        if (isset($this->meta_data['data_days_weight']))
+            return ($this->meta_data['data_days_weight'] < 1);
+
+        return false;
+    }
+
+    public function getHighDataDates()
+    {
+        // has high data days if a day has more than 97 log indices: 
+        if (isset($this->meta_data['valid_data_points']))
+        {
+            $valid_data_points = $this->meta_data['valid_data_points'];
+            if (is_array($valid_data_points) && count($valid_data_points) > 0 && max($valid_data_points) > 97)
+            {
+                $dates = [];
+                foreach ($valid_data_points as $date => $value)
+                {
+                    if ($value > 97)
+                        $dates[$date] = $value;
+                }
+                return $dates;
+            }
+        }
+        return [];
+    }
+
+    public function hasTimeErr()
+    {
+        /* has RTC time error if: 
+           last port 2 message time is > now
+        */
+        if (isset($this->meta_data['time_err_perc']))
+            return ($this->meta_data['time_err_perc'] > 0); 
+
+        return false;
+    }
+
+    public function hasBatErr()
+    {
+        /* has Battery voltage issue: 
+           if voltage dropped below 2.7V
+        */
+        if (isset($this->meta_data['bat_low_blocks']))
+            return ($this->meta_data['bat_low_blocks'] > 0); 
+
+        return false;
+    }
+
+    public function getFixesArray()
+    {
+        $fixes = [];
+
+        if (isset($this->meta_data['fixBugRtcMonthIndex']) && $this->meta_data['fixBugRtcMonthIndex'] > 0)
+            $fixes['fa-clock-o'] = "RTC bug fixes: ".$this->meta_data['fixBugRtcMonthIndex'];
+
+        if ($this->valid_override === 1)
+            $fixes['fa-exclamation-triangle'] = "Manually validated";
+
+        return $fixes;
+    }
+
+    public function getErrorsArray()
+    {
+        $errors= [];
+        
+        if ($this->hasRtcBug())
+            $errors['fa-clock-o'] = 'RTC bug';
+
+        if ($this->hasTimeErr())
+        {
+            $time_err = 'Time err';
+
+            if (isset($this->meta_data['time_err_perc']))
+                $time_err .= ': '.$this->meta_data['time_err_perc'].'%';
+
+            $errors['fa-calendar'] = $time_err;
+        }
+
+        if ($this->hasBatErr())
+        {
+            $bat_low_err = '';
+
+            if (isset($this->meta_data['bat_low_blocks']))
+                $bat_low_err .= $this->meta_data['bat_low_blocks'].'x ';
+
+            $bat_low_err .= 'Bat low';
+            
+            if (isset($this->meta_data['bat_low_perc']))
+                $bat_low_err .= ': '.$this->meta_data['bat_low_perc'].'%';
+
+            $errors['fa-battery-quarter'] = $bat_low_err;
+        }
+
+        $highDataDates     = $this->getHighDataDates();
+        $highDataDateCount = count($highDataDates);
+        if ($highDataDateCount > 0)
+        {
+            
+            $errors['fa-plus-square'] = 'High data on '.$highDataDateCount.' days';
+            
+            if ($highDataDateCount <= 5)
+            {
+                $highDataDatesArr = [];
+                foreach ($highDataDates as $date => $value) {
+                    $highDataDatesArr[] = "$date: $value values";
+                }
+                $errors['fa-plus-square'] .= ': '.implode(', ', $highDataDatesArr);
+            }
+        }
+        
+        if ($this->hasWeightSensorDefinitions()) 
+        {
+            $weight_kg_perc = $this->getWeightLogPercentage();
+            if ($this->hasNoWeightData()) {
+                $errors['fa-balance-scale'] = 'No weight data';
+            } else if ($weight_kg_perc < 90) {
+                $errors['fa-balance-scale'] = "Weight data: $weight_kg_perc %";
+            }
+        }
+        else
+        {
+            $errors['fa-balance-scale'] = 'No weight calibration';
+        }
+        return $errors;
+    }
+
+    public function getFixAndErrorHtmlIcons()
+    {
+        $html  = '';
+
+        $errs  = $this->getErrorsArray();
+        if (count($errs) > 0)
+        {
+            foreach ($errs as $e_icon => $e_text)
+            {
+                $color = 'red';
+                if ($e_icon == 'fa-balance-scale' && intval(substr($e_text, -4, 2)) > 0)
+                    $color = 'orange';
+
+                $html .= '<i class="fa fa-sm '.$e_icon.'" style="display: inline-block; height: 16px; width: 14px; margin:2px; color: '.$color.';" title="'.$e_text.'"></i>';
+            }
+        }
+        $fixes = $this->getFixesArray();
+        if (count($fixes) > 0)
+        {
+            foreach ($fixes as $f_icon => $f_text)
+            {
+                $html  .= '<i class="fa fa-sm '.$f_icon.'" style="display: inline-block; height: 16px; width: 14px; margin:2px; color: green;" title="'.$f_text.'"></i>';
+            }
+        }
+        return $html;
     }
 
     public function getLogCacheName($fill=false, $show=false, $matches_min_override=null, $match_props_override=null, $db_records_override=null)
@@ -253,11 +538,9 @@ class FlashLog extends Model
         $time_corrections_array = [];
         if (isset($this->time_corrections) && is_array($this->time_corrections))
         {
-            foreach ($this->time_corrections as $date_sec_arr)
+            foreach ($this->time_corrections as $datetime => $sec_offset)
             {
-                $datetime   = array_key_first($date_sec_arr);
                 $timestamp  = strtotime($datetime);
-                $sec_offset = $date_sec_arr[$datetime];
                 $time_corrections_array[$timestamp] = $sec_offset;
             }
             krsort($time_corrections_array, SORT_NUMERIC);
@@ -267,7 +550,7 @@ class FlashLog extends Model
     }
 
     // Main function that creates the array from the string FlashLog files
-    public function log($data='', $log_bytes=null, $save=true, $fill=false, $show=false, $matches_min_override=null, $match_props_override=null, $db_records_override=null, $save_override=false, $from_cache=true, $match_days_offset=0, $add_sensordefinitions=true, $use_rtc=true, $correct_data=false)
+    public function log($data='', $log_bytes=null, $save=true, $fill=false, $show=false, $matches_min_override=null, $match_props_override=null, $db_records_override=null, $save_override=false, $from_cache=true, $match_days_offset=0, $add_sensordefinitions=true, $use_rtc=true, $correct_data=true)
     {
         if (!isset($this->device_id) || !isset($this->device))
             return ['error'=>'No device set, cannot parse Flashlog because need device key to get data from database'];
@@ -344,14 +627,18 @@ class FlashLog extends Model
                 $bytes   += mb_strlen($lineData, 'utf-8')/2;
             }
             unset($in);
-            
+
+            // 2026-08-11: fw 1.8.0+ single line upload starts directly with the 63 byte start-up message, of which port + length (023F) are stripped as line prefix above; restore them to keep the measurement_interval_min of the first block
+            if (substr($alldata, 0, 8) == '01000100' && substr($alldata, 126, 2) == '0A')
+                $alldata = '023F'.$alldata;
+
             // fw 1.5.9 1st port 2 log entry
             // 0100010005000902935D7C83FFFF94540E0123A76E05A5161AEE1F0000002A03091D01000F256079A4250A 03351B0CF10CEA640A0116539504020D8C081B0C0A094600140010002C0049001A0014005A001A0033002A07000000000000256079A6270A
             // 01000100050009029356BAA6FFFF94540E0123FA62FD38425EEE1F0000001A03091D01000F256079A25D0A 03351B0CBF0CB5640A011386550402059D0C600C0A0946005B002E0067003C0016001000160015000F000507000000000000256079A3E00A
 
 
-            // Split data by 0A02 and 0A03 (0A03 30 1B) 0A0330
-            $data  = preg_replace('/0A022([A-Fa-f0-9]{1})0100/', "0A\n022\${1}0100", $alldata);
+            // Split data by 0A02 and 0A03 (0A03 30 1B) 0A0330 (fw 1.8.0+ start-up message has length 0x3F, so match 0x2X and 0x3X)
+            $data  = preg_replace('/0A02([23][A-Fa-f0-9]{1})0100/', "0A\n02\${1}0100", $alldata);
             $data  = preg_replace('/0A03351B/', "0A\n03351B", $data);
 
             // Calculate from payload parts
@@ -370,6 +657,9 @@ class FlashLog extends Model
             
             $data  = preg_replace($payload, $replace, $data);
 
+            // 2026-08-11: fw 1.8.0+ port 3 payload is 72 bytes (len 0x48): reset reason tail (2E + 20 bytes) added after the time field, so the payload exceeds the 90 char max above
+            $data  = preg_replace('/03([4-6][A-Fa-f0-9])1B([A-Fa-f0-9]{10,14})0A([A-Fa-f0-9]{73,93}2E[A-Fa-f0-9]{40})0A/', "\n03\${1}1B\${2}0A0\${3}0A", $data);
+
             // fix missing battery hex code
             $data  = preg_replace('/0A03([A-Fa-f0-9]{2})([A-Fa-f0-9]{2})0D/', "0A\n03\${1}1B0D\${2}0D", $data);
             // split error lines
@@ -378,6 +668,7 @@ class FlashLog extends Model
             $data  = preg_replace('/03([A-Fa-f0-9]{2})1B0D1B0D([A-Fa-f0-9]{90,120})0A/', "03\${1}1B0D\${2}0A", $data); // Double 1B0D (fw 1.4.2)
             $data  = preg_replace('/02([A-Fa-f0-9]{76})0A03([A-Fa-f0-9]{90,120})0A/', "02\${1}0A\n03\${2}0A", $data); // port 2 data
             $data  = preg_replace('/([A-Fa-f0-9]{12,14})0A01([A-Fa-f0-9]{6})([A-Fa-f0-9]{1})040([A-Fa-f0-9]{70,90})0A/', "\${1}0A01\${2}040\${4}0A", $data); // 2025-06-10 PGe: fw 1.5.15: remove extra character after weight 24 bit string
+            $data  = preg_replace('/1B([A-Fa-f0-9]{10})0A0001([A-Fa-f0-9]{6})0401/', "1B\${1}0A001\${2}0401", $data); // 2026-08-11: fw 1.8.0: remove extra character before weight 24 bit string (decoder removes the remaining extra 0 via its 0A001 check)
 
             // remove empty rows
             $data  = preg_replace('/^\h*\v+/m', '', $data);
@@ -436,14 +727,21 @@ class FlashLog extends Model
                 $out[] = $data_array;
             }
 
+            // Save parsed flashlog
             if ($messages > 0)
             {
                 $parsed = true;
+                
                 if ($save)
                 {
-                    $logFileName = $f_dir."/sensor_".$sid."_flash_parsed_$time.json";
-                    $saved = Storage::disk($disk)->put($logFileName, json_encode($out), $mime_j);
-                    $f_par = Storage::disk($disk)->url($logFileName);
+                    // Save
+                    try{
+                        $logFileName = $f_dir."/sensor_".$sid."_flash_parsed_$time.json";
+                        $saved = Storage::disk($disk)->put($logFileName, json_encode($out, JSON_THROW_ON_ERROR), $mime_j);
+                        $f_par = Storage::disk($disk)->url($logFileName);
+                    } catch (Exception $e) {
+                        Log::error("Flashlog.log error: ".$e->getMessage());
+                    }
                 }
             }
         }
@@ -544,7 +842,7 @@ class FlashLog extends Model
                 $csv_saved = $this->addCsvToFlashlog($flashlog_filled['flashlog']);
                 //dd($csv_saved, $this->meta_data);
                 if ($csv_saved)
-                    $result["Meta data"] = CalculationModel::arrayToString($this->meta_data, ', ', '', ['valid_data_points','port2_times_device']);
+                    $result["Meta data"] = CalculationModel::arrayToString($this->meta_data, ', ', '', ['valid_data_points','port2_times_device','firmwares','lowest_bv']);
             }
         }
 
@@ -597,7 +895,12 @@ class FlashLog extends Model
                         {
                             // if device has RTC, then use first port 3 message as first block ID
                             if (!isset($first_p3_mes))
+                            {
                                 $first_p3_mes = $f;
+                                $block_count++;
+                                $onoffs[$block_count] = $f;
+                                $onoffs[$block_count]['block_count'] = $block_count;
+                            }
 
                             $last_p3_mes = $f;
                         }
@@ -628,6 +931,7 @@ class FlashLog extends Model
             $onoffs[0] = $first_p3_mes;
         }
 
+        //dd($onoffs);
         //Log::debug(['getFlashLogOnOffs', 'device_id'=>$device->id, 'fl_length'=>$fl_length, 'p2'=>$p2_mes_count, 'p3'=>$p3_mes_count, 'fl_index'=>$fl_index, 'fl_index_end'=>$fl_index_end, 'onoffs'=>$onoffs]);
 
         return array_values($onoffs);
@@ -785,7 +1089,7 @@ class FlashLog extends Model
     // Set time and add weight_kg by calibration 
     private function setFlashBlockTimes($match, $block_i, $startInd, $endInd, $flashlog, $device, $show=false, $sec_diff_per_index=null, $add_sensordefinitions=true, $use_device_time=false)
     {
-        if (isset($match) && isset($match['flashlog_index']) && isset($match['minute_interval']) && isset($match['time'])) // set times for current block
+        if (isset($match) && isset($match['flashlog_index']) && (isset($match['minute_interval']) || $use_device_time) && isset($match['time'])) // set times for current block
         {
             $matchInd= $match['flashlog_index'];
             $messages= $endInd - $startInd;
@@ -795,7 +1099,8 @@ class FlashLog extends Model
             {
                 $blockStaOff = $startInd - $matchInd;
                 $blockEndOff = $endInd - $matchInd;
-                $matchSecInt = isset($sec_diff_per_index) ? $sec_diff_per_index : $match['minute_interval']*60;
+                $second_intv = isset($match['minute_interval']) ? $match['minute_interval']*60 : $device->measurement_interval_min*60;
+                $matchSecInt = isset($sec_diff_per_index) ? $sec_diff_per_index : $second_intv;
                 
                 $matchTime   = $match['time'];
                 $matchMoment = new Moment($matchTime);
@@ -806,7 +1111,7 @@ class FlashLog extends Model
                 $blockStaDate= $blockStart->format($this->timeFormat);
                 $blockEnd    = $endMoment->addSeconds(round($blockEndOff * $matchSecInt));
                 $blockEndDate= $blockEnd->format($this->timeFormat);
-
+            
                 // Load active weight device sensor definitions
                 $weight_m_ids  = Measurement::getWeightMeasurementIds();
                 $sensor_defs_w = $device->activeTypeDateSensorDefinitions($weight_m_ids['input_id'], $weight_m_ids['output_id'], $blockStaDate, $blockEndDate);
@@ -906,6 +1211,171 @@ class FlashLog extends Model
         return ['flashlog'=>$flashlog];
     }
 
+    // Fix RTC month index rollover bug in fw 1.5.13 where the key dates are to be replaced by the value dates to reverse the RTC bug 
+    // Only replace if the current date if it occurs twice and the target date does not yet exist
+    private function fixBugRtcMonthIndex($data_array, $return_bug_detected=false, $start_index=null, $end_index=null)
+    {
+        $primary_dates_to_replace = [
+        // flashlog_date => actual date (1 2, or 3 days earlier), this includes dates where It might be possible that the RTC wasn't updated during firmware updates, in which case the date will be 1 month out of date
+            "2023-05-01" => "2023-05-31",
+            "2023-06-01" => "2023-05-31", // after 2023-05-30, 2023-06-01 will be written as FL date, so 2023-05-31 will not exist, and 2023-06-01 will have double data
+            "2023-07-01" => "2023-07-31",
+            "2023-08-01" => "2023-07-31",
+            "2023-10-01" => "2023-10-31",
+            "2023-11-01" => "2023-10-31",
+            "2023-12-01" => "2023-12-31",
+            "2024-01-01" => "2023-12-31",
+            "2024-03-01" => "2024-03-30",
+            "2024-03-02" => "2024-03-31",
+            "2024-04-01" => "2024-03-30",
+            "2024-04-02" => "2024-03-31",
+            "2024-05-01" => "2024-05-31",
+            "2024-06-01" => "2024-05-31",
+            "2024-07-01" => "2024-07-31",
+            "2024-08-01" => "2024-07-31",
+            "2024-10-01" => "2024-10-31",
+            "2024-11-01" => "2024-10-31",
+            "2024-12-01" => "2024-12-31",
+            "2025-01-01" => "2024-12-31",
+            "2025-03-01" => "2025-03-29",
+            "2025-03-02" => "2025-03-30",
+            "2025-03-03" => "2025-03-31",
+            "2025-04-01" => "2025-03-29",
+            "2025-04-02" => "2025-03-30",
+            "2025-04-03" => "2025-03-31",
+            "2025-05-01" => "2025-05-31",
+            "2025-06-01" => "2025-05-31",
+            "2025-07-01" => "2025-07-31",
+            "2025-08-01" => "2025-07-31",
+        ];
+
+        // Build final dates_to_replace array based on valid_data_points
+        $dates_to_replace   = [];
+        $min_data_points    = 110;
+        $saved              = false;
+        $meta_data          = $this->meta_data;
+                    
+        if (isset($meta_data['valid_data_points']) && is_array($meta_data['valid_data_points']))
+        {
+            $vdp = $meta_data['valid_data_points'];
+            
+            // Check primary dates
+            foreach ($primary_dates_to_replace as $date => $corrected_date)
+            {
+                // Only apply replacement if:
+                // 1. The incorrect date has sufficient data points (> min_data_points)
+                // 2. The corrected date doesn't already have data (to prevent overwriting valid data)
+                
+                if (isset($vdp[$date]) && is_numeric($vdp[$date]) && $vdp[$date] > $min_data_points)
+                {
+                    if (!isset($vdp[$corrected_date]) || $vdp[$corrected_date] < $vdp[$date] - 96)
+                    {
+                        $dates_to_replace[$date] = $corrected_date;
+                        
+                        if (!$return_bug_detected)
+                            Log::debug("fixBugRtcMonthIndex fl=$this->id, found date to replace: $date -> $corrected_date has ".$vdp[$date]." data points"); 
+                    }
+                }
+            }
+        }
+
+        if (count($dates_to_replace) > 0)
+        {
+            if ($return_bug_detected)
+                return true;
+
+            if (!isset($start_index))
+                $start_index = 0;
+
+            if (!isset($end_index))
+                $end_index = count($data_array)-1;
+
+            $replace_count = 0;
+            $time_memory   = 0;
+            $date_memory   = null; // memory for next date 
+            $date_replaces = 0;
+            $date_changed  = false;
+            $dates_replaced= [];
+            
+            for ($index = $start_index; $index <= $end_index; $index++) // look forwards to replace the first occurence in the flashlog, because it replaces with a date for last port 3 time_device without error
+            {
+                if (isset($data_array[$index]['time_device']))
+                {
+                    $time_device   = intval($data_array[$index]['time_device']);
+                    $dtime_device  = date('Y-m-d H:i:s', $time_device);
+                    $date_device   = substr($dtime_device, 0, 10); // YYYY-MM-DD        
+                    
+                    if (isset($dates_to_replace[$date_device]))
+                    {
+                        if (!in_array($date_device, $dates_replaced)) // first entry of new date, allow this whole block until date change, or time decrease
+                        {
+                            Log::debug("fixBugRtcMonthIndex $index fl=$this->id, found new date $date_device to replace");
+                            $dates_replaced[] = $date_device;
+                            $date_replaces = 0;
+                            $date_changed  = false; 
+                            $time_decrease = false;
+                            $date_memory   = $date_device;
+                        }
+                        else
+                        {
+                            $time_decrease = $time_device < $time_memory ? true : false; // indicate that time increases, because at moment of decrease, replace should stop
+                            $time_memory   = $time_device;                          
+                            $date_changed  = $date_memory !== null && $date_memory != $date_device ? true : false; // true is new date
+                            $date_memory   = $date_device;
+                        }
+
+                        // replace date for incorrect RTC dates (only first encountered block)
+                        if ($time_decrease || $date_changed || $date_replaces == 96)
+                        {
+                            Log::debug("fixBugRtcMonthIndex $index fl=$this->id, date_device=$date_device, time_decrease=$time_decrease, date_changed=$date_changed, date_replaces=$date_replaces so do not replace anymore");
+                            unset($dates_to_replace[$date_memory]); // skip the next block of this date, because this is the actual correct read out date that should be remained
+                        }
+                        else
+                        {
+                            $correct_date                      = $dates_to_replace[$date_device];
+                            $dtime_device                      = $correct_date . substr($dtime_device, 10); // corrected date + original time
+                            $data_array[$index]['time_device'] = strtotime($dtime_device); // correct time by $device_time
+                            $data_array[$index]['time']        = $dtime_device ; // correct time by $device_time
+                            $data_array[$index]['time_corr']   = isset($data_array[$index]['time_corr']) ? $data_array[$index]['time_corr'].' + rtc-replace' : 'rtc-replace';
+                            
+                            $replace_count++;
+                            $date_replaces++;
+
+                            Log::debug("fixBugRtcMonthIndex $index fl=$this->id, replaced $date_device with $correct_date => $dtime_device");
+                        }
+                    }
+                }
+            }
+            
+            Log::debug("fixBugRtcMonthIndex fl=$this->id, $replace_count items replaced for fl_id=$this->id start_index=$start_index, end_index=$end_index"); 
+
+            if ($replace_count > 0)
+            {
+                $this->addMetaData($data_array, true, false, ['fixBugRtcMonthIndex'=>$replace_count], false); // Do NOT fixBugRtcMonthIndex again
+                
+                // Store corrected data_array to log_file_parsed
+                $disk        = env('FLASHLOG_STORAGE', 'public');
+                $time        = date("YmdHis");
+                $logFileName = "flashlog/sensor_".$this->device_id."_flash_parsed_$time.json";
+                $saved       = Storage::disk($disk)->put($logFileName, json_encode($data_array), ['mimetype' => 'application/json']);
+                $file_url    = Storage::disk($disk)->url($logFileName);
+
+                $this->log_file_parsed = $file_url;
+                $this->save();
+            }
+
+        } 
+        else
+        {
+            if ($return_bug_detected)
+                return false;
+
+            Log::debug("fixBugRtcMonthIndex fl=$this->id, no dates to replace for start_index=$start_index, end_index=$end_index"); 
+        }
+
+        return $saved;
+    }
+
     private function matchFlashLogBlock($block_index, $fl_index, $end_index, $on, $flashlog, $setCount, $device, $log, $db_time, $matches_min, $match_props, $db_records, $show=false, $add_sensordefinitions=true, $use_rtc=true, $last_onoff=false, $correct_data=false, $previous_offset=0)
     {
         $has_matches     = false;
@@ -920,8 +1390,7 @@ class FlashLog extends Model
         $duration_min    = $interval * $indexes;
         $duration_hrs    = round($duration_min / 60, 1);
         $min_timestamp   = self::$minUnixTime;
-        $max_timestamp   = min(time(), strtotime($this->created_at)); // PGe 20250909: used to be time(), but created_at is FL upload date, so should not go beyond that;
-
+        $max_timestamp   = isset($this->created_at) ? strtotime($this->created_at) : time(); // PGe 20250909: used to be time(), but created_at is FL upload date, so should not go beyond that;
         // check if database query should be based on the device time, or the cached time from the 
         $use_device_time = false;
 
@@ -941,6 +1410,7 @@ class FlashLog extends Model
         // correct device time in last onoff block if it is not close to upload date, or goes beyond the $max_timestamp
         if (($correct_data || $time_correct_set) && $use_rtc) 
         {
+            
             for ($index=$end_index; $index >= $start_index; $index--) // look backwards for last port 3 time_device without error
             {
                 if (isset($flashlog[$index]['port']) && $flashlog[$index]['port'] == 3 && isset($flashlog[$index]['time_device']))
@@ -959,25 +1429,25 @@ class FlashLog extends Model
                     // In last block, correct for difference with last time value and upload date ($max_timestamp)
                     if ($correct_data && $last_onoff)
                     {
-                        if (!isset($flashlog[$index]['time_error']))
-                        {
-                            if ($time_device > $time_device_last)
-                                $time_device_last = $time_device; // log for checking if whole block time is too_low
+                        // if (!isset($flashlog[$index]['time_error']))
+                        // {
+                        //     if ($time_device > $time_device_last)
+                        //         $time_device_last = $time_device; // log for checking if whole block time is too_low
 
-                            if (!isset($time_device_end))
-                            {
-                                $time_device_end = $time_device;
-                                $time_end_index  = $index;
+                        //     if (!isset($time_device_end))
+                        //     {
+                        //         $time_device_end = $time_device;
+                        //         $time_end_index  = $index;
                                 
-                                if (!isset($device_time_offset) && $time_device_end > $max_timestamp)
-                                {
-                                    $device_time_offset = $max_timestamp - $time_device_end - $upload_time_sec; // offset negative number, minus 120 sec for upload time
-                                    $time_device_end    = $time_device_end + $device_time_offset;
+                        //         if (!isset($device_time_offset) && $time_device_end > $max_timestamp)
+                        //         {
+                        //             $device_time_offset = $max_timestamp - $time_device_end - $upload_time_sec; // offset negative number, minus 120 sec for upload time
+                        //             $time_device_end    = $time_device_end + $device_time_offset;
 
-                                    //dd($block_index, $on, $start_index, $end_index, $flashlog[$start_index-1], $flashlog[$end_index-1], $device_time_offset);
-                                }
-                            }
-                        }
+                        //             //dd($block_index, $time_end_index, $time_device, $time_device_end, $device_time_offset, $max_timestamp, $upload_time_sec, $on, $start_index, $end_index, $flashlog[$start_index-1], $flashlog[$end_index-1]);
+                        //         }
+                        //     }
+                        // }
 
                         // Correct too_high complete block offset time by interval
                         if (isset($device_time_offset)) 
@@ -1000,31 +1470,31 @@ class FlashLog extends Model
             }
 
             // Correct too_low complete block offset time by interval
-            if ($correct_data && $last_onoff && $time_device_last < $max_timestamp - 3600)
-            {
-                $device_time_offset = $max_timestamp - $time_device_last - $upload_time_sec;
-                //dd($on, $start_index, $end_index, $time_device_last, date('Y-m-d H:i:s', $time_device_last), $time_device_end, date('Y-m-d H:i:s', $time_device_end));
+            // if ($correct_data && $last_onoff && $time_device_last < $max_timestamp - 3600)
+            // {
+            //     $device_time_offset = $max_timestamp - $time_device_last - $upload_time_sec;
+            //     //dd($on, $start_index, $end_index, $time_device_last, date('Y-m-d H:i:s', $time_device_last), $time_device_end, date('Y-m-d H:i:s', $time_device_end));
 
-                for ($index=$end_index; $index >= $start_index; $index--)  // correct time backwards from last index
-                {
-                    if (isset($flashlog[$index]['port']) && $flashlog[$index]['port'] == 3 && isset($flashlog[$index]['time_device']))
-                    {
-                        $time_device_new = intval($flashlog[$index]['time_device']) + $device_time_offset;
-                        $flashlog[$index]['time_device'] = $time_device_new; // correct time by $device_time_offset
-                        $flashlog[$index]['time']        = date('Y-m-d H:i:s', $time_device_new); // correct time by $device_time
-                        $flashlog[$index]['time_offset'] = $device_time_offset; 
-                        $flashlog[$index]['time_corr']   = isset($flashlog[$index]['time_corr']) ? $flashlog[$index]['time_corr'].' + up' : 'up';
-                        $use_device_time                 = true;
-                        unset($flashlog[$index]['time_error']);
-                    }
-                }
-                //dd($time_end_index, date('Y-m-d H:i:s', $time_device_end), $on, $start_index, $end_index, $time_device_last, date('Y-m-d H:i:s', $time_device_last), $time_device_end, date('Y-m-d H:i:s', $time_device_end));
-            }
+            //     for ($index=$end_index; $index >= $start_index; $index--)  // correct time backwards from last index
+            //     {
+            //         if (isset($flashlog[$index]['port']) && $flashlog[$index]['port'] == 3 && isset($flashlog[$index]['time_device']))
+            //         {
+            //             $time_device_new = intval($flashlog[$index]['time_device']) + $device_time_offset;
+            //             $flashlog[$index]['time_device'] = $time_device_new; // correct time by $device_time_offset
+            //             $flashlog[$index]['time']        = date('Y-m-d H:i:s', $time_device_new); // correct time by $device_time
+            //             $flashlog[$index]['time_offset'] = $device_time_offset; 
+            //             $flashlog[$index]['time_corr']   = isset($flashlog[$index]['time_corr']) ? $flashlog[$index]['time_corr'].' + up' : 'up';
+            //             $use_device_time                 = true;
+            //             unset($flashlog[$index]['time_error']);
+            //         }
+            //     }
+            //     //dd($time_end_index, date('Y-m-d H:i:s', $time_device_end), $on, $start_index, $end_index, $time_device_last, date('Y-m-d H:i:s', $time_device_last), $time_device_end, date('Y-m-d H:i:s', $time_device_end));
+            // }
 
-            // Correct device time in same block, it the time goes back by 24 hours (caused by the RTC jump?)
+            // Correct device time in same block, if the time goes back by 24 hours (caused by the RTC jump?)
             $block_time_offset = 0;
             $block_manual_offset = 0;
-            $apply_time_shift_offset = false;
+            $apply_time_shift_offset = env('FLASHLOG_FIX_TIME_JUMP', true);
             for ($index=$start_index; $index <= $end_index; $index++) 
             {
                 if (isset($flashlog[$index]['time_device']) && !isset($flashlog[$index]['time_error']) && $flashlog[$index]['port'] == 3)
@@ -1061,8 +1531,21 @@ class FlashLog extends Model
                     }
 
                     // Detect jumps in time: if step in time it the wrong direction (down in stead of up), correct forwards for this jump
-                    if ($apply_time_shift_offset && $correct_data && $time_device_next < $time_device && $time_device < $max_timestamp && $time_device > self::$minUnixTime)
-                        $block_time_offset = $time_device - $time_device_next + $interval_sec;
+                    if ($apply_time_shift_offset && $correct_data)
+                    {
+                        $next_time_offset = $time_device - $time_device_next;
+
+                        if (abs($next_time_offset) > 85000 && abs($next_time_offset) < 87400 && $time_device < $max_timestamp && $time_device > self::$minUnixTime) // only detect jumps of 24h back/forward in time (fw 1.5.13 RTC readout bug)
+                        {
+                            $block_time_offset = $next_time_offset + $interval_sec - $previous_offset;
+                            Log::debug("matchFlashLogBlock block_i=$block_index, fl_i=$fl_index, i=$index, previous_offset=$previous_offset, next_time_offset=$next_time_offset, block_time_offset=$block_time_offset");
+                            $device_time_offset= $block_time_offset; // make sure step time offset is pushed to the next block
+                        }
+                    }
+                }
+                else
+                {
+                    Log::debug("matchFlashLogBlock NOT CORR block_i=$block_index, fl_i=$fl_index, i=$index, previous_offset=$previous_offset, block_time_offset=$block_time_offset");
                 }
             }
         }
@@ -1287,26 +1770,30 @@ class FlashLog extends Model
             $block_index  = $on_i;
             $on           = $on_offs[$on_i];
             $last_onoff   = $block_index == $onoff_cnt-1 ? true : false;
-            $end_index    = $on['end_index'];
-
-            // if ($start_index >= $fl_index)
-            // {
             
-            $matchBlockResult = $this->matchFlashLogBlock($block_index, $fl_index, $end_index, $on, $flashlog, $setCount, $device, $log, $db_time, $matches_min, $match_props, $db_records, $show, $add_sensordefinitions, $use_rtc, $last_onoff, $correct_data, $offset_s);
-            $flashlog         = $matchBlockResult['flashlog'];
-            $offset_s         = $matchBlockResult['device_time_offset'];
-            $db_time          = $matchBlockResult['db_time'];
-            $log              = $matchBlockResult['log'];
-            $setCount         = $matchBlockResult['setCount'];
-            $fl_index         = $matchBlockResult['fl_index'];
-            $matches         += $matchBlockResult['has_matches'] ? 1 : 0;
-            // }
-            // else
-            // {
-            // if ($show)
-            //     $log[] = ['block'=> $block_index, 'block_i'=>$block_index, 'start_i'=>$start_index, 'end_i'=>$end_index, 'duration_hours'=>$duration_hrs, 'fl_i'=>$fl_index, 'db_time'=>$db_time, 'fw_version'=>$firmware_version, 'interval_min'=>$on['measurement_interval_min'], 'transmission_ratio'=>$on['measurement_transmission_ratio'], 'no_matches'=>'start_index < fl_index'];
-            // }
-            //Log::debug(['fillTimeFromInflux', 'device_id'=>$device->id, 'use_rtc'=>$use_rtc, 'matches'=>$matches, 'db_time'=>$db_time, 'log'=>$log]);
+            if (isset($on['end_index']))
+            {
+                $end_index    = $on['end_index'];
+
+                // if ($start_index >= $fl_index)
+                // {
+                
+                $matchBlockResult = $this->matchFlashLogBlock($block_index, $fl_index, $end_index, $on, $flashlog, $setCount, $device, $log, $db_time, $matches_min, $match_props, $db_records, $show, $add_sensordefinitions, $use_rtc, $last_onoff, $correct_data, $offset_s);
+                $flashlog         = $matchBlockResult['flashlog'];
+                $offset_s         = $matchBlockResult['device_time_offset'];
+                $db_time          = $matchBlockResult['db_time'];
+                $log              = $matchBlockResult['log'];
+                $setCount         = $matchBlockResult['setCount'];
+                $fl_index         = $matchBlockResult['fl_index'];
+                $matches         += $matchBlockResult['has_matches'] ? 1 : 0;
+                // }
+                // else
+                // {
+                // if ($show)
+                //     $log[] = ['block'=> $block_index, 'block_i'=>$block_index, 'start_i'=>$start_index, 'end_i'=>$end_index, 'duration_hours'=>$duration_hrs, 'fl_i'=>$fl_index, 'db_time'=>$db_time, 'fw_version'=>$firmware_version, 'interval_min'=>$on['measurement_interval_min'], 'transmission_ratio'=>$on['measurement_transmission_ratio'], 'no_matches'=>'start_index < fl_index'];
+                // }
+                //Log::debug(['fillTimeFromInflux', 'device_id'=>$device->id, 'use_rtc'=>$use_rtc, 'matches'=>$matches, 'db_time'=>$db_time, 'log'=>$log]);
+            }
         }
 
         $records_flashlog = 0;
@@ -1397,13 +1884,14 @@ class FlashLog extends Model
              + array_slice($array, $position, null, true);
     }
 
-    public static function exportData($data, $name, $csv=true, $separator=',', $link_override=false, $validate_time=false, $min_unix_ts=null, $max_unix_ts=null)
+    public static function exportData(&$data, $name, $csv=true, $separator=',', $link_override=false, $validate_time=false, $min_unix_ts=null, $max_unix_ts=null, $csv_columns=null)
     {
         $link     = $link_override ? $link_override : env('FLASHLOG_EXPORT_LINK', true);
         $time_min = isset($min_unix_ts) ? $min_unix_ts : self::$minUnixTime;
         $time_max = isset($max_unix_ts) ? $max_unix_ts : time();
 
         //dd($name, gettype($data));
+        Log::debug("Export data $name csv=$csv");
         
         if ($data && gettype($data) == 'array' && count($data) > 0)
         {
@@ -1413,97 +1901,138 @@ class FlashLog extends Model
             $data_count = count($data);
             $date_times = []; // check which date times (rounded on minute) are already set
             
+                                 
             if ($csv)
             {
                 // format CSV header row: time, sensor1 (unit2), sensor2 (unit2), etc. Exclude the 'sensor' and 'key' columns
-                $header_item  = null;
+                $header_arr   = null;
                 $header_count = 0;
                 $csv_body     = [];
 
-                // Run backwards through the data, because time can be adjusted backwards, then the new (and correct) data if in the lower end of the file 
-                for ($i=$data_count-1; $i >= 0; $i--) 
-                { 
-                    $data_item       = $data[$i];
-                    $data_item_count = count($data_item);
-                    if ($data_item_count > 2 && (!isset($data_item['port']) || $data_item['port'] == 3)) // min 2 data items + time, and is port defined, should be port 3
+                // create $header_arr
+                if (empty($csv_columns))
+                {
+                    foreach ($data as $key => $data_item)
                     {
-                        //change order of time
-                        $data_time = null;
-                        $data_ts   = null;
-                        $data_time_utc = '';
-                        
-                        if (isset($data_item['time']) && !isset($data_item['time_error']))
+                        $param_count = count($data_item);
+                        if ($param_count > $header_count)
                         {
-                            $data_time = $data_item['time'];
-                            $data_ts   = strtotime($data_time);
-                            unset($data_item['time']);
-                            
-                            $data_time_utc = str_replace(' ', 'T', $data_time).'Z'; // Format as Influx time + UTC timezone
-
-                            // Add data point to date_arr and set frist/last data date
-                            if ($data_ts >= $time_min && $data_ts < $time_max) // time is set (also allow previously parsed Flashlogs without RTC), or time_device should be correctly set
-                            {
-                                if ($last_date === null)
-                                    $last_date = $data_time; // update until last item with date
-
-                                $first_date = $data_time;
-                            }
+                            $header_count = $param_count;
+                            $header_arr   = self::cleanFlashlogItem(array_keys($data_item), true);
+                            unset($header_arr['time']);
+                            array_unshift($header_arr, 'time'); // put time first
                         }
-                        
-                        if ($validate_time == false || (isset($data_ts) && $data_ts >= $time_min && $data_ts < $time_max))
+                    }
+                } 
+                else
+                {
+                    $header_arr = $csv_columns;
+                }
+                Log::debug("Export CSV headers: ".implode(',', $header_arr));
+
+                if (isset($header_arr) && gettype($header_arr) == 'array')
+                {
+                    // Run backwards through the data, because time can be adjusted backwards, then the new (and correct) data if in the lower end of the file 
+                    for ($i=$data_count-1; $i >= 0; $i--) 
+                    { 
+                        $data_item       = $data[$i];
+                        $data_item_count = count($data_item);
+                        if ($data_item_count > 2 && (!isset($data_item['port']) || $data_item['port'] == 3)) // min 2 data items + time, and is port defined, should be port 3
                         {
-                            $date_time_round_min = $data_ts; // Round to minute, to store only 1 value per minute: YYYY-MM-DD HH:mm (leave :ss)
-
-                            if (!in_array($date_time_round_min, $date_times))
+                            //change order of time
+                            $data_time = null;
+                            $data_ts   = null;
+                            $data_time_utc = '';
+                            
+                            if (isset($data_item['time']) && !isset($data_item['time_error']))
                             {
-                                $data_item       = array_merge(['time'=>$data_time_utc], $data_item); // Time in first column
-                                $data_item_clean = self::cleanFlashlogItem($data_item, true);
-
-                                // Add missing temperature column (for combined flashlogs having no t_i at first but afterwards added)
-                                if (!isset($data_item_clean['t_i']))
-                                    $data_item_clean = self::insertAt($data_item_clean, 3, 't_i', null); // after w_v
-
-                                array_unshift($csv_body, implode($separator, $data_item_clean)); // because of walking backwards through data, prepend to array to have the final array time ascending again
+                                $data_time = $data_item['time'];
+                                $data_ts   = strtotime($data_time);
+                                unset($data_item['time']);
                                 
-                                // get biggest headers
-                                $param_count = count($data_item_clean);
-                                if ($param_count > $header_count)
+                                // Make time with timezone GMT (Z) and T for time
+                                $data_time_utc = str_replace(' ', 'T', $data_time);
+
+                                if (strlen($data_time_utc) == 19 && substr($data_time_utc, -1) != 'Z')
+                                    $data_time_utc .= 'Z'; // Format as Influx time + UTC timezone
+                                
+                                // Add data point to date_arr and set frist/last data date
+                                if ($data_ts >= $time_min && $data_ts < $time_max) // time is set (also allow previously parsed Flashlogs without RTC), or time_device should be correctly set
                                 {
-                                    $header_count = $param_count;
-                                    $header_item  = $data_item_clean;
+                                    if ($last_date === null)
+                                        $last_date = $data_time; // update until last item with date
+
+                                    $first_date = $data_time;
                                 }
-                                
-                                // Register data_ts in date_times to not overwrite
-                                $date_times[] = $date_time_round_min;
+                            }
+                            
+                            if ($validate_time == false || (isset($data_ts) && $data_ts >= $time_min && $data_ts < $time_max))
+                            {
+                                $date_time_round_min = $data_ts; // Round to minute, to store only 1 value per minute: YYYY-MM-DD HH:mm (leave :ss)
+
+                                if (!in_array($date_time_round_min, $date_times))
+                                {
+                                    $data_item_clean = self::cleanFlashlogItem($data_item, true);
+                                    $data_item_clean['time']   = $data_time_utc;
+                                    $data_item_clean['source'] = isset($data_item['db']) ? 'db' : 'fl';
+
+                                    // Write each row, aligning to predefined columns
+                                    $row = [];
+                                    foreach ($header_arr as $m_abbr)
+                                    {
+                                        $row[] = isset($data_item_clean[$m_abbr]) ? $data_item_clean[$m_abbr] : ''; // fill missing with blank
+                                    }
+                                    
+                                    // Add item to $csv_body
+                                    array_unshift($csv_body, implode($separator, $row)); // because of walking backwards through data, prepend to array to have the final array time ascending again
+                                                                    
+                                    // Register data_ts in date_times to not overwrite
+                                    $date_times[] = $date_time_round_min;
+                                }
                             }
                         }
                     }
-                }
 
-                if (isset($header_item) && gettype($header_item) == 'array')
-                {
-                    // format CSV
-                    $csv_sens = array_keys($header_item);
-                    $csv_head = [];
-                    foreach ($csv_sens as $header) 
+                    $data_count = count($csv_body);
+                    Log::debug("Export data count=$data_count");
+
+
+
+                    // format CSV header
+                    $csv_head_str = []; // Header names (incl. unit)
+                    $csv_head_row = "";
+
+                    foreach ($header_arr as $header) 
                     {
                         if ($header == 'time')
                         {
-                            $col_head = 'time';
+                            $col_head = 'Time';
+                        }
+                        else if ($header == 'w_v')
+                        {
+                            $col_head = 'Raw weight measurement (w_v)';
+                        }
+                        else if ($header == 'source')
+                        {
+                            $col_head = 'Data source';
                         }
                         else
                         {
                             $meas       = Measurement::where('abbreviation', $header)->first();
-                            $col_head   = !$meas ? $header : $meas->pq_name_unit();
-                            $col_head  .= $meas ? " ($header)" : "";
+                            $pq_unit    = $meas ? $meas->pq_name_unit() : '-';
+                            $col_head   = $pq_unit == '-' ? $header : "$pq_unit ($header)";
                         }
 
-                        $csv_head[] = $col_head;
+                        $csv_head_str[] = $col_head;
                     }
-                    $csv_head = '"'.implode('"'.$separator.'"', $csv_head).'"'."\r\n";
+                    $csv_head_row = '"'.implode('"'.$separator.'"', $csv_head_str).'"'."\r\n";
+
+                    // Sort array by time ascending
+                    sort($csv_body); // since time column is first, use this to sort
+                    Log::debug("Export data sorted ascending");
 
                     // format CSV file body
-                    $fileBody = $csv_head.implode("\r\n", $csv_body);
+                    $fileBody = $csv_head_row.implode("\r\n", $csv_body);
                 }
             }
             else
@@ -1536,15 +2065,16 @@ class FlashLog extends Model
         return ['error'=>'export_not_saved'];
     }
 
-    public function addMetaData($data, $validate_time=false, $only_return_meta_data=false)
+    public function addMetaData($data, $validate_time=false, $only_return_meta_data=false, $add_items=null, $fixBugRtcMonthIndex=true)
     {
-        $time_min = self::$minUnixTime;
-        $time_max = time();
+        Log::debug("addMetaData fl=$this->id, validate_time=$validate_time, only_return_meta_data=$only_return_meta_data, fixBugRtcMonthIndex=$fixBugRtcMonthIndex, add_items=".json_encode($add_items)); 
 
-        //dd($name, gettype($data));
+        $saved = false;
         
         if ($data && gettype($data) == 'array' && count($data) > 0)
         {
+            $time_min = self::$minUnixTime;
+            $time_max = time();
             $first_date = null; 
             $last_date  = null; 
             $data_days  = null;
@@ -1559,12 +2089,19 @@ class FlashLog extends Model
             $port3_ts_mn= null;
             $port3_ts_mx= null;
             $port3_msg  = 0;
+            $firmwares  = [];
             $time_errs  = [];
+            $time_e_cnt = 0;
             $time_clock = [];
             $weight_arr = []; // array of weight measurements
-            $date_arr   = []; // array with date (YYYY-MM-DD) as key and amount of valid data points (timestamps) as value
+            $date_arr   = []; // array with date (YYYY-MM-DD) as key and amount of valid data points (timestamps with weight and time set) as value
+            $date_arr_bv= []; // array with date (YYYY-MM-DD) as key and minimum battery voltage of valid data points (timestamps) as value
             $date_times = []; // check which date times (rounded on minute) are already set
-        
+            $batVoltage = null;  
+            $batLowCount= 0;
+            $batLowBlock= 0;
+            $batLowFlag = false;
+
             for ($i=$data_count-1; $i >= 0; $i--) 
             { 
                 $data_item   = $data[$i];
@@ -1581,7 +2118,7 @@ class FlashLog extends Model
                         $data_ts   = strtotime($data_time);
                         $data_date = substr($data_time, 0, 10);
                         if (!isset($date_arr[$data_date]))
-                            $date_arr[$data_date] = ['t'=>0, 'w'=>0, 'port2'=>0, 'port2_times_device'=>[]];
+                            $date_arr[$data_date] = ['t'=>0, 'w'=>0, 'bv'=>null, 'port2'=>0, 'port2_times_device'=>[]];
 
                     }
 
@@ -1607,7 +2144,7 @@ class FlashLog extends Model
 
                     if ($data_item['port'] == 2)
                     {
-                        $port2_msg+= 1;
+                        $port2_msg++;
 
                         // Log min time
                         if (isset($time_device)){
@@ -1629,17 +2166,23 @@ class FlashLog extends Model
 
                         if (isset($data_date))
                         {
+                            $dtime_device = date('Y-m-d H:i:s', $time_device);
                             $date_arr[$data_date]['port2']++;
-                            array_unshift($date_arr[$data_date]['port2_times_device'], "[".$data_item['i']."] $time_device: ".date('Y-m-d H:i:s', $time_device)); // push to front of array, so it in ascending order again
+                            array_unshift($date_arr[$data_date]['port2_times_device'], "[".$data_item['i']."] $time_device: $dtime_device"); // push to front of array, so it in ascending order again
+                        }
+
+                        if (isset($data_item['firmware_version']))
+                        {
+                            $dtime_device = date('Y-m-d H:i:s', $time_device);
+                            $firmwares[$i] = $data_item['firmware_version'] . " @ $dtime_device";
                         }
 
                     }
                     else if ($data_item['port'] == 3)
                     {
                         //change order of time
-                        $port3_msg+= 1;
+                        $port3_msg++;
                         
-
                         // Log min time
                         if (isset($data_ts)){
                             if ($port3_ts_mn === null)
@@ -1676,6 +2219,28 @@ class FlashLog extends Model
                                 $port3_dts_mx = $time_device;
                         }
 
+                        // Log port 3 time errors
+                        if (isset($data_ts) && ($data_ts < $time_min || $data_ts > $time_max))
+                            $time_e_cnt++;
+
+                        // Log battery voltage
+                        if (isset($data_item['bv']))
+                        {
+                            $batVoltage = $data_item['bv'];
+                            if ($batVoltage < 2.7)
+                            {
+                                if (!$batLowFlag)
+                                    $batLowBlock++; // change of flag
+
+                                $batLowFlag = true;
+                                $batLowCount++;
+                            } 
+                            else if ($batVoltage > 2.9) // 0.2V hysteresis to avoid counting too many blocks
+                            {
+                                $batLowFlag = false;
+                            }
+                        }
+
                         if ( $validate_time == false || (isset($data_ts) && $data_ts >= $time_min && $data_ts < $time_max))
                         {
                             $date_time_round_min = $data_ts; // Round to minute, to store only 1 value per minute: YYYY-MM-DD HH:mm (leave :ss)
@@ -1705,7 +2270,10 @@ class FlashLog extends Model
                                     
                                     if ($weight_set)
                                         $date_arr[$data_date]['w']++; // count 1 data point if weight AND time are set
-                                }
+
+                                    if ($date_arr[$data_date]['bv'] === null || ($batVoltage !== null && $batVoltage < $date_arr[$data_date]['bv']))
+                                        $date_arr[$data_date]['bv'] = $batVoltage; // register lowest battery voltage of the day
+                                }       
 
                                 // Register data_ts in date_times to not overwrite
                                 $date_times[] = $date_time_round_min;
@@ -1726,9 +2294,14 @@ class FlashLog extends Model
 
                 foreach ($date_arr as $d => $date_totals)
                 {
-                    $cnt_time_only   = $date_totals['t']; // weight AND time set
-                    $cnt_time_weight = $date_totals['w']; // weight AND time set
-                    $date_arr[$d]    = $cnt_time_weight;
+                    $cnt_time_only   = $date_totals['t']; 
+                    $cnt_time_weight = $date_totals['w'];  // weight AND time set
+                    $lowest_bv       = $date_totals['bv']; // lowest day battery voltage
+
+                    if ($lowest_bv !== null)
+                        $date_arr_bv[$d] = $lowest_bv;
+
+                    $date_arr[$d]    = $cnt_time_weight;   // replace date array with valid values
                     $day_fraction    = $cnt_time_only > $max_data_per_day ? 1 : $cnt_time_only / $max_data_per_day; // 0-1
                     $day_fraction_w  = $cnt_time_weight > $max_data_per_day ? 1 : $cnt_time_weight / $max_data_per_day; // 0-1
                     $data_days      += $day_fraction;
@@ -1738,60 +2311,95 @@ class FlashLog extends Model
                         $port2_dates[$d] = $date_totals['port2_times_device'];
                 }
             }
+
+            $batLowPerc  = $batLowCount > 0 && $port3_msg > 0 ? round(100 * $batLowCount / $port3_msg, 1) : 0;
+            $timeErrPerc = $time_e_cnt > 0  && $port3_msg > 0 ? round(100 * $time_e_cnt / $port3_msg, 1) : 0;
+            $meta_data   = [
+                'port2_msg'=>$port2_msg, 
+                'port3_msg'=>$port3_msg, 
+                'data_days'=>$data_days, 
+                'data_days_weight'=>$data_days_w,
+                'bat_low_perc'=>$batLowPerc,
+                'bat_low_blocks'=>$batLowBlock,
+                'time_err_perc'=>$timeErrPerc
+            ];
+
+            if (count($firmwares) > 0)
+                $meta_data['firmwares'] = $firmwares;
+
+            if (count($port2_dates) > 0)
+                $meta_data['port2_times_device'] = $port2_dates;
+
+            if (isset($port2_dts_mn))
+                $meta_data["port2_device_time_first"] = date('Y-m-d H:i:s', $port2_dts_mn);
+
+            if (isset($port2_dts_mx))
+            {
+                $meta_data["port2_device_time_last"] = date('Y-m-d H:i:s', $port2_dts_mx);
+                if ($port2_dts_mx > $time_max)
+                    $meta_data["time_off"] = true;
+            }
+
+            if (isset($port3_dts_mn))
+                $meta_data["port3_device_time_first"] = date('Y-m-d H:i:s', $port3_dts_mn);
+
+            if (isset($port3_dts_mx))
+                $meta_data["port3_device_time_last"] = date('Y-m-d H:i:s', $port3_dts_mx);
+
+            if (isset($port3_ts_mn))
+                $meta_data["port3_time_first"] = date('Y-m-d H:i:s', $port3_ts_mn);
+
+            if (isset($port3_ts_mx))
+                $meta_data["port3_time_last"] = date('Y-m-d H:i:s', $port3_ts_mx);
+
+            if (count($time_clock) > 0)
+            {
+                foreach($time_clock as $msg => $msg_cnt)
+                    $meta_data["time_clock_$msg"] = $msg_cnt;
+            }
+
+            if (count($time_errs) > 0)
+            {
+                foreach($time_errs as $err => $err_cnt)
+                    $meta_data["time_err_$err"] = $err_cnt;
+            }
+
+            if (count($weight_arr) > 0)
+                $meta_data['weight_kg'] = CalculationModel::calculateBoxplot($weight_arr);
+
+            if (count($date_arr) > 0 && array_sum($date_arr) > 0)
+                $meta_data['valid_data_points'] = $date_arr;
+
+            if (count($date_arr_bv) > 0)
+                $meta_data['lowest_bv'] = $date_arr_bv;
+
+            if (is_array($add_items))
+            {
+                foreach ($add_items as $key => $value)
+                    $meta_data[$key] = $value;
+            }
+
+            if ($only_return_meta_data)
+            {
+                return array_merge(['log_date_start'=>$first_date, 'log_date_end'=>$last_date], $meta_data);
+            }
+
+            // Default, save meta to Flashlog
+            $this->log_date_start       = $first_date;
+            $this->log_date_end         = $last_date;
+            $this->meta_data            = $meta_data; // first store meta data on flashlog to use in fixBugRtcMonthIndex
+            $meta_data['rtc_bug']       = $this->fixBugRtcMonthIndex(null, true); // indicate bug
+            $this->meta_data            = $meta_data;
+            $this->logs_per_day         = $this->getLogPerDay();
+            $saved = $this->save();
+
+
+            // Fix RTC error before saving
+            if ($fixBugRtcMonthIndex)
+                $this->fixBugRtcMonthIndex($data);
+
         }
-
-        $meta_data  = ['port2_msg'=>$port2_msg, 'port3_msg'=>$port3_msg, 'data_days'=>$data_days, 'data_days_weight'=>$data_days_w];
-
-        if (count($port2_dates) > 0)
-            $meta_data['port2_times_device'] = $port2_dates;
-
-        if (isset($port2_dts_mn))
-            $meta_data["port2_device_time_first"] = date('Y-m-d H:i:s', $port2_dts_mn);
-
-        if (isset($port2_dts_mx))
-            $meta_data["port2_device_time_last"] = date('Y-m-d H:i:s', $port2_dts_mx);
-
-        if (isset($port3_dts_mn))
-            $meta_data["port3_device_time_first"] = date('Y-m-d H:i:s', $port3_dts_mn);
-
-        if (isset($port3_dts_mx))
-            $meta_data["port3_device_time_last"] = date('Y-m-d H:i:s', $port3_dts_mx);
-
-        if (isset($port3_ts_mn))
-            $meta_data["port3_time_first"] = date('Y-m-d H:i:s', $port3_ts_mn);
-
-        if (isset($port3_ts_mx))
-            $meta_data["port3_time_last"] = date('Y-m-d H:i:s', $port3_ts_mx);
-
-        if (count($time_clock) > 0)
-        {
-            foreach($time_clock as $msg => $msg_cnt)
-                $meta_data["time_clock_$msg"] = $msg_cnt;
-        }
-
-        if (count($time_errs) > 0)
-        {
-            foreach($time_errs as $err => $err_cnt)
-                $meta_data["time_err_$err"] = $err_cnt;
-        }
-
-        if (count($weight_arr) > 0)
-            $meta_data['weight_kg'] = CalculationModel::calculateBoxplot($weight_arr);
-
-        if (count($date_arr) > 0 && array_sum($date_arr) > 0)
-            $meta_data['valid_data_points'] = $date_arr;
-
-        if ($only_return_meta_data)
-        {
-            return array_merge(['log_date_start'=>$first_date, 'log_date_end'=>$last_date], $meta_data);
-        }
-
-        // Default, save meta to Flashlog
-        $this->log_date_start = $first_date;
-        $this->log_date_end   = $last_date;
-        $this->meta_data      = $meta_data;
-        $this->logs_per_day   = $this->getLogPerDay();
-        return $this->save();
+        return $saved;
     }
 
     // from log_file_parsed property
@@ -1803,7 +2411,7 @@ class FlashLog extends Model
             $data_array = $flashlog_array;
         }
 
-        if (!isset($data_array) && isset($this->log_parsed)) // use parsed log file to generate CSV
+        if (empty($data_array) && isset($this->log_parsed)) // use parsed log file to generate CSV
         {
             $flashlog_parsed_text = $this->getFileContent('log_file_parsed');
             if (!empty($flashlog_parsed_text))
@@ -1815,8 +2423,10 @@ class FlashLog extends Model
         if (!empty($data_array))
         {
             // Add metadata 
+            Log::debug("addMetaToFlashlog $this->id");
             return $this->addMetaData($data_array, true);
         }
+        Log::debug("addMetaToFlashlog $this->id Err: no data array");
         return false;
     }
 

@@ -65,6 +65,13 @@ return [
             'replace_placeholders' => true,
         ],
 
+        'calibration' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/calibration.log'),
+            'level' => 'info',
+            'days' => 1095,
+        ],
+
         'slack' => [
             'driver' => 'slack',
             'url' => env('LOG_SLACK_WEBHOOK_URL'),
@@ -119,7 +126,5 @@ return [
             'path' => storage_path('logs/laravel.log'),
         ],
     ],
-
-
 
 ];

@@ -6,25 +6,27 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
+    // This migration was previously named 2026_06_02_000001_add_expiration_index_to_cache_table (ran before the cache table was created on fresh installs).
+    // Databases that already ran it under that name have the indexes, so only add/drop them when needed.
     public function up()
     {
-        Schema::table('cache', function (Blueprint $table) {
-            $table->index('expiration');
-        });
-
-        Schema::table('cache_locks', function (Blueprint $table) {
-            $table->index('expiration');
-        });
+        foreach (['cache', 'cache_locks'] as $tableName) {
+            if (! Schema::hasIndex($tableName, ['expiration'])) {
+                Schema::table($tableName, function (Blueprint $table) {
+                    $table->index('expiration');
+                });
+            }
+        }
     }
 
     public function down()
     {
-        Schema::table('cache', function (Blueprint $table) {
-            $table->dropIndex(['expiration']);
-        });
-
-        Schema::table('cache_locks', function (Blueprint $table) {
-            $table->dropIndex(['expiration']);
-        });
+        foreach (['cache', 'cache_locks'] as $tableName) {
+            if (Schema::hasIndex($tableName, ['expiration'])) {
+                Schema::table($tableName, function (Blueprint $table) {
+                    $table->dropIndex(['expiration']);
+                });
+            }
+        }
     }
 };

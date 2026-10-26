@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('page-title') {{ __('crud.edit').' '.__('beep.InspectionItem').': '.(isset($inspectionitem->name) ? $inspectionitem->name : '' }}
+@section('page-title') {{ __('crud.edit').' '.__('beep.InspectionItem').': '.(isset($inspectionitem->name) ? $inspectionitem->name : '') }}
 @endsection
 
 @section('content')

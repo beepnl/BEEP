@@ -2,7 +2,7 @@
     @foreach ($categories as $category)
 
         <p>
-        {{ $category->ancName($locale, '.') }}{{ isset($category->trans[$locale]) ? $category->trans[$locale] : isset($category->name) ? $category->name : '' }}
+        {{ $category->ancName($locale, '.') }}{{ $category->trans[$locale] ?? $category->name ?? '' }}
         </p>
 
         @include('taxonomy.partials.line', [ 'categories' => $category->children, 'locale'=>$locale ])

@@ -1,17 +1,15 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
-class CreateProductionTable extends Migration
+return new class extends Migration
 {
     /**
      * Run the migrations.
-     *
-     * @return void
      */
-    public function up()
+    public function up(): void
     {
         Schema::create('productions', function (Blueprint $table) {
             $table->increments('id')->index();
@@ -34,7 +32,7 @@ class CreateProductionTable extends Migration
             $table->tinyInteger('brood_perc_queen')->nullable();
             $table->tinyInteger('brood_perc_drone')->nullable();
             $table->tinyInteger('brood_perc_worker')->nullable();
-            $table->tinyInteger('pattern_score')->nullable(); 
+            $table->tinyInteger('pattern_score')->nullable();
             $table->timestamp('created_at')->useCurrent();
             $table->softDeletes();
         });
@@ -42,13 +40,10 @@ class CreateProductionTable extends Migration
 
     /**
      * Reverse the migrations.
-     *
-     * @return void
      */
-    public function down()
+    public function down(): void
     {
-        Schema::table('productions', function(Blueprint $table)
-        {
+        Schema::table('productions', function (Blueprint $table) {
             $table->dropForeign(['hive_id']);
             $table->dropForeign(['frame_id']);
             $table->dropForeign(['category_id']);
@@ -56,4 +51,4 @@ class CreateProductionTable extends Migration
 
         Schema::dropIfExists('productions');
     }
-}
+};

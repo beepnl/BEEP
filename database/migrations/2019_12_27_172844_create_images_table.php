@@ -3,14 +3,12 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 
-class CreateImagesTable extends Migration
+return new class extends Migration
 {
     /**
      * Run the migrations.
-     *
-     * @return void
      */
-    public function up()
+    public function up(): void
     {
         Schema::create('images', function (Blueprint $table) {
             $table->increments('id');
@@ -30,30 +28,26 @@ class CreateImagesTable extends Migration
             $table->integer('inspection_id')->unsigned()->nullable();
 
             $table->foreign('user_id')->references('id')->on('users')
-                    ->onUpdate('cascade')->onDelete('cascade');
+                ->onUpdate('cascade')->onDelete('cascade');
 
             $table->foreign('hive_id')->references('id')->on('hives')
-                    ->onUpdate('cascade')->onDelete('cascade');
+                ->onUpdate('cascade')->onDelete('cascade');
 
             $table->foreign('category_id')->references('id')->on('categories')
-                    ->onUpdate('cascade');
+                ->onUpdate('cascade');
 
             $table->foreign('inspection_id')->references('id')->on('inspections')
-                    ->onUpdate('cascade');
+                ->onUpdate('cascade');
         });
     }
 
     /**
      * Reverse the migrations.
-     *
-     * @return void
      */
-    public function down()
+    public function down(): void
     {
-        if (Schema::hasTable('images')) 
-        {
-            Schema::table('images', function (Blueprint $table) 
-            {
+        if (Schema::hasTable('images')) {
+            Schema::table('images', function (Blueprint $table) {
                 $table->dropForeign(['inspection_id']);
                 $table->dropForeign(['category_id']);
                 $table->dropForeign(['hive_id']);
@@ -62,4 +56,4 @@ class CreateImagesTable extends Migration
             });
         }
     }
-}
+};

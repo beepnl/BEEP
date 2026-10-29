@@ -15,23 +15,23 @@
 			</ul>
 		</div>
 	@endif
-	{!! Form::open(array('route' => 'groups.store','method'=>'POST')) !!}
+	{{ html()->form('POST', route('groups.store'))->open() }}
 	<div class="row">
 		<div class="col-xs-12 col-sm-12 col-md-12">
             <div class="form-group">
                 <label>{{ __('crud.name') }}:</label>
-                {!! Form::text('name', null, array('placeholder' => __('crud.name'),'class' => 'form-control')) !!}
+                {{ html()->text('name')->placeholder(__('crud.name'))->class('form-control') }}
             </div>
         </div>
         <div class="col-xs-12 col-sm-12 col-md-12">
             <div class="form-group">
                 <label>{{ __('crud.type') }}:</label>
-                {!! Form::text('type', null, array('placeholder' => __('crud.type'),'class' => 'form-control')) !!}
+                {{ html()->text('type')->placeholder(__('crud.type'))->class('form-control') }}
             </div>
         </div>
         <div class="col-xs-12 col-sm-12 col-md-12 text-center">
 			<button type="submit" class="btn btn-primary btn-block">{{ __('crud.save') }}</button>
         </div>
 	</div>
-	{!! Form::close() !!}
+	{{ html()->form()->close() }}
 @endsection

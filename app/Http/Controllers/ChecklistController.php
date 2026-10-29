@@ -2,20 +2,16 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests;
-use App\Http\Controllers\Controller;
-
-use Auth;
-use App\User;
-use App\Checklist;
-use App\Language;
 use App\Category;
 use App\CategoryFactory;
-use App\CategoryInput;
+use App\Checklist;
+use App\User;
+use Auth;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use LaravelLocalization;
-
 use Illuminate\Support\Facades\DB;
+use Illuminate\View\View;
+use LaravelLocalization;
 
 class ChecklistController extends Controller
 {
@@ -26,54 +22,48 @@ class ChecklistController extends Controller
 
     /**
      * Display a listing of the resource.
-     *
-     * @return \Illuminate\View\View
      */
-    public function index(Request $request)
+    public function index(Request $request): View
     {
-        
-        if (Auth::user()->hasRole('superadmin'))
+
+        if (Auth::user()->hasRole('superadmin')) {
             $checklists = CheckList::with('users')->get();
-        else
+        } else {
             $checklists = $this->getUserChecklists()->get();
-            
+        }
+
         return view('checklists.index', compact('checklists'));
     }
 
     /**
      * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\View\View
      */
-    public function create()
+    public function create(): View
     {
-        $taxonomy       = Category::getTaxonomy();
-        $selected       = $this->categoryFactory->get_old_ids_array();
-        $users          = User::all()->pluck('name','id');
-        $selectedUserIds= [Auth::user()->id];
-        $checklist      = Checklist::create([]);
+        $taxonomy = Category::getTaxonomy();
+        $selected = $this->categoryFactory->get_old_ids_array();
+        $users = User::all()->pluck('name', 'id');
+        $selectedUserIds = [Auth::user()->id];
+        $checklist = Checklist::create([]);
 
         return view('checklists.create', compact('taxonomy', 'selected', 'users', 'selectedUserIds', 'checklist'));
     }
 
-
     /**
      * Store a newly created resource in storage.
      *
-     * @param \Illuminate\Http\Request $request
      *
      * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
      */
-    public function store(Request $request)
+    public function store(Request $request): RedirectResponse
     {
-        
+
         $requestData = $request->except(['user_id']);
-        $checklist   = Checklist::create($requestData);
+        $checklist = Checklist::create($requestData);
 
         $this->addChecklistToUsers($request, $checklist);
 
-        if ($request->filled('categories'))
-        {
+        if ($request->filled('categories')) {
             $categories = explode(',', $request->input('categories'));
             $checklist->syncCategories($categories);
         }
@@ -83,67 +73,56 @@ class ChecklistController extends Controller
 
     /**
      * Display the specified resource.
-     *
-     * @param  int  $id
-     *
-     * @return \Illuminate\View\View
      */
-    public function show($id)
+    public function show(int $id): View
     {
         $checklist = $this->getUserChecklists()->find($id);
-        $items     = $checklist->categories()->get()->toTree();
-        $selected  = $items->pluck('id')->toArray();
+        $items = $checklist->categories()->get()->toTree();
+        $selected = $items->pluck('id')->toArray();
 
         return view('checklists.show', compact('checklist', 'items', 'selected'));
     }
 
     /**
      * Show the form for editing the specified resource.
-     *
-     * @param  int  $id
-     *
-     * @return \Illuminate\View\View
      */
-    public function edit($id)
+    public function edit(int $id): View
     {
-        $locale    = LaravelLocalization::getCurrentLocale();
+        $locale = LaravelLocalization::getCurrentLocale();
         $checklist = $this->getUserChecklists()->find($id);
-        $selected  = $checklist->categoryIdArray();
-        $taxonomy  = $checklist->getOrderedChecklist($selected);
-        
-        $users     = User::all()->pluck('name','id');
+        $selected = $checklist->categoryIdArray();
+        $taxonomy = $checklist->getOrderedChecklist($selected);
+
+        $users = User::all()->pluck('name', 'id');
         $selectedUserIds = $checklist->users()->pluck('id');
 
-        //die(print_r(['id'=>$selectedUserIds, 'cl'=>$checklist->toArray()]));
+        // die(print_r(['id'=>$selectedUserIds, 'cl'=>$checklist->toArray()]));
         return view('checklists.edit', compact('checklist', 'taxonomy', 'selected', 'users', 'selectedUserIds'));
     }
 
     private function addChecklistToUsers(Request $request, $checklist)
     {
-        if ($checklist)
+        if ($checklist) {
             $checklist->users()->sync($request->input('user_id'));
+        }
     }
 
     /**
      * Update the specified resource in storage.
      *
-     * @param \Illuminate\Http\Request $request
-     * @param  int  $id
-     *
      * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
      */
-    public function update(Request $request, $id)
+    public function update(Request $request, int $id): RedirectResponse
     {
-        
+
         $requestData = $request->except(['user_id']);
-        
+
         $checklist = $this->getUserChecklists()->find($id);
         $checklist->update($requestData);
 
         $this->addChecklistToUsers($request, $checklist);
 
-        if ($request->filled('categories'))
-        {
+        if ($request->filled('categories')) {
             $categories = explode(',', $request->input('categories'));
             $checklist->syncCategories($categories);
         }
@@ -154,20 +133,18 @@ class ChecklistController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  int  $id
-     *
      * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
      */
-    public function destroy($id)
+    public function destroy(int $id): RedirectResponse
     {
         $this->getUserChecklists()->find($id)->delete();
 
         return redirect('checklists')->with('flash_message', 'Checklist deleted!');
     }
 
-    public function destroyCopies()
+    public function destroyCopies(): RedirectResponse
     {
-        Checklist::where('type','like','%_copy%')->forceDelete();
+        Checklist::where('type', 'like', '%_copy%')->forceDelete();
 
         $checklist_ids = Checklist::pluck('id')->toArray();
         DB::table('checklist_category')->whereNotIn('checklist_id', $checklist_ids)->delete();
@@ -179,10 +156,10 @@ class ChecklistController extends Controller
 
     private function getUserChecklists()
     {
-        if (Auth::user()->hasRole('superadmin'))
-        {
+        if (Auth::user()->hasRole('superadmin')) {
             return Checklist::all();
         }
+
         return Auth::user()->checklists();
     }
 }

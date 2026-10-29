@@ -3,14 +3,13 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests;
-
-use App\Models\ChecklistSvg;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 /**
  * @group Api\ChecklistSvgController
  * Manage stored SVG checklists (for off-line input)
+ *
  * @authenticated
  */
 class ChecklistSvgController extends Controller
@@ -19,7 +18,7 @@ class ChecklistSvgController extends Controller
     api/checklist-svg GET
     Show your list of stored SVG inspections
     @authenticated
-    **/
+     **/
     public function index(Request $request)
     {
         $checklist_svg = $request->user()->checklistSvgs;
@@ -36,10 +35,10 @@ class ChecklistSvgController extends Controller
     @bodyParam name string The name of the inspection SVG
     @bodyParam last_print datetime The last print datetime
     @authenticated
-    **/
-    public function store(Request $request)
+     **/
+    public function store(Request $request): JsonResponse
     {
-        
+
         $checklist_svg = $request->user()->checklistSvgs()->create($request->all());
 
         return response()->json($checklist_svg, 201);
@@ -49,10 +48,10 @@ class ChecklistSvgController extends Controller
     api/checklist-svg/{id} GET
     Show an SVG inspection
     @authenticated
-    **/
-    public function show($id)
+     **/
+    public function show(Request $request, $id)
     {
-        $checklist_svg = $request->user()->checklistSvgs()->findOrFail($id);
+        $checklist_svg = $request->user()->checklistSvgs()->findOrFail($id); // DONE-LARAVEL-UPGRADE fixed error 'Use of unassigned variable '$request'' - this route IS registered (api/checklist-svg/{id} GET), added Request $request as parameter
 
         return $checklist_svg;
     }
@@ -61,10 +60,10 @@ class ChecklistSvgController extends Controller
     api/checklist-svg/{id} PATCH
     Edit an SVG inspection
     @authenticated
-    **/
-    public function update(Request $request, $id)
+     **/
+    public function update(Request $request, $id): JsonResponse
     {
-        
+
         $checklist_svg = $request->user()->checklistSvgs()->findOrFail($id);
         $checklist_svg->update($request->all());
 
@@ -75,10 +74,10 @@ class ChecklistSvgController extends Controller
     api/checklist-svg/{id} DELETE
     Delete an SVG inspection
     @authenticated
-    **/
-    public function destroy($id)
+     **/
+    public function destroy(Request $request, $id): JsonResponse
     {
-        $request->user()->checklistSvgs()->destroy($id);
+        $request->user()->checklistSvgs()->destroy($id); // DONE-LARAVEL-UPGRADE fixed error 'Use of unassigned variable '$request'' - this route IS registered (api/checklist-svg/{id} DELETE), added Request $request as parameter
 
         return response()->json(null, 204);
     }

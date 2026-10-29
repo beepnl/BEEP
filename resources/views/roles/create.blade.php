@@ -15,24 +15,24 @@
 			</ul>
 		</div>
 	@endif
-	{!! Form::open(array('route' => 'roles.store','method'=>'POST')) !!}
+	{{ html()->form('POST', route('roles.store'))->open() }}
 	<div class="row">
 		<div class="col-xs-12 col-sm-12 col-md-12">
             <div class="form-group">
                 <label>{{ __('crud.name') }}:</label>
-                {!! Form::text('name', null, array('placeholder' => __('crud.name'),'class' => 'form-control')) !!}
+                {{ html()->text('name')->placeholder(__('crud.name'))->class('form-control') }}
             </div>
         </div>
 		<div class="col-xs-12 col-sm-12 col-md-12">
             <div class="form-group">
                 <label>{{ __('crud.display_name') }}:</label>
-                {!! Form::text('display_name', null, array('placeholder' => __('crud.display_name'),'class' => 'form-control')) !!}
+                {{ html()->text('display_name')->placeholder(__('crud.display_name'))->class('form-control') }}
             </div>
         </div>
         <div class="col-xs-12 col-sm-12 col-md-12">
             <div class="form-group">
                 <label>{{ __('crud.description') }}:</label>
-                {!! Form::textarea('description', null, array('placeholder' => __('crud.description'),'class' => 'form-control','style'=>'height:100px')) !!}
+                {{ html()->textarea('description')->placeholder(__('crud.description'))->class('form-control')->style('height:100px') }}
             </div>
         </div>
         <div class="col-xs-12 col-sm-12 col-md-12">
@@ -41,7 +41,7 @@
                 <p class="help-block">{{ __('crud.select_multi', ['item'=>__('general.permission')]) }}</p>
                 <p>
                 @foreach($permission as $value)
-                	<label>{{ Form::checkbox('permission[]', $value->id, false, array('class' => 'name')) }}
+                	<label>{{ html()->checkbox('permission[]', false, $value->id)->class('name') }}
                 	{{ $value->display_name }}</label>
                 	<br/>
                 @endforeach
@@ -52,5 +52,5 @@
 			<button type="submit" class="btn btn-primary btn-block">{{ __('crud.save') }}</button>
         </div>
 	</div>
-	{!! Form::close() !!}
+	{{ html()->form()->close() }}
 @endsection

@@ -7,7 +7,7 @@
     @component('components/box')
         @slot('title')
             {{ __('crud.overview', ['item'=>__('beep.Flash_logs')]) }}
-            {!! Form::open(['method' => 'GET', 'route' => 'flash-log.index', 'class' => 'form-inline', 'role' => 'search'])  !!}
+            {{ html()->form('GET', route('flash-log.index'))->class('form-inline')->attribute('role', 'search')->open() }}
             <div class="input-group" style="display: inline-block;">
                 <input type="text" class="form-control" style="max-width: 100px;" name="device" placeholder="Device..." value="{{ request('device') }}">
                 <span class="input-group-btn">
@@ -57,7 +57,7 @@
                     </div>
                 </div>
             </div>
-            {!! Form::close() !!}
+            {{ html()->form()->close() }}
             <span><h5><em>NB: De 'Device', 'User' & 'Flashlog properties' filter velden filteren max 50 flashlog op volgorde van de laatste upload uit de database</em></h5></span>
         @endslot
 

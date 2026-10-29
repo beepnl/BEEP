@@ -32,7 +32,7 @@ If you would like to install this BEEP API (the code in this) repo on your own s
 
 * Linux Debian (8+)
 * Software installed
-  * PHP 7.4+
+  * PHP 8.3+ (with extensions gd, zip and pdo_mysql)
   * MariaDB/MySQL
   * Apache 2 (or Nginx, creating Nginx 'server blocks' in step 4)
   * InfluxDB (https://docs.influxdata.com/influxdb/v1.7/introduction/installation/)
@@ -65,7 +65,7 @@ if [ ! -f '.env' ]; then cp .env.example .env && php artisan key:generate; fi
 composer install && sudo chmod -R 777 storage && sudo chmod -R 777 bootstrap/cache && php artisan storage:link && php artisan migrate --force
 ```
 
-NB: To stick to a certain PHP version (on the server e.g. 7.4.33), use ```composer install --ignore-platform-reqs``` or ```composer update --ignore-platform-reqs```
+NB: Dependencies are resolved for PHP 8.3 (see `config.platform.php` in composer.json). Do not use ```--ignore-platform-reqs``` to install on an older PHP version: Laravel 13 requires PHP 8.3+.
 
 ## 4. Set up your end-points
 

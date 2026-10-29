@@ -5,9 +5,6 @@ namespace App\Mail;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
-use Illuminate\Contracts\Queue\ShouldQueue;
-
-use App\Group;
 
 class GroupAcceptation extends Mailable
 {
@@ -20,9 +17,9 @@ class GroupAcceptation extends Mailable
      */
     public function __construct($name, $group, $user)
     {
-        $this->name  = $name;
+        $this->name = $name;
         $this->group = $group;
-        $this->user  = $user;
+        $this->user = $user;
     }
 
     /**
@@ -30,16 +27,16 @@ class GroupAcceptation extends Mailable
      *
      * @return $this
      */
-    public function build()
+    public function build(): static
     {
         return $this->markdown(
             'emails.group_acceptation',
             [
-                'group'=>$this->group, 
-                'name'=>$this->name, 
-                'user'=>$this->user
+                'group' => $this->group,
+                'name' => $this->name,
+                'user' => $this->user,
             ]
         )
-        ->subject(__('group.subject_accept'));
+            ->subject(__('group.subject_accept'));
     }
 }

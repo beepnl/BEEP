@@ -30,7 +30,7 @@
         @endslot
     @endcomponent
 
-    {!! Form::open([ 'route' => ['translations.update', $language->id], 'method' => 'PATCH' ]) !!}
+    {{ html()->form('PATCH', route('translations.update', $language->id))->open() }}
 
     @component('components/box')
         @slot('title')
@@ -38,7 +38,7 @@
         @endslot
 
         @slot('action')
-        	{!! Form::submit('Update translations', [ 'class' => 'btn btn-primary btn-block small' ]) !!}
+        	{{ html()->input('submit')->value('Update translations')->class('btn btn-primary btn-block small') }}
         @endslot
 
         @slot('body')
@@ -50,12 +50,12 @@
             @endif
 
             <div class="form-group">
-                {!! Form::submit('Update translations', [ 'class' => 'btn btn-primary btn-block' ]) !!}
+                {{ html()->input('submit')->value('Update translations')->class('btn btn-primary btn-block') }}
             </div>
 
         @endslot
     @endcomponent
 
-    {!! Form::close() !!}
+    {{ html()->form()->close() }}
     
 @endsection

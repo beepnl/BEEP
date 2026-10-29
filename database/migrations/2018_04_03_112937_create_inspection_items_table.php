@@ -3,19 +3,15 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 
-class CreateInspectionItemsTable extends Migration
+return new class extends Migration
 {
     /**
      * Run the migrations.
-     *
-     * @return void
      */
-    public function up()
+    public function up(): void
     {
-        if (!Schema::hasTable('inspection_items')) 
-        {
-            Schema::create('inspection_items', function (Blueprint $table) 
-            {
+        if (! Schema::hasTable('inspection_items')) {
+            Schema::create('inspection_items', function (Blueprint $table) {
                 $table->increments('id');
                 $table->string('value')->nullable();
                 $table->integer('inspection_id')->unsigned();
@@ -29,15 +25,11 @@ class CreateInspectionItemsTable extends Migration
 
     /**
      * Reverse the migrations.
-     *
-     * @return void
      */
-    public function down()
+    public function down(): void
     {
-        if (Schema::hasTable('inspection_items')) 
-        {
-            Schema::table('inspection_items', function(Blueprint $table)
-            {
+        if (Schema::hasTable('inspection_items')) {
+            Schema::table('inspection_items', function (Blueprint $table) {
                 $table->dropForeign(['inspection_id']);
                 $table->dropForeign(['category_id']);
             });
@@ -45,4 +37,4 @@ class CreateInspectionItemsTable extends Migration
 
         Schema::dropIfExists('inspection_items');
     }
-}
+};

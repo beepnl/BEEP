@@ -1,30 +1,25 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Database\Migrations\Migration;
 use App\Language;
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Support\Facades\Schema;
 
-class AddLanguageTwoChar extends Migration
+return new class extends Migration
 {
     /**
      * Run the migrations.
-     *
-     * @return void
      */
-    public function up()
+    public function up(): void
     {
-        Schema::table('languages', function ($table) 
-        {
-            if (!Schema::hasColumn('languages','twochar'))
+        Schema::table('languages', function ($table) {
+            if (! Schema::hasColumn('languages', 'twochar')) {
                 $table->string('twochar', 2)->nullable();
+            }
         });
 
         $languages = Language::all();
-        foreach ($languages as $l) 
-        {
-            if ($l->twochar == null)
-            {
+        foreach ($languages as $l) {
+            if ($l->twochar == null) {
                 $l->twochar = substr($l->abbreviation, 0, 2);
                 $l->save();
             }
@@ -33,14 +28,13 @@ class AddLanguageTwoChar extends Migration
 
     /**
      * Reverse the migrations.
-     *
-     * @return void
      */
-    public function down()
+    public function down(): void
     {
         Schema::table('languages', function ($table) {
-            if (Schema::hasColumn('languages','twochar'))
+            if (Schema::hasColumn('languages', 'twochar')) {
                 $table->dropColumn('twochar');
+            }
         });
     }
-}
+};

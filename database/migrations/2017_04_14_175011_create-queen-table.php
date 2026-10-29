@@ -1,17 +1,15 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
-class CreateQueenTable extends Migration
+return new class extends Migration
 {
     /**
      * Run the migrations.
-     *
-     * @return void
      */
-    public function up()
+    public function up(): void
     {
         Schema::create('bee_races', function (Blueprint $table) {
             $table->increments('id')->index();
@@ -22,7 +20,7 @@ class CreateQueenTable extends Migration
             $table->timestamps();
             $table->softDeletes();
         });
-           
+
         Schema::create('queens', function (Blueprint $table) {
             $table->increments('id')->index();
             $table->integer('hive_id')->unsigned();
@@ -30,7 +28,7 @@ class CreateQueenTable extends Migration
             $table->integer('race_id')->unsigned();
             $table->foreign('race_id')->references('id')->on('bee_races')->onUpdate('cascade');
             $table->string('name')->nullable();
-            $table->tinyInteger('quality')->nullable(); 
+            $table->tinyInteger('quality')->nullable();
             $table->boolean('fertilized')->defalut(false);
             $table->boolean('clipped')->defalut(false);
             $table->string('fertilizing_location')->nullable();
@@ -48,12 +46,10 @@ class CreateQueenTable extends Migration
 
     /**
      * Reverse the migrations.
-     *
-     * @return void
      */
-    public function down()
+    public function down(): void
     {
-        Schema::table('queens', function(Blueprint $table){
+        Schema::table('queens', function (Blueprint $table) {
             $table->dropForeign(['hive_id']);
             $table->dropForeign(['race_id']);
         });
@@ -61,4 +57,4 @@ class CreateQueenTable extends Migration
         Schema::dropIfExists('queens');
         Schema::dropIfExists('bee_races');
     }
-}
+};

@@ -2,7 +2,7 @@
 	<div class="form-group {{ $errors->has('alert_rule_id') ? 'has-error' : ''}}">
 	    <label for="alert_rule_id" control-label>{{ 'AlertRuleFormula' }}</label>
 	    <div>
-	        {!! Form::select('alert_rule_id', App\Models\AlertRule::selectList(), e($alertruleformula->alert_rule_id ?? null), array('placeholder'=>__('crud.select', ['item'=>__('beep.AlertRuleFormula')]),'class' => 'form-control select2')) !!}
+	        {{ html()->select('alert_rule_id', App\Models\AlertRule::selectList(), e($alertruleformula->alert_rule_id ?? null))->placeholder(__('crud.select', ['item' => __('beep.AlertRuleFormula')]))->class('form-control select2') }}
 	        {!! $errors->first('alert_rule_id', '<p class="help-block">:message</p>') !!}
 	    </div>
 	</div>
@@ -11,7 +11,7 @@
 	<div class="form-group {{ $errors->has('measurement_id') ? 'has-error' : ''}}">
 	    <label for="measurement_id" control-label>{{ 'Measurement' }}</label>
 	    <div>
-	        {!! Form::select('measurement_id', App\Measurement::selectList(), e($alertruleformula->measurement_id ?? null), array('placeholder'=>__('crud.select', ['item'=>__('general.measurement')]),'class' => 'form-control select2')) !!}
+	        {{ html()->select('measurement_id', App\Measurement::selectList(), e($alertruleformula->measurement_id ?? null))->placeholder(__('crud.select', ['item' => __('general.measurement')]))->class('form-control select2') }}
 	        {!! $errors->first('measurement_id', '<p class="help-block">:message</p>') !!}
 	    </div>
 	</div>

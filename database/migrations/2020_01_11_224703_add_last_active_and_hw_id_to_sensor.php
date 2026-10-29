@@ -1,17 +1,15 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
-class AddLastActiveAndHwIdToSensor extends Migration
+return new class extends Migration
 {
     /**
      * Run the migrations.
-     *
-     * @return void
      */
-    public function up()
+    public function up(): void
     {
         Schema::table('sensors', function (Blueprint $table) {
             $table->timestamp('last_message_received')->nullable();
@@ -27,10 +25,8 @@ class AddLastActiveAndHwIdToSensor extends Migration
 
     /**
      * Reverse the migrations.
-     *
-     * @return void
      */
-    public function down()
+    public function down(): void
     {
         Schema::table('sensors', function (Blueprint $table) {
             $table->dropColumn('last_message_received');
@@ -43,4 +39,4 @@ class AddLastActiveAndHwIdToSensor extends Migration
             $table->dropColumn('ble_pin');
         });
     }
-}
+};

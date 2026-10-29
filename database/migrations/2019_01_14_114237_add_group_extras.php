@@ -1,31 +1,27 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
-class AddGroupExtras extends Migration
+return new class extends Migration
 {
     /**
      * Run the migrations.
-     *
-     * @return void
      */
-    public function up()
+    public function up(): void
     {
         Schema::table('groups', function (Blueprint $table) {
             $table->text('description')->nullable();
             $table->string('icon')->nullable();
-            $table->string('hex_color',7)->nullable();
+            $table->string('hex_color', 7)->nullable();
         });
     }
 
     /**
      * Reverse the migrations.
-     *
-     * @return void
      */
-    public function down()
+    public function down(): void
     {
         Schema::table('groups', function (Blueprint $table) {
             $table->dropColumn('description');
@@ -33,4 +29,4 @@ class AddGroupExtras extends Migration
             $table->dropColumn('hex_color');
         });
     }
-}
+};

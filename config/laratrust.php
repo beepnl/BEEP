@@ -14,18 +14,44 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | Which permissions and role checker to use.
+    | Checkers
     |--------------------------------------------------------------------------
     |
-    | Defines if you want to use the roles and permissions checker.
-    | Available:
-    | - default: Check for the roles and permissions using the method that Laratrust
-                 has always used.
-    | - query: Check for the roles and permissions using direct queries to the database.
-    |           This method doesn't support cache yet.
+    | Manage Laratrust's role and permissions checkers configurations.
     |
-     */
-    'checker' => 'default',
+    */
+    'checkers' => [
+
+        /*
+        |--------------------------------------------------------------------------
+        | Which permissions checker to use.
+        |--------------------------------------------------------------------------
+        |
+        | Defines if you want to use the roles and permissions checker.
+        | Available:
+        | - default: Check for the roles and permissions using the method that Laratrust
+        |            has always used.
+        | - query: Check for the roles and permissions using direct queries to the database.
+        |           This method doesn't support cache yet.
+        | - class that extends Laratrust\Checkers\User\UserChecker
+        */
+        'user' => 'default',
+
+        /*
+        |--------------------------------------------------------------------------
+        | Which role checker to use.
+        |--------------------------------------------------------------------------
+        |
+        | Defines if you want to use the roles and permissions checker.
+        | Available:
+        | - default: Check for the roles and permissions using the method that Laratrust
+                     has always used.
+        | - query: Check for the roles and permissions using direct queries to the database.
+        |          This method doesn't support cache yet.
+        | - class that extends Laratrust\Checkers\Role\RoleChecker
+        */
+        'role' => 'default',
+    ],
 
     /*
     |--------------------------------------------------------------------------
@@ -46,7 +72,7 @@ return [
         | NOTE: Currently the database check does not use cache.
         |
         */
-        'enabled' => env('LARATRUST_ENABLE_CACHE', true),
+        'enabled' => env('LARATRUST_ENABLE_CACHE', env('APP_ENV') === 'production'),
 
         /*
         |--------------------------------------------------------------------------
@@ -67,7 +93,7 @@ return [
     | This is the array that contains the information of the user models.
     | This information is used in the add-trait command, for the roles and
     | permissions relationships with the possible user models, and the
-    | administration panel to attach roles and permissions to the users.
+    | administration panel to add roles and permissions to the users.
     |
     | The key in the array is the name of the relationship inside the roles and permissions.
     |
@@ -164,13 +190,13 @@ return [
     */
     'middleware' => [
         /**
-         * Define if the laratrust middleware are registered automatically in the service provider
+         * Define if the laratrust middleware are registered automatically in the service provider.
          */
         'register' => true,
 
         /**
          * Method to be called in the middleware return case.
-         * Available: abort|redirect
+         * Available: abort|redirect.
          */
         'handling' => 'abort',
 
@@ -180,11 +206,11 @@ return [
          */
         'handlers' => [
             /**
-             * Aborts the execution with a 403 code and allows you to provide the response text
+             * Aborts the execution with a 403 code and allows you to provide the response text.
              */
             'abort' => [
                 'code' => 403,
-                'message' => 'User does not have any of the necessary access rights.'
+                'message' => 'User does not have any of the necessary access rights.',
             ],
 
             /**
@@ -197,10 +223,10 @@ return [
                 'url' => '/home',
                 'message' => [
                     'key' => 'error',
-                    'content' => ''
-                ]
-            ]
-        ]
+                    'content' => '',
+                ],
+            ],
+        ],
     ],
 
     'teams' => [
@@ -220,10 +246,9 @@ return [
         | Strict check for roles/permissions inside teams
         |--------------------------------------------------------------------------
         |
-        | Determines if a strict check should be done when checking if a role or permission
-        | is attached inside a team.
+        | Determines if a strict check should be done when checking if a role or permission is added inside a team.
         | If it's false, when checking a role/permission without specifying the team,
-        | it will check only if the user has attached that role/permission ignoring the team.
+        | it will check only if the user has added that role/permission ignoring the team.
         |
         */
         'strict_check' => false,
@@ -272,6 +297,17 @@ return [
 
         /*
         |--------------------------------------------------------------------------
+        | Laratrust Panel Domain
+        |--------------------------------------------------------------------------
+        |
+        | This is the Domain Laratrust panel for roles and permissions
+        | will be accessible from.
+        |
+        */
+        'domain' => env('LARATRUST_PANEL_DOMAIN'),
+
+        /*
+        |--------------------------------------------------------------------------
         | Laratrust Panel Path
         |--------------------------------------------------------------------------
         |
@@ -296,7 +332,7 @@ return [
         | Laratrust Panel Route Middleware
         |--------------------------------------------------------------------------
         |
-        | These middleware will get attached onto each Laratrust panel route.
+        | These middleware will get added onto each Laratrust panel route.
         |
         */
         'middleware' => ['web'],
@@ -340,5 +376,5 @@ return [
             // The user won't be able to delete the role.
             'not_deletable' => [],
         ],
-    ]
+    ],
 ];

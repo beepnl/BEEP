@@ -2,7 +2,7 @@
 	<div class="form-group {{ $errors->has('user_id') ? 'has-error' : ''}}">
 	    <label for="user_id" control-label>{{ 'User Id' }}</label>
 	    <div>
-	        {!! Form::select('user_id', App\User::selectList(), isset($flashlog->user_id) ? $flashlog->user_id : null, array('id'=>'user_id', 'class' => 'form-control select2')) !!}
+	        {{ html()->select('user_id', App\User::selectList(), isset($flashlog->user_id) ? $flashlog->user_id : null)->id('user_id')->class('form-control select2') }}
 	        {!! $errors->first('user_id', '<p class="help-block">:message</p>') !!}
 	    </div>
 	</div>
@@ -11,7 +11,7 @@
 	<div class="form-group {{ $errors->has('device_id') ? 'has-error' : ''}}">
 	    <label for="device_id" control-label>{{ 'Device Id' }}</label>
 	    <div>
-	        {!! Form::select('device_id', App\Device::selectList(), isset($flashlog->device_id) ? $flashlog->device_id : null, array('id'=>'device_id', 'class' => 'form-control select2')) !!}
+	        {{ html()->select('device_id', App\Device::selectList(), isset($flashlog->device_id) ? $flashlog->device_id : null)->id('device_id')->class('form-control select2') }}
 	        {!! $errors->first('device_id', '<p class="help-block">:message</p>') !!}
 	    </div>
 	</div>

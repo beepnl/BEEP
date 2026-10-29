@@ -1,17 +1,15 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
-class AddFlashlogColumns extends Migration
+return new class extends Migration
 {
     /**
      * Run the migrations.
-     *
-     * @return void
      */
-    public function up()
+    public function up(): void
     {
         Schema::table('flash_logs', function (Blueprint $table) {
             $table->integer('log_size_bytes')->unsigned()->nullable();
@@ -21,14 +19,12 @@ class AddFlashlogColumns extends Migration
 
     /**
      * Reverse the migrations.
-     *
-     * @return void
      */
-    public function down()
+    public function down(): void
     {
         Schema::table('flash_logs', function (Blueprint $table) {
             $table->dropColumn('log_size_bytes');
             $table->dropColumn('log_erased');
         });
     }
-}
+};

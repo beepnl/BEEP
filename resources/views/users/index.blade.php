@@ -9,15 +9,15 @@
 	@component('components/box')
 		@slot('title')
 			{{ __('crud.overview', ['item'=>__('general.users')]) }}
-			{!! Form::open(['method' => 'GET', 'route' => 'users.index', 'class' => 'form-inline', 'role' => 'search'])  !!}
+			{{ html()->form('GET', route('users.index'))->class('form-inline')->attribute('role', 'search')->open() }}
             <div class="input-group" style="display: inline-block;">
                 <input type="text" class="form-control" style="max-width: 100px;" name="search" placeholder="Search User..." value="{{ request('search') }}">
                 <span class="input-group-btn">
                     <button type="submit" class="btn btn-deafult"><i class="fa fa-search"></i></button>
                 </span>
             </div>
-            {!! Form::hidden('page', $page) !!}
-            {!! Form::close() !!}
+            {{ html()->hidden('page', $page) }}
+            {{ html()->form()->close() }}
 		@endslot
 
 		@slot('action')
@@ -100,9 +100,9 @@
 							<a class="btn btn-primary" href="{{ route('users.edit',$user->id) }}" title="{{ __('crud.edit') }}"><i class="fa fa-pencil"></i></a>
 							@endpermission
 							@permission('user-delete')
-							{!! Form::open(['method' => 'DELETE','route' => ['users.destroy', $user->id], 'style'=>'display:inline', 'onsubmit'=>'return confirm("'.__('crud.sure',['item'=>__('general.user'),'name'=>'\''.$user->name.'\'']).'")']) !!}
-				            {!! Form::button('<i class="fa fa-trash-o"></i>', ['type'=>'submit', 'class' => 'btn btn-danger pull-right']) !!}
-				        	{!! Form::close() !!}
+							{{ html()->form('DELETE', route('users.destroy', $user->id))->style('display:inline')->attribute('onsubmit', 'return confirm("' . __('crud.sure', ['item' => __('general.user'), 'name' => '\'' . $user->name . '\'']) . '")')->open() }}
+				            <button type="submit" class="btn btn-danger pull-right"><i class="fa fa-trash-o"></i></button>
+				        	{{ html()->form()->close() }}
 				        	@endpermission
 						</td>
 					</tr>

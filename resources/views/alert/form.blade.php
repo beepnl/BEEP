@@ -2,7 +2,7 @@
 	<div class="form-group {{ $errors->has('alert_rule_id') ? 'has-error' : ''}}">
 	    <label for="alert_rule_id" control-label>{{ 'Alert Rule Id' }}</label>
 	    <div>
-	        {!! Form::select('alert_rule_id', App\Models\AlertRule::selectList(), e($alert->alert_rule_id ?? null), array('placeholder'=>__('crud.select', ['item'=>__('general.alert_rule')]),'class' => 'form-control select2')) !!}
+	        {{ html()->select('alert_rule_id', App\Models\AlertRule::selectList(), e($alert->alert_rule_id ?? null))->placeholder(__('crud.select', ['item' => __('general.alert_rule')]))->class('form-control select2') }}
 	        {!! $errors->first('alert_rule_id', '<p class="help-block">:message</p>') !!}
 	    </div>
 	</div>
@@ -29,7 +29,7 @@
 	<div class="form-group {{ $errors->has('measurement_id') ? 'has-error' : ''}}">
 	    <label for="measurement_id" control-label>{{ 'Measurement Id' }}</label>
 	    <div>
-	        {!! Form::select('measurement_id', App\Measurement::selectList(), e($alert->measurement_id ?? null), array('placeholder'=>__('crud.select', ['item'=>__('general.measurement')]),'class' => 'form-control select2')) !!}
+	        {{ html()->select('measurement_id', App\Measurement::selectList(), e($alert->measurement_id ?? null))->placeholder(__('crud.select', ['item' => __('general.measurement')]))->class('form-control select2') }}
 	        {!! $errors->first('measurement_id', '<p class="help-block">:message</p>') !!}
 	    </div>
 	</div>
@@ -79,7 +79,7 @@
 	<div class="form-group {{ $errors->has('location_id') ? 'has-error' : ''}}">
 	    <label for="location_id" control-label>{{ 'Location Id' }}</label>
 	    <div>
-	        {!! Form::select('location_id', App\Location::selectList(), e($alert->location_id ?? null), array('placeholder'=>__('crud.select', ['item'=>__('general.location')]),'class' => 'form-control select2')) !!}
+	        {{ html()->select('location_id', App\Location::selectList(), e($alert->location_id ?? null))->placeholder(__('crud.select', ['item' => __('general.location')]))->class('form-control select2') }}
 	        {!! $errors->first('location_id', '<p class="help-block">:message</p>') !!}
 	    </div>
 	</div>
@@ -97,7 +97,7 @@
 	<div class="form-group {{ $errors->has('device_id') ? 'has-error' : ''}}">
 	    <label for="device_id" control-label>{{ 'Device Id' }}</label>
 	    <div>
-	        {!! Form::select('device_id', App\Device::selectList(), e($alert->device_id ?? null), array('placeholder'=>__('crud.select', ['item'=>__('general.device')]),'class' => 'form-control select2')) !!}
+	        {{ html()->select('device_id', App\Device::selectList(), e($alert->device_id ?? null))->placeholder(__('crud.select', ['item' => __('general.device')]))->class('form-control select2') }}
 	        {!! $errors->first('device_id', '<p class="help-block">:message</p>') !!}
 	    </div>
 	</div>
@@ -106,7 +106,7 @@
 	<div class="form-group {{ $errors->has('user_id') ? 'has-error' : ''}}">
 	    <label for="user_id" control-label>{{ 'User Id' }}</label>
 	    <div>
-	        {!! Form::select('user_id', App\User::selectList(), e($alert->user_id ?? null), array('placeholder'=>__('crud.select', ['item'=>__('general.user')]),'class' => 'form-control select2')) !!}
+	        {{ html()->select('user_id', App\User::selectList(), e($alert->user_id ?? null))->placeholder(__('crud.select', ['item' => __('general.user')]))->class('form-control select2') }}
 	        {!! $errors->first('user_id', '<p class="help-block">:message</p>') !!}
 	    </div>
 	</div>

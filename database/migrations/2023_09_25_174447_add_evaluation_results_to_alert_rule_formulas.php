@@ -4,17 +4,14 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class AddEvaluationResultsToAlertRuleFormulas extends Migration
+return new class extends Migration
 {
     /**
      * Run the migrations.
-     *
-     * @return void
      */
-    public function up()
+    public function up(): void
     {
-        if (Schema::hasTable('alert_rule_formulas')) 
-        {
+        if (Schema::hasTable('alert_rule_formulas')) {
             Schema::table('alert_rule_formulas', function (Blueprint $table) {
                 $table->float('last_result_value')->nullable();
                 $table->boolean('last_evaluation_value')->default(false);
@@ -25,10 +22,8 @@ class AddEvaluationResultsToAlertRuleFormulas extends Migration
 
     /**
      * Reverse the migrations.
-     *
-     * @return void
      */
-    public function down()
+    public function down(): void
     {
         Schema::table('alert_rule_formulas', function (Blueprint $table) {
             $table->dropColumn('last_result_value');
@@ -36,4 +31,4 @@ class AddEvaluationResultsToAlertRuleFormulas extends Migration
             $table->dropColumn('last_evaluated_at');
         });
     }
-}
+};

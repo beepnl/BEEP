@@ -2,25 +2,22 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Controllers\Controller;
-use App\Http\Requests;
-
 use App\Models\AlertRuleFormula;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\View\View;
 
 class AlertRuleFormulaController extends Controller
 {
     /**
      * Display a listing of the resource.
-     *
-     * @return \Illuminate\View\View
      */
-    public function index(Request $request)
+    public function index(Request $request): View
     {
-        $keyword = $request->get('search');
+        $keyword = $request->input('search');
         $perPage = 25;
 
-        if (!empty($keyword)) {
+        if (! empty($keyword)) {
             $alertruleformula = AlertRuleFormula::where('alert_rule_id', 'LIKE', "%$keyword%")
                 ->orWhere('measurement_id', 'LIKE', "%$keyword%")
                 ->orWhere('calculation', 'LIKE', "%$keyword%")
@@ -39,34 +36,32 @@ class AlertRuleFormulaController extends Controller
 
     /**
      * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\View\View
      */
-    public function create()
+    public function create(): View
     {
-        $alertruleformula = new AlertRuleFormula();
+        $alertruleformula = new AlertRuleFormula;
+
         return view('alert-rule-formula.create');
     }
 
     /**
      * Store a newly created resource in storage.
      *
-     * @param \Illuminate\Http\Request $request
      *
      * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
      */
-    public function store(Request $request)
+    public function store(Request $request): RedirectResponse
     {
-        $this->validate($request, [
-			'alert_rule_id' => 'required',
-			'measurement_id' => 'required',
-			'calculation' => 'required',
-			'comparator' => 'required',
-			'comparison' => 'required',
-			'threshold_value' => 'required'
-		]);
+        $request->validate([
+            'alert_rule_id' => 'required',
+            'measurement_id' => 'required',
+            'calculation' => 'required',
+            'comparator' => 'required',
+            'comparison' => 'required',
+            'threshold_value' => 'required',
+        ]);
         $requestData = $request->all();
-        
+
         AlertRuleFormula::create($requestData);
 
         return redirect('alert-rule-formula')->with('flash_message', 'AlertRuleFormula added!');
@@ -74,12 +69,8 @@ class AlertRuleFormulaController extends Controller
 
     /**
      * Display the specified resource.
-     *
-     * @param  int  $id
-     *
-     * @return \Illuminate\View\View
      */
-    public function show($id)
+    public function show(int $id): View
     {
         $alertruleformula = AlertRuleFormula::findOrFail($id);
 
@@ -88,12 +79,8 @@ class AlertRuleFormulaController extends Controller
 
     /**
      * Show the form for editing the specified resource.
-     *
-     * @param  int  $id
-     *
-     * @return \Illuminate\View\View
      */
-    public function edit($id)
+    public function edit(int $id): View
     {
         $alertruleformula = AlertRuleFormula::findOrFail($id);
 
@@ -103,23 +90,20 @@ class AlertRuleFormulaController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param \Illuminate\Http\Request $request
-     * @param  int  $id
-     *
      * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
      */
-    public function update(Request $request, $id)
+    public function update(Request $request, int $id): RedirectResponse
     {
-        $this->validate($request, [
-			'alert_rule_id' => 'required',
-			'measurement_id' => 'required',
-			'calculation' => 'required',
-			'comparator' => 'required',
-			'comparison' => 'required',
-			'threshold_value' => 'required'
-		]);
+        $request->validate([
+            'alert_rule_id' => 'required',
+            'measurement_id' => 'required',
+            'calculation' => 'required',
+            'comparator' => 'required',
+            'comparison' => 'required',
+            'threshold_value' => 'required',
+        ]);
         $requestData = $request->all();
-        
+
         $alertruleformula = AlertRuleFormula::findOrFail($id);
         $alertruleformula->update($requestData);
 
@@ -129,11 +113,9 @@ class AlertRuleFormulaController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  int  $id
-     *
      * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
      */
-    public function destroy($id)
+    public function destroy(int $id): RedirectResponse
     {
         AlertRuleFormula::destroy($id);
 

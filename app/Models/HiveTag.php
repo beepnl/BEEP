@@ -2,42 +2,33 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
-use App\User;
 use App\Hive;
+use App\User;
+use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Attributes\Hidden;
+use Illuminate\Database\Eloquent\Attributes\Table;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
+#[Table('hive_tags', 'id')]
+#[Fillable('user_id', 'tag', 'hive_id', 'action_id', 'router_link')]
+#[Hidden('id', 'created_at', 'updated_at', 'user_id')]
 class HiveTag extends Model
 {
-    /**
-     * The database table used by the model.
-     *
-     * @var string
-     */
-    protected $table = 'hive_tags';
+    protected function casts(): array
+    {
+        return [
+            'router_link' => 'array',
+        ];
+    }
 
-    /**
-    * The database primary key value.
-    *
-    * @var string
-    */
-    protected $primaryKey = 'id';
-
-    /**
-     * Attributes that should be mass-assignable.
-     *
-     * @var array
-     */
-    protected $fillable = ['user_id', 'tag', 'hive_id', 'action_id', 'router_link'];
-    protected $hidden   = ['id', 'created_at', 'updated_at', 'user_id'];
-    protected $casts    = ['router_link'=>'array'];
-
-    public function hive()
+    public function hive(): BelongsTo
     {
         return $this->belongsTo(Hive::class);
     }
-    public function user()
+
+    public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
     }
-    
 }

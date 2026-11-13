@@ -16,6 +16,7 @@ use Password;
 use Login;
 use Storage;
 use Illuminate\Support\Facades\App;
+use Illuminate\Support\Facades\Log;
 
 /**
  * @group Api\UserController
@@ -202,8 +203,15 @@ class UserController extends Controller
     */
     public function reminder(Request $request)
     {
-
-        $remind = Password::sendResetLink(['email' => $request->input('email')]);
+        try
+        {
+            $remind = Password::sendResetLink(['email' => $request->input('email')]);
+        }
+        catch (\Throwable $e) // e.g. mail transport (SES) failure
+        {
+            Log::error('Password reminder mail failed: '.$e->getMessage());
+            return Response::json(['message' => 'reminder_failed'], 500);
+        }
 
         switch($remind)
         {
@@ -215,6 +223,16 @@ class UserController extends Controller
             case Password::RESET_LINK_SENT:
                 $code = 200;
                 $response = array('message' => 'reminder_sent');
+              break;
+
+            case Password::RESET_THROTTLED:
+                $code     = 429;
+                $response = array('message' => 'reminder_throttled');
+              break;
+
+            default:
+                $code     = 500;
+                $response = array('message' => 'reminder_failed');
               break;
         }
 
@@ -283,6 +301,11 @@ class UserController extends Controller
                     'count'      => 1,
                     'total'      => 1, 
                 );
+              break;
+
+            default:
+                $code     = 500;
+                $response = array('message' => 'password_reset_failed');
               break;
         }
 

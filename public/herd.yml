@@ -1,0 +1,7 @@
+name: BEEP
+php: '8.0'
+secured: true
+aliases:
+    - BEEP.test
+integrations:
+    forge: {  }

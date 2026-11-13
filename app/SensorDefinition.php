@@ -48,11 +48,33 @@ class SensorDefinition extends Model
 
         self::updated(function ($c) {
             $c->forgetCache();
+            if ($c->wasChanged(['offset', 'multiplier']) && $c->input_abbr === 'w_v')
+                $c->logPreviousWeightCalibration();
         });
 
         self::deleted(function ($c) {
             $c->forgetCache();
         });
+    }
+
+    private function logPreviousWeightCalibration()
+    {
+        Log::channel('calibration')->info('weight_calibration_updated', [
+            'sensor_definition_id' => $this->id,
+            'device_id' => $this->device_id,
+            'input_measurement_id' => $this->input_measurement_id,
+            'output_measurement_id' => $this->output_measurement_id,
+            'previous' => [
+                'offset' => $this->getOriginal('offset'),
+                'multiplier' => $this->getOriginal('multiplier'),
+            ],
+            'current' => [
+                'offset' => $this->offset,
+                'multiplier' => $this->multiplier,
+            ],
+            'previous_updated_at' => $this->getOriginal('updated_at'),
+            'current_updated_at' => $this->updated_at,
+        ]);
     }
 
     public function forgetCache()

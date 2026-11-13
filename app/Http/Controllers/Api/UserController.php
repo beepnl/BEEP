@@ -10,6 +10,7 @@ use Illuminate\Auth\Events\Login as ApiTokenLogin;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\App;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 use Login;
@@ -190,8 +191,13 @@ class UserController extends Controller
      */
     public function reminder(Request $request)
     {
+        try {
+            $remind = Password::sendResetLink(['email' => $request->input('email')]);
+        } catch (\Throwable $e) { // e.g. mail transport (SES) failure
+            Log::error('Password reminder mail failed: '.$e->getMessage());
 
-        $remind = Password::sendResetLink(['email' => $request->input('email')]);
+            return Response::json(['message' => 'reminder_failed'], 500);
+        }
 
         switch ($remind) {
             case Password::INVALID_USER:
@@ -202,6 +208,16 @@ class UserController extends Controller
             case Password::RESET_LINK_SENT:
                 $code = 200;
                 $response = ['message' => 'reminder_sent'];
+                break;
+
+            case Password::RESET_THROTTLED:
+                $code = 429;
+                $response = ['message' => 'reminder_throttled'];
+                break;
+
+            default:
+                $code = 500;
+                $response = ['message' => 'reminder_failed'];
                 break;
         }
 
@@ -267,6 +283,11 @@ class UserController extends Controller
                     'count' => 1,
                     'total' => 1,
                 ];
+                break;
+
+            default:
+                $code = 500;
+                $response = ['message' => 'password_reset_failed'];
                 break;
         }
 

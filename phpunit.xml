@@ -8,13 +8,19 @@
          convertWarningsToExceptions="true"
          processIsolation="false"
          stopOnFailure="false">
-    <testsuites>
-        <testsuite name="Unit">
-            <directory suffix="Test.php">./tests/Unit</directory>
-        </testsuite>
+    <!--
+        Single suite scanning ./tests recursively. The previous config pointed
+        at ./tests/Unit and ./tests/Feature, neither of which existed, so
+        `phpunit` could not collect anything. Git cannot track empty
+        directories, so pointing at non-existent paths is not an option.
 
-        <testsuite name="Feature">
-            <directory suffix="Test.php">./tests/Feature</directory>
+        PHPUnit walks nested directories, so tests added later as
+        tests/Feature/*Test.php are picked up without changing this file.
+        Split into separate Unit/Feature suites once both actually exist.
+    -->
+    <testsuites>
+        <testsuite name="BEEP">
+            <directory suffix="Test.php">./tests</directory>
         </testsuite>
     </testsuites>
     <filter>
@@ -22,6 +28,16 @@
             <directory suffix=".php">./app</directory>
         </whitelist>
     </filter>
+    <!--
+        The database settings below point the suite at a throwaway schema.
+
+        Without them the suite inherits DB_* from .env, so `phpunit` runs
+        against the development database. Two things then go wrong: seeded
+        reference rows leak into assertions, and the suite writes to a
+        developer's real data. PHPUnit only applies a value when the
+        variable is not already set, so CI can override any of these by
+        exporting the matching variable first.
+    -->
     <php>
         <env name="APP_ENV" value="testing"/>
         <env name="BCRYPT_ROUNDS" value="4"/>
@@ -29,5 +45,12 @@
         <env name="MAIL_DRIVER" value="array"/>
         <env name="QUEUE_CONNECTION" value="sync"/>
         <env name="SESSION_DRIVER" value="array"/>
+
+        <env name="DB_CONNECTION" value="mysql"/>
+        <env name="DB_DATABASE" value="bee_data_test"/>
+        <env name="DB_USERNAME" value="root"/>
+        <env name="DB_PASSWORD" value="secret"/>
+        <env name="DB_HOST" value="127.0.0.1"/>
+        <env name="DB_PORT" value="3306"/>
     </php>
 </phpunit>

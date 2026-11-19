@@ -1,0 +1,226 @@
+# BEEP API - Continuous Integration
+#
+# Design note (phase 0): this pipeline is deliberately built so that the
+# "validate" job is guaranteed to pass on a clean checkout of master. Advisory
+# jobs are marked with `continue-on-error: true` and are expected to fail or
+# report findings until they are baselined in a later phase.
+#
+# PHP 7.4 / Laravel 6 is pinned to match the versions currently locked in
+# composer.lock. The toolchain is upgraded in the phase 3 upgrade, not here.
+
+name: CI
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # ------------------------------------------------------------------
+  # Blocking job: cheap, deterministic, must stay green.
+  # ------------------------------------------------------------------
+  validate:
+    name: Validate
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        # NOTE: PHP 7.4 is EOL and may eventually be dropped from the runner
+        # image. If this step starts failing to find 7.4, pin an older runner
+        # (e.g. ubuntu-22.04) or switch the job to `container: php:7.4-cli`.
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '7.4'
+          extensions: mbstring, pdo, pdo_mysql, tokenizer, xml, json, curl, zip, bcmath
+          coverage: none
+          tools: composer:v2
+
+      - name: Cache Composer downloads
+        uses: actions/cache@v4
+        with:
+          path: ~/.composer/cache
+          key: composer-${{ runner.os }}-${{ hashFiles('composer.lock') }}
+          restore-keys: composer-${{ runner.os }}-
+
+      - name: Validate composer.json schema
+        # Not --strict: composer reports the unbound ">=7.4" constraint as a
+        # warning, which should not fail an otherwise clean build.
+        run: composer validate --no-interaction
+
+      - name: Install dependencies
+        # --no-scripts skips the `artisan package:discover` post-autoload hook,
+        # so this job does not depend on the application booting.
+        run: composer install --no-interaction --prefer-dist --no-progress --no-scripts
+
+      - name: PHP syntax check
+        run: |
+          errors=$(find app config database routes tests -name '*.php' -exec php -l {} \; \
+                   | grep -v '^No syntax errors' || true)
+          if [ -n "$errors" ]; then
+            echo "::error::PHP syntax errors found:"
+            echo "$errors"
+            exit 1
+          fi
+          echo "PHP syntax OK"
+
+      - name: Application boots
+        run: php artisan --version
+
+      # PHPUnit lives in the "test" job below. It needs a MySQL server,
+      # because the schema is built by BEEP's own migrations and its taxonomy
+      # migration loads a MySQL-specific SQL dump, so it cannot run against
+      # SQLite. Keeping it out of this job leaves "validate" free of any
+      # database dependency.
+
+  # ------------------------------------------------------------------
+  # API tests.
+  #
+  # The suite was run against the stack this repository actually locks to -
+  # PHP 7.4.33 and MySQL 5.7.44 - where it passes: 61 tests, 258 assertions,
+  # roughly 50 seconds. So this one blocks, unlike the two jobs below it.
+  # ------------------------------------------------------------------
+  test:
+    name: API tests
+    runs-on: ubuntu-latest
+
+    services:
+      mysql:
+        image: mysql:5.7
+        env:
+          MYSQL_ROOT_PASSWORD: secret
+          # phpunit.xml points DB_DATABASE at bee_data_test. The service has
+          # to create it; RefreshDatabase then migrates it from scratch.
+          MYSQL_DATABASE: bee_data_test
+        ports:
+          - '3306:3306'
+        options: >-
+          --health-cmd="mysqladmin ping"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=10
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '7.4'
+          extensions: mbstring, pdo, pdo_mysql, tokenizer, xml, json, curl, zip, bcmath, gd
+          tools: composer:v2
+
+      - name: Configure environment
+        # phpunit.xml supplies the DB_* defaults; these cover the rest.
+        run: |
+          cp .env.example .env
+          php artisan key:generate
+          sed -i 's/^DB_HOST=.*/DB_HOST=127.0.0.1/' .env
+          sed -i 's/^CACHE_DRIVER=.*/CACHE_DRIVER=array/' .env
+          sed -i 's/^SESSION_DRIVER=.*/SESSION_DRIVER=array/' .env
+          sed -i 's/^QUEUE_CONNECTION=.*/QUEUE_CONNECTION=sync/' .env
+
+      - name: Install dependencies
+        run: composer install --no-interaction --prefer-dist --no-progress
+
+      - name: PHPUnit
+        # The suite runs about 60 tests in well under a minute, so there is
+        # nothing to split.
+        run: vendor/bin/phpunit --testdox
+
+  # ------------------------------------------------------------------
+  # Advisory job: proves the schema can be built from scratch.
+  # Not blocking yet because migrations include legacy data migrations whose
+  # behaviour on an empty database has not been verified.
+  # ------------------------------------------------------------------
+  migrate:
+    name: Migrate (advisory)
+    runs-on: ubuntu-latest
+    continue-on-error: true
+
+    services:
+      mysql:
+        image: mysql:5.7
+        env:
+          MYSQL_ROOT_PASSWORD: secret
+          MYSQL_DATABASE: bee_data
+        ports:
+          - '3306:3306'
+        options: >-
+          --health-cmd="mysqladmin ping"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=10
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '7.4'
+          extensions: mbstring, pdo, pdo_mysql, tokenizer, xml, json, curl, zip, bcmath, gd
+          tools: composer:v2
+
+      - name: Install dependencies
+        run: composer install --no-interaction --prefer-dist --no-progress
+
+      - name: Configure environment
+        run: |
+          cp .env.example .env
+          php artisan key:generate
+          # .env.example ships docker-compose hostnames; CI talks to a local
+          # MySQL service instead.
+          sed -i 's/^DB_HOST=.*/DB_HOST=127.0.0.1/' .env
+          sed -i 's/^CACHE_DRIVER=.*/CACHE_DRIVER=array/' .env
+          sed -i 's/^SESSION_DRIVER=.*/SESSION_DRIVER=array/' .env
+          sed -i 's/^QUEUE_CONNECTION=.*/QUEUE_CONNECTION=sync/' .env
+
+      - name: Run migrations
+        run: php artisan migrate --force --no-interaction
+
+  # ------------------------------------------------------------------
+  # Advisory job: dependency vulnerability report.
+  # Not blocking yet - the pinned Laravel 6 / PHP 7.4 dependency tree is known
+  # to contain advisories. This job surfaces the list so a baseline can be
+  # agreed on; it should become blocking-on-regression later.
+  # ------------------------------------------------------------------
+  security:
+    name: Dependency audit (advisory)
+    runs-on: ubuntu-latest
+    continue-on-error: true
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Composer
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '7.4'
+          tools: composer:v2
+
+      - name: composer audit
+        # Reads composer.lock only, so no vendor install is required.
+        run: |
+          set +e
+          composer audit --no-interaction --format=plain
+          code=$?
+          echo "composer audit exit code: $code"
+          if [ "$code" -ne 0 ]; then
+            echo "::warning::composer audit reported findings (expected on Laravel 6)."
+          fi
+          exit 0

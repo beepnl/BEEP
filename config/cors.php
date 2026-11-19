@@ -1,5 +1,26 @@
 <?php
 
+/*
+|--------------------------------------------------------------------------
+| Allowed Origins
+|--------------------------------------------------------------------------
+|
+| ALLOWED_ORIGINS in .env is a comma separated list of EXACT origins, e.g.
+|
+|   ALLOWED_ORIGINS="https://app.beep.nl,https://my-dashboard.example.com"
+|
+| The underlying stack (asm89/stack-cors) matches these values literally.
+| Only the single value * means "allow every origin"; a subdomain wildcard
+| such as *.beep.nl does NOT match anything. If you need wildcards, put a
+| regular expression in 'allowed_origins_patterns' below instead.
+|
+*/
+
+$allowed_origins = array_values(array_filter(array_map(
+    'trim',
+    explode(',', (string) env('ALLOWED_ORIGINS', 'https://app.beep.nl'))
+)));
+
 return [
 
     /*
@@ -31,7 +52,7 @@ return [
     /*
      * Matches the request origin. `['*']` allows all origins. Wildcards can be used, eg `*.mydomain.com`
      */
-    'allowed_origins' => [env('ALLOWED_ORIGINS', '*.beep.nl')],
+    'allowed_origins' => $allowed_origins,
 
     /*
      * Patterns that can be used with `preg_match` to match the origin.

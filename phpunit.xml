@@ -8,13 +8,19 @@
          convertWarningsToExceptions="true"
          processIsolation="false"
          stopOnFailure="false">
-    <testsuites>
-        <testsuite name="Unit">
-            <directory suffix="Test.php">./tests/Unit</directory>
-        </testsuite>
+    <!--
+        Single suite scanning ./tests recursively. The previous config pointed
+        at ./tests/Unit and ./tests/Feature, neither of which existed, so
+        `phpunit` could not collect anything. Git cannot track empty
+        directories, so pointing at non-existent paths is not an option.
 
-        <testsuite name="Feature">
-            <directory suffix="Test.php">./tests/Feature</directory>
+        PHPUnit walks nested directories, so tests added later as
+        tests/Feature/*Test.php are picked up without changing this file.
+        Split into separate Unit/Feature suites once both actually exist.
+    -->
+    <testsuites>
+        <testsuite name="BEEP">
+            <directory suffix="Test.php">./tests</directory>
         </testsuite>
     </testsuites>
     <filter>

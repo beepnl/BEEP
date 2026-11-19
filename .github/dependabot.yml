@@ -1,0 +1,41 @@
+# Dependabot - automated dependency updates
+#
+# Two update streams:
+#   * security updates: patches versions with a known advisory
+#   * version updates: in-range bumps allowed by the constraints in composer.json
+#
+# Note: composer.json pins laravel/framework to ^6.2, which is already at its
+# final release (6.20.45, EOL). Dependabot therefore cannot propose a Laravel
+# upgrade for us - that is a deliberate, manual phase 3 effort. What it can do
+# is keep the rest of the dependency tree current within the allowed ranges.
+
+version: 2
+
+updates:
+  - package-ecosystem: composer
+    directory: '/'
+    schedule:
+      interval: weekly
+      day: monday
+      time: '06:00'
+      timezone: Europe/Amsterdam
+    open-pull-requests-limit: 5
+    labels:
+      - dependencies
+      - security
+    commit-message:
+      prefix: 'composer'
+      prefix-development: 'composer dev'
+    # Keep pull requests reviewable and grouped instead of one-per-bump.
+    groups:
+      dev-dependencies:
+        applies-to: version-updates
+        patterns:
+          - '*'
+        dependency-type: development
+    ignore:
+      # Root package constraints we must not silently bump; the Laravel 6 to 13
+      # upgrade is handled manually so it can be staged and tested.
+      - dependency-name: laravel/framework
+        update-types:
+          - version-update:semver-major
